@@ -1,0 +1,8 @@
+program
+  filter: nearest
+  vertex: advanced-aa.vs
+  fragment: advanced-aa.fs
+  
+output
+  width: 0
+  height: 0

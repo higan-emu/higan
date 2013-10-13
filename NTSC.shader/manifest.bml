@@ -1,0 +1,28 @@
+program
+  filter: nearest
+  format: rgba16f
+  width: 1024
+  height: 100%
+  modulo: 2
+  fragment: ntsc-0.fs
+  
+program
+  filter: nearest
+  format: rgba16f
+  width: 100%
+  height: 100%
+  modulo: 2
+  fragment: ntsc-1.fs
+  
+program
+  filter: nearest
+  width: 50%
+  height: 100%
+  modulo: 2
+  vertex: ntsc-2.vs
+  fragment: ntsc-2.fs
+  
+output
+  filter: linear
+  width: 0
+  height: 0
