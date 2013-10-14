@@ -1,0 +1,6 @@
+program
+  vertex: integer-scale.vs
+  
+program
+  fragment: mix.fs
+  pixmap: border.png
