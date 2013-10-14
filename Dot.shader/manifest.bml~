@@ -1,0 +1,23 @@
+program
+  vertex: dots.vs
+  fragment: dots.fs
+
+program
+  fragment: pass0.fs
+//  vertex: pass0glsl.vs
+  pixmap: palette.png
+    filter: linear
+    wrap: repeat
+  modulo: 1
+
+program
+  fragment: pass1.fs
+  pixmap: palette.png
+    filter: nearest
+    wrap: repeat
+  pixmap: background.png
+    filter: linear
+    wrap: repeat
+
+history
+  frames: 7
