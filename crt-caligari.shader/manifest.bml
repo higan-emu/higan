@@ -1,0 +1,3 @@
+program
+	filter: nearest
+	fragment: crt-caligari.fs
