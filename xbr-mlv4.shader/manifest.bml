@@ -2,21 +2,19 @@ program
 	width: 100%
 	height: 100%
 	filter: nearest
-	vertex: xbr-mlv4-pass1.vs
 	fragment: xbr-mlv4-pass1.fs
 program
 	width: 100%
 	height: 100%
 	filter: nearest
-	vertex: xbr-mlv4-pass2.vs
 	fragment: xbr-mlv4-pass2.fs
 program
 	width: 200%
 	height: 200%
 	filter: nearest
-	vertex: xbr-mlv4-pass3.vs
 	fragment: xbr-mlv4-pass3.fs
 program
 	filter: nearest
-	vertex: xbr-mlv4-pass4.vs
 	fragment: xbr-mlv4-pass4.fs
+output
+	filter: nearest
