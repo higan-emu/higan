@@ -8,21 +8,21 @@ in Vertex {
 
 out vec4 fragColor;
 
-const float saturation = 1.0;
-const float gamma = 1.5;
-const float luminance = 1.0;
+#define monitor_gamma 2.2
+#define crt_gamma 2.4
+#define saturation 1.0
+#define luminance 1.0
 
-vec3 grayscale(vec3 col)
+vec3 desaturate(vec3 col)
 {
-   // Non-conventional way to do grayscale,
-   // but bSNES uses this as grayscale value.
-   return vec3(dot(col, vec3(0.3333)));
+   return vec3(dot(col, vec3(0.2126, 0.7152, 0.0722)));
 }
 
-void main() {
-   vec3 res = texture2D(source[0], texCoord).xyz;
-   res = mix(grayscale(res), res, saturation); // Apply saturation
-   res = pow(res, vec3(gamma)); // Apply gamma
+vec3 gamma = vec3(1.0 - (crt_gamma - monitor_gamma));
 
-  fragColor = vec4(clamp(res * luminance, 0.0, 1.0), 1.0);
+void main() {
+   vec3 res = texture(source[0], texCoord).rgb;
+   res = mix(desaturate(res), res, saturation);
+   res = pow(res, 1.0 / gamma.rgb);
+   fragColor = vec4(clamp(res * luminance, 0.0, 1.0), 1.0);
 }
