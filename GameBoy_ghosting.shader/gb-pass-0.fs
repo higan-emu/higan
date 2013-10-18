@@ -36,7 +36,8 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 #define foreground_color texture(pixmap[0], vec2(0.75, 0.5)).rgb					//hardcoded to look up the foreground color from the right half of the palette image
-#define rgb_to_alpha(rgb) ( ((rgb.r + rgb.g + rgb.b) / 3.0) + (is_on_dot * baseline_alpha) )		//averages rgb values (allows it to work with color games), modified for contrast and base alpha
+// #define rgb_to_alpha(rgb) ( ((rgb.r + rgb.g + rgb.b) / 3.0) + (is_on_dot * baseline_alpha) )		//averages rgb values (allows it to work with color games), modified for contrast and base alpha
+#define rgb_to_alpha(rgb) ( ((0.2126*rgb.r + 0.7152*rgb.g + 0.0722*rgb.b) ) + (is_on_dot * baseline_alpha) )	//modified formula
 
 
 #ifdef HIGAN_FORCE_MONOCHROME_GB
