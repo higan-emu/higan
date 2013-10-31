@@ -9,6 +9,11 @@ uniform vec4 sourceSize[];
 uniform vec4 targetSize;
 uniform int phase;
 
+// comment the following line to disable gamma correction
+#define GAMMA_CORRECTION
+#define CRT_GAMMA 2.5
+#define MONITOR_GAMMA 2.0
+
 // begin ntsc-decode-filter-3phase.inc //
 
 #define TAPS 24
@@ -70,8 +75,6 @@ const float chroma_filter_[TAPS + 1] = float[TAPS + 1](
 
 #define fetch_offset(offset, one_x) \
    texture(source[0], texCoord + vec2((offset) * (one_x), 0.0)).xyz
-#define CRT_GAMMA 2.5
-#define MONITOR_GAMMA 2.0
 
 // NTSC RGB>YUV //
 
@@ -124,6 +127,11 @@ signal += texture(source[0], texCoord).xyz *
 
 // END NTSC PASS3 DECODE //
    vec3 rgb = yiq2rgb(signal);
+   
+#ifdef GAMMA_CORRECTION
+   vec3 gamma = vec3(CRT_GAMMA / MONITOR_GAMMA);
+   rgb = pow(rgb, gamma.rgb);
+#endif
 
 fragColor = vec4(rgb, 1.0);
 }
