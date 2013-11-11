@@ -35,7 +35,7 @@ uniform vec4 targetSize;
       vec3 lookup(float offset_x, float offset_y, vec2 texCoord)
       {
          vec2 offset = vec2(offset_x, offset_y);
-         vec3 color = texture2D(source[0], texCoord).rgb;
+         vec3 color = texture(source[0], texCoord).rgb;
          float delta = dist(fract(pixel_no), offset + vec2(0.5));
          return color * exp(-gamma * delta * color_bloom(color));
       }
