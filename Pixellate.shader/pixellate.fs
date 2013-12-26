@@ -10,7 +10,7 @@ in Vertex {
 out vec4 fragColor;
 
 void main() {
-      vec2 texelSize = 1.0 / sourceSize[0];
+      vec2 texelSize = 1.0 * sourceSize[0].zw;
 //      vec2 texCoord = vec2(texCoord[0].x, texCoord[0].y);
 
       vec2 range = vec2(abs(dFdx(texCoord.x)), abs(dFdy(texCoord.y)));
