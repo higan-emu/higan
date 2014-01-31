@@ -1,0 +1,26 @@
+input
+  filter: nearest
+  format: rgba16f
+
+comment: uncomment the following line to use cgwg's scanlines with interlacing detection
+program
+  filter: linear
+  width: 0
+  height: 0
+  modulo: 2
+  fragment: cgwg-scanlines-interlaced.fs
+  
+comment: uncomment the following line to use cgwg's dot-mask emulation  
+program
+  filter: linear
+  fragment: dot-mask.fs
+
+comment: uncomment the following line to use cgwg's rounded corners
+program
+  filter: linear
+  fragment: corner.fs
+
+comment: uncomment the following line to add screen curvature  
+program
+  filter: linear
+  fragment: curvature.fs
