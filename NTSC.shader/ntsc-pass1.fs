@@ -48,7 +48,7 @@ mat3 mix_mat = mat3(
 // END "ntsc-param.inc" //
 
 // moved from vertex
-#define pix_no (texCoord * sourceSize[0] * (targetSize / sourceSize[0]))
+#define pix_no (texCoord.xy * sourceSize[0].xy * (targetSize.xy / sourceSize[0].xy))
 
 in Vertex {
   vec2 texCoord;

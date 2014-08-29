@@ -6,7 +6,9 @@
 
 #define DISPLAY_GAMMA 2.1
 #define CRT_GAMMA 2.5
-#define TEX(off) pow(texture(source[0], texCoord + vec2(0.0, (off) * one.x)).rgb, vec3(CRT_GAMMA)) //this originally uses one.y, but that makes weird lines for some reason :/
+#define one (sourceSize[0]) //this is set to 1.0 / sourceSize[0] in the original version, but I think this looks better
+#define pix_no texCoord.y * sourceSize[0]
+#define TEX(off) pow(texture(source[0], texCoord - vec2(0.0, (off) * one.y)).rgb, vec3(CRT_GAMMA))
 
 uniform sampler2D source[];
 uniform vec4 sourceSize[];
@@ -19,8 +21,6 @@ in Vertex {
 out vec4 fragColor;
 
 void main() {
-vec2 pix_no = texCoord * sourceSize[0];
-vec2 one = 1.0 / sourceSize[0];
 
    vec3 frame0 = TEX(-2.0);
    vec3 frame1 = TEX(-1.0);

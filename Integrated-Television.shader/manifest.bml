@@ -2,6 +2,10 @@ input
   filter: nearest
   format: rgba16f
 
+output
+  filter: nearest
+  format: rgba16f
+
 comment: comment the following three passes to disable NTSC signal emulation
 program
   filter: nearest
@@ -24,14 +28,15 @@ program
   height: 100%
 
 comment: uncomment the following line to use maister's gaussian scanlines; NOTE: only enable one of the scanline shaders at a time
-program
+comment: program
+  fragment: gaussian-scanlines.fs
   filter: linear
   width: 0
   height: 0
-  fragment: gaussian-scanlines.fs
 
-comment: uncomment the following line to use cgwg's scanlines; NOTE: only enable one of the scanline shaders at a time
-comment:program
+
+comment: uncomment the following line to use cgwg's scanlines (supports interlacing detection); NOTE: only enable one of the scanline shaders at a time
+program
   filter: linear
   width: 0
   height: 0
@@ -39,7 +44,7 @@ comment:program
   fragment: cgwg-scanlines-interlaced.fs
 
 comment: uncomment the following line to emulate a black and white television
-program
+comment: program
   fragment: black-and-white.fs
   
 comment: uncomment the following line to use cgwg's dot-mask emulation  

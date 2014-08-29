@@ -27,3 +27,7 @@ program
   width: 0
   height: 0
   fragment: gaussian-scanlines.fs
+  
+output
+  filter: nearest
+  format: rgba16f

@@ -196,7 +196,7 @@ void main()
   vec2 ilvec = vec2(0.0,ilfac.y > 1.5 ? mod(float(phase),2.0) : 0.0);
   vec2 ratio_scale = (xy * sourceSize[0].xy - vec2(0.5) + ilvec)/ilfac;
 #ifdef OVERSAMPLE
-  float filter_ = fwidth(ratio_scale.y);
+  float filter_ = sourceSize[0].y / targetSize.y;
 #endif
   vec2 uv_ratio = fract(ratio_scale);
 

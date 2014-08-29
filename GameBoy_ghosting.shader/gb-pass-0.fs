@@ -47,20 +47,20 @@
 #endif
 
 #define curr_rgb  abs(1 - TEX(source[0], texCoord).rgb)
-#define prev0_rgb abs(1 - TEX(frame[0], texCoord).rgb)
-#define prev1_rgb abs(1 - TEX(frame[1], texCoord).rgb)
-#define prev2_rgb abs(1 - TEX(frame[2], texCoord).rgb)
-#define prev3_rgb abs(1 - TEX(frame[3], texCoord).rgb)
-#define prev4_rgb abs(1 - TEX(frame[4], texCoord).rgb)
-#define prev5_rgb abs(1 - TEX(frame[5], texCoord).rgb)
-#define prev6_rgb abs(1 - TEX(frame[6], texCoord).rgb)
+#define prev0_rgb abs(1 - TEX(history[0], texCoord).rgb)
+#define prev1_rgb abs(1 - TEX(history[1], texCoord).rgb)
+#define prev2_rgb abs(1 - TEX(history[2], texCoord).rgb)
+#define prev3_rgb abs(1 - TEX(history[3], texCoord).rgb)
+#define prev4_rgb abs(1 - TEX(history[4], texCoord).rgb)
+#define prev5_rgb abs(1 - TEX(history[5], texCoord).rgb)
+#define prev6_rgb abs(1 - TEX(history[6], texCoord).rgb)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //fragment shader                                                                                                                         //
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 uniform sampler2D source[];
-uniform sampler2D frame[];
+uniform sampler2D history[];
 uniform sampler2D pixmap[];
 uniform vec4 sourceSize[];
 uniform vec4 targetSize;
@@ -82,7 +82,7 @@ void main(void) {
 				   float(texCoord.y<=1.0);
 
 
-  //sample color from the current and previous frames, apply response time modifier
+  //sample color from the current and previous historys, apply response time modifier
   //response time effect implmented through an exponential dropoff algorithm
 
     vec3 input_rgb = curr_rgb;

@@ -10,7 +10,8 @@ in Vertex {
   vec2 texCoord;
 };
 
-//#define MONOCHROME //emulates a black-and-white television
+//emulates a black-and-white television
+//#define MONOCHROME
 
 out vec4 fragColor;
 
@@ -20,7 +21,7 @@ vec3 desaturate(vec3 col)
 }
 
 void main() {
-vec3 screen = texture(source[0], texCoord);
+vec3 screen = texture(source[0], texCoord).rgb;
 
 #ifdef MONOCHROME
 screen = desaturate(screen);

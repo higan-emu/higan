@@ -1,4 +1,8 @@
-program
+history
+  frames: 8
+  
+comment: Motion blur is broken right now :/
+comment: program
   fragment: motionblur-simple.fs
   
 program

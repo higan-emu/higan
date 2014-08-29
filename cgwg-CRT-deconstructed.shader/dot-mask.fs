@@ -20,7 +20,7 @@ vec3 desaturate(vec3 col)
 }
 
 void main() {
-vec3 screen = texture(source[0], texCoord);
+vec3 screen = texture(source[0], texCoord).rgb;
 
 #ifdef MONOCHROME
 screen = desaturate(screen);
