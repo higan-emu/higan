@@ -63,8 +63,7 @@ vec3 ToSrgb(vec3 c){return vec3(ToSrgb1(c.r),ToSrgb1(c.g),ToSrgb1(c.b));}
 // Nearest emulated sample given floating point position and texel offset.
 // Also zero's off screen.
 vec3 Fetch(vec2 pos,vec2 off){
-  pos=floor(pos*res+off)/res;
-  if(max(abs(pos.x-0.5),abs(pos.y-0.5))>0.5)return vec3(0.0,0.0,0.0);
+  pos=(floor(pos*res+off)+vec2(0.5,0.5))/res;
   return ToLinear(1.2 * texture(source[0],pos.xy,-16.0).rgb);}
 
 // Distance in emulated pixels to nearest texel.
