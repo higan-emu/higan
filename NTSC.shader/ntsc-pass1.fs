@@ -95,7 +95,7 @@ float i_mod = cos(mod_phase);
 float q_mod = sin(mod_phase);
 
 yiq.yz *= vec2(i_mod, q_mod); // Modulate
-yiq = mul(mix_mat, yiq); // Cross-talk
+yiq *= mix_mat; // Cross-talk
 yiq.yz *= vec2(i_mod, q_mod); // Demodulate
 
 fragColor = vec4(yiq, 1.0);
