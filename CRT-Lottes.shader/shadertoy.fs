@@ -136,7 +136,7 @@ vec3 Mask(vec2 pos){
   return mask;}    
 
 void main() {
-    vec2 pos=Warp(gl_FragCoord.xy/targetSize.xy);
+    vec2 pos = gl_FragCoord.xy/targetSize.xy;
       hardScan=-12.0;
 //      maskDark=maskLight;
       pos=Warp(gl_FragCoord.xy/targetSize.xy);
