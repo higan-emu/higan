@@ -64,5 +64,5 @@ program
   wrap: edge
   vertex: scaleY.vs
   fragment: scaleY.fs
-output
+input
   filter: nearest
