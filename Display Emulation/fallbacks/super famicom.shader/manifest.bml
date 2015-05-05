@@ -1,0 +1,7 @@
+settings
+  //coloremulation
+input
+  filter: nearest
+  wrap: border
+program
+  fragment: super-famicom.fs

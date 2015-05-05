@@ -1,5 +1,6 @@
 settings
-  forceMonochromeGameBoy
+  palette: yellow
+//  forceMonochromeGameBoy
   blend
   spacing: 0.045
   shadowOffsetX: 0.4
@@ -13,6 +14,11 @@ settings
 history
   frames: 7
   filter: nearest
+program
+  width: 100%
+  height: 100%
+  filter: nearest
+  fragment: game-boy.fs  
 program
   width: 100%
   height: 100%
@@ -30,7 +36,7 @@ program
   wrap: border
   vertex: pass3.vs
   fragment: pass3.fs
-input
+intput
   filter: nearest
   
   
