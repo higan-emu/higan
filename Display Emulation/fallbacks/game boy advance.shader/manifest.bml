@@ -6,9 +6,4 @@ input
   filter: nearest
   wrap: border
 program
-  filter: nearest
   fragment: game-boy-advance.fs
-  
-comment:program
-  filter: nearest
-  fragment: lcd-grid.fs
