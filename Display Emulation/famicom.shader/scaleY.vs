@@ -8,7 +8,6 @@
 
 #in cropOverscan
 
-
 in vec4 position;
 in vec2 texCoord;
 
@@ -25,5 +24,5 @@ void main(void){
 	gl_Position=position;
 #endif
 	
-	vertexOut.texCoord=texCoord;		
+	vertexOut.texCoord=texCoord;	
 }

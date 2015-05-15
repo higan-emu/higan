@@ -6,12 +6,10 @@
 //	License: GPLv3      
 ////////////////////////////////////////////////////////
 
-
 #in cropOverscan
-// #define cropOverscan
 
 uniform vec4 targetSize;
-uniform int  phase;
+uniform int 		phase;
 
 in vec4 position;
 in vec2 texCoord;

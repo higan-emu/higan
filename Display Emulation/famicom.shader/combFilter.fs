@@ -16,16 +16,25 @@ in Vertex {
 };
 out vec4 fragColor;
 #define pi			3.14159265358
-#define GET_LEVEL(X) ((X)*(255.0f / (128.0f*(1.962f-.518f)))-(.518f / (1.962f-.518f)))
+
+#in combFilter
 
 void main() {
+
+	float current=texture(source[0],texCoord.xy).r;	
 	
-	float input=GET_LEVEL(texture(source[0],texCoord.xy).r);
-	float signal=0.5f*(input+GET_LEVEL(texture(source[0],texCoord.xy-vec2(6.0*targetSize.z,0.0)).r));
-	
-	float chromaSignal=input-signal;
+#ifdef combFilter
+	float prev6=texture(source[0],texCoord.xy-vec2(6.0*targetSize.z,0.0));
+	float signal=(current+prev6)/2.0;
+	float chromaSignal=current-signal;
 	float I = chromaSignal * cos (colorPhase * (2.0 * pi / 12.0))*2.0;
 	float Q = chromaSignal * sin (colorPhase * (2.0 * pi / 12.0))*2.0;	
-
-	fragColor.rgb = vec3(signal,I+0.5,Q+0.5);
+	
+#else
+	float signal=current;
+	float I = signal * cos (colorPhase * (2.0 * pi / 12.0))*2.0;
+	float Q = signal * sin (colorPhase * (2.0 * pi / 12.0))*2.0;
+#endif
+	
+	fragColor = vec4(signal,I,Q,1.0);	
 }

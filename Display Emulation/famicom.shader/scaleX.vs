@@ -11,7 +11,6 @@
 in vec4 position;
 in vec2 texCoord;
 
-
 out Vertex{
 	vec2 texCoord;
 }vertexOut;
