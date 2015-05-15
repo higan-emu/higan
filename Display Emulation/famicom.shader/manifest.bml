@@ -39,7 +39,7 @@ settings
     max: 0.5
     step: 0.01  
   addNoise
-  noiseStrengh: 0.3
+  noiseStrengh: 0.0
     min: 0.0
     max: 1.0
     step: 0.001  
