@@ -2,6 +2,7 @@
 
 // AntiAliased Nearest Neighbor
 // by jimbo1qaz and wareya
+// Licensed MIT
 
 precision highp float;
 
