@@ -29,10 +29,10 @@ vec4 getLQV(vec3 mine) {
     ( mine.r
     , mine.g
     , mine.b
-    ,(mine.r + mine.g + mine.b)/3);
+    , mine.r*0.2989 + mine.g*0.5870 + mine.b*0.1140);
 }
 vec3 fromLQV(vec4 mine) {
-    float f = mine.w/(mine.r + mine.g + mine.b)*3;
+    float f = mine.w/(mine.r*0.2989 + mine.g*0.5870 + mine.b*0.1140);
     return vec3(mine.rgb)*f;
 }
 
