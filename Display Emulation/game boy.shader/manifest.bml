@@ -1,5 +1,4 @@
 settings
-  palette: yellow
 //  forceMonochromeGameBoy
   blend
   spacing: 0.045
@@ -9,16 +8,13 @@ settings
   baselineAlpha: 0.1
   shadowOpacity: 0.55
   foregroundColor: (vec3(20.0,60.0,40.0)/255.0)
-  backgroundColor: (vec3(150.0,190.0,40.0)/255.0)
-  responseTime: 0.333	
-history
-  frames: 7
+  backgroundColor: (vec3(170.0,190.0,40.0)/255.0)
+  persistence: 0.4999	
+
+input
   filter: nearest
-program
-  width: 100%
-  height: 100%
-  filter: nearest
-  fragment: game-boy.fs  
+  history: 8
+  wrap: border 
 program
   width: 100%
   height: 100%
@@ -36,8 +32,3 @@ program
   wrap: border
   vertex: pass3.vs
   fragment: pass3.fs
-intput
-  filter: nearest
-  
-  
-    
