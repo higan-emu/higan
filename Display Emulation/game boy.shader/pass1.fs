@@ -26,30 +26,36 @@
 #version 150
 
 #in forceMonochromeGameBoy
-#in responseTime
+#in persistence
 #in baselineAlpha
 
 
 uniform sampler2D source[];
-uniform sampler2D frame[];
+uniform sampler2D history[];
 uniform float baseline_alpha;
+
 in Vertex {
   vec2 texCoord;
 };
+
 out vec4 fragColor;
+
 #ifdef  forceMonochromeGameBoy
-#define GET_ALPHA(src,coord) (1.0-clamp(dot(texture(src, coord).rgb,vec3(31.54,-25.87,47.225)),0.0,1.0))
+#define GET_ALPHA(src,coord) (1.0-clamp((1.0 - texture(src, coord)[2])*(31.54-25.87+47.225),0.0,1.0))
 #else
-#define GET_ALPHA(src,coord) (1.0-clamp(dot(texture(src, coord).rgb,vec3(0.2126,0.7152,0.0722)),0.0,1.0))
+#define GET_ALPHA(src,coord) (1.0-clamp((1.0 - texture(src, coord)[2])*(0.2126+0.7152+0.0722),0.0,1.0))
 #endif
+
 void main(void) {	
 	float  c0=GET_ALPHA(source[0],texCoord);
-	c0+=(GET_ALPHA(frame[0],texCoord) - c0) * responseTime;
-	c0+=(GET_ALPHA(frame[0],texCoord) - c0) * pow(responseTime,2.0);
-	c0+=(GET_ALPHA(frame[0],texCoord) - c0) * pow(responseTime,3.0);
-	c0+=(GET_ALPHA(frame[0],texCoord) - c0) * pow(responseTime,4.0);
-	c0+=(GET_ALPHA(frame[0],texCoord) - c0) * pow(responseTime,5.0);
-	c0+=(GET_ALPHA(frame[0],texCoord) - c0) * pow(responseTime,6.0);
-	c0+=(GET_ALPHA(frame[0],texCoord) - c0) * pow(responseTime,7.0);
+c0 = mix(GET_ALPHA(history[6], texCoord), c0, persistence);
+c0 = mix(GET_ALPHA(history[5], texCoord), c0, persistence);
+c0 = mix(GET_ALPHA(history[4], texCoord), c0, persistence);
+c0 = mix(GET_ALPHA(history[3], texCoord), c0, persistence);
+c0 = mix(GET_ALPHA(history[2], texCoord), c0, persistence);
+c0 = mix(GET_ALPHA(history[1], texCoord), c0, persistence);
+c0 = mix(GET_ALPHA(history[0], texCoord), c0, persistence);
+c0 = mix(GET_ALPHA(source[0], texCoord), c0, persistence);
+
 	fragColor=vec4(c0*(1.0-baselineAlpha)+baselineAlpha);
 }
