@@ -1,0 +1,20 @@
+input
+  filter: nearest
+
+program
+  fragment: crt-geom.fs
+  vertex: crt-geom.vs
+  
+program
+  fragment: gaussian-horiz.fs
+
+program
+  fragment: gaussian-vert.fs
+
+program
+  fragment: combine.fs
+
+output
+  filter: linear
+
+
