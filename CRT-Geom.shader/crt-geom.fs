@@ -1,5 +1,7 @@
 #version 150
 
+//#define INTERLACED
+
 uniform sampler2D source[];
 uniform vec4 sourceSize[];
 uniform vec4 targetSize;
@@ -193,7 +195,11 @@ void main()
 
   // Of all the pixels that are mapped onto the texel we are
   // currently rendering, which pixel are we currently rendering?
+#ifdef INTERLACED
   vec2 ilvec = vec2(0.0,ilfac.y > 1.5 ? mod(float(phase),2.0) : 0.0);
+#else
+  vec2 ilvec = vec2(0.0,ilfac.y);
+#endif
   vec2 ratio_scale = (xy * sourceSize[0].xy - vec2(0.5) + ilvec)/ilfac;
 #ifdef OVERSAMPLE
   float filter_ = sourceSize[0].y / targetSize.y;
