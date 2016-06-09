@@ -1,5 +1,5 @@
 #version 150
-#define brightness 2.0
+#define halation 0.35
 
 uniform sampler2D source[];
 uniform vec4 sourceSize[];
@@ -13,9 +13,9 @@ out vec4 fragColor;
 
 void main() {
 
-vec4 image = texture2D(source[2], texCoord);
-vec4 screen = texture2D(pixmap[0], texCoord);
-vec4 previous = texture2D(source[0], texCoord);
+vec4 image = pow(texture2D(source[2], texCoord).rgba, vec4(2.2));
+vec4 previous = pow(texture2D(source[0], texCoord).rgba, vec4(2.2));
+vec4 combined = mix(previous, image, 1.0 - halation);
 
-fragColor = (previous + image) / 2.0;
+fragColor = pow(combined, vec4(1.0 / 2.2));
 }
