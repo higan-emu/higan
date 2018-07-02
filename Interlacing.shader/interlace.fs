@@ -31,7 +31,7 @@ vec4 res = texture(source[0], texCoord);
    // assume anything with a vertical resolution greater than 400 lines is interlaced
    if (sourceSize[0].y > 400.0) y = sourceSize[0].y * texCoord.y + phase;
    else
-      y = 2.0 * sourceSize[0].y * texCoord.y;
+      y = 2.00001 * sourceSize[0].y * texCoord.y;
 
    if (mod(y, 2.0) > 0.99999) fragColor = res;
    else

@@ -1,0 +1,10 @@
+input
+  filter: nearest
+
+program
+  filter: nearest
+  vertex: stock.vs
+  fragment: stock.fs
+  
+output
+  filter: linear

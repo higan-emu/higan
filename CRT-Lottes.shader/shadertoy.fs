@@ -17,7 +17,6 @@
 
 uniform sampler2D source[];
 uniform vec4 sourceSize[];
-uniform vec4 targetSize;
 uniform int phase;
 
 in Vertex {
@@ -136,10 +135,10 @@ vec3 Mask(vec2 pos){
   return mask;}    
 
 void main() {
-    vec2 pos = gl_FragCoord.xy/targetSize.xy;
+    vec2 pos = texCoord.xy * 1.0001;
       hardScan=-12.0;
 //      maskDark=maskLight;
-      pos=Warp(gl_FragCoord.xy/targetSize.xy);
+      pos=Warp(pos.xy);
     fragColor.rgb=Tri(pos)*Mask(gl_FragCoord.xy);    
   fragColor.a=1.0;
   fragColor = vec4(ToSrgb(fragColor.rgb), fragColor.a);

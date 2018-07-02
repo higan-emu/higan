@@ -1,0 +1,9 @@
+input
+  filter: nearest
+
+program
+  filter: nearest
+  fragment: aperture.fs
+  
+output
+  filter: linear

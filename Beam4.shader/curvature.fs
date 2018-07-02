@@ -1,5 +1,5 @@
 #version 150
-#define distortion 0.2
+#define distortion 0.1
 
 uniform sampler2D source[];
 uniform vec4 sourceSize[];

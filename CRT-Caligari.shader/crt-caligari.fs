@@ -1,6 +1,4 @@
-// This is a port of the shader from CG to the quark format
-// the source CG shader can be found here :
-// https://github.com/libretro/common-shaders/tree/master/handheld/gameboy
+#version 150
 
 /*
     Phosphor shader - Copyright (C) 2011 caligari.
@@ -46,10 +44,9 @@
    		w = 1.0 - w * w; \
    		w = w * w;
 
-#version 150
 uniform sampler2D source[];
 uniform vec4 sourceSize[];
-uniform vec4 targetSize;
+
 in Vertex{
 	vec2 texCoord;
 };
@@ -119,6 +116,3 @@ void main(void) {
 
     fragColor=clamp( GAMMA_OUT(color), 0.0, 1.0 );
 }
-
-
-
