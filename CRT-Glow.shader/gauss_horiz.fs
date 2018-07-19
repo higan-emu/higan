@@ -18,7 +18,7 @@ out vec4 FragColor;
 void main() {
    float texel      = floor(data_pix_no);
    float phase      = data_pix_no - texel;
-   float base_phase = phase.x - 0.5;
+   float base_phase = phase - 0.5;
    vec2 tex         = vec2((texel + 0.5) * sourceSize[0].z, vTexCoord.y);
 
    vec3 col = vec3(0.0);
