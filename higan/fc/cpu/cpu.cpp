@@ -1,6 +1,6 @@
 #include <fc/fc.hpp>
 
-namespace Famicom {
+namespace higan::Famicom {
 
 #include "memory.cpp"
 #include "timing.cpp"

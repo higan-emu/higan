@@ -1,6 +1,6 @@
 #include <ws/ws.hpp>
 
-namespace WonderSwan {
+namespace higan::WonderSwan {
 
 CPU cpu;
 #include "io.cpp"

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Emulator::Memory {
+namespace higan::Memory {
 
 inline auto mirror(uint address, uint size) -> uint {
   if(size == 0) return 0;

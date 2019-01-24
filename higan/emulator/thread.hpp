@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Emulator {
+namespace higan {
 
 struct Thread {
   enum : uintmax { Second = (uintmax)-1 >> 1 };

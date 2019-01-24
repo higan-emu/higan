@@ -1,6 +1,6 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 DSP dsp;
 
@@ -240,7 +240,7 @@ auto DSP::load() -> bool {
 
 auto DSP::power(bool reset) -> void {
   create(Enter, system.apuFrequency());
-  stream = Emulator::audio.createStream(2, frequency() / 768.0);
+  stream = audio.createStream(2, frequency() / 768.0);
 
   if(!reset) random.array(apuram, sizeof(apuram));
 

@@ -1,6 +1,6 @@
 #include <fc/fc.hpp>
 
-namespace Famicom {
+namespace higan::Famicom {
 
 ControllerPort controllerPort1;
 ControllerPort controllerPort2;

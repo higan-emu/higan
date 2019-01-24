@@ -1,6 +1,6 @@
 #include <ngp/ngp.hpp>
 
-namespace NeoGeoPocket {
+namespace higan::NeoGeoPocket {
 
 APU apu;
 #include "serialization.cpp"

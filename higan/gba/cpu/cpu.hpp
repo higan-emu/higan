@@ -1,4 +1,4 @@
-struct CPU : Processor::ARM7TDMI, Thread, IO {
+struct CPU : ARM7TDMI, Thread, IO {
   struct Interrupt { enum : uint {
     VBlank       = 0x0001,
     HBlank       = 0x0002,

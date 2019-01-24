@@ -1,6 +1,6 @@
 #include <ms/ms.hpp>
 
-namespace MasterSystem {
+namespace higan::MasterSystem {
 
 Cartridge cartridge;
 #include "mapper.cpp"
@@ -50,14 +50,14 @@ auto Cartridge::load() -> bool {
   auto document = BML::unserialize(information.manifest);
   information.title = document["game/label"].text();
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     rom.allocate(memory.size);
     if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Required)) {
       rom.load(fp);
     } else return false;
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     ram.allocate(memory.size);
     if(memory.nonVolatile) {
       if(auto fp = platform->open(pathID(), memory.name(), File::Read)) {
@@ -72,7 +72,7 @@ auto Cartridge::load() -> bool {
 auto Cartridge::save() -> void {
   auto document = BML::unserialize(information.manifest);
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
         ram.save(fp);

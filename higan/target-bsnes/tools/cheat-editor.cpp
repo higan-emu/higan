@@ -1,4 +1,4 @@
-auto CheatDatabase::create() -> void {
+CheatDatabase::CheatDatabase() {
   layout.setPadding(5);
   selectAllButton.setText("Select All").onActivate([&] {
     for(auto item : cheatList.items()) item.setChecked(true);
@@ -50,7 +50,7 @@ auto CheatDatabase::addCheats() -> void {
 
 //
 
-auto CheatWindow::create() -> void {
+CheatWindow::CheatWindow() {
   layout.setPadding(5);
   tableLayout.setSize({2, 2});
   tableLayout.cell(0).setAlignment({1.0, 0.5});
@@ -101,7 +101,7 @@ auto CheatWindow::doAccept() -> void {
 
 //
 
-auto CheatEditor::create() -> void {
+CheatEditor::CheatEditor() {
   setIcon(Icon::Edit::Replace);
   setText("Cheat Editor");
 

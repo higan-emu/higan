@@ -1,10 +1,10 @@
 #include <md/md.hpp>
 
-namespace MegaDrive {
+namespace higan::MegaDrive {
 
 Settings settings;
 
-auto Interface::information() -> Information {
+auto MegaDriveInterface::information() -> Information {
   Information information;
   information.manufacturer = "Sega";
   information.name         = "Mega Drive";
@@ -13,7 +13,7 @@ auto Interface::information() -> Information {
   return information;
 }
 
-auto Interface::display() -> Display {
+auto MegaDriveInterface::display() -> Display {
   Display display;
   display.type   = Display::Type::CRT;
   display.colors = 3 * (1 << 9);
@@ -25,7 +25,7 @@ auto Interface::display() -> Display {
   return display;
 }
 
-auto Interface::color(uint32 color) -> uint64 {
+auto MegaDriveInterface::color(uint32 color) -> uint64 {
   uint R = color.bits(0, 2);
   uint G = color.bits(3, 5);
   uint B = color.bits(6, 8);
@@ -44,42 +44,42 @@ auto Interface::color(uint32 color) -> uint64 {
   return r << 32 | g << 16 | b << 0;
 }
 
-auto Interface::loaded() -> bool {
+auto MegaDriveInterface::loaded() -> bool {
   return system.loaded();
 }
 
-auto Interface::hashes() -> vector<string> {
+auto MegaDriveInterface::hashes() -> vector<string> {
   return cartridge.hashes();
 }
 
-auto Interface::manifests() -> vector<string> {
+auto MegaDriveInterface::manifests() -> vector<string> {
   return cartridge.manifests();
 }
 
-auto Interface::titles() -> vector<string> {
+auto MegaDriveInterface::titles() -> vector<string> {
   return cartridge.titles();
 }
 
-auto Interface::load() -> bool {
+auto MegaDriveInterface::load() -> bool {
   return system.load(this);
 }
 
-auto Interface::save() -> void {
+auto MegaDriveInterface::save() -> void {
   system.save();
 }
 
-auto Interface::unload() -> void {
+auto MegaDriveInterface::unload() -> void {
   save();
   system.unload();
 }
 
-auto Interface::ports() -> vector<Port> { return {
+auto MegaDriveInterface::ports() -> vector<Port> { return {
   {ID::Port::Controller1, "Controller Port 1"},
   {ID::Port::Controller2, "Controller Port 2"},
   {ID::Port::Extension,   "Extension Port"   }};
 }
 
-auto Interface::devices(uint port) -> vector<Device> {
+auto MegaDriveInterface::devices(uint port) -> vector<Device> {
   if(port == ID::Port::Controller1) return {
     {ID::Device::None,        "None"        },
     {ID::Device::ControlPad,  "Control Pad" },
@@ -99,7 +99,7 @@ auto Interface::devices(uint port) -> vector<Device> {
   return {};
 }
 
-auto Interface::inputs(uint device) -> vector<Input> {
+auto MegaDriveInterface::inputs(uint device) -> vector<Input> {
   using Type = Input::Type;
 
   if(device == ID::Device::None) return {
@@ -134,53 +134,53 @@ auto Interface::inputs(uint device) -> vector<Input> {
   return {};
 }
 
-auto Interface::connected(uint port) -> uint {
+auto MegaDriveInterface::connected(uint port) -> uint {
   if(port == ID::Port::Controller1) return settings.controllerPort1;
   if(port == ID::Port::Controller2) return settings.controllerPort2;
   if(port == ID::Port::Extension) return settings.extensionPort;
   return 0;
 }
 
-auto Interface::connect(uint port, uint device) -> void {
+auto MegaDriveInterface::connect(uint port, uint device) -> void {
   if(port == ID::Port::Controller1) controllerPort1.connect(settings.controllerPort1 = device);
   if(port == ID::Port::Controller2) controllerPort2.connect(settings.controllerPort2 = device);
   if(port == ID::Port::Extension) extensionPort.connect(settings.extensionPort = device);
 }
 
-auto Interface::power() -> void {
+auto MegaDriveInterface::power() -> void {
   system.power(/* reset = */ false);
 }
 
-auto Interface::reset() -> void {
+auto MegaDriveInterface::reset() -> void {
   system.power(/* reset = */ true);
 }
 
-auto Interface::run() -> void {
+auto MegaDriveInterface::run() -> void {
   system.run();
 }
 
-auto Interface::serialize() -> serializer {
+auto MegaDriveInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto Interface::unserialize(serializer& s) -> bool {
+auto MegaDriveInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto Interface::cheats(const vector<string>& list) -> void {
+auto MegaDriveInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto Interface::cap(const string& name) -> bool {
+auto MegaDriveInterface::cap(const string& name) -> bool {
   return false;
 }
 
-auto Interface::get(const string& name) -> any {
+auto MegaDriveInterface::get(const string& name) -> any {
   return {};
 }
 
-auto Interface::set(const string& name, const any& value) -> bool {
+auto MegaDriveInterface::set(const string& name, const any& value) -> bool {
   return false;
 }
 

@@ -1,4 +1,4 @@
-auto DriverSettings::create() -> void {
+DriverSettings::DriverSettings() {
   setIcon(Icon::Place::Settings);
   setText("Drivers");
 

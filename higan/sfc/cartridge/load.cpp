@@ -76,7 +76,7 @@ auto Cartridge::loadCartridgeGameBoy(Markup::Node node) -> void {
 }
 
 auto Cartridge::loadCartridgeBSMemory(Markup::Node node) -> void {
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(content=Program)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(content=Program)"]}) {
     bsmemory.ROM = memory.type == "ROM";
     bsmemory.memory.allocate(memory.size);
     if(auto fp = platform->open(bsmemory.pathID, memory.name(), File::Read, File::Required)) {
@@ -86,14 +86,14 @@ auto Cartridge::loadCartridgeBSMemory(Markup::Node node) -> void {
 }
 
 auto Cartridge::loadCartridgeSufamiTurboA(Markup::Node node) -> void {
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(type=ROM,content=Program)"]}) {
     sufamiturboA.rom.allocate(memory.size);
     if(auto fp = platform->open(sufamiturboA.pathID, memory.name(), File::Read, File::Required)) {
       fp->read(sufamiturboA.rom.data(), memory.size);
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
     sufamiturboA.ram.allocate(memory.size);
     if(auto fp = platform->open(sufamiturboA.pathID, memory.name(), File::Read)) {
       fp->read(sufamiturboA.ram.data(), memory.size);
@@ -102,14 +102,14 @@ auto Cartridge::loadCartridgeSufamiTurboA(Markup::Node node) -> void {
 }
 
 auto Cartridge::loadCartridgeSufamiTurboB(Markup::Node node) -> void {
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(type=ROM,content=Program)"]}) {
     sufamiturboB.rom.allocate(memory.size);
     if(auto fp = platform->open(sufamiturboB.pathID, memory.name(), File::Read, File::Required)) {
       fp->read(sufamiturboB.rom.data(), memory.size);
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
     sufamiturboB.ram.allocate(memory.size);
     if(auto fp = platform->open(sufamiturboB.pathID, memory.name(), File::Read)) {
       fp->read(sufamiturboB.ram.data(), memory.size);

@@ -8,7 +8,7 @@ auto Cartridge::MBC7::EEPROM::load(Markup::Node document) -> void {
   size = 512;  //EEPROM size is in bytes
   width = 16;  //16-bit configuration
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
     if(memory.size == 128) size = 128;
     if(memory.size == 256) size = 256;
     if(memory.size == 512) size = 512;
@@ -26,7 +26,7 @@ auto Cartridge::MBC7::EEPROM::load(Markup::Node document) -> void {
 }
 
 auto Cartridge::MBC7::EEPROM::save(Markup::Node document) -> void {
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
     if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Write)) {
       fp->write(data, size);
     }

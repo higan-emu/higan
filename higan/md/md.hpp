@@ -9,15 +9,11 @@
 #include <emulator/random.hpp>
 #include <emulator/cheat.hpp>
 
-#include <processor/m68k/m68k.hpp>
-#include <processor/z80/z80.hpp>
+#include <component/processor/m68k/m68k.hpp>
+#include <component/processor/z80/z80.hpp>
+#include <component/audio/sn76489/sn76489.hpp>
 
-namespace MegaDrive {
-  #define platform Emulator::platform
-  namespace File = Emulator::File;
-  using Scheduler = Emulator::Scheduler;
-  using Random = Emulator::Random;
-  using Cheat = Emulator::Cheat;
+namespace higan::MegaDrive {
   extern Scheduler scheduler;
   extern Random random;
   extern Cheat cheat;
@@ -28,9 +24,9 @@ namespace MegaDrive {
     };
   };
 
-  struct Thread : Emulator::Thread {
+  struct Thread : higan::Thread {
     auto create(auto (*entrypoint)() -> void, double frequency) -> void {
-      Emulator::Thread::create(entrypoint, frequency);
+      higan::Thread::create(entrypoint, frequency);
       scheduler.append(*this);
       wait = 0;
     }

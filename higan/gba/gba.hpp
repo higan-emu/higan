@@ -7,12 +7,9 @@
 #include <emulator/thread.hpp>
 #include <emulator/scheduler.hpp>
 
-#include <processor/arm7tdmi/arm7tdmi.hpp>
+#include <component/processor/arm7tdmi/arm7tdmi.hpp>
 
-namespace GameBoyAdvance {
-  #define platform Emulator::platform
-  namespace File = Emulator::File;
-  using Scheduler = Emulator::Scheduler;
+namespace higan::GameBoyAdvance {
   extern Scheduler scheduler;
 
   enum : uint {           //mode flags for bus read, write:
@@ -27,9 +24,9 @@ namespace GameBoyAdvance {
     Signed        = 256,  //sign extended
   };
 
-  struct Thread : Emulator::Thread {
+  struct Thread : higan::Thread {
     auto create(auto (*entrypoint)() -> void, double frequency) -> void {
-      Emulator::Thread::create(entrypoint, frequency);
+      higan::Thread::create(entrypoint, frequency);
       scheduler.append(*this);
     }
 

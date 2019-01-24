@@ -11,30 +11,31 @@
 #include "utility.cpp"
 #include "patch.cpp"
 #include "hacks.cpp"
-Program program;
+Instance<Program> programInstance;
+Program& program = programInstance();
 
 auto Program::create() -> void {
-  Emulator::platform = this;
+  higan::platform = this;
 
-  presentation.create();
+  presentationInstance.construct();
   presentation.setVisible();
 
-  settingsWindow.create();
-  videoSettings.create();
-  audioSettings.create();
-  inputSettings.create();
-  hotkeySettings.create();
-  pathSettings.create();
-  emulatorSettings.create();
-  driverSettings.create();
+  videoSettingsInstance.construct();
+  audioSettingsInstance.construct();
+  inputSettingsInstance.construct();
+  hotkeySettingsInstance.construct();
+  pathSettingsInstance.construct();
+  emulatorSettingsInstance.construct();
+  driverSettingsInstance.construct();
+  settingsWindowInstance.construct();
 
-  toolsWindow.create();
-  cheatDatabase.create();
-  cheatWindow.create();
-  cheatEditor.create();
-  stateWindow.create();
-  stateManager.create();
-  manifestViewer.create();
+  cheatDatabaseInstance.construct();
+  cheatWindowInstance.construct();
+  cheatEditorInstance.construct();
+  stateWindowInstance.construct();
+  stateManagerInstance.construct();
+  manifestViewerInstance.construct();
+  toolsWindowInstance.construct();
 
   if(settings.general.crashed) {
     MessageDialog(

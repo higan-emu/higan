@@ -1,6 +1,6 @@
 #include <ngp/ngp.hpp>
 
-namespace NeoGeoPocket {
+namespace higan::NeoGeoPocket {
 
 PSG psg;
 #include "serialization.cpp"
@@ -10,7 +10,7 @@ auto PSG::Enter() -> void {
 }
 
 auto PSG::main() -> void {
-  stream->sample(0.0);
+  stream->sample(SN76489::clock()[0]);
   step(1);
 }
 
@@ -20,9 +20,10 @@ auto PSG::step(uint clocks) -> void {
 }
 
 auto PSG::power() -> void {
+  SN76489::power(0x2000);
   create(PSG::Enter, system.frequency() / 2.0);
-  stream = Emulator::audio.createStream(1, frequency());
-  stream->addHighPassFilter(20.0, Emulator::Filter::Order::First);
+  stream = audio.createStream(1, frequency());
+  stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 }
 

@@ -8,19 +8,16 @@
 #include <emulator/scheduler.hpp>
 #include <emulator/cheat.hpp>
 
-#include <processor/z80/z80.hpp>
+#include <component/processor/z80/z80.hpp>
+#include <component/audio/sn76489/sn76489.hpp>
 
-namespace MasterSystem {
-  #define platform Emulator::platform
-  namespace File = Emulator::File;
-  using Scheduler = Emulator::Scheduler;
-  using Cheat = Emulator::Cheat;
+namespace higan::MasterSystem {
   extern Scheduler scheduler;
   extern Cheat cheat;
 
-  struct Thread : Emulator::Thread {
+  struct Thread : higan::Thread {
     auto create(auto (*entrypoint)() -> void, double frequency) -> void {
-      Emulator::Thread::create(entrypoint, frequency);
+      higan::Thread::create(entrypoint, frequency);
       scheduler.append(*this);
     }
 

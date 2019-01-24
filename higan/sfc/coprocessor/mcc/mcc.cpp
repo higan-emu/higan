@@ -1,9 +1,5 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
-#include "serialization.cpp"
 MCC mcc;
+#include "serialization.cpp"
 
 auto MCC::unload() -> void {
   rom.reset();
@@ -254,6 +250,4 @@ auto MCC::bsAccess(bool mode, uint24 address, uint8 data) -> uint8 {
   if(mode == 0) return bsmemory.read(address, data);
   if(!r.internallyWritable) return data;
   return bsmemory.write(address, data), data;
-}
-
 }

@@ -1,4 +1,4 @@
-auto HotkeySettings::create() -> void {
+HotkeySettings::HotkeySettings() {
   setIcon(Icon::Device::Keyboard);
   setText("Hotkeys");
 

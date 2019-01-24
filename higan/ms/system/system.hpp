@@ -11,7 +11,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Emulator::Interface* interface, Model model) -> bool;
+  auto load(Interface* interface, Model model) -> bool;
   auto save() -> void;
   auto unload() -> void;
 
@@ -27,13 +27,13 @@ struct System {
   uint8 bios[0x2000];
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct Information {
     bool loaded = false;
     Model model = Model::MasterSystem;
     Region region = Region::NTSC;
-    double colorburst = Emulator::Constants::Colorburst::NTSC;
+    double colorburst = Constants::Colorburst::NTSC;
     string manifest;
     uint serializeSize = 0;
   } information;

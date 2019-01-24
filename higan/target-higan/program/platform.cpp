@@ -23,7 +23,7 @@ auto Program::open(uint id, string name, vfs::file::mode mode, bool required) ->
   return {};
 }
 
-auto Program::load(uint id, string name, string type, vector<string> options) -> Emulator::Platform::Load {
+auto Program::load(uint id, string name, string type, vector<string> options) -> higan::Platform::Load {
   string location, option;
   if(gameQueue) {
     auto entry = gameQueue.takeLeft().split("|", 1L);
@@ -55,7 +55,7 @@ auto Program::videoFrame(const uint32* data, uint pitch, uint width, uint height
 
   if(!settings["View/Overscan"].boolean()) {
     auto display = emulator->display();
-    if(display.type == Emulator::Interface::Display::Type::CRT) {
+    if(display.type == higan::Interface::Display::Type::CRT) {
       uint overscanHorizontal = settings["View/Overscan/Horizontal"].natural();
       uint overscanVertical = settings["View/Overscan/Vertical"].natural();
       overscanHorizontal *= display.internalWidth / display.width;

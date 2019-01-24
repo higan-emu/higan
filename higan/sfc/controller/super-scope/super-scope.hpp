@@ -1,5 +1,5 @@
 struct SuperScope : Controller {
-  shared_pointer<Emulator::Sprite> sprite;
+  shared_pointer<Sprite> sprite;
 
   enum : uint {
     X, Y, Trigger, Cursor, Turbo, Pause,

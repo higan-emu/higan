@@ -1,5 +1,5 @@
-struct CPU : Processor::TLCS900H, Thread {
-  Emulator::Memory::Writable<uint8> ram;
+struct CPU : TLCS900H, Thread {
+  Memory::Writable<uint8> ram;
 
   //cpu.cpp
   static auto Enter() -> void;

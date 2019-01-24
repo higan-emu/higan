@@ -1,10 +1,6 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
+ArmDSP armdsp;
 #include "memory.cpp"
 #include "serialization.cpp"
-ArmDSP armdsp;
 
 auto ArmDSP::Enter() -> void {
   armdsp.boot();
@@ -97,6 +93,4 @@ auto ArmDSP::reset() -> void {
   bridge.timerlatch = 0;
   bridge.cputoarm.ready = false;
   bridge.armtocpu.ready = false;
-}
-
 }

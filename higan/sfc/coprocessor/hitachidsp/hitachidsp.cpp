@@ -1,10 +1,6 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
+HitachiDSP hitachidsp;
 #include "memory.cpp"
 #include "serialization.cpp"
-HitachiDSP hitachidsp;
 
 auto HitachiDSP::Enter() -> void {
   while(true) scheduler.synchronize(), hitachidsp.main();
@@ -29,6 +25,4 @@ auto HitachiDSP::unload() -> void {
 auto HitachiDSP::power() -> void {
   HG51B::power();
   create(HitachiDSP::Enter, Frequency);
-}
-
 }

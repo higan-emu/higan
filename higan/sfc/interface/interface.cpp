@@ -1,11 +1,12 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
+Properties properties;
 Settings settings;
 #include "configuration.cpp"
 
-auto Interface::information() -> Information {
+auto SuperFamicomInterface::information() -> Information {
   Information information;
   information.manufacturer = "Nintendo";
   information.name         = "Super Famicom";
@@ -14,7 +15,7 @@ auto Interface::information() -> Information {
   return information;
 }
 
-auto Interface::display() -> Display {
+auto SuperFamicomInterface::display() -> Display {
   Display display;
   display.type   = Display::Type::CRT;
   display.colors = 1 << 19;
@@ -26,7 +27,7 @@ auto Interface::display() -> Display {
   return display;
 }
 
-auto Interface::color(uint32 color) -> uint64 {
+auto SuperFamicomInterface::color(uint32 color) -> uint64 {
   uint r = color.bits( 0, 4);
   uint g = color.bits( 5, 9);
   uint b = color.bits(10,14);
@@ -54,42 +55,42 @@ auto Interface::color(uint32 color) -> uint64 {
   return R << 32 | G << 16 | B << 0;
 }
 
-auto Interface::loaded() -> bool {
+auto SuperFamicomInterface::loaded() -> bool {
   return system.loaded();
 }
 
-auto Interface::hashes() -> vector<string> {
+auto SuperFamicomInterface::hashes() -> vector<string> {
   return cartridge.hashes();
 }
 
-auto Interface::manifests() -> vector<string> {
+auto SuperFamicomInterface::manifests() -> vector<string> {
   return cartridge.manifests();
 }
 
-auto Interface::titles() -> vector<string> {
+auto SuperFamicomInterface::titles() -> vector<string> {
   return cartridge.titles();
 }
 
-auto Interface::load() -> bool {
+auto SuperFamicomInterface::load() -> bool {
   return system.load(this);
 }
 
-auto Interface::save() -> void {
+auto SuperFamicomInterface::save() -> void {
   system.save();
 }
 
-auto Interface::unload() -> void {
+auto SuperFamicomInterface::unload() -> void {
   save();
   system.unload();
 }
 
-auto Interface::ports() -> vector<Port> { return {
+auto SuperFamicomInterface::ports() -> vector<Port> { return {
   {ID::Port::Controller1, "Controller Port 1"},
   {ID::Port::Controller2, "Controller Port 2"},
   {ID::Port::Expansion,   "Expansion Port"   }};
 }
 
-auto Interface::devices(uint port) -> vector<Device> {
+auto SuperFamicomInterface::devices(uint port) -> vector<Device> {
   if(port == ID::Port::Controller1) return {
     {ID::Device::None,    "None"   },
     {ID::Device::Gamepad, "Gamepad"},
@@ -115,7 +116,7 @@ auto Interface::devices(uint port) -> vector<Device> {
   return {};
 }
 
-auto Interface::inputs(uint device) -> vector<Input> {
+auto SuperFamicomInterface::inputs(uint device) -> vector<Input> {
   using Type = Input::Type;
 
   if(device == ID::Device::None) return {
@@ -198,53 +199,61 @@ auto Interface::inputs(uint device) -> vector<Input> {
   return {};
 }
 
-auto Interface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return settings.controllerPort1;
-  if(port == ID::Port::Controller2) return settings.controllerPort2;
-  if(port == ID::Port::Expansion) return settings.expansionPort;
+auto SuperFamicomInterface::connected(uint port) -> uint {
+  if(port == ID::Port::Controller1) return SuperFamicom::settings.controllerPort1;
+  if(port == ID::Port::Controller2) return SuperFamicom::settings.controllerPort2;
+  if(port == ID::Port::Expansion) return SuperFamicom::settings.expansionPort;
   return 0;
 }
 
-auto Interface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(settings.controllerPort1 = device);
-  if(port == ID::Port::Controller2) controllerPort2.connect(settings.controllerPort2 = device);
-  if(port == ID::Port::Expansion) expansionPort.connect(settings.expansionPort = device);
+auto SuperFamicomInterface::connect(uint port, uint device) -> void {
+  if(port == ID::Port::Controller1) controllerPort1.connect(SuperFamicom::settings.controllerPort1 = device);
+  if(port == ID::Port::Controller2) controllerPort2.connect(SuperFamicom::settings.controllerPort2 = device);
+  if(port == ID::Port::Expansion) expansionPort.connect(SuperFamicom::settings.expansionPort = device);
 }
 
-auto Interface::power() -> void {
+auto SuperFamicomInterface::power() -> void {
   system.power(/* reset = */ false);
 }
 
-auto Interface::reset() -> void {
+auto SuperFamicomInterface::reset() -> void {
   system.power(/* reset = */ true);
 }
 
-auto Interface::run() -> void {
+auto SuperFamicomInterface::run() -> void {
   system.run();
 }
 
-auto Interface::rtc() -> bool {
+auto SuperFamicomInterface::rtc() -> bool {
   if(cartridge.has.EpsonRTC) return true;
   if(cartridge.has.SharpRTC) return true;
   return false;
 }
 
-auto Interface::synchronize(uint64 timestamp) -> void {
+auto SuperFamicomInterface::synchronize(uint64 timestamp) -> void {
   if(!timestamp) timestamp = chrono::timestamp();
   if(cartridge.has.EpsonRTC) epsonrtc.synchronize(timestamp);
   if(cartridge.has.SharpRTC) sharprtc.synchronize(timestamp);
 }
 
-auto Interface::serialize() -> serializer {
+auto SuperFamicomInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto Interface::unserialize(serializer& s) -> bool {
+auto SuperFamicomInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto Interface::cheats(const vector<string>& list) -> void {
+auto SuperFamicomInterface::properties() -> AbstractSetting* {
+  return &SuperFamicom::properties;
+}
+
+auto SuperFamicomInterface::settings() -> AbstractSetting* {
+  return &SuperFamicom::settings;
+}
+
+auto SuperFamicomInterface::cheats(const vector<string>& list) -> void {
   cheat.reset();
   #if defined(CORE_GB)
   if(cartridge.has.ICD) return GameBoy::cheat.assign(list);
@@ -252,19 +261,19 @@ auto Interface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto Interface::configuration() -> string {
+auto SuperFamicomInterface::configuration() -> string {
   return SuperFamicom::configuration.read();
 }
 
-auto Interface::configuration(string name) -> string {
+auto SuperFamicomInterface::configuration(string name) -> string {
   return SuperFamicom::configuration.read(name);
 }
 
-auto Interface::configure(string configuration) -> bool {
+auto SuperFamicomInterface::configure(string configuration) -> bool {
   return SuperFamicom::configuration.write(configuration);
 }
 
-auto Interface::configure(string name, string value) -> bool {
+auto SuperFamicomInterface::configure(string name, string value) -> bool {
   return SuperFamicom::configuration.write(name, value);
 }
 

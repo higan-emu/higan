@@ -2,7 +2,7 @@
 
 #include <emulator/memory/memory.hpp>
 
-namespace Emulator::Memory {
+namespace higan::Memory {
 
 template<typename T>
 struct Readable {

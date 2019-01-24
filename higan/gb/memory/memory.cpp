@@ -1,6 +1,6 @@
 #include <gb/gb.hpp>
 
-namespace GameBoy {
+namespace higan::GameBoy {
 
 Unmapped unmapped;
 Bus bus;

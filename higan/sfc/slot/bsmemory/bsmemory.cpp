@@ -1,7 +1,3 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
 BSMemory bsmemory;
 #include "serialization.cpp"
 
@@ -565,6 +561,4 @@ auto BSMemory::Queue::address(uint index) -> uint24 {
 auto BSMemory::Queue::data(uint index) -> uint8 {
   if(index > 3 || !history[index].valid) return 0;
   return history[index].data;
-}
-
 }

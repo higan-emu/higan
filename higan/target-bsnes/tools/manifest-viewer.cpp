@@ -1,4 +1,4 @@
-auto ManifestViewer::create() -> void {
+ManifestViewer::ManifestViewer() {
   setIcon(Icon::Emblem::Text);
   setText("Manifest Viewer");
 

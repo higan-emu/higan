@@ -9,14 +9,14 @@ device(!chained ? ID::Device::Justifier : ID::Device::Justifiers)
   active = 0;
   prev = 0;
 
-  player1.sprite = Emulator::video.createSprite(32, 32);
+  player1.sprite = video.createSprite(32, 32);
   player1.sprite->setPixels(Resource::Sprite::CrosshairGreen);
   player1.x = 256 / 2;
   player1.y = 240 / 2;
   player1.trigger = false;
   player2.start = false;
 
-  player2.sprite = Emulator::video.createSprite(32, 32);
+  player2.sprite = video.createSprite(32, 32);
   player2.sprite->setPixels(Resource::Sprite::CrosshairRed);
   player2.x = 256 / 2;
   player2.y = 240 / 2;
@@ -33,8 +33,8 @@ device(!chained ? ID::Device::Justifier : ID::Device::Justifiers)
 }
 
 Justifier::~Justifier() {
-  Emulator::video.removeSprite(player1.sprite);
-  Emulator::video.removeSprite(player2.sprite);
+  video.removeSprite(player1.sprite);
+  video.removeSprite(player2.sprite);
 }
 
 auto Justifier::main() -> void {

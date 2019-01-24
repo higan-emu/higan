@@ -18,14 +18,13 @@ struct System {
   auto loaded() const -> bool { return _loaded; }
   auto frequency() const -> double { return 16 * 1024 * 1024; }
 
-  auto init() -> void;
-  auto term() -> void;
-  auto load(Emulator::Interface*) -> bool;
+  auto run() -> void;
+  auto runToSave() -> void;
+
+  auto load(Interface*) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;
-  auto run() -> void;
-  auto runToSave() -> void;
 
   //serialization.cpp
   auto serialize() -> serializer;
@@ -36,7 +35,7 @@ struct System {
   auto serializeInit() -> void;
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct Information {
     string manifest;

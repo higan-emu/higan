@@ -303,7 +303,7 @@ auto Program::unload() -> void {
   bsMemory = {};
   sufamiTurboA = {};
   sufamiTurboB = {};
-  presentation.setTitle({"bsnes v", Emulator::Version});
+  presentation.setTitle({"bsnes v", higan::Version});
   presentation.resetSystem.setEnabled(false);
   presentation.unloadGame.setEnabled(false);
   presentation.toolsMenu.setVisible(false);

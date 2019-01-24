@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Emulator {
+namespace higan {
 
 struct Game {
   struct Memory;

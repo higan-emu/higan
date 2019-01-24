@@ -1,6 +1,6 @@
 #include <ngp/ngp.hpp>
 
-namespace NeoGeoPocket {
+namespace higan::NeoGeoPocket {
 
 System system;
 Scheduler scheduler;
@@ -20,7 +20,7 @@ auto System::runToSave() -> void {
   scheduler.synchronize(psg);
 }
 
-auto System::load(Emulator::Interface* interface_, Model model_) -> bool {
+auto System::load(Interface* interface_, Model model_) -> bool {
   information.model = model_;
 
   if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
@@ -60,9 +60,9 @@ auto System::unload() -> void {
 }
 
 auto System::power() -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-  Emulator::audio.reset(interface);
+  video.reset(interface);
+  video.setPalette();
+  audio.reset(interface);
 
   scheduler.reset();
   cartridge.power();

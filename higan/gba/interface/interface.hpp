@@ -1,6 +1,6 @@
 #if defined(CORE_GBA)
 
-namespace GameBoyAdvance {
+namespace higan::GameBoyAdvance {
 
 struct ID {
   enum : uint {
@@ -17,7 +17,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct GameBoyAdvanceInterface : Interface {
   auto information() -> Information override;
 
   auto display() -> Display override;

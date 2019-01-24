@@ -1,7 +1,4 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
+SA1 sa1;
 #include "rom.cpp"
 #include "bwram.cpp"
 #include "iram.cpp"
@@ -9,7 +6,6 @@ namespace SuperFamicom {
 #include "memory.cpp"
 #include "io.cpp"
 #include "serialization.cpp"
-SA1 sa1;
 
 auto SA1::Enter() -> void {
   while(true) scheduler.synchronize(), sa1.main();
@@ -305,6 +301,4 @@ auto SA1::power() -> void {
 
   //$230b
   mmio.overflow = false;
-}
-
 }

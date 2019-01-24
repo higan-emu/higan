@@ -1,6 +1,6 @@
 #include <gba/gba.hpp>
 
-namespace GameBoyAdvance {
+namespace higan::GameBoyAdvance {
 
 Cartridge cartridge;
 #include "mrom.cpp"
@@ -41,14 +41,14 @@ auto Cartridge::load() -> bool {
   hasEEPROM = false;
   hasFLASH  = false;
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     mrom.size = min(32 * 1024 * 1024, (uint)memory.size);
     if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Required)) {
       fp->read(mrom.data, mrom.size);
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     hasSRAM = true;
     sram.size = min(32 * 1024, (uint)memory.size);
     sram.mask = sram.size - 1;
@@ -61,7 +61,7 @@ auto Cartridge::load() -> bool {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
     hasEEPROM = true;
     eeprom.size = min(8 * 1024, (uint)memory.size);
     eeprom.bits = eeprom.size <= 512 ? 6 : 14;
@@ -75,7 +75,7 @@ auto Cartridge::load() -> bool {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=Flash,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=Flash,content=Save)"]}) {
     hasFLASH = true;
     flash.size = min(128 * 1024, (uint)memory.size);
     flash.manufacturer = memory.manufacturer;
@@ -101,7 +101,7 @@ auto Cartridge::load() -> bool {
 auto Cartridge::save() -> void {
   auto document = BML::unserialize(information.manifest);
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
         fp->write(sram.data, sram.size);
@@ -109,13 +109,13 @@ auto Cartridge::save() -> void {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
     if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
       fp->write(eeprom.data, eeprom.size);
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=Flash,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=Flash,content=Save)"]}) {
     if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
       fp->write(flash.data, flash.size);
     }

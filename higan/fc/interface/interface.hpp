@@ -1,6 +1,6 @@
 #if defined(CORE_FC)
 
-namespace Famicom {
+namespace higan::Famicom {
 
 struct ID {
   enum : uint {
@@ -20,7 +20,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct FamicomInterface : Interface {
   auto information() -> Information override;
 
   auto display() -> Display override;

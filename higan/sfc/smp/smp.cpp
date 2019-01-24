@@ -1,6 +1,6 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 SMP smp;
 #include "memory.cpp"

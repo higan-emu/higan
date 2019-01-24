@@ -1,9 +1,5 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
-#include "serialization.cpp"
 OBC1 obc1;
+#include "serialization.cpp"
 
 auto OBC1::unload() -> void {
   ram.reset();
@@ -65,6 +61,4 @@ auto OBC1::ramRead(uint addr) -> uint8 {
 
 auto OBC1::ramWrite(uint addr, uint8 data) -> void {
   ram.write(addr & 0x1fff, data);
-}
-
 }

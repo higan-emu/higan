@@ -1,12 +1,8 @@
 //DIP switch
 //used for Nintendo Super System emulation
 
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
-#include "serialization.cpp"
 DIP dip;
+#include "serialization.cpp"
 
 auto DIP::power() -> void {
 }
@@ -16,6 +12,4 @@ auto DIP::read(uint24, uint8) -> uint8 {
 }
 
 auto DIP::write(uint24, uint8) -> void {
-}
-
 }

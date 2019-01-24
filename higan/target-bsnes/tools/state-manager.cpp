@@ -1,4 +1,4 @@
-auto StateWindow::create() -> void {
+StateWindow::StateWindow() {
   layout.setPadding(5);
   nameLabel.setText("Name:");
   nameValue.onActivate([&] { if(acceptButton.enabled()) acceptButton.doActivate(); });
@@ -44,7 +44,7 @@ auto StateWindow::doAccept() -> void {
   setVisible(false);
 }
 
-auto StateManager::create() -> void {
+StateManager::StateManager() {
   setIcon(Icon::Application::FileManager);
   setText("State Manager");
 

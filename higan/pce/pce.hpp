@@ -8,19 +8,15 @@
 #include <emulator/scheduler.hpp>
 #include <emulator/cheat.hpp>
 
-#include <processor/huc6280/huc6280.hpp>
+#include <component/processor/huc6280/huc6280.hpp>
 
-namespace PCEngine {
-  #define platform Emulator::platform
-  namespace File = Emulator::File;
-  using Scheduler = Emulator::Scheduler;
-  using Cheat = Emulator::Cheat;
+namespace higan::PCEngine {
   extern Scheduler scheduler;
   extern Cheat cheat;
 
-  struct Thread : Emulator::Thread {
+  struct Thread : higan::Thread {
     auto create(auto (*entrypoint)() -> void, double frequency) -> void {
-      Emulator::Thread::create(entrypoint, frequency);
+      higan::Thread::create(entrypoint, frequency);
       scheduler.append(*this);
     }
 

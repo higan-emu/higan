@@ -1,10 +1,10 @@
 #include <fc/fc.hpp>
 
-namespace Famicom {
+namespace higan::Famicom {
 
 Settings settings;
 
-auto Interface::information() -> Information {
+auto FamicomInterface::information() -> Information {
   Information information;
   information.manufacturer = "Nintendo";
   information.name         = "Famicom";
@@ -13,7 +13,7 @@ auto Interface::information() -> Information {
   return information;
 }
 
-auto Interface::display() -> Display {
+auto FamicomInterface::display() -> Display {
   Display display;
   display.type   = Display::Type::CRT;
   display.colors = 1 << 9;
@@ -25,7 +25,7 @@ auto Interface::display() -> Display {
   return display;
 }
 
-auto Interface::color(uint32 n) -> uint64 {
+auto FamicomInterface::color(uint32 n) -> uint64 {
   double saturation = 2.0;
   double hue = 0.0;
   double contrast = 1.0;
@@ -76,42 +76,42 @@ auto Interface::color(uint32 n) -> uint64 {
   return r << 32 | g << 16 | b << 0;
 }
 
-auto Interface::loaded() -> bool {
+auto FamicomInterface::loaded() -> bool {
   return system.loaded();
 }
 
-auto Interface::hashes() -> vector<string> {
+auto FamicomInterface::hashes() -> vector<string> {
   return {cartridge.hash()};
 }
 
-auto Interface::manifests() -> vector<string> {
+auto FamicomInterface::manifests() -> vector<string> {
   return {cartridge.manifest()};
 }
 
-auto Interface::titles() -> vector<string> {
+auto FamicomInterface::titles() -> vector<string> {
   return {cartridge.title()};
 }
 
-auto Interface::load() -> bool {
+auto FamicomInterface::load() -> bool {
   return system.load(this);
 }
 
-auto Interface::save() -> void {
+auto FamicomInterface::save() -> void {
   system.save();
 }
 
-auto Interface::unload() -> void {
+auto FamicomInterface::unload() -> void {
   save();
   system.unload();
 }
 
-auto Interface::ports() -> vector<Port> { return {
+auto FamicomInterface::ports() -> vector<Port> { return {
   {ID::Port::Controller1, "Controller Port 1"},
   {ID::Port::Controller2, "Controller Port 2"},
   {ID::Port::Expansion,   "Expansion Port"   }};
 }
 
-auto Interface::devices(uint port) -> vector<Device> {
+auto FamicomInterface::devices(uint port) -> vector<Device> {
   if(port == ID::Port::Controller1) return {
     {ID::Device::None,    "None"   },
     {ID::Device::Gamepad, "Gamepad"}
@@ -129,7 +129,7 @@ auto Interface::devices(uint port) -> vector<Device> {
   return {};
 }
 
-auto Interface::inputs(uint device) -> vector<Input> {
+auto FamicomInterface::inputs(uint device) -> vector<Input> {
   using Type = Input::Type;
 
   if(device == ID::Device::None) return {
@@ -149,59 +149,59 @@ auto Interface::inputs(uint device) -> vector<Input> {
   return {};
 }
 
-auto Interface::connected(uint port) -> uint {
+auto FamicomInterface::connected(uint port) -> uint {
   if(port == ID::Port::Controller1) return settings.controllerPort1;
   if(port == ID::Port::Controller2) return settings.controllerPort2;
   if(port == ID::Port::Expansion) return settings.expansionPort;
   return 0;
 }
 
-auto Interface::connect(uint port, uint device) -> void {
+auto FamicomInterface::connect(uint port, uint device) -> void {
   if(port == ID::Port::Controller1) controllerPort1.connect(settings.controllerPort1 = device);
   if(port == ID::Port::Controller2) controllerPort2.connect(settings.controllerPort2 = device);
 }
 
-auto Interface::power() -> void {
+auto FamicomInterface::power() -> void {
   system.power(/* reset = */ false);
 }
 
-auto Interface::reset() -> void {
+auto FamicomInterface::reset() -> void {
   system.power(/* reset = */ true);
 }
 
-auto Interface::run() -> void {
+auto FamicomInterface::run() -> void {
   system.run();
 }
 
-auto Interface::serialize() -> serializer {
+auto FamicomInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto Interface::unserialize(serializer& s) -> bool {
+auto FamicomInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto Interface::cheats(const vector<string>& list) -> void {
+auto FamicomInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto Interface::cap(const string& name) -> bool {
+auto FamicomInterface::cap(const string& name) -> bool {
   if(name == "Color Emulation") return true;
   if(name == "Scanline Emulation") return true;
   return false;
 }
 
-auto Interface::get(const string& name) -> any {
+auto FamicomInterface::get(const string& name) -> any {
   if(name == "Color Emulation") return settings.colorEmulation;
   if(name == "Scanline Emulation") return settings.scanlineEmulation;
   return {};
 }
 
-auto Interface::set(const string& name, const any& value) -> bool {
+auto FamicomInterface::set(const string& name, const any& value) -> bool {
   if(name == "Color Emulation" && value.is<bool>()) {
     settings.colorEmulation = value.get<bool>();
-    Emulator::video.setPalette();
+    video.setPalette();
     return true;
   }
   if(name == "Scanline Emulation" && value.is<bool>()) return settings.scanlineEmulation = value.get<bool>(), true;

@@ -17,65 +17,64 @@ unique_pointer<Program> program;
 
 Program::Program(Arguments arguments) {
   program = this;
-
-  Emulator::platform = this;
+  higan::platform = this;
 
 #ifdef CORE_FC
-  emulators.append(new Famicom::Interface);
+  emulators.append(new higan::Famicom::FamicomInterface);
 #endif
 #ifdef CORE_SFC
-  emulators.append(new SuperFamicom::Interface);
+  emulators.append(new higan::SuperFamicom::SuperFamicomInterface);
 #endif
 #ifdef CORE_MS
-  emulators.append(new MasterSystem::SG1000Interface);
+  emulators.append(new higan::MasterSystem::SG1000Interface);
 #endif
 #ifdef CORE_MS
-  emulators.append(new MasterSystem::SC3000Interface);
+  emulators.append(new higan::MasterSystem::SC3000Interface);
 #endif
 #ifdef CORE_MS
-  emulators.append(new MasterSystem::MasterSystemInterface);
+  emulators.append(new higan::MasterSystem::MasterSystemInterface);
 #endif
 #ifdef CORE_MD
-  emulators.append(new MegaDrive::Interface);
+  emulators.append(new higan::MegaDrive::MegaDriveInterface);
 #endif
 #ifdef CORE_PCE
-  emulators.append(new PCEngine::PCEngineInterface);
+  emulators.append(new higan::PCEngine::PCEngineInterface);
 #endif
 #ifdef CORE_PCE
-  emulators.append(new PCEngine::SuperGrafxInterface);
+  emulators.append(new higan::PCEngine::SuperGrafxInterface);
 #endif
 #ifdef CORE_MS
-  emulators.append(new MasterSystem::ColecoVisionInterface);
+  emulators.append(new higan::MasterSystem::ColecoVisionInterface);
 #endif
 #ifdef CORE_MSX
-  emulators.append(new MSX::Interface);
+  emulators.append(new higan::MSX::MSXInterface);
 #endif
 #ifdef CORE_GB
-  emulators.append(new GameBoy::GameBoyInterface);
+  emulators.append(new higan::GameBoy::GameBoyInterface);
 #endif
 #ifdef CORE_GB
-  emulators.append(new GameBoy::GameBoyColorInterface);
+  emulators.append(new higan::GameBoy::GameBoyColorInterface);
 #endif
 #ifdef CORE_GBA
-  emulators.append(new GameBoyAdvance::Interface);
+  emulators.append(new higan::GameBoyAdvance::GameBoyAdvanceInterface);
 #endif
 #ifdef CORE_MS
-  emulators.append(new MasterSystem::GameGearInterface);
+  emulators.append(new higan::MasterSystem::GameGearInterface);
 #endif
 #ifdef CORE_WS
-  emulators.append(new WonderSwan::WonderSwanInterface);
+  emulators.append(new higan::WonderSwan::WonderSwanInterface);
 #endif
 #ifdef CORE_WS
-  emulators.append(new WonderSwan::WonderSwanColorInterface);
+  emulators.append(new higan::WonderSwan::WonderSwanColorInterface);
 #endif
 #ifdef CORE_WS
-  emulators.append(new WonderSwan::PocketChallengeV2Interface);
+  emulators.append(new higan::WonderSwan::PocketChallengeV2Interface);
 #endif
 #ifdef CORE_NGP
-  emulators.append(new NeoGeoPocket::NeoGeoPocketInterface);
+  emulators.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
 #endif
 #ifdef CORE_NGP
-  emulators.append(new NeoGeoPocket::NeoGeoPocketColorInterface);
+  emulators.append(new higan::NeoGeoPocket::NeoGeoPocketColorInterface);
 #endif
 
   new Presentation;

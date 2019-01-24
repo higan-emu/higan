@@ -1,6 +1,6 @@
 #include <gb/gb.hpp>
 
-namespace GameBoy {
+namespace higan::GameBoy {
 
 PPU ppu;
 #include "io.cpp"
@@ -73,7 +73,7 @@ auto PPU::coincidence() -> bool {
 }
 
 auto PPU::refresh() -> void {
-  if(!Model::SuperGameBoy()) Emulator::video.refresh(screen, 160 * sizeof(uint32), 160, 144);
+  if(!Model::SuperGameBoy()) video.refresh(screen, 160 * sizeof(uint32), 160, 144);
 }
 
 auto PPU::step(uint clocks) -> void {

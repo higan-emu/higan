@@ -1,6 +1,6 @@
 #include <msx/msx.hpp>
 
-namespace MSX {
+namespace higan::MSX {
 
 PSG psg;
 #include "serialization.cpp"
@@ -21,8 +21,8 @@ auto PSG::step(uint clocks) -> void {
 
 auto PSG::power() -> void {
   create(PSG::Enter, system.colorburst() / 2.0);
-  stream = Emulator::audio.createStream(1, frequency());
-  stream->addHighPassFilter(20.0, Emulator::Filter::Order::First);
+  stream = audio.createStream(1, frequency());
+  stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 }
 

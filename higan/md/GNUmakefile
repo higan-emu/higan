@@ -1,4 +1,4 @@
-processors += m68k z80
+components += m68k z80 sn76489
 
 objects += md-interface
 objects += md-cpu md-apu md-vdp md-psg md-ym2612

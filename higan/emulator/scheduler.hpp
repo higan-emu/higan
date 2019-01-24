@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Emulator {
+namespace higan {
 
 struct Scheduler {
   enum class Mode : uint {

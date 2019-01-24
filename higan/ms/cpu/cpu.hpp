@@ -1,6 +1,6 @@
 //Zilog Z80
 
-struct CPU : Processor::Z80, Processor::Z80::Bus, Thread {
+struct CPU : Z80, Z80::Bus, Thread {
   //cpu.cpp
   static auto Enter() -> void;
   auto main() -> void;
@@ -39,8 +39,8 @@ struct CPU : Processor::Z80, Processor::Z80::Bus, Thread {
   vector<Thread*> peripherals;
 
 private:
-  Emulator::Memory::Writable<uint8> ram;
-  Emulator::Memory::Writable<uint8> expansion;
+  Memory::Writable<uint8> ram;
+  Memory::Writable<uint8> expansion;
 
   struct State {
     bool nmiLine = 0;

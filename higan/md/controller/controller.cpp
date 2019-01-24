@@ -1,6 +1,6 @@
 #include <md/md.hpp>
 
-namespace MegaDrive {
+namespace higan::MegaDrive {
 
 ControllerPort controllerPort1;
 ControllerPort controllerPort2;

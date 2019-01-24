@@ -10,7 +10,7 @@
 //vblank:    68 scanlines ( 83776 cycles)
 //frame:    228 scanlines (280896 cycles)
 
-namespace GameBoyAdvance {
+namespace higan::GameBoyAdvance {
 
 PPU ppu;
 #include "background.cpp"
@@ -110,7 +110,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  Emulator::video.refresh(output, 240 * sizeof(uint32), 240, 160);
+  video.refresh(output, 240 * sizeof(uint32), 240, 160);
 }
 
 auto PPU::power() -> void {

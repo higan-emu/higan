@@ -1,7 +1,3 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
 S21FX::S21FX() {
   create(S21FX::Enter, 10'000'000);
 
@@ -140,6 +136,4 @@ auto S21FX::write(uint8 data) -> void {
   if(linkBuffer.size() < 1024) {
     linkBuffer.append(data);
   }
-}
-
 }

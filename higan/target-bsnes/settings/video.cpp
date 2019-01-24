@@ -1,4 +1,4 @@
-auto VideoSettings::create() -> void {
+VideoSettings::VideoSettings() {
   setIcon(Icon::Device::Display);
   setText("Video");
 

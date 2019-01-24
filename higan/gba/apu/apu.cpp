@@ -1,6 +1,6 @@
 #include <gba/gba.hpp>
 
-namespace GameBoyAdvance {
+namespace higan::GameBoyAdvance {
 
 APU apu;
 #include "io.cpp"
@@ -76,8 +76,8 @@ auto APU::step(uint clocks) -> void {
 
 auto APU::power() -> void {
   create(APU::Enter, system.frequency());
-  stream = Emulator::audio.createStream(2, frequency() / 64.0);
-  stream->addHighPassFilter(20.0, Emulator::Filter::Order::First);
+  stream = audio.createStream(2, frequency() / 64.0);
+  stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 
   clock = 0;

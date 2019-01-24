@@ -5,9 +5,8 @@
 #include <nall/dsp/iir/biquad.hpp>
 #include <nall/dsp/resampler/cubic.hpp>
 
-namespace Emulator {
+namespace higan {
 
-struct Interface;
 struct Audio;
 struct Filter;
 struct Stream;

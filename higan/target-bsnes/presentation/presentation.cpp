@@ -1,7 +1,8 @@
 #include "../bsnes.hpp"
-Presentation presentation;
+Instance<Presentation> presentationInstance;
+Presentation& presentation = presentationInstance();
 
-auto Presentation::create() -> void {
+Presentation::Presentation() {
   systemMenu.setText(tr("System"));
   loadGame.setIcon(Icon::Action::Open).setText({tr("Load Game"), " ..."}).onActivate([&] {
     program.load();
@@ -137,12 +138,11 @@ auto Presentation::create() -> void {
   about.setIcon(Icon::Prompt::Question).setText({tr("About"), " ..."}).onActivate([&] {
     AboutDialog()
     .setLogo(Resource::Logo)
-    .setVersion(Emulator::Version)
-    .setAuthor("byuu")
-    .setLicense("GPLv3")
-    .setWebsite("https://byuu.org/")
-    .setParent(*this)
-    .show();
+    .setVersion(higan::Version)
+    .setAuthor(higan::Author)
+    .setLicense(higan::License)
+    .setWebsite(higan::Website)
+    .setParent(*this).show();
   });
 
   viewport.setDroppable().onDrop([&](vector<string> locations) {
@@ -192,11 +192,11 @@ auto Presentation::create() -> void {
     resizeViewport();
   });
 
-  setTitle({"bsnes v", Emulator::Version});
+  setTitle({"bsnes v", higan::Version});
   setBackgroundColor({0, 0, 0});
   resizeWindow();
   setCentered();
-  setFullScreen(startFullScreen);
+  setFullScreen(program.startFullScreen);
 
   #if defined(PLATFORM_MACOS)
   Application::Cocoa::onAbout([&] { about.doActivate(); });

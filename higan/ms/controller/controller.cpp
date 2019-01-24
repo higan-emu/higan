@@ -1,6 +1,6 @@
 #include <ms/ms.hpp>
 
-namespace MasterSystem {
+namespace higan::MasterSystem {
 
 ControllerPort controllerPort1;
 ControllerPort controllerPort2;

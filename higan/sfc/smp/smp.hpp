@@ -1,6 +1,6 @@
 //Sony CXP1100Q-1
 
-struct SMP : Processor::SPC700, Thread {
+struct SMP : SPC700, Thread {
   inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //io.cpp

@@ -3,7 +3,7 @@
 Video video;
 Audio audio;
 Input input;
-unique_pointer<Emulator::Interface> emulator;
+unique_pointer<higan::Interface> emulator;
 
 auto locate(string name) -> string {
   string location = {Path::program(), name};
@@ -18,17 +18,18 @@ auto locate(string name) -> string {
   return {Path::userData(), "bsnes/", name};
 }
 
-auto hiro::initialize() -> void {
-  Application::setName("bsnes");
-}
+auto hiro::initialize() -> void {}
 
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
+  Application::setName("bsnes");
+  programInstance.construct();
+
   settings.location = locate("settings.bml");
 
   for(auto argument : arguments) {
     if(argument == "--fullscreen") {
-      presentation.startFullScreen = true;
+      program.startFullScreen = true;
     } else if(argument.beginsWith("--locale=")) {
       Application::locale().scan(locate("locales/"));
       Application::locale().select(argument.trimLeft("--locale=", 1L));
@@ -47,7 +48,7 @@ auto nall::main(Arguments arguments) -> void {
   settings.load();
   Application::setScreenSaver(settings.general.screenSaver);
   Application::setToolTips(settings.general.toolTips);
-  emulator = new SuperFamicom::Interface;
+  emulator = new higan::SuperFamicom::SuperFamicomInterface;
   program.create();
   Application::run();
 }

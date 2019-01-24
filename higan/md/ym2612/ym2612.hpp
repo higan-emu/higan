@@ -1,7 +1,7 @@
 //Yamaha YM2612
 
 struct YM2612 : Thread {
-  shared_pointer<Emulator::Stream> stream;
+  shared_pointer<Stream> stream;
 
   static auto Enter() -> void;
   auto main() -> void;

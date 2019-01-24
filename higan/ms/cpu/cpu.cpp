@@ -1,6 +1,6 @@
 #include <ms/ms.hpp>
 
-namespace MasterSystem {
+namespace higan::MasterSystem {
 
 CPU cpu;
 #include "coleco.cpp"

@@ -1,6 +1,6 @@
 #include <pce/pce.hpp>
 
-namespace PCEngine {
+namespace higan::PCEngine {
 
 System system;
 Scheduler scheduler;
@@ -19,7 +19,7 @@ auto System::runToSave() -> void {
   scheduler.synchronize(psg);
 }
 
-auto System::load(Emulator::Interface* interface, Model model) -> bool {
+auto System::load(Interface* interface, Model model) -> bool {
   information = {};
   information.model = model;
 
@@ -33,7 +33,7 @@ auto System::load(Emulator::Interface* interface, Model model) -> bool {
   cpu.load();
   serializeInit();
   this->interface = interface;
-  information.colorburst = Emulator::Constants::Colorburst::NTSC;
+  information.colorburst = Constants::Colorburst::NTSC;
   return information.loaded = true;
 }
 
@@ -49,10 +49,9 @@ auto System::unload() -> void {
 }
 
 auto System::power() -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-
-  Emulator::audio.reset(interface);
+  video.reset(interface);
+  video.setPalette();
+  audio.reset(interface);
 
   scheduler.reset();
   cartridge.power();

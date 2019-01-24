@@ -87,7 +87,7 @@ ifneq ($(filter $(cores),ngp),)
   include ngp/GNUmakefile
 endif
 
-include processor/GNUmakefile
+include component/GNUmakefile
 
 flags += $(foreach c,$(call strupper,$(cores)),-DCORE_$c)
 ui := target-$(target)

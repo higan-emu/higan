@@ -27,8 +27,8 @@ private:
     string title;
   } information;
 
-  Emulator::Memory::Readable<uint8> rom;
-  Emulator::Memory::Writable<uint8> ram;
+  Memory::Readable<uint8> rom;
+  Memory::Writable<uint8> ram;
 };
 
 extern Cartridge cartridge;

@@ -1,6 +1,6 @@
 #if defined(CORE_PCE)
 
-namespace PCEngine {
+namespace higan::PCEngine {
 
 struct ID {
   enum : uint {
@@ -19,7 +19,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct AbstractInterface : Interface {
   auto display() -> Display override;
   auto color(uint32 color) -> uint64 override;
 
@@ -49,13 +49,13 @@ struct Interface : Emulator::Interface {
   auto set(const string& name, const any& value) -> bool override;
 };
 
-struct PCEngineInterface : Interface {
+struct PCEngineInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
 };
 
-struct SuperGrafxInterface : Interface {
+struct SuperGrafxInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;

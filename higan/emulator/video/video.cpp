@@ -1,4 +1,4 @@
-namespace Emulator {
+namespace higan {
 
 #include "sprite.cpp"
 Video video;

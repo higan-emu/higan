@@ -12,7 +12,7 @@
 
 SuperScope::SuperScope(uint port) : Controller(port) {
   create(Controller::Enter, system.cpuFrequency());
-  sprite = Emulator::video.createSprite(32, 32);
+  sprite = video.createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
   latched = 0;
@@ -36,7 +36,7 @@ SuperScope::SuperScope(uint port) : Controller(port) {
 }
 
 SuperScope::~SuperScope() {
-  Emulator::video.removeSprite(sprite);
+  video.removeSprite(sprite);
 }
 
 auto SuperScope::main() -> void {

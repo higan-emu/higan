@@ -6,15 +6,26 @@
 #include "paths.cpp"
 #include "emulator.cpp"
 #include "drivers.cpp"
+
 Settings settings;
-VideoSettings videoSettings;
-AudioSettings audioSettings;
-InputSettings inputSettings;
-HotkeySettings hotkeySettings;
-PathSettings pathSettings;
-EmulatorSettings emulatorSettings;
-DriverSettings driverSettings;
-SettingsWindow settingsWindow;
+
+Instance<VideoSettings> videoSettingsInstance;
+Instance<AudioSettings> audioSettingsInstance;
+Instance<InputSettings> inputSettingsInstance;
+Instance<HotkeySettings> hotkeySettingsInstance;
+Instance<PathSettings> pathSettingsInstance;
+Instance<EmulatorSettings> emulatorSettingsInstance;
+Instance<DriverSettings> driverSettingsInstance;
+Instance<SettingsWindow> settingsWindowInstance;
+
+VideoSettings& videoSettings = videoSettingsInstance();
+AudioSettings& audioSettings = audioSettingsInstance();
+InputSettings& inputSettings = inputSettingsInstance();
+HotkeySettings& hotkeySettings = hotkeySettingsInstance();
+PathSettings& pathSettings = pathSettingsInstance();
+EmulatorSettings& emulatorSettings = emulatorSettingsInstance();
+DriverSettings& driverSettings = driverSettingsInstance();
+SettingsWindow& settingsWindow = settingsWindowInstance();
 
 auto Settings::load() -> void {
   Markup::Node::operator=(BML::unserialize(string::read(location), " "));
@@ -111,7 +122,7 @@ auto Settings::process(bool load) -> void {
   #undef bind
 }
 
-auto SettingsWindow::create() -> void {
+SettingsWindow::SettingsWindow() {
   layout.setPadding(5);
   panel.append(videoSettings);
   panel.append(audioSettings);

@@ -1,6 +1,6 @@
 #include <pce/pce.hpp>
 
-namespace PCEngine {
+namespace higan::PCEngine {
 
 VCE vce;
 #include "memory.cpp"
@@ -54,7 +54,7 @@ auto VCE::step(uint clocks) -> void {
 }
 
 auto VCE::refresh() -> void {
-  Emulator::video.refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
+  video.refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
 }
 
 auto VCE::power() -> void {

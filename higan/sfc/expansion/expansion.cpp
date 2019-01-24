@@ -1,8 +1,10 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 ExpansionPort expansionPort;
+#include <sfc/expansion/21fx/21fx.cpp>
+#include <sfc/expansion/satellaview/satellaview.cpp>
 
 Expansion::Expansion() {
   if(!handle()) create(Expansion::Enter, 1);

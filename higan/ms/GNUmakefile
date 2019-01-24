@@ -1,4 +1,4 @@
-processors += z80
+components += z80
 
 objects += ms-interface
 objects += ms-cpu ms-vdp ms-psg

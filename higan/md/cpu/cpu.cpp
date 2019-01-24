@@ -1,6 +1,6 @@
 #include <md/md.hpp>
 
-namespace MegaDrive {
+namespace higan::MegaDrive {
 
 CPU cpu;
 #include "bus.cpp"

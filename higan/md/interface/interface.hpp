@@ -1,6 +1,6 @@
 #if defined(CORE_MD)
 
-namespace MegaDrive {
+namespace higan::MegaDrive {
 
 struct ID {
   enum : uint {
@@ -21,7 +21,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct MegaDriveInterface : Interface {
   auto information() -> Information override;
 
   auto display() -> Display override;

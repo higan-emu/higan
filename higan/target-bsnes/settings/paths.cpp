@@ -1,4 +1,4 @@
-auto PathSettings::create() -> void {
+PathSettings::PathSettings() {
   setIcon(Icon::Emblem::Folder);
   setText("Paths");
 

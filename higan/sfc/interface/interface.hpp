@@ -1,6 +1,6 @@
 #if defined(CORE_SFC)
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 struct ID {
   enum : uint {
@@ -32,7 +32,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct SuperFamicomInterface : Interface {
   auto information() -> Information;
 
   auto display() -> Display override;
@@ -62,6 +62,9 @@ struct Interface : Emulator::Interface {
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
 
+  auto properties() -> AbstractSetting* override;
+  auto settings() -> AbstractSetting* override;
+
   auto cheats(const vector<string>&) -> void override;
 
   auto configuration() -> string override;
@@ -72,13 +75,35 @@ struct Interface : Emulator::Interface {
 
 #include "configuration.hpp"
 
-struct Settings {
+struct Properties : Setting<string> {
+  Properties() : Setting{"system", "Super Famicom"} {}
+
+  struct CPU : Setting<> { using Setting::Setting;
+    Setting<natural> version{self, "version", 2};
+  } cpu{self, "cpu"};
+
+  struct PPU1 : Setting<> { using Setting::Setting;
+    Setting<natural> version{self, "version", 1};
+    struct VRAM : Setting<> { using Setting::Setting;
+      Setting<natural> size{self, "size", 0x10000};
+    } vram{self, "vram"};
+  } ppu1{self, "ppu1"};
+
+  struct PPU2 : Setting<> { using Setting::Setting;
+    Setting<natural> version{self, "version", 3};
+  } ppu2{self, "ppu2"};
+};
+
+struct Settings : Setting<> {
+  Settings() : Setting{"settings"} {}
+
   uint controllerPort1 = ID::Device::Gamepad;
   uint controllerPort2 = ID::Device::Gamepad;
   uint expansionPort = ID::Device::None;
   bool random = true;
 };
 
+extern Properties properties;
 extern Settings settings;
 
 }

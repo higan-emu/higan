@@ -131,12 +131,11 @@ Presentation::Presentation() {
   about.setIcon(Icon::Prompt::Question).setText("About ...").onActivate([&] {
     AboutDialog()
     .setLogo(Resource::Logo)
-    .setVersion(Emulator::Version)
-    .setAuthor("byuu")
-    .setLicense("GPLv3")
-    .setWebsite("https://byuu.org/")
-    .setParent(*this)
-    .show();
+    .setVersion(higan::Version)
+    .setAuthor(higan::Author)
+    .setLicense(higan::License)
+    .setWebsite(higan::Website)
+    .setParent(*this).show();
   });
 
   viewport.setDroppable().onDrop([&](vector<string> locations) {
@@ -185,7 +184,7 @@ Presentation::Presentation() {
 
   settings["View/Multiplier"].setValue(2);
 
-  setTitle({"higan v", Emulator::Version});
+  setTitle({"higan v", higan::Version});
   setBackgroundColor({0, 0, 0});
   resizeWindow();
   setCentered();
@@ -353,7 +352,7 @@ auto Presentation::resizeViewport() -> void {
     height = display.height;
     if(settings["View/AspectCorrection"].boolean()) width *= display.aspectCorrection;
     if(!settings["View/Overscan"].boolean()) {
-      if(display.type == Emulator::Interface::Display::Type::CRT) {
+      if(display.type == higan::Interface::Display::Type::CRT) {
         uint overscanHorizontal = settings["View/Overscan/Horizontal"].natural();
         uint overscanVertical = settings["View/Overscan/Vertical"].natural();
         width -= overscanHorizontal * 2;
@@ -420,7 +419,7 @@ auto Presentation::resizeWindow() -> void {
     height = display.height;
     if(settings["View/AspectCorrection"].boolean()) width *= display.aspectCorrection;
     if(!settings["View/Overscan"].boolean()) {
-      if(display.type == Emulator::Interface::Display::Type::CRT) {
+      if(display.type == higan::Interface::Display::Type::CRT) {
         uint overscanHorizontal = settings["View/Overscan/Horizontal"].natural();
         uint overscanVertical = settings["View/Overscan/Vertical"].natural();
         width -= overscanHorizontal * 2;

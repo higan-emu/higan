@@ -12,7 +12,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Emulator::Interface*, maybe<Region> = nothing) -> bool;
+  auto load(Interface*, maybe<Region> = nothing) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power(bool reset) -> void;
@@ -25,13 +25,13 @@ struct System {
   auto serialize(serializer&) -> void;
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct Information {
     string manifest;
     bool loaded = false;
     Region region = Region::NTSCJ;
-    double frequency = Emulator::Constants::Colorburst::NTSC * 15.0;
+    double frequency = Constants::Colorburst::NTSC * 15.0;
     uint serializeSize = 0;
   } information;
 };

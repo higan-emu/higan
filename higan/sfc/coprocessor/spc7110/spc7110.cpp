@@ -1,12 +1,8 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
+SPC7110 spc7110;
 #include "dcu.cpp"
 #include "data.cpp"
 #include "alu.cpp"
 #include "serialization.cpp"
-SPC7110 spc7110;
 
 SPC7110::SPC7110() {
   decompressor = new Decompressor(*this);
@@ -300,6 +296,4 @@ auto SPC7110::mcuramWrite(uint24 addr, uint8 data) -> void {
     addr = bus.mirror(addr, ram.size());
     ram.write(addr, data);
   }
-}
-
 }

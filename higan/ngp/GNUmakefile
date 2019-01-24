@@ -1,4 +1,4 @@
-processors += tlcs900h z80
+components += tlcs900h z80 sn76489
 
 objects += ngp-interface ngp-system ngp-cartridge
 objects += ngp-cpu ngp-apu ngp-vpu ngp-psg

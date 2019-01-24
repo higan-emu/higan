@@ -2,7 +2,7 @@
 unique_pointer<Video> video;
 unique_pointer<Audio> audio;
 unique_pointer<Input> input;
-Emulator::Interface* emulator = nullptr;
+higan::Interface* emulator = nullptr;
 
 auto locate(string name) -> string {
   string location = {Path::program(), name};

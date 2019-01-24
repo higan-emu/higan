@@ -1,6 +1,6 @@
 //Super Accelerator (SA-1)
 
-struct SA1 : Processor::WDC65816, Thread {
+struct SA1 : WDC65816, Thread {
   //sa1.cpp
   static auto Enter() -> void;
   auto main() -> void;

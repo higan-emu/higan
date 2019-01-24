@@ -1,12 +1,11 @@
 #include <ngp/ngp.hpp>
 
-namespace NeoGeoPocket {
+namespace higan::NeoGeoPocket {
 
 #include "neo-geo-pocket.cpp"
 #include "neo-geo-pocket-color.cpp"
 
-//todo: add correct values
-auto Interface::display() -> Display {
+auto AbstractInterface::display() -> Display {
   Display display;
   display.type   = Display::Type::LCD;
   display.colors = 1 << 12;
@@ -18,7 +17,7 @@ auto Interface::display() -> Display {
   return display;
 }
 
-auto Interface::color(uint32 color) -> uint64 {
+auto AbstractInterface::color(uint32 color) -> uint64 {
   uint b = color.bits(0, 3);
   uint g = color.bits(4, 7);
   uint r = color.bits(8,11);
@@ -30,34 +29,34 @@ auto Interface::color(uint32 color) -> uint64 {
   return R << 32 | G << 16 | B << 0;
 }
 
-auto Interface::loaded() -> bool {
+auto AbstractInterface::loaded() -> bool {
   return system.loaded();
 }
 
-auto Interface::hashes() -> vector<string> {
+auto AbstractInterface::hashes() -> vector<string> {
   return {cartridge.hash()};
 }
 
-auto Interface::manifests() -> vector<string> {
+auto AbstractInterface::manifests() -> vector<string> {
   return {cartridge.manifest()};
 }
 
-auto Interface::titles() -> vector<string> {
+auto AbstractInterface::titles() -> vector<string> {
   return {cartridge.title()};
 }
 
-auto Interface::save() -> void {
+auto AbstractInterface::save() -> void {
 }
 
-auto Interface::unload() -> void {
+auto AbstractInterface::unload() -> void {
   save();
 }
 
-auto Interface::ports() -> vector<Port> { return {
+auto AbstractInterface::ports() -> vector<Port> { return {
   {ID::Port::Hardware, "Hardware"}};
 }
 
-auto Interface::devices(uint port) -> vector<Device> {
+auto AbstractInterface::devices(uint port) -> vector<Device> {
   if(port == ID::Port::Hardware) return {
     {ID::Device::Controls, "Controls"}
   };
@@ -65,7 +64,7 @@ auto Interface::devices(uint port) -> vector<Device> {
   return {};
 }
 
-auto Interface::inputs(uint device) -> vector<Input> {
+auto AbstractInterface::inputs(uint device) -> vector<Input> {
   using Type = Input::Type;
 
   if(device == ID::Device::Controls) return {
@@ -81,20 +80,20 @@ auto Interface::inputs(uint device) -> vector<Input> {
   return {};
 }
 
-auto Interface::power() -> void {
+auto AbstractInterface::power() -> void {
   system.power();
 }
 
-auto Interface::run() -> void {
+auto AbstractInterface::run() -> void {
   system.run();
 }
 
-auto Interface::serialize() -> serializer {
+auto AbstractInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto Interface::unserialize(serializer& s) -> bool {
+auto AbstractInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 

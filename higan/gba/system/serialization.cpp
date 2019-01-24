@@ -4,7 +4,7 @@ auto System::serialize() -> serializer {
   uint signature = 0x31545342;
   char version[16] = {0};
   char description[512] = {0};
-  memory::copy(&version, (const char*)Emulator::SerializerVersion, Emulator::SerializerVersion.size());
+  memory::copy(&version, (const char*)SerializerVersion, SerializerVersion.size());
 
   s.integer(signature);
   s.array(version);
@@ -24,7 +24,7 @@ auto System::unserialize(serializer& s) -> bool {
   s.array(description);
 
   if(signature != 0x31545342) return false;
-  if(string{version} != Emulator::SerializerVersion) return false;
+  if(string{version} != SerializerVersion) return false;
 
   power();
   serializeAll(s);

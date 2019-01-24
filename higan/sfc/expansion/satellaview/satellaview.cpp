@@ -1,7 +1,3 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
 Satellaview::Satellaview() {
   bus.map({&Satellaview::read, this}, {&Satellaview::write, this}, "00-3f,80-bf:2188-219f");
   regs = {};
@@ -124,6 +120,4 @@ auto Satellaview::write(uint24 addr, uint8 data) -> void {
     regs.r2199 = data;
   } break;
   }
-}
-
 }

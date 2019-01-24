@@ -1,6 +1,6 @@
 #include <fc/fc.hpp>
 
-namespace Famicom {
+namespace higan::Famicom {
 
 PPU ppu;
 #include "memory.cpp"
@@ -51,7 +51,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  Emulator::video.refresh(buffer, 256 * sizeof(uint32), 256, 240);
+  video.refresh(buffer, 256 * sizeof(uint32), 256, 240);
 }
 
 auto PPU::power(bool reset) -> void {

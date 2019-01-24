@@ -1,6 +1,6 @@
 struct System {
   enum class Model : uint { NeoGeoPocket, NeoGeoPocketColor };
-  Emulator::Memory::Readable<uint8> bios;
+  Memory::Readable<uint8> bios;
 
   inline auto loaded() const -> bool { return information.loaded; }
   inline auto model() const -> Model { return information.model; }
@@ -9,7 +9,7 @@ struct System {
   //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
-  auto load(Emulator::Interface*, Model) -> bool;
+  auto load(Interface*, Model) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;
@@ -29,7 +29,7 @@ struct System {
   } information;
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 };
 
 extern System system;

@@ -8,7 +8,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Emulator::Interface*) -> bool;
+  auto load(Interface*) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power(bool reset) -> void;
@@ -25,12 +25,12 @@ struct System {
   auto serializeInit() -> void;
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct Information {
     bool loaded = false;
     Region region = Region::NTSCJ;
-    double frequency = Emulator::Constants::Colorburst::NTSC * 6.0;
+    double frequency = Constants::Colorburst::NTSC * 6.0;
     string manifest;
   } information;
 

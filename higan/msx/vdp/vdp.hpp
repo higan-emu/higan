@@ -32,7 +32,7 @@ struct VDP : Thread {
 
 private:
   uint32 buffer[256 * 192];
-  Emulator::Memory::Writable<uint8> vram;
+  Memory::Writable<uint8> vram;
 
   struct IO {
     uint vcounter = 0;

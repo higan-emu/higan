@@ -1,6 +1,6 @@
 //Motorola 68000
 
-struct CPU : Processor::M68K, Processor::M68K::Bus, Thread {
+struct CPU : M68K, M68K::Bus, Thread {
   enum class Interrupt : uint {
     Reset,
     HorizontalBlank,

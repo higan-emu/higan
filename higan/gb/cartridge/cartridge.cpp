@@ -1,6 +1,6 @@
 #include <gb/gb.hpp>
 
-namespace GameBoy {
+namespace higan::GameBoy {
 
 Cartridge cartridge;
 #include "mbc0/mbc0.cpp"
@@ -81,7 +81,7 @@ auto Cartridge::load() -> bool {
   accelerometer = (bool)document["game/board/accelerometer"];
   rumble = (bool)document["game/board/rumble"];
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     rom.size = max(0x4000, (uint)memory.size);
     rom.data = memory::allocate<uint8>(rom.size, 0xff);
     if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Required)) {
@@ -89,7 +89,7 @@ auto Cartridge::load() -> bool {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     ram.size = memory.size;
     ram.data = memory::allocate<uint8>(ram.size, 0xff);
     if(memory.nonVolatile) {
@@ -99,7 +99,7 @@ auto Cartridge::load() -> bool {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
     rtc.size = memory.size;
     rtc.data = memory::allocate<uint8>(rtc.size, 0xff);
     if(memory.nonVolatile) {
@@ -117,7 +117,7 @@ auto Cartridge::load() -> bool {
 auto Cartridge::save() -> void {
   auto document = BML::unserialize(information.manifest);
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
         fp->write(ram.data, ram.size);
@@ -125,7 +125,7 @@ auto Cartridge::save() -> void {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
         fp->write(rtc.data, rtc.size);

@@ -1,4 +1,4 @@
-struct CPU : Processor::Z80, Processor::Z80::Bus, Thread {
+struct CPU : Z80, Z80::Bus, Thread {
   //cpu.cpp
   static auto Enter() -> void;
   auto main() -> void;
@@ -19,7 +19,7 @@ struct CPU : Processor::Z80, Processor::Z80::Bus, Thread {
   auto serialize(serializer&) -> void;
 
 private:
-  Emulator::Memory::Writable<uint8> ram;
+  Memory::Writable<uint8> ram;
 
   struct IO {
     uint1 irqLine;

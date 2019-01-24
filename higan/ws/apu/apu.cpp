@@ -1,6 +1,6 @@
 #include <ws/ws.hpp>
 
-namespace WonderSwan {
+namespace higan::WonderSwan {
 
 APU apu;
 #include "io.cpp"
@@ -67,8 +67,8 @@ auto APU::step(uint clocks) -> void {
 
 auto APU::power() -> void {
   create(APU::Enter, 3'072'000);
-  stream = Emulator::audio.createStream(2, frequency());
-  stream->addHighPassFilter(20.0, Emulator::Filter::Order::First);
+  stream = audio.createStream(2, frequency());
+  stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 
   bus.map(this, 0x004a, 0x004c);

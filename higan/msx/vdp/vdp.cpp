@@ -2,7 +2,7 @@
 
 //456 clocks/scanline
 
-namespace MSX {
+namespace higan::MSX {
 
 VDP vdp;
 #include "io.cpp"
@@ -42,7 +42,7 @@ auto VDP::step(uint clocks) -> void {
 }
 
 auto VDP::refresh() -> void {
-  Emulator::video.refresh(buffer, 256 * sizeof(uint32), 256, 192);
+  video.refresh(buffer, 256 * sizeof(uint32), 256, 192);
 }
 
 auto VDP::power() -> void {

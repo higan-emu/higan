@@ -1,10 +1,10 @@
 #include <gba/gba.hpp>
 
-namespace GameBoyAdvance {
+namespace higan::GameBoyAdvance {
 
 Settings settings;
 
-auto Interface::information() -> Information {
+auto GameBoyAdvanceInterface::information() -> Information {
   Information information;
   information.manufacturer = "Nintendo";
   information.name         = "Game Boy Advance";
@@ -12,7 +12,7 @@ auto Interface::information() -> Information {
   return information;
 }
 
-auto Interface::display() -> Display {
+auto GameBoyAdvanceInterface::display() -> Display {
   Display display;
   display.type   = Display::Type::LCD;
   display.colors = 1 << 15;
@@ -28,7 +28,7 @@ auto Interface::display() -> Display {
   return display;
 }
 
-auto Interface::color(uint32 color) -> uint64 {
+auto GameBoyAdvanceInterface::color(uint32 color) -> uint64 {
   uint R = color.bits( 0, 4);
   uint G = color.bits( 5, 9);
   uint B = color.bits(10,14);
@@ -50,40 +50,40 @@ auto Interface::color(uint32 color) -> uint64 {
   return r << 32 | g << 16 | b << 0;
 }
 
-auto Interface::loaded() -> bool {
+auto GameBoyAdvanceInterface::loaded() -> bool {
   return system.loaded();
 }
 
-auto Interface::hashes() -> vector<string> {
+auto GameBoyAdvanceInterface::hashes() -> vector<string> {
   return {cartridge.hash()};
 }
 
-auto Interface::manifests() -> vector<string> {
+auto GameBoyAdvanceInterface::manifests() -> vector<string> {
   return {cartridge.manifest()};
 }
 
-auto Interface::titles() -> vector<string> {
+auto GameBoyAdvanceInterface::titles() -> vector<string> {
   return {cartridge.title()};
 }
 
-auto Interface::load() -> bool {
+auto GameBoyAdvanceInterface::load() -> bool {
   return system.load(this);
 }
 
-auto Interface::save() -> void {
+auto GameBoyAdvanceInterface::save() -> void {
   system.save();
 }
 
-auto Interface::unload() -> void {
+auto GameBoyAdvanceInterface::unload() -> void {
   save();
   system.unload();
 }
 
-auto Interface::ports() -> vector<Port> { return {
+auto GameBoyAdvanceInterface::ports() -> vector<Port> { return {
   {ID::Port::Hardware, "Hardware"}};
 }
 
-auto Interface::devices(uint port) -> vector<Device> {
+auto GameBoyAdvanceInterface::devices(uint port) -> vector<Device> {
   if(port == ID::Port::Hardware) return {
     {ID::Device::Controls, "Controls"}
   };
@@ -91,7 +91,7 @@ auto Interface::devices(uint port) -> vector<Device> {
   return {};
 }
 
-auto Interface::inputs(uint device) -> vector<Input> {
+auto GameBoyAdvanceInterface::inputs(uint device) -> vector<Input> {
   using Type = Input::Type;
 
   if(device == ID::Device::Controls) return {
@@ -111,53 +111,53 @@ auto Interface::inputs(uint device) -> vector<Input> {
   return {};
 }
 
-auto Interface::power() -> void {
+auto GameBoyAdvanceInterface::power() -> void {
   system.power();
 }
 
-auto Interface::run() -> void {
+auto GameBoyAdvanceInterface::run() -> void {
   system.run();
 }
 
-auto Interface::serialize() -> serializer {
+auto GameBoyAdvanceInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto Interface::unserialize(serializer& s) -> bool {
+auto GameBoyAdvanceInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto Interface::cap(const string& name) -> bool {
+auto GameBoyAdvanceInterface::cap(const string& name) -> bool {
   if(name == "Blur Emulation") return true;
   if(name == "Color Emulation") return true;
   if(name == "Rotate Display") return true;
   return false;
 }
 
-auto Interface::get(const string& name) -> any {
+auto GameBoyAdvanceInterface::get(const string& name) -> any {
   if(name == "Blur Emulation") return settings.blurEmulation;
   if(name == "Color Emulation") return settings.colorEmulation;
   if(name == "Rotate Display") return settings.rotateLeft;
   return {};
 }
 
-auto Interface::set(const string& name, const any& value) -> bool {
+auto GameBoyAdvanceInterface::set(const string& name, const any& value) -> bool {
   if(name == "Blur Emulation" && value.is<bool>()) {
     settings.blurEmulation = value.get<bool>();
-    Emulator::video.setEffect(Emulator::Video::Effect::InterframeBlending, settings.blurEmulation);
+    video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
     return true;
   }
 
   if(name == "Color Emulation" && value.is<bool>()) {
     settings.colorEmulation = value.get<bool>();
-    Emulator::video.setPalette();
+    video.setPalette();
     return true;
   }
 
   if(name == "Rotate Display" && value.is<bool>()) {
     settings.rotateLeft = value.get<bool>();
-    Emulator::video.setEffect(Emulator::Video::Effect::RotateLeft, settings.rotateLeft);
+    video.setEffect(Video::Effect::RotateLeft, settings.rotateLeft);
     return true;
   }
 

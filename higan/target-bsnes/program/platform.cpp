@@ -99,7 +99,7 @@ auto Program::open(uint id, string name, vfs::file::mode mode, bool required) ->
   return result;
 }
 
-auto Program::load(uint id, string name, string type, vector<string> options) -> Emulator::Platform::Load {
+auto Program::load(uint id, string name, string type, vector<string> options) -> higan::Platform::Load {
   BrowserDialog dialog;
   dialog.setParent(*presentation);
   dialog.setOptions(options);

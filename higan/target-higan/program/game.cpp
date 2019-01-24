@@ -12,7 +12,7 @@ auto Program::load() -> void {
   gameQueue.reset();
 }
 
-auto Program::load(Emulator::Interface& interface) -> void {
+auto Program::load(higan::Interface& interface) -> void {
   unload();
 
   auto information = interface.information();
@@ -71,7 +71,7 @@ auto Program::unload() -> void {
   } else {
     presentation->resizeViewport();
   }
-  presentation->setTitle({"higan v", Emulator::Version});
+  presentation->setTitle({"higan v", higan::Version});
   presentation->systemMenu.setVisible(false);
   presentation->toolsMenu.setVisible(false);
   toolsManager->setVisible(false);

@@ -1,11 +1,11 @@
 #include <fc/fc.hpp>
 
-namespace Famicom {
+namespace higan::Famicom {
 
+Cartridge cartridge;
 #include "chip/chip.cpp"
 #include "board/board.cpp"
 #include "serialization.cpp"
-Cartridge cartridge;
 
 auto Cartridge::Enter() -> void {
   while(true) scheduler.synchronize(), cartridge.main();

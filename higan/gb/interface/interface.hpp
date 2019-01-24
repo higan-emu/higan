@@ -1,6 +1,6 @@
 #if defined(CORE_GB)
 
-namespace GameBoy {
+namespace higan::GameBoy {
 
 struct ID {
   enum : uint {
@@ -22,7 +22,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct AbstractInterface : Interface {
   auto display() -> Display override;
 
   auto loaded() -> bool override;
@@ -50,7 +50,7 @@ struct Interface : Emulator::Interface {
   auto set(const string& name, const any& value) -> bool override;
 };
 
-struct GameBoyInterface : Interface {
+struct GameBoyInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto color(uint32 color) -> uint64 override;
@@ -58,7 +58,7 @@ struct GameBoyInterface : Interface {
   auto load() -> bool override;
 };
 
-struct GameBoyColorInterface : Interface {
+struct GameBoyColorInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto color(uint32 color) -> uint64 override;

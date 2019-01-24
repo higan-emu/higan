@@ -7,7 +7,7 @@ struct InputMapping {
   auto rumble(bool enable) -> void;
   auto displayName() -> string;
 
-  using Type = Emulator::Interface::Input::Type;
+  using Type = higan::Interface::Input::Type;
   auto isDigital() const -> bool {
     return type == Type::Hat || type == Type::Button || type == Type::Trigger || type == Type::Control;
   }

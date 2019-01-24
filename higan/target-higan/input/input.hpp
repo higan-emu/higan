@@ -6,7 +6,7 @@ struct InputMapping {
   auto poll() -> int16;
   auto rumble(bool enable) -> void;
 
-  using Type = Emulator::Interface::Input::Type;
+  using Type = higan::Interface::Input::Type;
   auto isDigital() const -> bool {
     return type == Type::Hat || type == Type::Button || type == Type::Trigger || type == Type::Control;
   }
@@ -59,14 +59,14 @@ struct InputPort {
 };
 
 struct InputEmulator {
-  Emulator::Interface* interface = nullptr;
+  higan::Interface* interface = nullptr;
   string name;
   vector<InputPort> ports;
 };
 
 struct InputManager {
   InputManager();
-  auto bind(Emulator::Interface*) -> void;
+  auto bind(higan::Interface*) -> void;
   auto bind() -> void;
   auto poll() -> void;
   auto onChange(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void;

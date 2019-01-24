@@ -1,4 +1,4 @@
-processors += sm83
+components += sm83
 
 objects += gb-interface gb-system
 objects += gb-memory gb-cartridge

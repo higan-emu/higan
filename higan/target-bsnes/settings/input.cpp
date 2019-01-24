@@ -1,4 +1,4 @@
-auto InputSettings::create() -> void {
+InputSettings::InputSettings() {
   setIcon(Icon::Device::Joypad);
   setText("Input");
 

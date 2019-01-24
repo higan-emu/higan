@@ -1,5 +1,5 @@
-struct APU : Processor::Z80, Processor::Z80::Bus, Thread {
-  Emulator::Memory::Writable<uint8> ram;
+struct APU : Z80, Z80::Bus, Thread {
+  Memory::Writable<uint8> ram;
 
   //apu.cpp
   static auto Enter() -> void;

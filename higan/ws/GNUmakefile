@@ -1,4 +1,4 @@
-processors += v30mz
+components += v30mz
 
 objects += ws-interface ws-system
 objects += ws-memory ws-eeprom ws-cartridge

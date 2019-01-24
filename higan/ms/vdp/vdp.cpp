@@ -1,6 +1,6 @@
 #include <ms/ms.hpp>
 
-namespace MasterSystem {
+namespace higan::MasterSystem {
 
 VDP vdp;
 #include "io.cpp"
@@ -75,7 +75,7 @@ auto VDP::refresh() -> void {
   if(Model::ColecoVision() || Model::SG1000() || Model::SC3000()) {
     uint32* screen = buffer;
     screen += 24 * 256;
-    Emulator::video.refresh(screen, 256 * sizeof(uint32), 256, 192);
+    video.refresh(screen, 256 * sizeof(uint32), 256, 192);
   }
 
   if(Model::MasterSystem()) {
@@ -84,11 +84,11 @@ auto VDP::refresh() -> void {
     if(vlines() == 224) screen += 16 * 256;
     if(vlines() == 240) screen += 24 * 256;
 
-    Emulator::video.refresh(screen, 256 * sizeof(uint32), 256, 240);
+    video.refresh(screen, 256 * sizeof(uint32), 256, 240);
   }
 
   if(Model::GameGear()) {
-    Emulator::video.refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
+    video.refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
   }
 }
 

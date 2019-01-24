@@ -1,6 +1,6 @@
 #include <md/md.hpp>
 
-namespace MegaDrive {
+namespace higan::MegaDrive {
 
 APU apu;
 #include "bus.cpp"

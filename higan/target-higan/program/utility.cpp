@@ -55,7 +55,7 @@ auto Program::initializeAudioDriver() -> void {
     audio->create("None");
   }
 
-  Emulator::audio.setFrequency(settings["Audio/Frequency"].real());
+  higan::audio.setFrequency(settings["Audio/Frequency"].real());
 }
 
 auto Program::initializeInputDriver() -> void {
@@ -135,10 +135,10 @@ auto Program::updateVideoPalette() -> void {
   double saturation = settings["Video/Saturation"].natural() / 100.0;
   double gamma = settings["Video/Gamma"].natural() / 100.0;
   double luminance = settings["Video/Luminance"].natural() / 100.0;
-  Emulator::video.setSaturation(saturation);
-  Emulator::video.setGamma(gamma);
-  Emulator::video.setLuminance(luminance);
-  Emulator::video.setPalette();
+  higan::video.setSaturation(saturation);
+  higan::video.setGamma(gamma);
+  higan::video.setLuminance(luminance);
+  higan::video.setPalette();
 }
 
 auto Program::updateVideoShader() -> void {
@@ -151,15 +151,15 @@ auto Program::updateAudioDriver() -> void {
   audio->setExclusive(settings["Audio/Exclusive"].boolean());
   audio->setFrequency(settings["Audio/Frequency"].real());
   audio->setLatency(settings["Audio/Latency"].natural());
-  Emulator::audio.setFrequency(settings["Audio/Frequency"].real());
+  higan::audio.setFrequency(settings["Audio/Frequency"].real());
 }
 
 auto Program::updateAudioEffects() -> void {
   auto volume = settings["Audio/Mute"].boolean() ? 0.0 : settings["Audio/Volume"].natural() * 0.01;
-  Emulator::audio.setVolume(volume);
+  higan::audio.setVolume(volume);
 
   auto balance = max(-1.0, min(1.0, (settings["Audio/Balance"].integer() - 50) / 50.0));
-  Emulator::audio.setBalance(balance);
+  higan::audio.setBalance(balance);
 }
 
 auto Program::focused() -> bool {

@@ -1,6 +1,6 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 #include "load.cpp"
 #include "save.cpp"

@@ -1,25 +1,29 @@
 #include <gba/gba.hpp>
 
-namespace GameBoyAdvance {
+namespace higan::GameBoyAdvance {
 
 System system;
 Scheduler scheduler;
 #include "bios.cpp"
 #include "serialization.cpp"
 
-auto System::init() -> void {
+auto System::run() -> void {
+  if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
 }
 
-auto System::term() -> void {
+auto System::runToSave() -> void {
+  scheduler.synchronize(cpu);
+  scheduler.synchronize(ppu);
+  scheduler.synchronize(apu);
+  scheduler.synchronize(player);
 }
 
 auto System::power() -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-  Emulator::video.setEffect(Emulator::Video::Effect::InterframeBlending, settings.blurEmulation);
-  Emulator::video.setEffect(Emulator::Video::Effect::RotateLeft, settings.rotateLeft);
-
-  Emulator::audio.reset(interface);
+  video.reset(interface);
+  video.setPalette();
+  video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
+  video.setEffect(Video::Effect::RotateLeft, settings.rotateLeft);
+  audio.reset(interface);
 
   scheduler.reset();
   bus.power();
@@ -31,7 +35,7 @@ auto System::power() -> void {
   scheduler.primary(cpu);
 }
 
-auto System::load(Emulator::Interface* interface) -> bool {
+auto System::load(Interface* interface) -> bool {
   if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
   } else return false;
@@ -60,17 +64,6 @@ auto System::unload() -> void {
   if(!loaded()) return;
   cartridge.unload();
   _loaded = false;
-}
-
-auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
-}
-
-auto System::runToSave() -> void {
-  scheduler.synchronize(cpu);
-  scheduler.synchronize(ppu);
-  scheduler.synchronize(apu);
-  scheduler.synchronize(player);
 }
 
 }

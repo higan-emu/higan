@@ -1,6 +1,6 @@
 #if defined(CORE_MS)
 
-namespace MasterSystem {
+namespace higan::MasterSystem {
 
 struct ID {
   enum : uint {
@@ -29,7 +29,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct AbstractInterface : Interface {
   auto loaded() -> bool override;
   auto hashes() -> vector<string> override;
   auto manifests() -> vector<string> override;
@@ -50,7 +50,7 @@ struct Interface : Emulator::Interface {
   auto set(const string& name, const any& value) -> bool override;
 };
 
-struct ColecoVisionInterface : Interface {
+struct ColecoVisionInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto display() -> Display override;
@@ -66,7 +66,7 @@ struct ColecoVisionInterface : Interface {
   auto connect(uint port, uint device) -> void override;
 };
 
-struct SG1000Interface : Interface {
+struct SG1000Interface : AbstractInterface {
   auto information() -> Information override;
 
   auto display() -> Display override;
@@ -82,7 +82,7 @@ struct SG1000Interface : Interface {
   auto connect(uint port, uint device) -> void override;
 };
 
-struct SC3000Interface : Interface {
+struct SC3000Interface : AbstractInterface {
   auto information() -> Information override;
 
   auto display() -> Display override;
@@ -98,7 +98,7 @@ struct SC3000Interface : Interface {
   auto connect(uint port, uint device) -> void override;
 };
 
-struct MasterSystemInterface : Interface {
+struct MasterSystemInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto display() -> Display override;
@@ -114,7 +114,7 @@ struct MasterSystemInterface : Interface {
   auto connect(uint port, uint device) -> void override;
 };
 
-struct GameGearInterface : Interface {
+struct GameGearInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto display() -> Display override;

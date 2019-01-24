@@ -13,7 +13,7 @@ struct Cheat {
 };
 
 struct CheatDatabase : Window {
-  auto create() -> void;
+  CheatDatabase();
   auto findCheats() -> void;
   auto addCheats() -> void;
 
@@ -28,7 +28,7 @@ public:
 };
 
 struct CheatWindow : Window {
-  auto create() -> void;
+  CheatWindow();
   auto show(Cheat cheat = {}) -> void;
   auto doChange() -> void;
   auto doAccept() -> void;
@@ -48,7 +48,7 @@ public:
 };
 
 struct CheatEditor : TabFrameItem {
-  auto create() -> void;
+  CheatEditor();
   auto refresh() -> void;
   auto addCheat(Cheat cheat) -> void;
   auto editCheat(Cheat cheat) -> void;
@@ -72,7 +72,7 @@ public:
 };
 
 struct StateWindow : Window {
-  auto create() -> void;
+  StateWindow();
   auto show(string name = {}) -> void;
   auto doChange() -> void;
   auto doAccept() -> void;
@@ -89,7 +89,7 @@ public:
 };
 
 struct StateManager : TabFrameItem, Lock {
-  auto create() -> void;
+  StateManager();
   auto type() const -> string;
   auto loadStates() -> void;
   auto createState(string name) -> void;
@@ -126,7 +126,7 @@ public:
 };
 
 struct ManifestViewer : TabFrameItem {
-  auto create() -> void;
+  ManifestViewer();
   auto loadManifest() -> void;
   auto selectManifest() -> void;
 
@@ -147,7 +147,7 @@ public:
 };
 
 struct ToolsWindow : Window {
-  auto create() -> void;
+  ToolsWindow();
   auto setVisible(bool visible = true) -> ToolsWindow&;
   auto show(uint index) -> void;
 
@@ -156,10 +156,18 @@ public:
     TabFrame panel{&layout, Size{~0, ~0}};
 };
 
-extern CheatDatabase cheatDatabase;
-extern CheatWindow cheatWindow;
-extern CheatEditor cheatEditor;
-extern StateWindow stateWindow;
-extern StateManager stateManager;
-extern ManifestViewer manifestViewer;
-extern ToolsWindow toolsWindow;
+extern Instance<CheatDatabase> cheatDatabaseInstance;
+extern Instance<CheatWindow> cheatWindowInstance;
+extern Instance<CheatEditor> cheatEditorInstance;
+extern Instance<StateWindow> stateWindowInstance;
+extern Instance<StateManager> stateManagerInstance;
+extern Instance<ManifestViewer> manifestViewerInstance;
+extern Instance<ToolsWindow> toolsWindowInstance;
+
+extern CheatDatabase& cheatDatabase;
+extern CheatWindow& cheatWindow;
+extern CheatEditor& cheatEditor;
+extern StateWindow& stateWindow;
+extern StateManager& stateManager;
+extern ManifestViewer& manifestViewer;
+extern ToolsWindow& toolsWindow;

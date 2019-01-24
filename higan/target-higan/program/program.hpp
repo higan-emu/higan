@@ -1,4 +1,4 @@
-struct Program : Emulator::Platform {
+struct Program : higan::Platform {
   //program.cpp
   Program(Arguments arguments);
   auto main() -> void;
@@ -7,7 +7,7 @@ struct Program : Emulator::Platform {
   //platform.cpp
   auto path(uint id) -> string override;
   auto open(uint id, string name, vfs::file::mode mode, bool required) -> vfs::shared::file override;
-  auto load(uint id, string name, string type, vector<string> options = {}) -> Emulator::Platform::Load override;
+  auto load(uint id, string name, string type, vector<string> options = {}) -> higan::Platform::Load override;
   auto videoFrame(const uint32* data, uint pitch, uint width, uint height) -> void override;
   auto audioFrame(const double* samples, uint channels) -> void override;
   auto inputPoll(uint port, uint device, uint input) -> int16 override;
@@ -17,7 +17,7 @@ struct Program : Emulator::Platform {
 
   //game.cpp
   auto load() -> void;
-  auto load(Emulator::Interface& interface) -> void;
+  auto load(higan::Interface& interface) -> void;
   auto unload() -> void;
 
   //state.cpp
@@ -45,7 +45,7 @@ struct Program : Emulator::Platform {
   bool hasQuit = false;
   bool pause = false;
 
-  vector<Emulator::Interface*> emulators;
+  vector<higan::Interface*> emulators;
 
   vector<string> gameQueue;  //for command-line and drag-and-drop loading
   vector<string> gamePaths;  //for keeping track of loaded folder locations

@@ -36,6 +36,7 @@
 #include <nall/hid.hpp>
 #include <nall/image.hpp>
 #include <nall/inode.hpp>
+#include <nall/instance.hpp>
 #include <nall/interpolation.hpp>
 #include <nall/intrinsics.hpp>
 #include <nall/iterator.hpp>

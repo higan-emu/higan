@@ -17,7 +17,7 @@ struct System {
   auto runToSave() -> void;
 
   auto init() -> void;
-  auto load(Emulator::Interface*, Model, maybe<uint> = nothing) -> bool;
+  auto load(Interface*, Model, maybe<uint> = nothing) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;
@@ -34,7 +34,7 @@ struct System {
   auto serializeAll(serializer&) -> void;
   auto serializeInit() -> void;
 
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct BootROM {
     uint8 dmg[ 256];

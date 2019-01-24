@@ -8,8 +8,9 @@ extern Input input;
 using namespace hiro;
 
 #include <emulator/emulator.hpp>
-extern unique_pointer<Emulator::Interface> emulator;
+extern unique_pointer<higan::Interface> emulator;
 
+#include <nall/instance.hpp>
 #include <nall/decode/rle.hpp>
 #include <nall/decode/zip.hpp>
 #include <nall/encode/rle.hpp>

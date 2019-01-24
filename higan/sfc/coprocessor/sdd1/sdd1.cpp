@@ -1,9 +1,4 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
 SDD1 sdd1;
-
 #include "decompressor.cpp"
 #include "serialization.cpp"
 
@@ -127,6 +122,4 @@ auto SDD1::mcuRead(uint24 addr, uint8 data) -> uint8 {
 }
 
 auto SDD1::mcuWrite(uint24 addr, uint8 data) -> void {
-}
-
 }

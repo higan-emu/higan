@@ -1,6 +1,6 @@
 #include <ms/ms.hpp>
 
-namespace MasterSystem {
+namespace higan::MasterSystem {
 
 Settings settings;
 #include "colecovision.cpp"
@@ -9,61 +9,61 @@ Settings settings;
 #include "master-system.cpp"
 #include "game-gear.cpp"
 
-auto Interface::loaded() -> bool {
+auto AbstractInterface::loaded() -> bool {
   return system.loaded();
 }
 
-auto Interface::hashes() -> vector<string> {
+auto AbstractInterface::hashes() -> vector<string> {
   return {cartridge.hash()};
 }
 
-auto Interface::manifests() -> vector<string> {
+auto AbstractInterface::manifests() -> vector<string> {
   return {cartridge.manifest()};
 }
 
-auto Interface::titles() -> vector<string> {
+auto AbstractInterface::titles() -> vector<string> {
   return {cartridge.title()};
 }
 
-auto Interface::save() -> void {
+auto AbstractInterface::save() -> void {
   system.save();
 }
 
-auto Interface::unload() -> void {
+auto AbstractInterface::unload() -> void {
   save();
   system.unload();
 }
 
-auto Interface::power() -> void {
+auto AbstractInterface::power() -> void {
   system.power();
 }
 
-auto Interface::run() -> void {
+auto AbstractInterface::run() -> void {
   system.run();
 }
 
-auto Interface::serialize() -> serializer {
+auto AbstractInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto Interface::unserialize(serializer& s) -> bool {
+auto AbstractInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto Interface::cheats(const vector<string>& list) -> void {
+auto AbstractInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto Interface::cap(const string& name) -> bool {
+auto AbstractInterface::cap(const string& name) -> bool {
   return false;
 }
 
-auto Interface::get(const string& name) -> any {
+auto AbstractInterface::get(const string& name) -> any {
   return {};
 }
 
-auto Interface::set(const string& name, const any& value) -> bool {
+auto AbstractInterface::set(const string& name, const any& value) -> bool {
   return false;
 }
 

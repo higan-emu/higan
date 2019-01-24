@@ -1,7 +1,8 @@
 #include <fc/fc.hpp>
 
-namespace Famicom {
+namespace higan::Famicom {
 
+APU apu;
 #include "envelope.cpp"
 #include "sweep.cpp"
 #include "pulse.cpp"
@@ -9,7 +10,6 @@ namespace Famicom {
 #include "noise.cpp"
 #include "dmc.cpp"
 #include "serialization.cpp"
-APU apu;
 
 APU::APU() {
   for(uint amp : range(32)) {
@@ -73,10 +73,10 @@ auto APU::setSample(int16 sample) -> void {
 
 auto APU::power(bool reset) -> void {
   create(APU::Enter, system.frequency());
-  stream = Emulator::audio.createStream(1, frequency() / rate());
-  stream->addHighPassFilter(   90.0, Emulator::Filter::Order::First);
-  stream->addHighPassFilter(  440.0, Emulator::Filter::Order::First);
-  stream->addLowPassFilter (14000.0, Emulator::Filter::Order::First);
+  stream = audio.createStream(1, frequency() / rate());
+  stream->addHighPassFilter(   90.0, Filter::Order::First);
+  stream->addHighPassFilter(  440.0, Filter::Order::First);
+  stream->addLowPassFilter (14000.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 
   pulse[0].power();

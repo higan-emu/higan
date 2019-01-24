@@ -1,6 +1,6 @@
 #include <ws/ws.hpp>
 
-namespace WonderSwan {
+namespace higan::WonderSwan {
 
 Cartridge cartridge;
 #include "memory.cpp"
@@ -63,7 +63,7 @@ auto Cartridge::load() -> bool {
 
   auto document = BML::unserialize(information.manifest);
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     rom.size = memory.size;
     rom.mask = bit::round(rom.size) - 1;
     rom.data = new uint8[rom.mask + 1];
@@ -73,7 +73,7 @@ auto Cartridge::load() -> bool {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     ram.size = memory.size;
     ram.mask = bit::round(ram.size) - 1;
     ram.data = new uint8[ram.mask + 1];
@@ -85,7 +85,7 @@ auto Cartridge::load() -> bool {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
     eeprom.setSize(memory.size / sizeof(uint16));
     eeprom.erase();
     if(auto fp = platform->open(pathID(), memory.name(), File::Read)) {
@@ -93,7 +93,7 @@ auto Cartridge::load() -> bool {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
     rtc.size = memory.size;
     rtc.mask = bit::round(rtc.size) - 1;
     rtc.data = new uint8[rtc.mask + 1];
@@ -114,7 +114,7 @@ auto Cartridge::load() -> bool {
 auto Cartridge::save() -> void {
   auto document = BML::unserialize(information.manifest);
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
         fp->write(ram.data, ram.size);
@@ -122,13 +122,13 @@ auto Cartridge::save() -> void {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
     if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
       fp->write(eeprom.data(), eeprom.size());
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
         fp->write(rtc.data, rtc.size);

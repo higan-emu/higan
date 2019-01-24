@@ -1,6 +1,6 @@
 #include <ms/ms.hpp>
 
-namespace MasterSystem {
+namespace higan::MasterSystem {
 
 System system;
 Scheduler scheduler;
@@ -20,7 +20,7 @@ auto System::runToSave() -> void {
   scheduler.synchronize(psg);
 }
 
-auto System::load(Emulator::Interface* interface, Model model) -> bool {
+auto System::load(Interface* interface, Model model) -> bool {
   information = {};
   information.model = model;
 
@@ -40,11 +40,11 @@ auto System::load(Emulator::Interface* interface, Model model) -> bool {
 
   if(cartridge.region() == "NTSC") {
     information.region = Region::NTSC;
-    information.colorburst = Emulator::Constants::Colorburst::NTSC;
+    information.colorburst = Constants::Colorburst::NTSC;
   }
   if(cartridge.region() == "PAL") {
     information.region = Region::PAL;
-    information.colorburst = Emulator::Constants::Colorburst::PAL * 4.0 / 5.0;
+    information.colorburst = Constants::Colorburst::PAL * 4.0 / 5.0;
   }
 
   serializeInit();
@@ -66,10 +66,9 @@ auto System::unload() -> void {
 }
 
 auto System::power() -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-
-  Emulator::audio.reset(interface);
+  video.reset(interface);
+  video.setPalette();
+  audio.reset(interface);
 
   scheduler.reset();
   cartridge.power();

@@ -1,10 +1,6 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
-#include "serialization.cpp"
 SufamiTurboCartridge sufamiturboA;
 SufamiTurboCartridge sufamiturboB;
+#include "serialization.cpp"
 
 auto SufamiTurboCartridge::unload() -> void {
   rom.reset();
@@ -12,6 +8,4 @@ auto SufamiTurboCartridge::unload() -> void {
 }
 
 auto SufamiTurboCartridge::power() -> void {
-}
-
 }

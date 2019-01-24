@@ -1,11 +1,7 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
+EpsonRTC epsonrtc;
 #include "memory.cpp"
 #include "time.cpp"
 #include "serialization.cpp"
-EpsonRTC epsonrtc;
 
 auto EpsonRTC::Enter() -> void {
   while(true) scheduler.synchronize(), epsonrtc.main();
@@ -189,6 +185,4 @@ auto EpsonRTC::write(uint24 addr, uint8 data) -> void {
       mdr = data;
     }
   }
-}
-
 }

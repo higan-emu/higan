@@ -17,7 +17,7 @@ auto Cartridge::saveCartridgeGameBoy(Markup::Node node) -> void {
 }
 
 auto Cartridge::saveCartridgeBSMemory(Markup::Node node) -> void {
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(type=Flash,content=Program)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(type=Flash,content=Program)"]}) {
     if(auto fp = platform->open(bsmemory.pathID, memory.name(), File::Write)) {
       fp->write(bsmemory.memory.data(), memory.size);
     }
@@ -25,7 +25,7 @@ auto Cartridge::saveCartridgeBSMemory(Markup::Node node) -> void {
 }
 
 auto Cartridge::saveCartridgeSufamiTurboA(Markup::Node node) -> void {
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(sufamiturboA.pathID, memory.name(), File::Write)) {
         fp->write(sufamiturboA.ram.data(), memory.size);
@@ -35,7 +35,7 @@ auto Cartridge::saveCartridgeSufamiTurboA(Markup::Node node) -> void {
 }
 
 auto Cartridge::saveCartridgeSufamiTurboB(Markup::Node node) -> void {
-  if(auto memory = Emulator::Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(sufamiturboB.pathID, memory.name(), File::Write)) {
         fp->write(sufamiturboB.ram.data(), memory.size);

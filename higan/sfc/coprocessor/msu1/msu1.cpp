@@ -1,9 +1,4 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
 MSU1 msu1;
-
 #include "serialization.cpp"
 
 auto MSU1::Enter() -> void {
@@ -46,7 +41,7 @@ auto MSU1::unload() -> void {
 
 auto MSU1::power() -> void {
   create(MSU1::Enter, 44100);
-  stream = Emulator::audio.createStream(2, frequency());
+  stream = audio.createStream(2, frequency());
 
   io.dataSeekOffset = 0;
   io.dataReadOffset = 0;
@@ -165,6 +160,4 @@ auto MSU1::writeIO(uint24 addr, uint8 data) -> void {
     }
     break;
   }
-}
-
 }

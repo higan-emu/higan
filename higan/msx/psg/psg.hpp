@@ -1,7 +1,7 @@
 //General Instrument AY-3-8910
 
 struct PSG : Thread {
-  shared_pointer<Emulator::Stream> stream;
+  shared_pointer<Stream> stream;
 
   //psg.cpp
   static auto Enter() -> void;

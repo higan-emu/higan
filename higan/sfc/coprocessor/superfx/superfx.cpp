@@ -1,14 +1,10 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
+SuperFX superfx;
 #include "bus.cpp"
 #include "core.cpp"
 #include "memory.cpp"
 #include "io.cpp"
 #include "timing.cpp"
 #include "serialization.cpp"
-SuperFX superfx;
 
 auto SuperFX::Enter() -> void {
   while(true) scheduler.synchronize(), superfx.main();
@@ -56,6 +52,4 @@ auto SuperFX::power() -> void {
   regs.ramcl = 0;
   regs.ramar = 0;
   regs.ramdr = 0;
-}
-
 }

@@ -1,6 +1,6 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 CPU cpu;
 #include "dma.cpp"
@@ -45,7 +45,7 @@ auto CPU::main() -> void {
 }
 
 auto CPU::load() -> bool {
-  version = configuration.system.cpu.version;
+  version = properties.cpu.version();
   if(version < 1) version = 1;
   if(version > 2) version = 2;
   return true;

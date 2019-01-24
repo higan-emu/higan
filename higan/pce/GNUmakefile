@@ -1,4 +1,4 @@
-processors += huc6280
+components += huc6280
 
 objects += pce-interface
 objects += pce-cpu pce-vpc pce-vce pce-vdc pce-psg

@@ -1,6 +1,6 @@
 #include <ws/ws.hpp>
 
-namespace WonderSwan {
+namespace higan::WonderSwan {
 
 PPU ppu;
 #include "io.cpp"
@@ -79,7 +79,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  Emulator::video.refresh(output, 224 * sizeof(uint32), 224, 144);
+  video.refresh(output, 224 * sizeof(uint32), 224, 144);
 }
 
 auto PPU::step(uint clocks) -> void {

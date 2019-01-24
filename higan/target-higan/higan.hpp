@@ -11,7 +11,7 @@ extern unique_pointer<Input> input;
 using namespace hiro;
 
 #include <emulator/emulator.hpp>
-extern Emulator::Interface* emulator;
+extern higan::Interface* emulator;
 
 #include "program/program.hpp"
 #include "input/input.hpp"

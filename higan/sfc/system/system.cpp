@@ -1,6 +1,6 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 System system;
 Scheduler scheduler;
@@ -21,7 +21,7 @@ auto System::runToSave() -> void {
   for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
 }
 
-auto System::load(Emulator::Interface* interface) -> bool {
+auto System::load(Interface* interface) -> bool {
   information = {};
   hacks.fastPPU = configuration.hacks.ppuFast.enable;
   hacks.fastDSP = configuration.hacks.dspFast.enable;
@@ -35,11 +35,11 @@ auto System::load(Emulator::Interface* interface) -> bool {
 
   if(cartridge.region() == "NTSC") {
     information.region = Region::NTSC;
-    information.cpuFrequency = Emulator::Constants::Colorburst::NTSC * 6.0;
+    information.cpuFrequency = Constants::Colorburst::NTSC * 6.0;
   }
   if(cartridge.region() == "PAL") {
     information.region = Region::PAL;
-    information.cpuFrequency = Emulator::Constants::Colorburst::PAL * 4.8;
+    information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
   }
 
   if(cartridge.has.ICD) icd.load();
@@ -83,11 +83,9 @@ auto System::unload() -> void {
 }
 
 auto System::power(bool reset) -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-
-  Emulator::audio.reset(interface);
-
+  video.reset(interface);
+  video.setPalette();
+  audio.reset(interface);
   random.entropy(Random::Entropy::Low);
 
   scheduler.reset();

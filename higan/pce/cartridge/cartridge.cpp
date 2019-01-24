@@ -1,6 +1,6 @@
 #include <pce/pce.hpp>
 
-namespace PCEngine {
+namespace higan::PCEngine {
 
 Cartridge cartridge;
 
@@ -26,7 +26,7 @@ auto Cartridge::load() -> bool {
   auto document = BML::unserialize(information.manifest);
   information.title = document["game/label"].text();
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     rom.size = memory.size;
     rom.data = new uint8[rom.size]();
     if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Required)) {

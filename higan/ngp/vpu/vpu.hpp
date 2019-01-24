@@ -2,7 +2,7 @@
 //K2GE (Neo Geo Pocket Color)
 
 struct VPU : Thread {
-  Emulator::Memory::Writable<uint8> ram;
+  Memory::Writable<uint8> ram;
 
   //vpu.cpp
   static auto Enter() -> void;

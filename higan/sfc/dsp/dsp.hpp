@@ -1,7 +1,7 @@
 //Sony CXD1222Q-1
 
 struct DSP : Thread {
-  shared_pointer<Emulator::Stream> stream;
+  shared_pointer<Stream> stream;
   uint8 apuram[64 * 1024];
 
   DSP();

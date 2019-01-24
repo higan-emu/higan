@@ -1,6 +1,6 @@
 #include <ngp/ngp.hpp>
 
-namespace NeoGeoPocket {
+namespace higan::NeoGeoPocket {
 
 VPU vpu;
 #include "serialization.cpp"
@@ -48,7 +48,7 @@ auto VPU::step(uint clocks) -> void {
 auto VPU::refresh() -> void {
   for(uint address : range(0x4000)) buffer[address] = ram[address];
   for(uint address : range(0x1f00)) buffer[address + 0x4000] = cpu.ram[address + 0x3000 - 0x1f00];
-  Emulator::video.refresh(buffer, 160 * sizeof(uint32), 160, 152);
+  video.refresh(buffer, 160 * sizeof(uint32), 160, 152);
 }
 
 auto VPU::power() -> void {

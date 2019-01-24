@@ -1,4 +1,4 @@
-struct SuperFX : Processor::GSU, Thread {
+struct SuperFX : GSU, Thread {
   ReadableMemory rom;
   WritableMemory ram;
 

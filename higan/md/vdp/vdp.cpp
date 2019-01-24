@@ -1,6 +1,6 @@
 #include <md/md.hpp>
 
-namespace MegaDrive {
+namespace higan::MegaDrive {
 
 VDP vdp;
 #include "memory.cpp"
@@ -78,7 +78,7 @@ auto VDP::step(uint clocks) -> void {
 auto VDP::refresh() -> void {
   auto data = output;
   if(!latch.overscan) data -= 16 * 1280;
-  Emulator::video.refresh(data, 1280 * sizeof(uint32), 1280, 480);
+  video.refresh(data, 1280 * sizeof(uint32), 1280, 480);
 }
 
 auto VDP::power(bool reset) -> void {

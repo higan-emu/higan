@@ -1,6 +1,6 @@
 #include <pce/pce.hpp>
 
-namespace PCEngine {
+namespace higan::PCEngine {
 
 VPC vpc;
 #include "serialization.cpp"

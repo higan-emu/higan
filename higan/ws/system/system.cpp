@@ -1,6 +1,6 @@
 #include <ws/ws.hpp>
 
-namespace WonderSwan {
+namespace higan::WonderSwan {
 
 System system;
 Scheduler scheduler;
@@ -8,14 +8,19 @@ Cheat cheat;
 #include "io.cpp"
 #include "serialization.cpp"
 
-auto System::init() -> void {
-  assert(interface != nullptr);
+auto System::run() -> void {
+  if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
+  pollKeypad();
 }
 
-auto System::term() -> void {
+auto System::runToSave() -> void {
+  scheduler.synchronize(cpu);
+  scheduler.synchronize(ppu);
+  scheduler.synchronize(apu);
+  scheduler.synchronize(cartridge);
 }
 
-auto System::load(Emulator::Interface* interface, Model model) -> bool {
+auto System::load(Interface* interface, Model model) -> bool {
   _model = model;
 
   if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
@@ -60,12 +65,11 @@ auto System::unload() -> void {
 }
 
 auto System::power() -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-  Emulator::video.setEffect(Emulator::Video::Effect::InterframeBlending, settings.blurEmulation);
-  Emulator::video.setEffect(Emulator::Video::Effect::RotateLeft, settings.rotateLeft);
-
-  Emulator::audio.reset(interface);
+  video.reset(interface);
+  video.setPalette();
+  video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
+  video.setEffect(Video::Effect::RotateLeft, settings.rotateLeft);
+  audio.reset(interface);
 
   scheduler.reset();
   bus.power();
@@ -84,18 +88,6 @@ auto System::power() -> void {
   r.format = 0;
   r.depth = 0;
   r.color = 0;
-}
-
-auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
-  pollKeypad();
-}
-
-auto System::runToSave() -> void {
-  scheduler.synchronize(cpu);
-  scheduler.synchronize(ppu);
-  scheduler.synchronize(apu);
-  scheduler.synchronize(cartridge);
 }
 
 auto System::pollKeypad() -> void {

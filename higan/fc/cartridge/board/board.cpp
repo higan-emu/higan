@@ -23,14 +23,14 @@ Board::Board(Markup::Node& document) {
   cartridge.board = this;
   information.type = document["game/board"].text();
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     if(prgrom.size = memory.size) prgrom.data = new uint8_t[prgrom.size]();
     if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read, File::Required)) {
       fp->read(prgrom.data, min(prgrom.size, fp->size()));
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(prgram.size = memory.size) prgram.data = new uint8_t[prgram.size](), prgram.writable = true;
     if(memory.nonVolatile) {
       if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read)) {
@@ -39,14 +39,14 @@ Board::Board(Markup::Node& document) {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Character)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Character)"]}) {
     if(chrrom.size = memory.size) chrrom.data = new uint8_t[chrrom.size]();
     if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read, File::Required)) {
       fp->read(chrrom.data, min(chrrom.size, fp->size()));
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
     if(chrram.size = memory.size) chrram.data = new uint8_t[chrram.size](), chrram.writable = true;
     if(memory.nonVolatile) {
       if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read)) {
@@ -59,7 +59,7 @@ Board::Board(Markup::Node& document) {
 auto Board::save() -> void {
   auto document = BML::unserialize(cartridge.manifest());
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Write)) {
         fp->write(prgram.data, prgram.size);
@@ -67,7 +67,7 @@ auto Board::save() -> void {
     }
   }
 
-  if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
     if(memory.nonVolatile) {
       if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Write)) {
         fp->write(chrram.data, chrram.size);

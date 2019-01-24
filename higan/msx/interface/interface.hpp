@@ -1,6 +1,6 @@
 #if defined(CORE_MSX)
 
-namespace MSX {
+namespace higan::MSX {
 
 struct ID {
   enum : uint {
@@ -22,7 +22,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct MSXInterface : Interface {
   auto information() -> Information override;
 
   auto display() -> Display override;

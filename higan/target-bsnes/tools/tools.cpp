@@ -2,15 +2,24 @@
 #include "cheat-editor.cpp"
 #include "state-manager.cpp"
 #include "manifest-viewer.cpp"
-CheatDatabase cheatDatabase;
-CheatWindow cheatWindow;
-CheatEditor cheatEditor;
-StateWindow stateWindow;
-StateManager stateManager;
-ManifestViewer manifestViewer;
-ToolsWindow toolsWindow;
 
-auto ToolsWindow::create() -> void {
+Instance<CheatDatabase> cheatDatabaseInstance;
+Instance<CheatWindow> cheatWindowInstance;
+Instance<CheatEditor> cheatEditorInstance;
+Instance<StateWindow> stateWindowInstance;
+Instance<StateManager> stateManagerInstance;
+Instance<ManifestViewer> manifestViewerInstance;
+Instance<ToolsWindow> toolsWindowInstance;
+
+CheatDatabase& cheatDatabase = cheatDatabaseInstance();
+CheatWindow& cheatWindow = cheatWindowInstance();
+CheatEditor& cheatEditor = cheatEditorInstance();
+StateWindow& stateWindow = stateWindowInstance();
+StateManager& stateManager = stateManagerInstance();
+ManifestViewer& manifestViewer = manifestViewerInstance();
+ToolsWindow& toolsWindow = toolsWindowInstance();
+
+ToolsWindow::ToolsWindow() {
   layout.setPadding(5);
   panel.append(cheatEditor);
   panel.append(stateManager);

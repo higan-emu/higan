@@ -1,5 +1,5 @@
 struct APU : Thread {
-  shared_pointer<Emulator::Stream> stream;
+  shared_pointer<Stream> stream;
 
   inline auto rate() const -> uint { return Region::PAL() ? 16 : 12; }
 

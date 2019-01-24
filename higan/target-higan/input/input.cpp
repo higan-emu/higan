@@ -220,7 +220,7 @@ InputManager::InputManager() {
 
 //Emulator::Interface::inputPoll() needs to call into InputManager::InputEmulator
 //this function is calling during Program::loadMedium() to link the two together
-auto InputManager::bind(Emulator::Interface* interface) -> void {
+auto InputManager::bind(higan::Interface* interface) -> void {
   this->emulator = nullptr;
   for(auto& emulator : emulators) {
     if(emulator.interface == interface) {

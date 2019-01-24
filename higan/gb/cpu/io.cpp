@@ -6,7 +6,7 @@ auto CPU::wramAddress(uint16 addr) const -> uint {
 }
 
 auto CPU::joypPoll() -> void {
-  function<auto (uint, uint, uint) -> int16> inputPoll = {&Emulator::Platform::inputPoll, platform};
+  function<auto (uint, uint, uint) -> int16> inputPoll = {&Platform::inputPoll, platform};
   if(Model::SuperGameBoy()) inputPoll = {&SuperGameBoyInterface::inputPoll, superGameBoy};
 
   uint button = 0;

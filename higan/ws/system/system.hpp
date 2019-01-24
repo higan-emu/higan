@@ -1,21 +1,20 @@
 struct System : IO {
   enum class Model : uint { WonderSwan, WonderSwanColor, SwanCrystal, PocketChallengeV2 };
 
-  auto loaded() const -> bool { return _loaded; }
-  auto model() const -> Model { return _model; }
-  auto color() const -> bool { return r.color; }
-  auto planar() const -> bool { return r.format == 0; }
-  auto packed() const -> bool { return r.format == 1; }
-  auto depth() const -> bool { return r.color && r.depth == 1; }
+  inline auto loaded() const -> bool { return _loaded; }
+  inline auto model() const -> Model { return _model; }
+  inline auto color() const -> bool { return r.color; }
+  inline auto planar() const -> bool { return r.format == 0; }
+  inline auto packed() const -> bool { return r.format == 1; }
+  inline auto depth() const -> bool { return r.color && r.depth == 1; }
 
-  auto init() -> void;
-  auto term() -> void;
-  auto load(Emulator::Interface*, Model) -> bool;
+  auto run() -> void;
+  auto runToSave() -> void;
+
+  auto load(Interface*, Model) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;
-  auto run() -> void;
-  auto runToSave() -> void;
   auto pollKeypad() -> void;
 
   //io.cpp
@@ -43,7 +42,7 @@ struct System : IO {
   } keypad;
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct Registers {
     //$0060  DISP_MODE

@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Emulator {
+namespace higan {
 
 struct Interface {
   struct Information {
@@ -85,6 +85,10 @@ struct Interface {
 
   //cheat functions
   virtual auto cheats(const vector<string>& = {}) -> void {}
+
+  //properties and settings
+  virtual auto properties() -> AbstractSetting* { return nullptr; }
+  virtual auto settings() -> AbstractSetting* { return nullptr; }
 
   //configuration
   virtual auto configuration() -> string { return {}; }

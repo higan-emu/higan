@@ -1,6 +1,6 @@
 #include <pce/pce.hpp>
 
-namespace PCEngine {
+namespace higan::PCEngine {
 
 PSG psg;
 #include "io.cpp"
@@ -51,8 +51,8 @@ auto PSG::step(uint clocks) -> void {
 
 auto PSG::power() -> void {
   create(PSG::Enter, system.colorburst());
-  stream = Emulator::audio.createStream(2, frequency());
-  stream->addHighPassFilter(20.0, Emulator::Filter::Order::First);
+  stream = audio.createStream(2, frequency());
+  stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 
   io = {};

@@ -1,4 +1,4 @@
-struct HitachiDSP : Processor::HG51B, Thread {
+struct HitachiDSP : HG51B, Thread {
   ReadableMemory rom;
   WritableMemory ram;
 

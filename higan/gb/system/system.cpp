@@ -1,6 +1,6 @@
 #include <gb/gb.hpp>
 
-namespace GameBoy {
+namespace higan::GameBoy {
 
 #include "serialization.cpp"
 System system;
@@ -22,7 +22,7 @@ auto System::init() -> void {
   assert(interface != nullptr);
 }
 
-auto System::load(Emulator::Interface* interface, Model model_, maybe<uint> systemID) -> bool {
+auto System::load(Interface* interface, Model model_, maybe<uint> systemID) -> bool {
   _model = model_;
 
   if(model() == Model::GameBoy) {
@@ -57,7 +57,7 @@ auto System::load(Emulator::Interface* interface, Model model_, maybe<uint> syst
     } else return false;
 
     auto document = BML::unserialize(information.manifest);
-    if(auto memory = Emulator::Game::Memory{document["game/board/memory(type=ROM,content=Boot,architecture=LR35902)"]}) {
+    if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Boot,architecture=LR35902)"]}) {
       if(auto fp = platform->open(systemID(), memory.name(), File::Read, File::Required)) {
         fp->read(bootROM.sgb, 256);
       }
@@ -83,11 +83,10 @@ auto System::unload() -> void {
 
 auto System::power() -> void {
   if(model() != Model::SuperGameBoy) {
-    Emulator::video.reset(interface);
-    Emulator::video.setPalette();
-    Emulator::video.setEffect(Emulator::Video::Effect::InterframeBlending, settings.blurEmulation);
-
-    Emulator::audio.reset(interface);
+    video.reset(interface);
+    video.setPalette();
+    video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
+    audio.reset(interface);
   }
 
   scheduler.reset();

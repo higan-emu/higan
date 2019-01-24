@@ -1,8 +1,8 @@
 #include <msx/msx.hpp>
 
-namespace MSX {
+namespace higan::MSX {
 
-auto Interface::information() -> Information {
+auto MSXInterface::information() -> Information {
   Information information;
   information.manufacturer = "";
   information.name         = "MSX";
@@ -10,7 +10,7 @@ auto Interface::information() -> Information {
   return information;
 }
 
-auto Interface::display() -> Display {
+auto MSXInterface::display() -> Display {
   Display display;
   display.type   = Display::Type::CRT;
   display.colors = 1 << 4;
@@ -22,7 +22,7 @@ auto Interface::display() -> Display {
   return display;
 }
 
-auto Interface::color(uint32 color) -> uint64 {
+auto MSXInterface::color(uint32 color) -> uint64 {
   switch(color.bits(0,3)) {
   case  0: return 0x0000'0000'0000ull;  //transparent
   case  1: return 0x0000'0000'0000ull;  //black
@@ -44,41 +44,41 @@ auto Interface::color(uint32 color) -> uint64 {
   return 0;
 }
 
-auto Interface::loaded() -> bool {
+auto MSXInterface::loaded() -> bool {
   return system.loaded();
 }
 
-auto Interface::hashes() -> vector<string> {
+auto MSXInterface::hashes() -> vector<string> {
   return {cartridge.hash()};
 }
 
-auto Interface::manifests() -> vector<string> {
+auto MSXInterface::manifests() -> vector<string> {
   return {cartridge.manifest()};
 }
 
-auto Interface::titles() -> vector<string> {
+auto MSXInterface::titles() -> vector<string> {
   return {cartridge.title()};
 }
 
-auto Interface::load() -> bool {
+auto MSXInterface::load() -> bool {
   return system.load(this, System::Model::MSX);
 }
 
-auto Interface::save() -> void {
+auto MSXInterface::save() -> void {
   system.save();
 }
 
-auto Interface::unload() -> void {
+auto MSXInterface::unload() -> void {
   save();
   system.unload();
 }
 
-auto Interface::ports() -> vector<Port> { return {
+auto MSXInterface::ports() -> vector<Port> { return {
   {ID::Port::Controller1, "Controller Port 1"},
   {ID::Port::Controller2, "Controller Port 2"}};
 }
 
-auto Interface::devices(uint port) -> vector<Device> {
+auto MSXInterface::devices(uint port) -> vector<Device> {
   if(port == ID::Port::Controller1) return {
     {ID::Device::None,    "None"   },
     {ID::Device::Gamepad, "Gamepad"}
@@ -92,7 +92,7 @@ auto Interface::devices(uint port) -> vector<Device> {
   return {};
 }
 
-auto Interface::inputs(uint device) -> vector<Input> {
+auto MSXInterface::inputs(uint device) -> vector<Input> {
   using Type = Input::Type;
 
   if(device == ID::Device::Gamepad) return {
@@ -107,20 +107,20 @@ auto Interface::inputs(uint device) -> vector<Input> {
   return {};
 }
 
-auto Interface::power() -> void {
+auto MSXInterface::power() -> void {
   system.power();
 }
 
-auto Interface::run() -> void {
+auto MSXInterface::run() -> void {
   system.run();
 }
 
-auto Interface::serialize() -> serializer {
+auto MSXInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto Interface::unserialize(serializer& s) -> bool {
+auto MSXInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 

@@ -1,6 +1,6 @@
 #include <sfc/sfc.hpp>
 
-namespace SuperFamicom {
+namespace higan::SuperFamicom {
 
 PPU ppu;
 
@@ -243,8 +243,8 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  Emulator::video.setEffect(Emulator::Video::Effect::ColorBleed, configuration.video.blurEmulation);
-  Emulator::video.refresh(output, pitch * sizeof(uint32), width, height);
+  video.setEffect(Video::Effect::ColorBleed, configuration.video.blurEmulation);
+  video.refresh(output, pitch * sizeof(uint32), width, height);
 }
 
 }

@@ -1,10 +1,9 @@
 struct Presentation : Window {
   Application::Namespace tr{"Presentation"};
-  auto create() -> void;
-
   enum : uint { RecentGames = 9, QuickStates = 9 };
   enum : uint { StatusHeight = 24 };
 
+  Presentation();
   auto updateStatusIcon() -> void;
   auto configureViewport() -> void;
   auto clearViewport() -> void;
@@ -20,8 +19,6 @@ struct Presentation : Window {
   auto updateRecentGames() -> void;
   auto addRecentGame(string location) -> void;
   auto updateShaders() -> void;
-
-  bool startFullScreen = false;
 
   MenuBar menuBar{this};
     Menu systemMenu{&menuBar};
@@ -97,4 +94,5 @@ struct Presentation : Window {
       Label spacerRight{&statusLayout, Size{8, ~0}, 0};
 };
 
-extern Presentation presentation;
+extern Instance<Presentation> presentationInstance;
+extern Presentation& presentation;

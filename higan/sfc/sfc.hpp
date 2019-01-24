@@ -9,30 +9,25 @@
 #include <emulator/random.hpp>
 #include <emulator/cheat.hpp>
 
-#include <processor/arm7tdmi/arm7tdmi.hpp>
-#include <processor/gsu/gsu.hpp>
-#include <processor/hg51b/hg51b.hpp>
-#include <processor/spc700/spc700.hpp>
-#include <processor/upd96050/upd96050.hpp>
-#include <processor/wdc65816/wdc65816.hpp>
+#include <component/processor/arm7tdmi/arm7tdmi.hpp>
+#include <component/processor/gsu/gsu.hpp>
+#include <component/processor/hg51b/hg51b.hpp>
+#include <component/processor/spc700/spc700.hpp>
+#include <component/processor/upd96050/upd96050.hpp>
+#include <component/processor/wdc65816/wdc65816.hpp>
 
 #if defined(CORE_GB)
   #include <gb/gb.hpp>
 #endif
 
-namespace SuperFamicom {
-  #define platform Emulator::platform
-  namespace File = Emulator::File;
-  using Scheduler = Emulator::Scheduler;
-  using Random = Emulator::Random;
-  using Cheat = Emulator::Cheat;
+namespace higan::SuperFamicom {
   extern Scheduler scheduler;
   extern Random random;
   extern Cheat cheat;
 
-  struct Thread : Emulator::Thread {
+  struct Thread : higan::Thread {
     auto create(auto (*entrypoint)() -> void, double frequency) -> void {
-      Emulator::Thread::create(entrypoint, frequency);
+      higan::Thread::create(entrypoint, frequency);
       scheduler.append(*this);
     }
 

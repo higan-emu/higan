@@ -1,4 +1,4 @@
-auto AudioSettings::create() -> void {
+AudioSettings::AudioSettings() {
   setIcon(Icon::Device::Speaker);
   setText("Audio");
 

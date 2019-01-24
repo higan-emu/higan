@@ -1,6 +1,6 @@
 //Zilog Z80
 
-struct APU : Processor::Z80, Processor::Z80::Bus, Thread {
+struct APU : Z80, Z80::Bus, Thread {
   //z80.cpp
   static auto Enter() -> void;
   auto main() -> void;

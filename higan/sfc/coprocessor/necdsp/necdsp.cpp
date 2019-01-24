@@ -1,9 +1,5 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
-#include "serialization.cpp"
 NECDSP necdsp;
+#include "serialization.cpp"
 
 auto NECDSP::Enter() -> void {
   while(true) scheduler.synchronize(), necdsp.main();
@@ -46,6 +42,4 @@ auto NECDSP::writeRAM(uint24 addr, uint8 data) -> void {
 auto NECDSP::power() -> void {
   uPD96050::power();
   create(NECDSP::Enter, Frequency);
-}
-
 }

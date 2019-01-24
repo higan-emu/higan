@@ -1,6 +1,6 @@
 #if defined(CORE_NGP)
 
-namespace NeoGeoPocket {
+namespace higan::NeoGeoPocket {
 
 struct ID {
   enum : uint {
@@ -18,7 +18,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct AbstractInterface : Interface {
   auto display() -> Display override;
   auto color(uint32 color) -> uint64 override;
 
@@ -40,13 +40,13 @@ struct Interface : Emulator::Interface {
   auto unserialize(serializer&) -> bool override;
 };
 
-struct NeoGeoPocketInterface : Interface {
+struct NeoGeoPocketInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
 };
 
-struct NeoGeoPocketColorInterface : Interface {
+struct NeoGeoPocketColorInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;

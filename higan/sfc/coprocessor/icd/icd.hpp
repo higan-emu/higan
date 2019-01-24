@@ -1,7 +1,7 @@
 #if defined(CORE_GB)
 
-struct ICD : Emulator::Platform, GameBoy::SuperGameBoyInterface, Thread {
-  shared_pointer<Emulator::Stream> stream;
+struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
+  shared_pointer<Stream> stream;
 
   static auto Enter() -> void;
   auto main() -> void;

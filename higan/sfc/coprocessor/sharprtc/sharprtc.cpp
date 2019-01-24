@@ -1,11 +1,7 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
+SharpRTC sharprtc;
 #include "memory.cpp"
 #include "time.cpp"
 #include "serialization.cpp"
-SharpRTC sharprtc;
 
 auto SharpRTC::Enter() -> void {
   while(true) scheduler.synchronize(), sharprtc.main();
@@ -118,6 +114,4 @@ auto SharpRTC::write(uint24 addr, uint8 data) -> void {
       return;
     }
   }
-}
-
 }

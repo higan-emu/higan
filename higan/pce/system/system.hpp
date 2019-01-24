@@ -8,7 +8,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Emulator::Interface*, Model) -> bool;
+  auto load(Interface*, Model) -> bool;
   auto save() -> void;
   auto unload() -> void;
 
@@ -22,7 +22,7 @@ struct System {
   auto serialize(serializer&) -> void;
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct Information {
     bool loaded = false;

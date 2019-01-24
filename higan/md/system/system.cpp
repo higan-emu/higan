@@ -1,6 +1,6 @@
 #include <md/md.hpp>
 
-namespace MegaDrive {
+namespace higan::MegaDrive {
 
 System system;
 Scheduler scheduler;
@@ -20,7 +20,7 @@ auto System::runToSave() -> void {
   scheduler.synchronize(ym2612);
 }
 
-auto System::load(Emulator::Interface* interface, maybe<Region> region) -> bool {
+auto System::load(Interface* interface, maybe<Region> region) -> bool {
   information = {};
 
   if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
@@ -34,15 +34,15 @@ auto System::load(Emulator::Interface* interface, maybe<Region> region) -> bool 
 
   if(cartridge.region() == "NTSC-J") {
     information.region = Region::NTSCJ;
-    information.frequency = Emulator::Constants::Colorburst::NTSC * 15.0;
+    information.frequency = Constants::Colorburst::NTSC * 15.0;
   }
   if(cartridge.region() == "NTSC-U") {
     information.region = Region::NTSCU;
-    information.frequency = Emulator::Constants::Colorburst::NTSC * 15.0;
+    information.frequency = Constants::Colorburst::NTSC * 15.0;
   }
   if(cartridge.region() == "PAL") {
     information.region = Region::PAL;
-    information.frequency = Emulator::Constants::Colorburst::PAL * 12.0;
+    information.frequency = Constants::Colorburst::PAL * 12.0;
   }
 
   serializeInit();
@@ -63,11 +63,9 @@ auto System::unload() -> void {
 }
 
 auto System::power(bool reset) -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-
-  Emulator::audio.reset(interface);
-
+  video.reset(interface);
+  video.setPalette();
+  audio.reset(interface);
   random.entropy(Random::Entropy::High);
 
   scheduler.reset();

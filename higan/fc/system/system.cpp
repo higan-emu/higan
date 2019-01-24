@@ -1,6 +1,6 @@
 #include <fc/fc.hpp>
 
-namespace Famicom {
+namespace higan::Famicom {
 
 #include "serialization.cpp"
 System system;
@@ -19,7 +19,7 @@ auto System::runToSave() -> void {
   for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
 }
 
-auto System::load(Emulator::Interface* interface) -> bool {
+auto System::load(Interface* interface) -> bool {
   information = {};
 
   if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
@@ -32,15 +32,15 @@ auto System::load(Emulator::Interface* interface) -> bool {
 
   if(cartridge.region() == "NTSC-J") {
     information.region = Region::NTSCJ;
-    information.frequency = Emulator::Constants::Colorburst::NTSC * 6.0;
+    information.frequency = Constants::Colorburst::NTSC * 6.0;
   }
   if(cartridge.region() == "NTSC-U") {
     information.region = Region::NTSCU;
-    information.frequency = Emulator::Constants::Colorburst::NTSC * 6.0;
+    information.frequency = Constants::Colorburst::NTSC * 6.0;
   }
   if(cartridge.region() == "PAL") {
     information.region = Region::PAL;
-    information.frequency = Emulator::Constants::Colorburst::PAL * 6.0;
+    information.frequency = Constants::Colorburst::PAL * 6.0;
   }
 
   this->interface = interface;
@@ -62,10 +62,9 @@ auto System::unload() -> void {
 }
 
 auto System::power(bool reset) -> void {
-  Emulator::video.reset(interface);
-  Emulator::video.setPalette();
-
-  Emulator::audio.reset(interface);
+  video.reset(interface);
+  video.setPalette();
+  audio.reset(interface);
 
   scheduler.reset();
   cartridge.power();

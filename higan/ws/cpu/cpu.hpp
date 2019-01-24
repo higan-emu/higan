@@ -1,4 +1,4 @@
-struct CPU : Processor::V30MZ, Thread, IO {
+struct CPU : V30MZ, Thread, IO {
   enum class Interrupt : uint {
     SerialSend,
     Input,

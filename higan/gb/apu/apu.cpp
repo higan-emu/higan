@@ -1,6 +1,6 @@
 #include <gb/gb.hpp>
 
-namespace GameBoy {
+namespace higan::GameBoy {
 
 #include "sequencer.cpp"
 #include "square1.cpp"
@@ -54,8 +54,8 @@ auto APU::main() -> void {
 auto APU::power() -> void {
   create(Enter, 2 * 1024 * 1024);
   if(!Model::SuperGameBoy()) {
-    stream = Emulator::audio.createStream(2, frequency());
-    stream->addHighPassFilter(20.0, Emulator::Filter::Order::First);
+    stream = audio.createStream(2, frequency());
+    stream->addHighPassFilter(20.0, Filter::Order::First);
     stream->addDCRemovalFilter();
   }
   for(uint n = 0xff10; n <= 0xff3f; n++) bus.mmio[n] = this;

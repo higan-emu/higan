@@ -1,8 +1,7 @@
 #pragma once
 
-namespace Emulator {
+namespace higan {
 
-struct Interface;
 struct Video;
 struct Sprite;
 

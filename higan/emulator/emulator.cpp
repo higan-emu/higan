@@ -4,7 +4,7 @@
 #include <emulator/video/video.cpp>
 #include <emulator/resource/resource.cpp>
 
-namespace Emulator {
+namespace higan {
 
 Platform* platform = nullptr;
 

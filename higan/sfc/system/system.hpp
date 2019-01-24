@@ -12,7 +12,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Emulator::Interface*) -> bool;
+  auto load(Interface*) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power(bool reset) -> void;
@@ -22,12 +22,12 @@ struct System {
   auto unserialize(serializer&) -> bool;
 
 private:
-  Emulator::Interface* interface = nullptr;
+  Interface* interface = nullptr;
 
   struct Information {
     bool loaded = false;
     Region region = Region::NTSC;
-    double cpuFrequency = Emulator::Constants::Colorburst::NTSC * 6.0;
+    double cpuFrequency = Constants::Colorburst::NTSC * 6.0;
     double apuFrequency = 32040.0 * 768.0;
   } information;
 

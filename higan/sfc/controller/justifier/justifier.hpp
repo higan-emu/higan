@@ -19,7 +19,7 @@ struct Justifier : Controller {
 
   bool active;
   struct Player {
-    shared_pointer<Emulator::Sprite> sprite;
+    shared_pointer<Sprite> sprite;
     int x;
     int y;
     bool trigger;

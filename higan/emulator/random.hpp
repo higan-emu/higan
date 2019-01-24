@@ -1,6 +1,6 @@
 #pragma once
 
-namespace Emulator {
+namespace higan {
 
 struct Random {
   enum class Entropy : uint { None, Low, High };

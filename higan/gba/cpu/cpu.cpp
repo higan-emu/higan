@@ -1,6 +1,6 @@
 #include <gba/gba.hpp>
 
-namespace GameBoyAdvance {
+namespace higan::GameBoyAdvance {
 
 CPU cpu;
 #include "prefetch.cpp"

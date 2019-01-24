@@ -1,6 +1,6 @@
 #if defined(CORE_WS)
 
-namespace WonderSwan {
+namespace higan::WonderSwan {
 
 struct ID {
   enum : uint {
@@ -19,7 +19,7 @@ struct ID {
   };};
 };
 
-struct Interface : Emulator::Interface {
+struct AbstractInterface : Interface {
   auto display() -> Display override;
   auto color(uint32 color) -> uint64 override;
 
@@ -47,19 +47,19 @@ struct Interface : Emulator::Interface {
   auto set(const string& name, const any& value) -> bool override;
 };
 
-struct WonderSwanInterface : Interface {
+struct WonderSwanInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
 };
 
-struct WonderSwanColorInterface : Interface {
+struct WonderSwanColorInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
 };
 
-struct PocketChallengeV2Interface : Interface {
+struct PocketChallengeV2Interface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;

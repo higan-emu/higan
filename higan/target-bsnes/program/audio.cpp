@@ -59,7 +59,7 @@ auto Program::updateAudioFrequency() -> void {
       if(item.checked()) frequency *= item.property("multiplier").real();
     }
   }
-  Emulator::audio.setFrequency(frequency);
+  higan::audio.setFrequency(frequency);
 }
 
 auto Program::updateAudioLatency() -> void {
@@ -72,8 +72,8 @@ auto Program::updateAudioLatency() -> void {
 
 auto Program::updateAudioEffects() -> void {
   double volume = settings.audio.mute ? 0.0 : settings.audio.volume * 0.01;
-  Emulator::audio.setVolume(volume);
+  higan::audio.setVolume(volume);
 
   double balance = max(-1.0, min(+1.0, (settings.audio.balance - 50) / 50.0));
-  Emulator::audio.setBalance(balance);
+  higan::audio.setBalance(balance);
 }

@@ -100,7 +100,7 @@ struct Settings : Markup::Node {
 };
 
 struct VideoSettings : TabFrameItem {
-  auto create() -> void;
+  VideoSettings();
 
 private:
   VerticalLayout layout{this};
@@ -120,7 +120,7 @@ private:
 };
 
 struct AudioSettings : TabFrameItem {
-  auto create() -> void;
+  AudioSettings();
 
 private:
   VerticalLayout layout{this};
@@ -140,7 +140,7 @@ private:
 };
 
 struct InputSettings : TabFrameItem {
-  auto create() -> void;
+  InputSettings();
   auto updateControls() -> void;
   auto activePort() -> InputPort&;
   auto activeDevice() -> InputDevice&;
@@ -177,7 +177,7 @@ private:
 };
 
 struct HotkeySettings : TabFrameItem {
-  auto create() -> void;
+  HotkeySettings();
   auto reloadMappings() -> void;
   auto refreshMappings() -> void;
   auto assignMapping() -> void;
@@ -198,7 +198,7 @@ private:
 };
 
 struct PathSettings : TabFrameItem {
-  auto create() -> void;
+  PathSettings();
   auto refreshPaths() -> void;
 
 public:
@@ -235,7 +235,7 @@ public:
 };
 
 struct EmulatorSettings : TabFrameItem {
-  auto create() -> void;
+  EmulatorSettings();
   auto updateConfiguration() -> void;
 
 public:
@@ -268,7 +268,7 @@ public:
 };
 
 struct DriverSettings : TabFrameItem {
-  auto create() -> void;
+  DriverSettings();
   auto videoDriverChanged() -> void;
   auto videoDriverChange() -> void;
   auto videoFormatChanged() -> void;
@@ -330,7 +330,7 @@ public:
 };
 
 struct SettingsWindow : Window {
-  auto create() -> void;
+  SettingsWindow();
   auto setVisible(bool visible = true) -> SettingsWindow&;
   auto show(uint index) -> void;
 
@@ -341,11 +341,21 @@ public:
 };
 
 extern Settings settings;
-extern VideoSettings videoSettings;
-extern AudioSettings audioSettings;
-extern InputSettings inputSettings;
-extern HotkeySettings hotkeySettings;
-extern PathSettings pathSettings;
-extern EmulatorSettings emulatorSettings;
-extern DriverSettings driverSettings;
-extern SettingsWindow settingsWindow;
+
+extern Instance<VideoSettings> videoSettingsInstance;
+extern Instance<AudioSettings> audioSettingsInstance;
+extern Instance<InputSettings> inputSettingsInstance;
+extern Instance<HotkeySettings> hotkeySettingsInstance;
+extern Instance<PathSettings> pathSettingsInstance;
+extern Instance<EmulatorSettings> emulatorSettingsInstance;
+extern Instance<DriverSettings> driverSettingsInstance;
+extern Instance<SettingsWindow> settingsWindowInstance;
+
+extern VideoSettings& videoSettings;
+extern AudioSettings& audioSettings;
+extern InputSettings& inputSettings;
+extern HotkeySettings& hotkeySettings;
+extern PathSettings& pathSettings;
+extern EmulatorSettings& emulatorSettings;
+extern DriverSettings& driverSettings;
+extern SettingsWindow& settingsWindow;

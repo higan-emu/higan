@@ -23,15 +23,19 @@ using namespace nall;
 
 #include <libco/libco.h>
 #include <emulator/types.hpp>
+#include <emulator/setting.hpp>
+#include <emulator/platform.hpp>
+#include <emulator/interface.hpp>
+#include <emulator/game.hpp>
 #include <emulator/memory/readable.hpp>
 #include <emulator/memory/writable.hpp>
 #include <emulator/audio/audio.hpp>
 #include <emulator/video/video.hpp>
 #include <emulator/resource/resource.hpp>
 
-namespace Emulator {
+namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.85";
+  static const string Version = "106.86";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org/";
@@ -54,7 +58,3 @@ namespace Emulator {
     static const auto Required = true;
   };
 }
-
-#include "platform.hpp"
-#include "interface.hpp"
-#include "game.hpp"

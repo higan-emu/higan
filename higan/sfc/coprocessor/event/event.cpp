@@ -1,9 +1,5 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
-#include "serialization.cpp"
 Event event;
+#include "serialization.cpp"
 
 auto Event::Enter() -> void {
   while(true) scheduler.synchronize(), event.main();
@@ -106,6 +102,4 @@ auto Event::write(uint24 addr, uint8 data) -> void {
       timerSecondsRemaining = timer;
     }
   }
-}
-
 }

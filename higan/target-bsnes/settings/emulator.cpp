@@ -1,4 +1,4 @@
-auto EmulatorSettings::create() -> void {
+EmulatorSettings::EmulatorSettings() {
   setIcon(Icon::Action::Settings);
   setText("Emulator");
 

@@ -1,6 +1,6 @@
 #include <pce/pce.hpp>
 
-namespace PCEngine {
+namespace higan::PCEngine {
 
 ControllerPort controllerPort;
 #include "gamepad/gamepad.cpp"

@@ -1,7 +1,3 @@
-#include <sfc/sfc.hpp>
-
-namespace SuperFamicom {
-
 ICD icd;
 
 #if defined(CORE_GB)
@@ -45,8 +41,8 @@ auto ICD::unload() -> void {
 auto ICD::power() -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
   create(ICD::Enter, (Frequency ? Frequency : system.cpuFrequency()) / 5.0);
-  stream = Emulator::audio.createStream(2, frequency() / 2.0);
-  stream->addHighPassFilter(20.0, Emulator::Filter::Order::First);
+  stream = audio.createStream(2, frequency() / 2.0);
+  stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 
   r6003 = 0x00;
@@ -101,5 +97,3 @@ auto ICD::reset() -> void {
 }
 
 #endif
-
-}

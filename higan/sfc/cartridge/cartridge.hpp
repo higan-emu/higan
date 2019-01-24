@@ -45,11 +45,11 @@ struct Cartridge {
   } has;
 
 private:
-  Emulator::Game game;
-  Emulator::Game slotGameBoy;
-  Emulator::Game slotBSMemory;
-  Emulator::Game slotSufamiTurboA;
-  Emulator::Game slotSufamiTurboB;
+  Game game;
+  Game slotGameBoy;
+  Game slotBSMemory;
+  Game slotSufamiTurboA;
+  Game slotSufamiTurboB;
   Markup::Node board;
 
   //cartridge.cpp

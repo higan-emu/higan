@@ -9,7 +9,7 @@
 struct Flash {
   natural ID;  //todo: can this be made const, even though it's declared as Cartridge::Flash[2] ?
 
-  Emulator::Memory::Writable<uint8> rom;
+  Memory::Writable<uint8> rom;
   boolean modified;
   uint8 vendorID;
   uint8 deviceID;

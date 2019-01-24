@@ -1,4 +1,4 @@
-processors += z80
+components += z80
 
 objects += msx-interface msx-system msx-cartridge
 objects += msx-cpu msx-vdp msx-psg

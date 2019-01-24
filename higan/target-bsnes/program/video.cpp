@@ -50,8 +50,8 @@ auto Program::updateVideoFormat() -> void {
     settings.video.format = video.format();
   }
   video.setFormat(settings.video.format);
-  Emulator::video.setDepth(settings.video.format == "RGB30" ? 30 : 24);
-  Emulator::video.setPalette();
+  higan::video.setDepth(settings.video.format == "RGB30" ? 30 : 24);
+  higan::video.setPalette();
 }
 
 auto Program::updateVideoShader() -> void {
@@ -60,8 +60,8 @@ auto Program::updateVideoShader() -> void {
 
 auto Program::updateVideoPalette() -> void {
   emulator->configure("Video/ColorEmulation", false);
-  Emulator::video.setLuminance(settings.video.luminance / 100.0);
-  Emulator::video.setSaturation(settings.video.saturation / 100.0);
-  Emulator::video.setGamma(settings.video.gamma / 100.0);
-  Emulator::video.setPalette();
+  higan::video.setLuminance(settings.video.luminance / 100.0);
+  higan::video.setSaturation(settings.video.saturation / 100.0);
+  higan::video.setGamma(settings.video.gamma / 100.0);
+  higan::video.setPalette();
 }

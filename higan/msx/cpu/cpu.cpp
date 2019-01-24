@@ -1,6 +1,6 @@
 #include <msx/msx.hpp>
 
-namespace MSX {
+namespace higan::MSX {
 
 CPU cpu;
 #include "memory.cpp"
