@@ -9,3 +9,7 @@ auto SuperGrafxInterface::information() -> Information {
 auto SuperGrafxInterface::load() -> bool {
   return system.load(this, System::Model::SuperGrafx);
 }
+
+auto SuperGrafxInterface::properties() -> Settings& {
+  return propertySuperGrafx;
+}

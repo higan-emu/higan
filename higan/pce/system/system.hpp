@@ -27,7 +27,6 @@ private:
   struct Information {
     bool loaded = false;
     Model model = Model::PCEngine;
-    string manifest;
     double colorburst = 0.0;
     uint serializeSize = 0;
   } information;

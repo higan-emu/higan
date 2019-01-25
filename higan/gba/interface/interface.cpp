@@ -2,7 +2,8 @@
 
 namespace higan::GameBoyAdvance {
 
-Settings settings;
+Options option;
+Properties property;
 
 auto GameBoyAdvanceInterface::information() -> Information {
   Information information;
@@ -21,7 +22,7 @@ auto GameBoyAdvanceInterface::display() -> Display {
   display.internalWidth  = 240;
   display.internalHeight = 160;
   display.aspectCorrection = 1.0;
-  if(settings.rotateLeft) {
+  if(option.video.rotateLeft()) {
     swap(display.width, display.height);
     swap(display.internalWidth, display.internalHeight);
   }
@@ -37,7 +38,7 @@ auto GameBoyAdvanceInterface::color(uint32 color) -> uint64 {
   uint64 g = image::normalize(G, 5, 16);
   uint64 b = image::normalize(B, 5, 16);
 
-  if(settings.colorEmulation) {
+  if(option.video.colorEmulation()) {
     double lcdGamma = 4.0, outGamma = 2.2;
     double lb = pow(B / 31.0, lcdGamma);
     double lg = pow(G / 31.0, lcdGamma);
@@ -128,40 +129,12 @@ auto GameBoyAdvanceInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto GameBoyAdvanceInterface::cap(const string& name) -> bool {
-  if(name == "Blur Emulation") return true;
-  if(name == "Color Emulation") return true;
-  if(name == "Rotate Display") return true;
-  return false;
+auto GameBoyAdvanceInterface::options() -> Settings& {
+  return option;
 }
 
-auto GameBoyAdvanceInterface::get(const string& name) -> any {
-  if(name == "Blur Emulation") return settings.blurEmulation;
-  if(name == "Color Emulation") return settings.colorEmulation;
-  if(name == "Rotate Display") return settings.rotateLeft;
-  return {};
-}
-
-auto GameBoyAdvanceInterface::set(const string& name, const any& value) -> bool {
-  if(name == "Blur Emulation" && value.is<bool>()) {
-    settings.blurEmulation = value.get<bool>();
-    video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
-    return true;
-  }
-
-  if(name == "Color Emulation" && value.is<bool>()) {
-    settings.colorEmulation = value.get<bool>();
-    video.setPalette();
-    return true;
-  }
-
-  if(name == "Rotate Display" && value.is<bool>()) {
-    settings.rotateLeft = value.get<bool>();
-    video.setEffect(Video::Effect::RotateLeft, settings.rotateLeft);
-    return true;
-  }
-
-  return false;
+auto GameBoyAdvanceInterface::properties() -> Settings& {
+  return property;
 }
 
 }

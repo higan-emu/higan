@@ -22,6 +22,7 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Interface* interface) -> bool {
+  this->interface = interface;
   information = {};
   hacks.fastPPU = option.hack.ppu.fast();
   hacks.fastDSP = option.hack.dsp.fast();
@@ -46,7 +47,6 @@ auto System::load(Interface* interface) -> bool {
   if(cartridge.has.BSMemorySlot) bsmemory.load();
 
   serializeInit();
-  this->interface = interface;
   return information.loaded = true;
 }
 

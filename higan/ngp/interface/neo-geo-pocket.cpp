@@ -9,3 +9,7 @@ auto NeoGeoPocketInterface::information() -> Information {
 auto NeoGeoPocketInterface::load() -> bool {
   return system.load(this, System::Model::NeoGeoPocket);
 }
+
+auto NeoGeoPocketInterface::properties() -> Settings& {
+  return propertyNeoGeoPocket;
+}

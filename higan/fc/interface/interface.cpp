@@ -2,7 +2,8 @@
 
 namespace higan::Famicom {
 
-Settings settings;
+Options option;
+Properties property;
 
 auto FamicomInterface::information() -> Information {
   Information information;
@@ -30,7 +31,7 @@ auto FamicomInterface::color(uint32 n) -> uint64 {
   double hue = 0.0;
   double contrast = 1.0;
   double brightness = 1.0;
-  double gamma = settings.colorEmulation ? 1.8 : 2.2;
+  double gamma = option.video.colorEmulation() ? 1.8 : 2.2;
 
   int color = (n & 0x0f), level = color < 0xe ? int(n >> 4 & 3) : 1;
 
@@ -150,15 +151,15 @@ auto FamicomInterface::inputs(uint device) -> vector<Input> {
 }
 
 auto FamicomInterface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return settings.controllerPort1;
-  if(port == ID::Port::Controller2) return settings.controllerPort2;
-  if(port == ID::Port::Expansion) return settings.expansionPort;
+  if(port == ID::Port::Controller1) return option.port.controller1.device();
+  if(port == ID::Port::Controller2) return option.port.controller2.device();
+  if(port == ID::Port::Expansion) return option.port.expansion.device();
   return 0;
 }
 
 auto FamicomInterface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(settings.controllerPort1 = device);
-  if(port == ID::Port::Controller2) controllerPort2.connect(settings.controllerPort2 = device);
+  if(port == ID::Port::Controller1) controllerPort1.connect(option.port.controller1.device(device));
+  if(port == ID::Port::Controller2) controllerPort2.connect(option.port.controller2.device(device));
 }
 
 auto FamicomInterface::power() -> void {
@@ -186,26 +187,12 @@ auto FamicomInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto FamicomInterface::cap(const string& name) -> bool {
-  if(name == "Color Emulation") return true;
-  if(name == "Scanline Emulation") return true;
-  return false;
+auto FamicomInterface::options() -> Settings& {
+  return option;
 }
 
-auto FamicomInterface::get(const string& name) -> any {
-  if(name == "Color Emulation") return settings.colorEmulation;
-  if(name == "Scanline Emulation") return settings.scanlineEmulation;
-  return {};
-}
-
-auto FamicomInterface::set(const string& name, const any& value) -> bool {
-  if(name == "Color Emulation" && value.is<bool>()) {
-    settings.colorEmulation = value.get<bool>();
-    video.setPalette();
-    return true;
-  }
-  if(name == "Scanline Emulation" && value.is<bool>()) return settings.scanlineEmulation = value.get<bool>(), true;
-  return false;
+auto FamicomInterface::properties() -> Settings& {
+  return property;
 }
 
 }

@@ -21,22 +21,19 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Interface* interface, Model model) -> bool {
+  this->interface = interface;
   _model = model;
 
-  if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else return false;
-
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(interface->properties().serialize());
 
   //note: IPLROM is currently undumped; otherwise we'd load it here ...
 
-  if(auto node = document["system/eeprom"]) {
+  if(auto node = document["system/memory(type=EEPROM,content=Save)"]) {
     eeprom.setSize(node["size"].natural() / sizeof(uint16));
     eeprom.erase();
     //initialize user-data section
     for(uint addr = 0x0030; addr <= 0x003a; addr++) eeprom[addr] = 0x0000;
-    if(auto fp = platform->open(ID::System, node["name"].text(), File::Read)) {
+    if(auto fp = platform->open(ID::System, "save.eeprom", File::Read)) {
       fp->read(eeprom.data(), eeprom.size());
     }
   }
@@ -44,8 +41,7 @@ auto System::load(Interface* interface, Model model) -> bool {
   if(!cartridge.load()) return false;
 
   serializeInit();
-  settings.rotateLeft = cartridge.information.orientation;
-  this->interface = interface;
+  option.video.rotateLeft(cartridge.information.orientation);
   return _loaded = true;
 }
 
@@ -67,8 +63,8 @@ auto System::unload() -> void {
 auto System::power() -> void {
   video.reset(interface);
   video.setPalette();
-  video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
-  video.setEffect(Video::Effect::RotateLeft, settings.rotateLeft);
+  video.setEffect(Video::Effect::InterframeBlending, option.video.interframeBlending());
+  video.setEffect(Video::Effect::RotateLeft, option.video.rotateLeft());
   audio.reset(interface);
 
   scheduler.reset();
@@ -96,7 +92,7 @@ auto System::pollKeypad() -> void {
 
   uint port = ID::Port::Hardware;
   uint device = ID::Device::Controls;
-  auto id = !settings.rotateLeft ? landscape : portrait;
+  auto id = !option.video.rotateLeft() ? landscape : portrait;
 
   keypad.y1 = platform->inputPoll(port, device, id[0]);
   keypad.y2 = platform->inputPoll(port, device, id[1]);

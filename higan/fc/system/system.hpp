@@ -31,7 +31,6 @@ private:
     bool loaded = false;
     Region region = Region::NTSCJ;
     double frequency = Constants::Colorburst::NTSC * 6.0;
-    string manifest;
   } information;
 
   uint _serializeSize = 0;

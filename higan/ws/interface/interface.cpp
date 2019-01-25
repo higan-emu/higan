@@ -2,7 +2,10 @@
 
 namespace higan::WonderSwan {
 
-Settings settings;
+Options option;
+Properties propertyWonderSwan;
+Properties propertyWonderSwanColor;
+Properties propertyPocketChallengeV2;
 #include "wonderswan.cpp"
 #include "wonderswan-color.cpp"
 #include "pocket-challenge-v2.cpp"
@@ -16,7 +19,7 @@ auto AbstractInterface::display() -> Display {
   display.internalWidth  = 224;
   display.internalHeight = 144;
   display.aspectCorrection = 1.0;
-  if(settings.rotateLeft) {
+  if(option.video.rotateLeft()) {
     swap(display.width, display.height);
     swap(display.internalWidth, display.internalHeight);
   }
@@ -35,7 +38,7 @@ auto AbstractInterface::color(uint32 color) -> uint64 {
   uint64_t G = image::normalize(g, 4, 16);
   uint64_t B = image::normalize(b, 4, 16);
 
-  if(settings.colorEmulation) {
+  if(option.video.colorEmulation()) {
     R = (r * 26 + g *  4 + b *  2);
     G = (         g * 24 + b *  8);
     B = (r *  6 + g *  4 + b * 22);
@@ -125,40 +128,8 @@ auto AbstractInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto AbstractInterface::cap(const string& name) -> bool {
-  if(name == "Blur Emulation") return true;
-  if(name == "Color Emulation") return true;
-  if(name == "Rotate Display") return true;
-  return false;
-}
-
-auto AbstractInterface::get(const string& name) -> any {
-  if(name == "Blur Emulation") return settings.blurEmulation;
-  if(name == "Color Emulation") return settings.colorEmulation;
-  if(name == "Rotate Display") return settings.rotateLeft;
-  return {};
-}
-
-auto AbstractInterface::set(const string& name, const any& value) -> bool {
-  if(name == "Blur Emulation" && value.is<bool>()) {
-    settings.blurEmulation = value.get<bool>();
-    video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
-    return true;
-  }
-
-  if(name == "Color Emulation" && value.is<bool>()) {
-    settings.colorEmulation = value.get<bool>();
-    video.setPalette();
-    return true;
-  }
-
-  if(name == "Rotate Display" && value.is<bool>()) {
-    settings.rotateLeft = value.get<bool>();
-    video.setEffect(Video::Effect::RotateLeft, settings.rotateLeft);
-    return true;
-  }
-
-  return false;
+auto AbstractInterface::options() -> Settings& {
+  return option;
 }
 
 }

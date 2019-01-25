@@ -1,3 +1,7 @@
+PocketChallengeV2Interface::PocketChallengeV2Interface() {
+  propertyPocketChallengeV2.memory.size(128);
+}
+
 auto PocketChallengeV2Interface::information() -> Information {
   Information information;
   information.manufacturer = "Benesse";
@@ -8,4 +12,8 @@ auto PocketChallengeV2Interface::information() -> Information {
 
 auto PocketChallengeV2Interface::load() -> bool {
   return system.load(this, System::Model::PocketChallengeV2);
+}
+
+auto PocketChallengeV2Interface::properties() -> Settings& {
+  return propertyPocketChallengeV2;
 }

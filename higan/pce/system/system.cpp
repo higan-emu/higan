@@ -20,19 +20,15 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Interface* interface, Model model) -> bool {
+  this->interface = interface;
   information = {};
   information.model = model;
 
-  if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else return false;
-
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(interface->properties().serialize());
   if(!cartridge.load()) return false;
 
   cpu.load();
   serializeInit();
-  this->interface = interface;
   information.colorburst = Constants::Colorburst::NTSC;
   return information.loaded = true;
 }
@@ -64,7 +60,7 @@ auto System::power() -> void {
   scheduler.primary(cpu);
 
   controllerPort.power();
-  controllerPort.connect(settings.controllerPort);
+  controllerPort.connect(option.port.controller.device());
 }
 
 }

@@ -2,6 +2,9 @@
 
 namespace higan::NeoGeoPocket {
 
+Options option;
+Properties propertyNeoGeoPocket;
+Properties propertyNeoGeoPocketColor;
 #include "neo-geo-pocket.cpp"
 #include "neo-geo-pocket-color.cpp"
 
@@ -95,6 +98,10 @@ auto AbstractInterface::serialize() -> serializer {
 
 auto AbstractInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
+}
+
+auto AbstractInterface::options() -> Settings& {
+  return option;
 }
 
 }

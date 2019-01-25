@@ -19,6 +19,9 @@ struct Settings {
   inline auto valid() const -> vector<string> { return _valid; }
   inline auto setValid(vector<string> values) -> void { _valid = values; }
 
+  inline auto onModify(const function<void()>& modify) -> void { _modify = modify; }
+  inline auto doModify() -> void { if(_modify) _modify(); }
+
   inline auto serialize(string depth = "") const -> string;
   inline auto unserialize(string source) -> void;
 
@@ -28,10 +31,11 @@ protected:
   const string _name;
   vector<string> _valid;
   vector<Settings*> _children;
+  function<void ()> _modify;
   template<typename T> friend class Setting;
 };
 
-template<typename T = nothing_t> struct Setting : Settings {
+template<typename T = string> struct Setting : Settings {
   using type = T;
 
   auto value() const -> string override {
@@ -41,12 +45,7 @@ template<typename T = nothing_t> struct Setting : Settings {
 
   auto setValue(string value) -> bool override {
     if(_valid && !_valid.find(value)) return false;
-    if constexpr(is_same_v<T, boolean>) return _value = value == "true", true;
-    if constexpr(is_same_v<T, integer>) return _value = toInteger(value), true;
-    if constexpr(is_same_v<T, natural>) return _value = toNatural(value), true;
-    if constexpr(is_same_v<T, real>   ) return _value = toReal(value), true;
-    if constexpr(is_same_v<T, string> ) return _value = value, true;
-    return false;
+    return assign(T{(const char*)value}), true;
   }
 
   auto latched() const -> const T& { return _latched; }
@@ -59,11 +58,15 @@ template<typename T = nothing_t> struct Setting : Settings {
     parent->_children.append(this);
   }
 
-  auto operator()(const T& value) -> T& { return _value = value; }
-  auto operator()() -> T& { return _value; }
   auto operator()() const -> const T& { return _value; }
+  auto operator()(const T& value) -> const T& { return assign(value), _value; }
 
 protected:
+  auto assign(const T& value) -> void {
+    _value = value;
+    doModify();
+  }
+
   T _value;
   T _latched;
 };

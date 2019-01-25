@@ -1,4 +1,4 @@
-components += z80
+components += z80 sn76489
 
 objects += ms-interface
 objects += ms-cpu ms-vdp ms-psg

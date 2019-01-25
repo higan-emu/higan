@@ -18,6 +18,7 @@ template<uint Precision> struct Integer {
   inline Integer() : data(0) {}
   template<uint Bits> inline Integer(Integer<Bits> value) { data = mask(value); }
   template<typename T> inline Integer(const T& value) { data = mask(value); }
+  explicit inline Integer(const char* value) { data = mask(toInteger(value)); }
 
   inline operator stype() const { return data; }
 

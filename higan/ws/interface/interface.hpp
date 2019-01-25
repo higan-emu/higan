@@ -42,36 +42,41 @@ struct AbstractInterface : Interface {
 
   auto cheats(const vector<string>& list) -> void override;
 
-  auto cap(const string& name) -> bool override;
-  auto get(const string& name) -> any override;
-  auto set(const string& name, const any& value) -> bool override;
+  auto options() -> Settings& override;
 };
 
 struct WonderSwanInterface : AbstractInterface {
+  WonderSwanInterface();
+
   auto information() -> Information override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings& override;
 };
 
 struct WonderSwanColorInterface : AbstractInterface {
+  WonderSwanColorInterface();
+
   auto information() -> Information override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings& override;
 };
 
 struct PocketChallengeV2Interface : AbstractInterface {
+  PocketChallengeV2Interface();
+
   auto information() -> Information override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings& override;
 };
 
-struct Settings {
-  bool blurEmulation = true;
-  bool colorEmulation = true;
-  bool rotateLeft = false;
-};
-
-extern Settings settings;
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

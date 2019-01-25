@@ -68,12 +68,12 @@ auto CPU::lower(Interrupt interrupt) -> void {
 
 auto CPU::load(Markup::Node node) -> bool {
   tmssEnable = false;
-  if(node["cpu/version"].natural() == 1) {
-    if(auto name = node["cpu/rom/name"].text()) {
-      if(auto fp = platform->open(ID::System, name, File::Read, File::Required)) {
+  if(property.cpu.version() == 1) {
+    if(auto memory = node["memory(type=ROM,content=TMSS)"]) {
+      if(auto fp = platform->open(ID::System, "tmss.rom", File::Read, File::Required)) {
         fp->read(tmss, 2 * 1024);
         tmssEnable = true;
-      }
+      } else return false;
     }
   }
 

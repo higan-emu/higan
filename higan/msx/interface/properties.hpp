@@ -1,13 +1,12 @@
 struct Properties : Setting<> {
   struct Memory : Setting<> { using Setting::Setting;
     Setting<string> type{this, "type", "ROM"};
-    Setting<natural> size{this, "size"};
-    Setting<string> content{this, "content", "Boot"};
+    Setting<natural> size{this, "size", 32768};
+    Setting<string> content{this, "content", "BIOS"};
   } memory{this, "memory"};
 
   Properties() : Setting{"system"} {
   }
 };
 
-extern Properties propertyGameBoy;
-extern Properties propertyGameBoyColor;
+extern Properties property;

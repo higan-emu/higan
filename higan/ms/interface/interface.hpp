@@ -45,9 +45,8 @@ struct AbstractInterface : Interface {
 
   auto cheats(const vector<string>& list) -> void override;
 
-  auto cap(const string& name) -> bool override;
-  auto get(const string& name) -> any override;
-  auto set(const string& name, const any& value) -> bool override;
+  auto options() -> Settings& override;
+  auto properties() -> Settings& override;
 };
 
 struct ColecoVisionInterface : AbstractInterface {
@@ -127,12 +126,8 @@ struct GameGearInterface : AbstractInterface {
   auto load() -> bool override;
 };
 
-struct Settings {
-  uint controllerPort1 = ID::Device::Gamepad;
-  uint controllerPort2 = ID::Device::Gamepad;
-};
-
-extern Settings settings;
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

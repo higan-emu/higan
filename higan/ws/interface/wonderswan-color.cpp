@@ -1,3 +1,7 @@
+WonderSwanColorInterface::WonderSwanColorInterface() {
+  propertyWonderSwanColor.memory.size(2048);
+}
+
 auto WonderSwanColorInterface::information() -> Information {
   Information information;
   information.manufacturer = "Bandai";
@@ -8,4 +12,8 @@ auto WonderSwanColorInterface::information() -> Information {
 
 auto WonderSwanColorInterface::load() -> bool {
   return system.load(this, System::Model::WonderSwanColor);
+}
+
+auto WonderSwanColorInterface::properties() -> Settings& {
+  return propertyWonderSwanColor;
 }

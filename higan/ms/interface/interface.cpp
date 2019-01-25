@@ -2,7 +2,8 @@
 
 namespace higan::MasterSystem {
 
-Settings settings;
+Options option;
+Properties property;
 #include "colecovision.cpp"
 #include "sg-1000.cpp"
 #include "sc-3000.cpp"
@@ -55,16 +56,12 @@ auto AbstractInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto AbstractInterface::cap(const string& name) -> bool {
-  return false;
+auto AbstractInterface::options() -> Settings& {
+  return option;
 }
 
-auto AbstractInterface::get(const string& name) -> any {
-  return {};
-}
-
-auto AbstractInterface::set(const string& name, const any& value) -> bool {
-  return false;
+auto AbstractInterface::properties() -> Settings& {
+  return property;
 }
 
 }

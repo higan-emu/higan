@@ -38,19 +38,28 @@ struct AbstractInterface : Interface {
 
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
+
+  auto options() -> Settings& override;
 };
 
 struct NeoGeoPocketInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings& override;
 };
 
 struct NeoGeoPocketColorInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings& override;
 };
+
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

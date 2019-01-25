@@ -20,17 +20,14 @@ auto System::runToSave() -> void {
   scheduler.synchronize(psg);
 }
 
-auto System::load(Interface* interface_, Model model_) -> bool {
+auto System::load(Interface* interface, Model model_) -> bool {
+  this->interface = interface;
   information.model = model_;
 
-  if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else return false;
-
-  auto document = BML::unserialize(information.manifest);
-  if(auto memory = document["system/bios"]) {
+  auto document = BML::unserialize(interface->properties().serialize());
+  if(auto memory = document["system/memory(type=ROM,content=BIOS)"]) {
     bios.allocate(memory["size"].natural());
-    if(auto fp = platform->open(ID::System, memory["name"].text(), File::Read, File::Required)) {
+    if(auto fp = platform->open(ID::System, "bios.rom", File::Read, File::Required)) {
       bios.load(fp);
     } else return false;
   } else return false;
@@ -43,7 +40,6 @@ auto System::load(Interface* interface_, Model model_) -> bool {
 
   if(!cartridge.load()) return false;
   serializeInit();
-  interface = interface_;
   return information.loaded = true;
 }
 

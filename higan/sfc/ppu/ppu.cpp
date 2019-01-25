@@ -240,7 +240,7 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  video.setEffect(Video::Effect::ColorBleed, option.video.blurEmulation());
+  video.setEffect(Video::Effect::ColorBleed, option.video.colorBleed());
   video.refresh(output, pitch * sizeof(uint32), width, height);
 }
 

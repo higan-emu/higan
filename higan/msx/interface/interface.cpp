@@ -2,6 +2,9 @@
 
 namespace higan::MSX {
 
+Options option;
+Properties property;
+
 auto MSXInterface::information() -> Information {
   Information information;
   information.manufacturer = "";
@@ -122,6 +125,14 @@ auto MSXInterface::serialize() -> serializer {
 
 auto MSXInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
+}
+
+auto MSXInterface::options() -> Settings& {
+  return option;
+}
+
+auto MSXInterface::properties() -> Settings& {
+  return property;
 }
 
 }

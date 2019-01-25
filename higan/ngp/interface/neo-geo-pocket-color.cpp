@@ -9,3 +9,7 @@ auto NeoGeoPocketColorInterface::information() -> Information {
 auto NeoGeoPocketColorInterface::load() -> bool {
   return system.load(this, System::Model::NeoGeoPocketColor);
 }
+
+auto NeoGeoPocketColorInterface::properties() -> Settings& {
+  return propertyNeoGeoPocketColor;
+}

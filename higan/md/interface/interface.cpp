@@ -2,7 +2,8 @@
 
 namespace higan::MegaDrive {
 
-Settings settings;
+Options option;
+Properties property;
 
 auto MegaDriveInterface::information() -> Information {
   Information information;
@@ -135,16 +136,16 @@ auto MegaDriveInterface::inputs(uint device) -> vector<Input> {
 }
 
 auto MegaDriveInterface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return settings.controllerPort1;
-  if(port == ID::Port::Controller2) return settings.controllerPort2;
-  if(port == ID::Port::Extension) return settings.extensionPort;
+  if(port == ID::Port::Controller1) return option.port.controller1.device();
+  if(port == ID::Port::Controller2) return option.port.controller2.device();
+  if(port == ID::Port::Extension) return option.port.extension.device();
   return 0;
 }
 
 auto MegaDriveInterface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(settings.controllerPort1 = device);
-  if(port == ID::Port::Controller2) controllerPort2.connect(settings.controllerPort2 = device);
-  if(port == ID::Port::Extension) extensionPort.connect(settings.extensionPort = device);
+  if(port == ID::Port::Controller1) controllerPort1.connect(option.port.controller1.device(device));
+  if(port == ID::Port::Controller2) controllerPort2.connect(option.port.controller2.device(device));
+  if(port == ID::Port::Extension) extensionPort.connect(option.port.extension.device(device));
 }
 
 auto MegaDriveInterface::power() -> void {
@@ -172,16 +173,12 @@ auto MegaDriveInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto MegaDriveInterface::cap(const string& name) -> bool {
-  return false;
+auto MegaDriveInterface::options() -> Settings& {
+  return option;
 }
 
-auto MegaDriveInterface::get(const string& name) -> any {
-  return {};
-}
-
-auto MegaDriveInterface::set(const string& name, const any& value) -> bool {
-  return false;
+auto MegaDriveInterface::properties() -> Settings& {
+  return property;
 }
 
 }

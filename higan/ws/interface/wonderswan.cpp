@@ -1,3 +1,7 @@
+WonderSwanInterface::WonderSwanInterface() {
+  propertyWonderSwan.memory.size(128);
+}
+
 auto WonderSwanInterface::information() -> Information {
   Information information;
   information.manufacturer = "Bandai";
@@ -8,4 +12,8 @@ auto WonderSwanInterface::information() -> Information {
 
 auto WonderSwanInterface::load() -> bool {
   return system.load(this, System::Model::WonderSwan);
+}
+
+auto WonderSwanInterface::properties() -> Settings& {
+  return propertyWonderSwan;
 }

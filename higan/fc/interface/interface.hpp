@@ -49,21 +49,12 @@ struct FamicomInterface : Interface {
 
   auto cheats(const vector<string>&) -> void override;
 
-  auto cap(const string& name) -> bool override;
-  auto get(const string& name) -> any override;
-  auto set(const string& name, const any& value) -> bool override;
+  auto options() -> Settings& override;
+  auto properties() -> Settings& override;
 };
 
-struct Settings {
-  bool colorEmulation = true;
-  bool scanlineEmulation = true;
-
-  uint controllerPort1 = ID::Device::Gamepad;
-  uint controllerPort2 = ID::Device::Gamepad;
-  uint expansionPort = ID::Device::None;
-};
-
-extern Settings settings;
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

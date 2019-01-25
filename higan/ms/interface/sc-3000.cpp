@@ -91,13 +91,13 @@ auto SC3000Interface::load() -> bool {
 }
 
 auto SC3000Interface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return settings.controllerPort1;
-  if(port == ID::Port::Controller2) return settings.controllerPort2;
+  if(port == ID::Port::Controller1) return option.port.controller1.device();
+  if(port == ID::Port::Controller2) return option.port.controller2.device();
   if(port == ID::Port::Hardware) return ID::Device::SC3000Controls;
   return 0;
 }
 
 auto SC3000Interface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(settings.controllerPort1 = device);
-  if(port == ID::Port::Controller2) controllerPort2.connect(settings.controllerPort2 = device);
+  if(port == ID::Port::Controller1) controllerPort1.connect(option.port.controller1.device(device));
+  if(port == ID::Port::Controller2) controllerPort2.connect(option.port.controller2.device(device));
 }

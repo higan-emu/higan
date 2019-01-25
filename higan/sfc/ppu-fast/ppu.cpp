@@ -97,7 +97,7 @@ auto PPU::refresh() -> void {
   auto pitch  = 512 << !interlace();
   auto width  = 256 << hires();
   auto height = 240 << interlace();
-  video.setEffect(Video::Effect::ColorBleed, option.video.blurEmulation() && hires());
+  video.setEffect(Video::Effect::ColorBleed, option.video.colorBleed() && hires());
   video.refresh(output, pitch * sizeof(uint32), width, height);
 }
 

@@ -50,18 +50,12 @@ struct MegaDriveInterface : Interface {
 
   auto cheats(const vector<string>& list) -> void override;
 
-  auto cap(const string& name) -> bool override;
-  auto get(const string& name) -> any override;
-  auto set(const string& name, const any& value) -> bool override;
+  auto options() -> Settings& override;
+  auto properties() -> Settings& override;
 };
 
-struct Settings {
-  uint controllerPort1 = ID::Device::ControlPad;
-  uint controllerPort2 = ID::Device::ControlPad;
-  uint extensionPort = ID::Device::None;
-};
-
-extern Settings settings;
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

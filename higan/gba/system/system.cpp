@@ -21,8 +21,8 @@ auto System::runToSave() -> void {
 auto System::power() -> void {
   video.reset(interface);
   video.setPalette();
-  video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
-  video.setEffect(Video::Effect::RotateLeft, settings.rotateLeft);
+  video.setEffect(Video::Effect::InterframeBlending, option.video.interframeBlending());
+  video.setEffect(Video::Effect::RotateLeft, option.video.rotateLeft());
   audio.reset(interface);
 
   scheduler.reset();
@@ -36,22 +36,20 @@ auto System::power() -> void {
 }
 
 auto System::load(Interface* interface) -> bool {
-  if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else return false;
+  this->interface = interface;
+  information = {};
 
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(interface->properties().serialize());
 
-  if(auto name = document["system/cpu/rom/name"].text()) {
-    if(auto fp = platform->open(ID::System, name, File::Read, File::Required)) {
+  if(auto name = document["system/memory(type=ROM,content=BIOS)"]) {
+    if(auto fp = platform->open(ID::System, "bios.rom", File::Read, File::Required)) {
       fp->read(bios.data, bios.size);
     } else return false;
-  }
+  } else return false;
 
   if(!cartridge.load()) return false;
 
   serializeInit();
-  this->interface = interface;
   return _loaded = true;
 }
 

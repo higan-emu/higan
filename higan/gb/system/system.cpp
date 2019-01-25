@@ -22,8 +22,8 @@ auto System::init() -> void {
   assert(interface != nullptr);
 }
 
-auto System::load(Interface* interface_, Model model_, maybe<uint> systemID) -> bool {
-  interface = interface_;
+auto System::load(Interface* interface, Model model_, maybe<uint> systemID) -> bool {
+  this->interface = interface;
   _model = model_;
 
   auto document = BML::unserialize(interface->properties().serialize());
@@ -38,7 +38,6 @@ auto System::load(Interface* interface_, Model model_, maybe<uint> systemID) -> 
 
   if(!cartridge.load()) return false;
   serializeInit();
-  this->interface = interface;
   return _loaded = true;
 }
 
@@ -58,7 +57,7 @@ auto System::power() -> void {
   if(model() != Model::SuperGameBoy) {
     video.reset(interface);
     video.setPalette();
-    video.setEffect(Video::Effect::InterframeBlending, option.video.blurEmulation());
+    video.setEffect(Video::Effect::InterframeBlending, option.video.interframeBlending());
     audio.reset(interface);
   }
 

@@ -20,14 +20,10 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Interface* interface) -> bool {
+  this->interface = interface;
   information = {};
 
-  if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else {
-    return false;
-  }
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(interface->properties().serialize());
   if(!cartridge.load()) return false;
 
   if(cartridge.region() == "NTSC-J") {
@@ -43,7 +39,6 @@ auto System::load(Interface* interface) -> bool {
     information.frequency = Constants::Colorburst::PAL * 6.0;
   }
 
-  this->interface = interface;
   serializeInit();
   return information.loaded = true;
 }
@@ -76,8 +71,8 @@ auto System::power(bool reset) -> void {
   controllerPort1.power(ID::Port::Controller1);
   controllerPort2.power(ID::Port::Controller2);
 
-  controllerPort1.connect(settings.controllerPort1);
-  controllerPort2.connect(settings.controllerPort2);
+  controllerPort1.connect(option.port.controller1.device());
+  controllerPort2.connect(option.port.controller2.device());
 }
 
 auto System::init() -> void {

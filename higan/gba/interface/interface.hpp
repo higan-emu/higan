@@ -41,18 +41,12 @@ struct GameBoyAdvanceInterface : Interface {
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
 
-  auto cap(const string& name) -> bool override;
-  auto get(const string& name) -> any override;
-  auto set(const string& name, const any& value) -> bool override;
+  auto options() -> Settings& override;
+  auto properties() -> Settings& override;
 };
 
-struct Settings {
-  bool blurEmulation = true;
-  bool colorEmulation = true;
-  bool rotateLeft = false;
-};
-
-extern Settings settings;
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

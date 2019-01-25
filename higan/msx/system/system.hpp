@@ -34,7 +34,6 @@ private:
     Model model = Model::MSX;
     Region region = Region::NTSC;
     double colorburst = Constants::Colorburst::NTSC;
-    string manifest;
     uint serializeSize = 0;
   } information;
 };

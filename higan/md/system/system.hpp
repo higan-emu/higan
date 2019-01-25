@@ -28,7 +28,6 @@ private:
   Interface* interface = nullptr;
 
   struct Information {
-    string manifest;
     bool loaded = false;
     Region region = Region::NTSCJ;
     double frequency = Constants::Colorburst::NTSC * 15.0;

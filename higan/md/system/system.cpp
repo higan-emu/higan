@@ -21,13 +21,10 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Interface* interface, maybe<Region> region) -> bool {
+  this->interface = interface;
   information = {};
 
-  if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else return false;
-
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(interface->properties().serialize());
   auto system = document["system"];
   if(!cpu.load(system)) return false;
   if(!cartridge.load()) return false;
@@ -46,7 +43,6 @@ auto System::load(Interface* interface, maybe<Region> region) -> bool {
   }
 
   serializeInit();
-  this->interface = interface;
   return information.loaded = true;
 }
 
@@ -81,9 +77,9 @@ auto System::power(bool reset) -> void {
   controllerPort2.power(ID::Port::Controller2);
   extensionPort.power(ID::Port::Extension);
 
-  controllerPort1.connect(settings.controllerPort1);
-  controllerPort2.connect(settings.controllerPort2);
-  extensionPort.connect(settings.extensionPort);
+  controllerPort1.connect(option.port.controller1.device());
+  controllerPort2.connect(option.port.controller2.device());
+  extensionPort.connect(option.port.extension.device());
 }
 
 }

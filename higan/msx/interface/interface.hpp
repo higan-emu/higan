@@ -45,7 +45,13 @@ struct MSXInterface : Interface {
 
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
+
+  auto options() -> Settings& override;
+  auto properties() -> Settings& override;
 };
+
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

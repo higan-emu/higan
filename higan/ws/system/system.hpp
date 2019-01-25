@@ -29,7 +29,6 @@ struct System : IO {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    string manifest;
   } information;
 
   EEPROM eeprom;

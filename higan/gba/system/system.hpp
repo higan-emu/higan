@@ -38,7 +38,6 @@ private:
   Interface* interface = nullptr;
 
   struct Information {
-    string manifest;
   } information;
 
   bool _loaded = false;

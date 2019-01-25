@@ -22,7 +22,6 @@ struct System {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    string manifest;
     bool loaded = false;
     Model model = Model::NeoGeoPocket;
     natural serializeSize;

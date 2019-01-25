@@ -13,33 +13,11 @@ struct Options : Setting<> {
     } expansion{this, "expansion"};
   } port{this, "port"};
 
-  Setting<boolean> random{this, "entropy", true};
-
   struct Video : Setting<> { using Setting::Setting;
-    Setting<boolean> colorBleed{this, "colorBleed", true};
     Setting<boolean> colorEmulation{this, "colorEmulation", true};
   } video{this, "video"};
 
-  struct Hack : Setting<> { using Setting::Setting;
-    struct PPU : Setting<> { using Setting::Setting;
-      Setting<boolean> fast{this, "fast", false};
-      Setting<boolean> noSpriteLimit{this, "noSpriteLimit", false};
-      Setting<boolean> hiresMode7{this, "hiresMode7", false};
-    } ppu{this, "ppu"};
-
-    struct DSP : Setting<> { using Setting::Setting;
-      Setting<boolean> fast{this, "fast", false};
-    } dsp{this, "dsp"};
-
-    struct Coprocessor : Setting<> { using Setting::Setting;
-      Setting<boolean> fast{this, "fast", false};
-    } coprocessor{this, "coprocessor"};
-  } hack{this, "hack"};
-
   Options() : Setting{"options"} {
-    video.colorBleed.onModify([&] {
-      higan::video.setEffect(higan::Video::Effect::ColorBleed, video.colorBleed());
-    });
     video.colorEmulation.onModify([&] {
       higan::video.setPalette();
     });

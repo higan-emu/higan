@@ -44,28 +44,27 @@ struct AbstractInterface : Interface {
 
   auto cheats(const vector<string>& list) -> void override;
 
-  auto cap(const string& name) -> bool override;
-  auto get(const string& name) -> any override;
-  auto set(const string& name, const any& value) -> bool override;
+  auto options() -> Settings&;
 };
 
 struct PCEngineInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings&;
 };
 
 struct SuperGrafxInterface : AbstractInterface {
   auto information() -> Information override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings&;
 };
 
-struct Settings {
-  uint controllerPort = ID::Device::Gamepad;
-};
-
-extern Settings settings;
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

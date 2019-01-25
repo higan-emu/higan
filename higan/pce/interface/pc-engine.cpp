@@ -9,3 +9,7 @@ auto PCEngineInterface::information() -> Information {
 auto PCEngineInterface::load() -> bool {
   return system.load(this, System::Model::PCEngine);
 }
+
+auto PCEngineInterface::properties() -> Settings& {
+  return propertyPCEngine;
+}

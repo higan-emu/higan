@@ -3,7 +3,9 @@
 namespace higan::PCEngine {
 
 Model model;
-Settings settings;
+Options option;
+Properties propertyPCEngine;
+Properties propertySuperGrafx;
 #include "pc-engine.cpp"
 #include "supergrafx.cpp"
 
@@ -86,12 +88,12 @@ auto AbstractInterface::inputs(uint device) -> vector<Input> {
 }
 
 auto AbstractInterface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller) return settings.controllerPort;
+  if(port == ID::Port::Controller) return option.port.controller.device();
   return 0;
 }
 
 auto AbstractInterface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller) controllerPort.connect(settings.controllerPort = device);
+  if(port == ID::Port::Controller) controllerPort.connect(option.port.controller.device(device));
 }
 
 auto AbstractInterface::power() -> void {
@@ -115,16 +117,8 @@ auto AbstractInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto AbstractInterface::cap(const string& name) -> bool {
-  return false;
-}
-
-auto AbstractInterface::get(const string& name) -> any {
-  return {};
-}
-
-auto AbstractInterface::set(const string& name, const any& value) -> bool {
-  return false;
+auto AbstractInterface::options() -> Settings& {
+  return option;
 }
 
 }

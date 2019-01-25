@@ -20,14 +20,11 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Interface* interface, Model model) -> bool {
+  this->interface = interface;
   information = {};
   information.model = model;
 
-  if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else return false;
-
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(interface->properties().serialize());
 
   if(auto memory = document["system/memory(type=ROM,content=BIOS)"]) {
     bios.allocate(memory["size"].natural());
@@ -47,7 +44,6 @@ auto System::load(Interface* interface, Model model) -> bool {
     information.colorburst = Constants::Colorburst::PAL;
   }
 
-  this->interface = interface;
   return information.loaded = true;
 }
 
