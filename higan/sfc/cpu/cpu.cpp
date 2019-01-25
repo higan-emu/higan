@@ -45,9 +45,7 @@ auto CPU::main() -> void {
 }
 
 auto CPU::load() -> bool {
-  version = properties.cpu.version();
-  if(version < 1) version = 1;
-  if(version > 2) version = 2;
+  version = property.cpu.version();
   return true;
 }
 

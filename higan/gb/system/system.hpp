@@ -8,6 +8,7 @@ struct System {
     GameBoyColor,
     SuperGameBoy,
   };
+  higan::Memory::Readable<uint8> bootROM;  //todo: no higan:: prefix
 
   inline auto loaded() const -> bool { return _loaded; }
   inline auto model() const -> Model { return _model; }
@@ -35,12 +36,6 @@ struct System {
   auto serializeInit() -> void;
 
   Interface* interface = nullptr;
-
-  struct BootROM {
-    uint8 dmg[ 256];
-    uint8 sgb[ 256];
-    uint8 cgb[2048];
-  } bootROM;
 
   struct Information {
     string manifest;

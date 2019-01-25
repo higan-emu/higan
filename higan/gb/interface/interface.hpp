@@ -45,25 +45,29 @@ struct AbstractInterface : Interface {
 
   auto cheats(const vector<string>&) -> void override;
 
-  auto cap(const string& name) -> bool override;
-  auto get(const string& name) -> any override;
-  auto set(const string& name, const any& value) -> bool override;
+  auto options() -> Settings& override;
 };
 
 struct GameBoyInterface : AbstractInterface {
+  GameBoyInterface();
   auto information() -> Information override;
 
   auto color(uint32 color) -> uint64 override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings& override;
 };
 
 struct GameBoyColorInterface : AbstractInterface {
+  GameBoyColorInterface();
   auto information() -> Information override;
 
   auto color(uint32 color) -> uint64 override;
 
   auto load() -> bool override;
+
+  auto properties() -> Settings& override;
 };
 
 struct SuperGameBoyInterface {
@@ -76,13 +80,10 @@ struct SuperGameBoyInterface {
   virtual auto joypWrite(bool p15, bool p14) -> void = 0;
 };
 
-struct Settings {
-  bool blurEmulation = true;
-  bool colorEmulation = true;
-};
-
 extern SuperGameBoyInterface* superGameBoy;
-extern Settings settings;
+
+#include "options.hpp"
+#include "properties.hpp"
 
 }
 

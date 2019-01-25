@@ -145,28 +145,18 @@ auto Cartridge::unload() -> void {
   rtc = {};
 }
 
-auto Cartridge::readIO(uint16 addr) -> uint8 {
-  if(addr == 0xff50) return 0xff;
-
+auto Cartridge::readIO(uint16 address) -> uint8 {
+  if(address == 0xff50) return 0xff;
   if(bootromEnable) {
-    const uint8* data = nullptr;
-    if(Model::GameBoy()) data = system.bootROM.dmg;
-    if(Model::GameBoyColor()) data = system.bootROM.cgb;
-    if(Model::SuperGameBoy()) data = system.bootROM.sgb;
-    if(addr >= 0x0000 && addr <= 0x00ff) return data[addr];
-    if(addr >= 0x0200 && addr <= 0x08ff && Model::GameBoyColor()) return data[addr - 0x100];
+    if(address >= 0x0000 && address <= 0x00ff) return system.bootROM.read(address);
+    if(address >= 0x0200 && address <= 0x08ff && Model::GameBoyColor()) return system.bootROM.read(address - 0x100);
   }
-
-  return mapper->read(addr);
+  return mapper->read(address);
 }
 
-auto Cartridge::writeIO(uint16 addr, uint8 data) -> void {
-  if(bootromEnable && addr == 0xff50) {
-    bootromEnable = false;
-    return;
-  }
-
-  mapper->write(addr, data);
+auto Cartridge::writeIO(uint16 address, uint8 data) -> void {
+  if(bootromEnable && address == 0xff50) return void(bootromEnable = false);
+  mapper->write(address, data);
 }
 
 auto Cartridge::power() -> void {

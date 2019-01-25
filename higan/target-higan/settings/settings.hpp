@@ -1,5 +1,5 @@
-struct Settings : Markup::Node {
-  Settings();
+struct UserInterfaceSettings : Markup::Node {
+  UserInterfaceSettings();
   auto save() -> void;
 };
 
@@ -202,6 +202,6 @@ struct SettingsManager : Window {
   auto show(uint setting) -> void;
 };
 
-extern Settings settings;
+extern UserInterfaceSettings settings;
 extern unique_pointer<SystemProperties> systemProperties;
 extern unique_pointer<SettingsManager> settingsManager;

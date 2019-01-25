@@ -86,20 +86,37 @@ struct Interface {
   //cheat functions
   virtual auto cheats(const vector<string>& = {}) -> void {}
 
-  //properties and settings
-  virtual auto properties() -> AbstractSetting* { return nullptr; }
-  virtual auto settings() -> AbstractSetting* { return nullptr; }
+  //options
+  virtual auto options() -> Settings& { static Setting<> noOptions; return noOptions; }
 
-  //configuration
-  virtual auto configuration() -> string { return {}; }
-  virtual auto configuration(string name) -> string { return {}; }
-  virtual auto configure(string configuration = "") -> bool { return false; }
-  virtual auto configure(string name, string value) -> bool { return false; }
+  auto hasOption(string name) -> bool { name.prepend("options/"); return (bool)options()[name]; }
 
-  //settings
-  virtual auto cap(const string& name) -> bool { return false; }
-  virtual auto get(const string& name) -> any { return {}; }
-  virtual auto set(const string& name, const any& value) -> bool { return false; }
+  auto getOption(string name) -> string {
+    name.prepend("options/");
+    if(auto option = options()[name]) return option->value();
+    return {};
+  }
+
+  auto setOption(string name, string value) -> bool {
+    name.prepend("options/");
+    if(auto option = options()[name]) return option->setValue(value);
+    return false;
+  }
+
+  //properties
+  virtual auto properties() -> Settings& { static Setting<> noProperties; return noProperties; }
+
+  auto hasProperty(string name) -> bool { return (bool)properties()[name]; }
+
+  auto getProperty(string name) -> string {
+    if(auto property = properties()[name]) return property->value();
+    return {};
+  }
+
+  auto setProperty(string name, string value) -> bool {
+    if(auto property = properties()[name]) return property->setValue(value);
+    return false;
+  }
 };
 
 }

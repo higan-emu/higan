@@ -58,6 +58,7 @@
 #include <nall/run.hpp>
 #include <nall/serializer.hpp>
 #include <nall/set.hpp>
+#include <nall/settings.hpp>
 #include <nall/shared-pointer.hpp>
 #include <nall/simd.hpp>
 #include <nall/stdint.hpp>
@@ -67,6 +68,7 @@
 #include <nall/traits.hpp>
 #include <nall/unique-pointer.hpp>
 #include <nall/utility.hpp>
+#include <nall/variant.hpp>
 #include <nall/varint.hpp>
 #include <nall/vector.hpp>
 #include <nall/view.hpp>

@@ -23,8 +23,8 @@ auto System::runToSave() -> void {
 
 auto System::load(Interface* interface) -> bool {
   information = {};
-  hacks.fastPPU = configuration.hacks.ppuFast.enable;
-  hacks.fastDSP = configuration.hacks.dspFast.enable;
+  hacks.fastPPU = option.hack.ppu.fast();
+  hacks.fastDSP = option.hack.dsp.fast();
 
   bus.reset();
   if(!cpu.load()) return false;
@@ -132,9 +132,9 @@ auto System::power(bool reset) -> void {
   controllerPort2.power(ID::Port::Controller2);
   expansionPort.power();
 
-  controllerPort1.connect(settings.controllerPort1);
-  controllerPort2.connect(settings.controllerPort2);
-  expansionPort.connect(settings.expansionPort);
+  controllerPort1.connect(option.port.controller1.device());
+  controllerPort2.connect(option.port.controller2.device());
+  expansionPort.connect(option.port.expansion.device());
 }
 
 }

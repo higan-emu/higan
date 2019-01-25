@@ -97,9 +97,9 @@ auto Program::togglePause() -> void {
 
 auto Program::rotateDisplay() -> void {
   if(!emulator) return;
-  if(!emulator->cap("Rotate Display")) return showMessage("Display rotation not supported");
-  auto rotate = emulator->get("Rotate Display");
-  emulator->set("Rotate Display", !rotate.get<bool>());
+  if(!emulator->hasOption("video/rotateDisplay")) return showMessage("Display rotation not supported");
+  auto rotate = emulator->getOption("video/rotateDisplay");
+  emulator->setOption("video/rotateDisplay", !(rotate == "true"));
   presentation->resizeViewport();
   showMessage("Display rotated");
 }

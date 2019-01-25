@@ -42,15 +42,15 @@ Presentation::Presentation() {
   videoEmulationMenu.setText("Emulation");
   blurEmulation.setText("Blurring").setChecked(settings["Video/BlurEmulation"].boolean()).onToggle([&] {
     settings["Video/BlurEmulation"].setValue(blurEmulation.checked());
-    if(emulator) emulator->set("Blur Emulation", blurEmulation.checked());
+    if(emulator) emulator->setOption("video/blurEmulation", blurEmulation.checked());
   });
   colorEmulation.setText("Colors").setChecked(settings["Video/ColorEmulation"].boolean()).onToggle([&] {
     settings["Video/ColorEmulation"].setValue(colorEmulation.checked());
-    if(emulator) emulator->set("Color Emulation", colorEmulation.checked());
+    if(emulator) emulator->setOption("video/colorEmulation", colorEmulation.checked());
   });
   scanlineEmulation.setText("Scanlines").setChecked(settings["Video/ScanlineEmulation"].boolean()).setVisible(false).onToggle([&] {
     settings["Video/ScanlineEmulation"].setValue(scanlineEmulation.checked());
-    if(emulator) emulator->set("Scanline Emulation", scanlineEmulation.checked());
+    if(emulator) emulator->setOption("video/scanlineEmulation", scanlineEmulation.checked());
   });
   videoShaderMenu.setText("Shader");
   videoShaderNone.setText("None").onActivate([&] {

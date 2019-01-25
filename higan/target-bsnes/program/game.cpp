@@ -1,8 +1,11 @@
 auto Program::load() -> void {
   unload();
 
-  if(auto configuration = string::read(locate("configuration.bml"))) {
-    emulator->configure(configuration);
+  if(auto properties = string::read(locate("properties.bml"))) {
+    emulator->properties().unserialize(properties);
+  }
+  if(auto options = string::read(locate("options.bml"))) {
+    emulator->options().unserialize(options);
     emulatorSettings.updateConfiguration();
   }
   if(!emulator->load()) return;
@@ -293,8 +296,11 @@ auto Program::unload() -> void {
   if(emulatorSettings.autoSaveStateOnUnload.checked()) {
     saveUndoState();
   }
-  if(auto configuration = emulator->configuration()) {
-    file::write(locate("configuration.bml"), configuration);
+  if(auto options = emulator->options().serialize()) {
+    file::write(locate("options.bml"), options);
+  }
+  if(auto properties = emulator->properties().serialize()) {
+    file::write(locate("properties.bml"), properties);
   }
   emulator->unload();
   showMessage("Game unloaded");

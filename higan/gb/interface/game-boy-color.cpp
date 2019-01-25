@@ -1,3 +1,7 @@
+GameBoyColorInterface::GameBoyColorInterface() {
+  propertyGameBoyColor.memory.size(2048);
+}
+
 auto GameBoyColorInterface::information() -> Information {
   Information information;
   information.manufacturer = "Nintendo";
@@ -15,7 +19,7 @@ auto GameBoyColorInterface::color(uint32 color) -> uint64 {
   uint64_t G = image::normalize(g, 5, 16);
   uint64_t B = image::normalize(b, 5, 16);
 
-  if(settings.colorEmulation) {
+  if(option.video.colorEmulation()) {
     R = (r * 26 + g *  4 + b *  2);
     G = (         g * 24 + b *  8);
     B = (r *  6 + g *  4 + b * 22);
@@ -29,4 +33,8 @@ auto GameBoyColorInterface::color(uint32 color) -> uint64 {
 
 auto GameBoyColorInterface::load() -> bool {
   return system.load(this, System::Model::GameBoyColor);
+}
+
+auto GameBoyColorInterface::properties() -> Settings& {
+  return propertyGameBoyColor;
 }

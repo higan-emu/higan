@@ -50,7 +50,7 @@ Presentation::Presentation() {
   });
   blurEmulation.setText("Blur Emulation").setChecked(settings.video.blur).onToggle([&] {
     settings.video.blur = blurEmulation.checked();
-    emulator->configure("Video/BlurEmulation", blurEmulation.checked());
+    emulator->setOption("video/blurEmulation", blurEmulation.checked());
   }).doToggle();
   shaderMenu.setIcon(Icon::Emblem::Image).setText("Shader");
   muteAudio.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {

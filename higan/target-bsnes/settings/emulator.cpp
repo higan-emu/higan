@@ -70,9 +70,9 @@ EmulatorSettings::EmulatorSettings() {
 }
 
 auto EmulatorSettings::updateConfiguration() -> void {
-  emulator->configure("Hacks/FastPPU/Enable", fastPPUOption.checked());
-  emulator->configure("Hacks/FastPPU/NoSpriteLimit", noSpriteLimit.checked());
-  emulator->configure("Hacks/FastPPU/HiresMode7", hiresMode7.checked());
-  emulator->configure("Hacks/FastDSP/Enable", fastDSPOption.checked());
-  emulator->configure("Hacks/Coprocessor/DelayedSync", coprocessorsDelayedSyncOption.checked());
+  emulator->setOption("hack/ppu/fast", fastPPUOption.checked());
+  emulator->setOption("hack/ppu/noSpriteLimit", noSpriteLimit.checked());
+  emulator->setOption("hack/ppu/hiresMode7", hiresMode7.checked());
+  emulator->setOption("hack/dsp/fast", fastDSPOption.checked());
+  emulator->setOption("hack/coprocessor/fast", coprocessorsDelayedSyncOption.checked());
 }

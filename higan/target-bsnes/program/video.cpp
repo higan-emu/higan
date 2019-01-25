@@ -59,7 +59,7 @@ auto Program::updateVideoShader() -> void {
 }
 
 auto Program::updateVideoPalette() -> void {
-  emulator->configure("Video/ColorEmulation", false);
+  emulator->setOption("video/colorEmulation", false);
   higan::video.setLuminance(settings.video.luminance / 100.0);
   higan::video.setSaturation(settings.video.saturation / 100.0);
   higan::video.setGamma(settings.video.gamma / 100.0);

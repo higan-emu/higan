@@ -1,4 +1,4 @@
-struct Settings : Markup::Node {
+struct UserInterfaceSettings : Markup::Node {
   auto load() -> void;
   auto save() -> void;
   auto process(bool load) -> void;
@@ -340,7 +340,7 @@ public:
   StatusBar statusBar{this};
 };
 
-extern Settings settings;
+extern UserInterfaceSettings settings;
 
 extern Instance<VideoSettings> videoSettingsInstance;
 extern Instance<AudioSettings> audioSettingsInstance;

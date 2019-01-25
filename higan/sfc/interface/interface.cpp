@@ -2,9 +2,8 @@
 
 namespace higan::SuperFamicom {
 
-Properties properties;
-Settings settings;
-#include "configuration.cpp"
+Options option;
+Properties property;
 
 auto SuperFamicomInterface::information() -> Information {
   Information information;
@@ -40,7 +39,7 @@ auto SuperFamicomInterface::color(uint32 color) -> uint64 {
   uint64 G = L * image::normalize(g, 5, 16);
   uint64 B = L * image::normalize(b, 5, 16);
 
-  if(SuperFamicom::configuration.video.colorEmulation) {
+  if(option.video.colorEmulation()) {
     static const uint8 gammaRamp[32] = {
       0x00, 0x01, 0x03, 0x06, 0x0a, 0x0f, 0x15, 0x1c,
       0x24, 0x2d, 0x37, 0x42, 0x4e, 0x5b, 0x69, 0x78,
@@ -200,16 +199,16 @@ auto SuperFamicomInterface::inputs(uint device) -> vector<Input> {
 }
 
 auto SuperFamicomInterface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return SuperFamicom::settings.controllerPort1;
-  if(port == ID::Port::Controller2) return SuperFamicom::settings.controllerPort2;
-  if(port == ID::Port::Expansion) return SuperFamicom::settings.expansionPort;
+  if(port == ID::Port::Controller1) return option.port.controller1.device();
+  if(port == ID::Port::Controller2) return option.port.controller2.device();
+  if(port == ID::Port::Expansion) return option.port.expansion.device();
   return 0;
 }
 
 auto SuperFamicomInterface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(SuperFamicom::settings.controllerPort1 = device);
-  if(port == ID::Port::Controller2) controllerPort2.connect(SuperFamicom::settings.controllerPort2 = device);
-  if(port == ID::Port::Expansion) expansionPort.connect(SuperFamicom::settings.expansionPort = device);
+  if(port == ID::Port::Controller1) controllerPort1.connect(option.port.controller1.device(device));
+  if(port == ID::Port::Controller2) controllerPort2.connect(option.port.controller2.device(device));
+  if(port == ID::Port::Expansion) expansionPort.connect(option.port.expansion.device(device));
 }
 
 auto SuperFamicomInterface::power() -> void {
@@ -245,14 +244,6 @@ auto SuperFamicomInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto SuperFamicomInterface::properties() -> AbstractSetting* {
-  return &SuperFamicom::properties;
-}
-
-auto SuperFamicomInterface::settings() -> AbstractSetting* {
-  return &SuperFamicom::settings;
-}
-
 auto SuperFamicomInterface::cheats(const vector<string>& list) -> void {
   cheat.reset();
   #if defined(CORE_GB)
@@ -261,20 +252,12 @@ auto SuperFamicomInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
-auto SuperFamicomInterface::configuration() -> string {
-  return SuperFamicom::configuration.read();
+auto SuperFamicomInterface::options() -> Settings& {
+  return option;
 }
 
-auto SuperFamicomInterface::configuration(string name) -> string {
-  return SuperFamicom::configuration.read(name);
-}
-
-auto SuperFamicomInterface::configure(string configuration) -> bool {
-  return SuperFamicom::configuration.write(configuration);
-}
-
-auto SuperFamicomInterface::configure(string name, string value) -> bool {
-  return SuperFamicom::configuration.write(name, value);
+auto SuperFamicomInterface::properties() -> Settings& {
+  return property;
 }
 
 }

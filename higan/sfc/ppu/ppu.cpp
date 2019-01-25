@@ -17,9 +17,6 @@ bg1(Background::ID::BG1),
 bg2(Background::ID::BG2),
 bg3(Background::ID::BG3),
 bg4(Background::ID::BG4) {
-  ppu1.version = 1;  //allowed values: 1
-  ppu2.version = 3;  //allowed values: 1, 2, 3
-
   output = new uint32[512 * 512];
   output += 16 * 512;  //overscan offset
 }
@@ -86,9 +83,9 @@ auto PPU::load() -> bool {
     return ppufast.load();
   }
 
-  ppu1.version = max(1, min(1, configuration.system.ppu1.version));
-  ppu2.version = max(1, min(3, configuration.system.ppu2.version));
-  vram.mask = configuration.system.ppu1.vram.size / sizeof(uint16) - 1;
+  ppu1.version = property.ppu1.version();
+  ppu2.version = property.ppu2.version();
+  vram.mask = property.ppu1.vram.size() / sizeof(uint16) - 1;
   if(vram.mask != 0xffff) vram.mask = 0x7fff;
   return true;
 }
@@ -243,7 +240,7 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  video.setEffect(Video::Effect::ColorBleed, configuration.video.blurEmulation);
+  video.setEffect(Video::Effect::ColorBleed, option.video.blurEmulation());
   video.refresh(output, pitch * sizeof(uint32), width, height);
 }
 

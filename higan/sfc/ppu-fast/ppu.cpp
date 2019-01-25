@@ -76,7 +76,9 @@ auto PPU::scanline() -> void {
 
   if(vcounter() > 0 && vcounter() < vdisp()) {
     latch.hires |= io.pseudoHires || io.bgMode == 5 || io.bgMode == 6;
-    latch.hires |= io.bgMode == 7 && configuration.hacks.ppuFast.hiresMode7;
+    #undef ppu  //sigh
+    latch.hires |= io.bgMode == 7 && option.hack.ppu.hiresMode7();
+    #define ppu ppufast
   }
 
   if(vcounter() == vdisp() && !io.displayDisable) {
@@ -95,7 +97,7 @@ auto PPU::refresh() -> void {
   auto pitch  = 512 << !interlace();
   auto width  = 256 << hires();
   auto height = 240 << interlace();
-  video.setEffect(Video::Effect::ColorBleed, configuration.video.blurEmulation && hires());
+  video.setEffect(Video::Effect::ColorBleed, option.video.blurEmulation() && hires());
   video.refresh(output, pitch * sizeof(uint32), width, height);
 }
 
@@ -125,8 +127,10 @@ auto PPU::power(bool reset) -> void {
   io = {};
   updateVideoMode();
 
-  ItemLimit = !configuration.hacks.ppuFast.noSpriteLimit ? 32 : 128;
-  TileLimit = !configuration.hacks.ppuFast.noSpriteLimit ? 34 : 128;
+  #undef ppu  //sigh
+  ItemLimit = !option.hack.ppu.noSpriteLimit() ? 32 : 128;
+  TileLimit = !option.hack.ppu.noSpriteLimit() ? 34 : 128;
+  #define ppu ppufast
 
   Line::start = 0;
   Line::count = 0;

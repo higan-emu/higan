@@ -1,5 +1,4 @@
 #include "bsnes.hpp"
-#include <sfc/interface/interface.hpp>
 Video video;
 Audio audio;
 Input input;

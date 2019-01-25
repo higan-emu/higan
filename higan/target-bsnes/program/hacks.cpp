@@ -10,11 +10,11 @@ auto Program::hackCompatibility() -> void {
   if(title == "KOUSHIEN_2") fastDSP = false;
   if(title == "RENDERING RANGER R2") fastDSP = false;
 
-  emulator->configure("Hacks/FastPPU/Enable", fastPPU);
-  emulator->configure("Hacks/FastPPU/NoSpriteLimit", fastPPUNoSpriteLimit);
-  emulator->configure("Hacks/FastPPU/HiresMode7", fastPPUHiresMode7);
-  emulator->configure("Hacks/FastDSP/Enable", fastDSP);
-  emulator->configure("Hacks/Coprocessors/DelayedSync", coprocessorsDelayedSync);
+  emulator->setOption("hack/ppu/fast", fastPPU);
+  emulator->setOption("hack/ppu/noSpriteLimit", fastPPUNoSpriteLimit);
+  emulator->setOption("hack/ppu/hiresMode7", fastPPUHiresMode7);
+  emulator->setOption("hack/dsp/fast", fastDSP);
+  emulator->setOption("hack/coprocessor/fast", coprocessorsDelayedSync);
 }
 
 auto Program::hackPatchMemory(vector<uint8_t>& data) -> void {

@@ -20,11 +20,18 @@ auto Program::load(higan::Interface& interface) -> void {
 
   inputManager->bind(emulator = &interface);
 
-  if(auto configuration = string::read({gamePaths[0], "configuration.bml"})) {
-    emulator->configure(configuration);
+  if(auto properties = string::read({gamePaths[0], "properties.bml"})) {
+    emulator->properties().unserialize(properties);
   }
-  if(auto configuration = emulator->configuration()) {
-    file::write({gamePaths[0], "configuration.bml"}, configuration);
+  if(auto properties = emulator->properties().serialize()) {
+    file::write({gamePaths[0], "properties.bml"}, properties);
+  }
+
+  if(auto options = string::read({gamePaths[0], "options.bml"})) {
+    emulator->options().unserialize(options);
+  }
+  if(auto options = emulator->options().serialize()) {
+    file::write({gamePaths[0], "options.bml"}, options);
   }
 
   presentation->updateEmulatorMenu();
@@ -34,9 +41,9 @@ auto Program::load(higan::Interface& interface) -> void {
     return;
   }
   emulator->power();
-  emulator->set("Blur Emulation", presentation->blurEmulation.checked());
-  emulator->set("Color Emulation", presentation->colorEmulation.checked());
-  emulator->set("Scanline Emulation", presentation->scanlineEmulation.checked());
+  emulator->setOption("video/blurEmulation", presentation->blurEmulation.checked());
+  emulator->setOption("video/colorEmulation", presentation->colorEmulation.checked());
+  emulator->setOption("video/scanlineEmulation", presentation->scanlineEmulation.checked());
   updateAudioDriver();
   updateAudioEffects();
 

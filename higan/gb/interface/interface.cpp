@@ -3,7 +3,9 @@
 namespace higan::GameBoy {
 
 SuperGameBoyInterface* superGameBoy = nullptr;
-Settings settings;
+Options option;
+Properties propertyGameBoy;
+Properties propertyGameBoyColor;
 #include "game-boy.cpp"
 #include "game-boy-color.cpp"
 
@@ -109,6 +111,11 @@ auto AbstractInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
 }
 
+auto AbstractInterface::options() -> Settings& {
+  return option;
+}
+
+/*
 auto AbstractInterface::cap(const string& name) -> bool {
   if(name == "Blur Emulation") return true;
   if(name == "Color Emulation") return true;
@@ -138,5 +145,6 @@ auto AbstractInterface::set(const string& name, const any& value) -> bool {
 
   return false;
 }
+*/
 
 }

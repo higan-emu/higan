@@ -7,7 +7,7 @@
 #include "emulator.cpp"
 #include "drivers.cpp"
 
-Settings settings;
+UserInterfaceSettings settings;
 
 Instance<VideoSettings> videoSettingsInstance;
 Instance<AudioSettings> audioSettingsInstance;
@@ -27,18 +27,18 @@ EmulatorSettings& emulatorSettings = emulatorSettingsInstance();
 DriverSettings& driverSettings = driverSettingsInstance();
 SettingsWindow& settingsWindow = settingsWindowInstance();
 
-auto Settings::load() -> void {
+auto UserInterfaceSettings::load() -> void {
   Markup::Node::operator=(BML::unserialize(string::read(location), " "));
   process(true);
   file::write(locate("settings.bml"), BML::serialize(*this, " "));
 }
 
-auto Settings::save() -> void {
+auto UserInterfaceSettings::save() -> void {
   process(false);
   file::write(location ? location : locate("settings.bml"), BML::serialize(*this, " "));
 }
 
-auto Settings::process(bool load) -> void {
+auto UserInterfaceSettings::process(bool load) -> void {
   if(load) {
     //initialize non-static default settings
     video.driver = ruby::Video::safestDriver();

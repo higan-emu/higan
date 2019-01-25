@@ -22,47 +22,19 @@ auto System::init() -> void {
   assert(interface != nullptr);
 }
 
-auto System::load(Interface* interface, Model model_, maybe<uint> systemID) -> bool {
+auto System::load(Interface* interface_, Model model_, maybe<uint> systemID) -> bool {
+  interface = interface_;
   _model = model_;
 
-  if(model() == Model::GameBoy) {
-    if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-      information.manifest = fp->reads();
+  auto document = BML::unserialize(interface->properties().serialize());
+  if(auto memory = document["system/memory(type=ROM,content=Boot)"]) {
+    bootROM.allocate(memory["size"].natural());
+    uint id = model() != Model::SuperGameBoy ? ID::System : systemID();
+    string name = model() != Model::SuperGameBoy ? "boot.rom" : "lr35902.boot.rom";
+    if(auto fp = platform->open(id, name, File::Read, File::Required)) {
+      bootROM.load(fp);
     } else return false;
-
-    auto document = BML::unserialize(information.manifest);
-    if(auto name = document["system/cpu/rom/name"].text()) {
-      if(auto fp = platform->open(ID::System, name, File::Read, File::Required)) {
-        fp->read(bootROM.dmg, 256);
-      }
-    }
-  }
-
-  if(model() == Model::GameBoyColor) {
-    if(auto fp = platform->open(ID::System, "manifest.bml", File::Read, File::Required)) {
-      information.manifest = fp->reads();
-    } else return false;
-
-    auto document = BML::unserialize(information.manifest);
-    if(auto name = document["system/cpu/rom/name"].text()) {
-      if(auto fp = platform->open(ID::System, name, File::Read, File::Required)) {
-        fp->read(bootROM.cgb, 2048);
-      }
-    }
-  }
-
-  if(model() == Model::SuperGameBoy) {
-    if(auto fp = platform->open(systemID(), "manifest.bml", File::Read, File::Required)) {
-      information.manifest = fp->reads();
-    } else return false;
-
-    auto document = BML::unserialize(information.manifest);
-    if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Boot,architecture=LR35902)"]}) {
-      if(auto fp = platform->open(systemID(), memory.name(), File::Read, File::Required)) {
-        fp->read(bootROM.sgb, 256);
-      }
-    }
-  }
+  } else return false;
 
   if(!cartridge.load()) return false;
   serializeInit();
@@ -78,6 +50,7 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!loaded()) return;
   cartridge.unload();
+  bootROM.reset();
   _loaded = false;
 }
 
@@ -85,7 +58,7 @@ auto System::power() -> void {
   if(model() != Model::SuperGameBoy) {
     video.reset(interface);
     video.setPalette();
-    video.setEffect(Video::Effect::InterframeBlending, settings.blurEmulation);
+    video.setEffect(Video::Effect::InterframeBlending, option.video.blurEmulation());
     audio.reset(interface);
   }
 

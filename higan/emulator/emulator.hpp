@@ -11,6 +11,7 @@
 #include <nall/literals.hpp>
 #include <nall/random.hpp>
 #include <nall/serializer.hpp>
+#include <nall/settings.hpp>
 #include <nall/shared-pointer.hpp>
 #include <nall/string.hpp>
 #include <nall/traits.hpp>
@@ -23,7 +24,6 @@ using namespace nall;
 
 #include <libco/libco.h>
 #include <emulator/types.hpp>
-#include <emulator/setting.hpp>
 #include <emulator/platform.hpp>
 #include <emulator/interface.hpp>
 #include <emulator/game.hpp>
@@ -35,7 +35,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.86";
+  static const string Version = "106.87";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org/";

@@ -8,6 +8,7 @@ extern Input input;
 using namespace hiro;
 
 #include <emulator/emulator.hpp>
+#include <sfc/interface/interface.hpp>
 extern unique_pointer<higan::Interface> emulator;
 
 #include <nall/instance.hpp>
