@@ -51,8 +51,8 @@ auto GameBoyAdvanceInterface::color(uint32 color) -> uint64 {
   return r << 32 | g << 16 | b << 0;
 }
 
-auto GameBoyAdvanceInterface::loaded() -> bool {
-  return system.loaded();
+auto GameBoyAdvanceInterface::slots() -> vector<Slot> {
+  return {cartridge.slot};
 }
 
 auto GameBoyAdvanceInterface::hashes() -> vector<string> {
@@ -69,6 +69,11 @@ auto GameBoyAdvanceInterface::titles() -> vector<string> {
 
 auto GameBoyAdvanceInterface::load() -> bool {
   return system.load(this);
+}
+
+auto GameBoyAdvanceInterface::load(uint id) -> bool {
+  if(id == cartridge.slot.id) return cartridge.load();
+  return false;
 }
 
 auto GameBoyAdvanceInterface::save() -> void {

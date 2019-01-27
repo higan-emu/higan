@@ -7,15 +7,14 @@ include $(hiro.path)/GNUmakefile
 ruby.path := ../ruby
 include $(ruby.path)/GNUmakefile
 
-objects += ui-higan ui-program ui-input
-objects += ui-settings ui-tools ui-presentation ui-resource
+objects += ui-higan ui-settings ui-program
+objects += ui-presentation
+objects += ui-resource
 objects := $(objects:%=obj/%.o)
 
 obj/ui-higan.o: $(ui)/higan.cpp
-obj/ui-program.o: $(ui)/program/program.cpp
-obj/ui-input.o: $(ui)/input/input.cpp
 obj/ui-settings.o: $(ui)/settings/settings.cpp
-obj/ui-tools.o: $(ui)/tools/tools.cpp
+obj/ui-program.o: $(ui)/program/program.cpp
 obj/ui-presentation.o: $(ui)/presentation/presentation.cpp
 obj/ui-resource.o: $(ui)/resource/resource.cpp
 
@@ -31,7 +30,7 @@ ifeq ($(platform),macos)
 	sips -s format icns $(ui)/resource/$(name).png --out out/$(name).app/Contents/Resources/$(name).icns
 endif
 
-verbose: hiro.verbose ruby.verbose nall.verbose all;
+verbose: hiro.verbose ruby.verbose all;
 
 install: all
 ifeq ($(shell id -un),root)
@@ -39,18 +38,13 @@ ifeq ($(shell id -un),root)
 else ifeq ($(platform),windows)
 else ifeq ($(platform),macos)
 	mkdir -p ~/Library/Application\ Support/$(name)/
-	mkdir -p ~/Library/Application\ Support/$(name)/systems/
-	mkdir -p ~/Emulation/
 	cp -R out/$(name).app /Applications/$(name).app
-	cp -R systems/* ~/Library/Application\ Support/$(name)/systems/
 else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/bin/
 	mkdir -p $(prefix)/share/applications/
 	mkdir -p $(prefix)/share/icons/
 	mkdir -p $(prefix)/share/$(name)/
-	mkdir -p $(prefix)/share/$(name)/systems/
 	cp out/$(name) $(prefix)/bin/$(name)
-	cp -R systems/* $(prefix)/share/$(name)/systems/
 	cp $(ui)/resource/$(name).desktop $(prefix)/share/applications/$(name).desktop
 	cp $(ui)/resource/$(name).png $(prefix)/share/icons/$(name).png
 endif

@@ -13,7 +13,7 @@ auto locate(string name) -> string {
 }
 
 #include "settings.cpp"
-Settings settings;
+UserInterfaceSettings settings;
 
 #include "heuristics/heuristics.hpp"
 #include "heuristics/heuristics.cpp"

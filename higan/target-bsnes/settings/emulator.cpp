@@ -38,7 +38,7 @@ EmulatorSettings::EmulatorSettings() {
   optionsSpacer.setColor({192, 192, 192});
 
   hacksLabel.setText("Hacks").setFont(Font().setBold());
-  fastPPUOption.setText("Fast PPU").setChecked(settings.emulator.hack.fastPPU.enable).onToggle([&] {
+  fastPPUOption.setText("Fast PPU").setChecked(emulator->getOption("hack/ppu/fast/enable").boolean()).onToggle([&] {
     settings.emulator.hack.fastPPU.enable = fastPPUOption.checked();
     if(!fastPPUOption.checked()) {
       noSpriteLimit.setEnabled(false).setChecked(false).doToggle();

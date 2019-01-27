@@ -12,6 +12,10 @@ struct ID {
     SufamiTurboB,
   };
 
+  struct Slot { enum : uint {
+    Cartridge,
+  };};
+
   struct Port { enum : uint {
     Controller1,
     Controller2,
@@ -43,9 +47,11 @@ struct SuperFamicomInterface : Interface {
   auto manifests() -> vector<string> override;
   auto titles() -> vector<string> override;
   auto load() -> bool override;
+  auto load(uint slot) -> bool override;
   auto save() -> void override;
   auto unload() -> void override;
 
+  auto slots() -> vector<Slot> override;
   auto ports() -> vector<Port> override;
   auto devices(uint port) -> vector<Device> override;
   auto inputs(uint device) -> vector<Input> override;

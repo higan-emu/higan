@@ -1,8 +1,11 @@
 struct Program : higan::Platform {
-  //program.cpp
-  Program(Arguments arguments);
+  auto construct(Arguments) -> void;
   auto main() -> void;
   auto quit() -> void;
+
+  auto activate(shared_pointer<higan::Interface> interface) -> void;
+  auto deactivate() -> void;
+  auto power(bool) -> void;
 
   //platform.cpp
   auto path(uint id) -> string override;
@@ -15,46 +18,13 @@ struct Program : higan::Platform {
   auto dipSettings(Markup::Node node) -> uint override;
   auto notify(string text) -> void override;
 
-  //game.cpp
-  auto load() -> void;
-  auto load(higan::Interface& interface) -> void;
-  auto unload() -> void;
+  struct Slot {
+    uint id = 0;
+    string location;
+  };
+  vector<Slot> slots;
 
-  //state.cpp
-  auto stateName(uint slot, bool managed = false) -> string;
-  auto loadState(uint slot, bool managed = false) -> bool;
-  auto saveState(uint slot, bool managed = false) -> bool;
-
-  //utility.cpp
-  auto initializeVideoDriver() -> void;
-  auto initializeAudioDriver() -> void;
-  auto initializeInputDriver() -> void;
-
-  auto softReset() -> void;
-  auto powerCycle() -> void;
-  auto togglePause() -> void;
-  auto rotateDisplay() -> void;
-  auto showMessage(const string& text) -> void;
-  auto updateStatusText() -> void;
-  auto updateVideoPalette() -> void;
-  auto updateVideoShader() -> void;
-  auto updateAudioDriver() -> void;
-  auto updateAudioEffects() -> void;
-  auto focused() -> bool;
-
-  bool hasQuit = false;
-  bool pause = false;
-
-  vector<higan::Interface*> emulators;
-
-  vector<string> gameQueue;  //for command-line and drag-and-drop loading
-  vector<string> gamePaths;  //for keeping track of loaded folder locations
-
-  uint64 autoSaveTime = 0;  //for automatically saving RAM periodically
-
-  uint64 statusTime = 0;  //for status message timeout after two seconds
-  string statusMessage;
-  string statusInfo;
+  vector<string> gamePaths;
 };
 
-extern unique_pointer<Program> program;
+extern Program program;

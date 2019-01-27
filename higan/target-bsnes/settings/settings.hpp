@@ -74,7 +74,7 @@ struct UserInterfaceSettings : Markup::Node {
     bool autoLoadStateOnLoad = false;
     struct Hack {
       struct FastPPU {
-        bool enable = true;
+      //bool enable = true;
         bool noSpriteLimit = false;
         bool hiresMode7 = false;
       } fastPPU;

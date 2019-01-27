@@ -74,6 +74,9 @@ auto SuperFamicomInterface::load() -> bool {
   return system.load(this);
 }
 
+auto SuperFamicomInterface::load(uint slot) -> bool {
+}
+
 auto SuperFamicomInterface::save() -> void {
   system.save();
 }
@@ -81,6 +84,10 @@ auto SuperFamicomInterface::save() -> void {
 auto SuperFamicomInterface::unload() -> void {
   save();
   system.unload();
+}
+
+auto SuperFamicomInterface::slots() -> vector<Slot> { return {
+  {ID::Slot::Cartridge, "sfc", "Cartridge"}};
 }
 
 auto SuperFamicomInterface::ports() -> vector<Port> { return {

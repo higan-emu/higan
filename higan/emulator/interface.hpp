@@ -26,6 +26,14 @@ struct Interface {
     double aspectCorrection = 0;
   };
 
+  struct Slot {
+    uint id = 0;
+    string type;
+    string form;
+    string name;
+    vector<Slot> slots;
+  };
+
   struct Port {
     uint id;
     string name;
@@ -62,10 +70,13 @@ struct Interface {
   virtual auto manifests() -> vector<string> { return {}; }
   virtual auto titles() -> vector<string> { return {}; }
   virtual auto load() -> bool { return false; }
+  virtual auto load(uint slot) -> bool { return false; }
   virtual auto save() -> void {}
   virtual auto unload() -> void {}
 
   //system interface
+  virtual auto regions() -> vector<string> { return {}; }
+  virtual auto slots() -> vector<Slot> { return {}; }
   virtual auto ports() -> vector<Port> { return {}; }
   virtual auto devices(uint port) -> vector<Device> { return {}; }
   virtual auto inputs(uint device) -> vector<Input> { return {}; }
@@ -91,10 +102,10 @@ struct Interface {
 
   auto hasOption(string name) -> bool { name.prepend("options/"); return (bool)options()[name]; }
 
-  auto getOption(string name) -> string {
+  auto getOption(string name, string fallback = {}) -> string {
     name.prepend("options/");
     if(auto option = options()[name]) return option->value();
-    return {};
+    return fallback;
   }
 
   auto setOption(string name, string value) -> bool {
@@ -108,9 +119,9 @@ struct Interface {
 
   auto hasProperty(string name) -> bool { return (bool)properties()[name]; }
 
-  auto getProperty(string name) -> string {
+  auto getProperty(string name, string fallback = {}) -> string {
     if(auto property = properties()[name]) return property->value();
-    return {};
+    return fallback;
   }
 
   auto setProperty(string name, string value) -> bool {

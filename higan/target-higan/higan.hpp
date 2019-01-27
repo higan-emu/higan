@@ -1,22 +1,22 @@
-#include <nall/nall.hpp>
-using namespace nall;
-
 #include <ruby/ruby.hpp>
 using namespace ruby;
-extern unique_pointer<Video> video;
-extern unique_pointer<Audio> audio;
-extern unique_pointer<Input> input;
+extern Video video;
+extern Audio audio;
+extern Input input;
 
 #include <hiro/hiro.hpp>
 using namespace hiro;
 
 #include <emulator/emulator.hpp>
-extern higan::Interface* emulator;
+extern shared_pointer<higan::Interface> emulator;
+extern vector<shared_pointer<higan::Interface>> emulators;
 
-#include "program/program.hpp"
-#include "input/input.hpp"
+#include <nall/arguments.hpp>
+#include <nall/instance.hpp>
+#include <nall/decode/zip.hpp>
+
 #include "settings/settings.hpp"
-#include "tools/tools.hpp"
+#include "program/program.hpp"
 #include "presentation/presentation.hpp"
 #include "resource/resource.hpp"
 

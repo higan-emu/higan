@@ -1,4 +1,6 @@
 struct Properties : Setting<> {
+  Setting<string> name{this, "name", "Super Famicom"};
+
   struct CPU : Setting<> { using Setting::Setting;
     Setting<natural> version{this, "version", 2};
   } cpu{this, "cpu"};
@@ -13,6 +15,10 @@ struct Properties : Setting<> {
   struct PPU2 : Setting<> { using Setting::Setting;
     Setting<natural> version{this, "version", 3};
   } ppu2{this, "ppu2"};
+
+  struct Slot : Setting<> { using Setting::Setting;
+    Setting<string> name{this, "name", "Cartridge"};
+  } slot{this, "slot"};
 
   Properties() : Setting{"system"} {
     cpu.version.setValid({1, 2});

@@ -1,5 +1,5 @@
 struct MROM {
-  uint8* data;
+  uint8* data = nullptr;
   uint size;
   uint mask;
 
@@ -10,7 +10,7 @@ struct MROM {
 } mrom;
 
 struct SRAM {
-  uint8* data;
+  uint8* data = nullptr;
   uint size;
   uint mask;
 
@@ -21,7 +21,7 @@ struct SRAM {
 } sram;
 
 struct EEPROM {
-  uint8* data;
+  uint8* data = nullptr;
   uint size;
   uint mask;
   uint test;
@@ -44,7 +44,7 @@ struct EEPROM {
 } eeprom;
 
 struct FLASH {
-  uint8* data;
+  uint8* data = nullptr;
   uint size;
   string manufacturer;
 

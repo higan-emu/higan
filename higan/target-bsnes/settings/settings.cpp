@@ -106,7 +106,7 @@ auto UserInterfaceSettings::process(bool load) -> void {
   bind(natural, "Emulator/AutoSaveMemory/Interval",       emulator.autoSaveMemory.interval);
   bind(boolean, "Emulator/AutoSaveStateOnUnload",         emulator.autoSaveStateOnUnload);
   bind(boolean, "Emulator/AutoLoadStateOnLoad",           emulator.autoLoadStateOnLoad);
-  bind(boolean, "Emulator/Hack/FastPPU/Enable",           emulator.hack.fastPPU.enable);
+//bind(boolean, "Emulator/Hack/FastPPU/Enable",           emulator.hack.fastPPU.enable);
   bind(boolean, "Emulator/Hack/FastPPU/NoSpriteLimit",    emulator.hack.fastPPU.noSpriteLimit);
   bind(boolean, "Emulator/Hack/FastPPU/HiresMode7",       emulator.hack.fastPPU.hiresMode7);
   bind(boolean, "Emulator/Hack/FastDSP/Enable",           emulator.hack.fastDSP.enable);

@@ -43,6 +43,10 @@ ifeq ($(target),higan)
   cores := fc sfc ms md pce msx gb gba ws ngp
 endif
 
+ifeq ($(target),legacy)
+  cores := fc sfc ms md pce msx gb gba ws ngp
+endif
+
 ifeq ($(target),bsnes)
   cores := sfc gb
 endif

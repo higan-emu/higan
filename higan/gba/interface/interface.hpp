@@ -23,11 +23,12 @@ struct GameBoyAdvanceInterface : Interface {
   auto display() -> Display override;
   auto color(uint32 color) -> uint64 override;
 
-  auto loaded() -> bool override;
+  auto slots() -> vector<Slot> override;
   auto hashes() -> vector<string> override;
   auto manifests() -> vector<string> override;
   auto titles() -> vector<string> override;
   auto load() -> bool override;
+  auto load(uint id) -> bool override;
   auto save() -> void override;
   auto unload() -> void override;
 

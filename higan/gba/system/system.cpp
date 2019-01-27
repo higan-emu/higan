@@ -47,7 +47,7 @@ auto System::load(Interface* interface) -> bool {
     } else return false;
   } else return false;
 
-  if(!cartridge.load()) return false;
+//if(!cartridge.load()) return false;
 
   serializeInit();
   return _loaded = true;

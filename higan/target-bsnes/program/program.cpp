@@ -17,6 +17,14 @@ Program& program = programInstance();
 auto Program::create() -> void {
   higan::platform = this;
 
+  if(auto options = string::read(locate("options.bml"))) {
+    emulator->options().unserialize(options);
+  }
+
+  if(auto properties = string::read(locate("properties.bml"))) {
+    emulator->properties().unserialize(properties);
+  }
+
   presentationInstance.construct();
   presentation.setVisible();
 
@@ -87,6 +95,8 @@ auto Program::main() -> void {
 
 auto Program::quit() -> void {
   unload();
+  file::write(locate("options.bml"), emulator->options().serialize());
+  file::write(locate("properties.bml"), emulator->properties().serialize());
   settings.save();
   video.reset();
   audio.reset();

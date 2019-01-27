@@ -1,9 +1,9 @@
-struct Settings : Markup::Node {
-  Settings();
+struct UserInterfaceSettings : Markup::Node {
+  UserInterfaceSettings();
   auto save() -> void;
 };
 
-Settings::Settings() {
+UserInterfaceSettings::UserInterfaceSettings() {
   Markup::Node::operator=(BML::unserialize(string::read(locate("settings.bml"))));
 
   auto set = [&](const string& name, const string& value) {
@@ -19,6 +19,6 @@ Settings::Settings() {
   set("icarus/UseHeuristics", true);
 }
 
-auto Settings::save() -> void {
+auto UserInterfaceSettings::save() -> void {
   file::write(locate("settings.bml"), BML::serialize(*this));
 }
