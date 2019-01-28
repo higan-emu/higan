@@ -13,7 +13,7 @@ Properties propertyPocketChallengeV2;
 auto AbstractInterface::display() -> Display {
   Display display;
   display.type = Display::Type::LCD;
-  display.colors    = 1 << 12;
+  display.colors = 1 << 12;
   display.width  = 224;
   display.height = 144;
   display.internalWidth  = 224;

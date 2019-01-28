@@ -6,6 +6,11 @@ struct Expansion : Thread {
 };
 
 struct ExpansionPort {
+  Interface::Connector connector;
+  Interface::Object connected;
+
+  auto initialize(Interface::Object&) -> void;
+
   auto connect(uint deviceID) -> void;
 
   auto power() -> void;

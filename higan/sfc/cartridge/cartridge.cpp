@@ -7,6 +7,14 @@ namespace higan::SuperFamicom {
 #include "serialization.cpp"
 Cartridge cartridge;
 
+auto Cartridge::initialize(Interface::Object& parent) -> void {
+  connector = {};
+  connector.type = "Cartridge";
+  connector.name = "Cartridge Port";
+  parent.connectors.append(connector);
+  connected = {};
+}
+
 auto Cartridge::hashes() const -> vector<string> {
   vector<string> hashes;
   hashes.append(game.sha256);

@@ -35,8 +35,15 @@ auto System::power() -> void {
   scheduler.primary(cpu);
 }
 
-auto System::load(Interface* interface) -> bool {
+auto System::initialize(Interface* interface) -> void {
   this->interface = interface;
+  object = {};
+  object.id = 0;
+  object.type = "System";
+  object.name = "Game Boy Advance";
+}
+
+auto System::load() -> bool {
   information = {};
 
   auto document = BML::unserialize(interface->properties().serialize());

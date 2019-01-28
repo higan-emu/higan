@@ -1,6 +1,12 @@
 struct Cartridge {
+  Interface::Connector connector;
+  Interface::Object connected;
+
   auto pathID() const -> uint { return information.pathID; }
   auto region() const -> string { return information.region; }
+
+  //cartridge.cpp
+  auto initialize(Interface::Object&) -> void;
 
   auto hashes() const -> vector<string>;
   auto manifests() const -> vector<string>;

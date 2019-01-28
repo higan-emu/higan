@@ -71,10 +71,11 @@ auto SuperFamicomInterface::titles() -> vector<string> {
 }
 
 auto SuperFamicomInterface::load() -> bool {
-  return system.load(this);
+  return system.load();
 }
 
 auto SuperFamicomInterface::load(uint slot) -> bool {
+  return true;
 }
 
 auto SuperFamicomInterface::save() -> void {
@@ -84,6 +85,14 @@ auto SuperFamicomInterface::save() -> void {
 auto SuperFamicomInterface::unload() -> void {
   save();
   system.unload();
+}
+
+auto SuperFamicomInterface::initialize() -> void {
+  return system.initialize(this);
+}
+
+auto SuperFamicomInterface::enumerate() -> Object {
+  return system.object;
 }
 
 auto SuperFamicomInterface::slots() -> vector<Slot> { return {

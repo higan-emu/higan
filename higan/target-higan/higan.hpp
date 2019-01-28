@@ -11,13 +11,16 @@ using namespace hiro;
 extern shared_pointer<higan::Interface> emulator;
 extern vector<shared_pointer<higan::Interface>> emulators;
 
-#include <nall/arguments.hpp>
 #include <nall/instance.hpp>
-#include <nall/decode/zip.hpp>
 
-#include "settings/settings.hpp"
-#include "program/program.hpp"
-#include "presentation/presentation.hpp"
+namespace Theme {
+  static Color BackgroundColor{ 56,  56,  56};
+  static Color ForegroundColor{255, 255, 255};
+}
+
 #include "resource/resource.hpp"
+#include "program/program.hpp"
+#include "connections/connections.hpp"
+#include "configurations/configurations.hpp"
 
-auto locate(string name) -> string;
+auto locate(string) -> string;

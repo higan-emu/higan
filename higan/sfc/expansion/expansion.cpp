@@ -25,6 +25,14 @@ auto Expansion::main() -> void {
 
 //
 
+auto ExpansionPort::initialize(Interface::Object& parent) -> void {
+  connector = {};
+  connector.type = "Expansion";
+  connector.name = "Expansion Port";
+  parent.connectors.append(connector);
+  connected = {};
+}
+
 auto ExpansionPort::connect(uint deviceID) -> void {
   if(!system.loaded()) return;
   delete device;

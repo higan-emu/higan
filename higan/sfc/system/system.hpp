@@ -1,4 +1,5 @@
 struct System {
+  Interface::Object object;
   enum class Region : uint { NTSC, PAL };
 
   inline auto loaded() const -> bool { return information.loaded; }
@@ -12,7 +13,8 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Interface*) -> bool;
+  auto initialize(Interface*) -> void;
+  auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power(bool reset) -> void;

@@ -21,8 +21,19 @@ auto System::runToSave() -> void {
   for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
 }
 
-auto System::load(Interface* interface) -> bool {
+auto System::initialize(Interface* interface) -> void {
   this->interface = interface;
+  object = {};
+  object.id = 0;
+  object.type = "System";
+  object.name = "Super Famicom";
+  cartridge.initialize(object);
+  controllerPort1.initialize(object);
+  controllerPort2.initialize(object);
+  expansionPort.initialize(object);
+}
+
+auto System::load() -> bool {
   information = {};
   hacks.fastPPU = option.hack.ppu.fast();
   hacks.fastDSP = option.hack.dsp.fast();

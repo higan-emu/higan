@@ -48,6 +48,17 @@ auto Controller::iobit(bool data) -> void {
 
 //
 
+auto ControllerPort::initialize(Interface::Object& object) -> void {
+  connector = {};
+  connector.type = "Controller";
+  connector.name = this == &controllerPort1 ? "Controller Port 1" : "Controller Port 2";
+  connected = {};
+  connected.type = "Controller";
+  connected.name = "Gamepad";
+  connector.connected = connected;
+  object.connectors.append(connector);
+}
+
 auto ControllerPort::connect(uint deviceID) -> void {
   if(!system.loaded()) return;
   delete device;

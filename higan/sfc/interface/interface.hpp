@@ -51,6 +51,8 @@ struct SuperFamicomInterface : Interface {
   auto save() -> void override;
   auto unload() -> void override;
 
+  auto initialize() -> void override;
+  auto enumerate() -> Object override;
   auto slots() -> vector<Slot> override;
   auto ports() -> vector<Port> override;
   auto devices(uint port) -> vector<Device> override;

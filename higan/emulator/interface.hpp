@@ -26,6 +26,21 @@ struct Interface {
     double aspectCorrection = 0;
   };
 
+  struct Connector;
+
+  struct Object {
+    uint id;
+    string type;
+    string name;
+    vector<Connector> connectors;
+  };
+
+  struct Connector {
+    string name;
+    string type;
+    maybe<Object> connected;
+  };
+
   struct Slot {
     uint id = 0;
     string type;
@@ -75,7 +90,8 @@ struct Interface {
   virtual auto unload() -> void {}
 
   //system interface
-  virtual auto regions() -> vector<string> { return {}; }
+  virtual auto initialize() -> void {}
+  virtual auto enumerate() -> Object { return {}; }
   virtual auto slots() -> vector<Slot> { return {}; }
   virtual auto ports() -> vector<Port> { return {}; }
   virtual auto devices(uint port) -> vector<Device> { return {}; }

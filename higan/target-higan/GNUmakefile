@@ -7,16 +7,15 @@ include $(hiro.path)/GNUmakefile
 ruby.path := ../ruby
 include $(ruby.path)/GNUmakefile
 
-objects += ui-higan ui-settings ui-program
-objects += ui-presentation
-objects += ui-resource
+objects += ui-higan ui-resource ui-program
+objects += ui-connections ui-configurations
 objects := $(objects:%=obj/%.o)
 
 obj/ui-higan.o: $(ui)/higan.cpp
-obj/ui-settings.o: $(ui)/settings/settings.cpp
-obj/ui-program.o: $(ui)/program/program.cpp
-obj/ui-presentation.o: $(ui)/presentation/presentation.cpp
 obj/ui-resource.o: $(ui)/resource/resource.cpp
+obj/ui-program.o: $(ui)/program/program.cpp
+obj/ui-connections.o: $(ui)/connections/connections.cpp
+obj/ui-configurations.o: $(ui)/configurations/configurations.cpp
 
 all: $(hiro.objects) $(ruby.objects) $(objects)
 	$(info Linking out/$(name) ...)
@@ -30,14 +29,14 @@ ifeq ($(platform),macos)
 	sips -s format icns $(ui)/resource/$(name).png --out out/$(name).app/Contents/Resources/$(name).icns
 endif
 
-verbose: hiro.verbose ruby.verbose all;
+verbose: hiro.verbose ruby.verbose nall.verbose all;
 
 install: all
 ifeq ($(shell id -un),root)
 	$(error "make install should not be run as root")
 else ifeq ($(platform),windows)
 else ifeq ($(platform),macos)
-	mkdir -p ~/Library/Application\ Support/$(name)/
+	mkdir -p ~/Library/Application\ Support\$(name)/
 	cp -R out/$(name).app /Applications/$(name).app
 else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/bin/

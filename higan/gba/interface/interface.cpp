@@ -67,8 +67,12 @@ auto GameBoyAdvanceInterface::titles() -> vector<string> {
   return {cartridge.title()};
 }
 
+auto GameBoyAdvanceInterface::initialize() -> void {
+  return system.initialize(this);
+}
+
 auto GameBoyAdvanceInterface::load() -> bool {
-  return system.load(this);
+  return system.load();
 }
 
 auto GameBoyAdvanceInterface::load(uint id) -> bool {
@@ -83,6 +87,10 @@ auto GameBoyAdvanceInterface::save() -> void {
 auto GameBoyAdvanceInterface::unload() -> void {
   save();
   system.unload();
+}
+
+auto GameBoyAdvanceInterface::enumerate() -> Object {
+  return system.object;
 }
 
 auto GameBoyAdvanceInterface::ports() -> vector<Port> { return {

@@ -761,6 +761,8 @@ struct TreeViewItem : sTreeViewItem {
   auto backgroundColor() const { return self().backgroundColor(); }
   auto checkable() const { return self().checkable(); }
   auto checked() const { return self().checked(); }
+  auto collapse(bool recursive = true) { return self().collapse(recursive), *this; }
+  auto expand(bool recursive = true) { return self().expand(recursive), *this; }
   auto expanded() const { return self().expanded(); }
   auto foregroundColor() const { return self().foregroundColor(); }
   auto icon() const { return self().icon(); }
@@ -788,10 +790,12 @@ struct TreeView : sTreeView {
 
   auto append(sTreeViewItem item) { return self().append(item), *this; }
   auto backgroundColor() const { return self().backgroundColor(); }
+  auto collapse(bool recursive = true) { return self().collapse(recursive), *this; }
   auto doActivate() const { return self().doActivate(); }
   auto doChange() const { return self().doChange(); }
   auto doContext() const { return self().doContext(); }
   auto doToggle(sTreeViewItem item) const { return self().doToggle(item); }
+  auto expand(bool recursive = true) { return self().expand(recursive), *this; }
   auto foregroundColor() const { return self().foregroundColor(); }
   auto item(const string& path) const { return self().item(path); }
   auto itemCount() const { return self().itemCount(); }

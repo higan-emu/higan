@@ -15,13 +15,16 @@ struct BIOS {
 };
 
 struct System {
+  Interface::Object object;
+
   auto loaded() const -> bool { return _loaded; }
   auto frequency() const -> double { return 16 * 1024 * 1024; }
 
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Interface*) -> bool;
+  auto initialize(Interface*) -> void;
+  auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;
