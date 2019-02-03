@@ -933,7 +933,6 @@ struct Window : sWindow {
   auto resizable() const { return self().resizable(); }
   auto setAlignment(Alignment alignment) { return self().setAlignment(alignment), *this; }
   auto setBackgroundColor(Color color = {}) { return self().setBackgroundColor(color), *this; }
-  auto setCentered(sWindow parent = {}) { return self().setCentered(parent), *this; }
   auto setDismissable(bool dismissable = true) { return self().setDismissable(dismissable), *this; }
   auto setDroppable(bool droppable = true) { return self().setDroppable(droppable), *this; }
   auto setFrameGeometry(Geometry geometry) { return self().setFrameGeometry(geometry), *this; }
@@ -946,6 +945,7 @@ struct Window : sWindow {
   auto setMinimized(bool minimized) { return self().setMinimized(minimized), *this; }
   auto setMinimumSize(Size size = {}) { return self().setMinimumSize(size), *this; }
   auto setModal(bool modal = true) { return self().setModal(modal), *this; }
+  auto setPlacement(Placement placement, sWindow relativeTo = {}) { return self().setPlacement(placement, relativeTo), *this; }
   auto setPosition(Position position) { return self().setPosition(position), *this; }
   auto setResizable(bool resizable = true) { return self().setResizable(resizable), *this; }
   auto setSize(Size size) { return self().setSize(size), *this; }

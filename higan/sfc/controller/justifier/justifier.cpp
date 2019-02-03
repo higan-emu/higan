@@ -1,7 +1,5 @@
 auto Justifier::create(bool chained) -> Node::Peripheral {
-  auto node = Node::Peripheral::create();
-  node->type = "Controller";
-  node->name = !chained ? "Justifier" : "Justifiers";
+  auto node = Node::Peripheral::create(!chained ? "Justifier" : "Justifiers");
   return node;
 }
 

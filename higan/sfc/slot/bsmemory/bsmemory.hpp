@@ -19,7 +19,7 @@ struct BSMemory : Thread, Memory {
   Node::Port::Cartridge port;
   using Thread::create;
   static auto create() -> Node::Cartridge;
-  auto initialize(Node::Node) -> void;
+  auto initialize(Node) -> void;
 
   uint ROM = 1;
 

@@ -25,17 +25,14 @@ auto Expansion::main() -> void {
 
 //
 
-auto ExpansionPort::initialize(Node::Node parent) -> void {
-  port = Node::Port::Peripheral::create();
-  port->edge = true;
-  port->type = "Expansion";
-  port->name = "Expansion Port";
+auto ExpansionPort::initialize(Node parent) -> void {
+  port = Node::Port::Peripheral::create("Expansion Port");
   port->list.append(Satellaview::create());
   port->list.append(S21FX::create());
   port->attach = [&](auto) {
     connect(0);
   };
-  parent->nodes.append(port);
+  parent->append(port);
 }
 
 auto ExpansionPort::connect(uint deviceID) -> void {

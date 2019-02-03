@@ -1,10 +1,9 @@
 namespace higan::Core {
 
 struct Peripheral : Node {
+  DeclareClass(Peripheral, "Peripheral")
+
+  using Node::Node;
 };
 
-}
-
-namespace higan::Node {
-  using Peripheral = shared_pointer<Core::Peripheral>;
 }

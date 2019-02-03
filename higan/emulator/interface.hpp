@@ -50,6 +50,8 @@ struct Interface {
     string name;
   };
 
+  virtual ~Interface() = default;
+
   //information
   virtual auto information() -> Information { return {}; }
 
@@ -68,7 +70,9 @@ struct Interface {
 
   //system interface
   virtual auto initialize(function<void (Node::System)>) -> void {}
-  virtual auto root() -> Node::Node { return {}; }
+  virtual auto root() -> Node { return {}; }
+  virtual auto export() -> string { return {}; }
+  virtual auto import(string) -> bool { return false; }
   virtual auto ports() -> vector<Port> { return {}; }
   virtual auto devices(uint port) -> vector<Device> { return {}; }
   virtual auto inputs(uint device) -> vector<Input> { return {}; }
@@ -119,17 +123,6 @@ struct Interface {
   auto setProperty(string name, string value) -> bool {
     if(auto property = properties()[name]) return property->setValue(value);
     return false;
-  }
-
-  //tree functions
-  auto node(uint64_t nodeID, Node::Node node = {}) -> Node::Node {
-    if(!node) node = root();
-    if(!node) return {};
-    if(node->id == nodeID) return node;
-    for(auto& leaf : node->nodes) {
-      if(auto found = Interface::node(nodeID, leaf)) return found;
-    }
-    return {};
   }
 };
 

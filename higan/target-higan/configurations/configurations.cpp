@@ -37,7 +37,7 @@ ConfigurationManager::ConfigurationManager() {
     .setAuthor(higan::Author)
     .setLicense(higan::License)
     .setWebsite(higan::Website)
-    .setParent(*this).show();
+    .setPlacement(Placement::Center, *this).show();
   });
 
   layout.setPadding(5);
@@ -70,7 +70,7 @@ ConfigurationManager::ConfigurationManager() {
 
   setTitle({"higan v", higan::Version});
   setSize({640, 360});
-  setCentered();
+  setPlacement(Placement::Center);
 
   refresh();
 }
@@ -136,21 +136,21 @@ auto ConfigurationManager::eventCreate() -> void {
       .setTitle("Warning")
       .setText("A directory by this name already exists.\n"
                "Do you wish to delete the existing directory and create a new one?")
-      .setParent(*this).question() == "No"
+      .setPlacement(Placement::Center, *this).question() == "No"
     ) return;
     if(!directory::remove({location, name})) return (void)MessageDialog()
       .setTitle("Error")
       .setText({"Failed to remove previous directory. The location may be read-only.\n",
                 "Location: ", location,
                 "Name: ", name})
-      .setParent(*this).error();
+      .setPlacement(Placement::Center, *this).error();
   }
   if(!directory::create({location, name})) return (void)MessageDialog()
     .setTitle("Error")
     .setText({"Failed to create directory. Either the location is read-only, or the name contains invalid characters.\n",
               "Location: ", location, "\n",
               "Name: ", name})
-    .setParent(*this).error();
+    .setPlacement(Placement::Center, *this).error();
   if(system) {
     if(auto index = emulators.find([&](auto emulator) { return emulator->information().name == system; })) {
       file::write({location, name, "properties.bml"}, emulators[*index]->properties().serialize());
@@ -174,21 +174,21 @@ auto ConfigurationManager::eventRename() -> void {
       .setTitle("Warning")
       .setText("A directory by this name already exists.\n"
                "Do you wish to delete the existing directory and replace it with this one?")
-      .setParent(*this).question() == "No"
+      .setPlacement(Placement::Center, *this).question() == "No"
     ) return;
     if(!directory::remove({location, name})) return (void)MessageDialog()
       .setTitle("Error")
       .setText({"Failed to remove previous directory. The location may be read-only.\n",
                 "Location: ", location, "\n",
                 "Name: ", name})
-      .setParent(*this).error();
+      .setPlacement(Placement::Center, *this).error();
   }
   if(!directory::rename({location, originalName}, {location, name})) return (void)MessageDialog()
     .setTitle("Error")
     .setText({"Failed to rename directory. Either the location is read-only, or the name contains invalid characters.\n",
               "Location: ", location, "\n",
               "Name: ", name})
-    .setParent(*this).error();
+    .setPlacement(Placement::Center, *this).error();
   refresh();
 }
 
@@ -201,13 +201,13 @@ auto ConfigurationManager::eventRemove() -> void {
     .setText({"This will permanently destroy this directory, and all of its contents recursively.\n",
               "All related settings and content will be lost. Are you really sure you want to do this?\n",
               "Location: ", location})
-    .setParent(*this).question() == "No"
+    .setPlacement(Placement::Center, *this).question() == "No"
   ) return;
   if(!directory::remove(location)) return (void)MessageDialog()
     .setTitle("Error")
     .setText({"Failed to remove directory. The location may be read-only.\n",
               "Location: ", location})
-    .setParent(*this).error();
+    .setPlacement(Placement::Center, *this).error();
   refresh();
 }
 
@@ -221,5 +221,5 @@ auto ConfigurationManager::eventProperties() -> void {
     .setTitle("Error")
     .setText({"Failed to write properties.bml file. The location may be read-only.\n"
               "Location: ", location})
-    .setParent(*this).error();
+    .setPlacement(Placement::Center, *this).error();
 }

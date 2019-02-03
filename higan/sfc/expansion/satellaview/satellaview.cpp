@@ -1,7 +1,5 @@
 auto Satellaview::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create();
-  node->type = "Expansion";
-  node->name = "Satellaview";
+  auto node = Node::Peripheral::create("Satellaview");
   return node;
 }
 

@@ -1,7 +1,5 @@
 auto S21FX::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create();
-  node->type = "Expansion";
-  node->name = "21fx";
+  auto node = Node::Peripheral::create("21fx");
   return node;
 }
 

@@ -1,6 +1,4 @@
 struct Gamepad : Controller {
-  static auto create() -> Node::Peripheral;
-
   Node::Input::Button up;
   Node::Input::Button down;
   Node::Input::Button left;
@@ -14,7 +12,7 @@ struct Gamepad : Controller {
   Node::Input::Button select;
   Node::Input::Button start;
 
-  Gamepad(uint port, Node::Node);
+  Gamepad(uint port, Node);
 
   auto data() -> uint2;
   auto latch(bool data) -> void;

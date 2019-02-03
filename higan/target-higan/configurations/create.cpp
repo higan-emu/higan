@@ -39,7 +39,7 @@ auto ConfigurationCreateDialog::run() -> Result {
   systemList.selected().setSelected(false);
   systemList.doChange();
   nameValue.setText();
-  setCentered(configurationManager);
+  setPlacement(Placement::Overlap, configurationManager);
   setVisible();
   setFocused();
   systemList.setFocused();
@@ -54,7 +54,7 @@ auto ConfigurationCreateDialog::eventAccept() -> void {
   if(!name) return (void)MessageDialog()
     .setTitle("Error")
     .setText("The name field cannot be left blank.")
-    .setParent(*this).error();
+    .setPlacement(Placement::Center, *this).error();
   result.system = systemList.selected().property("system");
   result.name = nameValue.text().strip();
   doClose();

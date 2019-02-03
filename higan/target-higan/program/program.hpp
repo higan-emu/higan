@@ -6,10 +6,10 @@ struct Program : higan::Platform {
   auto power(bool on) -> void;
 
   //platform.cpp
-  auto open(higan::Node::Node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file override;
+  auto open(higan::Node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file override;
   auto videoFrame(higan::Node::Port::Video, const uint32* data, uint pitch, uint width, uint height) -> void override;
   auto audioFrame(const double* samples, uint channels) -> void override;
-  auto inputPoll(higan::Node::Input::Input) -> void override;
+  auto inputPoll(higan::Node::Input) -> void override;
 
   struct System {
     bool power = false;

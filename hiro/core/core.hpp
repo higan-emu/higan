@@ -98,6 +98,7 @@ Declare(Viewport)
 enum class Orientation : uint { Horizontal, Vertical };
 enum class Navigation : uint { Top, Bottom, Left, Right };
 enum class Sort : uint { None, Ascending, Descending };
+enum class Placement : uint { Center, Overlap, Above, Below, Before, After };
 
 #if defined(Hiro_Color)
 struct Color {

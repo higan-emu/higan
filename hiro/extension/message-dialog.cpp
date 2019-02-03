@@ -22,8 +22,9 @@ auto MessageDialog::question(const vector<string>& buttons) -> string {
   return _run();
 }
 
-auto MessageDialog::setParent(shared_pointer<mWindow> parent) -> type& {
-  state.parent = parent;
+auto MessageDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
+  state.placement = placement;
+  state.relativeTo = relativeTo;
   return *this;
 }
 
@@ -77,7 +78,7 @@ auto MessageDialog::_run() -> string {
   window.setTitle(state.title);
   window.setResizable(false);
   window.setSize({width, layout.minimumSize().height()});
-  window.setCentered(state.parent);
+  window.setPlacement(state.placement, state.relativeTo);
   window.setDismissable();
   window.setVisible();
   window.setModal();

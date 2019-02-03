@@ -11,9 +11,7 @@
 //Note that no commercial game ever utilizes a Super Scope in port 1.
 
 auto SuperScope::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create();
-  node->type = "Controller";
-  node->name = "Super Scope";
+  auto node = Node::Peripheral::create("Super Scope");
   return node;
 }
 

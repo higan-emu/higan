@@ -7,18 +7,23 @@ namespace higan::SuperFamicom {
 #include "serialization.cpp"
 Cartridge cartridge;
 
-auto Cartridge::initialize(Node::Node parent) -> void {
-  port = Node::Port::Cartridge::create();
-  port->edge = true;
-  port->type = "Cartridge";
-  port->name = "Cartridge Port";
+auto Cartridge::initialize(Node parent) -> void {
+  port = Node::Port::Cartridge::create("Cartridge");
   port->attach = [&](auto node) {
     load();
   };
   port->detach = [&](auto node) {
     unload();
   };
-  parent->nodes.append(port);
+  port->import = [&](auto markup) {
+    if(markup = markup["node"]) {
+    //port->append(Node::Cartridge::create("The Legend of Zelda: A Link to the Past"));
+    }
+  };
+  parent->append(port);
+}
+
+auto Cartridge::import(Markup::Node node) -> void {
 }
 
 auto Cartridge::hashes() const -> vector<string> {

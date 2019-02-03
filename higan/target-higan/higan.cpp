@@ -75,8 +75,8 @@ auto nall::main(Arguments arguments) -> void {
   emulators.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
   emulators.append(new higan::NeoGeoPocket::NeoGeoPocketColorInterface);
   #endif
-  Instances::connectionManager.construct();
   Instances::configurationManager.construct();
+  Instances::systemManager.construct();
   configurationManager.show();
   Application::run();
 }

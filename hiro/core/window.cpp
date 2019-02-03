@@ -203,21 +203,6 @@ auto mWindow::setBackgroundColor(Color color) -> type& {
   return *this;
 }
 
-auto mWindow::setCentered(sWindow parent) -> type& {
-  Geometry workspace = Desktop::workspace();
-  Geometry parentGeometry = parent ? parent->frameGeometry() : workspace;
-  Geometry geometry = frameGeometry();
-  //center the window to its parent window ...
-  int x = parentGeometry.x() + (parentGeometry.width()  - geometry.width())  / 2;
-  int y = parentGeometry.y() + (parentGeometry.height() - geometry.height()) / 2;
-  //try and keep the window onscreen ...
-  if(x + geometry.width()  > workspace.width())  x = workspace.width()  - geometry.width();
-  if(y + geometry.height() > workspace.height()) y = workspace.height() - geometry.height();
-  if(x < workspace.x()) x = workspace.x();
-  if(y < workspace.y()) y = workspace.y();
-  return setFrameGeometry({x, y, geometry.width(), geometry.height()});
-}
-
 auto mWindow::setDismissable(bool dismissable) -> type& {
   state.dismissable = dismissable;
   signal(setDismissable, dismissable);
@@ -303,6 +288,24 @@ auto mWindow::setModal(bool modal) -> type& {
     assert(Application::state().modal >= 0);
   }
   signal(setModal, modal);
+  return *this;
+}
+
+//todo: it may be nicer to ensure that the window is not moved outside of the workspace area (eg offscreen) here ...
+auto mWindow::setPlacement(Placement placement, sWindow relativeTo) -> type& {
+  auto source = relativeTo ? relativeTo->frameGeometry() : Desktop::workspace();
+  auto target = frameGeometry();
+  if(!relativeTo || placement == Placement::Center) return setFramePosition({
+    source.x() + (source.width()  - target.width())  / 2.0,
+    source.y() + (source.height() - target.height()) / 2.0
+  });
+  switch(placement) {
+  case Placement::Overlap: return setFramePosition({source.x() + 48, source.y() + 48});
+  case Placement::Above:   return setFramePosition({source.x(), source.y() - target.height()});
+  case Placement::Below:   return setFramePosition({source.x(), source.y() + source.height()});
+  case Placement::Before:  return setFramePosition({source.x() - target.width(), source.y()});
+  case Placement::After:   return setFramePosition({source.x() + source.width(), source.y()});
+  }
   return *this;
 }
 

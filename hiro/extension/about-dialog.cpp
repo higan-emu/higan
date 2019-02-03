@@ -27,8 +27,9 @@ auto AboutDialog::setName(const string& name) -> type& {
   return *this;
 }
 
-auto AboutDialog::setParent(sWindow parent) -> type& {
-  state.parent = parent;
+auto AboutDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
+  state.placement = placement;
+  state.relativeTo = relativeTo;
   return *this;
 }
 
@@ -132,7 +133,7 @@ auto AboutDialog::show() -> void {
   window.setBackgroundColor({255, 255, 240});
   window.setSize({max(360, layout.minimumSize().width()), layout.minimumSize().height()});
   window.setResizable(false);
-  window.setCentered(state.parent);
+  window.setPlacement(state.placement, state.relativeTo);
   window.setDismissable();
   window.setVisible();
   window.setModal();

@@ -16,8 +16,8 @@ struct BrowserDialog {
   auto selectFolder() -> string;       //one existing folder
   auto setFilters(const vector<string>& filters = {}) -> type&;
   auto setOptions(const vector<string>& options = {}) -> type&;
-  auto setParent(const sWindow& parent) -> type&;
   auto setPath(const string& path = "") -> type&;
+  auto setPlacement(Placement placement, sWindow relativeTo = {}) -> type&;
   auto setTitle(const string& title = "") -> type&;
 
 private:
@@ -25,8 +25,9 @@ private:
     string action;
     vector<string> filters = {"*"};
     vector<string> options;
-    sWindow parent;
     string path;
+    Placement placement = Placement::Center;
+    sWindow relativeTo;
     string title;
   } state;
 

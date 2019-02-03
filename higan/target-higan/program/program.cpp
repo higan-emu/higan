@@ -10,16 +10,20 @@ auto Program::create(shared_pointer<higan::Interface> interface, string location
   emulator->initialize([&](auto system) {
     system->setProperty("location", location);
   });
+  if(auto document = file::read({location, "root.bml"})) {
+    emulator->import(document);
+  }
+  print(emulator->root()->serialize(), "\n");
 
-  connectionManager.show();
+  systemManager.show();
 
   audio.create("OSS");
-  audio.setContext(connectionManager.handle());
+  audio.setContext(systemManager.handle());
   audio.setBlocking(false);
   audio.setFrequency(48000.0);
 
   input.create("SDL");
-  input.setContext(connectionManager.handle());
+  input.setContext(systemManager.handle());
 
   Application::onMain({&Program::main, this});
 
@@ -29,8 +33,6 @@ auto Program::create(shared_pointer<higan::Interface> interface, string location
     viewport->create(display);
     viewports.append(viewport);
   }
-
-  connectionManager.setFocused();
 }
 
 auto Program::main() -> void {
@@ -42,6 +44,10 @@ auto Program::main() -> void {
 }
 
 auto Program::quit() -> void {
+  if(auto location = emulator->root()->property("location")) {
+  //file::write({location, "root.bml"}, emulator->export());
+  }
+
   viewports.reset();
   audio.reset();
   input.reset();
@@ -51,7 +57,7 @@ auto Program::quit() -> void {
 auto Program::power(bool on) -> void {
   if(system.power = on) {
     for(auto& viewport : viewports) {
-      viewport->show(connectionManager);
+      viewport->show(systemManager);
     }
     emulator->power();
   } else {

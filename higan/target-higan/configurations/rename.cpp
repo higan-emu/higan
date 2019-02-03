@@ -21,7 +21,7 @@ auto ConfigurationRenameDialog::run(string name) -> string {
   result = {};
   nameValue.setText(name);
   setTitle({"Rename ", name});
-  setCentered(configurationManager);
+  setPlacement(Placement::Overlap, configurationManager);
   setFocused();
   setVisible();
   nameValue.setFocused();

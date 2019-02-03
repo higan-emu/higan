@@ -1,40 +1,19 @@
-auto Gamepad::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create();
-  node->type = "Controller";
-  node->name = "Gamepad";
-  node->append(Node::Input::Button::create("Up"));
-  node->append(Node::Input::Button::create("Down"));
-  node->append(Node::Input::Button::create("Left"));
-  node->append(Node::Input::Button::create("Right"));
-  node->append(Node::Input::Button::create("B"));
-  node->append(Node::Input::Button::create("A"));
-  node->append(Node::Input::Button::create("Y"));
-  node->append(Node::Input::Button::create("X"));
-  node->append(Node::Input::Button::create("L"));
-  node->append(Node::Input::Button::create("R"));
-  node->append(Node::Input::Button::create("Select"));
-  node->append(Node::Input::Button::create("Start"));
-  return node;
-}
+Gamepad::Gamepad(uint port, Node node) : Controller(port) {
+  up     = node->append(Node::Input::Button::create("Up"));
+  down   = node->append(Node::Input::Button::create("Down"));
+  left   = node->append(Node::Input::Button::create("Left"));
+  right  = node->append(Node::Input::Button::create("Right"));
+  b      = node->append(Node::Input::Button::create("B"));
+  a      = node->append(Node::Input::Button::create("A"));
+  y      = node->append(Node::Input::Button::create("Y"));
+  x      = node->append(Node::Input::Button::create("X"));
+  l      = node->append(Node::Input::Button::create("L"));
+  r      = node->append(Node::Input::Button::create("R"));
+  select = node->append(Node::Input::Button::create("Select"));
+  start  = node->append(Node::Input::Button::create("Start"));
 
-Gamepad::Gamepad(uint port, Node::Node parent) : Controller(port) {
   latched = 0;
   counter = 0;
-
-  auto buttons = parent->find<Node::Input::Button>();
-  assert(buttons == 12);
-  up     = buttons[ 0];
-  down   = buttons[ 1];
-  left   = buttons[ 2];
-  right  = buttons[ 3];
-  b      = buttons[ 4];
-  a      = buttons[ 5];
-  y      = buttons[ 6];
-  x      = buttons[ 7];
-  l      = buttons[ 8];
-  r      = buttons[ 9];
-  select = buttons[10];
-  start  = buttons[11];
 }
 
 auto Gamepad::data() -> uint2 {

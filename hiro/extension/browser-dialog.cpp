@@ -189,7 +189,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   window.onClose([&] { window.setModal(false); });
   window.setTitle(state.title);
   window.setSize({640, 480});
-  window.setCentered(state.parent);
+  window.setPlacement(state.placement, state.relativeTo);
   window.setDismissable();
   window.setVisible();
   view.setFocused();
@@ -303,13 +303,14 @@ auto BrowserDialog::setOptions(const vector<string>& options) -> type& {
   return *this;
 }
 
-auto BrowserDialog::setParent(const sWindow& parent) -> type& {
-  state.parent = parent;
+auto BrowserDialog::setPath(const string& path) -> type& {
+  state.path = path;
   return *this;
 }
 
-auto BrowserDialog::setPath(const string& path) -> type& {
-  state.path = path;
+auto BrowserDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
+  state.placement = placement;
+  state.relativeTo = relativeTo;
   return *this;
 }
 

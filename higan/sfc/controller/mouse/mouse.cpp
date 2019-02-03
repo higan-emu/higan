@@ -1,7 +1,5 @@
 auto Mouse::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create();
-  node->type = "Controller";
-  node->name = "Mouse";
+  auto node = Node::Peripheral::create("Mouse");
   return node;
 }
 

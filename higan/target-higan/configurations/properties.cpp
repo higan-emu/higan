@@ -24,7 +24,7 @@ auto ConfigurationPropertiesDialog::run(string name, string markup) -> string {
   propertiesDocument.setText(markup);
   systemLabel.setText(system);
   setTitle({name, " Properties"});
-  setCentered(configurationManager);
+  setPlacement(Placement::Overlap, configurationManager);
   setVisible();
   setFocused();
   propertiesDocument.setFocused();

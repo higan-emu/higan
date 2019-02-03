@@ -8,14 +8,14 @@ ruby.path := ../ruby
 include $(ruby.path)/GNUmakefile
 
 objects += ui-higan ui-resource ui-program
-objects += ui-connections ui-configurations ui-viewport
+objects += ui-configurations ui-system ui-viewport
 objects := $(objects:%=obj/%.o)
 
 obj/ui-higan.o: $(ui)/higan.cpp
 obj/ui-resource.o: $(ui)/resource/resource.cpp
 obj/ui-program.o: $(ui)/program/program.cpp
-obj/ui-connections.o: $(ui)/connections/connections.cpp
 obj/ui-configurations.o: $(ui)/configurations/configurations.cpp
+obj/ui-system.o: $(ui)/system/system.cpp
 obj/ui-viewport.o: $(ui)/viewport/viewport.cpp
 
 all: $(hiro.objects) $(ruby.objects) $(objects)
@@ -38,13 +38,17 @@ ifeq ($(shell id -un),root)
 else ifeq ($(platform),windows)
 else ifeq ($(platform),macos)
 	mkdir -p ~/Library/Application\ Support\$(name)/
+	mkdir -p ~/Library/Application\ Support\$(name)/Systems/
 	cp -R out/$(name).app /Applications/$(name).app
+	cp -R Systems/* ~/Library/Application\ Support/$(name)/Systems/
 else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/bin/
 	mkdir -p $(prefix)/share/applications/
 	mkdir -p $(prefix)/share/icons/
 	mkdir -p $(prefix)/share/$(name)/
+	mkdir -p $(prefix)/share/$(name)/Systems/
 	cp out/$(name) $(prefix)/bin/$(name)
+	cp -R Systems/* $(prefix)/share/$(name)/Systems/
 	cp $(ui)/resource/$(name).desktop $(prefix)/share/applications/$(name).desktop
 	cp $(ui)/resource/$(name).png $(prefix)/share/icons/$(name).png
 endif

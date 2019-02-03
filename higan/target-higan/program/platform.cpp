@@ -1,4 +1,4 @@
-auto Program::open(higan::Node::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
+auto Program::open(higan::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
   auto location = node->property("location");
 
   if(name == "manifest.bml") {
@@ -46,7 +46,7 @@ auto Program::audioFrame(const double* samples, uint channels) -> void {
   }
 }
 
-auto Program::inputPoll(higan::Node::Input::Input input) -> void {
+auto Program::inputPoll(higan::Node::Input input) -> void {
   if(auto button = input->cast<higan::Node::Input::Button>()) {
     button->value = 0;
   }

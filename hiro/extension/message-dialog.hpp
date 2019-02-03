@@ -7,7 +7,7 @@ struct MessageDialog {
   auto error(const vector<string>& buttons = {"Ok"}) -> string;
   auto information(const vector<string>& buttons = {"Ok"}) -> string;
   auto question(const vector<string>& buttons = {"Yes", "No"}) -> string;
-  auto setParent(sWindow parent = {}) -> type&;
+  auto setPlacement(Placement placement, sWindow relativeTo = {}) -> type&;
   auto setText(const string& text = "") -> type&;
   auto setTitle(const string& title = "") -> type&;
   auto warning(const vector<string>& buttons = {"Ok"}) -> string;
@@ -16,7 +16,8 @@ private:
   struct State {
     vector<string> buttons;
     image icon;
-    sWindow parent;
+    Placement placement = Placement::Center;
+    sWindow relativeTo;
     string response;
     string text;
     string title;

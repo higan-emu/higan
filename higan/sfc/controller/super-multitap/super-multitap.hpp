@@ -1,11 +1,14 @@
 struct SuperMultitap : Controller {
-  static auto create() -> Node::Peripheral;
+  Node::Port::Peripheral port1;
+  Node::Port::Peripheral port2;
+  Node::Port::Peripheral port3;
+  Node::Port::Peripheral port4;
 
   enum : uint {
     Up, Down, Left, Right, B, A, Y, X, L, R, Select, Start,
   };
 
-  SuperMultitap(uint port);
+  SuperMultitap(uint port, Node);
 
   auto data() -> uint2;
   auto latch(bool data) -> void;

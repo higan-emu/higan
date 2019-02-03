@@ -18,8 +18,8 @@ namespace Theme {
 }
 
 #include "resource/resource.hpp"
-#include "connections/connections.hpp"
 #include "configurations/configurations.hpp"
+#include "system/system.hpp"
 #include "viewport/viewport.hpp"
 #include "program/program.hpp"
 

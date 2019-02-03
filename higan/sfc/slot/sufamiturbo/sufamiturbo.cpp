@@ -4,21 +4,13 @@ SufamiTurboCartridge sufamiturboB;
 #include "serialization.cpp"
 
 auto SufamiTurboCartridge::create(bool slot) -> Node::Cartridge {
-  auto node = Node::Cartridge::create();
-  node->type = "Cartridge";
-  node->name = {"Sufami Turbo - ", !slot ? "Slot A" : "Slot B"};
+  auto node = Node::Cartridge::create("Sufami Turbo Cartridge");
   return node;
 }
 
-auto SufamiTurboCartridge::initialize(Node::Node parent) -> void {
-  port = Node::Port::Cartridge::create();
-  port->edge = true;
-  port->type = "Cartridge";
-  if(this == &sufamiturboA) {
-    port->name = "Sufami Turbo - Slot A";
-  } else {
-    port->name = "Sufami Turbo - Slot B";
-  }
+auto SufamiTurboCartridge::initialize(Node parent) -> void {
+  bool portID = this == &sufamiturboB;
+  port = Node::Port::Cartridge::create(!portID ? "Sufami Turbo Slot A" : "Sufami Turbo Slot B");
   port->attach = [&](auto node) {
     load();
   };

@@ -41,7 +41,6 @@ struct mWindow : mObject {
   auto resizable() const -> bool;
   auto setAlignment(Alignment alignment) -> type&;
   auto setBackgroundColor(Color color = {}) -> type&;
-  auto setCentered(sWindow parent = {}) -> type&;
   auto setDismissable(bool dismissable = true) -> type&;
   auto setDroppable(bool droppable = true) -> type&;
   auto setFrameGeometry(Geometry geometry) -> type&;
@@ -54,6 +53,7 @@ struct mWindow : mObject {
   auto setMinimized(bool minimized = true) -> type&;
   auto setMinimumSize(Size size = {}) -> type&;
   auto setModal(bool modal = true) -> type&;
+  auto setPlacement(Placement placement, sWindow relativeTo = {}) -> type&;
   auto setPosition(Position position) -> type&;
   auto setResizable(bool resizable = true) -> type&;
   auto setSize(Size size) -> type&;

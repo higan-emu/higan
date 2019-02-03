@@ -2,24 +2,19 @@ BSMemory bsmemory;
 #include "serialization.cpp"
 
 auto BSMemory::create() -> Node::Cartridge {
-  auto node = Node::Cartridge::create();
-  node->type = "Cartridge";
-  node->name = "BS Memory Slot";
+  auto node = Node::Cartridge::create("BS Memory Cartridge");
   return node;
 }
 
-auto BSMemory::initialize(Node::Node parent) -> void {
-  port = Node::Port::Cartridge::create();
-  port->edge = true;
-  port->type = "Cartridge";
-  port->name = "BS Memory Slot";
+auto BSMemory::initialize(Node parent) -> void {
+  port = Node::Port::Cartridge::create("BS Memory Slot");
   port->attach = [&](auto node) {
     load();
   };
   port->detach = [&](auto node) {
     unload();
   };
-  parent->nodes.append(port);
+  parent->append(port);
 }
 
 BSMemory::BSMemory() {

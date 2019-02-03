@@ -48,41 +48,35 @@ auto Controller::iobit(bool data) -> void {
 
 //
 
-auto ControllerPort::initialize(Node::Node parent) -> void {
+auto ControllerPort::initialize(Node parent) -> void {
   auto portID = this == &controllerPort2;
 
   port = Node::Port::Peripheral::create(!portID ? "Controller Port 1" : "Controller Port 2");
-  port->edge = true;
-  port->type = "Controller";
-  port->attach = [&](auto) {
-    connect(0);
+  port->attach = [&](auto node) {
+    connect(0);  //todo: ID parameter is unnecessary
   };
   vector<string> controllers;
   if(!portID) {
-    port->list.append(Gamepad::create());
     port->list.append(Mouse::create());
-    port->list.append(SuperMultitap::create());
   } else {
-    port->list.append(Gamepad::create());
     port->list.append(Mouse::create());
-    port->list.append(SuperMultitap::create());
     port->list.append(SuperScope::create());
     port->list.append(Justifier::create(0));
     port->list.append(Justifier::create(1));
   }
-  parent->nodes.append(port);
+  parent->append(port);
 }
 
 auto ControllerPort::connect(uint deviceID) -> void {
   delete device;
   device = nullptr;
   if(auto leaf = port->first()) {
-    if(leaf->name == "Gamepad") device = new Gamepad(portID, leaf);
-    if(leaf->name == "Mouse") device = new Mouse(portID);
-    if(leaf->name == "Super Multitap") device = new SuperMultitap(portID);
-    if(leaf->name == "Super Scope") device = new SuperScope(portID);
-    if(leaf->name == "Justifier") device = new Justifier(portID, false);
-    if(leaf->name == "Justifiers") device = new Justifier(portID, true);
+    if(leaf->kind == "Gamepad") device = new Gamepad(portID, leaf);
+    if(leaf->kind == "Mouse") device = new Mouse(portID);
+    if(leaf->kind == "Super Multitap") device = new SuperMultitap(portID, leaf);
+    if(leaf->kind == "Super Scope") device = new SuperScope(portID);
+    if(leaf->kind == "Justifier") device = new Justifier(portID, false);
+    if(leaf->kind == "Justifiers") device = new Justifier(portID, true);
   }
   if(!device) device = new Controller(portID);
 

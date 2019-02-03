@@ -4,7 +4,7 @@ struct PPU : Thread, PPUcounter {
     Node::Setting::Boolean colorEmulation;
     Node::Setting::Boolean colorBleed;
   } settings;
-  auto initialize(Node::Node) -> void;
+  auto initialize(Node) -> void;
 
   alwaysinline auto interlace() const -> bool { return self.interlace; }
   alwaysinline auto overscan() const -> bool { return self.overscan; }

@@ -22,10 +22,7 @@ auto System::runToSave() -> void {
 }
 
 auto System::initialize(function<void (Node::System)> callback) -> void {
-  Core::Node::uniqueID(true);
-  node = Node::System::create();
-  node->type = "System";
-  node->name = "Super Famicom";
+  node = Node::System::create("Super Famicom");
   ppu.initialize(node);
   cartridge.initialize(node);
   controllerPort1.initialize(node);
@@ -33,9 +30,15 @@ auto System::initialize(function<void (Node::System)> callback) -> void {
   expansionPort.initialize(node);
   if(callback) callback(node);
   load();
-//  video.reset(interface);
-//  video.setPalette();
-//  audio.reset(interface);
+//video.reset(interface);
+//video.setPalette();
+//audio.reset(interface);
+}
+
+auto System::import(string markup) -> void {
+  auto document = BML::unserialize(markup);
+  auto root = document["node(name=Super Famicom)"];
+  cartridge.import(root["node(name=Cartridge Port)"]);
 }
 
 auto System::load() -> bool {

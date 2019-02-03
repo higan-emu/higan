@@ -8,7 +8,7 @@ struct AboutDialog {
   auto setLicense(const string& license = "") -> type&;
   auto setLogo(const image& logo = {}) -> type&;
   auto setName(const string& name = "") -> type&;
-  auto setParent(sWindow parent = {}) -> type&;
+  auto setPlacement(Placement placement, sWindow relativeTo = {}) -> type&;
   auto setVersion(const string& version = "") -> type&;
   auto setWebsite(const string& website = "") -> type&;
   auto show() -> void;
@@ -20,7 +20,8 @@ private:
     string license;
     image logo;
     string name;
-    sWindow parent;
+    Placement placement = Placement::Center;
+    sWindow relativeTo;
     string version;
     string website;
   } state;
