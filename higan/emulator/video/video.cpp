@@ -111,7 +111,7 @@ auto Video::removeSprite(shared_pointer<Sprite> sprite) -> bool {
   return false;
 }
 
-auto Video::refresh(uint32* input, uint pitch, uint width, uint height) -> void {
+auto Video::refresh(Node::Port::Video node, uint32* input, uint pitch, uint width, uint height) -> void {
   if(this->width != width || this->height != height) {
     delete buffer;
     delete rotate;
@@ -185,7 +185,7 @@ auto Video::refresh(uint32* input, uint pitch, uint width, uint height) -> void 
     }
   }
 
-  platform->videoFrame(output, width * sizeof(uint32), width, height);
+  platform->videoFrame(node, output, width * sizeof(uint32), width, height);
 }
 
 }

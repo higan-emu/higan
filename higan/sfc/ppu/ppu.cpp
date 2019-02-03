@@ -3,7 +3,6 @@
 namespace higan::SuperFamicom {
 
 PPU ppu;
-
 #include "io.cpp"
 #include "background.cpp"
 #include "object.cpp"
@@ -11,6 +10,21 @@ PPU ppu;
 #include "screen.cpp"
 #include "serialization.cpp"
 #include "counter/serialization.cpp"
+
+auto PPU::initialize(Node::Node parent) -> void {
+  display = Node::Port::Video::create("Display");
+  display->type   = "CRT";
+  display->width  = 512;
+  display->height = 480;
+  display->aspect = 8.0 / 7.0;
+  display->append(settings.colorEmulation = Node::Setting::Boolean::create("Color Emulation", true, [&](auto) {
+    video.setPalette();
+  }));
+  display->append(settings.colorBleed = Node::Setting::Boolean::create("Color Bleed", true, [&](auto value) {
+    video.setEffect(Video::Effect::ColorBleed, value);
+  }));
+  parent->append(display);
+}
 
 PPU::PPU() :
 bg1(Background::ID::BG1),
@@ -226,8 +240,8 @@ auto PPU::scanline() -> void {
 
 auto PPU::frame() -> void {
   obj.frame();
-  display.interlace = io.interlace;
-  display.overscan = io.overscan;
+  self.interlace = io.interlace;
+  self.overscan = io.overscan;
 }
 
 auto PPU::refresh() -> void {
@@ -241,7 +255,7 @@ auto PPU::refresh() -> void {
   auto width = 512;
   auto height = 480;
   video.setEffect(Video::Effect::ColorBleed, option.video.colorBleed());
-  video.refresh(output, pitch * sizeof(uint32), width, height);
+  video.refresh(display, output, pitch * sizeof(uint32), width, height);
 }
 
 }

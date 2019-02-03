@@ -1,7 +1,14 @@
 struct PPU : Thread, PPUcounter {
-  alwaysinline auto interlace() const -> bool { return display.interlace; }
-  alwaysinline auto overscan() const -> bool { return display.overscan; }
-  alwaysinline auto vdisp() const -> uint { return display.vdisp; }
+  Node::Port::Video display;
+  struct Settings {
+    Node::Setting::Boolean colorEmulation;
+    Node::Setting::Boolean colorBleed;
+  } settings;
+  auto initialize(Node::Node) -> void;
+
+  alwaysinline auto interlace() const -> bool { return self.interlace; }
+  alwaysinline auto overscan() const -> bool { return self.overscan; }
+  alwaysinline auto vdisp() const -> uint { return self.vdisp; }
 
   //ppu.cpp
   PPU();
@@ -46,7 +53,7 @@ private:
     bool interlace;
     bool overscan;
     uint vdisp;
-  } display;
+  } self;
 
   auto scanline() -> void;
   auto frame() -> void;

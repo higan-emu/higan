@@ -15,9 +15,9 @@ PPU ppu;
 #include "window.cpp"
 #include "serialization.cpp"
 
-auto PPU::interlace() const -> bool { return ppubase.display.interlace; }
-auto PPU::overscan() const -> bool { return ppubase.display.overscan; }
-auto PPU::vdisp() const -> uint { return ppubase.display.vdisp; }
+auto PPU::interlace() const -> bool { return ppubase.self.interlace; }
+auto PPU::overscan() const -> bool { return ppubase.self.overscan; }
+auto PPU::vdisp() const -> uint { return ppubase.self.vdisp; }
 auto PPU::hires() const -> bool { return latch.hires; }
 
 PPU::PPU() {
@@ -67,8 +67,8 @@ auto PPU::main() -> void {
 
 auto PPU::scanline() -> void {
   if(vcounter() == 0) {
-    ppubase.display.interlace = io.interlace;
-    ppubase.display.overscan = io.overscan;
+    ppubase.self.interlace = io.interlace;
+    ppubase.self.overscan = io.overscan;
     latch.hires = false;
     io.obj.timeOver = false;
     io.obj.rangeOver = false;
@@ -98,7 +98,7 @@ auto PPU::refresh() -> void {
   auto width  = 256 << hires();
   auto height = 240 << interlace();
   video.setEffect(Video::Effect::ColorBleed, option.video.colorBleed() && hires());
-  video.refresh(output, pitch * sizeof(uint32), width, height);
+  video.refresh(ppubase.display, output, pitch * sizeof(uint32), width, height);
 }
 
 auto PPU::load() -> bool {

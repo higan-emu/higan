@@ -1,5 +1,5 @@
 struct SuperMultitap : Controller {
-  static auto create() -> higan::Node;
+  static auto create() -> Node::Peripheral;
 
   enum : uint {
     Up, Down, Left, Right, B, A, Y, X, L, R, Select, Start,

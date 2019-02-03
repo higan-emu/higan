@@ -93,6 +93,10 @@ auto mWindow::geometry() const -> Geometry {
   return state.geometry;
 }
 
+auto mWindow::handle() const -> uintptr_t {
+  return signal(handle);
+}
+
 auto mWindow::maximized() const -> bool {
   return state.maximized;
 }

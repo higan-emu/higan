@@ -1,5 +1,5 @@
 struct Mouse : Controller {
-  static auto create() -> higan::Node;
+  static auto create() -> Node::Peripheral;
 
   enum : uint {
     X, Y, Left, Right,

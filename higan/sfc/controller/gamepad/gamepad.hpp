@@ -1,11 +1,20 @@
 struct Gamepad : Controller {
-  static auto create() -> higan::Node;
+  static auto create() -> Node::Peripheral;
 
-  enum : uint {
-    Up, Down, Left, Right, B, A, Y, X, L, R, Select, Start,
-  };
+  Node::Input::Button up;
+  Node::Input::Button down;
+  Node::Input::Button left;
+  Node::Input::Button right;
+  Node::Input::Button b;
+  Node::Input::Button a;
+  Node::Input::Button y;
+  Node::Input::Button x;
+  Node::Input::Button l;
+  Node::Input::Button r;
+  Node::Input::Button select;
+  Node::Input::Button start;
 
-  Gamepad(uint port);
+  Gamepad(uint port, Node::Node);
 
   auto data() -> uint2;
   auto latch(bool data) -> void;
@@ -13,8 +22,4 @@ struct Gamepad : Controller {
 private:
   bool latched;
   uint counter;
-
-  boolean b, y, select, start;
-  boolean up, down, left, right;
-  boolean a, x, l, r;
 };

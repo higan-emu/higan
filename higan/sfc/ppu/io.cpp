@@ -631,7 +631,7 @@ auto PPU::writeIO(uint24 addr, uint8 data) -> void {
 }
 
 auto PPU::updateVideoMode() -> void {
-  display.vdisp = !io.overscan ? 225 : 240;
+  self.vdisp = !io.overscan ? 225 : 240;
 
   switch(io.bgMode) {
   case 0:

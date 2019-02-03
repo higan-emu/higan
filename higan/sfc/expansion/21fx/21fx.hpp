@@ -1,6 +1,6 @@
 struct S21FX : Expansion {
   using Expansion::create;
-  static auto create() -> Node;
+  static auto create() -> Node::Peripheral;
 
   S21FX();
   ~S21FX();

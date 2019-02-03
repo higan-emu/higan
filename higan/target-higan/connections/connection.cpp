@@ -26,9 +26,9 @@ ConnectionDialog::ConnectionDialog() {
   setDismissable();
 }
 
-auto ConnectionDialog::connect(higan::Node node) -> higan::Node {
+auto ConnectionDialog::connect(higan::Node::Node node) -> string {
   this->node = node;
-  leaf = {};
+  result = {};
 
   nodeList.reset();
   nodeList.append(TableViewColumn().setExpandable());
@@ -57,17 +57,15 @@ auto ConnectionDialog::connect(higan::Node node) -> higan::Node {
   setVisible();
   setFocused();
   setModal();
-  return leaf;
+  return result;
 }
 
 auto ConnectionDialog::eventAccept() -> void {
   if(auto item = nodeList.selected()) {
     if(node->list) {
-      leaf = node->list[item.offset()];
+      result = item.offset();
     } else {
-      leaf = higan::Node::create();
-      leaf->name = item.cell(0).text();
-      leaf->setProperty("location", item.property("location"));
+      result = item.property("location");
     }
   }
   doClose();

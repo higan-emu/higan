@@ -1,6 +1,5 @@
-auto S21FX::create() -> higan::Node {
-  auto node = Node::create();
-  node->id = uniqueID();
+auto S21FX::create() -> Node::Peripheral {
+  auto node = Node::Peripheral::create();
   node->type = "Expansion";
   node->name = "21fx";
   return node;

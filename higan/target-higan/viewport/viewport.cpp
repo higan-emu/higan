@@ -1,37 +1,27 @@
 #include "../higan.hpp"
 
-namespace Instances { Instance<ViewportWindow> viewport; };
-ViewportWindow& viewport = Instances::viewport();
-
-auto ViewportWindow::create() -> void {
-  systemMenu.setText(emulator->information().name);
-  connectionsAction.setIcon(Icon::Place::Server).setText("Connections ...").onActivate([&] {
-    connectionManager.show(*this);
-  });
-  powerToggle.setText("Power").onToggle([&] {
-    if(powerToggle.checked()) program.power();
-  });
-
-  settingsMenu.setText("Settings");
-
-  toolsMenu.setText("Tools");
-
-  helpMenu.setText("Help");
+auto ViewportWindow::create(higan::Node::Port::Video node) -> void {
+  this->node = node;
 
   onClose([&] {
-    Application::kill();
+    program.quit();
   });
 
-  setTitle({"higan v", higan::Version});
-  setSize({640, 480});
-  setCentered();
+  setTitle(node->name);
+  setSize({node->width * node->aspect, node->height});
 }
 
-auto ViewportWindow::context() -> uintptr {
-  return viewport.handle();
-}
-
-auto ViewportWindow::show() -> void {
+auto ViewportWindow::show(Window& parent) -> void {
+  setFramePosition({
+    parent.frameGeometry().x() + parent.frameGeometry().width(),
+    parent.frameGeometry().y()
+  });
   setVisible();
   setFocused();
+
+  if(!video) {
+    video.create("OpenGL 3.2");
+    video.setContext(viewport.handle());
+    video.setBlocking(false);
+  }
 }

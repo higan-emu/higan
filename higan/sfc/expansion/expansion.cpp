@@ -25,24 +25,23 @@ auto Expansion::main() -> void {
 
 //
 
-auto ExpansionPort::initialize(Node parent) -> void {
-  edge = Node::create();
-  edge->id = uniqueID();
-  edge->edge = true;
-  edge->type = "Expansion";
-  edge->name = "Expansion Port";
-  edge->list.append(Satellaview::create());
-  edge->list.append(S21FX::create());
-  edge->attach = [&](auto) {
+auto ExpansionPort::initialize(Node::Node parent) -> void {
+  port = Node::Port::Peripheral::create();
+  port->edge = true;
+  port->type = "Expansion";
+  port->name = "Expansion Port";
+  port->list.append(Satellaview::create());
+  port->list.append(S21FX::create());
+  port->attach = [&](auto) {
     connect(0);
   };
-  parent->nodes.append(edge);
+  parent->nodes.append(port);
 }
 
 auto ExpansionPort::connect(uint deviceID) -> void {
   delete device;
   device = nullptr;
-  if(auto leaf = edge->first()) {
+  if(auto leaf = port->first()) {
     if(leaf->name == "Satellaview") device = new Expansion;
     if(leaf->name == "21fx") device = new S21FX;
   }

@@ -20,6 +20,7 @@ struct mWindow : mObject {
   auto frameGeometry() const -> Geometry;
   auto fullScreen() const -> bool;
   auto geometry() const -> Geometry;
+  auto handle() const -> uintptr_t;
   auto maximized() const -> bool;
   auto maximumSize() const -> Size;
   auto menuBar() const -> MenuBar;

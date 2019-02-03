@@ -23,7 +23,7 @@ auto SuperFamicomInterface::display() -> Display {
   display.height = 240;
   display.internalWidth  = 512;
   display.internalHeight = 480;
-  display.aspectCorrection = 8.0 / 7.0;
+  display.aspectCorrection =8.0 / 7.0;
   return display;
 }
 
@@ -40,7 +40,7 @@ auto SuperFamicomInterface::color(uint32 color) -> uint64 {
   uint64 G = L * image::normalize(g, 5, 16);
   uint64 B = L * image::normalize(b, 5, 16);
 
-  if(option.video.colorEmulation()) {
+  if(ppu.settings.colorEmulation->value()) {
     static const uint8 gammaRamp[32] = {
       0x00, 0x01, 0x03, 0x06, 0x0a, 0x0f, 0x15, 0x1c,
       0x24, 0x2d, 0x37, 0x42, 0x4e, 0x5b, 0x69, 0x78,
@@ -88,12 +88,12 @@ auto SuperFamicomInterface::unload() -> void {
   system.unload();
 }
 
-auto SuperFamicomInterface::initialize() -> void {
+auto SuperFamicomInterface::initialize(function<void (Node::System)> callback) -> void {
   interface = this;
-  return system.initialize();
+  return system.initialize(callback);
 }
 
-auto SuperFamicomInterface::root() -> Node {
+auto SuperFamicomInterface::root() -> Node::Node {
   return system.node;
 }
 

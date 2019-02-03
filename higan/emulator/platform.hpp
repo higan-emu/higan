@@ -15,10 +15,11 @@ struct Platform {
 
   virtual auto path(uint id) -> string { return ""; }
   virtual auto open(uint id, string name, vfs::file::mode mode, bool required = false) -> vfs::shared::file { return {}; }
-  virtual auto open(Node node, string name, vfs::file::mode mode, bool required = false) -> vfs::shared::file { return {}; }
+  virtual auto open(Node::Node, string name, vfs::file::mode mode, bool required = false) -> vfs::shared::file { return {}; }
   virtual auto load(uint id, string name, string type, vector<string> options = {}) -> Load { return {}; }
-  virtual auto videoFrame(const uint32* data, uint pitch, uint width, uint height) -> void {}
+  virtual auto videoFrame(Node::Port::Video, const uint32* data, uint pitch, uint width, uint height) -> void {}
   virtual auto audioFrame(const double* samples, uint channels) -> void {}
+  virtual auto inputPoll(Node::Input::Input) -> void {}
   virtual auto inputPoll(uint port, uint device, uint input) -> int16 { return 0; }
   virtual auto inputRumble(uint port, uint device, uint input, bool enable) -> void {}
   virtual auto dipSettings(Markup::Node node) -> uint { return 0; }

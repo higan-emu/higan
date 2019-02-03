@@ -1,29 +1,25 @@
 BSMemory bsmemory;
 #include "serialization.cpp"
 
-auto BSMemory::create() -> Node {
-  auto node = Node::create();
-  node->id = uniqueID();
+auto BSMemory::create() -> Node::Cartridge {
+  auto node = Node::Cartridge::create();
   node->type = "Cartridge";
   node->name = "BS Memory Slot";
   return node;
 }
 
-auto BSMemory::initialize(Node parent) -> void {
-  edge = Node::create();
-  edge->id = uniqueID();
-  edge->edge = true;
-  edge->type = "Cartridge";
-  edge->name = "BS Memory Slot";
-  edge->attach = [&](auto node) {
-    this->node = node;
+auto BSMemory::initialize(Node::Node parent) -> void {
+  port = Node::Port::Cartridge::create();
+  port->edge = true;
+  port->type = "Cartridge";
+  port->name = "BS Memory Slot";
+  port->attach = [&](auto node) {
     load();
   };
-  edge->detach = [&](auto node) {
+  port->detach = [&](auto node) {
     unload();
-    this->node = {};
   };
-  parent->nodes.append(edge);
+  parent->nodes.append(port);
 }
 
 BSMemory::BSMemory() {
@@ -56,16 +52,17 @@ auto BSMemory::step(uint clocks) -> void {
 }
 
 auto BSMemory::load() -> bool {
-  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(port->connected(), "manifest.bml", File::Read, File::Required)) {
     self.manifest = fp->reads();
   } else return false;
 
   auto document = BML::unserialize(self.manifest);
+  port->connected()->name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(content=Program)"]) {
     ROM = memory["type"].text() == "ROM";
     this->memory.allocate(memory["size"].natural());
-    if(auto fp = platform->open(node, {"program.", memory["type"].text().downcase()}, File::Read, File::Required)) {
+    if(auto fp = platform->open(port->connected(), {"program.", memory["type"].text().downcase()}, File::Read, File::Required)) {
       fp->read(this->memory.data(), this->memory.size());
     } else return false;
   } else return false;
@@ -94,7 +91,7 @@ auto BSMemory::load() -> bool {
     block.locked = 1;
   }
 
-  if(auto fp = platform->open(pathID, "metadata.bml", File::Read, File::Optional)) {
+  if(auto fp = platform->open(port->connected(), "metadata.bml", File::Read, File::Optional)) {
     auto document = BML::unserialize(fp->reads());
     if(auto node = document["flash/vendor"]) {
       chip.vendor = node.natural();
@@ -124,7 +121,7 @@ auto BSMemory::save() -> void {
   auto document = BML::unserialize(self.manifest);
 
   if(auto memory = document["game/board/memory(type=Flash,content=Program)"]) {
-    if(auto fp = platform->open(node, "program.flash", File::Write)) {
+    if(auto fp = platform->open(port->connected(), "program.flash", File::Write)) {
       fp->write(this->memory.data(), this->memory.size());
     }
   }
@@ -133,7 +130,7 @@ auto BSMemory::save() -> void {
 auto BSMemory::unload() -> void {
   if(ROM) return memory.reset();
 
-  if(auto fp = platform->open(pathID, "metadata.bml", File::Write, File::Optional)) {
+  if(auto fp = platform->open(port->connected(), "metadata.bml", File::Write, File::Optional)) {
     string manifest;
     manifest.append("flash\n");
     manifest.append("  vendor: 0x", hex(chip.vendor,  4L), "\n");

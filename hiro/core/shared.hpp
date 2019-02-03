@@ -912,6 +912,7 @@ struct Window : sWindow {
   auto frameGeometry() const { return self().frameGeometry(); }
   auto fullScreen() const { return self().fullScreen(); }
   auto geometry() const { return self().geometry(); }
+  auto handle() const { return self().handle(); }
   auto maximized() const { return self().maximized(); }
   auto maximumSize() const { return self().maximumSize(); }
   auto menuBar() const { return self().menuBar(); }

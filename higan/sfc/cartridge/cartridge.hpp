@@ -1,12 +1,11 @@
 struct Cartridge {
-  Node edge;
-  Node node;
+  Node::Port::Cartridge port;
+  auto initialize(Node::Node) -> void;
 
   auto pathID() const -> uint { return information.pathID; }
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
-  auto initialize(Node) -> void;
 
   auto hashes() const -> vector<string>;
   auto manifests() const -> vector<string>;

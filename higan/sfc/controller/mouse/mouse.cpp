@@ -1,6 +1,5 @@
-auto Mouse::create() -> higan::Node {
-  auto node = Node::create();
-  node->id = uniqueID();
+auto Mouse::create() -> Node::Peripheral {
+  auto node = Node::Peripheral::create();
   node->type = "Controller";
   node->name = "Mouse";
   return node;

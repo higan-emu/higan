@@ -9,7 +9,7 @@ ConfigurationManager& configurationManager = Instances::configurationManager();
 ConfigurationManager::ConfigurationManager() {
   directory::create(locate("Configurations/"));
 
-  actionMenu.setText("Action");
+  actionMenu.setText("System");
   createAction.setIcon(Icon::Action::Add).setText("Create ...").onActivate([&] {
     eventCreate();
   });

@@ -1,7 +1,7 @@
 auto PPU::serialize(serializer& s) -> void {
-  s.integer(display.interlace);
-  s.integer(display.overscan);
-  s.integer(display.vdisp);
+  s.integer(self.interlace);
+  s.integer(self.overscan);
+  s.integer(self.vdisp);
 
   if(system.fastPPU()) {
     return ppufast.serialize(s);

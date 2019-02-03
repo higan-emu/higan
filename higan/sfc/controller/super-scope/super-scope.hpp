@@ -1,6 +1,6 @@
 struct SuperScope : Controller {
   using Controller::create;
-  static auto create() -> higan::Node;
+  static auto create() -> Node::Peripheral;
 
   shared_pointer<Sprite> sprite;
 

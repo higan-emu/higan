@@ -7,21 +7,18 @@ namespace higan::SuperFamicom {
 #include "serialization.cpp"
 Cartridge cartridge;
 
-auto Cartridge::initialize(Node parent) -> void {
-  edge = Node::create();
-  edge->id = uniqueID();
-  edge->edge = true;
-  edge->type = "Cartridge";
-  edge->name = "Cartridge Port";
-  edge->attach = [&](auto node) {
-    this->node = node;
+auto Cartridge::initialize(Node::Node parent) -> void {
+  port = Node::Port::Cartridge::create();
+  port->edge = true;
+  port->type = "Cartridge";
+  port->name = "Cartridge Port";
+  port->attach = [&](auto node) {
     load();
   };
-  edge->detach = [&](auto node) {
+  port->detach = [&](auto node) {
     unload();
-    this->node = {};
   };
-  parent->nodes.append(edge);
+  parent->nodes.append(port);
 }
 
 auto Cartridge::hashes() const -> vector<string> {
@@ -63,27 +60,19 @@ auto Cartridge::load() -> bool {
   slotSufamiTurboA = {};
   slotSufamiTurboB = {};
 
-  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(port->connected(), "manifest.bml", File::Read, File::Required)) {
     game.load(fp->reads());
   } else return false;
   loadCartridge(game.document);
-  node->name = game.document["game/label"].text();
+  port->connected()->name = game.document["game/label"].text();
 
   if(has.GameBoySlot) {
     //todo
   }
 
-  if(has.BSMemorySlot) {
-    bsmemory.initialize(node);
-  }
-
-  if(has.SufamiTurboSlotA) {
-    sufamiturboA.initialize(node);
-  }
-
-  if(has.SufamiTurboSlotB) {
-    sufamiturboB.initialize(node);
-  }
+  if(has.BSMemorySlot) bsmemory.initialize(port->connected());
+  if(has.SufamiTurboSlotA) sufamiturboA.initialize(port->connected());
+  if(has.SufamiTurboSlotB) sufamiturboB.initialize(port->connected());
 
   //Game Boy
   if(cartridge.has.ICD) {

@@ -1,6 +1,5 @@
-auto Justifier::create(bool chained) -> higan::Node {
-  auto node = Node::create();
-  node->id = uniqueID();
+auto Justifier::create(bool chained) -> Node::Peripheral {
+  auto node = Node::Peripheral::create();
   node->type = "Controller";
   node->name = !chained ? "Justifier" : "Justifiers";
   return node;

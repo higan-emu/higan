@@ -10,9 +10,8 @@
 //require manual polling of PIO ($4201.d6) to determine when iobit was written.
 //Note that no commercial game ever utilizes a Super Scope in port 1.
 
-auto SuperScope::create() -> higan::Node {
-  auto node = Node::create();
-  node->id = uniqueID();
+auto SuperScope::create() -> Node::Peripheral {
+  auto node = Node::Peripheral::create();
   node->type = "Controller";
   node->name = "Super Scope";
   return node;

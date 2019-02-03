@@ -1,6 +1,5 @@
 #include <ruby/ruby.hpp>
 using namespace ruby;
-extern Video video;
 extern Audio audio;
 extern Input input;
 
@@ -19,9 +18,9 @@ namespace Theme {
 }
 
 #include "resource/resource.hpp"
-#include "program/program.hpp"
 #include "connections/connections.hpp"
 #include "configurations/configurations.hpp"
 #include "viewport/viewport.hpp"
+#include "program/program.hpp"
 
 auto locate(string) -> string;

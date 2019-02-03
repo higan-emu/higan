@@ -19,53 +19,53 @@ template<uint Index, typename F, typename T> struct variant_index<Index, F, T> {
 };
 
 template<typename T, typename... P> struct variant_copy {
-  variant_copy(uint index, uint assigned, void* target, void* source) {
+  constexpr variant_copy(uint index, uint assigned, void* target, void* source) {
     if(index == assigned) new(target) T(*((T*)source));
     else variant_copy<P...>(index + 1, assigned, target, source);
   }
 };
 
 template<typename T> struct variant_copy<T> {
-  variant_copy(uint index, uint assigned, void* target, void* source) {
+  constexpr variant_copy(uint index, uint assigned, void* target, void* source) {
     if(index == assigned) new(target) T(*((T*)source));
   }
 };
 
 template<typename T, typename... P> struct variant_move {
-  variant_move(uint index, uint assigned, void* target, void* source) {
+  constexpr variant_move(uint index, uint assigned, void* target, void* source) {
     if(index == assigned) new(target) T(move(*((T*)source)));
     else variant_move<P...>(index + 1, assigned, target, source);
   }
 };
 
 template<typename T> struct variant_move<T> {
-  variant_move(uint index, uint assigned, void* target, void* source) {
+  constexpr variant_move(uint index, uint assigned, void* target, void* source) {
     if(index == assigned) new(target) T(move(*((T*)source)));
   }
 };
 
 template<typename T, typename... P> struct variant_destruct {
-  variant_destruct(uint index, uint assigned, void* data) {
+  constexpr variant_destruct(uint index, uint assigned, void* data) {
     if(index == assigned) ((T*)data)->~T();
     else variant_destruct<P...>(index + 1, assigned, data);
   }
 };
 
 template<typename T> struct variant_destruct<T> {
-  variant_destruct(uint index, uint assigned, void* data) {
+  constexpr variant_destruct(uint index, uint assigned, void* data) {
     if(index == assigned) ((T*)data)->~T();
   }
 };
 
 template<typename F, typename T, typename... P> struct variant_equals {
-  auto operator()(uint index, uint assigned) const -> bool {
+  constexpr auto operator()(uint index, uint assigned) const -> bool {
     if(index == assigned) return is_same_v<F, T>;
     return variant_equals<F, P...>()(index + 1, assigned);
   }
 };
 
 template<typename F, typename T> struct variant_equals<F, T> {
-  auto operator()(uint index, uint assigned) const -> bool {
+  constexpr auto operator()(uint index, uint assigned) const -> bool {
     if(index == assigned) return is_same_v<F, T>;
     return false;
   }
@@ -80,28 +80,28 @@ template<typename... P> struct variant final {  //final as destructor is not vir
   ~variant() { reset(); }
 
   explicit operator bool() const { return assigned; }
-  template<typename T> explicit operator T&() { return get<T>(); }
-  template<typename T> explicit operator const T&() const { return get<T>(); }
+  template<typename T> explicit constexpr operator T&() { return get<T>(); }
+  template<typename T> explicit constexpr operator const T&() const { return get<T>(); }
 
-  template<typename T> auto is() const -> bool {
+  template<typename T> constexpr auto is() const -> bool {
     return variant_equals<T, P...>()(1, assigned);
   }
 
-  template<typename T> auto get() -> T& {
+  template<typename T> constexpr auto get() -> T& {
     static_assert(variant_index<1, T, P...>::index, "type not in variant");
     struct variant_bad_cast{};
     if(!is<T>()) throw variant_bad_cast{};
     return *((T*)data);
   }
 
-  template<typename T> auto get() const -> const T& {
+  template<typename T> constexpr auto get() const -> const T& {
     static_assert(variant_index<1, T, P...>::index, "type not in variant");
     struct variant_bad_cast{};
     if(!is<T>()) throw variant_bad_cast{};
     return *((const T*)data);
   }
 
-  template<typename T> auto get(const T& fallback) const -> const T& {
+  template<typename T> constexpr auto get(const T& fallback) const -> const T& {
     if(!is<T>()) return fallback;
     return *((const T*)data);
   }

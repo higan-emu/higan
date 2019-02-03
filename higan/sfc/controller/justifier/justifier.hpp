@@ -1,6 +1,6 @@
 struct Justifier : Controller {
   using Controller::create;
-  static auto create(bool) -> higan::Node;
+  static auto create(bool) -> Node::Peripheral;
 
   enum : uint {
     X, Y, Trigger, Start,

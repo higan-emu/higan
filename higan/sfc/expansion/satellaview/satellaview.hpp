@@ -1,6 +1,6 @@
 struct Satellaview : Expansion {
   using Expansion::create;
-  static auto create() -> Node;
+  static auto create() -> Node::Peripheral;
 
   Satellaview();
   ~Satellaview();

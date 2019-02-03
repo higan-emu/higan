@@ -1,8 +1,7 @@
 struct SufamiTurboCartridge {
-  static auto create(bool slot) -> Node;
-  auto initialize(Node) -> void;
-  Node edge;
-  Node node;
+  Node::Port::Cartridge port;
+  static auto create(bool slot) -> Node::Cartridge;
+  auto initialize(Node::Node) -> void;
 
   auto load() -> void;
   auto save() -> void;

@@ -16,13 +16,11 @@
 //suspend, resume, abort, ready/busy modes are not supported
 
 struct BSMemory : Thread, Memory {
+  Node::Port::Cartridge port;
   using Thread::create;
-  static auto create() -> Node;
-  auto initialize(Node) -> void;
-  Node edge;
-  Node node;
+  static auto create() -> Node::Cartridge;
+  auto initialize(Node::Node) -> void;
 
-  uint pathID = 0;
   uint ROM = 1;
 
   auto writable() const { return pin.writable; }

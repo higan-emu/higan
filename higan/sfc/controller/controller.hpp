@@ -26,16 +26,16 @@ struct Controller : Thread {
 };
 
 struct ControllerPort {
-  Node edge;
-  auto initialize(Node) -> void;
+  Node::Port::Peripheral port;
+  auto initialize(Node::Node) -> void;
 
   auto connect(uint deviceID) -> void;
 
-  auto power(uint port) -> void;
+  auto power(uint portID) -> void;
   auto unload() -> void;
   auto serialize(serializer&) -> void;
 
-  uint port;
+  uint portID;
   Controller* device = nullptr;
 };
 

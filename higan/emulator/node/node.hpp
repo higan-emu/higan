@@ -1,53 +1,59 @@
-namespace higan {
+#include <emulator/node/property.hpp>
 
-struct UniqueID {
-  auto initialize() -> void { counter = 0; }
-  auto operator()() -> uint { return counter++; }
-  uint counter = 1;  //0 = no ID (virtual)
-};
+namespace higan::Core {
 
-struct Object;
+struct Node : shared_pointer_this<Node> {
+  static auto uniqueID(uint64_t initialize = 0) -> uint64_t {
+    static uint64_t counter = 0;
+    if(initialize) return counter = initialize;
+    return counter++;
+  }
 
-struct Node : shared_pointer<Object> {
-  using shared_pointer<Object>::shared_pointer;
-  static auto create() -> Node;
-};
+  Node(string name = {}) : id(uniqueID()), name(name) {
+  }
 
-struct Property {
-  Property(string name, string value = {}) : name(name), value(value) {}
-  auto operator==(const Property& source) const -> bool { return name == source.name; }
-  auto operator< (const Property& source) const -> bool { return name <  source.name; }
+  virtual ~Node() {
+  }
 
-  string name;
-  string value;
-};
-
-struct Object {
   auto reset() -> void {
     if(nodes && detach) for(auto& node : nodes) detach(node);
     nodes.reset();
   }
 
-  auto assign(Node node) -> void {
+  auto assign(shared_pointer<Node> node) -> void {
     if(nodes && detach) for(auto& node : nodes) detach(node);
     nodes.reset();
     nodes.append(node);
     if(attach) attach(node);
   }
 
-  auto append(Node node) -> void {
+  auto append(shared_pointer<Node> node) -> void {
     nodes.append(node);
     if(attach) attach(node);
   }
 
-  auto remove(Node node) -> void {
+  auto remove(shared_pointer<Node> node) -> void {
     if(auto index = nodes.find(node)) {
       if(detach) detach(nodes[*index]);
       nodes.remove(*index);
     }
   }
 
-  auto first() -> Node {
+  template<typename T> auto cast() -> shared_pointer<typename T::type> {
+    if(dynamic_cast<typename T::type*>(this)) return shared();
+    return {};
+  }
+
+  template<typename T> auto find() -> vector<shared_pointer<typename T::type>> {
+    vector<shared_pointer<typename T::type>> result;
+    if(dynamic_cast<typename T::type*>(this)) {
+      if(auto instance = shared()) result.append(instance);
+    }
+    for(auto& node : nodes) result.append(node->find<T>());
+    return result;
+  }
+
+  auto first() -> shared_pointer<Node> {
     if(nodes) return nodes.first();
     return {};
   }
@@ -82,20 +88,27 @@ struct Object {
     return output;
   }
 
-  uint id = 0;
+  const uint64_t id;
   bool edge = false;
   string type;
   string name;
   set<Property> properties;
-  vector<Node> nodes;
-  vector<Node> list;
+  vector<shared_pointer<Node>> nodes;
+  vector<shared_pointer<Node>> list;
 
-  function<void (Node)> attach;
-  function<void (Node)> detach;
+  function<void (shared_pointer<Node>)> attach;
+  function<void (shared_pointer<Node>)> detach;
 };
 
-inline auto Node::create() -> Node {
-  return new Object;
 }
 
+namespace higan::Node {
+  using Node = shared_pointer<Core::Node>;
 }
+
+#include <emulator/node/system.hpp>
+#include <emulator/node/cartridge.hpp>
+#include <emulator/node/peripheral.hpp>
+#include <emulator/node/port.hpp>
+#include <emulator/node/input.hpp>
+#include <emulator/node/setting.hpp>

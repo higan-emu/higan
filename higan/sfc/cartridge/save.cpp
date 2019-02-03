@@ -19,7 +19,7 @@ auto Cartridge::saveMemory(Memory& ram, Markup::Node node) -> void {
   if(auto memory = game.memory(node)) {
     if(memory->type == "RAM" && !memory->nonVolatile) return;
     if(memory->type == "RTC" && !memory->nonVolatile) return;
-    if(auto fp = platform->open(Cartridge::node, memory->name(), File::Write)) {
+    if(auto fp = platform->open(port->connected(), memory->name(), File::Write)) {
       fp->write(ram.data(), ram.size());
     }
   }

@@ -67,8 +67,8 @@ struct Interface {
   virtual auto unload() -> void {}
 
   //system interface
-  virtual auto initialize() -> void {}
-  virtual auto root() -> Node { return {}; }
+  virtual auto initialize(function<void (Node::System)>) -> void {}
+  virtual auto root() -> Node::Node { return {}; }
   virtual auto ports() -> vector<Port> { return {}; }
   virtual auto devices(uint port) -> vector<Device> { return {}; }
   virtual auto inputs(uint device) -> vector<Input> { return {}; }
@@ -122,7 +122,7 @@ struct Interface {
   }
 
   //tree functions
-  auto node(uint nodeID, Node node = {}) -> Node {
+  auto node(uint64_t nodeID, Node::Node node = {}) -> Node::Node {
     if(!node) node = root();
     if(!node) return {};
     if(node->id == nodeID) return node;

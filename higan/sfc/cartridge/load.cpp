@@ -79,7 +79,7 @@ auto Cartridge::loadMemory(Memory& ram, Markup::Node node, bool required) -> voi
     ram.allocate(memory->size);
     if(memory->type == "RAM" && !memory->nonVolatile) return;
     if(memory->type == "RTC" && !memory->nonVolatile) return;
-    if(auto fp = platform->open(Cartridge::node, memory->name(), File::Read, required)) {
+    if(auto fp = platform->open(port->connected(), memory->name(), File::Read, required)) {
       fp->read(ram.data(), min(fp->size(), ram.size()));
     }
   }

@@ -1,11 +1,9 @@
-auto SuperMultitap::create() -> higan::Node {
-  auto node = Node::create();
-  node->id = uniqueID();
+auto SuperMultitap::create() -> Node::Peripheral {
+  auto node = Node::Peripheral::create();
   node->type = "Controller";
   node->name = "Super Multitap";
   for(uint portIndex : range(4)) {
-    auto port = Node::create();
-    port->id = uniqueID();
+    auto port = Node::Port::Peripheral::create();
     port->edge = true;
     port->type = "Multitap Port";
     port->name = {"Multitap Port ", 1 + portIndex};

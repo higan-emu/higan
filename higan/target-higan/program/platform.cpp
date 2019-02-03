@@ -1,4 +1,4 @@
-auto Program::open(higan::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
+auto Program::open(higan::Node::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
   auto location = node->property("location");
 
   if(name == "manifest.bml") {
@@ -21,15 +21,19 @@ auto Program::open(higan::Node node, string name, vfs::file::mode mode, bool req
   return {};
 }
 
-auto Program::videoFrame(const uint32* data, uint pitch, uint width, uint height) -> void {
+auto Program::videoFrame(higan::Node::Port::Video node, const uint32* data, uint pitch, uint width, uint height) -> void {
+  auto viewportID = node->property("viewportID").natural();
+  if(viewportID >= viewports.size()) return;
+  auto viewport = viewports[viewportID];
+
   pitch >>= 2;
-  if(auto [output, length] = video.acquire(width, height); output) {
+  if(auto [output, length] = viewport->video.acquire(width, height); output) {
     length >>= 2;
     for(auto y : range(height)) {
       memory::copy<uint32>(output + y * length, data + y * pitch, width);
     }
-    video.release();
-    video.output();
+    viewport->video.release();
+    viewport->video.output();
   }
 }
 
@@ -42,6 +46,8 @@ auto Program::audioFrame(const double* samples, uint channels) -> void {
   }
 }
 
-auto Program::inputPoll(uint port, uint device, uint input) -> int16 {
-  return 0;
+auto Program::inputPoll(higan::Node::Input::Input input) -> void {
+  if(auto button = input->cast<higan::Node::Input::Button>()) {
+    button->value = 0;
+  }
 }
