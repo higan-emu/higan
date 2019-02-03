@@ -6,7 +6,7 @@ struct Expansion : Thread {
 };
 
 struct ExpansionPort {
-  Node::Port::Peripheral port;
+  Node::Port port;
   auto initialize(Node) -> void;
 
   auto connect(uint deviceID) -> void;

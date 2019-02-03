@@ -1,16 +1,34 @@
-Gamepad::Gamepad(uint port, Node node) : Controller(port) {
-  up     = node->append(Node::Input::Button::create("Up"));
-  down   = node->append(Node::Input::Button::create("Down"));
-  left   = node->append(Node::Input::Button::create("Left"));
-  right  = node->append(Node::Input::Button::create("Right"));
-  b      = node->append(Node::Input::Button::create("B"));
-  a      = node->append(Node::Input::Button::create("A"));
-  y      = node->append(Node::Input::Button::create("Y"));
-  x      = node->append(Node::Input::Button::create("X"));
-  l      = node->append(Node::Input::Button::create("L"));
-  r      = node->append(Node::Input::Button::create("R"));
-  select = node->append(Node::Input::Button::create("Select"));
-  start  = node->append(Node::Input::Button::create("Start"));
+auto Gamepad::create() -> Node::Peripheral {
+  auto node = Node::Peripheral::create("Gamepad");
+  node->append<Node::Input::Button>("Up");
+  node->append<Node::Input::Button>("Down");
+  node->append<Node::Input::Button>("Left");
+  node->append<Node::Input::Button>("Right");
+  node->append<Node::Input::Button>("B");
+  node->append<Node::Input::Button>("A");
+  node->append<Node::Input::Button>("Y");
+  node->append<Node::Input::Button>("X");
+  node->append<Node::Input::Button>("L");
+  node->append<Node::Input::Button>("R");
+  node->append<Node::Input::Button>("Select");
+  node->append<Node::Input::Button>("Start");
+  return node;
+}
+
+Gamepad::Gamepad(Node::Peripheral peripheral, uint port) : Controller(port) {
+  node   = peripheral;
+  up     = node->find<Node::Input::Button>("Up");
+  down   = node->find<Node::Input::Button>("Down");
+  left   = node->find<Node::Input::Button>("Left");
+  right  = node->find<Node::Input::Button>("Right");
+  b      = node->find<Node::Input::Button>("B");
+  a      = node->find<Node::Input::Button>("A");
+  y      = node->find<Node::Input::Button>("Y");
+  x      = node->find<Node::Input::Button>("X");
+  l      = node->find<Node::Input::Button>("L");
+  r      = node->find<Node::Input::Button>("R");
+  select = node->find<Node::Input::Button>("Select");
+  start  = node->find<Node::Input::Button>("Start");
 
   latched = 0;
   counter = 0;

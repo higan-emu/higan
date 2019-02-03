@@ -3,20 +3,22 @@ SufamiTurboCartridge sufamiturboB;
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto SufamiTurboCartridge::create(bool slot) -> Node::Cartridge {
-  auto node = Node::Cartridge::create("Sufami Turbo Cartridge");
+auto SufamiTurboCartridge::create(bool slot) -> Node::Peripheral {
+  auto node = Node::Peripheral::create("Sufami Turbo Cartridge");
   return node;
 }
 
 auto SufamiTurboCartridge::initialize(Node parent) -> void {
   bool portID = this == &sufamiturboB;
-  port = Node::Port::Cartridge::create(!portID ? "Sufami Turbo Slot A" : "Sufami Turbo Slot B");
+  port = Node::Port::create(!portID ? "Sufami Turbo Slot A" : "Sufami Turbo Slot B", "Sufami Turbo Cartridge");
+/*
   port->attach = [&](auto node) {
     load();
   };
   port->detach = [&](auto node) {
     unload();
   };
+*/
   parent->append(port);
 }
 

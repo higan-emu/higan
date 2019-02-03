@@ -7,16 +7,18 @@ struct PortConfigurationDialog : Window {
       Label pathObjectsLabel{&tableLayout, Size{0, 0}};
       LineEdit pathObjectsValue{&tableLayout, Size{~0, 0}};
       Button pathObjectsSelect{&tableLayout, Size{80, 0}};
+      Button pathObjectsClear{&tableLayout, Size{80, 0}};
       Label pathTemplatesLabel{&tableLayout, Size{0, 0}};
       LineEdit pathTemplatesValue{&tableLayout, Size{~0, 0}};
       Button pathTemplatesSelect{&tableLayout, Size{80, 0}};
+      Button pathTemplatesClear{&tableLayout, Size{80, 0}};
 
   higan::Node::Port port;
 };
 
 struct PortSelectionDialog : Window {
   PortSelectionDialog();
-  auto select(higan::Node::Port) -> higan::Node;
+  auto select(higan::Node::Port) -> void;
   auto eventChange() -> void;
   auto eventAccept() -> void;
 
@@ -28,7 +30,6 @@ struct PortSelectionDialog : Window {
       Button acceptButton{&controlLayout, Size{80, 0}};
 
   higan::Node::Port port;
-  higan::Node result;
 };
 
 struct SystemManager : Window {

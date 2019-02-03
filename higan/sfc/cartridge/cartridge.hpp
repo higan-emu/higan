@@ -1,7 +1,6 @@
 struct Cartridge {
-  Node::Port::Cartridge port;
+  Node::Port port;
   auto initialize(Node) -> void;
-  auto import(Markup::Node) -> void;
 
   auto pathID() const -> uint { return information.pathID; }
   auto region() const -> string { return information.region; }

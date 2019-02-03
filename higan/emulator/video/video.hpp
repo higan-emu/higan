@@ -26,7 +26,7 @@ struct Video {
   auto createSprite(uint width, uint height) -> shared_pointer<Sprite>;
   auto removeSprite(shared_pointer<Sprite> sprite) -> bool;
 
-  auto refresh(Node::Port::Video, uint32* input, uint pitch, uint width, uint height) -> void;
+  auto refresh(Node::Video, uint32* input, uint pitch, uint width, uint height) -> void;
 
 private:
   Interface* interface = nullptr;

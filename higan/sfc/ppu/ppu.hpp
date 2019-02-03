@@ -1,5 +1,5 @@
 struct PPU : Thread, PPUcounter {
-  Node::Port::Video display;
+  Node::Video display;
   struct Settings {
     Node::Setting::Boolean colorEmulation;
     Node::Setting::Boolean colorBleed;

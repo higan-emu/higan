@@ -1,4 +1,4 @@
-namespace higan::Core {
+namespace higan::Object {
 
 struct Peripheral : Node {
   DeclareClass(Peripheral, "Peripheral")

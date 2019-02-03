@@ -12,8 +12,8 @@ PPU ppu;
 #include "counter/serialization.cpp"
 
 auto PPU::initialize(Node parent) -> void {
-  display = Node::Port::Video::create("Display");
-  display->type   = "CRT";
+  display = Node::Video::create("Display");
+  display->kind   = "CRT";
   display->width  = 512;
   display->height = 480;
   display->aspect = 8.0 / 7.0;

@@ -88,23 +88,13 @@ auto SuperFamicomInterface::unload() -> void {
   system.unload();
 }
 
-auto SuperFamicomInterface::initialize(function<void (Node::System)> callback) -> void {
+auto SuperFamicomInterface::initialize(string configuration) -> void {
   interface = this;
-  return system.initialize(callback);
+  return system.initialize(configuration);
 }
 
 auto SuperFamicomInterface::root() -> Node {
   return system.node;
-}
-
-auto SuperFamicomInterface::export() -> string {
-  return system.node->serialize();
-}
-
-auto SuperFamicomInterface::import(string markup) -> bool {
-  system.import(markup);
-  system.node->unserialize(markup);
-  return true;
 }
 
 auto SuperFamicomInterface::ports() -> vector<Port> { return {

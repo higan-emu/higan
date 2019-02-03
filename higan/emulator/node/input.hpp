@@ -1,4 +1,4 @@
-namespace higan::Core::Input {
+namespace higan::Object::Input {
 
 struct Input : Node {
   DeclareClass(Input, "Input")
@@ -7,7 +7,7 @@ struct Input : Node {
 };
 
 struct Button : Input {
-  DeclareClass(Button, "Input::Button")
+  DeclareClass(Button, "Input.Button")
 
   using Input::Input;
 
@@ -15,7 +15,7 @@ struct Button : Input {
 };
 
 struct Axis : Input {
-  DeclareClass(Axis, "Input::Axis")
+  DeclareClass(Axis, "Input.Axis")
 
   using Input::Input;
 
@@ -25,7 +25,9 @@ struct Axis : Input {
 };
 
 struct Trigger : Input {
-  DeclareClass(Trigger, "Input::Trigger")
+  DeclareClass(Trigger, "Input.Trigger")
+
+  using Input::Input;
 
   integer value;
   integer minimum =      0;

@@ -13,8 +13,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto initialize(function<void (Node::System)>) -> void;
-  auto import(string) -> void;
+  auto initialize(string) -> void;
   auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;

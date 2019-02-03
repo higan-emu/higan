@@ -12,6 +12,8 @@
 //  7:    gnd
 
 struct Controller : Thread {
+  Node::Peripheral node;
+
   Controller(uint port);
   virtual ~Controller();
   static auto Enter() -> void;
@@ -26,10 +28,11 @@ struct Controller : Thread {
 };
 
 struct ControllerPort {
-  Node::Port::Peripheral port;
+  Node::Port port;
   auto initialize(Node) -> void;
 
-  auto connect(uint deviceID) -> void;
+  auto connect(uint deviceID) -> void;  //deprecated
+  auto connect(Node::Peripheral = {}) -> void;
 
   auto power(uint portID) -> void;
   auto unload() -> void;

@@ -48,7 +48,7 @@ SystemManager::SystemManager() {
     program.quit();
   });
 
-  setSize({600, 320});
+  setSize({600, 480});
 }
 
 auto SystemManager::show() -> void {
@@ -66,7 +66,7 @@ auto SystemManager::refresh() -> void {
     attach(connectionList, node);
   }
   connectionList.expand().doChange();
-  print(root->serialize(), "\n");
+  print(higan::Node::serialize(root), "\n");
 }
 
 template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> void {
@@ -78,22 +78,8 @@ template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> v
     return;
   }
 
-  if(auto port = node->cast<higan::Node::Port>()) {
-    if(auto connected = port->connected()) {
-      item.setText({port->name, ": ", connected->name});
-      for(auto& child : *connected) {
-        attach(item, child);
-      }
-    } else {
-      item.setText(port->name).setForegroundColor({160, 160, 160});
-      for(auto& child : *port) {
-        attach(item, child);
-      }
-    }
-    return;
-  }
-
-  item.setText(node->name);
+  auto name = node->property("name");
+  item.setText(name ? name : node->name);
   for(auto& child : *node) {
     attach(item, child);
   }
@@ -102,7 +88,7 @@ template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> v
 auto SystemManager::eventChange() -> void {
   if(auto item = connectionList.selected()) {
     if(auto path = item.property("path")) {
-      if(auto node = root->find(item.property("path"))) {
+      if(auto node = root->path(item.property("path"))) {
         if(node->cast<higan::Node::Port>()) {
           configureButton.setEnabled(true);
           return;
@@ -116,7 +102,7 @@ auto SystemManager::eventChange() -> void {
 auto SystemManager::eventActivate() -> void {
   if(auto item = connectionList.selected()) {
     if(auto path = item.property("path")) {
-      if(auto node = root->find(item.property("path"))) {
+      if(auto node = root->path(item.property("path"))) {
         if(auto boolean = node->cast<higan::Node::Setting::Boolean>()) {
           boolean->setValue(!boolean->value());
           return refresh();
@@ -124,8 +110,7 @@ auto SystemManager::eventActivate() -> void {
 
         if(auto port = node->cast<higan::Node::Port>()) {
           if(!port->property("location") && !port->property("templates")) return eventConfigure();
-          if(portSelection.select(port)) refresh();
-          return;
+          return portSelection.select(port);
         }
       }
     }
@@ -135,7 +120,7 @@ auto SystemManager::eventActivate() -> void {
 auto SystemManager::eventConfigure() -> void {
   if(auto item = connectionList.selected()) {
     if(auto path = item.property("path")) {
-      if(auto node = root->find(item.property("path"))) {
+      if(auto node = root->path(item.property("path"))) {
         if(auto port = node->cast<higan::Node::Port>()) {
           if(portConfiguration.configure(port)) refresh();
           return;

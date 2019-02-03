@@ -1,8 +1,8 @@
 struct ViewportWindow : Window {
-  higan::Node::Port::Video node;
+  higan::Node::Video node;
   Video video;
 
-  auto create(higan::Node::Port::Video) -> void;
+  auto create(higan::Node::Video) -> void;
   auto show(Window& parent) -> void;
 
   VerticalLayout layout{this};

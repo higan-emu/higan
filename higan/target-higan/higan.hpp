@@ -13,8 +13,8 @@ extern vector<shared_pointer<higan::Interface>> emulators;
 #include <nall/instance.hpp>
 
 namespace Theme {
-  static Color BackgroundColor{ 56,  56,  56};
-  static Color ForegroundColor{255, 255, 255};
+  static const Color BackgroundColor{ 56,  56,  56};
+  static const Color ForegroundColor{255, 255, 255};
 }
 
 #include "resource/resource.hpp"

@@ -1,6 +1,6 @@
 #include "../higan.hpp"
 
-auto ViewportWindow::create(higan::Node::Port::Video node) -> void {
+auto ViewportWindow::create(higan::Node::Video node) -> void {
   this->node = node;
 
   onClose([&] {

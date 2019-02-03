@@ -16,9 +16,9 @@
 //suspend, resume, abort, ready/busy modes are not supported
 
 struct BSMemory : Thread, Memory {
-  Node::Port::Cartridge port;
+  Node::Port port;
   using Thread::create;
-  static auto create() -> Node::Cartridge;
+  static auto create() -> Node::Peripheral;
   auto initialize(Node) -> void;
 
   uint ROM = 1;

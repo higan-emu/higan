@@ -7,7 +7,7 @@ struct Program : higan::Platform {
 
   //platform.cpp
   auto open(higan::Node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file override;
-  auto videoFrame(higan::Node::Port::Video, const uint32* data, uint pitch, uint width, uint height) -> void override;
+  auto videoFrame(higan::Node::Video, const uint32* data, uint pitch, uint width, uint height) -> void override;
   auto audioFrame(const double* samples, uint channels) -> void override;
   auto inputPoll(higan::Node::Input) -> void override;
 

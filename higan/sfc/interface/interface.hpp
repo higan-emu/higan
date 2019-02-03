@@ -49,10 +49,8 @@ struct SuperFamicomInterface : Interface {
   auto save() -> void override;
   auto unload() -> void override;
 
-  auto initialize(function<void (Node::System)>) -> void override;
+  auto initialize(string configuration) -> void override;
   auto root() -> Node override;
-  auto export() -> string override;
-  auto import(string) -> bool override;
   auto ports() -> vector<Port> override;
   auto devices(uint port) -> vector<Device> override;
   auto inputs(uint device) -> vector<Input> override;

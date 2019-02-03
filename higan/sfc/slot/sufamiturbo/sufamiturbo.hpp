@@ -1,6 +1,6 @@
 struct SufamiTurboCartridge {
-  Node::Port::Cartridge port;
-  static auto create(bool slot) -> Node::Cartridge;
+  Node::Port port;
+  static auto create(bool slot) -> Node::Peripheral;
   auto initialize(Node) -> void;
 
   auto load() -> void;

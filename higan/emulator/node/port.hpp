@@ -1,58 +1,56 @@
-namespace higan::Core::Port {
+namespace higan::Object {
 
 struct Port : Node {
   DeclareClass(Port, "Port")
 
-  using Node::Node;
-
-  auto connected() -> shared_pointer<Node> {
-    return Node::first();
+  Port(string name = {}, string kind = {}) : Node(name), kind(kind) {
+    allocate = [](auto) { return shared_pointer<Peripheral>::create(); };
   }
 
-  auto connect(function<void (shared_pointer<Node>)> callback) -> shared_pointer<Node> {
-    auto node = createConnected();
-    if(callback) callback(node);
-    reset();
-    append(node);
-    return node;
+  auto connected() -> shared_pointer<Peripheral> {
+    return find<shared_pointer<Peripheral>>(0);
   }
 
-  virtual auto createConnected() const -> shared_pointer<Node> { return new Node; }
-};
+  auto connect(shared_pointer<Peripheral> peripheral) -> void {
+    disconnect();
+    prepend(peripheral);
+    if(attach) attach(peripheral);
+  }
 
-struct Video : Port {
-  DeclareClass(Video, "Port::Video")
+  auto disconnect() -> void {
+    if(auto peripheral = connected()) {
+      if(detach) detach(peripheral);
+      remove(peripheral);
+    }
+  }
 
-  using Port::Port;
+  auto serialize(string& output, string depth) -> void override {
+    Node::serialize(output, depth);
+    if(kind) output.append(depth, "  kind: ", kind, "\n");
+  }
 
-  string type;  //"CRT", "LCD"
-  uint width = 0;
-  uint height = 0;
-  double aspect = 1.0;
-};
+  auto unserialize(Markup::Node node) -> void override {
+    Node::unserialize(node);
+    kind = node["kind"].text();
+  }
 
-struct Audio : Port {
-  DeclareClass(Audio, "Port::Audio")
+  auto copy(shared_pointer<Node> node) -> void override {
+    if(auto source = node->cast<shared_pointer<Port>>()) {
+      kind = source->kind;
+      if(auto peripheral = source->connected()) {
+        auto node = allocate(peripheral->name);
+        node->copy(peripheral);
+        connect(node);
+      }
+    }
+    Node::copy(node);
+  }
 
-  using Port::Port;
+  string kind;
 
-  uint channels = 2;
-};
-
-struct Cartridge : Port {
-  DeclareClass(Cartridge, "Port::Cartridge")
-
-  auto createConnected() const -> shared_pointer<Node> override { return new Core::Cartridge; }
-
-  using Port::Port;
-};
-
-struct Peripheral : Port {
-  DeclareClass(Peripheral, "Port::Peripheral")
-
-  auto createConnected() const -> shared_pointer<Node> override { return new Core::Peripheral; }
-
-  using Port::Port;
+  function<shared_pointer<Peripheral> (string)> allocate;
+  function<void (shared_pointer<Peripheral>)> attach;
+  function<void (shared_pointer<Peripheral>)> detach;
 };
 
 }

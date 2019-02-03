@@ -26,12 +26,16 @@ PortSelectionDialog::PortSelectionDialog() {
   setDismissable();
 }
 
-auto PortSelectionDialog::select(higan::Node::Port port) -> higan::Node {
+auto PortSelectionDialog::select(higan::Node::Port port) -> void {
   this->port = port;
-  result = {};
 
   nodeList.reset();
   nodeList.append(TableViewColumn().setExpandable());
+  { TableViewItem item{&nodeList};
+    item.setProperty("type", "nothing");
+    TableViewCell cell{&item};
+    cell.setIcon(Icon::Action::Remove).setText("Nothing");
+  }
   if(auto location = port->property("templates")) {
     for(auto& name : directory::folders(location)) {
       TableViewItem item{&nodeList};
@@ -58,7 +62,6 @@ auto PortSelectionDialog::select(higan::Node::Port port) -> higan::Node {
   setVisible();
   setFocused();
   setModal();
-  return result;
 }
 
 auto PortSelectionDialog::eventChange() -> void {
@@ -76,18 +79,24 @@ auto PortSelectionDialog::eventChange() -> void {
 
 auto PortSelectionDialog::eventAccept() -> void {
   if(auto item = nodeList.selected()) {
+    auto name = item.cell(0).text();
+    if(item.property("type") == "nothing") {
+      port->disconnect();
+      systemManager.refresh();
+    }
     if(item.property("type") == "template") {
-      result = port->connect([&](auto node) {
-        node->kind = item.cell(0).text();
-        node->name = nameValue.text().strip();
-        node->setProperty("location", item.property("location"));
-      });
+      auto peripheral = port->allocate(name);
+      peripheral->setProperty("name", nameValue.text().strip());
+      peripheral->setProperty("location", item.property("location"));
+      port->connect(peripheral);
+      systemManager.refresh();
     }
     if(item.property("type") == "object") {
-      result = port->connect([&](auto node) {
-        node->name = nameValue.text().strip();
-        node->setProperty("location", item.property("location"));
-      });
+      auto peripheral = port->allocate(name);
+      peripheral->setProperty("name", nameValue.text().strip());
+      peripheral->setProperty("location", item.property("location"));
+      port->connect(peripheral);
+      systemManager.refresh();
     }
   }
   doClose();

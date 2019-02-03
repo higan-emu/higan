@@ -1,6 +1,6 @@
 PortConfigurationDialog::PortConfigurationDialog() {
   layout.setPadding(5);
-  tableLayout.setSize({3, 2});
+  tableLayout.setSize({4, 2});
   tableLayout.column(0).setAlignment(1.0);
   pathObjectsLabel.setText("Path:");
   pathObjectsValue.setEditable(false);
@@ -15,6 +15,10 @@ PortConfigurationDialog::PortConfigurationDialog() {
       pathObjectsValue.setText(location);
     }
   });
+  pathObjectsClear.setText("Clear").onActivate([&] {
+    port->setProperty("location");
+    pathObjectsValue.setText();
+  });
   pathTemplatesLabel.setText("Templates:");
   pathTemplatesValue.setEditable(false);
   pathTemplatesSelect.setText("Select ...").onActivate([&] {
@@ -27,6 +31,10 @@ PortConfigurationDialog::PortConfigurationDialog() {
       port->setProperty("templates", location);
       pathTemplatesValue.setText(location);
     }
+  });
+  pathTemplatesClear.setText("Clear").onActivate([&] {
+    port->setProperty("templates");
+    pathTemplatesValue.setText();
   });
 
   onClose([&] {

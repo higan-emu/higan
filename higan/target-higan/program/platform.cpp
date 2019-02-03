@@ -21,7 +21,7 @@ auto Program::open(higan::Node node, string name, vfs::file::mode mode, bool req
   return {};
 }
 
-auto Program::videoFrame(higan::Node::Port::Video node, const uint32* data, uint pitch, uint width, uint height) -> void {
+auto Program::videoFrame(higan::Node::Video node, const uint32* data, uint pitch, uint width, uint height) -> void {
   auto viewportID = node->property("viewportID").natural();
   if(viewportID >= viewports.size()) return;
   auto viewport = viewports[viewportID];
@@ -47,6 +47,7 @@ auto Program::audioFrame(const double* samples, uint channels) -> void {
 }
 
 auto Program::inputPoll(higan::Node::Input input) -> void {
+return;
   if(auto button = input->cast<higan::Node::Input::Button>()) {
     button->value = 0;
   }

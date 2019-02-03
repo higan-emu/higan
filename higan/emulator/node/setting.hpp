@@ -1,85 +1,89 @@
-namespace higan::Core::Setting {
+namespace higan::Object::Setting {
 
 struct Setting : Node {
   DeclareClass(Setting, "Setting")
 
   using Node::Node;
-
-  auto serializeNode(string& output, string& depth) -> void override {
-    Node::serializeNode(output, depth);
-  }
-
-  auto unserializeNode(Markup::Node node) -> void override {
-    Node::unserializeNode(node);
-  }
 };
 
-template<typename T> struct Abstract : Setting {
-  DeclareClass(Abstract<T>, (
-  is_same_v<T, boolean> ? "Setting::Boolean" :
-  is_same_v<T, integer> ? "Setting::Integer" :
-  is_same_v<T, natural> ? "Setting::Natural" :
-  is_same_v<T, real>    ? "Setting::Real"    :
-  is_same_v<T, string>  ? "Setting::String"  :
-                          "Setting::Abstract"))
+template<typename Cast, typename Type> struct Abstract : Setting {
+  using Setting::Setting;
 
-  Abstract(string name = {}, T value = {}, function<void (T)> modify = {}) : Setting(name), defaultValue(value) {
+  Abstract(string name = {}, Type value = {}, function<void (Type)> modify = {}) : Setting(name), defaultValue(value) {
     this->currentValue = value;
-    if constexpr(is_same_v<T, boolean>) allowedValues = {false, true};
+    if constexpr(is_same_v<Type, boolean>) this->allowedValues = {false, true};
     this->modify = modify;
   }
 
-  auto latch() -> T {
+  auto latch() -> Type {
     return latchedValue = currentValue;
   }
 
-  auto value() const -> T {
+  auto value() const -> Type {
     return currentValue;
   }
 
-  auto& setValue(T value) {
+  auto& setValue(Type value) {
     if(allowedValues && !allowedValues.find(value)) return *this;
     currentValue = value;
     if(modify) modify(value);
     return *this;
   }
 
-  auto serializeNode(string& output, string& depth) -> void override {
-    Setting::serializeNode(output, depth);
-    output.append(depth, "currentValue: ", currentValue, "\n");
-    output.append(depth, "latchedValue: ", latchedValue, "\n");
+  auto serialize(string& output, string depth) -> void override {
+    Setting::serialize(output, depth);
+    output.append(depth, "  value: ", currentValue, "\n");
+    if(latchedValue) output.append(depth, "  latch: ", latchedValue, "\n");
   }
 
-  auto unserializeNode(Markup::Node node) -> void override {
-    Setting::unserializeNode(node);
-    if constexpr(is_same_v<T, boolean>) {
-      currentValue = node["currentValue"].boolean();
-      latchedValue = node["latchedValue"].boolean();
-    }
-    if constexpr(is_same_v<T, integer>) {
-      currentValue = node["currentValue"].integer();
-      latchedValue = node["latchedValue"].integer();
-    }
-    if constexpr(is_same_v<T, natural>) {
-      currentValue = node["currentValue"].natural();
-      latchedValue = node["latchedValue"].natural();
-    }
-    if constexpr(is_same_v<T, real>) {
-      currentValue = node["currentValue"].real();
-      latchedValue = node["latchedValue"].real();
-    }
-    if constexpr(is_same_v<T, string>) {
-      currentValue = node["currentValue"].text();
-      latchedValue = node["latchedValue"].text();
-    }
+  auto unserialize(Markup::Node node) -> void override {
+    Setting::unserialize(node);
+    if constexpr(is_same_v<Type, boolean>) currentValue = node["value"].boolean(), latchedValue = node["latch"].boolean();
+    if constexpr(is_same_v<Type, integer>) currentValue = node["value"].integer(), latchedValue = node["latch"].integer();
+    if constexpr(is_same_v<Type, natural>) currentValue = node["value"].natural(), latchedValue = node["latch"].natural();
+    if constexpr(is_same_v<Type, real>)    currentValue = node["value"].real(),    latchedValue = node["latch"].real();
+    if constexpr(is_same_v<Type, string>)  currentValue = node["value"].text(),    latchedValue = node["latch"].text();
   }
 
-  const T defaultValue;
-  T currentValue;
-  T latchedValue;
-  vector<T> allowedValues;
+  auto copy(shared_pointer<Node> node) -> void override {
+    if(auto source = node->cast<shared_pointer<Cast>>()) {
+      currentValue = source->currentValue;
+      latchedValue = source->latchedValue;
+    }
+    Setting::copy(node);
+  }
 
-  function<void (T)> modify;
+  const Type defaultValue;
+  Type currentValue;
+  Type latchedValue;
+  vector<Type> allowedValues;
+
+  function<void (Type)> modify;
+};
+
+struct Boolean : Abstract<Boolean, boolean> {
+  DeclareClass(Boolean, "Setting.Boolean")
+  using Abstract::Abstract;
+};
+
+struct Integer : Abstract<Integer, integer> {
+  DeclareClass(Integer, "Setting.Integer")
+  using Abstract::Abstract;
+};
+
+struct Natural : Abstract<Natural, natural> {
+  DeclareClass(Natural, "Setting.Natural")
+  using Abstract::Abstract;
+};
+
+struct Real : Abstract<Real, real> {
+  DeclareClass(Real, "Setting.Real")
+  using Abstract::Abstract;
+};
+
+struct String : Abstract<String, string> {
+  DeclareClass(String, "Setting.String")
+  using Abstract::Abstract;
 };
 
 }

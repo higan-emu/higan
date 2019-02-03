@@ -1,19 +1,21 @@
 BSMemory bsmemory;
 #include "serialization.cpp"
 
-auto BSMemory::create() -> Node::Cartridge {
-  auto node = Node::Cartridge::create("BS Memory Cartridge");
+auto BSMemory::create() -> Node::Peripheral {
+  auto node = Node::Peripheral::create("BS Memory Cartridge");
   return node;
 }
 
 auto BSMemory::initialize(Node parent) -> void {
-  port = Node::Port::Cartridge::create("BS Memory Slot");
+  port = Node::Port::create("BS Memory Slot", "BS Memory Cartridge");
+/*
   port->attach = [&](auto node) {
     load();
   };
   port->detach = [&](auto node) {
     unload();
   };
+*/
   parent->append(port);
 }
 

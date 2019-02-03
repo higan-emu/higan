@@ -1,8 +1,35 @@
-SuperMultitap::SuperMultitap(uint port, Node node) : Controller(port) {
-  port1 = node->append(Node::Port::Peripheral::create("Controller Port 1"));
-  port2 = node->append(Node::Port::Peripheral::create("Controller Port 2"));
-  port3 = node->append(Node::Port::Peripheral::create("Controller Port 3"));
-  port4 = node->append(Node::Port::Peripheral::create("Controller Port 4"));
+auto SuperMultitap::create() -> Node::Peripheral {
+  auto node = Node::Peripheral::create("Super Multitap");
+  auto port1 = Node::Port::create("Controller Port 1", "Controller");
+  auto port2 = Node::Port::create("Controller Port 2", "Controller");
+  auto port3 = Node::Port::create("Controller Port 3", "Controller");
+  auto port4 = Node::Port::create("Controller Port 4", "Controller");
+  port1->allocate = [&](auto name) {
+    if(name == "Gamepad") return SuperFamicom::Gamepad::create();
+    if(name == "Super Multitap") return SuperMultitap::create();
+    return Node::Peripheral::create("Controller");
+  };
+/*
+  port2->allocate = [&](auto node) {
+  };
+  port3->allocate = [&](auto node) {
+  };
+  port4->allocate = [&](auto node) {
+  };
+*/
+  node->append(port1);
+  node->append(port2);
+  node->append(port3);
+  node->append(port4);
+  return node;
+}
+
+SuperMultitap::SuperMultitap(Node::Peripheral peripheral, uint port) : Controller(port) {
+  node  = peripheral;
+  port1 = node->find<Node::Port>("Controller Port 1");
+  port2 = node->find<Node::Port>("Controller Port 2");
+  port3 = node->find<Node::Port>("Controller Port 3");
+  port4 = node->find<Node::Port>("Controller Port 4");
 
   latched = 0;
   counter1 = 0;

@@ -21,24 +21,17 @@ auto System::runToSave() -> void {
   for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
 }
 
-auto System::initialize(function<void (Node::System)> callback) -> void {
+auto System::initialize(string configuration) -> void {
   node = Node::System::create("Super Famicom");
+  node->copy(Node::unserialize(configuration));  //temporary hack (load needs system("location") for IPLROM)
   ppu.initialize(node);
+  node->append(Node::Audio::create("Speakers"));  //todo: find a place to put this ... (DSP+MSU1+SGB sources)
   cartridge.initialize(node);
   controllerPort1.initialize(node);
   controllerPort2.initialize(node);
   expansionPort.initialize(node);
-  if(callback) callback(node);
   load();
-//video.reset(interface);
-//video.setPalette();
-//audio.reset(interface);
-}
-
-auto System::import(string markup) -> void {
-  auto document = BML::unserialize(markup);
-  auto root = document["node(name=Super Famicom)"];
-  cartridge.import(root["node(name=Cartridge Port)"]);
+  node->copy(Node::unserialize(configuration));
 }
 
 auto System::load() -> bool {
@@ -51,7 +44,6 @@ auto System::load() -> bool {
   if(!smp.load()) return false;
   if(!ppu.load()) return false;
   if(!dsp.load()) return false;
-//if(!cartridge.load()) return false;
 
   if(cartridge.region() == "NTSC") {
     information.region = Region::NTSC;

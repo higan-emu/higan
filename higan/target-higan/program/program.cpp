@@ -5,15 +5,18 @@ Program program;
 
 auto Program::create(shared_pointer<higan::Interface> interface, string location) -> void {
   higan::platform = this;
-
   emulator = interface;
-  emulator->initialize([&](auto system) {
+
+  string configuration = file::read({location, "root.bml"});
+  if(!configuration) {
+    auto system = higan::Node::System::create();
+    system->name = emulator->information().name;
     system->setProperty("location", location);
-  });
-  if(auto document = file::read({location, "root.bml"})) {
-    emulator->import(document);
+    configuration = higan::Node::serialize(system);
   }
-  print(emulator->root()->serialize(), "\n");
+
+  emulator->initialize(configuration);
+  print(higan::Node::serialize(emulator->root()), "\n");
 
   systemManager.show();
 
@@ -27,7 +30,7 @@ auto Program::create(shared_pointer<higan::Interface> interface, string location
 
   Application::onMain({&Program::main, this});
 
-  for(auto& display : emulator->root()->find<higan::Node::Port::Video>()) {
+  for(auto& display : emulator->root()->find<higan::Node::Video>()) {
     display->setProperty("viewportID", viewports.size());
     auto viewport = shared_pointer_make<ViewportWindow>();
     viewport->create(display);
@@ -45,7 +48,7 @@ auto Program::main() -> void {
 
 auto Program::quit() -> void {
   if(auto location = emulator->root()->property("location")) {
-  //file::write({location, "root.bml"}, emulator->export());
+    file::write({location, "root.bml"}, higan::Node::serialize(emulator->root()));
   }
 
   viewports.reset();

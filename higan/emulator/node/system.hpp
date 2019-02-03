@@ -1,4 +1,4 @@
-namespace higan::Core {
+namespace higan::Object {
 
 struct System : Node {
   DeclareClass(System, "System")

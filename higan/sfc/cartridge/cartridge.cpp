@@ -8,22 +8,17 @@ namespace higan::SuperFamicom {
 Cartridge cartridge;
 
 auto Cartridge::initialize(Node parent) -> void {
-  port = Node::Port::Cartridge::create("Cartridge");
+  port = Node::Port::create("Cartridge Port", "Cartridge");
+  port->allocate = [&](auto name) {
+    return Node::Peripheral::create("Cartridge");
+  };
   port->attach = [&](auto node) {
     load();
   };
   port->detach = [&](auto node) {
     unload();
   };
-  port->import = [&](auto markup) {
-    if(markup = markup["node"]) {
-    //port->append(Node::Cartridge::create("The Legend of Zelda: A Link to the Past"));
-    }
-  };
   parent->append(port);
-}
-
-auto Cartridge::import(Markup::Node node) -> void {
 }
 
 auto Cartridge::hashes() const -> vector<string> {
@@ -69,7 +64,6 @@ auto Cartridge::load() -> bool {
     game.load(fp->reads());
   } else return false;
   loadCartridge(game.document);
-  port->connected()->name = game.document["game/label"].text();
 
   if(has.GameBoySlot) {
     //todo

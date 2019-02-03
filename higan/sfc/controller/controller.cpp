@@ -41,8 +41,8 @@ auto Controller::iobit() -> bool {
 
 auto Controller::iobit(bool data) -> void {
   switch(port) {
-  case ID::Port::Controller1: bus.write(0x4201, (cpu.pio() & ~0x40) | (data << 6)); break;
-  case ID::Port::Controller2: bus.write(0x4201, (cpu.pio() & ~0x80) | (data << 7)); break;
+  case ID::Port::Controller1: bus.write(0x4201, cpu.pio() & ~0x40 | data << 6); break;
+  case ID::Port::Controller2: bus.write(0x4201, cpu.pio() & ~0x80 | data << 7); break;
   }
 }
 
@@ -50,35 +50,39 @@ auto Controller::iobit(bool data) -> void {
 
 auto ControllerPort::initialize(Node parent) -> void {
   auto portID = this == &controllerPort2;
+  connect();  //temporary hack
 
-  port = Node::Port::Peripheral::create(!portID ? "Controller Port 1" : "Controller Port 2");
-  port->attach = [&](auto node) {
-    connect(0);  //todo: ID parameter is unnecessary
+  port = Node::Port::create(!portID ? "Controller Port 1" : "Controller Port 2", "Controller");
+  port->allocate = [&](auto name) {
+    if(name == "Gamepad") return Gamepad::create();
+    if(name == "Super Multitap") return SuperMultitap::create();
+    return Node::Peripheral::create("Controller");
   };
-  vector<string> controllers;
-  if(!portID) {
-    port->list.append(Mouse::create());
-  } else {
-    port->list.append(Mouse::create());
-    port->list.append(SuperScope::create());
-    port->list.append(Justifier::create(0));
-    port->list.append(Justifier::create(1));
-  }
+  port->attach = [&](auto node) {
+    connect(node);
+  };
+  port->detach = [&](auto node) {
+    connect();
+  };
   parent->append(port);
 }
 
 auto ControllerPort::connect(uint deviceID) -> void {
+}
+
+auto ControllerPort::connect(Node::Peripheral node) -> void {
   delete device;
   device = nullptr;
-  if(auto leaf = port->first()) {
-    if(leaf->kind == "Gamepad") device = new Gamepad(portID, leaf);
-    if(leaf->kind == "Mouse") device = new Mouse(portID);
-    if(leaf->kind == "Super Multitap") device = new SuperMultitap(portID, leaf);
-    if(leaf->kind == "Super Scope") device = new SuperScope(portID);
-    if(leaf->kind == "Justifier") device = new Justifier(portID, false);
-    if(leaf->kind == "Justifiers") device = new Justifier(portID, true);
+  if(node) {
+    if(node->name == "Gamepad") device = new Gamepad(node, portID);
+//  if(node->name == "Mouse") device = new Mouse(portID);
+    if(node->name == "Super Multitap") device = new SuperMultitap(node, portID);
+//  if(node->name == "Super Scope") device = new SuperScope(portID);
+//  if(node->name == "Justifier") device = new Justifier(portID, false);
+//  if(node->name == "Justifiers") device = new Justifier(portID, true);
   }
   if(!device) device = new Controller(portID);
+//if(auto peripheral = device->node) port->prepend(peripheral);
 
   cpu.peripherals.reset();
   if(auto device = controllerPort1.device) cpu.peripherals.append(device);
