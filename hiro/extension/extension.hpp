@@ -6,7 +6,8 @@ namespace hiro {
   #include "table-layout.hpp"
   #include "list-view.hpp"
   #include "shared.hpp"
-  #include "browser-dialog.hpp"
   #include "message-dialog.hpp"
+  #include "name-dialog.hpp"
+  #include "browser-dialog.hpp"
   #include "about-dialog.hpp"
 }

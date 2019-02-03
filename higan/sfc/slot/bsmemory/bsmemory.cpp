@@ -7,7 +7,7 @@ auto BSMemory::create() -> Node::Peripheral {
 }
 
 auto BSMemory::initialize(Node parent) -> void {
-  port = Node::Port::create("BS Memory Slot", "BS Memory Cartridge");
+  port = Node::Port::create("BS Memory Slot", "BS Memory Cartridges");
 /*
   port->attach = [&](auto node) {
     load();

@@ -1,10 +1,13 @@
 #include "higan.hpp"
 
-Video video;
-Audio audio;
-Input input;
-shared_pointer<higan::Interface> emulator;
-vector<shared_pointer<higan::Interface>> emulators;
+shared_pointer<higan::Interface> interface;
+vector<shared_pointer<higan::Interface>> interfaces;
+
+namespace nall::Path {
+  string settings;
+  string templates;
+  string data;
+}
 
 auto locate(string name) -> string {
   string location = {Path::program(), name};
@@ -32,48 +35,66 @@ auto hiro::initialize() -> void {
 auto nall::main(Arguments arguments) -> void {
   Application::setName("higan");
   Application::setScreenSaver(false);
+
+  if(file::exists({Path::program(), "paths.bml"})) {
+    Path::settings = Path::program();
+  } else {
+    Path::settings = {Path::userData(), "higan/"};
+    directory::create(Path::settings);
+  }
+  if(auto document = BML::unserialize(file::read({Path::settings, "paths.bml"}))) {
+    Path::templates = document["templates"].text();
+    Path::data = document["data"].text();
+  }
+  if(!directory::exists(Path::templates)) Path::templates = {Path::settings, "Systems/"};
+  if(!directory::exists(Path::data)) Path::data = {Path::user(), "higan/"};
+  file::write({Path::settings, "paths.bml"}, string{
+    "data: ", Path::data, "\n",
+    "templates: ", Path::templates, "\n"
+  });
+
   #ifdef CORE_FC
-  emulators.append(new higan::Famicom::FamicomInterface);
+  interfaces.append(new higan::Famicom::FamicomInterface);
   #endif
   #ifdef CORE_SFC
-  emulators.append(new higan::SuperFamicom::SuperFamicomInterface);
+  interfaces.append(new higan::SuperFamicom::SuperFamicomInterface);
   #endif
   #ifdef CORE_MS
-  emulators.append(new higan::MasterSystem::SG1000Interface);
-  emulators.append(new higan::MasterSystem::SC3000Interface);
-  emulators.append(new higan::MasterSystem::MasterSystemInterface);
+  interfaces.append(new higan::MasterSystem::SG1000Interface);
+  interfaces.append(new higan::MasterSystem::SC3000Interface);
+  interfaces.append(new higan::MasterSystem::MasterSystemInterface);
   #endif
   #ifdef CORE_MD
-  emulators.append(new higan::MegaDrive::MegaDriveInterface);
+  interfaces.append(new higan::MegaDrive::MegaDriveInterface);
   #endif
   #ifdef CORE_PCE
-  emulators.append(new higan::PCEngine::PCEngineInterface);
-  emulators.append(new higan::PCEngine::SuperGrafxInterface);
+  interfaces.append(new higan::PCEngine::PCEngineInterface);
+  interfaces.append(new higan::PCEngine::SuperGrafxInterface);
   #endif
   #ifdef CORE_MS
-  emulators.append(new higan::MasterSystem::ColecoVisionInterface);
+  interfaces.append(new higan::MasterSystem::ColecoVisionInterface);
   #endif
   #ifdef CORE_MSX
-  emulators.append(new higan::MSX::MSXInterface);
+  interfaces.append(new higan::MSX::MSXInterface);
   #endif
   #ifdef CORE_GB
-  emulators.append(new higan::GameBoy::GameBoyInterface);
-  emulators.append(new higan::GameBoy::GameBoyColorInterface);
+  interfaces.append(new higan::GameBoy::GameBoyInterface);
+  interfaces.append(new higan::GameBoy::GameBoyColorInterface);
   #endif
   #ifdef CORE_GBA
-  emulators.append(new higan::GameBoyAdvance::GameBoyAdvanceInterface);
+  interfaces.append(new higan::GameBoyAdvance::GameBoyAdvanceInterface);
   #endif
   #ifdef CORE_MS
-  emulators.append(new higan::MasterSystem::GameGearInterface);
+  interfaces.append(new higan::MasterSystem::GameGearInterface);
   #endif
   #ifdef CORE_WS
-  emulators.append(new higan::WonderSwan::WonderSwanInterface);
-  emulators.append(new higan::WonderSwan::WonderSwanColorInterface);
-  emulators.append(new higan::WonderSwan::PocketChallengeV2Interface);
+  interfaces.append(new higan::WonderSwan::WonderSwanInterface);
+  interfaces.append(new higan::WonderSwan::WonderSwanColorInterface);
+  interfaces.append(new higan::WonderSwan::PocketChallengeV2Interface);
   #endif
   #ifdef CORE_NGP
-  emulators.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
-  emulators.append(new higan::NeoGeoPocket::NeoGeoPocketColorInterface);
+  interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
+  interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketColorInterface);
   #endif
   Instances::configurationManager.construct();
   Instances::systemManager.construct();

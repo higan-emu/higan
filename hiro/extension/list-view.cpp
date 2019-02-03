@@ -7,6 +7,9 @@ mListView::mListView() {
   mTableView::onChange([&] {
     doChange();
   });
+  mTableView::onContext([&] {
+    doContext();
+  });
   mTableView::onToggle([&](TableViewCell cell) {
     if(auto item = cell->parentTableViewItem()) {
       if(auto shared = item->instance.acquire()) {
@@ -32,6 +35,10 @@ auto mListView::doChange() const -> void {
   if(state.onChange) state.onChange();
 }
 
+auto mListView::doContext() const -> void {
+  if(state.onContext) state.onContext();
+}
+
 auto mListView::doToggle(ListViewItem item) const -> void {
   if(state.onToggle) state.onToggle(item);
 }
@@ -54,6 +61,11 @@ auto mListView::onActivate(const function<void ()>& callback) -> type& {
 
 auto mListView::onChange(const function<void ()>& callback) -> type& {
   state.onChange = callback;
+  return *this;
+}
+
+auto mListView::onContext(const function<void ()>& callback) -> type& {
+  state.onContext = callback;
   return *this;
 }
 

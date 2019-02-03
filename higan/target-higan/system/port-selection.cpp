@@ -5,6 +5,11 @@ PortSelectionDialog::PortSelectionDialog() {
   nodeList.onChange([&] {
     eventChange();
   });
+  nodeList.onContext([&] {
+    if(auto item = nodeList.selected(); item.property("type") == "object") {
+      contextMenu.setVisible();
+    }
+  });
   nodeList.onActivate([&] {
     eventAccept();
   });
@@ -18,6 +23,45 @@ PortSelectionDialog::PortSelectionDialog() {
     eventAccept();
   });
 
+  renameAction.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] {
+    if(auto item = nodeList.selected(); item.property("type") == "object") {
+      auto name = item.cell(0).text();
+      if(auto rename = NameDialog()
+      .setPlacement(Placement::Center, *this)
+      .rename(item.cell(0).text()
+      )) {
+        if(rename != name) {
+          string source = item.property("location");
+          string target = {Location::dir(source), rename};
+          if(directory::exists(target)) return (void)MessageDialog()
+          .setTitle("Error")
+          .setText("A directory by the chosen name already exists.")
+          .setPlacement(Placement::Center, *this)
+          .error();
+
+          //todo: handle case where this renames a currently selected port node in the tree
+          directory::rename(source, target);
+          refresh();
+        }
+      }
+    }
+  });
+
+  removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] {
+    if(auto item = nodeList.selected(); item.property("type") == "object") {
+      if(MessageDialog()
+      .setTitle("Warning")
+      .setText("Are you sure you want to delete this entry?\n"
+               "All data it contains will be permanently lost!")
+      .setPlacement(Placement::Center, *this)
+      .question() == "No") return;
+
+      //todo: handle case where this removes a currently selected port node in the tree
+      directory::remove(item.property("location"));
+      refresh();
+    }
+  });
+
   onClose([&] {
     setModal(false);
     setVisible(false);
@@ -27,41 +71,50 @@ PortSelectionDialog::PortSelectionDialog() {
 }
 
 auto PortSelectionDialog::select(higan::Node::Port port) -> void {
+  this->root = interface->root();
   this->port = port;
-
-  nodeList.reset();
-  nodeList.append(TableViewColumn().setExpandable());
-  { TableViewItem item{&nodeList};
-    item.setProperty("type", "nothing");
-    TableViewCell cell{&item};
-    cell.setIcon(Icon::Action::Remove).setText("Nothing");
-  }
-  if(auto location = port->property("templates")) {
-    for(auto& name : directory::folders(location)) {
-      TableViewItem item{&nodeList};
-      item.setProperty("type", "template");
-      item.setProperty("location", {location, name});
-      TableViewCell cell{&item};
-      cell.setIcon(Icon::Emblem::Program).setText(name.trimRight("/", 1L));
-    }
-  }
-  if(auto location = port->property("location")) {
-    for(auto& name : directory::folders(location)) {
-      TableViewItem item{&nodeList};
-      item.setProperty("type", "object");
-      item.setProperty("location", {location, name});
-      TableViewCell cell{&item};
-      cell.setIcon(Icon::Emblem::Folder).setText(name.trimRight("/", 1L));
-    }
-  }
-  nodeList.doChange();
-
+  refresh();
   setTitle(port->name);
   setSize({480, 400});
   setPlacement(Placement::After, systemManager);
   setVisible();
   setFocused();
   setModal();
+}
+
+auto PortSelectionDialog::refresh() -> void {
+  nodeList.reset();
+  nodeList.append(TableViewColumn().setExpandable());
+
+  { TableViewItem item{&nodeList};
+    item.setProperty("type", "nothing");
+    TableViewCell cell{&item};
+    cell.setIcon(Icon::Action::Remove).setText("Nothing");
+  }
+
+  if(string location = {emulator.system.templates, port->category, "/"}) {
+    for(auto& name : directory::folders(location)) {
+      TableViewItem item{&nodeList};
+      item.setProperty("type", "template");
+      item.setProperty("category", port->category);
+      item.setProperty("location", {location, name});
+      TableViewCell cell{&item};
+      cell.setIcon(Icon::Emblem::FolderTemplate).setText(name.trimRight("/", 1L));
+    }
+  }
+
+  if(string location = {emulator.system.data, port->category, "/"}) {
+    for(auto& name : directory::folders(location)) {
+      TableViewItem item{&nodeList};
+      item.setProperty("type", "object");
+      item.setProperty("category", port->category);
+      item.setProperty("location", {location, name});
+      TableViewCell cell{&item};
+      cell.setIcon(Icon::Emblem::Folder).setText(name.trimRight("/", 1L));
+    }
+  }
+
+  nodeList.doChange();
 }
 
 auto PortSelectionDialog::eventChange() -> void {
@@ -80,18 +133,48 @@ auto PortSelectionDialog::eventChange() -> void {
 auto PortSelectionDialog::eventAccept() -> void {
   if(auto item = nodeList.selected()) {
     auto name = item.cell(0).text();
+    auto label = nameValue.text().strip();
+
     if(item.property("type") == "nothing") {
       port->disconnect();
       systemManager.refresh();
     }
-    if(item.property("type") == "template") {
-      auto peripheral = port->allocate(name);
-      peripheral->setProperty("name", nameValue.text().strip());
-      peripheral->setProperty("location", item.property("location"));
-      port->connect(peripheral);
-      systemManager.refresh();
+
+    if(item.property("type") == "template" && label) {
+      auto category = item.property("category");
+      auto source = item.property("location");
+      auto target = string{emulator.system.data, category, "/", label, "/"};
+      if(directory::exists(target)) {
+        if(MessageDialog()
+        .setTitle("Warning")
+        .setText("A folder by this name already exists.\n"
+                 "Do you want to erase it and create a new folder?\n"
+                 "If you choose yes, all contents of the original folder will be lost!")
+        .setPlacement(Placement::Center, *this)
+        .question() == "No") return;
+        directory::remove(target);
+      }
+
+      if(directory::copy(source, target)) {
+        auto peripheral = port->allocate(name);
+        file::write({target, "manifest.bml"}, string{
+          "system\n",
+          "  name: ", root->name, "\n",
+          "  type: ", peripheral->type(), "\n",
+          "  kind: ", name, "\n"
+        });
+        peripheral->setProperty("name", nameValue.text().strip());
+        peripheral->setProperty("location", target);
+        port->connect(peripheral);
+        systemManager.refresh();
+      }
     }
+
     if(item.property("type") == "object") {
+      auto location = item.property("location");
+      if(auto document = BML::unserialize(file::read({location, "manifest.bml"}))) {
+        if(auto kind = document["system/kind"].text()) name = kind;
+      }
       auto peripheral = port->allocate(name);
       peripheral->setProperty("name", nameValue.text().strip());
       peripheral->setProperty("location", item.property("location"));
@@ -99,5 +182,6 @@ auto PortSelectionDialog::eventAccept() -> void {
       systemManager.refresh();
     }
   }
+
   doClose();
 }

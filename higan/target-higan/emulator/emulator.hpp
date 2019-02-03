@@ -1,5 +1,7 @@
-struct Program : higan::Platform {
-  //program.cpp
+struct Emulator : higan::Platform {
+  Audio audio;
+
+  //emulator.cpp
   auto create(shared_pointer<higan::Interface>, string location) -> void;
   auto main() -> void;
   auto quit() -> void;
@@ -11,11 +13,16 @@ struct Program : higan::Platform {
   auto audioFrame(const double* samples, uint channels) -> void override;
   auto inputPoll(higan::Node::Input) -> void override;
 
+  higan::Node root;
+
   struct System {
+    string name;
+    string data;
+    string templates;
     bool power = false;
   } system;
 
   vector<shared_pointer<ViewportWindow>> viewports;
 };
 
-extern Program program;
+extern Emulator emulator;

@@ -1,4 +1,4 @@
-auto Program::open(higan::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
+auto Emulator::open(higan::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
   auto location = node->property("location");
 
   if(name == "manifest.bml") {
@@ -21,7 +21,7 @@ auto Program::open(higan::Node node, string name, vfs::file::mode mode, bool req
   return {};
 }
 
-auto Program::videoFrame(higan::Node::Video node, const uint32* data, uint pitch, uint width, uint height) -> void {
+auto Emulator::videoFrame(higan::Node::Video node, const uint32* data, uint pitch, uint width, uint height) -> void {
   auto viewportID = node->property("viewportID").natural();
   if(viewportID >= viewports.size()) return;
   auto viewport = viewports[viewportID];
@@ -37,7 +37,7 @@ auto Program::videoFrame(higan::Node::Video node, const uint32* data, uint pitch
   }
 }
 
-auto Program::audioFrame(const double* samples, uint channels) -> void {
+auto Emulator::audioFrame(const double* samples, uint channels) -> void {
   if(channels == 1) {
     double stereo[] = {samples[0], samples[0]};
     audio.output(stereo);
@@ -46,9 +46,15 @@ auto Program::audioFrame(const double* samples, uint channels) -> void {
   }
 }
 
-auto Program::inputPoll(higan::Node::Input input) -> void {
-return;
+auto Emulator::inputPoll(higan::Node::Input input) -> void {
+  inputManager.poll();
+
   if(auto button = input->cast<higan::Node::Input::Button>()) {
     button->value = 0;
+    if(auto device = button->property("device")) {
+      auto groupID = button->property("group").natural();
+      auto inputID = button->property("input").natural();
+      button->value = device.to<shared_pointer<HID::Device>>()->group(groupID).input(inputID).value();
+    }
   }
 }

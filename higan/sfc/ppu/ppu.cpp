@@ -13,10 +13,10 @@ PPU ppu;
 
 auto PPU::initialize(Node parent) -> void {
   display = Node::Video::create("Display");
-  display->kind   = "CRT";
-  display->width  = 512;
-  display->height = 480;
-  display->aspect = 8.0 / 7.0;
+  display->category = "CRT";
+  display->width    = 512;
+  display->height   = 480;
+  display->aspect   = 8.0 / 7.0;
   display->append(settings.colorEmulation = Node::Setting::Boolean::create("Color Emulation", true, [&](auto) {
     video.setPalette();
   }));

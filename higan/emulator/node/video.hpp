@@ -7,7 +7,7 @@ struct Video : Node {
 
   auto serialize(string& output, string depth) -> void override {
     Node::serialize(output, depth);
-    output.append(depth, "  kind: ", kind, "\n");
+    output.append(depth, "  category: ", category, "\n");
     output.append(depth, "  width: ", width, "\n");
     output.append(depth, "  height: ", height, "\n");
     output.append(depth, "  aspect: ", aspect, "\n");
@@ -15,7 +15,7 @@ struct Video : Node {
 
   auto unserialize(Markup::Node node) -> void override {
     Node::unserialize(node);
-    kind = node["kind"].text();
+    category = node["category"].text();
     width = node["width"].natural();
     height = node["height"].natural();
     aspect = node["aspect"].real();
@@ -23,14 +23,14 @@ struct Video : Node {
 
   auto copy(shared_pointer<Node> node) -> void override {
     if(auto source = node->cast<shared_pointer<Video>>()) {
-      kind = source->kind;
+      category = source->category;
       width = source->width;
       height = source->height;
       aspect = source->aspect;
     }
   }
 
-  string kind;  //"CRT", "LCD"
+  string category;  //"CRT", "LCD"
   uint width = 0;
   uint height = 0;
   double aspect = 1.0;

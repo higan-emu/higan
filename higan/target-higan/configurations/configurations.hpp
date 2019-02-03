@@ -19,19 +19,6 @@ struct ConfigurationCreateDialog : Window {
   Result result;
 };
 
-struct ConfigurationRenameDialog : Window {
-  ConfigurationRenameDialog();
-  auto run(string) -> string;
-  auto eventAccept() -> void;
-
-  HorizontalLayout layout{this};
-    Label nameLabel{&layout, Size{0, 0}};
-    LineEdit nameValue{&layout, Size{~0, 0}};
-    Button acceptButton{&layout, Size{80, 0}};
-
-  string result;
-};
-
 struct ConfigurationPropertiesDialog : Window {
   ConfigurationPropertiesDialog();
   auto run(string name, string document) -> string;
@@ -61,6 +48,8 @@ struct ConfigurationManager : Window {
 
   MenuBar menuBar{this};
     Menu actionMenu{&menuBar};
+      MenuItem launchAction{&actionMenu};
+      MenuSeparator launchSeparator{&actionMenu};
       MenuItem createAction{&actionMenu};
       MenuItem renameAction{&actionMenu};
       MenuItem removeAction{&actionMenu};
@@ -69,6 +58,14 @@ struct ConfigurationManager : Window {
       MenuSeparator quitSeparator{&actionMenu};
       MenuItem quitAction{&actionMenu};
     Menu settingsMenu{&menuBar};
+    Menu pathsMenu{&menuBar};
+      MenuItem dataPathOpen{&pathsMenu};
+      MenuItem dataPathChange{&pathsMenu};
+      MenuSeparator dataPathSeparator{&pathsMenu};
+      MenuItem templatesPathOpen{&pathsMenu};
+      MenuItem templatesPathChange{&pathsMenu};
+      MenuSeparator templatesPathSeparator{&pathsMenu};
+      MenuItem settingsPathOpen{&pathsMenu};
     Menu helpMenu{&menuBar};
       MenuItem documentation{&helpMenu};
       MenuSeparator aboutSeparator{&helpMenu};
@@ -77,15 +74,14 @@ struct ConfigurationManager : Window {
   VerticalLayout layout{this};
     TreeView configurationList{&layout, Size{~0, ~0}};
     HorizontalLayout controlLayout{&layout, Size{~0, 0}};
-      Label locationLabel{&controlLayout, Size{0, 0}};
+      Button createButton{&controlLayout, Size{80, 0}};
+      Button renameButton{&controlLayout, Size{80, 0}};
+      Button removeButton{&controlLayout, Size{80, 0}};
+      Button propertiesButton;  //{&controlLayout, Size{100, 0}};
       Widget controlSpacer{&controlLayout, Size{~0, 0}};
-      Button createButton{&controlLayout, Size{90, 0}};
-      Button renameButton{&controlLayout, Size{90, 0}};
-      Button removeButton{&controlLayout, Size{90, 0}};
-      Button propertiesButton;  //{&controlLayout, Size{90, 0}};
+      Button launchButton{&controlLayout, Size{80, 0}};
 
   ConfigurationCreateDialog createDialog;
-  ConfigurationRenameDialog renameDialog;
   ConfigurationPropertiesDialog propertiesDialog;
 };
 

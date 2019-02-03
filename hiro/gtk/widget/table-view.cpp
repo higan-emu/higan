@@ -121,11 +121,13 @@ auto pTableView::setBordered(bool bordered) -> void {
 auto pTableView::setFocused() -> void {
   //gtk_widget_grab_focus() will select the first item if nothing is currently selected
   //this behavior is undesirable. detect selection state first, and restore if required
-  lock();
-  bool selected = gtk_tree_selection_get_selected(gtkTreeSelection, nullptr, nullptr);
-  gtk_widget_grab_focus(gtkWidgetChild);
-  if(!selected) gtk_tree_selection_unselect_all(gtkTreeSelection);
-  unlock();
+  if(!state().batchable) {  //gtk_tree_selection_get_selected() will throw a critical exception in batchable mode
+    lock();
+    bool selected = gtk_tree_selection_get_selected(gtkTreeSelection, nullptr, nullptr);
+    gtk_widget_grab_focus(gtkWidgetChild);
+    if(!selected) gtk_tree_selection_unselect_all(gtkTreeSelection);
+    unlock();
+  }
 }
 
 auto pTableView::setFont(const Font& font) -> void {

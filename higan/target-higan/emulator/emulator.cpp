@@ -1,22 +1,27 @@
 #include "../higan.hpp"
 #include "platform.cpp"
 
-Program program;
+Emulator emulator;
 
-auto Program::create(shared_pointer<higan::Interface> interface, string location) -> void {
+auto Emulator::create(shared_pointer<higan::Interface> instance, string location) -> void {
   higan::platform = this;
-  emulator = interface;
+  interface = instance;
+
+  system = {};
+  system.name = Location::base(location).trimRight("/", 1L);
+  system.data = location;
+  system.templates = {Path::templates, interface->information().name, "/"};
 
   string configuration = file::read({location, "root.bml"});
   if(!configuration) {
     auto system = higan::Node::System::create();
-    system->name = emulator->information().name;
+    system->name = interface->information().name;
     system->setProperty("location", location);
     configuration = higan::Node::serialize(system);
   }
 
-  emulator->initialize(configuration);
-  print(higan::Node::serialize(emulator->root()), "\n");
+  interface->initialize(configuration);
+  root = interface->root();
 
   systemManager.show();
 
@@ -25,12 +30,11 @@ auto Program::create(shared_pointer<higan::Interface> interface, string location
   audio.setBlocking(false);
   audio.setFrequency(48000.0);
 
-  input.create("SDL");
-  input.setContext(systemManager.handle());
+  inputManager.create();
 
-  Application::onMain({&Program::main, this});
+  Application::onMain({&Emulator::main, this});
 
-  for(auto& display : emulator->root()->find<higan::Node::Video>()) {
+  for(auto& display : root->find<higan::Node::Video>()) {
     display->setProperty("viewportID", viewports.size());
     auto viewport = shared_pointer_make<ViewportWindow>();
     viewport->create(display);
@@ -38,31 +42,33 @@ auto Program::create(shared_pointer<higan::Interface> interface, string location
   }
 }
 
-auto Program::main() -> void {
+auto Emulator::main() -> void {
+  inputManager.poll();
+
   if(!system.power) {
     usleep(20 * 1000);
   } else {
-    emulator->run();
+    interface->run();
   }
 }
 
-auto Program::quit() -> void {
-  if(auto location = emulator->root()->property("location")) {
-    file::write({location, "root.bml"}, higan::Node::serialize(emulator->root()));
+auto Emulator::quit() -> void {
+  if(auto location = root->property("location")) {
+    file::write({location, "root.bml"}, higan::Node::serialize(root));
   }
 
   viewports.reset();
   audio.reset();
-  input.reset();
+  inputManager.reset();
   Application::kill();
 }
 
-auto Program::power(bool on) -> void {
+auto Emulator::power(bool on) -> void {
   if(system.power = on) {
     for(auto& viewport : viewports) {
       viewport->show(systemManager);
     }
-    emulator->power();
+    interface->power();
   } else {
     for(auto& viewport : viewports) {
       viewport->setVisible(false);

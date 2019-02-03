@@ -1,4 +1,5 @@
 #include "../higan.hpp"
+#include "input-mapping.cpp"
 #include "port-configuration.cpp"
 #include "port-selection.cpp"
 
@@ -8,7 +9,7 @@ SystemManager& systemManager = Instances::systemManager();
 SystemManager::SystemManager() {
   systemMenu.setText("System");
   powerToggle.setText("Power").onToggle([&] {
-    program.power(powerToggle.checked());
+    emulator.power(powerToggle.checked());
   });
 
   settingsMenu.setText("Settings");
@@ -38,6 +39,11 @@ SystemManager::SystemManager() {
   connectionList.onActivate([&] {
     eventActivate();
   });
+  inputMappingButton.setCollapsible().setText("Inputs").onActivate([&] {
+    if(auto node = selected()) {
+      inputMapping.map(node);
+    }
+  });
   configureButton.setText("Configure ...").onActivate([&] {
     eventConfigure();
   });
@@ -45,16 +51,16 @@ SystemManager::SystemManager() {
   statusBar.setFont(Font().setBold()).setVisible(false);
 
   onClose([&] {
-    program.quit();
+    emulator.quit();
   });
 
   setSize({600, 480});
 }
 
 auto SystemManager::show() -> void {
-  root = emulator->root();
+  root = interface->root();
   refresh();
-  setTitle(emulator->information().name);
+  setTitle(interface->information().name);
   setAlignment({0.25, 0.5});
   setVisible();
   setFocused();
@@ -69,9 +75,18 @@ auto SystemManager::refresh() -> void {
   print(higan::Node::serialize(root), "\n");
 }
 
+auto SystemManager::selected() -> higan::Node {
+  if(auto item = connectionList.selected(); auto node = item.property("node")) {
+    return node.to<higan::Node>();
+  }
+  return {};
+}
+
 template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> void {
+  if(node->cast<higan::Node::Input>()) return;
+
   TreeViewItem item{&parent};
-  item.setProperty("path", node->path());
+  item.setProperty("node", string::from(node));
 
   if(auto boolean = node->cast<higan::Node::Setting::Boolean>()) {
     item.setText({boolean->name, ": ", boolean->value()});
@@ -86,46 +101,37 @@ template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> v
 }
 
 auto SystemManager::eventChange() -> void {
-  if(auto item = connectionList.selected()) {
-    if(auto path = item.property("path")) {
-      if(auto node = root->path(item.property("path"))) {
-        if(node->cast<higan::Node::Port>()) {
-          configureButton.setEnabled(true);
-          return;
-        }
-      }
-    }
-  }
-  configureButton.setEnabled(false);
+  auto node = selected();
+  inputMappingButton.setEnabled(node && !(bool)node->cast<higan::Node::Port>() && (bool)node->find<higan::Node::Input>());
+  configureButton.setEnabled(node && (bool)node->cast<higan::Node::Port>());
 }
 
 auto SystemManager::eventActivate() -> void {
-  if(auto item = connectionList.selected()) {
-    if(auto path = item.property("path")) {
-      if(auto node = root->path(item.property("path"))) {
-        if(auto boolean = node->cast<higan::Node::Setting::Boolean>()) {
-          boolean->setValue(!boolean->value());
-          return refresh();
-        }
+  if(auto node = selected()) {
+    if(auto boolean = node->cast<higan::Node::Setting::Boolean>()) {
+      boolean->setValue(!boolean->value());
+      return refresh();
+    }
 
-        if(auto port = node->cast<higan::Node::Port>()) {
-          if(!port->property("location") && !port->property("templates")) return eventConfigure();
-          return portSelection.select(port);
-        }
-      }
+    if(auto port = node->cast<higan::Node::Port>()) {
+      return portSelection.select(port);
+    }
+
+    if(node->find<higan::Node::Input>()) {
+      return inputMapping.map(node);
     }
   }
 }
 
 auto SystemManager::eventConfigure() -> void {
-  if(auto item = connectionList.selected()) {
-    if(auto path = item.property("path")) {
-      if(auto node = root->path(item.property("path"))) {
-        if(auto port = node->cast<higan::Node::Port>()) {
-          if(portConfiguration.configure(port)) refresh();
-          return;
-        }
-      }
+  if(auto node = selected()) {
+    if(auto port = node->cast<higan::Node::Port>()) {
+      if(portConfiguration.configure(port)) refresh();
+      return;
     }
   }
+}
+
+auto SystemManager::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
+  inputMapping.eventInput(device, group, input, oldValue, newValue);
 }

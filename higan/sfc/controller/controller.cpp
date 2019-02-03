@@ -52,7 +52,7 @@ auto ControllerPort::initialize(Node parent) -> void {
   auto portID = this == &controllerPort2;
   connect();  //temporary hack
 
-  port = Node::Port::create(!portID ? "Controller Port 1" : "Controller Port 2", "Controller");
+  port = Node::Port::create(!portID ? "Controller Port 1" : "Controller Port 2", "Controllers");
   port->allocate = [&](auto name) {
     if(name == "Gamepad") return Gamepad::create();
     if(name == "Super Multitap") return SuperMultitap::create();

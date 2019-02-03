@@ -8,7 +8,7 @@ namespace higan::SuperFamicom {
 Cartridge cartridge;
 
 auto Cartridge::initialize(Node parent) -> void {
-  port = Node::Port::create("Cartridge Port", "Cartridge");
+  port = Node::Port::create("Cartridge Port", "Cartridges");
   port->allocate = [&](auto name) {
     return Node::Peripheral::create("Cartridge");
   };

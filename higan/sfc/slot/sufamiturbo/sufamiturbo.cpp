@@ -4,7 +4,7 @@ SufamiTurboCartridge sufamiturboB;
 #include "serialization.cpp"
 
 auto SufamiTurboCartridge::create(bool slot) -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Sufami Turbo Cartridge");
+  auto node = Node::Peripheral::create("Sufami Turbo Cartridges");
   return node;
 }
 

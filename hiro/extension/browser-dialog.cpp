@@ -7,6 +7,7 @@ struct BrowserDialogWindow {
   auto accept() -> void;
   auto activate() -> void;
   auto change() -> void;
+  auto context() -> void;
   auto isFolder(const string& name) -> bool;
   auto isMatch(const string& name) -> bool;
   auto run() -> BrowserDialog::Response;
@@ -18,6 +19,7 @@ private:
       HorizontalLayout pathLayout{&layout, Size{~0, 0}, 5};
         LineEdit pathName{&pathLayout, Size{~0, 0}, 0};
         Button pathRefresh{&pathLayout, Size{0, 0}, 0};
+        Button pathNew{&pathLayout, Size{0, 0}, 0};
         Button pathHome{&pathLayout, Size{0, 0}, 0};
         Button pathUp{&pathLayout, Size{0, 0}, 0};
       ListView view{&layout, Size{~0, ~0}, 5};
@@ -27,6 +29,11 @@ private:
         ComboButton optionList{&controlLayout, Size{0, 0}, 5};
         Button acceptButton{&controlLayout, Size{80, 0}, 5};
         Button cancelButton{&controlLayout, Size{80, 0}, 5};
+
+  PopupMenu contextMenu;
+    MenuItem createAction{&contextMenu};
+    MenuItem renameAction{&contextMenu};
+    MenuItem removeAction{&contextMenu};
 
   BrowserDialog::State& state;
   BrowserDialog::Response response;
@@ -135,6 +142,24 @@ auto BrowserDialogWindow::change() -> void {
   }
 }
 
+auto BrowserDialogWindow::context() -> void {
+  auto batched = view.batched();
+  if(!batched) {
+    createAction.setVisible(true);
+    renameAction.setVisible(false);
+    removeAction.setVisible(false);
+  } else if(batched.size() == 1) {
+    createAction.setVisible(false);
+    renameAction.setVisible(true);
+    removeAction.setVisible(true);
+  } else {
+    createAction.setVisible(false);
+    renameAction.setVisible(false);
+    removeAction.setVisible(true);
+  }
+  contextMenu.setVisible();
+}
+
 auto BrowserDialogWindow::isFolder(const string& name) -> bool {
   return directory::exists({state.path, name});
 }
@@ -154,9 +179,11 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   layout.setPadding(5);
   pathName.onActivate([&] { setPath(pathName.text()); });
   pathRefresh.setBordered(false).setIcon(Icon::Action::Refresh).onActivate([&] { setPath(state.path); });
+  pathNew.setBordered(false).setIcon(Icon::Action::NewFolder).onActivate([&] { createAction.doActivate(); });
   pathHome.setBordered(false).setIcon(Icon::Go::Home).onActivate([&] { setPath(Path::user()); });
   pathUp.setBordered(false).setIcon(Icon::Go::Up).onActivate([&] { setPath(Location::dir(state.path)); });
   view.setBatchable(state.action == "openFiles").onActivate([&] { activate(); }).onChange([&] { change(); });
+  view.onContext([&] { context(); });
   filterList.setVisible(state.action != "selectFolder").onChange([&] { setPath(state.path); });
   for(auto& filter : state.filters) {
     auto part = filter.split("|", 1L);
@@ -183,6 +210,87 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
     auto part = filter.split("|", 1L);
     filters.append(part.right().split(":"));
   }
+
+  createAction.setIcon(Icon::Action::NewFolder).setText("Create Folder ...").onActivate([&] {
+    if(auto name = NameDialog()
+    .setTitle("Create Folder")
+    .setText("Enter a new folder name:")
+    .setIcon(Icon::Emblem::Folder)
+    .setPlacement(Placement::Center, window)
+    .create()
+    ) {
+      directory::create({state.path, name});
+      pathRefresh.doActivate();
+    }
+  });
+
+  renameAction.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] {
+    auto batched = view.batched();
+    if(batched.size() != 1) return;
+    auto name = batched[0].text();
+    if(directory::exists({state.path, name})) {
+      if(auto rename = NameDialog()
+      .setTitle({"Rename ", name})
+      .setText("Enter the new folder name:")
+      .setIcon(Icon::Emblem::Folder)
+      .setPlacement(Placement::Center, window)
+      .rename(name)
+      ) {
+        if(name == rename) return;
+        if(!directory::rename({state.path, name}, {state.path, rename})) return (void)MessageDialog()
+        .setTitle("Error")
+        .setText("Failed to rename folder.")
+        .setPlacement(Placement::Center, window)
+        .error();
+        pathRefresh.doActivate();
+      }
+    } else if(file::exists({state.path, name})) {
+      if(auto rename = NameDialog()
+      .setTitle({"Rename ", name})
+      .setText("Enter the new file name:")
+      .setIcon(Icon::Emblem::File)
+      .setPlacement(Placement::Center, window)
+      .rename(name)
+      ) {
+        if(name == rename) return;
+        if(!file::rename({state.path, name}, {state.path, rename})) return (void)MessageDialog()
+        .setTitle("Error")
+        .setText("Failed to rename file.")
+        .setPlacement(Placement::Center, window)
+        .error();
+        pathRefresh.doActivate();
+      }
+    }
+  });
+
+  removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] {
+    auto batched = view.batched();
+    if(!batched) return;
+    if(MessageDialog()
+    .setTitle("Remove Selected")
+    .setText({"Are you sure you want to permanently delete the selected item", batched.size() == 1 ? "" : "s", "?"})
+    .setPlacement(Placement::Center, window)
+    .question() == "No") return;
+    for(auto& item : batched) {
+      auto name = item.text();
+      if(directory::exists({state.path, name})) {
+        if(!directory::remove({state.path, name})) {
+          if(MessageDialog()
+          .setTitle("Warning")
+          .setText({"Failed to remove ", name, "\n\nContinue trying to remove remaining items?"})
+          .question() == "No") break;
+        }
+      } else if(file::exists({state.path, name})) {
+        if(!file::remove({state.path, name})) {
+          if(MessageDialog()
+          .setTitle("Warning")
+          .setText({"Failed to remove ", name, "\n\nContinue trying to remove remaining items?"})
+          .question() == "No") break;
+        }
+      }
+    }
+    pathRefresh.doActivate();
+  });
 
   setPath(state.path);
 

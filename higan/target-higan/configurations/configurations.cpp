@@ -1,15 +1,17 @@
 #include "../higan.hpp"
 #include "create.cpp"
-#include "rename.cpp"
 #include "properties.cpp"
 
 namespace Instances { Instance<ConfigurationManager> configurationManager; }
 ConfigurationManager& configurationManager = Instances::configurationManager();
 
 ConfigurationManager::ConfigurationManager() {
-  directory::create(locate("Configurations/"));
+  directory::create(Path::data);
 
   actionMenu.setText("System");
+  launchAction.setIcon(Icon::Emblem::Program).setText("Launch ...").onActivate([&] {
+    eventActivate();
+  });
   createAction.setIcon(Icon::Action::Add).setText("Create ...").onActivate([&] {
     eventCreate();
   });
@@ -25,7 +27,46 @@ ConfigurationManager::ConfigurationManager() {
   quitAction.setIcon(Icon::Action::Quit).setText("Quit").onActivate([&] {
     Application::kill();
   });
+
   settingsMenu.setText("Settings");
+
+  pathsMenu.setText("Paths");
+  dataPathOpen.setIcon(Icon::Action::Open).setText("Open Data Path ...").onActivate([&] {
+    invoke(Path::data);
+  });
+  dataPathChange.setIcon(Icon::Action::Settings).setText("Change Data Path ...").onActivate([&] {
+    if(auto location = BrowserDialog()
+    .setTitle("Select Data Path")
+    .setPath(Path::data)
+    .setPlacement(Placement::Overlap, *this).selectFolder()
+    ) {
+      Path::data = location;
+      file::write({Path::settings, "paths.bml"}, string{
+        "data: ", Path::data, "\n",
+        "templates: ", Path::templates, "\n"
+      });
+    }
+  });
+  templatesPathOpen.setIcon(Icon::Action::Open).setText("Open Templates Path ...").onActivate([&] {
+    invoke(Path::templates);
+  });
+  templatesPathChange.setIcon(Icon::Action::Settings).setText("Change Templates Path ...").onActivate([&] {
+    if(auto location = BrowserDialog()
+    .setTitle("Select Templates Path")
+    .setPath(Path::templates)
+    .setPlacement(Placement::Overlap, *this).selectFolder()
+    ) {
+      Path::templates = location;
+      file::write({Path::settings, "paths.bml"}, string{
+        "data: ", Path::data, "\n",
+        "templates: ", Path::templates, "\n"
+      });
+    }
+  });
+  settingsPathOpen.setIcon(Icon::Action::Open).setText("Open Settings Path ...").onActivate([&] {
+    invoke(Path::settings);
+  });
+
   helpMenu.setText("Help");
   documentation.setIcon(Icon::Application::Browser).setText("Documentation ...").onActivate([&] {
     invoke("https://doc.byuu.org/higan/");
@@ -50,9 +91,6 @@ ConfigurationManager::ConfigurationManager() {
     eventChange();
   });
   controlLayout.setAlignment(0.5);
-  locationLabel.setText({Path::userData(), "higan"}).setFont(Font().setBold()).setForegroundColor({0, 0, 240}).onMouseRelease([&](auto button) {
-    if(button == Mouse::Button::Left) invoke(locationLabel.text());
-  });
   createButton.setText("Create").onActivate([&] {
     eventCreate();
   });
@@ -64,6 +102,9 @@ ConfigurationManager::ConfigurationManager() {
   });
   propertiesButton.setText("Properties").onActivate([&] {
     eventProperties();
+  });
+  launchButton.setText("Launch").onActivate([&] {
+    eventActivate();
   });
 
   onClose([&] { Application::kill(); });
@@ -82,7 +123,7 @@ auto ConfigurationManager::show() -> void {
 
 auto ConfigurationManager::refresh() -> void {
   configurationList.reset();
-  scan(configurationList, locate("Configurations/"));
+  scan(configurationList, Path::data);
   configurationList.expand();
   configurationList.doChange();
 }
@@ -94,21 +135,20 @@ template<typename T> auto ConfigurationManager::scan(T parent, string location) 
     if(file::exists({location, name, "properties.bml"})) {
       auto document = BML::unserialize(file::read({location, name, "properties.bml"}));
       item.setProperty("system", document["system/name"].text());
-      item.setIcon(Icon::Place::Server);
+      item.setIcon(Icon::Place::Server).setText(string{name}.trimRight("/", 1L));
     } else {
-      item.setIcon(Icon::Emblem::Folder);
+      item.setIcon(Icon::Emblem::Folder).setText(string{name}.trimRight("/", 1L));
+      scan(item, {location, name});
     }
-    item.setText(string{name}.trimRight("/", 1L));
-    scan(item, {location, name});
   }
 }
 
 auto ConfigurationManager::eventActivate() -> void {
   if(auto item = configurationList.selected()) {
     if(auto system = item.property("system")) {
-      if(auto index = emulators.find([&](auto emulator) { return emulator->information().name == system; })) {
+      if(auto index = interfaces.find([&](auto emulator) { return emulator->information().name == system; })) {
         setVisible(false);
-        program.create(emulators[*index], item.property("location"));
+        emulator.create(interfaces[*index], item.property("location"));
       }
     }
   }
@@ -117,19 +157,23 @@ auto ConfigurationManager::eventActivate() -> void {
 auto ConfigurationManager::eventChange() -> void {
   auto item = configurationList.selected();
   auto system = item.property("system");
+  createAction.setEnabled(!(bool)system);
+  createButton.setEnabled(!(bool)system);
   renameAction.setEnabled((bool)item);
   renameButton.setEnabled((bool)item);
   removeAction.setEnabled((bool)item);
   removeButton.setEnabled((bool)item);
-  propertiesAction.setEnabled((bool)item && (bool)system);
-  propertiesButton.setEnabled((bool)item && (bool)system);
+  propertiesAction.setEnabled((bool)system);
+  propertiesButton.setEnabled((bool)system);
+  launchAction.setEnabled((bool)system);
+  launchButton.setEnabled((bool)system);
 }
 
 auto ConfigurationManager::eventCreate() -> void {
   auto [system, name] = createDialog.run();
   if(!name) return;  //user cancelled the operation
   name.append("/");
-  auto location = locate("Configurations/");
+  auto location = Path::data;
   if(auto item = configurationList.selected()) location = item.property("location");
   if(directory::exists({location, name})) {
     if(MessageDialog()
@@ -152,8 +196,8 @@ auto ConfigurationManager::eventCreate() -> void {
               "Name: ", name})
     .setPlacement(Placement::Center, *this).error();
   if(system) {
-    if(auto index = emulators.find([&](auto emulator) { return emulator->information().name == system; })) {
-      file::write({location, name, "properties.bml"}, emulators[*index]->properties().serialize());
+    if(auto index = interfaces.find([&](auto emulator) { return emulator->information().name == system; })) {
+      file::write({location, name, "properties.bml"}, interfaces[*index]->properties().serialize());
     }
   }
   refresh();
@@ -164,7 +208,11 @@ auto ConfigurationManager::eventRename() -> void {
   if(!item) return;
   auto location = item.property("location");
   auto originalName = Location::base(location);
-  auto name = renameDialog.run(item.text());
+  auto name = NameDialog()
+  .setTitle({"Rename ", item.text()})
+  .setText("Enter a new name:")
+  .setPlacement(Placement::Overlap, *this)
+  .rename(item.text());
   if(!name) return;  //user cancelled the operation
   name.append("/");
   if(name == originalName) return;

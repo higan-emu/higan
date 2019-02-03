@@ -4,6 +4,10 @@ MessageDialog::MessageDialog(const string& text) {
   state.text = text;
 }
 
+auto MessageDialog::checked() const -> bool {
+  return state.checked;
+}
+
 auto MessageDialog::error(const vector<string>& buttons) -> string {
   state.buttons = buttons;
   state.icon = Icon::Prompt::Error;
@@ -20,6 +24,16 @@ auto MessageDialog::question(const vector<string>& buttons) -> string {
   state.buttons = buttons;
   state.icon = Icon::Prompt::Question;
   return _run();
+}
+
+auto MessageDialog::setChecked(bool checked) -> type& {
+  state.checked = checked;
+  return *this;
+}
+
+auto MessageDialog::setOption(const string& option) -> type& {
+  state.option = option;
+  return *this;
 }
 
 auto MessageDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
@@ -45,6 +59,7 @@ auto MessageDialog::warning(const vector<string>& buttons) -> string {
 }
 
 auto MessageDialog::_run() -> string {
+  if(!state.buttons) return {};  //nothing to do
   Application::Namespace tr{"MessageDialog"};
 
   Window window;
@@ -54,12 +69,18 @@ auto MessageDialog::_run() -> string {
           Canvas messageIcon{&messageIconLayout, Size{16, 16}, 0};
           Widget messageIconSpacer{&messageIconLayout, Size{16, ~0}};
         Label messageText{&messageLayout, Size{~0, 0}};
+      Widget optionSpacer{&layout, Size{0, 0}};
+      CheckLabel optionText{&layout, Size{~0, 0}};
       HorizontalLayout controlLayout{&layout, Size{~0, 0}};
         Widget controlSpacer{&controlLayout, Size{~0, 0}};
 
   layout.setPadding(5);
   messageIcon.setIcon(state.icon);
   messageText.setText(state.text);
+  optionSpacer.setCollapsible().setVisible((bool)state.option);
+  optionText.setCollapsible().setChecked(state.checked).setText(state.option).setVisible((bool)state.option).onToggle([&] {
+    state.checked = optionText.checked();
+  });
   for(auto n : range(state.buttons.size())) {
     Button button{&controlLayout, Size{80, 0}, 5};
     button.onActivate([&, n] {
@@ -74,7 +95,18 @@ auto MessageDialog::_run() -> string {
   int widthButtons = 5 + state.buttons.size() * 85;
   int width = max(320, widthMessage, widthButtons);
 
-  window.onClose([&] { window.setModal(false); });
+  window.onClose([&] {
+    //if the dialog is dismissed (escape pressed, or window manager close button clicked),
+    //set the response to the last button shown (which is also the default selected button),
+    //and set a flag to indicate that the dialog was dismissed to the caller.
+    //note that the safest option should always be the last option in the buttons list.
+    if(!state.response) {
+      state.response = state.buttons.last();
+      state.dismissed = true;
+    }
+    window.setModal(false);
+  });
+
   window.setTitle(state.title);
   window.setResizable(false);
   window.setSize({width, layout.minimumSize().height()});

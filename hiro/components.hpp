@@ -101,12 +101,13 @@
 
 #if defined(Hiro_Button) && defined(Hiro_Canvas) && defined(Hiro_Label)
   #define Hiro_MessageDialog
+  #define Hiro_NameDialog
 #endif
 
-#if defined(Hiro_Button) && defined(Hiro_ComboButton) && defined(Hiro_LineEdit) && defined(Hiro_ListView) && defined(Hiro_MessageDialog)
+#if defined(Hiro_Button) && defined(Hiro_ComboButton) && defined(Hiro_LineEdit) && defined(Hiro_ListView) && defined(Hiro_MessageDialog) && defined(Hiro_NameDialog)
   #define Hiro_BrowserDialog
 #endif
 
-#if defined(Hiro_Label)
+#if defined(Hiro_Canvas) && defined(Hiro_Label)
   #define Hiro_AboutDialog
 #endif

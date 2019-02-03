@@ -18,6 +18,7 @@
 #include <nall/primitives.hpp>
 #include <nall/shared-pointer.hpp>
 #include <nall/stdint.hpp>
+#include <nall/unique-pointer.hpp>
 #include <nall/utility.hpp>
 #include <nall/varint.hpp>
 #include <nall/vector.hpp>
@@ -27,6 +28,7 @@ namespace nall {
 
 struct string;
 struct string_format;
+struct string_hold;
 
 struct string_view {
   using type = string_view;
@@ -99,6 +101,7 @@ protected:
     struct {  //copy-on-write
       char* _data;
       uint* _refs;
+      string_hold* _hold;
     };
     struct {  //small-string-optimization
       char _text[SSO];
@@ -107,6 +110,12 @@ protected:
   inline auto _allocate() -> void;
   inline auto _copy() -> void;
   inline auto _resize() -> void;
+
+  public:
+  template<typename T> static auto from(T) -> string;
+  template<typename T> auto to() -> T&;
+  template<typename T> auto to() const -> const T&;
+  protected:
   #endif
 
   #if defined(NALL_STRING_ALLOCATOR_COPY_ON_WRITE)
@@ -133,6 +142,9 @@ protected:
 
 public:
   inline string();
+  inline string(string& source) : string() { operator=(source); }
+  inline string(const string& source) : string() { operator=(source); }
+  inline string(string&& source) : string() { operator=(move(source)); }
   template<typename T = char> inline auto get() -> T*;
   template<typename T = char> inline auto data() const -> const T*;
   template<typename T = char> auto size() const -> uint { return _size / sizeof(T); }
@@ -148,7 +160,15 @@ public:
   }
   ~string() { reset(); }
 
-  explicit operator bool() const { return _size; }
+  explicit operator bool() const {
+    #if defined(NALL_STRING_ALLOCATOR_ADAPTIVE)
+    //note: _capacity is only zero when string is holding an object (for adaptive allocator only)
+    //operator bool() must return true as the string is not actually empty in this case
+    return _size || !_capacity;
+    #else
+    return _size;
+    #endif
+  }
   operator const char*() const { return (const char*)data(); }
   operator array_span<char>() { return {(char*)get(), size()}; }
   operator array_view<char>() const { return {(const char*)data(), size()}; }
@@ -171,9 +191,6 @@ public:
   auto operator<=(string_view source) const -> bool { return compare(source) <= 0; }
   auto operator> (string_view source) const -> bool { return compare(source) >  0; }
   auto operator>=(string_view source) const -> bool { return compare(source) >= 0; }
-
-  string(const string& source) : string() { operator=(source); }
-  string(string&& source) : string() { operator=(move(source)); }
 
   auto begin() -> char* { return &get()[0]; }
   auto end() -> char* { return &get()[size()]; }

@@ -9,7 +9,7 @@ ConfigurationCreateDialog::ConfigurationCreateDialog() {
     cell.setIcon(Icon::Emblem::Folder);
     cell.setText("Folder");
   }
-  for(auto emulator : emulators) {
+  for(auto emulator : interfaces) {
     TableViewItem item{&systemList};
     item.setProperty("system", emulator->information().name);
     TableViewCell cell{&item};

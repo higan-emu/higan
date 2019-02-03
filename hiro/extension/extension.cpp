@@ -8,7 +8,8 @@ namespace hiro {
   #include "vertical-layout.cpp"
   #include "table-layout.cpp"
   #include "list-view.cpp"
-  #include "browser-dialog.cpp"
   #include "message-dialog.cpp"
+  #include "name-dialog.cpp"
+  #include "browser-dialog.cpp"
   #include "about-dialog.cpp"
 }

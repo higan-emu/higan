@@ -4,7 +4,7 @@ auto ViewportWindow::create(higan::Node::Video node) -> void {
   this->node = node;
 
   onClose([&] {
-    program.quit();
+    emulator.quit();
   });
 
   setTitle(node->name);
