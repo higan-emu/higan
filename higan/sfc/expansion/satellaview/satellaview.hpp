@@ -1,4 +1,7 @@
 struct Satellaview : Expansion {
+  using Expansion::create;
+  static auto create() -> Node;
+
   Satellaview();
   ~Satellaview();
 

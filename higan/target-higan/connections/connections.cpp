@@ -1,5 +1,5 @@
 #include "../higan.hpp"
-#include "list.cpp"
+#include "connection.cpp"
 
 namespace Instances { Instance<ConnectionManager> connectionManager; }
 ConnectionManager& connectionManager = Instances::connectionManager();
@@ -23,7 +23,7 @@ auto ConnectionManager::show(Window parent) -> void {
   setCentered(parent);
   setVisible();
   setFocused();
-  setModal();
+//setModal();
 }
 
 auto ConnectionManager::refresh() -> void {
@@ -32,26 +32,20 @@ auto ConnectionManager::refresh() -> void {
   connectionList.expand();
 }
 
-template<typename T> auto ConnectionManager::attach(T parent, higan::Interface::Node node) -> void {
+template<typename T> auto ConnectionManager::attach(T parent, higan::Node node) -> void {
   TreeViewItem item{&parent};
   item.setProperty("nodeID", node->id);
-  if(node->type == "System") {
-    item.setIcon(Icon::Place::Server);
-  } else if(node->type == "Controller") {
-    item.setIcon(Icon::Device::Joypad);
+  if(!node->edge || !node->first()) {
+    item.setText(node->name);
+    if(node->edge) item.setForegroundColor({160, 160, 160});
+    for(auto& child : node->nodes) {
+      attach(item, child);
+    }
   } else {
-    item.setIcon(Icon::Prompt::Question);
-  }
-  item.setText(node->name);
-  for(auto& edge : node->edges) {
-    TreeViewItem link{&item};
-    link.setProperty("edgeID", edge->id);
-    link.setText(edge->name);
-    if(edge->node) {
-      link.setIcon(Icon::Action::Add);
-      attach(link, edge->node);
-    } else {
-      link.setIcon(Icon::Action::Remove);
+    auto edge = node->first();
+    item.setText({node->name, ": ", edge->name});
+    for(auto& child : edge->nodes) {
+      attach(item, child);
     }
   }
 }
@@ -62,15 +56,10 @@ auto ConnectionManager::eventActivate() -> void {
 
   if(auto nodeID = item.property("nodeID")) {
     if(auto node = emulator->node(nodeID.natural())) {
-    }
-  }
-
-  if(auto edgeID = item.property("edgeID")) {
-    if(auto edge = emulator->edge(edgeID.natural())) {
-      if(edge->list) {
-        if(auto node = listDialog.select(edge)) {
-          print(node->name, "\n");
-        }
+      if(auto leaf = connectionDialog.connect(node)) {
+        node->assign(leaf);
+        refresh();
+        print(emulator->root()->serialize());
       }
     }
   }

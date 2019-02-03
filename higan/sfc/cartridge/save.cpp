@@ -13,44 +13,13 @@ auto Cartridge::saveCartridge(Markup::Node node) -> void {
   if(auto node = board["processor(identifier=OBC1)"]) saveOBC1(node);
 }
 
-auto Cartridge::saveCartridgeGameBoy(Markup::Node node) -> void {
-}
-
-auto Cartridge::saveCartridgeBSMemory(Markup::Node node) -> void {
-  if(auto memory = Game::Memory{node["game/board/memory(type=Flash,content=Program)"]}) {
-    if(auto fp = platform->open(bsmemory.pathID, memory.name(), File::Write)) {
-      fp->write(bsmemory.memory.data(), memory.size);
-    }
-  }
-}
-
-auto Cartridge::saveCartridgeSufamiTurboA(Markup::Node node) -> void {
-  if(auto memory = Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(sufamiturboA.pathID, memory.name(), File::Write)) {
-        fp->write(sufamiturboA.ram.data(), memory.size);
-      }
-    }
-  }
-}
-
-auto Cartridge::saveCartridgeSufamiTurboB(Markup::Node node) -> void {
-  if(auto memory = Game::Memory{node["game/board/memory(type=RAM,content=Save)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(sufamiturboB.pathID, memory.name(), File::Write)) {
-        fp->write(sufamiturboB.ram.data(), memory.size);
-      }
-    }
-  }
-}
-
 //
 
 auto Cartridge::saveMemory(Memory& ram, Markup::Node node) -> void {
   if(auto memory = game.memory(node)) {
     if(memory->type == "RAM" && !memory->nonVolatile) return;
     if(memory->type == "RTC" && !memory->nonVolatile) return;
-    if(auto fp = platform->open(pathID(), memory->name(), File::Write)) {
+    if(auto fp = platform->open(Cartridge::node, memory->name(), File::Write)) {
       fp->write(ram.data(), ram.size());
     }
   }

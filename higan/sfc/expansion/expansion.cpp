@@ -25,25 +25,28 @@ auto Expansion::main() -> void {
 
 //
 
-auto ExpansionPort::initialize(Interface::Node parent) -> void {
-  connector = new Interface::EdgeObject;
-  connector->id = uniqueID();
-  connector->type = "Expansion";
-  connector->name = "Expansion Port";
-  parent->edges.append(connector);
-  connected = new Interface::NodeObject;
-  connected->id = uniqueID();
+auto ExpansionPort::initialize(Node parent) -> void {
+  edge = Node::create();
+  edge->id = uniqueID();
+  edge->edge = true;
+  edge->type = "Expansion";
+  edge->name = "Expansion Port";
+  edge->list.append(Satellaview::create());
+  edge->list.append(S21FX::create());
+  edge->attach = [&](auto) {
+    connect(0);
+  };
+  parent->nodes.append(edge);
 }
 
 auto ExpansionPort::connect(uint deviceID) -> void {
-  if(!system.loaded()) return;
   delete device;
-
-  switch(deviceID) { default:
-  case ID::Device::None: device = new Expansion; break;
-  case ID::Device::Satellaview: device = new Satellaview; break;
-  case ID::Device::S21FX: device = new S21FX; break;
+  device = nullptr;
+  if(auto leaf = edge->first()) {
+    if(leaf->name == "Satellaview") device = new Expansion;
+    if(leaf->name == "21fx") device = new S21FX;
   }
+  if(!device) device = new Expansion;
 
   cpu.peripherals.reset();
   if(auto device = controllerPort1.device) cpu.peripherals.append(device);

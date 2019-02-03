@@ -1,4 +1,7 @@
 struct Justifier : Controller {
+  using Controller::create;
+  static auto create(bool) -> higan::Node;
+
   enum : uint {
     X, Y, Trigger, Start,
   };

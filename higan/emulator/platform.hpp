@@ -15,6 +15,7 @@ struct Platform {
 
   virtual auto path(uint id) -> string { return ""; }
   virtual auto open(uint id, string name, vfs::file::mode mode, bool required = false) -> vfs::shared::file { return {}; }
+  virtual auto open(Node node, string name, vfs::file::mode mode, bool required = false) -> vfs::shared::file { return {}; }
   virtual auto load(uint id, string name, string type, vector<string> options = {}) -> Load { return {}; }
   virtual auto videoFrame(const uint32* data, uint pitch, uint width, uint height) -> void {}
   virtual auto audioFrame(const double* samples, uint channels) -> void {}

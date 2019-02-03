@@ -48,40 +48,44 @@ auto Controller::iobit(bool data) -> void {
 
 //
 
-auto ControllerPort::initialize(Interface::Node parent) -> void {
-  connector = new Interface::EdgeObject;
-  connector->id = uniqueID();
-  connector->type = "Controller";
+auto ControllerPort::initialize(Node parent) -> void {
+  edge = Node::create();
+  edge->id = uniqueID();
+  edge->edge = true;
+  edge->type = "Controller";
+  edge->attach = [&](auto) {
+    connect(0);
+  };
   vector<string> controllers;
   if(this == &controllerPort1) {
-    connector->name = "Controller Port 1";
-    controllers = {"None", "Gamepad", "Mouse", "Super Multitap"};
+    edge->name = "Controller Port 1";
+    edge->list.append(Gamepad::create());
+    edge->list.append(Mouse::create());
+    edge->list.append(SuperMultitap::create());
   } else {
-    connector->name = "Controller Port 2";
-    controllers = {"None", "Gamepad", "Mouse", "Super Multitap", "Super Scope", "Justifier", "Justifiers"};
+    edge->name = "Controller Port 2";
+    edge->list.append(Gamepad::create());
+    edge->list.append(Mouse::create());
+    edge->list.append(SuperMultitap::create());
+    edge->list.append(SuperScope::create());
+    edge->list.append(Justifier::create(0));
+    edge->list.append(Justifier::create(1));
   }
-  for(auto& controller : controllers) {
-    Interface::Node node = new Interface::NodeObject;
-    node->type = "Controller";
-    node->name = controller;
-    connector->list.append(node);
-  }
-  parent->edges.append(connector);
+  parent->nodes.append(edge);
 }
 
 auto ControllerPort::connect(uint deviceID) -> void {
-  if(!system.loaded()) return;
   delete device;
-
-  switch(deviceID) { default:
-  case ID::Device::None: device = new Controller(port); break;
-  case ID::Device::Gamepad: device = new Gamepad(port); break;
-  case ID::Device::Mouse: device = new Mouse(port); break;
-  case ID::Device::SuperMultitap: device = new SuperMultitap(port); break;
-  case ID::Device::SuperScope: device = new SuperScope(port); break;
-  case ID::Device::Justifier: device = new Justifier(port, false); break;
-  case ID::Device::Justifiers: device = new Justifier(port, true); break;
+  device = nullptr;
+  if(auto leaf = edge->first()) {
+    if(leaf->name == "Gamepad") device = new Gamepad(port);
+    if(leaf->name == "Mouse") device = new Mouse(port);
+    if(leaf->name == "Super Multitap") device = new SuperMultitap(port);
+    if(leaf->name == "Super Scope") device = new SuperScope(port);
+    if(leaf->name == "Justifier") device = new Justifier(port, false);
+    if(leaf->name == "Justifiers") device = new Justifier(port, true);
   }
+  if(!device) device = new Controller(port);
 
   cpu.peripherals.reset();
   if(auto device = controllerPort1.device) cpu.peripherals.append(device);

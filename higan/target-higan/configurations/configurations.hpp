@@ -52,11 +52,11 @@ struct ConfigurationManager : Window {
   auto show() -> void;
   auto refresh() -> void;
   template<typename T> auto scan(T parent, string location) -> void;
-  auto eventListChange() -> void;
+  auto eventActivate() -> void;
+  auto eventChange() -> void;
   auto eventCreate() -> void;
   auto eventRename() -> void;
   auto eventRemove() -> void;
-  auto eventConnections() -> void;
   auto eventProperties() -> void;
 
   MenuBar menuBar{this};
@@ -65,7 +65,6 @@ struct ConfigurationManager : Window {
       MenuItem renameAction{&actionMenu};
       MenuItem removeAction{&actionMenu};
       MenuSeparator actionSeparator{&actionMenu};
-      MenuItem connectionsAction{&actionMenu};
       MenuItem propertiesAction{&actionMenu};
       MenuSeparator quitSeparator{&actionMenu};
       MenuItem quitAction{&actionMenu};
@@ -76,16 +75,14 @@ struct ConfigurationManager : Window {
       MenuItem about{&helpMenu};
 
   VerticalLayout layout{this};
-    HorizontalLayout horizontalLayout{&layout, Size{~0, ~0}};
-      TreeView configurationList{&horizontalLayout, Size{~0, ~0}};
-      VerticalLayout controlLayout{&horizontalLayout, Size{0, ~0}};
-        Button createButton{&controlLayout, Size{90, 0}};
-        Button renameButton{&controlLayout, Size{90, 0}};
-        Button removeButton{&controlLayout, Size{90, 0}};
-        Canvas controlSpacer{&controlLayout, Size{70, 1}};
-        Button connectionsButton{&controlLayout, Size{90, 0}};
-        Button propertiesButton{&controlLayout, Size{90, 0}};
-    Label locationLabel{&layout, Size{0, 0}};
+    TreeView configurationList{&layout, Size{~0, ~0}};
+    HorizontalLayout controlLayout{&layout, Size{~0, 0}};
+      Label locationLabel{&controlLayout, Size{0, 0}};
+      Widget controlSpacer{&controlLayout, Size{~0, 0}};
+      Button createButton{&controlLayout, Size{90, 0}};
+      Button renameButton{&controlLayout, Size{90, 0}};
+      Button removeButton{&controlLayout, Size{90, 0}};
+      Button propertiesButton;  //{&controlLayout, Size{90, 0}};
 
   ConfigurationCreateDialog createDialog;
   ConfigurationRenameDialog renameDialog;

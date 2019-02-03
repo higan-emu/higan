@@ -24,7 +24,7 @@ auto System::runToSave() -> void {
 
 auto System::initialize() -> void {
   uniqueID.initialize();
-  node = new Interface::NodeObject;
+  node = Node::create();
   node->id = uniqueID();
   node->type = "System";
   node->name = "Super Famicom";
@@ -44,7 +44,7 @@ auto System::load() -> bool {
   if(!smp.load()) return false;
   if(!ppu.load()) return false;
   if(!dsp.load()) return false;
-  if(!cartridge.load()) return false;
+//if(!cartridge.load()) return false;
 
   if(cartridge.region() == "NTSC") {
     information.region = Region::NTSC;

@@ -15,7 +15,7 @@ struct BIOS {
 };
 
 struct System {
-  Interface::Node node;
+  Node node;
 
   auto loaded() const -> bool { return _loaded; }
   auto frequency() const -> double { return 16 * 1024 * 1024; }

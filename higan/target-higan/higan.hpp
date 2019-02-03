@@ -22,5 +22,6 @@ namespace Theme {
 #include "program/program.hpp"
 #include "connections/connections.hpp"
 #include "configurations/configurations.hpp"
+#include "viewport/viewport.hpp"
 
 auto locate(string) -> string;

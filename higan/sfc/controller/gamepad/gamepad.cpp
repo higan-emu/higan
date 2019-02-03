@@ -1,3 +1,11 @@
+auto Gamepad::create() -> higan::Node {
+  auto node = Node::create();
+  node->id = uniqueID();
+  node->type = "Controller";
+  node->name = "Gamepad";
+  return node;
+}
+
 Gamepad::Gamepad(uint port) : Controller(port) {
   latched = 0;
   counter = 0;

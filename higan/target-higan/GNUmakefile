@@ -8,7 +8,7 @@ ruby.path := ../ruby
 include $(ruby.path)/GNUmakefile
 
 objects += ui-higan ui-resource ui-program
-objects += ui-connections ui-configurations
+objects += ui-connections ui-configurations ui-viewport
 objects := $(objects:%=obj/%.o)
 
 obj/ui-higan.o: $(ui)/higan.cpp
@@ -16,6 +16,7 @@ obj/ui-resource.o: $(ui)/resource/resource.cpp
 obj/ui-program.o: $(ui)/program/program.cpp
 obj/ui-connections.o: $(ui)/connections/connections.cpp
 obj/ui-configurations.o: $(ui)/configurations/configurations.cpp
+obj/ui-viewport.o: $(ui)/viewport/viewport.cpp
 
 all: $(hiro.objects) $(ruby.objects) $(objects)
 	$(info Linking out/$(name) ...)

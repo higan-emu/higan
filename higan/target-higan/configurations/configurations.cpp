@@ -19,9 +19,6 @@ ConfigurationManager::ConfigurationManager() {
   removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] {
     eventRemove();
   });
-  connectionsAction.setIcon(Icon::Place::Server).setText("Connections ...").onActivate([&] {
-    eventConnections();
-  });
   propertiesAction.setIcon(Icon::Action::Properties).setText("Properties ...").onActivate([&] {
     eventProperties();
   });
@@ -46,8 +43,11 @@ ConfigurationManager::ConfigurationManager() {
   layout.setPadding(5);
   configurationList.setBackgroundColor(Theme::BackgroundColor);
   configurationList.setForegroundColor(Theme::ForegroundColor);
+  configurationList.onActivate([&] {
+    eventActivate();
+  });
   configurationList.onChange([&] {
-    eventListChange();
+    eventChange();
   });
   controlLayout.setAlignment(0.5);
   locationLabel.setText({Path::userData(), "higan"}).setFont(Font().setBold()).setForegroundColor({0, 0, 240}).onMouseRelease([&](auto button) {
@@ -61,10 +61,6 @@ ConfigurationManager::ConfigurationManager() {
   });
   removeButton.setText("Delete").onActivate([&] {
     eventRemove();
-  });
-  controlSpacer.setColor({160, 160, 160});
-  connectionsButton.setText("Connections").onActivate([&] {
-    eventConnections();
   });
   propertiesButton.setText("Properties").onActivate([&] {
     eventProperties();
@@ -107,15 +103,24 @@ template<typename T> auto ConfigurationManager::scan(T parent, string location) 
   }
 }
 
-auto ConfigurationManager::eventListChange() -> void {
+auto ConfigurationManager::eventActivate() -> void {
+  if(auto item = configurationList.selected()) {
+    if(auto system = item.property("system")) {
+      if(auto index = emulators.find([&](auto emulator) { return emulator->information().name == system; })) {
+        setVisible(false);
+        program.create(emulators[*index], item.property("location"));
+      }
+    }
+  }
+}
+
+auto ConfigurationManager::eventChange() -> void {
   auto item = configurationList.selected();
   auto system = item.property("system");
   renameAction.setEnabled((bool)item);
   renameButton.setEnabled((bool)item);
   removeAction.setEnabled((bool)item);
   removeButton.setEnabled((bool)item);
-  connectionsAction.setEnabled((bool)item && (bool)system);
-  connectionsButton.setEnabled((bool)item && (bool)system);
   propertiesAction.setEnabled((bool)item && (bool)system);
   propertiesButton.setEnabled((bool)item && (bool)system);
 }
@@ -204,17 +209,6 @@ auto ConfigurationManager::eventRemove() -> void {
               "Location: ", location})
     .setParent(*this).error();
   refresh();
-}
-
-auto ConfigurationManager::eventConnections() -> void {
-  auto item = configurationList.selected();
-  if(!item || !item.property("system")) return;
-  auto system = item.property("system");
-  if(auto index = emulators.find([&](auto emulator) { return emulator->information().name == system; })) {
-    emulator = emulators[*index];
-    emulator->initialize();
-    connectionManager.show(*this);
-  }
 }
 
 auto ConfigurationManager::eventProperties() -> void {

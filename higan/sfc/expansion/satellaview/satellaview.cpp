@@ -1,3 +1,11 @@
+auto Satellaview::create() -> Node {
+  auto node = Node::create();
+  node->id = uniqueID();
+  node->type = "Expansion";
+  node->name = "Satellaview";
+  return node;
+}
+
 Satellaview::Satellaview() {
   bus.map({&Satellaview::read, this}, {&Satellaview::write, this}, "00-3f,80-bf:2188-219f");
   regs = {};

@@ -7,14 +7,21 @@ namespace higan::SuperFamicom {
 #include "serialization.cpp"
 Cartridge cartridge;
 
-auto Cartridge::initialize(Interface::Node parent) -> void {
-  connector = new Interface::EdgeObject;
-  connector->id = uniqueID();
-  connector->type = "Cartridge";
-  connector->name = "Cartridge Port";
-  parent->edges.append(connector);
-  connected = new Interface::NodeObject;
-  connected->id = uniqueID();
+auto Cartridge::initialize(Node parent) -> void {
+  edge = Node::create();
+  edge->id = uniqueID();
+  edge->edge = true;
+  edge->type = "Cartridge";
+  edge->name = "Cartridge Port";
+  edge->attach = [&](auto node) {
+    this->node = node;
+    load();
+  };
+  edge->detach = [&](auto node) {
+    unload();
+    this->node = {};
+  };
+  parent->nodes.append(edge);
 }
 
 auto Cartridge::hashes() const -> vector<string> {
@@ -56,15 +63,27 @@ auto Cartridge::load() -> bool {
   slotSufamiTurboA = {};
   slotSufamiTurboB = {};
 
-  if(auto loaded = platform->load(ID::SuperFamicom, "Super Famicom", "sfc", {"Auto", "NTSC", "PAL"})) {
-    information.pathID = loaded.pathID;
-    information.region = loaded.option;
-  } else return false;
-
-  if(auto fp = platform->open(ID::SuperFamicom, "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     game.load(fp->reads());
   } else return false;
   loadCartridge(game.document);
+  node->name = game.document["game/label"].text();
+
+  if(has.GameBoySlot) {
+    //todo
+  }
+
+  if(has.BSMemorySlot) {
+    bsmemory.initialize(node);
+  }
+
+  if(has.SufamiTurboSlotA) {
+    sufamiturboA.initialize(node);
+  }
+
+  if(has.SufamiTurboSlotB) {
+    sufamiturboB.initialize(node);
+  }
 
   //Game Boy
   if(cartridge.has.ICD) {
@@ -122,44 +141,12 @@ auto Cartridge::loadGameBoy() -> bool {
   return false;
 }
 
-auto Cartridge::loadBSMemory() -> bool {
-  if(auto fp = platform->open(bsmemory.pathID, "manifest.bml", File::Read, File::Required)) {
-    slotBSMemory.load(fp->reads());
-  } else return false;
-  loadCartridgeBSMemory(slotBSMemory.document);
-  return true;
-}
-
-auto Cartridge::loadSufamiTurboA() -> bool {
-  if(auto fp = platform->open(sufamiturboA.pathID, "manifest.bml", File::Read, File::Required)) {
-    slotSufamiTurboA.load(fp->reads());
-  } else return false;
-  loadCartridgeSufamiTurboA(slotSufamiTurboA.document);
-  return true;
-}
-
-auto Cartridge::loadSufamiTurboB() -> bool {
-  if(auto fp = platform->open(sufamiturboB.pathID, "manifest.bml", File::Read, File::Required)) {
-    slotSufamiTurboB.load(fp->reads());
-  } else return false;
-  loadCartridgeSufamiTurboB(slotSufamiTurboB.document);
-  return true;
-}
-
 auto Cartridge::save() -> void {
   saveCartridge(game.document);
-  if(has.GameBoySlot) {
-    saveCartridgeGameBoy(slotGameBoy.document);
-  }
-  if(has.BSMemorySlot) {
-    saveCartridgeBSMemory(slotBSMemory.document);
-  }
-  if(has.SufamiTurboSlotA) {
-    saveCartridgeSufamiTurboA(slotSufamiTurboA.document);
-  }
-  if(has.SufamiTurboSlotB) {
-    saveCartridgeSufamiTurboB(slotSufamiTurboB.document);
-  }
+  if(has.GameBoySlot);  //todo
+  if(has.BSMemorySlot) bsmemory.save();
+  if(has.SufamiTurboSlotA) sufamiturboA.save();
+  if(has.SufamiTurboSlotB) sufamiturboB.save();
 }
 
 auto Cartridge::unload() -> void {

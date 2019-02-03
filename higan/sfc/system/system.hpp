@@ -1,5 +1,5 @@
 struct System {
-  Interface::Node node;
+  Node node;
   enum class Region : uint { NTSC, PAL };
 
   inline auto loaded() const -> bool { return information.loaded; }

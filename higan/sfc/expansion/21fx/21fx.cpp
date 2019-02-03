@@ -1,3 +1,11 @@
+auto S21FX::create() -> higan::Node {
+  auto node = Node::create();
+  node->id = uniqueID();
+  node->type = "Expansion";
+  node->name = "21fx";
+  return node;
+}
+
 S21FX::S21FX() {
   create(S21FX::Enter, 10'000'000);
 

@@ -16,6 +16,12 @@
 //suspend, resume, abort, ready/busy modes are not supported
 
 struct BSMemory : Thread, Memory {
+  using Thread::create;
+  static auto create() -> Node;
+  auto initialize(Node) -> void;
+  Node edge;
+  Node node;
+
   uint pathID = 0;
   uint ROM = 1;
 
@@ -29,6 +35,7 @@ struct BSMemory : Thread, Memory {
   auto step(uint clocks) -> void;
 
   auto load() -> bool;
+  auto save() -> void;
   auto unload() -> void;
   auto power() -> void;
 
@@ -41,6 +48,10 @@ struct BSMemory : Thread, Memory {
   auto serialize(serializer&) -> void;
 
   WritableMemory memory;
+
+  struct {
+    string manifest;
+  } self;
 
 private:
   struct Pin {

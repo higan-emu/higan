@@ -97,10 +97,6 @@ auto SuperFamicomInterface::root() -> Node {
   return system.node;
 }
 
-auto SuperFamicomInterface::slots() -> vector<Slot> { return {
-  {ID::Slot::Cartridge, "sfc", "Cartridge"}};
-}
-
 auto SuperFamicomInterface::ports() -> vector<Port> { return {
   {ID::Port::Controller1, "Controller Port 1"},
   {ID::Port::Controller2, "Controller Port 2"},

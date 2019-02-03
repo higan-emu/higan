@@ -38,7 +38,7 @@ auto System::power() -> void {
 
 auto System::initialize() -> void {
   uniqueID.initialize();
-  node = new Interface::NodeObject;
+  node = Node::create();
   node->id = uniqueID();
   node->type = "System";
   node->name = "Game Boy Advance";

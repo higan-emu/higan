@@ -52,10 +52,6 @@ auto GameBoyAdvanceInterface::color(uint32 color) -> uint64 {
   return r << 32 | g << 16 | b << 0;
 }
 
-auto GameBoyAdvanceInterface::slots() -> vector<Slot> {
-  return {cartridge.slot};
-}
-
 auto GameBoyAdvanceInterface::hashes() -> vector<string> {
   return {cartridge.hash()};
 }

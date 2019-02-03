@@ -1,4 +1,7 @@
 struct SuperScope : Controller {
+  using Controller::create;
+  static auto create() -> higan::Node;
+
   shared_pointer<Sprite> sprite;
 
   enum : uint {

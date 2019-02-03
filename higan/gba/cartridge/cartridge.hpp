@@ -1,6 +1,5 @@
 struct Cartridge {
-  Interface::Slot slot{1, "gba", "Cartridge", "Game Boy Advance"};
-
+  struct Slot { uint id; } slot;  //temporary
   #include "memory.hpp"
 
   auto loaded() const -> bool { return information.loaded; }

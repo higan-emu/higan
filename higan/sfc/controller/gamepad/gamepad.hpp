@@ -1,4 +1,6 @@
 struct Gamepad : Controller {
+  static auto create() -> higan::Node;
+
   enum : uint {
     Up, Down, Left, Right, B, A, Y, X, L, R, Select, Start,
   };

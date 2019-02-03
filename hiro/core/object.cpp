@@ -250,7 +250,7 @@ auto mObject::parentWindow(bool recursive) const -> mWindow* {
 #endif
 
 auto mObject::property(const string& name) const -> string {
-  if(auto property = state.properties.find({name})) {
+  if(auto property = state.properties.find(name)) {
     return property->value();
   }
   return {};

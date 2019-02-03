@@ -1,6 +1,31 @@
 BSMemory bsmemory;
 #include "serialization.cpp"
 
+auto BSMemory::create() -> Node {
+  auto node = Node::create();
+  node->id = uniqueID();
+  node->type = "Cartridge";
+  node->name = "BS Memory Slot";
+  return node;
+}
+
+auto BSMemory::initialize(Node parent) -> void {
+  edge = Node::create();
+  edge->id = uniqueID();
+  edge->edge = true;
+  edge->type = "Cartridge";
+  edge->name = "BS Memory Slot";
+  edge->attach = [&](auto node) {
+    this->node = node;
+    load();
+  };
+  edge->detach = [&](auto node) {
+    unload();
+    this->node = {};
+  };
+  parent->nodes.append(edge);
+}
+
 BSMemory::BSMemory() {
   page.self = this;
   uint blockID = 0;
@@ -31,7 +56,22 @@ auto BSMemory::step(uint clocks) -> void {
 }
 
 auto BSMemory::load() -> bool {
-  if(ROM) return true;
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    self.manifest = fp->reads();
+  } else return false;
+
+  auto document = BML::unserialize(self.manifest);
+
+  if(auto memory = document["game/board/memory(content=Program)"]) {
+    ROM = memory["type"].text() == "ROM";
+    this->memory.allocate(memory["size"].natural());
+    if(auto fp = platform->open(node, {"program.", memory["type"].text().downcase()}, File::Read, File::Required)) {
+      fp->read(this->memory.data(), this->memory.size());
+    } else return false;
+  } else return false;
+
+  auto memory = document["game/board/memory"];
+  if(!memory) return false;
 
   if(size() != 0x100000 && size() != 0x200000 && size() != 0x400000) {
     memory.reset();
@@ -78,6 +118,16 @@ auto BSMemory::load() -> bool {
   }
 
   return true;
+}
+
+auto BSMemory::save() -> void {
+  auto document = BML::unserialize(self.manifest);
+
+  if(auto memory = document["game/board/memory(type=Flash,content=Program)"]) {
+    if(auto fp = platform->open(node, "program.flash", File::Write)) {
+      fp->write(this->memory.data(), this->memory.size());
+    }
+  }
 }
 
 auto BSMemory::unload() -> void {

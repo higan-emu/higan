@@ -1,3 +1,11 @@
+auto Justifier::create(bool chained) -> higan::Node {
+  auto node = Node::create();
+  node->id = uniqueID();
+  node->type = "Controller";
+  node->name = !chained ? "Justifier" : "Justifiers";
+  return node;
+}
+
 Justifier::Justifier(uint port, bool chained):
 Controller(port),
 chained(chained),

@@ -1,3 +1,21 @@
+auto SuperMultitap::create() -> higan::Node {
+  auto node = Node::create();
+  node->id = uniqueID();
+  node->type = "Controller";
+  node->name = "Super Multitap";
+  for(uint portIndex : range(4)) {
+    auto port = Node::create();
+    port->id = uniqueID();
+    port->edge = true;
+    port->type = "Multitap Port";
+    port->name = {"Multitap Port ", 1 + portIndex};
+    port->list.append(SuperFamicom::Gamepad::create());
+    port->list.append(SuperFamicom::Mouse::create());
+    node->append(port);
+  }
+  return node;
+}
+
 SuperMultitap::SuperMultitap(uint port) : Controller(port) {
   latched = 0;
   counter1 = 0;

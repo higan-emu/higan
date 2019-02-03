@@ -1,4 +1,6 @@
 struct Mouse : Controller {
+  static auto create() -> higan::Node;
+
   enum : uint {
     X, Y, Left, Right,
   };

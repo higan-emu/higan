@@ -26,10 +26,8 @@ struct Controller : Thread {
 };
 
 struct ControllerPort {
-  Interface::Edge connector;
-  Interface::Node connected;
-
-  auto initialize(Interface::Node) -> void;
+  Node edge;
+  auto initialize(Node) -> void;
 
   auto connect(uint deviceID) -> void;
 

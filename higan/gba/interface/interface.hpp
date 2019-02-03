@@ -27,7 +27,6 @@ struct GameBoyAdvanceInterface : Interface {
 
   auto initialize() -> void override;
   auto root() -> Node override;
-  auto slots() -> vector<Slot> override;
   auto hashes() -> vector<string> override;
   auto manifests() -> vector<string> override;
   auto titles() -> vector<string> override;

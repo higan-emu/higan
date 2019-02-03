@@ -2,12 +2,6 @@
 
 namespace higan {
 
-struct UniqueID {
-  auto initialize() -> void { counter = 0; }
-  auto operator()() -> uint { return counter++; }
-  uint counter = 1;  //0 = no ID (virtual)
-};
-
 struct Interface {
   struct Information {
     string manufacturer;
@@ -30,35 +24,6 @@ struct Interface {
     uint internalWidth = 0;
     uint internalHeight = 0;
     double aspectCorrection = 0;
-  };
-
-  struct NodeObject;
-  struct EdgeObject;
-
-  using Node = shared_pointer<NodeObject>;
-  using Edge = shared_pointer<EdgeObject>;
-
-  struct NodeObject {
-    uint id;
-    string type;
-    string name;
-    vector<Edge> edges;
-  };
-
-  struct EdgeObject {
-    uint id;
-    string name;
-    string type;
-    vector<Node> list;
-    Node node;
-  };
-
-  struct Slot {
-    uint id = 0;
-    string type;
-    string form;
-    string name;
-    vector<Slot> slots;
   };
 
   struct Port {
@@ -104,7 +69,6 @@ struct Interface {
   //system interface
   virtual auto initialize() -> void {}
   virtual auto root() -> Node { return {}; }
-  virtual auto slots() -> vector<Slot> { return {}; }
   virtual auto ports() -> vector<Port> { return {}; }
   virtual auto devices(uint port) -> vector<Device> { return {}; }
   virtual auto inputs(uint device) -> vector<Input> { return {}; }
@@ -158,24 +122,12 @@ struct Interface {
   }
 
   //tree functions
-  auto node(uint id, Node node = {}) -> Node {
+  auto node(uint nodeID, Node node = {}) -> Node {
     if(!node) node = root();
     if(!node) return {};
-    if(id == node->id) return node;
-    for(auto& edge : node->edges) {
-      if(!edge->node) continue;
-      if(auto found = Interface::node(id, edge->node)) return found;
-    }
-    return {};
-  }
-
-  auto edge(uint id, Node node = {}) -> Edge {
-    if(!node) node = root();
-    if(!node) return {};
-    for(auto& edge : node->edges) {
-      if(id == edge->id) return edge;
-      if(!edge->node) continue;
-      if(auto found = Interface::edge(id, edge->node)) return found;
+    if(node->id == nodeID) return node;
+    for(auto& leaf : node->nodes) {
+      if(auto found = Interface::node(nodeID, leaf)) return found;
     }
     return {};
   }

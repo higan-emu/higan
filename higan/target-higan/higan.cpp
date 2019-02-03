@@ -77,6 +77,7 @@ auto nall::main(Arguments arguments) -> void {
   #endif
   Instances::connectionManager.construct();
   Instances::configurationManager.construct();
+  Instances::viewport.construct();
   configurationManager.show();
   Application::run();
 }

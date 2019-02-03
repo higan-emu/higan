@@ -1,3 +1,11 @@
+auto Mouse::create() -> higan::Node {
+  auto node = Node::create();
+  node->id = uniqueID();
+  node->type = "Controller";
+  node->name = "Mouse";
+  return node;
+}
+
 Mouse::Mouse(uint port) : Controller(port) {
   latched = 0;
   counter = 0;
