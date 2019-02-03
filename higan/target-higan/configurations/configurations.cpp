@@ -19,11 +19,11 @@ ConfigurationManager::ConfigurationManager() {
   removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] {
     eventRemove();
   });
-  propertiesAction.setIcon(Icon::Action::Properties).setText("Properties ...").onActivate([&] {
-    eventProperties();
-  });
   connectionsAction.setIcon(Icon::Place::Server).setText("Connections ...").onActivate([&] {
     eventConnections();
+  });
+  propertiesAction.setIcon(Icon::Action::Properties).setText("Properties ...").onActivate([&] {
+    eventProperties();
   });
   quitAction.setIcon(Icon::Action::Quit).setText("Quit").onActivate([&] {
     Application::kill();
@@ -63,11 +63,11 @@ ConfigurationManager::ConfigurationManager() {
     eventRemove();
   });
   controlSpacer.setColor({160, 160, 160});
-  propertiesButton.setText("Properties").onActivate([&] {
-    eventProperties();
-  });
   connectionsButton.setText("Connections").onActivate([&] {
     eventConnections();
+  });
+  propertiesButton.setText("Properties").onActivate([&] {
+    eventProperties();
   });
 
   onClose([&] { Application::kill(); });
@@ -114,10 +114,10 @@ auto ConfigurationManager::eventListChange() -> void {
   renameButton.setEnabled((bool)item);
   removeAction.setEnabled((bool)item);
   removeButton.setEnabled((bool)item);
-  propertiesAction.setEnabled((bool)item && (bool)system);
-  propertiesButton.setEnabled((bool)item && (bool)system);
   connectionsAction.setEnabled((bool)item && (bool)system);
   connectionsButton.setEnabled((bool)item && (bool)system);
+  propertiesAction.setEnabled((bool)item && (bool)system);
+  propertiesButton.setEnabled((bool)item && (bool)system);
 }
 
 auto ConfigurationManager::eventCreate() -> void {
@@ -206,6 +206,17 @@ auto ConfigurationManager::eventRemove() -> void {
   refresh();
 }
 
+auto ConfigurationManager::eventConnections() -> void {
+  auto item = configurationList.selected();
+  if(!item || !item.property("system")) return;
+  auto system = item.property("system");
+  if(auto index = emulators.find([&](auto emulator) { return emulator->information().name == system; })) {
+    emulator = emulators[*index];
+    emulator->initialize();
+    connectionManager.show(*this);
+  }
+}
+
 auto ConfigurationManager::eventProperties() -> void {
   auto item = configurationList.selected();
   if(!item || !item.property("system")) return;
@@ -217,15 +228,4 @@ auto ConfigurationManager::eventProperties() -> void {
     .setText({"Failed to write properties.bml file. The location may be read-only.\n"
               "Location: ", location})
     .setParent(*this).error();
-}
-
-auto ConfigurationManager::eventConnections() -> void {
-  auto item = configurationList.selected();
-  if(!item || !item.property("system")) return;
-  auto system = item.property("system");
-  if(auto index = emulators.find([&](auto emulator) { return emulator->information().name == system; })) {
-    emulator = emulators[*index];
-    emulator->initialize();
-    connectionManager.show(*this);
-  }
 }

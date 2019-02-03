@@ -2,6 +2,7 @@
 
 namespace higan::GameBoyAdvance {
 
+Interface* interface = nullptr;
 Options option;
 Properties property;
 
@@ -68,7 +69,8 @@ auto GameBoyAdvanceInterface::titles() -> vector<string> {
 }
 
 auto GameBoyAdvanceInterface::initialize() -> void {
-  return system.initialize(this);
+  interface = this;
+  return system.initialize();
 }
 
 auto GameBoyAdvanceInterface::load() -> bool {
@@ -89,8 +91,8 @@ auto GameBoyAdvanceInterface::unload() -> void {
   system.unload();
 }
 
-auto GameBoyAdvanceInterface::enumerate() -> Object {
-  return system.object;
+auto GameBoyAdvanceInterface::root() -> Node {
+  return system.node;
 }
 
 auto GameBoyAdvanceInterface::ports() -> vector<Port> { return {

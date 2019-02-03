@@ -1,5 +1,5 @@
 struct System {
-  Interface::Object object;
+  Interface::Node node;
   enum class Region : uint { NTSC, PAL };
 
   inline auto loaded() const -> bool { return information.loaded; }
@@ -13,7 +13,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto initialize(Interface*) -> void;
+  auto initialize() -> void;
   auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;
@@ -24,8 +24,6 @@ struct System {
   auto unserialize(serializer&) -> bool;
 
 private:
-  Interface* interface = nullptr;
-
   struct Information {
     bool loaded = false;
     Region region = Region::NTSC;

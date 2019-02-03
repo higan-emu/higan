@@ -7,12 +7,14 @@ namespace higan::SuperFamicom {
 #include "serialization.cpp"
 Cartridge cartridge;
 
-auto Cartridge::initialize(Interface::Object& parent) -> void {
-  connector = {};
-  connector.type = "Cartridge";
-  connector.name = "Cartridge Port";
-  parent.connectors.append(connector);
-  connected = {};
+auto Cartridge::initialize(Interface::Node parent) -> void {
+  connector = new Interface::EdgeObject;
+  connector->id = uniqueID();
+  connector->type = "Cartridge";
+  connector->name = "Cartridge Port";
+  parent->edges.append(connector);
+  connected = new Interface::NodeObject;
+  connected->id = uniqueID();
 }
 
 auto Cartridge::hashes() const -> vector<string> {

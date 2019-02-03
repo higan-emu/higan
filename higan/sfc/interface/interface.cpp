@@ -2,6 +2,7 @@
 
 namespace higan::SuperFamicom {
 
+Interface* interface = nullptr;
 Options option;
 Properties property;
 
@@ -88,11 +89,12 @@ auto SuperFamicomInterface::unload() -> void {
 }
 
 auto SuperFamicomInterface::initialize() -> void {
-  return system.initialize(this);
+  interface = this;
+  return system.initialize();
 }
 
-auto SuperFamicomInterface::enumerate() -> Object {
-  return system.object;
+auto SuperFamicomInterface::root() -> Node {
+  return system.node;
 }
 
 auto SuperFamicomInterface::slots() -> vector<Slot> { return {

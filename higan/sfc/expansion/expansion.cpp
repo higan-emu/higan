@@ -25,12 +25,14 @@ auto Expansion::main() -> void {
 
 //
 
-auto ExpansionPort::initialize(Interface::Object& parent) -> void {
-  connector = {};
-  connector.type = "Expansion";
-  connector.name = "Expansion Port";
-  parent.connectors.append(connector);
-  connected = {};
+auto ExpansionPort::initialize(Interface::Node parent) -> void {
+  connector = new Interface::EdgeObject;
+  connector->id = uniqueID();
+  connector->type = "Expansion";
+  connector->name = "Expansion Port";
+  parent->edges.append(connector);
+  connected = new Interface::NodeObject;
+  connected->id = uniqueID();
 }
 
 auto ExpansionPort::connect(uint deviceID) -> void {

@@ -10,6 +10,7 @@
 #include <component/processor/arm7tdmi/arm7tdmi.hpp>
 
 namespace higan::GameBoyAdvance {
+  extern UniqueID uniqueID;
   extern Scheduler scheduler;
 
   enum : uint {           //mode flags for bus read, write:

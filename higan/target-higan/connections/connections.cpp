@@ -1,4 +1,5 @@
 #include "../higan.hpp"
+#include "list.cpp"
 
 namespace Instances { Instance<ConnectionManager> connectionManager; }
 ConnectionManager& connectionManager = Instances::connectionManager();
@@ -7,7 +8,10 @@ ConnectionManager::ConnectionManager() {
   layout.setPadding(5);
   connectionList.setBackgroundColor(Theme::BackgroundColor);
   connectionList.setForegroundColor(Theme::ForegroundColor);
-  configureButton.setText("Configure ...");
+  connectionList.onActivate([&] {
+    eventActivate();
+  });
+  configureButton.setEnabled(false).setText("Configure ...");
 
   setDismissable();
   setSize({480, 280});
@@ -19,33 +23,55 @@ auto ConnectionManager::show(Window parent) -> void {
   setCentered(parent);
   setVisible();
   setFocused();
-  setModal(parent == configurationManager);
+  setModal();
 }
 
 auto ConnectionManager::refresh() -> void {
   connectionList.reset();
-  attach(connectionList, emulator->enumerate());
+  attach(connectionList, emulator->root());
   connectionList.expand();
 }
 
-template<typename T> auto ConnectionManager::attach(T parent, const higan::Interface::Object& object) -> void {
+template<typename T> auto ConnectionManager::attach(T parent, higan::Interface::Node node) -> void {
   TreeViewItem item{&parent};
-  if(object.type == "System") {
+  item.setProperty("nodeID", node->id);
+  if(node->type == "System") {
     item.setIcon(Icon::Place::Server);
-  } else if(object.type == "Controller") {
+  } else if(node->type == "Controller") {
     item.setIcon(Icon::Device::Joypad);
   } else {
     item.setIcon(Icon::Prompt::Question);
   }
-  item.setText(object.name);
-  for(auto& connector : object.connectors) {
-    TreeViewItem node{&item};
-    node.setText(connector.name);
-    if(auto object = connector.connected) {
-      node.setIcon(Icon::Action::Add);
-      attach(node, *object);
+  item.setText(node->name);
+  for(auto& edge : node->edges) {
+    TreeViewItem link{&item};
+    link.setProperty("edgeID", edge->id);
+    link.setText(edge->name);
+    if(edge->node) {
+      link.setIcon(Icon::Action::Add);
+      attach(link, edge->node);
     } else {
-      node.setIcon(Icon::Action::Remove);
+      link.setIcon(Icon::Action::Remove);
+    }
+  }
+}
+
+auto ConnectionManager::eventActivate() -> void {
+  auto item = connectionList.selected();
+  if(!item) return;
+
+  if(auto nodeID = item.property("nodeID")) {
+    if(auto node = emulator->node(nodeID.natural())) {
+    }
+  }
+
+  if(auto edgeID = item.property("edgeID")) {
+    if(auto edge = emulator->edge(edgeID.natural())) {
+      if(edge->list) {
+        if(auto node = listDialog.select(edge)) {
+          print(node->name, "\n");
+        }
+      }
     }
   }
 }

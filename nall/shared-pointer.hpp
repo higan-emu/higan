@@ -259,9 +259,8 @@ struct shared_pointer_weak {
 
 template<typename T>
 struct shared_pointer_new : shared_pointer<T> {
-  template<typename... P>
-  shared_pointer_new(P&&... p) : shared_pointer<T>(new T(forward<P>(p)...)) {
-  }
+  shared_pointer_new(const shared_pointer<T>& source) : shared_pointer<T>(source) {}
+  template<typename... P> shared_pointer_new(P&&... p) : shared_pointer<T>(new T(forward<P>(p)...)) {}
 };
 
 }

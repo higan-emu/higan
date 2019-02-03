@@ -3,6 +3,7 @@
 namespace higan::SuperFamicom {
 
 System system;
+UniqueID uniqueID;
 Scheduler scheduler;
 Random random;
 Cheat cheat;
@@ -21,16 +22,16 @@ auto System::runToSave() -> void {
   for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
 }
 
-auto System::initialize(Interface* interface) -> void {
-  this->interface = interface;
-  object = {};
-  object.id = 0;
-  object.type = "System";
-  object.name = "Super Famicom";
-  cartridge.initialize(object);
-  controllerPort1.initialize(object);
-  controllerPort2.initialize(object);
-  expansionPort.initialize(object);
+auto System::initialize() -> void {
+  uniqueID.initialize();
+  node = new Interface::NodeObject;
+  node->id = uniqueID();
+  node->type = "System";
+  node->name = "Super Famicom";
+  cartridge.initialize(node);
+  controllerPort1.initialize(node);
+  controllerPort2.initialize(node);
+  expansionPort.initialize(node);
 }
 
 auto System::load() -> bool {

@@ -2,6 +2,8 @@
 
 namespace higan::SuperFamicom {
 
+extern Interface* interface;
+
 struct ID {
   enum : uint {
     System,
@@ -52,7 +54,7 @@ struct SuperFamicomInterface : Interface {
   auto unload() -> void override;
 
   auto initialize() -> void override;
-  auto enumerate() -> Object override;
+  auto root() -> Node override;
   auto slots() -> vector<Slot> override;
   auto ports() -> vector<Port> override;
   auto devices(uint port) -> vector<Device> override;

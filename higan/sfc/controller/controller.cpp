@@ -48,15 +48,25 @@ auto Controller::iobit(bool data) -> void {
 
 //
 
-auto ControllerPort::initialize(Interface::Object& object) -> void {
-  connector = {};
-  connector.type = "Controller";
-  connector.name = this == &controllerPort1 ? "Controller Port 1" : "Controller Port 2";
-  connected = {};
-  connected.type = "Controller";
-  connected.name = "Gamepad";
-  connector.connected = connected;
-  object.connectors.append(connector);
+auto ControllerPort::initialize(Interface::Node parent) -> void {
+  connector = new Interface::EdgeObject;
+  connector->id = uniqueID();
+  connector->type = "Controller";
+  vector<string> controllers;
+  if(this == &controllerPort1) {
+    connector->name = "Controller Port 1";
+    controllers = {"None", "Gamepad", "Mouse", "Super Multitap"};
+  } else {
+    connector->name = "Controller Port 2";
+    controllers = {"None", "Gamepad", "Mouse", "Super Multitap", "Super Scope", "Justifier", "Justifiers"};
+  }
+  for(auto& controller : controllers) {
+    Interface::Node node = new Interface::NodeObject;
+    node->type = "Controller";
+    node->name = controller;
+    connector->list.append(node);
+  }
+  parent->edges.append(connector);
 }
 
 auto ControllerPort::connect(uint deviceID) -> void {

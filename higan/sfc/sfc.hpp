@@ -21,6 +21,7 @@
 #endif
 
 namespace higan::SuperFamicom {
+  extern UniqueID uniqueID;
   extern Scheduler scheduler;
   extern Random random;
   extern Cheat cheat;

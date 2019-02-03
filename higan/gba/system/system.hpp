@@ -15,7 +15,7 @@ struct BIOS {
 };
 
 struct System {
-  Interface::Object object;
+  Interface::Node node;
 
   auto loaded() const -> bool { return _loaded; }
   auto frequency() const -> double { return 16 * 1024 * 1024; }
@@ -23,7 +23,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto initialize(Interface*) -> void;
+  auto initialize() -> void;
   auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;
@@ -38,8 +38,6 @@ struct System {
   auto serializeInit() -> void;
 
 private:
-  Interface* interface = nullptr;
-
   struct Information {
   } information;
 

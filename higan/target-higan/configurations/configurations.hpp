@@ -56,8 +56,8 @@ struct ConfigurationManager : Window {
   auto eventCreate() -> void;
   auto eventRename() -> void;
   auto eventRemove() -> void;
-  auto eventProperties() -> void;
   auto eventConnections() -> void;
+  auto eventProperties() -> void;
 
   MenuBar menuBar{this};
     Menu actionMenu{&menuBar};
@@ -65,8 +65,8 @@ struct ConfigurationManager : Window {
       MenuItem renameAction{&actionMenu};
       MenuItem removeAction{&actionMenu};
       MenuSeparator actionSeparator{&actionMenu};
-      MenuItem propertiesAction{&actionMenu};
       MenuItem connectionsAction{&actionMenu};
+      MenuItem propertiesAction{&actionMenu};
       MenuSeparator quitSeparator{&actionMenu};
       MenuItem quitAction{&actionMenu};
     Menu settingsMenu{&menuBar};
@@ -83,8 +83,8 @@ struct ConfigurationManager : Window {
         Button renameButton{&controlLayout, Size{90, 0}};
         Button removeButton{&controlLayout, Size{90, 0}};
         Canvas controlSpacer{&controlLayout, Size{70, 1}};
-        Button propertiesButton{&controlLayout, Size{90, 0}};
         Button connectionsButton{&controlLayout, Size{90, 0}};
+        Button propertiesButton{&controlLayout, Size{90, 0}};
     Label locationLabel{&layout, Size{0, 0}};
 
   ConfigurationCreateDialog createDialog;

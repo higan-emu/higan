@@ -2,6 +2,12 @@
 
 namespace higan {
 
+struct UniqueID {
+  auto initialize() -> void { counter = 0; }
+  auto operator()() -> uint { return counter++; }
+  uint counter = 1;  //0 = no ID (virtual)
+};
+
 struct Interface {
   struct Information {
     string manufacturer;
@@ -26,19 +32,25 @@ struct Interface {
     double aspectCorrection = 0;
   };
 
-  struct Connector;
+  struct NodeObject;
+  struct EdgeObject;
 
-  struct Object {
+  using Node = shared_pointer<NodeObject>;
+  using Edge = shared_pointer<EdgeObject>;
+
+  struct NodeObject {
     uint id;
     string type;
     string name;
-    vector<Connector> connectors;
+    vector<Edge> edges;
   };
 
-  struct Connector {
+  struct EdgeObject {
+    uint id;
     string name;
     string type;
-    maybe<Object> connected;
+    vector<Node> list;
+    Node node;
   };
 
   struct Slot {
@@ -91,7 +103,7 @@ struct Interface {
 
   //system interface
   virtual auto initialize() -> void {}
-  virtual auto enumerate() -> Object { return {}; }
+  virtual auto root() -> Node { return {}; }
   virtual auto slots() -> vector<Slot> { return {}; }
   virtual auto ports() -> vector<Port> { return {}; }
   virtual auto devices(uint port) -> vector<Device> { return {}; }
@@ -143,6 +155,29 @@ struct Interface {
   auto setProperty(string name, string value) -> bool {
     if(auto property = properties()[name]) return property->setValue(value);
     return false;
+  }
+
+  //tree functions
+  auto node(uint id, Node node = {}) -> Node {
+    if(!node) node = root();
+    if(!node) return {};
+    if(id == node->id) return node;
+    for(auto& edge : node->edges) {
+      if(!edge->node) continue;
+      if(auto found = Interface::node(id, edge->node)) return found;
+    }
+    return {};
+  }
+
+  auto edge(uint id, Node node = {}) -> Edge {
+    if(!node) node = root();
+    if(!node) return {};
+    for(auto& edge : node->edges) {
+      if(id == edge->id) return edge;
+      if(!edge->node) continue;
+      if(auto found = Interface::edge(id, edge->node)) return found;
+    }
+    return {};
   }
 };
 

@@ -3,6 +3,7 @@
 namespace higan::GameBoyAdvance {
 
 System system;
+UniqueID uniqueID;
 Scheduler scheduler;
 #include "bios.cpp"
 #include "serialization.cpp"
@@ -35,12 +36,12 @@ auto System::power() -> void {
   scheduler.primary(cpu);
 }
 
-auto System::initialize(Interface* interface) -> void {
-  this->interface = interface;
-  object = {};
-  object.id = 0;
-  object.type = "System";
-  object.name = "Game Boy Advance";
+auto System::initialize() -> void {
+  uniqueID.initialize();
+  node = new Interface::NodeObject;
+  node->id = uniqueID();
+  node->type = "System";
+  node->name = "Game Boy Advance";
 }
 
 auto System::load() -> bool {
