@@ -1,3 +1,11 @@
+auto Emulator::attach(higan::Node node) -> void {
+  print("attach ", node->name, "\n");
+}
+
+auto Emulator::detach(higan::Node node) -> void {
+  print("detach ", node->name, "\n");
+}
+
 auto Emulator::open(higan::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
   auto location = node->property("location");
 
@@ -51,10 +59,10 @@ auto Emulator::inputPoll(higan::Node::Input input) -> void {
 
   if(auto button = input->cast<higan::Node::Input::Button>()) {
     button->value = 0;
-    if(auto device = button->property("device")) {
+    if(auto device = button->property<shared_pointer<HID::Device>>("device")) {
       auto groupID = button->property("group").natural();
       auto inputID = button->property("input").natural();
-      button->value = device.to<shared_pointer<HID::Device>>()->group(groupID).input(inputID).value();
+      button->value = device->group(groupID).input(inputID).value();
     }
   }
 }

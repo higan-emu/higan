@@ -2,7 +2,6 @@ namespace higan::Object {
 
 struct Video : Node {
   DeclareClass(Video, "Video")
-
   using Node::Node;
 
   auto serialize(string& output, string depth) -> void override {

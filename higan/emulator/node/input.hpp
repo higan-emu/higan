@@ -2,13 +2,11 @@ namespace higan::Object::Input {
 
 struct Input : Node {
   DeclareClass(Input, "Input")
-
   using Node::Node;
 };
 
 struct Button : Input {
   DeclareClass(Button, "Input.Button")
-
   using Input::Input;
 
   boolean value;
@@ -16,7 +14,6 @@ struct Button : Input {
 
 struct Axis : Input {
   DeclareClass(Axis, "Input.Axis")
-
   using Input::Input;
 
   integer value;
@@ -26,7 +23,6 @@ struct Axis : Input {
 
 struct Trigger : Input {
   DeclareClass(Trigger, "Input.Trigger")
-
   using Input::Input;
 
   integer value;

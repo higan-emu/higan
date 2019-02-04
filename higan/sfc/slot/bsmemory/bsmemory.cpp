@@ -1,21 +1,17 @@
 BSMemory bsmemory;
 #include "serialization.cpp"
 
-auto BSMemory::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("BS Memory Cartridge");
-  return node;
-}
-
 auto BSMemory::initialize(Node parent) -> void {
   port = Node::Port::create("BS Memory Slot", "BS Memory Cartridges");
-/*
+  port->allocate = [&](auto name) {
+    return Node::Peripheral::create("BS Memory Cartridge");
+  };
   port->attach = [&](auto node) {
     load();
   };
   port->detach = [&](auto node) {
     unload();
   };
-*/
   parent->append(port);
 }
 
@@ -54,7 +50,6 @@ auto BSMemory::load() -> bool {
   } else return false;
 
   auto document = BML::unserialize(self.manifest);
-  port->connected()->name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(content=Program)"]) {
     ROM = memory["type"].text() == "ROM";

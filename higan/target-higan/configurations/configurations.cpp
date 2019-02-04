@@ -25,7 +25,7 @@ ConfigurationManager::ConfigurationManager() {
     eventProperties();
   });
   quitAction.setIcon(Icon::Action::Quit).setText("Quit").onActivate([&] {
-    Application::kill();
+    doClose();
   });
 
   settingsMenu.setText("Settings");
@@ -81,6 +81,19 @@ ConfigurationManager::ConfigurationManager() {
     .setPlacement(Placement::Center, *this).show();
   });
 
+  launchPopup.setIcon(Icon::Emblem::Program).setText("Launch ...").onActivate([&] {
+    eventActivate();
+  });
+  createPopup.setIcon(Icon::Action::Add).setText("Create ...").onActivate([&] {
+    eventCreate();
+  });
+  renamePopup.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] {
+    eventRename();
+  });
+  removePopup.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] {
+    eventRemove();
+  });
+
   layout.setPadding(5);
   configurationList.setBackgroundColor(Theme::BackgroundColor);
   configurationList.setForegroundColor(Theme::ForegroundColor);
@@ -89,6 +102,9 @@ ConfigurationManager::ConfigurationManager() {
   });
   configurationList.onChange([&] {
     eventChange();
+  });
+  configurationList.onContext([&] {
+    eventContext();
   });
   controlLayout.setAlignment(0.5);
   createButton.setText("Create").onActivate([&] {
@@ -107,7 +123,7 @@ ConfigurationManager::ConfigurationManager() {
     eventActivate();
   });
 
-  onClose([&] { Application::kill(); });
+  onClose([&] { Application::exit(); });
 
   setTitle({"higan v", higan::Version});
   setSize({640, 360});
@@ -167,6 +183,17 @@ auto ConfigurationManager::eventChange() -> void {
   propertiesButton.setEnabled((bool)system);
   launchAction.setEnabled((bool)system);
   launchButton.setEnabled((bool)system);
+}
+
+auto ConfigurationManager::eventContext() -> void {
+  auto item = configurationList.selected();
+  auto system = item.property("system");
+  launchPopup.setVisible((bool)system);
+  launchPopupSeparator.setVisible((bool)system);
+  createPopup.setVisible(!(bool)system);
+  renamePopup.setVisible((bool)item);
+  removePopup.setVisible((bool)item);
+  contextMenu.setVisible();
 }
 
 auto ConfigurationManager::eventCreate() -> void {

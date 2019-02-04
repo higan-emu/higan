@@ -1,4 +1,5 @@
 #include <nall/platform.hpp>
+#include <nall/any.hpp>
 #include <nall/chrono.hpp>
 #include <nall/directory.hpp>
 #include <nall/function.hpp>
@@ -17,6 +18,7 @@
 #include <nall/utility.hpp>
 #include <nall/vector.hpp>
 
+using nall::any;
 using nall::function;
 using nall::image;
 using nall::Locale;
@@ -409,24 +411,7 @@ struct MessageWindow {
 };
 #endif
 
-struct Property {
-  using type = Property;
-
-  Property(const string& name, const string& value = "");
-
-  auto operator==(const Property& source) const -> bool;
-  auto operator< (const Property& source) const -> bool;
-
-  auto name() const -> string;
-  auto setValue(const string& value = "") -> type&;
-  auto value() const -> string;
-
-private:
-  struct State {
-    string name;
-    string value;
-  } state;
-};
+#include "property.hpp"
 
 #define Declare(Name) \
   using type = m##Name; \

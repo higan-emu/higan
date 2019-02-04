@@ -34,6 +34,10 @@ auto System::initialize(string configuration) -> void {
   node->copy(Node::unserialize(configuration));
 }
 
+auto System::terminate() -> void {
+  node = {};
+}
+
 auto System::load() -> bool {
   information = {};
   hacks.fastPPU = option.hack.ppu.fast();

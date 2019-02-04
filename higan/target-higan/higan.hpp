@@ -27,5 +27,3 @@ namespace nall::Path {
 #include "input/input.hpp"
 #include "viewport/viewport.hpp"
 #include "emulator/emulator.hpp"
-
-auto locate(string) -> string;

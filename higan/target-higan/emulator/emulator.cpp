@@ -7,6 +7,9 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   higan::platform = this;
   interface = instance;
 
+  Instances::systemManager.construct();
+  Instances::inputManager.construct();
+
   system = {};
   system.name = Location::base(location).trimRight("/", 1L);
   system.data = location;
@@ -22,6 +25,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
   interface->initialize(configuration);
   root = interface->root();
+  for(auto& node : root->find<higan::Node::Peripheral>()) load(node);
 
   systemManager.show();
 
@@ -40,6 +44,9 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
     viewport->create(display);
     viewports.append(viewport);
   }
+
+  //this call will bind all inputs on account of InputManager::devices currently being empty
+  inputManager.poll();
 }
 
 auto Emulator::main() -> void {
@@ -56,11 +63,18 @@ auto Emulator::quit() -> void {
   if(auto location = root->property("location")) {
     file::write({location, "root.bml"}, higan::Node::serialize(root));
   }
+  for(auto& node : root->find<higan::Node::Peripheral>()) save(node);
 
   viewports.reset();
   audio.reset();
   inputManager.reset();
-  Application::kill();
+  Instances::inputManager.destruct();
+  Instances::systemManager.destruct();
+  root = {};
+  interface->terminate();
+  interface.reset();
+  interfaces.reset();
+  Application::exit();
 }
 
 auto Emulator::power(bool on) -> void {
@@ -73,5 +87,27 @@ auto Emulator::power(bool on) -> void {
     for(auto& viewport : viewports) {
       viewport->setVisible(false);
     }
+  }
+}
+
+//used to prevent connecting the same (emulated) physical device to multiple ports simultaneously
+auto Emulator::connected(string location) -> bool {
+  for(auto& peripheral : root->find<higan::Node::Peripheral>()) {
+    if(location == peripheral->property("location")) return true;
+  }
+  return false;
+}
+
+auto Emulator::load(higan::Node::Peripheral node) -> void {
+  if(auto location = node->property("location")) {
+    if(auto document = file::read({location, "node.bml"})) {
+      node->copy(higan::Node::unserialize(document));
+    }
+  }
+}
+
+auto Emulator::save(higan::Node::Peripheral node) -> void {
+  if(auto location = node->property("location")) {
+    file::write({location, "node.bml"}, higan::Node::serialize(node));
   }
 }

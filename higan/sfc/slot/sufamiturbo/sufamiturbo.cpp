@@ -3,22 +3,18 @@ SufamiTurboCartridge sufamiturboB;
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto SufamiTurboCartridge::create(bool slot) -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Sufami Turbo Cartridges");
-  return node;
-}
-
 auto SufamiTurboCartridge::initialize(Node parent) -> void {
   bool portID = this == &sufamiturboB;
-  port = Node::Port::create(!portID ? "Sufami Turbo Slot A" : "Sufami Turbo Slot B", "Sufami Turbo Cartridge");
-/*
+  port = Node::Port::create(!portID ? "Sufami Turbo Slot A" : "Sufami Turbo Slot B", "Sufami Turbo Cartridges");
+  port->allocate = [&](auto name) {
+    return Node::Peripheral::create("Sufami Turbo Cartridge");
+  };
   port->attach = [&](auto node) {
     load();
   };
   port->detach = [&](auto node) {
     unload();
   };
-*/
   parent->append(port);
 }
 
@@ -28,7 +24,6 @@ auto SufamiTurboCartridge::load() -> void {
   } else return;
 
   auto document = BML::unserialize(self.manifest);
-  port->connected()->name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.allocate(memory["size"].natural());

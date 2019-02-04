@@ -45,7 +45,7 @@ auto InputMappingDialog::refresh() -> void {
   inputList.append(TableViewColumn().setText("Mapping").setExpandable());
   for(auto& node : this->node->find<higan::Node::Input>()) {
     TableViewItem item{&inputList};
-    item.setProperty("node", string::from(node));
+    item.setProperty<higan::Node::Input>("node", node);
     TableViewCell name{&item};
     name.setText(node->name).setFont(Font().setBold());
     TableViewCell value{&item};
@@ -68,7 +68,7 @@ auto InputMappingDialog::eventChange() -> void {
 auto InputMappingDialog::eventAssign() -> void {
   auto batched = inputList.batched();
   for(auto& item : batched) {
-    auto input = item.property("node").to<higan::Node::Input>();
+    auto input = item.property<higan::Node::Input>("node");
     message.setText({"Assign: ", input->name});
     inputList.setEnabled(false);
     assignButton.setEnabled(false);
@@ -78,17 +78,26 @@ auto InputMappingDialog::eventAssign() -> void {
 }
 
 auto InputMappingDialog::eventClear() -> void {
+  auto batched = inputList.batched();
+  for(auto& item : batched) {
+    auto input = item.property<higan::Node::Input>("node");
+    input->setProperty("name");
+    input->setProperty("device");
+    input->setProperty("group");
+    input->setProperty("input");
+  }
+  refresh();
 }
 
 auto InputMappingDialog::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
   if(!assigning || !device->isKeyboard()) return;
-  auto batched = inputList.batched();
-  if(batched.size() != 1) return;
-  auto item = batched.first();
-  auto node = item.property("node").to<higan::Node::Input>();
-  node->setProperty("name", device->group(group).input(input).name());
-  node->setProperty("device", string::from(device));
-  node->setProperty("group", group);
-  node->setProperty("input", input);
+  assigning->setProperty("name", device->group(group).input(input).name());
+  assigning->setProperty<shared_pointer<HID::Device>>("device", device);
+  assigning->setProperty("pathID", device->pathID());
+  assigning->setProperty("vendorID", device->vendorID());
+  assigning->setProperty("productID", device->productID());
+  assigning->setProperty("group", group);
+  assigning->setProperty("input", input);
+  assigning = {};
   refresh();
 }

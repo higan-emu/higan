@@ -93,6 +93,10 @@ auto SuperFamicomInterface::initialize(string configuration) -> void {
   return system.initialize(configuration);
 }
 
+auto SuperFamicomInterface::terminate() -> void {
+  return system.terminate();
+}
+
 auto SuperFamicomInterface::root() -> Node {
   return system.node;
 }

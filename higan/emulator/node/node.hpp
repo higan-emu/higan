@@ -5,7 +5,10 @@ namespace higan::Object {
 //higan::Object namespace should never be accessed outside of higan/emulator/node/
 //higan::Node namespace should always be used instead for reference-counted Objects
 
+// <emulator/platform.hpp> forward declarations (dependent on <emulator/node.hpp>)
 struct Node;
+static auto PlatformAttach(shared_pointer<Node>) -> void;
+static auto PlatformDetach(shared_pointer<Node>) -> void;
 
 //horrible implementation of run-time introspection:
 //allow converting a unique class string to a derived Node type.
@@ -54,15 +57,11 @@ struct Node : shared_pointer_this<Node> {
   Node(string name = {}) : name(name) {}
   virtual ~Node() = default;
 
-  auto reset() -> void {
-    for(auto& node : nodes) node->parent.reset();
-    nodes.reset();
-  }
-
   auto prepend(shared_pointer<Node> node) -> shared_pointer<Node> {
     if(auto found = find(node)) return found;
     nodes.prepend(node);
     node->parent = shared();
+    PlatformAttach(node);
     return node;
   }
 
@@ -75,6 +74,7 @@ struct Node : shared_pointer_this<Node> {
     if(auto found = find(node)) return found;
     nodes.append(node);
     node->parent = shared();
+    PlatformAttach(node);
     return node;
   }
 
@@ -85,9 +85,16 @@ struct Node : shared_pointer_this<Node> {
 
   auto remove(shared_pointer<Node> node) -> void {
     if(auto index = nodes.find(node)) {
+      PlatformDetach(node);
       node->parent.reset();
       nodes.remove(*index);
     }
+  }
+
+  auto reset() -> void {
+    for(auto& node : nodes) PlatformDetach(node);
+    for(auto& node : nodes) node->parent.reset();
+    nodes.reset();
   }
 
   template<typename T> auto cast() -> shared_pointer<typename T::type> {
@@ -126,17 +133,20 @@ struct Node : shared_pointer_this<Node> {
     return {};
   }
 
-  auto property(string name) const -> string {
-    if(auto property = properties.find(name)) return property->value;
+  template<typename T = string> auto property(const string& name) const -> T {
+    if(auto property = properties.find(name)) {
+      if(property->value.is<T>()) return property->value.get<T>();
+    }
     return {};
   }
 
-  auto setProperty(string name, string value = {}) -> void {
+  template<typename T = string, typename U = string> auto setProperty(const string& name, const U& value = {}) -> void {
+    if constexpr(is_same_v<T, string> && !is_same_v<U, string>) return setProperty(name, string{value});
     if(auto property = properties.find(name)) {
-      if(value) property->value = value;
+      if((const T&)value) property->value = (const T&)value;
       else properties.remove(*property);
     } else {
-      if(value) properties.insert({name, value});
+      if((const T&)value) properties.insert({name, (const T&)value});
     }
   }
 
@@ -145,9 +155,10 @@ struct Node : shared_pointer_this<Node> {
     output.append(depth, "  type: ", type(), "\n");
     output.append(depth, "  name: ", name, "\n");
     for(auto& property : properties) {
+      if(!property.value.is<string>()) continue;
       output.append(depth, "  property\n");
       output.append(depth, "    name: ", property.name, "\n");
-      output.append(depth, "    value: ", property.value, "\n");
+      output.append(depth, "    value: ", property.value.get<string>(), "\n");
     }
     depth.append("  ");
     for(auto& node : nodes) {

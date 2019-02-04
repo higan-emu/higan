@@ -2,7 +2,6 @@ namespace higan::Object::Setting {
 
 struct Setting : Node {
   DeclareClass(Setting, "Setting")
-
   using Node::Node;
 };
 

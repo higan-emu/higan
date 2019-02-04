@@ -41,6 +41,7 @@ struct ConfigurationManager : Window {
   template<typename T> auto scan(T parent, string location) -> void;
   auto eventActivate() -> void;
   auto eventChange() -> void;
+  auto eventContext() -> void;
   auto eventCreate() -> void;
   auto eventRename() -> void;
   auto eventRemove() -> void;
@@ -70,6 +71,13 @@ struct ConfigurationManager : Window {
       MenuItem documentation{&helpMenu};
       MenuSeparator aboutSeparator{&helpMenu};
       MenuItem about{&helpMenu};
+
+  PopupMenu contextMenu;
+    MenuItem launchPopup{&contextMenu};
+    MenuSeparator launchPopupSeparator{&contextMenu};
+    MenuItem createPopup{&contextMenu};
+    MenuItem renamePopup{&contextMenu};
+    MenuItem removePopup{&contextMenu};
 
   VerticalLayout layout{this};
     TreeView configurationList{&layout, Size{~0, ~0}};

@@ -144,6 +144,11 @@ auto PortSelectionDialog::eventAccept() -> void {
       auto category = item.property("category");
       auto source = item.property("location");
       auto target = string{emulator.system.data, category, "/", label, "/"};
+      if(emulator.connected(target)) return (void)MessageDialog()
+      .setText("This peripheral is already connected to a port.")
+      .setPlacement(Placement::Center, *this)
+      .information();
+
       if(directory::exists(target)) {
         if(MessageDialog()
         .setTitle("Warning")
@@ -172,6 +177,11 @@ auto PortSelectionDialog::eventAccept() -> void {
 
     if(item.property("type") == "object") {
       auto location = item.property("location");
+      if(emulator.connected(location)) return (void)MessageDialog()
+      .setText("This peripheral is already connected to a port.")
+      .setPlacement(Placement::Center, *this)
+      .information();
+
       if(auto document = BML::unserialize(file::read({location, "manifest.bml"}))) {
         if(auto kind = document["system/kind"].text()) name = kind;
       }

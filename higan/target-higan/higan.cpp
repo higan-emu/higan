@@ -9,14 +9,6 @@ namespace nall::Path {
   string data;
 }
 
-auto locate(string name) -> string {
-  string location = {Path::program(), name};
-  if(inode::exists(location)) return location;
-
-  directory::create({Path::userData(), "higan/"});
-  return {Path::userData(), "higan/", name};
-}
-
 auto hiro::initialize() -> void {
 }
 
@@ -97,7 +89,6 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketColorInterface);
   #endif
   Instances::configurationManager.construct();
-  Instances::systemManager.construct();
   configurationManager.show();
   Application::run();
 }

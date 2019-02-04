@@ -19,45 +19,6 @@
 
 namespace nall {
 
-//when _capacity == 0, string holds an object via type erasure and dynamic allocation
-//get() and data() will return the underlying string_hold*
-//but as _capacity == 0, valid code should never dereference this pointer
-
-struct string_hold {
-  string_hold(const string_hold& source) { instance = source.instance->clone(); }
-  template<typename T> string_hold(T source) { instance = new derived<T>{source}; }
-  template<typename T> auto value() const -> T& { return ((derived<T>*)instance)->value; }
-  ~string_hold() { delete instance; }
-  struct base { virtual ~base() = default; virtual auto clone() const -> base* = 0; } *instance;
-  template<typename T> struct derived : base {
-    derived(T value) : value(value) {}
-    auto clone() const -> base* override { return new derived{value}; }
-    T value;
-  };
-};
-
-template<typename T>
-auto string::from(T value) -> string {
-  string result;
-  result._capacity = 0;
-  result._hold = new string_hold{value};
-  return result;
-}
-
-template<typename T>
-auto string::to() -> T& {
-  if(_capacity) throw;
-  return _hold->value<T>();
-}
-
-template<typename T>
-auto string::to() const -> const T& {
-  if(_capacity) throw;
-  return _hold->value<T>();
-}
-
-//
-
 string::string() : _data(nullptr), _capacity(SSO - 1), _size(0) {
 }
 
@@ -75,7 +36,6 @@ auto string::data() const -> const T* {
 }
 
 auto string::reset() -> type& {
-  if(!_capacity) delete _hold;
   if(_capacity >= SSO && !--*_refs) memory::free(_data);
   _data = nullptr;
   _capacity = SSO - 1;
@@ -87,7 +47,6 @@ auto string::reserve(uint capacity) -> type& {
   if(capacity <= _capacity) return *this;
   capacity = bit::round(capacity + 1) - 1;
   if(_capacity < SSO) {
-    if(!_capacity) reset();
     _capacity = capacity;
     _allocate();
   } else if(*_refs > 1) {
@@ -115,14 +74,10 @@ auto string::operator=(const string& source) -> type& {
     _capacity = source._capacity;
     _size = source._size;
     ++*_refs;
-  } else if(source._capacity) {
+  } else {
     memory::copy(_text, source._text, SSO);
     _capacity = source._capacity;
     _size = source._size;
-  } else {
-    _hold = new string_hold{*source._hold};
-    _capacity = 0;
-    _size = 0;
   }
   return *this;
 }

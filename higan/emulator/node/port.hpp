@@ -4,7 +4,7 @@ struct Port : Node {
   DeclareClass(Port, "Port")
 
   Port(string name = {}, string category = {}) : Node(name), category(category) {
-    allocate = [](auto) { return shared_pointer<Peripheral>::create(); };
+    allocate = [](auto) { return shared_pointer<Peripheral>::create("Peripheral"); };
   }
 
   auto connected() -> shared_pointer<Peripheral> {

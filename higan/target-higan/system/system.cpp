@@ -76,8 +76,8 @@ auto SystemManager::refresh() -> void {
 }
 
 auto SystemManager::selected() -> higan::Node {
-  if(auto item = connectionList.selected(); auto node = item.property("node")) {
-    return node.to<higan::Node>();
+  if(auto item = connectionList.selected()) {
+    return item.property<higan::Node>("node");
   }
   return {};
 }
@@ -86,7 +86,7 @@ template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> v
   if(node->cast<higan::Node::Input>()) return;
 
   TreeViewItem item{&parent};
-  item.setProperty("node", string::from(node));
+  item.setProperty<higan::Node>("node", node);
 
   if(auto boolean = node->cast<higan::Node::Setting::Boolean>()) {
     item.setText({boolean->name, ": ", boolean->value()});

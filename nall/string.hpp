@@ -28,7 +28,6 @@ namespace nall {
 
 struct string;
 struct string_format;
-struct string_hold;
 
 struct string_view {
   using type = string_view;
@@ -101,7 +100,6 @@ protected:
     struct {  //copy-on-write
       char* _data;
       uint* _refs;
-      string_hold* _hold;
     };
     struct {  //small-string-optimization
       char _text[SSO];
@@ -110,12 +108,6 @@ protected:
   inline auto _allocate() -> void;
   inline auto _copy() -> void;
   inline auto _resize() -> void;
-
-  public:
-  template<typename T> static auto from(T) -> string;
-  template<typename T> auto to() -> T&;
-  template<typename T> auto to() const -> const T&;
-  protected:
   #endif
 
   #if defined(NALL_STRING_ALLOCATOR_COPY_ON_WRITE)
@@ -160,15 +152,7 @@ public:
   }
   ~string() { reset(); }
 
-  explicit operator bool() const {
-    #if defined(NALL_STRING_ALLOCATOR_ADAPTIVE)
-    //note: _capacity is only zero when string is holding an object (for adaptive allocator only)
-    //operator bool() must return true as the string is not actually empty in this case
-    return _size || !_capacity;
-    #else
-    return _size;
-    #endif
-  }
+  explicit operator bool() const { return _size; }
   operator const char*() const { return (const char*)data(); }
   operator array_span<char>() { return {(char*)get(), size()}; }
   operator array_view<char>() const { return {(const char*)data(), size()}; }

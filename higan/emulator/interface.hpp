@@ -69,7 +69,8 @@ struct Interface {
   virtual auto unload() -> void {}
 
   //system interface
-  virtual auto initialize(string configuration) -> void {}
+  virtual auto initialize(string configuration = {}) -> void {}
+  virtual auto terminate() -> void {}
   virtual auto root() -> Node { return {}; }
   virtual auto ports() -> vector<Port> { return {}; }
   virtual auto devices(uint port) -> vector<Device> { return {}; }

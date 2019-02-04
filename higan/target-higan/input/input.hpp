@@ -5,7 +5,10 @@ struct InputManager {
   auto reset() -> void;
 
   auto poll() -> void;
+  auto bind() -> void;
   auto eventInput(shared_pointer<HID::Device>, uint group, uint input, int16_t oldValue, int16_t newValue) -> void;
+
+  higan::Node root;
 
 private:
   vector<shared_pointer<HID::Device>> devices;
@@ -14,4 +17,5 @@ private:
   uint64_t lastPoll = 0;
 };
 
-extern InputManager inputManager;
+namespace Instances { extern Instance<InputManager> inputManager; }
+extern InputManager& inputManager;

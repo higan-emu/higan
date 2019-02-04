@@ -14,6 +14,7 @@ struct System {
   auto runToSave() -> void;
 
   auto initialize(string) -> void;
+  auto terminate() -> void;
   auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;
