@@ -1,6 +1,5 @@
 #include "../higan.hpp"
 #include "input-mapping.cpp"
-#include "port-configuration.cpp"
 #include "port-selection.cpp"
 
 namespace Instances { Instance<SystemManager> systemManager; }
@@ -44,13 +43,11 @@ SystemManager::SystemManager() {
       inputMapping.map(node);
     }
   });
-  configureButton.setText("Configure ...").onActivate([&] {
-    eventConfigure();
-  });
 
   statusBar.setFont(Font().setBold()).setVisible(false);
 
   onClose([&] {
+    root = {};
     emulator.quit();
   });
 
@@ -60,7 +57,7 @@ SystemManager::SystemManager() {
 auto SystemManager::show() -> void {
   root = interface->root();
   refresh();
-  setTitle(interface->information().name);
+  setTitle(emulator.system.name);
   setAlignment({0.25, 0.5});
   setVisible();
   setFocused();
@@ -72,23 +69,23 @@ auto SystemManager::refresh() -> void {
     attach(connectionList, node);
   }
   connectionList.expand().doChange();
-  print(higan::Node::serialize(root), "\n");
+//print(higan::Node::serialize(root), "\n");
 }
 
-auto SystemManager::selected() -> higan::Node {
+auto SystemManager::selected() -> higan::Node::Object {
   if(auto item = connectionList.selected()) {
-    return item.property<higan::Node>("node");
+    return item.property<higan::Node::Object>("node");
   }
   return {};
 }
 
-template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> void {
+template<typename T> auto SystemManager::attach(T parent, higan::Node::Object node) -> void {
   if(node->cast<higan::Node::Input>()) return;
 
   TreeViewItem item{&parent};
-  item.setProperty<higan::Node>("node", node);
+  item.setProperty<higan::Node::Object>("node", node);
 
-  if(auto boolean = node->cast<higan::Node::Setting::Boolean>()) {
+  if(auto boolean = node->cast<higan::Node::Boolean>()) {
     item.setText({boolean->name, ": ", boolean->value()});
     return;
   }
@@ -103,12 +100,11 @@ template<typename T> auto SystemManager::attach(T parent, higan::Node node) -> v
 auto SystemManager::eventChange() -> void {
   auto node = selected();
   inputMappingButton.setEnabled(node && !(bool)node->cast<higan::Node::Port>() && (bool)node->find<higan::Node::Input>());
-  configureButton.setEnabled(node && (bool)node->cast<higan::Node::Port>());
 }
 
 auto SystemManager::eventActivate() -> void {
   if(auto node = selected()) {
-    if(auto boolean = node->cast<higan::Node::Setting::Boolean>()) {
+    if(auto boolean = node->cast<higan::Node::Boolean>()) {
       boolean->setValue(!boolean->value());
       return refresh();
     }
@@ -119,15 +115,6 @@ auto SystemManager::eventActivate() -> void {
 
     if(node->find<higan::Node::Input>()) {
       return inputMapping.map(node);
-    }
-  }
-}
-
-auto SystemManager::eventConfigure() -> void {
-  if(auto node = selected()) {
-    if(auto port = node->cast<higan::Node::Port>()) {
-      if(portConfiguration.configure(port)) refresh();
-      return;
     }
   }
 }

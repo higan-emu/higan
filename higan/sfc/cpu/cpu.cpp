@@ -2,6 +2,14 @@
 
 namespace higan::SuperFamicom {
 
+auto Tree::CPU::initialize(Node::Object parent) -> void {
+  node = Node::Component::create("CPU");
+  version = Node::Natural::create("Version", 2);
+  version->allowedValues = {1, 2};
+  node->append(version);
+  parent->append(node);
+}
+
 CPU cpu;
 #include "dma.cpp"
 #include "memory.cpp"
@@ -45,11 +53,12 @@ auto CPU::main() -> void {
 }
 
 auto CPU::load() -> bool {
-  version = property.cpu.version();
   return true;
 }
 
 auto CPU::power(bool reset) -> void {
+  version = Tree::CPU::version->value();
+
   WDC65816::power();
   create(Enter, system.cpuFrequency());
   coprocessors.reset();

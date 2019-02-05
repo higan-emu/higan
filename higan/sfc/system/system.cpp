@@ -2,10 +2,61 @@
 
 namespace higan::SuperFamicom {
 
+auto Tree::System::initialize(string configuration) -> void {
+  node = Node::System::create("Super Famicom");
+  node->copy(Node::unserialize(configuration));  //temporary hack (load needs system("location") for IPLROM)
+  cartridge.initialize(node);
+  controllerPort1.initialize(node);
+  controllerPort2.initialize(node);
+  expansionPort.initialize(node);
+  system.display.initialize(node);
+  system.speakers.initialize(node);
+  cpu.initialize(node);
+  ppu.nodes.ppu1.initialize(node);
+  ppu.nodes.ppu2.initialize(node);
+  ppu.nodes.vram.initialize(node);
+  hacks.initialize(node);
+  system.load();
+  node->copy(Node::unserialize(configuration));
+}
+
+auto Tree::Display::initialize(Node::Object parent) -> void {
+  node = Node::Video::create("Display");
+  node->type   = "CRT";
+  node->width  = 512;
+  node->height = 480;
+  node->aspect = 8.0 / 7.0;
+  node->append(colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto) {
+    video.setPalette();
+  }));
+  node->append(colorBleed = Node::Boolean::create("Color Bleed", true, [&](auto value) {
+    video.setEffect(higan::Video::Effect::ColorBleed, value);
+  }));
+  parent->append(node);
+}
+
+auto Tree::Speakers::initialize(Node::Object parent) -> void {
+  node = Node::Audio::create("Speakers");
+  parent->append(node);
+}
+
+auto Tree::Hacks::initialize(Node::Object parent) -> void {
+  parent->append(node = Node::Object::create("Hacks"));
+  node->append(ppu.node = Node::Object::create("PPU"));
+  ppu.node->append(ppu.fast = Node::Boolean::create("Fast", false));
+  ppu.node->append(ppu.noSpriteLimit = Node::Boolean::create("No Sprite Limit", false));
+  ppu.node->append(ppu.hiresMode7 = Node::Boolean::create("Hires Mode 7", false));
+  node->append(dsp.node = Node::Object::create("DSP"));
+  dsp.node->append(dsp.fast = Node::Boolean::create("Fast", false));
+  node->append(coprocessors.node = Node::Object::create("Coprocessors"));
+  coprocessors.node->append(coprocessors.fast = Node::Boolean::create("Fast", false));
+}
+
 System system;
 Scheduler scheduler;
 Random random;
 Cheat cheat;
+Tree::Hacks hacks;
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -22,26 +73,23 @@ auto System::runToSave() -> void {
 }
 
 auto System::initialize(string configuration) -> void {
-  node = Node::System::create("Super Famicom");
-  node->copy(Node::unserialize(configuration));  //temporary hack (load needs system("location") for IPLROM)
-  ppu.initialize(node);
-  node->append(Node::Audio::create("Speakers"));  //todo: find a place to put this ... (DSP+MSU1+SGB sources)
-  cartridge.initialize(node);
-  controllerPort1.initialize(node);
-  controllerPort2.initialize(node);
-  expansionPort.initialize(node);
-  load();
-  node->copy(Node::unserialize(configuration));
+  root.initialize(configuration);
 }
 
 auto System::terminate() -> void {
-  node = {};
+  root.node->reset();
+  root = {};
 }
 
 auto System::load() -> bool {
   information = {};
-  hacks.fastPPU = option.hack.ppu.fast();
-  hacks.fastDSP = option.hack.dsp.fast();
+
+  //these values cannot change at run-time
+  hacks.ppu.fast->setLatch();
+  hacks.ppu.noSpriteLimit->setLatch();
+  hacks.ppu.hiresMode7->setLatch();
+  hacks.dsp.fast->setLatch();
+  hacks.coprocessors.fast->setLatch();
 
   bus.reset();
   if(!cpu.load()) return false;
@@ -66,14 +114,10 @@ auto System::load() -> bool {
 }
 
 auto System::save() -> void {
-  if(!loaded()) return;
-
   cartridge.save();
 }
 
 auto System::unload() -> void {
-  if(!loaded()) return;
-
   cpu.peripherals.reset();
   controllerPort1.unload();
   controllerPort2.unload();
@@ -146,10 +190,6 @@ auto System::power(bool reset) -> void {
   controllerPort1.power(ID::Port::Controller1);
   controllerPort2.power(ID::Port::Controller2);
   expansionPort.power();
-
-  controllerPort1.connect(option.port.controller1.device());
-  controllerPort2.connect(option.port.controller2.device());
-  expansionPort.connect(option.port.expansion.device());
 }
 
 }

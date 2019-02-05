@@ -29,7 +29,7 @@ struct Controller : Thread {
 
 struct ControllerPort {
   Node::Port port;
-  auto initialize(Node) -> void;
+  auto initialize(Node::Object) -> void;
 
   auto connect(uint deviceID) -> void;  //deprecated
   auto connect(Node::Peripheral = {}) -> void;
@@ -46,7 +46,7 @@ extern ControllerPort controllerPort1;
 extern ControllerPort controllerPort2;
 
 #include "gamepad/gamepad.hpp"
-#include "mouse/mouse.hpp"
-#include "super-multitap/super-multitap.hpp"
-#include "super-scope/super-scope.hpp"
-#include "justifier/justifier.hpp"
+//#include "mouse/mouse.hpp"
+//#include "super-multitap/super-multitap.hpp"
+//#include "super-scope/super-scope.hpp"
+//#include "justifier/justifier.hpp"

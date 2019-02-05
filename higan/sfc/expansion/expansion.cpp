@@ -25,8 +25,8 @@ auto Expansion::main() -> void {
 
 //
 
-auto ExpansionPort::initialize(Node parent) -> void {
-  port = Node::Port::create("Expansion Port", "Expansions");
+auto ExpansionPort::initialize(Node::Object parent) -> void {
+  port = Node::Port::create("Expansion Port", "Expansion");
 /*
   port->attach = [&](auto) {
     connect(0);

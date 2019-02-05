@@ -2,6 +2,30 @@
 
 namespace higan::SuperFamicom {
 
+auto Tree::PPU1::initialize(Node::Object parent) -> void {
+  node = Node::Component::create("PPU1");
+  version = Node::Natural::create("Version", 1);
+  version->allowedValues = {1};
+  node->append(version);
+  parent->append(node);
+}
+
+auto Tree::PPU2::initialize(Node::Object parent) -> void {
+  node = Node::Component::create("PPU2");
+  version = Node::Natural::create("Version", 3);
+  version->allowedValues = {1, 2, 3};
+  node->append(version);
+  parent->append(node);
+}
+
+auto Tree::VRAM::initialize(Node::Object parent) -> void {
+  node = Node::Component::create("VRAM");
+  size = Node::Natural::create("Size", 64_KiB);
+  size->allowedValues = {64_KiB, 128_KiB};
+  node->append(size);
+  parent->append(node);
+}
+
 PPU ppu;
 #include "io.cpp"
 #include "background.cpp"
@@ -10,21 +34,6 @@ PPU ppu;
 #include "screen.cpp"
 #include "serialization.cpp"
 #include "counter/serialization.cpp"
-
-auto PPU::initialize(Node parent) -> void {
-  display = Node::Video::create("Display");
-  display->category = "CRT";
-  display->width    = 512;
-  display->height   = 480;
-  display->aspect   = 8.0 / 7.0;
-  display->append(settings.colorEmulation = Node::Setting::Boolean::create("Color Emulation", true, [&](auto) {
-    video.setPalette();
-  }));
-  display->append(settings.colorBleed = Node::Setting::Boolean::create("Color Bleed", true, [&](auto value) {
-    video.setEffect(Video::Effect::ColorBleed, value);
-  }));
-  parent->append(display);
-}
 
 PPU::PPU() :
 bg1(Background::ID::BG1),
@@ -36,7 +45,7 @@ bg4(Background::ID::BG4) {
 }
 
 PPU::~PPU() {
-  if(system.fastPPU()) {
+  if(hacks.ppu.fast->latch()) {
     setHandle(nullptr);
   }
 
@@ -93,19 +102,19 @@ auto PPU::main() -> void {
 }
 
 auto PPU::load() -> bool {
-  if(system.fastPPU()) {
+  if(hacks.ppu.fast->latch()) {
     return ppufast.load();
   }
 
-  ppu1.version = property.ppu1.version();
-  ppu2.version = property.ppu2.version();
-  vram.mask = property.ppu1.vram.size() / sizeof(uint16) - 1;
+  ppu1.version = nodes.ppu1.version->value();
+  ppu2.version = nodes.ppu2.version->value();
+  vram.mask = nodes.vram.size->value() / sizeof(uint16) - 1;
   if(vram.mask != 0xffff) vram.mask = 0x7fff;
   return true;
 }
 
 auto PPU::power(bool reset) -> void {
-  if(system.fastPPU()) {
+  if(hacks.ppu.fast->latch()) {
     ppufast.power(reset);
     return setHandle(ppufast.handle());
   }
@@ -245,7 +254,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  if(system.fastPPU()) {
+  if(hacks.ppu.fast->latch()) {
     return ppufast.refresh();
   }
 
@@ -254,8 +263,8 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  video.setEffect(Video::Effect::ColorBleed, option.video.colorBleed());
-  video.refresh(display, output, pitch * sizeof(uint32), width, height);
+  video.setEffect(Video::Effect::ColorBleed, system.display.colorBleed->value());
+  video.refresh(system.display.node, output, pitch * sizeof(uint32), width, height);
 }
 
 }

@@ -1,8 +1,8 @@
-namespace higan::Object::Setting {
+namespace higan::Core {
 
-struct Setting : Node {
+struct Setting : Object {
   DeclareClass(Setting, "Setting")
-  using Node::Node;
+  using Object::Object;
 };
 
 template<typename Cast, typename Type> struct Abstract : Setting {
@@ -14,18 +14,23 @@ template<typename Cast, typename Type> struct Abstract : Setting {
     this->modify = modify;
   }
 
-  auto latch() -> Type {
-    return latchedValue = currentValue;
-  }
-
   auto value() const -> Type {
     return currentValue;
+  }
+
+  auto latch() const -> Type {
+    return latchedValue;
   }
 
   auto& setValue(Type value) {
     if(allowedValues && !allowedValues.find(value)) return *this;
     currentValue = value;
     if(modify) modify(value);
+    return *this;
+  }
+
+  auto& setLatch() {
+    latchedValue = currentValue;
     return *this;
   }
 
@@ -38,13 +43,13 @@ template<typename Cast, typename Type> struct Abstract : Setting {
   auto unserialize(Markup::Node node) -> void override {
     Setting::unserialize(node);
     if constexpr(is_same_v<Type, boolean>) currentValue = node["value"].boolean(), latchedValue = node["latch"].boolean();
-    if constexpr(is_same_v<Type, integer>) currentValue = node["value"].integer(), latchedValue = node["latch"].integer();
     if constexpr(is_same_v<Type, natural>) currentValue = node["value"].natural(), latchedValue = node["latch"].natural();
+    if constexpr(is_same_v<Type, integer>) currentValue = node["value"].integer(), latchedValue = node["latch"].integer();
     if constexpr(is_same_v<Type, real>)    currentValue = node["value"].real(),    latchedValue = node["latch"].real();
     if constexpr(is_same_v<Type, string>)  currentValue = node["value"].text(),    latchedValue = node["latch"].text();
   }
 
-  auto copy(shared_pointer<Node> node) -> void override {
+  auto copy(Node::Object node) -> void override {
     if(auto source = node->cast<shared_pointer<Cast>>()) {
       currentValue = source->currentValue;
       latchedValue = source->latchedValue;
@@ -65,13 +70,13 @@ struct Boolean : Abstract<Boolean, boolean> {
   using Abstract::Abstract;
 };
 
-struct Integer : Abstract<Integer, integer> {
-  DeclareClass(Integer, "Setting.Integer")
+struct Natural : Abstract<Natural, natural> {
+  DeclareClass(Natural, "Setting.Natural")
   using Abstract::Abstract;
 };
 
-struct Natural : Abstract<Natural, natural> {
-  DeclareClass(Natural, "Setting.Natural")
+struct Integer : Abstract<Integer, integer> {
+  DeclareClass(Integer, "Setting.Integer")
   using Abstract::Abstract;
 };
 

@@ -35,12 +35,10 @@ struct ID {
 };
 
 struct SuperFamicomInterface : Interface {
-  auto information() -> Information;
-
-  auto display() -> Display override;
+  auto name() -> string override;
+  auto colors() -> uint32 override;
   auto color(uint32 color) -> uint64 override;
 
-  auto loaded() -> bool override;
   auto hashes() -> vector<string> override;
   auto manifests() -> vector<string> override;
   auto titles() -> vector<string> override;
@@ -51,13 +49,8 @@ struct SuperFamicomInterface : Interface {
 
   auto initialize(string configuration = {}) -> void override;
   auto terminate() -> void override;
-  auto root() -> Node override;
-  auto ports() -> vector<Port> override;
-  auto devices(uint port) -> vector<Device> override;
-  auto inputs(uint device) -> vector<Input> override;
+  auto root() -> Node::Object override;
 
-  auto connected(uint port) -> uint override;
-  auto connect(uint port, uint device) -> void override;
   auto power() -> void override;
   auto reset() -> void override;
   auto run() -> void override;
@@ -69,13 +62,7 @@ struct SuperFamicomInterface : Interface {
   auto unserialize(serializer&) -> bool override;
 
   auto cheats(const vector<string>&) -> void override;
-
-  auto options() -> Settings& override;
-  auto properties() -> Settings& override;
 };
-
-#include "options.hpp"
-#include "properties.hpp"
 
 }
 

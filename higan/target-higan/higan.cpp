@@ -31,15 +31,21 @@ auto nall::main(Arguments arguments) -> void {
   if(file::exists({Path::program(), "paths.bml"})) {
     Path::settings = Path::program();
   } else {
-    Path::settings = {Path::userData(), "higan/"};
+    Path::settings = {Path::userSettings(), "higan/"};
     directory::create(Path::settings);
   }
   if(auto document = BML::unserialize(file::read({Path::settings, "paths.bml"}))) {
     Path::templates = document["templates"].text();
     Path::data = document["data"].text();
   }
-  if(!directory::exists(Path::templates)) Path::templates = {Path::settings, "Systems/"};
-  if(!directory::exists(Path::data)) Path::data = {Path::user(), "higan/"};
+  if(!directory::exists(Path::templates)) {
+    Path::templates = {Path::userData(), "higan/"};
+    directory::create(Path::templates);
+  }
+  if(!directory::exists(Path::data)) {
+    Path::data = {Path::user(), "higan/"};
+    directory::create(Path::data);
+  }
   file::write({Path::settings, "paths.bml"}, string{
     "data: ", Path::data, "\n",
     "templates: ", Path::templates, "\n"

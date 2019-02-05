@@ -1,5 +1,5 @@
 auto PPU::latchCounters() -> void {
-  if(system.fastPPU()) {
+  if(hacks.ppu.fast->latch()) {
     return ppufast.latchCounters();
   }
 

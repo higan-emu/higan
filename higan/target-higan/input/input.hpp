@@ -1,3 +1,11 @@
+struct InputButton {
+  auto value() -> bool;
+
+  shared_pointer<HID::Device> device;
+  uint groupID;
+  uint inputID;
+};
+
 struct InputManager {
   Input input;
 
@@ -8,7 +16,7 @@ struct InputManager {
   auto bind() -> void;
   auto eventInput(shared_pointer<HID::Device>, uint group, uint input, int16_t oldValue, int16_t newValue) -> void;
 
-  higan::Node root;
+  higan::Node::Object root;
 
 private:
   vector<shared_pointer<HID::Device>> devices;

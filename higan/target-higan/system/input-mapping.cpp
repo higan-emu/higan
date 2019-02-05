@@ -20,6 +20,8 @@ InputMappingDialog::InputMappingDialog() {
 
   onClose([&] {
     assigning = {};
+    inputList.reset();
+    node = {};
     setModal(false);
     setVisible(false);
   });
@@ -27,10 +29,10 @@ InputMappingDialog::InputMappingDialog() {
   setDismissable();
 }
 
-auto InputMappingDialog::map(higan::Node node) -> void {
+auto InputMappingDialog::map(higan::Node::Object node) -> void {
   this->node = node;
-  this->assigning = {};
   refresh();
+  this->assigning = {};
   setTitle({node->property("name"), " (", node->name, ")"});
   setSize({480, 360});
   setPlacement(Placement::After, systemManager);
@@ -82,9 +84,12 @@ auto InputMappingDialog::eventClear() -> void {
   for(auto& item : batched) {
     auto input = item.property<higan::Node::Input>("node");
     input->setProperty("name");
-    input->setProperty("device");
-    input->setProperty("group");
-    input->setProperty("input");
+    input->setProperty("pathID");
+    input->setProperty("vendorID");
+    input->setProperty("productID");
+    input->setProperty("groupID");
+    input->setProperty("inputID");
+    inputManager.bind();
   }
   refresh();
 }
@@ -92,12 +97,12 @@ auto InputMappingDialog::eventClear() -> void {
 auto InputMappingDialog::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
   if(!assigning || !device->isKeyboard()) return;
   assigning->setProperty("name", device->group(group).input(input).name());
-  assigning->setProperty<shared_pointer<HID::Device>>("device", device);
   assigning->setProperty("pathID", device->pathID());
   assigning->setProperty("vendorID", device->vendorID());
   assigning->setProperty("productID", device->productID());
-  assigning->setProperty("group", group);
-  assigning->setProperty("input", input);
+  assigning->setProperty("groupID", group);
+  assigning->setProperty("inputID", input);
   assigning = {};
+  inputManager.bind();
   refresh();
 }

@@ -58,7 +58,6 @@
 #include <nall/run.hpp>
 #include <nall/serializer.hpp>
 #include <nall/set.hpp>
-#include <nall/settings.hpp>
 #include <nall/shared-pointer.hpp>
 #include <nall/simd.hpp>
 #include <nall/stdint.hpp>

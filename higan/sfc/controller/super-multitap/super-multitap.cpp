@@ -1,22 +1,29 @@
 auto SuperMultitap::create() -> Node::Peripheral {
   auto node = Node::Peripheral::create("Super Multitap");
-  auto port1 = Node::Port::create("Controller Port 1", "Controllers");
-  auto port2 = Node::Port::create("Controller Port 2", "Controllers");
-  auto port3 = Node::Port::create("Controller Port 3", "Controllers");
-  auto port4 = Node::Port::create("Controller Port 4", "Controllers");
+  auto port1 = Node::Port::create("Controller Port 1", "Controller");
+  auto port2 = Node::Port::create("Controller Port 2", "Controller");
+  auto port3 = Node::Port::create("Controller Port 3", "Controller");
+  auto port4 = Node::Port::create("Controller Port 4", "Controller");
   port1->allocate = [&](auto name) {
     if(name == "Gamepad") return SuperFamicom::Gamepad::create();
     if(name == "Super Multitap") return SuperMultitap::create();
     return Node::Peripheral::create("Controller");
   };
-/*
-  port2->allocate = [&](auto node) {
+  port2->allocate = [&](auto name) {
+    if(name == "Gamepad") return SuperFamicom::Gamepad::create();
+    if(name == "Super Multitap") return SuperMultitap::create();
+    return Node::Peripheral::create("Controller");
   };
-  port3->allocate = [&](auto node) {
+  port3->allocate = [&](auto name) {
+    if(name == "Gamepad") return SuperFamicom::Gamepad::create();
+    if(name == "Super Multitap") return SuperMultitap::create();
+    return Node::Peripheral::create("Controller");
   };
-  port4->allocate = [&](auto node) {
+  port4->allocate = [&](auto name) {
+    if(name == "Gamepad") return SuperFamicom::Gamepad::create();
+    if(name == "Super Multitap") return SuperMultitap::create();
+    return Node::Peripheral::create("Controller");
   };
-*/
   node->append(port1);
   node->append(port2);
   node->append(port3);

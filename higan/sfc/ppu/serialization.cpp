@@ -3,7 +3,7 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(self.overscan);
   s.integer(self.vdisp);
 
-  if(system.fastPPU()) {
+  if(hacks.ppu.fast->latch()) {
     return ppufast.serialize(s);
   }
 

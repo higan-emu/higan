@@ -1,17 +1,17 @@
-namespace higan::Object {
+namespace higan::Core {
 
-struct Port : Node {
+struct Port : Object {
   DeclareClass(Port, "Port")
 
-  Port(string name = {}, string category = {}) : Node(name), category(category) {
-    allocate = [](auto) { return shared_pointer<Peripheral>::create("Peripheral"); };
+  Port(string name = {}, string type = {}) : Object(name), type(type) {
+    allocate = [](auto) { return Node::Peripheral::create("Peripheral"); };
   }
 
-  auto connected() -> shared_pointer<Peripheral> {
-    return find<shared_pointer<Peripheral>>(0);
+  auto connected() -> Node::Peripheral {
+    return find<Node::Peripheral>(0);
   }
 
-  auto connect(shared_pointer<Peripheral> peripheral) -> void {
+  auto connect(Node::Peripheral peripheral) -> void {
     disconnect();
     prepend(peripheral);
     if(attach) attach(peripheral);
@@ -25,32 +25,32 @@ struct Port : Node {
   }
 
   auto serialize(string& output, string depth) -> void override {
-    Node::serialize(output, depth);
-    if(category) output.append(depth, "  category: ", category, "\n");
+    Object::serialize(output, depth);
+    if(type) output.append(depth, "  type: ", type, "\n");
   }
 
   auto unserialize(Markup::Node node) -> void override {
-    Node::unserialize(node);
-    category = node["category"].text();
+    Object::unserialize(node);
+    type = node["type"].text();
   }
 
-  auto copy(shared_pointer<Node> node) -> void override {
-    if(auto source = node->cast<shared_pointer<Port>>()) {
-      category = source->category;
+  auto copy(Node::Object node) -> void override {
+    if(auto source = node->cast<Node::Port>()) {
+      type = source->type;
       if(auto peripheral = source->connected()) {
         auto node = allocate(peripheral->name);
         node->copy(peripheral);
         connect(node);
       }
     }
-    Node::copy(node);
+    Object::copy(node);
   }
 
-  string category;
+  string type;
 
-  function<shared_pointer<Peripheral> (string)> allocate;
-  function<void (shared_pointer<Peripheral>)> attach;
-  function<void (shared_pointer<Peripheral>)> detach;
+  function<Node::Peripheral (string)> allocate;
+  function<void (Node::Peripheral)> attach;
+  function<void (Node::Peripheral)> detach;
 };
 
 }

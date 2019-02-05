@@ -1,8 +1,8 @@
-namespace higan::Object {
+namespace higan::Core {
 
-struct System : Node {
+struct System : Object {
   DeclareClass(System, "System")
-  using Node::Node;
+  using Object::Object;
 };
 
 }

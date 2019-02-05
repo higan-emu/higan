@@ -1,8 +1,8 @@
-namespace higan::Object {
+namespace higan::Core {
 
-struct Peripheral : Node {
+struct Peripheral : Object {
   DeclareClass(Peripheral, "Peripheral")
-  using Node::Node;
+  using Object::Object;
 };
 
 }

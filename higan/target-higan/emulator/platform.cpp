@@ -1,16 +1,21 @@
-auto Emulator::attach(higan::Node node) -> void {
-  print("attach ", node->name, "\n");
+auto Emulator::attach(higan::Node::Object node) -> void {
+  if(auto location = node->property("location")) {
+    node->load(file::read({location, "node.bml"}));
+    if(node->find<higan::Node::Input>()) inputManager.bind();
+  }
 }
 
-auto Emulator::detach(higan::Node node) -> void {
-  print("detach ", node->name, "\n");
+auto Emulator::detach(higan::Node::Object node) -> void {
+  if(auto location = node->property("location")) {
+    file::write({location, "node.bml"}, node->save());
+  }
 }
 
-auto Emulator::open(higan::Node node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
+auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
   auto location = node->property("location");
 
   if(name == "manifest.bml") {
-    if(!file::exists({location, name})) {
+    if(!file::exists({location, name}) && directory::exists(location)) {
       if(auto manifest = execute("icarus", "--manifest", location)) {
         return vfs::memory::file::open(manifest.output.data<uint8_t>(), manifest.output.size());
       }
@@ -20,9 +25,19 @@ auto Emulator::open(higan::Node node, string name, vfs::file::mode mode, bool re
   if(auto result = vfs::fs::file::open({location, name}, mode)) return result;
 
   if(required) {
+    //attempt to pull required system firmware (boot ROMs, etc) from system template
+    if(location == emulator.system.data) {
+      if(file::exists({emulator.system.templates, name})) {
+        file::copy({emulator.system.templates, name}, {emulator.system.data, name});
+        if(auto result = vfs::fs::file::open({location, name}, mode)) return result;
+      }
+    }
+
+    //todo: show file browser to select file here ... eg to select GBA BIOS
     MessageDialog()
     .setTitle("Error")
     .setText({"Missing required file:\n", location, name})
+    .setPlacement(Placement::Center)
     .error();
   }
 
@@ -45,7 +60,7 @@ auto Emulator::videoFrame(higan::Node::Video node, const uint32* data, uint pitc
   }
 }
 
-auto Emulator::audioFrame(const double* samples, uint channels) -> void {
+auto Emulator::audioFrame(higan::Node::Audio node, const double* samples, uint channels) -> void {
   if(channels == 1) {
     double stereo[] = {samples[0], samples[0]};
     audio.output(stereo);
@@ -57,12 +72,10 @@ auto Emulator::audioFrame(const double* samples, uint channels) -> void {
 auto Emulator::inputPoll(higan::Node::Input input) -> void {
   inputManager.poll();
 
-  if(auto button = input->cast<higan::Node::Input::Button>()) {
+  if(auto button = input->cast<higan::Node::Button>()) {
     button->value = 0;
-    if(auto device = button->property<shared_pointer<HID::Device>>("device")) {
-      auto groupID = button->property("group").natural();
-      auto inputID = button->property("input").natural();
-      button->value = device->group(groupID).input(inputID).value();
+    if(auto instance = button->property<shared_pointer<InputButton>>("instance")) {
+      button->value = instance->value();
     }
   }
 }

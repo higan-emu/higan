@@ -1,6 +1,6 @@
 struct Cartridge {
   Node::Port port;
-  auto initialize(Node) -> void;
+  auto initialize(Node::Object) -> void;
 
   auto pathID() const -> uint { return information.pathID; }
   auto region() const -> string { return information.region; }

@@ -10,9 +10,6 @@ auto System::serialize() -> serializer {
   s.array(version);
   s.array(description);
 
-  s.boolean(hacks.fastPPU);
-  s.boolean(hacks.fastDSP);
-
   serializeAll(s);
   return s;
 }
@@ -29,12 +26,8 @@ auto System::unserialize(serializer& s) -> bool {
   if(signature != 0x31545342) return false;
   if(string{version} != SerializerVersion) return false;
 
-  s.boolean(hacks.fastPPU);
-  s.boolean(hacks.fastDSP);
-
   power(/* reset = */ false);
   serializeAll(s);
-  serializeInit();  //hacks.fastPPU setting changes serializeSize
   return true;
 }
 
@@ -90,9 +83,6 @@ auto System::serializeInit() -> void {
   s.integer(signature);
   s.array(version);
   s.array(description);
-
-  s.boolean(hacks.fastPPU);
-  s.boolean(hacks.fastDSP);
 
   serializeAll(s);
   serializeSize = s.size();

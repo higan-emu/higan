@@ -1,11 +1,25 @@
-struct PPU : Thread, PPUcounter {
-  Node::Video display;
-  struct Settings {
-    Node::Setting::Boolean colorEmulation;
-    Node::Setting::Boolean colorBleed;
-  } settings;
-  auto initialize(Node) -> void;
+namespace Tree {
+  struct PPU1 {
+    auto initialize(Node::Object) -> void;
+    Node::Component node;
+    Node::Natural version;
+  };
 
+  struct PPU2 {
+    auto initialize(Node::Object) -> void;
+    Node::Component node;
+    Node::Natural version;
+  };
+
+  struct VRAM {
+    auto initialize(Node::Object) -> void;
+    Node::Component node;
+    Node::Natural size;
+  };
+}
+
+struct PPU : Thread, PPUcounter {
+  struct Nodes { Tree::PPU1 ppu1; Tree::PPU2 ppu2; Tree::VRAM vram; } nodes;
   alwaysinline auto interlace() const -> bool { return self.interlace; }
   alwaysinline auto overscan() const -> bool { return self.overscan; }
   alwaysinline auto vdisp() const -> uint { return self.vdisp; }

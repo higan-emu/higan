@@ -19,7 +19,7 @@ auto SMP::main() -> void {
 }
 
 auto SMP::load() -> bool {
-  if(auto fp = platform->open(system.node, "ipl.rom", File::Read, File::Required)) {
+  if(auto fp = platform->open(system.root, "ipl.rom", File::Read, File::Required)) {
     fp->read(iplrom, 64);
     return true;
   }

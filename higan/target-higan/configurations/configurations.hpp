@@ -60,12 +60,9 @@ struct ConfigurationManager : Window {
       MenuItem quitAction{&actionMenu};
     Menu settingsMenu{&menuBar};
     Menu pathsMenu{&menuBar};
-      MenuItem dataPathOpen{&pathsMenu};
       MenuItem dataPathChange{&pathsMenu};
-      MenuSeparator dataPathSeparator{&pathsMenu};
+      MenuItem dataPathOpen{&pathsMenu};
       MenuItem templatesPathOpen{&pathsMenu};
-      MenuItem templatesPathChange{&pathsMenu};
-      MenuSeparator templatesPathSeparator{&pathsMenu};
       MenuItem settingsPathOpen{&pathsMenu};
     Menu helpMenu{&menuBar};
       MenuItem documentation{&helpMenu};

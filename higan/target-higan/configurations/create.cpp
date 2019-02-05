@@ -11,10 +11,10 @@ ConfigurationCreateDialog::ConfigurationCreateDialog() {
   }
   for(auto emulator : interfaces) {
     TableViewItem item{&systemList};
-    item.setProperty("system", emulator->information().name);
+    item.setProperty("system", emulator->name());
     TableViewCell cell{&item};
     cell.setIcon(Icon::Place::Server);
-    cell.setText(emulator->information().name);
+    cell.setText(emulator->name());
   }
   nameLabel.setText("Name:");
   nameValue.onActivate([&] {

@@ -31,9 +31,6 @@ ConfigurationManager::ConfigurationManager() {
   settingsMenu.setText("Settings");
 
   pathsMenu.setText("Paths");
-  dataPathOpen.setIcon(Icon::Action::Open).setText("Open Data Path ...").onActivate([&] {
-    invoke(Path::data);
-  });
   dataPathChange.setIcon(Icon::Action::Settings).setText("Change Data Path ...").onActivate([&] {
     if(auto location = BrowserDialog()
     .setTitle("Select Data Path")
@@ -45,23 +42,14 @@ ConfigurationManager::ConfigurationManager() {
         "data: ", Path::data, "\n",
         "templates: ", Path::templates, "\n"
       });
+      refresh();
     }
+  });
+  dataPathOpen.setIcon(Icon::Action::Open).setText("Open Data Path ...").onActivate([&] {
+    invoke(Path::data);
   });
   templatesPathOpen.setIcon(Icon::Action::Open).setText("Open Templates Path ...").onActivate([&] {
     invoke(Path::templates);
-  });
-  templatesPathChange.setIcon(Icon::Action::Settings).setText("Change Templates Path ...").onActivate([&] {
-    if(auto location = BrowserDialog()
-    .setTitle("Select Templates Path")
-    .setPath(Path::templates)
-    .setPlacement(Placement::Overlap, *this).selectFolder()
-    ) {
-      Path::templates = location;
-      file::write({Path::settings, "paths.bml"}, string{
-        "data: ", Path::data, "\n",
-        "templates: ", Path::templates, "\n"
-      });
-    }
   });
   settingsPathOpen.setIcon(Icon::Action::Open).setText("Open Settings Path ...").onActivate([&] {
     invoke(Path::settings);
@@ -148,9 +136,8 @@ template<typename T> auto ConfigurationManager::scan(T parent, string location) 
   for(auto& name : directory::folders(location)) {
     TreeViewItem item{&parent};
     item.setProperty("location", {location, name});
-    if(file::exists({location, name, "properties.bml"})) {
-      auto document = BML::unserialize(file::read({location, name, "properties.bml"}));
-      item.setProperty("system", document["system/name"].text());
+    if(auto document = BML::unserialize(file::read({location, name, "identity.bml"}))) {
+      item.setProperty("system", document["system"].text());
       item.setIcon(Icon::Place::Server).setText(string{name}.trimRight("/", 1L));
     } else {
       item.setIcon(Icon::Emblem::Folder).setText(string{name}.trimRight("/", 1L));
@@ -162,7 +149,7 @@ template<typename T> auto ConfigurationManager::scan(T parent, string location) 
 auto ConfigurationManager::eventActivate() -> void {
   if(auto item = configurationList.selected()) {
     if(auto system = item.property("system")) {
-      if(auto index = interfaces.find([&](auto emulator) { return emulator->information().name == system; })) {
+      if(auto index = interfaces.find([&](auto emulator) { return emulator->name() == system; })) {
         setVisible(false);
         emulator.create(interfaces[*index], item.property("location"));
       }
@@ -223,8 +210,10 @@ auto ConfigurationManager::eventCreate() -> void {
               "Name: ", name})
     .setPlacement(Placement::Center, *this).error();
   if(system) {
-    if(auto index = interfaces.find([&](auto emulator) { return emulator->information().name == system; })) {
-      file::write({location, name, "properties.bml"}, interfaces[*index]->properties().serialize());
+    if(auto index = interfaces.find([&](auto emulator) { return emulator->name() == system; })) {
+      file::write({location, name, "identity.bml"}, string{
+        "system: ", system, "\n"
+      });
     }
   }
   refresh();

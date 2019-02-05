@@ -5,10 +5,10 @@ namespace higan::SuperFamicom {
 ControllerPort controllerPort1;
 ControllerPort controllerPort2;
 #include "gamepad/gamepad.cpp"
-#include "mouse/mouse.cpp"
-#include "super-multitap/super-multitap.cpp"
-#include "super-scope/super-scope.cpp"
-#include "justifier/justifier.cpp"
+//#include "mouse/mouse.cpp"
+//#include "super-multitap/super-multitap.cpp"
+//#include "super-scope/super-scope.cpp"
+//#include "justifier/justifier.cpp"
 
 Controller::Controller(uint port) : port(port) {
   if(!handle()) create(Controller::Enter, 1);
@@ -48,14 +48,14 @@ auto Controller::iobit(bool data) -> void {
 
 //
 
-auto ControllerPort::initialize(Node parent) -> void {
+auto ControllerPort::initialize(Node::Object parent) -> void {
   auto portID = this == &controllerPort2;
   connect();  //temporary hack
 
-  port = Node::Port::create(!portID ? "Controller Port 1" : "Controller Port 2", "Controllers");
+  port = Node::Port::create(string{"Controller Port ", 1 + portID}, "Controller");
   port->allocate = [&](auto name) {
     if(name == "Gamepad") return Gamepad::create();
-    if(name == "Super Multitap") return SuperMultitap::create();
+  //if(name == "Super Multitap") return SuperMultitap::create();
     return Node::Peripheral::create("Controller");
   };
   port->attach = [&](auto node) {
@@ -76,7 +76,7 @@ auto ControllerPort::connect(Node::Peripheral node) -> void {
   if(node) {
     if(node->name == "Gamepad") device = new Gamepad(node, portID);
 //  if(node->name == "Mouse") device = new Mouse(portID);
-    if(node->name == "Super Multitap") device = new SuperMultitap(node, portID);
+//  if(node->name == "Super Multitap") device = new SuperMultitap(node, portID);
 //  if(node->name == "Super Scope") device = new SuperScope(portID);
 //  if(node->name == "Justifier") device = new Justifier(portID, false);
 //  if(node->name == "Justifiers") device = new Justifier(portID, true);

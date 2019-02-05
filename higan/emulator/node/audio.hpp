@@ -1,8 +1,8 @@
-namespace higan::Object {
+namespace higan::Core {
 
-struct Audio : Node {
+struct Audio : Object {
   DeclareClass(Audio, "Audio")
-  using Node::Node;
+  using Object::Object;
 };
 
 }

@@ -12,7 +12,6 @@
 #include <nall/random.hpp>
 #include <nall/serializer.hpp>
 #include <nall/set.hpp>
-#include <nall/settings.hpp>
 #include <nall/shared-pointer.hpp>
 #include <nall/string.hpp>
 #include <nall/traits.hpp>
@@ -38,7 +37,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.97";
+  static const string Version = "106.98";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org/";

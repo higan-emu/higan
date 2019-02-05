@@ -3,28 +3,13 @@
 namespace higan::SuperFamicom {
 
 Interface* interface = nullptr;
-Options option;
-Properties property;
 
-auto SuperFamicomInterface::information() -> Information {
-  Information information;
-  information.manufacturer = "Nintendo";
-  information.name         = "Super Famicom";
-  information.extension    = "sfc";
-  information.resettable   = true;
-  return information;
+auto SuperFamicomInterface::name() -> string {
+  return "Super Famicom";
 }
 
-auto SuperFamicomInterface::display() -> Display {
-  Display display;
-  display.type   = Display::Type::CRT;
-  display.colors = 1 << 19;
-  display.width  = 256;
-  display.height = 240;
-  display.internalWidth  = 512;
-  display.internalHeight = 480;
-  display.aspectCorrection =8.0 / 7.0;
-  return display;
+auto SuperFamicomInterface::colors() -> uint32 {
+  return 1 << 19;
 }
 
 auto SuperFamicomInterface::color(uint32 color) -> uint64 {
@@ -40,7 +25,7 @@ auto SuperFamicomInterface::color(uint32 color) -> uint64 {
   uint64 G = L * image::normalize(g, 5, 16);
   uint64 B = L * image::normalize(b, 5, 16);
 
-  if(ppu.settings.colorEmulation->value()) {
+  if(system.display.colorEmulation->value()) {
     static const uint8 gammaRamp[32] = {
       0x00, 0x01, 0x03, 0x06, 0x0a, 0x0f, 0x15, 0x1c,
       0x24, 0x2d, 0x37, 0x42, 0x4e, 0x5b, 0x69, 0x78,
@@ -53,10 +38,6 @@ auto SuperFamicomInterface::color(uint32 color) -> uint64 {
   }
 
   return R << 32 | G << 16 | B << 0;
-}
-
-auto SuperFamicomInterface::loaded() -> bool {
-  return system.loaded();
 }
 
 auto SuperFamicomInterface::hashes() -> vector<string> {
@@ -97,136 +78,8 @@ auto SuperFamicomInterface::terminate() -> void {
   return system.terminate();
 }
 
-auto SuperFamicomInterface::root() -> Node {
-  return system.node;
-}
-
-auto SuperFamicomInterface::ports() -> vector<Port> { return {
-  {ID::Port::Controller1, "Controller Port 1"},
-  {ID::Port::Controller2, "Controller Port 2"},
-  {ID::Port::Expansion,   "Expansion Port"   }};
-}
-
-auto SuperFamicomInterface::devices(uint port) -> vector<Device> {
-  if(port == ID::Port::Controller1) return {
-    {ID::Device::None,    "None"   },
-    {ID::Device::Gamepad, "Gamepad"},
-    {ID::Device::Mouse,   "Mouse"  }
-  };
-
-  if(port == ID::Port::Controller2) return {
-    {ID::Device::None,          "None"          },
-    {ID::Device::Gamepad,       "Gamepad"       },
-    {ID::Device::Mouse,         "Mouse"         },
-    {ID::Device::SuperMultitap, "Super Multitap"},
-    {ID::Device::SuperScope,    "Super Scope"   },
-    {ID::Device::Justifier,     "Justifier"     },
-    {ID::Device::Justifiers,    "Justifiers"    }
-  };
-
-  if(port == ID::Port::Expansion) return {
-    {ID::Device::None,        "None"       },
-    {ID::Device::Satellaview, "Satellaview"},
-    {ID::Device::S21FX,       "21fx"       }
-  };
-
-  return {};
-}
-
-auto SuperFamicomInterface::inputs(uint device) -> vector<Input> {
-  using Type = Input::Type;
-
-  if(device == ID::Device::None) return {
-  };
-
-  if(device == ID::Device::Gamepad) return {
-    {Type::Hat,     "Up"    },
-    {Type::Hat,     "Down"  },
-    {Type::Hat,     "Left"  },
-    {Type::Hat,     "Right" },
-    {Type::Button,  "B"     },
-    {Type::Button,  "A"     },
-    {Type::Button,  "Y"     },
-    {Type::Button,  "X"     },
-    {Type::Trigger, "L"     },
-    {Type::Trigger, "R"     },
-    {Type::Control, "Select"},
-    {Type::Control, "Start" }
-  };
-
-  if(device == ID::Device::Mouse) return {
-    {Type::Axis,   "X-axis"},
-    {Type::Axis,   "Y-axis"},
-    {Type::Button, "Left"  },
-    {Type::Button, "Right" }
-  };
-
-  if(device == ID::Device::SuperMultitap) {
-    vector<Input> inputs;
-    for(uint p = 2; p <= 5; p++) inputs.append({
-      {Type::Hat,     {"Port ", p, " - ", "Up"    }},
-      {Type::Hat,     {"Port ", p, " - ", "Down"  }},
-      {Type::Hat,     {"Port ", p, " - ", "Left"  }},
-      {Type::Hat,     {"Port ", p, " - ", "Right" }},
-      {Type::Button,  {"Port ", p, " - ", "B"     }},
-      {Type::Button,  {"Port ", p, " - ", "A"     }},
-      {Type::Button,  {"Port ", p, " - ", "Y"     }},
-      {Type::Button,  {"Port ", p, " - ", "X"     }},
-      {Type::Trigger, {"Port ", p, " - ", "L"     }},
-      {Type::Trigger, {"Port ", p, " - ", "R"     }},
-      {Type::Control, {"Port ", p, " - ", "Select"}},
-      {Type::Control, {"Port ", p, " - ", "Start" }}
-    });
-    return inputs;
-  }
-
-  if(device == ID::Device::SuperScope) return {
-    {Type::Axis,    "X-axis" },
-    {Type::Axis,    "Y-axis" },
-    {Type::Control, "Trigger"},
-    {Type::Control, "Cursor" },
-    {Type::Control, "Turbo"  },
-    {Type::Control, "Pause"  }
-  };
-
-  if(device == ID::Device::Justifier) return {
-    {Type::Axis,    "X-axis" },
-    {Type::Axis,    "Y-axis" },
-    {Type::Control, "Trigger"},
-    {Type::Control, "Start"  }
-  };
-
-  if(device == ID::Device::Justifiers) return {
-    {Type::Axis,    "Port 1 - X-axis" },
-    {Type::Axis,    "Port 1 - Y-axis" },
-    {Type::Control, "Port 1 - Trigger"},
-    {Type::Control, "Port 1 - Start"  },
-    {Type::Axis,    "Port 2 - X-axis" },
-    {Type::Axis,    "Port 2 - Y-axis" },
-    {Type::Control, "Port 2 - Trigger"},
-    {Type::Control, "Port 2 - Start"  }
-  };
-
-  if(device == ID::Device::Satellaview) return {
-  };
-
-  if(device == ID::Device::S21FX) return {
-  };
-
-  return {};
-}
-
-auto SuperFamicomInterface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return option.port.controller1.device();
-  if(port == ID::Port::Controller2) return option.port.controller2.device();
-  if(port == ID::Port::Expansion) return option.port.expansion.device();
-  return 0;
-}
-
-auto SuperFamicomInterface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(option.port.controller1.device(device));
-  if(port == ID::Port::Controller2) controllerPort2.connect(option.port.controller2.device(device));
-  if(port == ID::Port::Expansion) expansionPort.connect(option.port.expansion.device(device));
+auto SuperFamicomInterface::root() -> Node::Object {
+  return system.root;
 }
 
 auto SuperFamicomInterface::power() -> void {
@@ -268,14 +121,6 @@ auto SuperFamicomInterface::cheats(const vector<string>& list) -> void {
   if(cartridge.has.ICD) return GameBoy::cheat.assign(list);
   #endif
   cheat.assign(list);
-}
-
-auto SuperFamicomInterface::options() -> Settings& {
-  return option;
-}
-
-auto SuperFamicomInterface::properties() -> Settings& {
-  return property;
 }
 
 }

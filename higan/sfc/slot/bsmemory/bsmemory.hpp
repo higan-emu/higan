@@ -18,7 +18,7 @@
 struct BSMemory : Thread, Memory {
   Node::Port port;
   using Thread::create;
-  auto initialize(Node) -> void;
+  auto initialize(Node::Object) -> void;
 
   uint ROM = 1;
 

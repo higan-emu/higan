@@ -44,10 +44,15 @@ auto pTableView::construct() -> void {
   g_signal_connect(G_OBJECT(gtkTreeView), "row-activated", G_CALLBACK(TableView_activate), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeSelection), "changed", G_CALLBACK(TableView_change), (gpointer)this);
 
+  //searching doesn't currently work anyway ...
+  gtkEntry = (GtkEntry*)gtk_entry_new();
+  gtk_tree_view_set_search_entry(gtkTreeView, gtkEntry);
+
   pWidget::construct();
 }
 
 auto pTableView::destruct() -> void {
+  gtk_widget_destroy(GTK_WIDGET(gtkEntry));
   gtk_widget_destroy(gtkWidgetChild);
   gtk_widget_destroy(gtkWidget);
 }

@@ -3,6 +3,12 @@
 namespace Instances { Instance<InputManager> inputManager; }
 InputManager& inputManager = Instances::inputManager();
 
+auto InputButton::value() -> bool {
+  return device->group(groupID).input(inputID).value();
+}
+
+//
+
 auto InputManager::create() -> void {
   root = interface->root();
 
@@ -39,9 +45,10 @@ auto InputManager::poll() -> void {
 }
 
 auto InputManager::bind() -> void {
+  if(!root) return;
   for(auto& input : root->find<higan::Node::Input>()) {
     //not strictly necessary; but release any shared_pointer instances to free up the allocated memory
-    input->setProperty<shared_pointer<HID::Device>>("device");
+    input->setProperty<shared_pointer<InputButton>>("instance");
 
     auto _pathID = input->property("pathID"); if(!_pathID) continue;
     auto _vendorID = input->property("vendorID"); if(!_vendorID) continue;
@@ -56,8 +63,14 @@ auto InputManager::bind() -> void {
       if(vendorID != device->vendorID()) continue;
       if(productID != device->productID()) continue;
 
-      input->setProperty<shared_pointer<HID::Device>>("device", device);
-      break;
+      if(input->cast<higan::Node::Button>()) {
+        auto instance = shared_pointer_make<InputButton>();
+        instance->device = device;
+        instance->groupID = input->property("groupID").natural();
+        instance->inputID = input->property("inputID").natural();
+        input->setProperty<shared_pointer<InputButton>>("instance", instance);
+        break;
+      }
     }
   }
 }

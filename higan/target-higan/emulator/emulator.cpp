@@ -13,19 +13,18 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   system = {};
   system.name = Location::base(location).trimRight("/", 1L);
   system.data = location;
-  system.templates = {Path::templates, interface->information().name, "/"};
+  system.templates = {Path::templates, interface->name(), "/"};
 
-  string configuration = file::read({location, "root.bml"});
+  string configuration = file::read({location, "node.bml"});
   if(!configuration) {
     auto system = higan::Node::System::create();
-    system->name = interface->information().name;
+    system->name = interface->name();
     system->setProperty("location", location);
     configuration = higan::Node::serialize(system);
   }
 
   interface->initialize(configuration);
   root = interface->root();
-  for(auto& node : root->find<higan::Node::Peripheral>()) load(node);
 
   systemManager.show();
 
@@ -61,10 +60,10 @@ auto Emulator::main() -> void {
 
 auto Emulator::quit() -> void {
   if(auto location = root->property("location")) {
-    file::write({location, "root.bml"}, higan::Node::serialize(root));
+    file::write({location, "node.bml"}, higan::Node::serialize(root));
   }
-  for(auto& node : root->find<higan::Node::Peripheral>()) save(node);
 
+  Application::quit();  //stop processing hiro callbacks before destructing everything
   viewports.reset();
   audio.reset();
   inputManager.reset();
@@ -74,7 +73,6 @@ auto Emulator::quit() -> void {
   interface->terminate();
   interface.reset();
   interfaces.reset();
-  Application::exit();
 }
 
 auto Emulator::power(bool on) -> void {
@@ -96,18 +94,4 @@ auto Emulator::connected(string location) -> bool {
     if(location == peripheral->property("location")) return true;
   }
   return false;
-}
-
-auto Emulator::load(higan::Node::Peripheral node) -> void {
-  if(auto location = node->property("location")) {
-    if(auto document = file::read({location, "node.bml"})) {
-      node->copy(higan::Node::unserialize(document));
-    }
-  }
-}
-
-auto Emulator::save(higan::Node::Peripheral node) -> void {
-  if(auto location = node->property("location")) {
-    file::write({location, "node.bml"}, higan::Node::serialize(node));
-  }
 }

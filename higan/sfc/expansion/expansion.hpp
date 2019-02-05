@@ -7,7 +7,7 @@ struct Expansion : Thread {
 
 struct ExpansionPort {
   Node::Port port;
-  auto initialize(Node) -> void;
+  auto initialize(Node::Object) -> void;
 
   auto connect(uint deviceID) -> void;
 

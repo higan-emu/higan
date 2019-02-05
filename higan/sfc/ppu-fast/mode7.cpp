@@ -26,7 +26,7 @@ auto PPU::Line::renderMode7(PPU::IO::Background& self, uint source) -> void {
   renderWindow(self.window, self.window.belowEnable, windowBelow);
 
   #undef ppu  //sigh
-  if(!option.hack.ppu.hiresMode7()) {
+  if(!hacks.ppu.hiresMode7->latch()) {
   #define ppu ppufast
     for(int X : range(256)) {
       int x = !io.mode7.hflip ? X : 255 - X;

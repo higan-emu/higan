@@ -1,4 +1,12 @@
-struct CPU : WDC65816, Thread, PPUcounter {
+namespace Tree {
+  struct CPU {
+    auto initialize(Node::Object) -> void;
+    Node::Component node;
+    Node::Natural version;
+  };
+}
+
+struct CPU : WDC65816, Thread, PPUcounter, Tree::CPU {
   inline auto interruptPending() const -> bool override { return status.interruptPending; }
   inline auto pio() const -> uint8 { return io.pio; }
   inline auto refresh() const -> bool { return status.dramRefresh == 1; }

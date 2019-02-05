@@ -7,8 +7,8 @@ namespace higan::SuperFamicom {
 #include "serialization.cpp"
 Cartridge cartridge;
 
-auto Cartridge::initialize(Node parent) -> void {
-  port = Node::Port::create("Cartridge Port", "Cartridges");
+auto Cartridge::initialize(Node::Object parent) -> void {
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
   port->allocate = [&](auto name) {
     return Node::Peripheral::create("Cartridge");
   };
@@ -16,6 +16,7 @@ auto Cartridge::initialize(Node parent) -> void {
     load();
   };
   port->detach = [&](auto node) {
+    save();
     unload();
   };
   parent->append(port);

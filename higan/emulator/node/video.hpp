@@ -1,35 +1,36 @@
-namespace higan::Object {
+namespace higan::Core {
 
-struct Video : Node {
+struct Video : Object {
   DeclareClass(Video, "Video")
-  using Node::Node;
+  using Object::Object;
 
   auto serialize(string& output, string depth) -> void override {
-    Node::serialize(output, depth);
-    output.append(depth, "  category: ", category, "\n");
+    Object::serialize(output, depth);
+    output.append(depth, "  type: ", type, "\n");
     output.append(depth, "  width: ", width, "\n");
     output.append(depth, "  height: ", height, "\n");
     output.append(depth, "  aspect: ", aspect, "\n");
   }
 
   auto unserialize(Markup::Node node) -> void override {
-    Node::unserialize(node);
-    category = node["category"].text();
+    Object::unserialize(node);
+    type = node["type"].text();
     width = node["width"].natural();
     height = node["height"].natural();
     aspect = node["aspect"].real();
   }
 
-  auto copy(shared_pointer<Node> node) -> void override {
-    if(auto source = node->cast<shared_pointer<Video>>()) {
-      category = source->category;
+  auto copy(Node::Object node) -> void override {
+    if(auto source = node->cast<Node::Video>()) {
+      type = source->type;
       width = source->width;
       height = source->height;
       aspect = source->aspect;
     }
+    Object::copy(node);
   }
 
-  string category;  //"CRT", "LCD"
+  string type;  //"CRT", "LCD"
   uint width = 0;
   uint height = 0;
   double aspect = 1.0;

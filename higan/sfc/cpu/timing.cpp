@@ -40,7 +40,7 @@ auto CPU::step(uint clocks) -> void {
     status.dramRefresh = 1; step(6); status.dramRefresh = 2; step(2); aluEdge();
   }
 
-  if(option.hack.coprocessor.fast()) return;
+  if(hacks.coprocessors.fast->latch()) return;
   for(auto coprocessor : coprocessors) synchronize(*coprocessor);
 }
 

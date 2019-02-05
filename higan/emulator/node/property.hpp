@@ -1,4 +1,4 @@
-namespace higan::Object {
+namespace higan::Core {
 
 struct Property {
   Property(const string& name, const any& value = {}) : name(name), value(value) {}

@@ -34,6 +34,8 @@ private:
     MenuItem createAction{&contextMenu};
     MenuItem renameAction{&contextMenu};
     MenuItem removeAction{&contextMenu};
+    MenuSeparator contextSeparator{&contextMenu};
+    MenuCheckItem showHiddenOption{&contextMenu};
 
   BrowserDialog::State& state;
   BrowserDialog::Response response;
@@ -176,6 +178,12 @@ auto BrowserDialogWindow::isMatch(const string& name) -> bool {
 auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   response = {};
 
+  auto document = BML::unserialize(file::read({Path::userSettings(), "hiro/browser-dialog.bml"}));
+  struct Settings {
+    bool showHidden = true;
+  } settings;
+  if(auto node = document["BrowserDialog/ShowHidden"]) settings.showHidden = node.boolean();
+
   layout.setPadding(5);
   pathName.onActivate([&] { setPath(pathName.text()); });
   pathRefresh.setBordered(false).setIcon(Icon::Action::Refresh).onActivate([&] { setPath(state.path); });
@@ -292,6 +300,14 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
     pathRefresh.doActivate();
   });
 
+  showHiddenOption.setChecked(settings.showHidden).setText("Show Hidden").onToggle([&] {
+    auto document = BML::unserialize(file::read({Path::userSettings(), "hiro/browser-dialog.bml"}));
+    document("BrowserDialog/ShowHidden").setValue(showHiddenOption.checked());
+    directory::create({Path::userSettings(), "hiro/"});
+    file::write({Path::userSettings(), "hiro/browser-dialog.bml"}, BML::serialize(document));
+    pathRefresh.doActivate();
+  });
+
   setPath(state.path);
 
   window.onClose([&] { window.setModal(false); });
@@ -326,6 +342,7 @@ auto BrowserDialogWindow::setPath(string path) -> void {
     } else {
       continue;
     }
+    if(!showHiddenOption.checked() && directory::hidden({state.path, content})) continue;
     view.append(ListViewItem().setText(content).setIcon(Icon::Emblem::Folder));
   }
 
@@ -338,6 +355,7 @@ auto BrowserDialogWindow::setPath(string path) -> void {
       if(state.action == "openFolder") continue;
     }
     if(!isMatch(content)) continue;
+    if(!showHiddenOption.checked() && file::hidden({state.path, content})) continue;
     view.append(ListViewItem().setText(content).setIcon(isFolder ? (image)Icon::Action::Open : (image)Icon::Emblem::File));
   }
 

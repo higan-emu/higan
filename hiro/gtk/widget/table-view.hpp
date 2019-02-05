@@ -43,6 +43,7 @@ struct pTableView : pWidget {
   GtkTreeSelection* gtkTreeSelection = nullptr;
   GtkListStore* gtkListStore = nullptr;
   GtkTreeModel* gtkTreeModel = nullptr;
+  GtkEntry* gtkEntry = nullptr;
   vector<uint> currentSelection;
   bool suppressChange = false;
 };

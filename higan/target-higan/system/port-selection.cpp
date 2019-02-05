@@ -63,6 +63,9 @@ PortSelectionDialog::PortSelectionDialog() {
   });
 
   onClose([&] {
+    nodeList.reset();
+    port = {};
+    root = {};
     setModal(false);
     setVisible(false);
   });
@@ -92,22 +95,20 @@ auto PortSelectionDialog::refresh() -> void {
     cell.setIcon(Icon::Action::Remove).setText("Nothing");
   }
 
-  if(string location = {emulator.system.templates, port->category, "/"}) {
+  if(string location = {emulator.system.templates, port->type, "/"}) {
     for(auto& name : directory::folders(location)) {
       TableViewItem item{&nodeList};
       item.setProperty("type", "template");
-      item.setProperty("category", port->category);
       item.setProperty("location", {location, name});
       TableViewCell cell{&item};
       cell.setIcon(Icon::Emblem::FolderTemplate).setText(name.trimRight("/", 1L));
     }
   }
 
-  if(string location = {emulator.system.data, port->category, "/"}) {
+  if(string location = {emulator.system.data, port->type, "/"}) {
     for(auto& name : directory::folders(location)) {
       TableViewItem item{&nodeList};
       item.setProperty("type", "object");
-      item.setProperty("category", port->category);
       item.setProperty("location", {location, name});
       TableViewCell cell{&item};
       cell.setIcon(Icon::Emblem::Folder).setText(name.trimRight("/", 1L));
@@ -141,9 +142,8 @@ auto PortSelectionDialog::eventAccept() -> void {
     }
 
     if(item.property("type") == "template" && label) {
-      auto category = item.property("category");
       auto source = item.property("location");
-      auto target = string{emulator.system.data, category, "/", label, "/"};
+      auto target = string{emulator.system.data, port->type, "/", label, "/"};
       if(emulator.connected(target)) return (void)MessageDialog()
       .setText("This peripheral is already connected to a port.")
       .setPlacement(Placement::Center, *this)
@@ -162,11 +162,10 @@ auto PortSelectionDialog::eventAccept() -> void {
 
       if(directory::copy(source, target)) {
         auto peripheral = port->allocate(name);
-        file::write({target, "manifest.bml"}, string{
-          "system\n",
-          "  name: ", root->name, "\n",
-          "  type: ", peripheral->type(), "\n",
-          "  kind: ", name, "\n"
+        file::write({target, "identity.bml"}, string{
+          "system: ", root->name, "\n",
+          "  type: ", port->type, "\n",
+          "  name: ", name, "\n"
         });
         peripheral->setProperty("name", nameValue.text().strip());
         peripheral->setProperty("location", target);
@@ -182,12 +181,11 @@ auto PortSelectionDialog::eventAccept() -> void {
       .setPlacement(Placement::Center, *this)
       .information();
 
-      if(auto document = BML::unserialize(file::read({location, "manifest.bml"}))) {
-        if(auto kind = document["system/kind"].text()) name = kind;
+      if(auto document = BML::unserialize(file::read({location, "identity.bml"}))) {
+        if(auto node = document["system/name"]) name = node.text();
       }
       auto peripheral = port->allocate(name);
-      peripheral->setProperty("name", nameValue.text().strip());
-      peripheral->setProperty("location", item.property("location"));
+      peripheral->setProperty("location", location);
       port->connect(peripheral);
       systemManager.refresh();
     }

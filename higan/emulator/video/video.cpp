@@ -28,7 +28,7 @@ auto Video::setPalette() -> void {
   if(!interface) return;
 
   delete palette;
-  colors = interface->display().colors;
+  colors = interface->colors();
   palette = new uint32[colors];
   for(auto index : range(colors)) {
     uint64 color = interface->color(index);
