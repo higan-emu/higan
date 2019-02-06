@@ -1,6 +1,6 @@
 namespace Tree {
   struct System {
-    auto initialize(string) -> void;
+    auto initialize(string = {}) -> void;
     operator Node::Object() const { return node; }
     Node::System node;
   };
@@ -66,7 +66,6 @@ struct System {
 
 private:
   struct Information {
-    bool loaded = false;
     Region region = Region::NTSC;
     double cpuFrequency = Constants::Colorburst::NTSC * 6.0;
     double apuFrequency = 32040.0 * 768.0;

@@ -2,10 +2,6 @@ HitachiDSP hitachidsp;
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto HitachiDSP::Enter() -> void {
-  while(true) scheduler.synchronize(), hitachidsp.main();
-}
-
 auto HitachiDSP::step(uint clocks) -> void {
   HG51B::step(clocks);
   Thread::step(clocks);
@@ -24,5 +20,7 @@ auto HitachiDSP::unload() -> void {
 
 auto HitachiDSP::power() -> void {
   HG51B::power();
-  create(HitachiDSP::Enter, Frequency);
+  create(Frequency, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 }

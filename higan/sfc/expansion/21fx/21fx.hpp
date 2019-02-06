@@ -5,7 +5,6 @@ struct S21FX : Expansion {
   S21FX();
   ~S21FX();
 
-  static auto Enter() -> void;
   auto step(uint clocks) -> void;
   auto main() -> void;
 

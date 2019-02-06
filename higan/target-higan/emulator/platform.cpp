@@ -1,6 +1,8 @@
 auto Emulator::attach(higan::Node::Object node) -> void {
   if(auto location = node->property("location")) {
     node->load(file::read({location, "node.bml"}));
+    node->setProperty("location", location);
+    node->setProperty("name", Location::base(location).trimRight("/", 1L));
     if(node->find<higan::Node::Input>()) inputManager.bind();
   }
 }

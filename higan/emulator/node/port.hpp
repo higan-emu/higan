@@ -11,8 +11,10 @@ struct Port : Object {
     return find<Node::Peripheral>(0);
   }
 
-  auto connect(Node::Peripheral peripheral) -> void {
+  auto connect(string name, function<void (Node::Peripheral)> bind) -> void {
     disconnect();
+    auto peripheral = allocate(name);
+    if(bind) bind(peripheral);
     prepend(peripheral);
     if(attach) attach(peripheral);
   }
@@ -27,26 +29,30 @@ struct Port : Object {
   auto serialize(string& output, string depth) -> void override {
     Object::serialize(output, depth);
     if(type) output.append(depth, "  type: ", type, "\n");
+    output.append(depth, "  hotSwappable: ", hotSwappable, "\n");
   }
 
   auto unserialize(Markup::Node node) -> void override {
     Object::unserialize(node);
     type = node["type"].text();
+    hotSwappable = node["hotSwappable"].boolean();
   }
 
   auto copy(Node::Object node) -> void override {
     if(auto source = node->cast<Node::Port>()) {
       type = source->type;
+      hotSwappable = source->hotSwappable;
       if(auto peripheral = source->connected()) {
-        auto node = allocate(peripheral->name);
-        node->copy(peripheral);
-        connect(node);
+        connect(peripheral->name, [&](auto node) {
+          node->copy(peripheral);
+        });
       }
     }
     Object::copy(node);
   }
 
   string type;
+  bool hotSwappable = false;
 
   function<Node::Peripheral (string)> allocate;
   function<void (Node::Peripheral)> attach;

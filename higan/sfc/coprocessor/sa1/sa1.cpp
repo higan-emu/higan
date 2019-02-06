@@ -7,10 +7,6 @@ SA1 sa1;
 #include "io.cpp"
 #include "serialization.cpp"
 
-auto SA1::Enter() -> void {
-  while(true) scheduler.synchronize(), sa1.main();
-}
-
 auto SA1::main() -> void {
   if(r.wai) return instructionWait();
   if(r.stp) return instructionStop();
@@ -125,7 +121,9 @@ auto SA1::unload() -> void {
 
 auto SA1::power() -> void {
   WDC65816::power();
-  create(SA1::Enter, system.cpuFrequency());
+  create(system.cpuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   bwram.dma = false;
   for(uint address : range(iram.size())) {

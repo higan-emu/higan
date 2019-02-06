@@ -3,7 +3,6 @@ struct SuperFX : GSU, Thread {
   WritableMemory ram;
 
   //superfx.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto unload() -> void;
   auto power() -> void;

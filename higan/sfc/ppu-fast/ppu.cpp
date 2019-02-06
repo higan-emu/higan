@@ -38,10 +38,6 @@ PPU::~PPU() {
   delete[] tilecache[TileMode::BPP8];
 }
 
-auto PPU::Enter() -> void {
-  while(true) scheduler.synchronize(), ppu.main();
-}
-
 auto PPU::step(uint clocks) -> void {
   tick(clocks);
   Thread::step(clocks);
@@ -101,18 +97,18 @@ auto PPU::refresh() -> void {
   video.refresh(system.display.node, output, pitch * sizeof(uint32), width, height);
 }
 
-auto PPU::load() -> bool {
-  return true;
-}
-
-auto PPU::power(bool reset) -> void {
-  create(Enter, system.cpuFrequency());
-  PPUcounter::reset();
-  memory::fill<uint32>(output, 512 * 480);
-
+auto PPU::map() -> void {
   function<auto (uint24, uint8) -> uint8> reader{&PPU::readIO, this};
   function<auto (uint24, uint8) -> void> writer{&PPU::writeIO, this};
   bus.map(reader, writer, "00-3f,80-bf:2100-213f");
+}
+
+auto PPU::power(bool reset) -> void {
+  create(system.cpuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
+  PPUcounter::reset();
+  memory::fill<uint32>(output, 512 * 480);
 
   if(!reset) {
     for(auto address : range(32768)) {

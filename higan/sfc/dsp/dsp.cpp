@@ -34,10 +34,6 @@ auto DSP::step(uint clocks) -> void {
   Thread::step(clocks);
 }
 
-auto DSP::Enter() -> void {
-  while(true) scheduler.synchronize(), dsp.main();
-}
-
 auto DSP::main() -> void {
   voice5(voice[0]);
   voice2(voice[1]);
@@ -239,7 +235,9 @@ auto DSP::load() -> bool {
 }
 
 auto DSP::power(bool reset) -> void {
-  create(Enter, system.apuFrequency());
+  create(system.apuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   stream = audio.createStream(2, frequency() / 768.0);
 
   if(!reset) random.array(apuram, sizeof(apuram));

@@ -27,7 +27,6 @@ struct BSMemory : Thread, Memory {
 
   //bsmemory.cpp
   BSMemory();
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
 

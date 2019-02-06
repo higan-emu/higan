@@ -2,11 +2,6 @@ ArmDSP armdsp;
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto ArmDSP::Enter() -> void {
-  armdsp.boot();
-  while(true) scheduler.synchronize(), armdsp.main();
-}
-
 auto ArmDSP::boot() -> void {
   //reset hold delay
   while(bridge.reset) {
@@ -85,7 +80,10 @@ auto ArmDSP::power() -> void {
 
 auto ArmDSP::reset() -> void {
   ARM7TDMI::power();
-  create(ArmDSP::Enter, Frequency);
+  create(Frequency, [&] {
+    boot();
+    while(true) scheduler.synchronize(), main();
+  });
 
   bridge.ready = false;
   bridge.signal = false;

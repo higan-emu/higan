@@ -3,7 +3,6 @@ struct HitachiDSP : HG51B, Thread {
   WritableMemory ram;
 
   //hitachidsp.cpp
-  static auto Enter() -> void;
   auto step(uint clocks) -> void override;
   auto halt() -> void override;
 

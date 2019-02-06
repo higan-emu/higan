@@ -28,9 +28,8 @@ struct PPU : Thread, PPUcounter {
   PPU();
   ~PPU();
 
-  static auto Enter() -> void;
   auto main() -> void;
-  auto load() -> bool;
+  auto map() -> void;
   auto power(bool reset) -> void;
 
   //io.cpp

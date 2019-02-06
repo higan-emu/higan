@@ -13,9 +13,8 @@ struct CPU : WDC65816, Thread, PPUcounter, Tree::CPU {
   inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //cpu.cpp
-  static auto Enter() -> void;
   auto main() -> void;
-  auto load() -> bool;
+  auto map() -> void;
   auto power(bool reset) -> void;
 
   //dma.cpp

@@ -1,10 +1,6 @@
 MSU1 msu1;
 #include "serialization.cpp"
 
-auto MSU1::Enter() -> void {
-  while(true) scheduler.synchronize(), msu1.main();
-}
-
 auto MSU1::main() -> void {
   double left  = 0.0;
   double right = 0.0;
@@ -40,7 +36,9 @@ auto MSU1::unload() -> void {
 }
 
 auto MSU1::power() -> void {
-  create(MSU1::Enter, 44100);
+  create(44100, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   stream = audio.createStream(2, frequency());
 
   io.dataSeekOffset = 0;

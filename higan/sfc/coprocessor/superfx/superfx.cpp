@@ -6,10 +6,6 @@ SuperFX superfx;
 #include "timing.cpp"
 #include "serialization.cpp"
 
-auto SuperFX::Enter() -> void {
-  while(true) scheduler.synchronize(), superfx.main();
-}
-
 auto SuperFX::main() -> void {
   if(regs.sfr.g == 0) return step(6);
 
@@ -34,7 +30,9 @@ auto SuperFX::unload() -> void {
 
 auto SuperFX::power() -> void {
   GSU::power();
-  create(SuperFX::Enter, Frequency);
+  create(Frequency, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   romMask = rom.size() - 1;
   ramMask = ram.size() - 1;

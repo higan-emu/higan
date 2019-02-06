@@ -2,8 +2,35 @@
 
 namespace higan {
 
+struct ThreadEntryPoint {
+  cothread_t handle;
+  function<void ()> entryPoint;
+};
+
 struct Thread {
   enum : uintmax { Second = (uintmax)-1 >> 1 };
+
+  struct EntryPoint {
+    cothread_t handle = nullptr;
+    function<void ()> entryPoint;
+  };
+
+  static auto EntryPoints() -> vector<EntryPoint>& {
+    static vector<EntryPoint> entryPoints;
+    return entryPoints;
+  }
+
+  static auto Enter() -> void {
+    for(uint64_t index : range(EntryPoints().size())) {
+      if(co_active() == EntryPoints()[index].handle) {
+        auto entryPoint = EntryPoints()[index].entryPoint;
+        EntryPoints().remove(index);
+        while(true) entryPoint();
+      }
+    }
+    struct thread_not_found_exception{};
+    throw thread_not_found_exception{};
+  }
 
   virtual ~Thread() {
     if(_handle) co_delete(_handle);
@@ -32,11 +59,17 @@ struct Thread {
     _clock = clock;
   }
 
-  auto create(auto (*entrypoint)() -> void, double frequency) -> void {
+  auto create(double frequency, function<void ()> entryPoint) -> void {
     if(_handle) co_delete(_handle);
-    _handle = co_create(64 * 1024 * sizeof(void*), entrypoint);
+    _handle = co_create(64 * 1024 * sizeof(void*), &Thread::Enter);
+    EntryPoints().append({_handle, entryPoint});
     setFrequency(frequency);
     setClock(0);
+  }
+
+  __attribute__((deprecated))
+  auto create(auto (*entryPoint)() -> void, double frequency) -> void {
+    create(frequency, entryPoint);
   }
 
   inline auto step(uint clocks) -> void {

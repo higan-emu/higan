@@ -1,10 +1,6 @@
 Event event;
 #include "serialization.cpp"
 
-auto Event::Enter() -> void {
-  while(true) scheduler.synchronize(), event.main();
-}
-
 auto Event::main() -> void {
   if(scoreActive && scoreSecondsRemaining) {
     if(--scoreSecondsRemaining == 0) {
@@ -33,7 +29,9 @@ auto Event::unload() -> void {
 }
 
 auto Event::power() -> void {
-  create(Event::Enter, 1);
+  create(1, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   //DIP switches 0-3 control the time: 3 minutes + 0-15 extra minutes
   timer = (3 + dip.value.bits(0,3)) * 60;  //in seconds

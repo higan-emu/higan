@@ -18,12 +18,11 @@ struct PPU : Thread, PPUcounter {
   PPU();
   ~PPU();
 
-  static auto Enter() -> void;
   alwaysinline auto step(uint clocks) -> void;
   auto main() -> void;
   auto scanline() -> void;
   auto refresh() -> void;
-  auto load() -> bool;
+  auto map() -> void;
   auto power(bool reset) -> void;
 
   //serialization.cpp

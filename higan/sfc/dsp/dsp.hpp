@@ -169,7 +169,6 @@ private:
   auto echo30() -> void;
 
   //dsp.cpp
-  static auto Enter() -> void;
   auto tick() -> void;
   auto sample(int16 left, int16 right) -> void;
 };

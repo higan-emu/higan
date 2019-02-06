@@ -100,6 +100,7 @@ struct vector_base {
   auto removeRight(uint64_t length = 1) -> void;
   auto removeLast(uint64_t length = 1) -> void { return removeRight(length); }
   auto remove(uint64_t offset, uint64_t length = 1) -> void;
+  auto removeValue(const T& value) -> void;
 
   auto takeLeft() -> T;
   auto takeFirst() -> T { return move(takeLeft()); }

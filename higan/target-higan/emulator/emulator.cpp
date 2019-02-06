@@ -86,6 +86,7 @@ auto Emulator::power(bool on) -> void {
       viewport->setVisible(false);
     }
   }
+  systemManager.powerToggle.setChecked(on);
 }
 
 //used to prevent connecting the same (emulated) physical device to multiple ports simultaneously

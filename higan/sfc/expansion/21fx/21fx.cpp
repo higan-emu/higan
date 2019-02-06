@@ -4,7 +4,9 @@ auto S21FX::create() -> Node::Peripheral {
 }
 
 S21FX::S21FX() {
-  create(S21FX::Enter, 10'000'000);
+  create(10'000'000, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   resetVector.byte(0) = bus.read(0xfffc, 0x00);
   resetVector.byte(1) = bus.read(0xfffd, 0x00);
@@ -52,10 +54,6 @@ S21FX::~S21FX() {
   linkMain.reset();
 }
 
-auto S21FX::Enter() -> void {
-  while(true) scheduler.synchronize(), expansionPort.device->main();
-}
-
 auto S21FX::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(cpu);
@@ -71,7 +69,7 @@ auto S21FX::main() -> void {
     {&S21FX::write, this}
   );
   if(linkMain) linkMain({});
-  while(true) step(10'000'000);
+  while(true) scheduler.synchronize(), step(10'000'000);
 }
 
 auto S21FX::read(uint24 addr, uint8 data) -> uint8 {

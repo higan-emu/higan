@@ -69,7 +69,6 @@ auto SystemManager::refresh() -> void {
     attach(connectionList, node);
   }
   connectionList.expand().doChange();
-//print(higan::Node::serialize(root), "\n");
 }
 
 auto SystemManager::selected() -> higan::Node::Object {

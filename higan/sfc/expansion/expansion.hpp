@@ -1,7 +1,6 @@
 struct Expansion : Thread {
   Expansion();
   virtual ~Expansion();
-  static auto Enter() -> void;
   virtual auto main() -> void;
 };
 

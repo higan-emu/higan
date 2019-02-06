@@ -12,10 +12,6 @@ SPC7110::~SPC7110() {
   delete decompressor;
 }
 
-auto SPC7110::Enter() -> void {
-  while(true) scheduler.synchronize(), spc7110.main();
-}
-
 auto SPC7110::main() -> void {
   if(dcuPending) { dcuPending = 0; dcuBeginTransfer(); }
   if(mulPending) { mulPending = 0; aluMultiply(); }
@@ -35,7 +31,9 @@ auto SPC7110::unload() -> void {
 }
 
 auto SPC7110::power() -> void {
-  create(SPC7110::Enter, 21'477'272);
+  create(21'477'272, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   r4801 = 0x00;
   r4802 = 0x00;

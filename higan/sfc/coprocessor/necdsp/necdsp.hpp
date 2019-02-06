@@ -1,5 +1,4 @@
 struct NECDSP : uPD96050, Thread {
-  static auto Enter() -> void;
   auto main() -> void;
 
   auto read(uint24 addr, uint8 data) -> uint8;

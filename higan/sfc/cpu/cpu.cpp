@@ -18,10 +18,6 @@ CPU cpu;
 #include "irq.cpp"
 #include "serialization.cpp"
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
   if(r.wai) return instructionWait();
   if(r.stp) return instructionStop();
@@ -52,19 +48,7 @@ auto CPU::main() -> void {
   instruction();
 }
 
-auto CPU::load() -> bool {
-  return true;
-}
-
-auto CPU::power(bool reset) -> void {
-  version = Tree::CPU::version->value();
-
-  WDC65816::power();
-  create(Enter, system.cpuFrequency());
-  coprocessors.reset();
-  PPUcounter::reset();
-  PPUcounter::scanline = {&CPU::scanline, this};
-
+auto CPU::map() -> void {
   function<auto (uint24, uint8) -> uint8> reader;
   function<auto (uint24, uint8) -> void> writer;
 
@@ -84,6 +68,18 @@ auto CPU::power(bool reset) -> void {
   reader = {&CPU::readDMA, this};
   writer = {&CPU::writeDMA, this};
   bus.map(reader, writer, "00-3f,80-bf:4300-437f");
+}
+
+auto CPU::power(bool reset) -> void {
+  version = Tree::CPU::version->value();
+
+  WDC65816::power();
+  create(system.cpuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
+  coprocessors.reset();
+  PPUcounter::reset();
+  PPUcounter::scanline = {&CPU::scanline, this};
 
   if(!reset) random.array(wram, sizeof(wram));
 

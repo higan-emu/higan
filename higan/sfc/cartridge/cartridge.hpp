@@ -2,7 +2,6 @@ struct Cartridge {
   Node::Port port;
   auto initialize(Node::Object) -> void;
 
-  auto pathID() const -> uint { return information.pathID; }
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
@@ -15,14 +14,15 @@ struct Cartridge {
   auto save() -> void;
   auto unload() -> void;
 
+  auto power(bool reset) -> void;
+
   auto serialize(serializer&) -> void;
 
   ReadableMemory rom;
   WritableMemory ram;
 
   struct Information {
-    uint pathID = 0;
-    string region;
+    string region = "NTSC";
     string sha256;
   } information;
 

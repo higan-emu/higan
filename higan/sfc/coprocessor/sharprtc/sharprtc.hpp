@@ -1,7 +1,6 @@
 struct SharpRTC : Thread {
   using Thread::synchronize;
 
-  static auto Enter() -> void;
   auto main() -> void;
 
   auto initialize() -> void;

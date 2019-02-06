@@ -8,9 +8,7 @@ struct SMP : SPC700, Thread {
   auto portWrite(uint2 port, uint8 data) -> void;
 
   //smp.cpp
-  static auto Enter() -> void;
   auto main() -> void;
-  auto load() -> bool;
   auto power(bool reset) -> void;
 
   //serialization.cpp

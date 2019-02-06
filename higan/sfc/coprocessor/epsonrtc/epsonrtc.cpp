@@ -3,10 +3,6 @@ EpsonRTC epsonrtc;
 #include "time.cpp"
 #include "serialization.cpp"
 
-auto EpsonRTC::Enter() -> void {
-  while(true) scheduler.synchronize(), epsonrtc.main();
-}
-
 auto EpsonRTC::main() -> void {
   if(wait) { if(--wait == 0) ready = 1; }
 
@@ -68,7 +64,9 @@ auto EpsonRTC::initialize() -> void {
 }
 
 auto EpsonRTC::power() -> void {
-  create(EpsonRTC::Enter, 32'768 * 64);
+  create(32'768 * 64, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   clocks = 0;
   seconds = 0;

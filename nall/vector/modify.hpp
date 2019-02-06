@@ -101,6 +101,17 @@ template<typename T> auto vector<T>::remove(uint64_t offset, uint64_t length) ->
   _size -= length;
 }
 
+template<typename T> auto vector<T>::removeValue(const T& value) -> void {
+  //note: size() shrinks and offset does not increment each time a remove occurs
+  for(uint64_t offset = 0; offset < size();) {
+    if(_pool[offset] == value) {
+      remove(offset);
+      continue;
+    }
+    offset++;
+  }
+}
+
 //
 
 template<typename T> auto vector<T>::takeLeft() -> T {

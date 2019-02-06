@@ -15,7 +15,6 @@
 
 struct Event : Thread {
   //event.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto unload() -> void;
   auto power() -> void;

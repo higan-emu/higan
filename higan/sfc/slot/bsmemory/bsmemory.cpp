@@ -23,10 +23,6 @@ BSMemory::BSMemory() {
   block.self = this;
 }
 
-auto BSMemory::Enter() -> void {
-  while(true) scheduler.synchronize(), bsmemory.main();
-}
-
 auto BSMemory::main() -> void {
   if(ROM) return step(1'000'000);  //1 second
 
@@ -142,7 +138,9 @@ auto BSMemory::unload() -> void {
 }
 
 auto BSMemory::power() -> void {
-  create(Enter, 1'000'000);  //microseconds
+  create(1'000'000, [&] {  //microseconds
+    while(true) scheduler.synchronize(), main();
+  });
 
   for(auto& block : blocks) {
     block.erasing = 0;

@@ -11,19 +11,15 @@ ControllerPort controllerPort2;
 //#include "justifier/justifier.cpp"
 
 Controller::Controller(uint port) : port(port) {
-  if(!handle()) create(Controller::Enter, 1);
+  if(!handle()) create(1, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
+  cpu.peripherals.append(this);
 }
 
 Controller::~Controller() {
+  cpu.peripherals.removeValue(this);
   scheduler.remove(*this);
-}
-
-auto Controller::Enter() -> void {
-  while(true) {
-    scheduler.synchronize();
-    if(controllerPort1.device->active()) controllerPort1.device->main();
-    if(controllerPort2.device->active()) controllerPort2.device->main();
-  }
 }
 
 auto Controller::main() -> void {
@@ -53,6 +49,7 @@ auto ControllerPort::initialize(Node::Object parent) -> void {
   connect();  //temporary hack
 
   port = Node::Port::create(string{"Controller Port ", 1 + portID}, "Controller");
+  port->hotSwappable = true;
   port->allocate = [&](auto name) {
     if(name == "Gamepad") return Gamepad::create();
   //if(name == "Super Multitap") return SuperMultitap::create();
@@ -83,11 +80,6 @@ auto ControllerPort::connect(Node::Peripheral node) -> void {
   }
   if(!device) device = new Controller(portID);
 //if(auto peripheral = device->node) port->prepend(peripheral);
-
-  cpu.peripherals.reset();
-  if(auto device = controllerPort1.device) cpu.peripherals.append(device);
-  if(auto device = controllerPort2.device) cpu.peripherals.append(device);
-  if(auto device = expansionPort.device) cpu.peripherals.append(device);
 }
 
 auto ControllerPort::power(uint portID) -> void {

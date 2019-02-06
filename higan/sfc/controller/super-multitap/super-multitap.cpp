@@ -4,21 +4,25 @@ auto SuperMultitap::create() -> Node::Peripheral {
   auto port2 = Node::Port::create("Controller Port 2", "Controller");
   auto port3 = Node::Port::create("Controller Port 3", "Controller");
   auto port4 = Node::Port::create("Controller Port 4", "Controller");
+  port1->hotSwappable = true;
   port1->allocate = [&](auto name) {
     if(name == "Gamepad") return SuperFamicom::Gamepad::create();
     if(name == "Super Multitap") return SuperMultitap::create();
     return Node::Peripheral::create("Controller");
   };
+  port2->hotSwappable = true;
   port2->allocate = [&](auto name) {
     if(name == "Gamepad") return SuperFamicom::Gamepad::create();
     if(name == "Super Multitap") return SuperMultitap::create();
     return Node::Peripheral::create("Controller");
   };
+  port3->hotSwappable = true;
   port3->allocate = [&](auto name) {
     if(name == "Gamepad") return SuperFamicom::Gamepad::create();
     if(name == "Super Multitap") return SuperMultitap::create();
     return Node::Peripheral::create("Controller");
   };
+  port4->hotSwappable = true;
   port4->allocate = [&](auto name) {
     if(name == "Gamepad") return SuperFamicom::Gamepad::create();
     if(name == "Super Multitap") return SuperMultitap::create();

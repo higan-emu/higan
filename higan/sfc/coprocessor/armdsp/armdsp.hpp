@@ -7,7 +7,6 @@
 struct ArmDSP : ARM7TDMI, Thread {
   #include "registers.hpp"
 
-  static auto Enter() -> void;
   auto boot() -> void;
   auto main() -> void;
 

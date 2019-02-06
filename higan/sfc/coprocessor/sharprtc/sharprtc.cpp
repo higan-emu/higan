@@ -3,10 +3,6 @@ SharpRTC sharprtc;
 #include "time.cpp"
 #include "serialization.cpp"
 
-auto SharpRTC::Enter() -> void {
-  while(true) scheduler.synchronize(), sharprtc.main();
-}
-
 auto SharpRTC::main() -> void {
   tickSecond();
 
@@ -25,7 +21,9 @@ auto SharpRTC::initialize() -> void {
 }
 
 auto SharpRTC::power() -> void {
-  create(SharpRTC::Enter, 1);
+  create(1, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   state = State::Read;
   index = -1;

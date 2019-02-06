@@ -4,7 +4,6 @@ struct SPC7110 : Thread {
   SPC7110();
   ~SPC7110();
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto unload() -> void;
   auto power() -> void;

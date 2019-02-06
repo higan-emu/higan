@@ -45,7 +45,7 @@ bg4(Background::ID::BG4) {
 }
 
 PPU::~PPU() {
-  if(hacks.ppu.fast->latch()) {
+  if(hacks.ppu.fast && hacks.ppu.fast->latch()) {
     setHandle(nullptr);
   }
 
@@ -60,10 +60,6 @@ auto PPU::step(uint clocks) -> void {
     Thread::step(2);
     synchronize(cpu);
   }
-}
-
-auto PPU::Enter() -> void {
-  while(true) scheduler.synchronize(), ppu.main();
 }
 
 auto PPU::main() -> void {
@@ -101,16 +97,14 @@ auto PPU::main() -> void {
   step(lineclocks() - hcounter());
 }
 
-auto PPU::load() -> bool {
+auto PPU::map() -> void {
   if(hacks.ppu.fast->latch()) {
-    return ppufast.load();
+    return ppufast.map();
   }
 
-  ppu1.version = nodes.ppu1.version->value();
-  ppu2.version = nodes.ppu2.version->value();
-  vram.mask = nodes.vram.size->value() / sizeof(uint16) - 1;
-  if(vram.mask != 0xffff) vram.mask = 0x7fff;
-  return true;
+  function<auto (uint24, uint8) -> uint8> reader{&PPU::readIO, this};
+  function<auto (uint24, uint8) -> void> writer{&PPU::writeIO, this};
+  bus.map(reader, writer, "00-3f,80-bf:2100-213f");
 }
 
 auto PPU::power(bool reset) -> void {
@@ -119,18 +113,22 @@ auto PPU::power(bool reset) -> void {
     return setHandle(ppufast.handle());
   }
 
-  create(Enter, system.cpuFrequency());
+  create(system.cpuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   PPUcounter::reset();
   memory::fill<uint32>(output, 512 * 480);
 
-  function<auto (uint24, uint8) -> uint8> reader{&PPU::readIO, this};
-  function<auto (uint24, uint8) -> void> writer{&PPU::writeIO, this};
-  bus.map(reader, writer, "00-3f,80-bf:2100-213f");
-
   if(!reset) random.array((uint8*)vram.data, sizeof(vram.data));
 
+  ppu1.version = nodes.ppu1.version->value();
   ppu1.mdr = random.bias(0xff);
+
+  ppu2.version = nodes.ppu2.version->value();
   ppu2.mdr = random.bias(0xff);
+
+  vram.mask = nodes.vram.size->value() / sizeof(uint16) - 1;
+  if(vram.mask != 0xffff) vram.mask = 0x7fff;
 
   latch.vram = random();
   latch.oam = random();

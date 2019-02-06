@@ -24,6 +24,9 @@ auto Bus::reset() -> void {
 
   reader[0] = [](uint24, uint8 data) -> uint8 { return data; };
   writer[0] = [](uint24, uint8) -> void {};
+
+  cpu.map();
+  ppu.map();
 }
 
 auto Bus::map(

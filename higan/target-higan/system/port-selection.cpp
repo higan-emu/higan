@@ -133,6 +133,18 @@ auto PortSelectionDialog::eventChange() -> void {
 
 auto PortSelectionDialog::eventAccept() -> void {
   if(auto item = nodeList.selected()) {
+    if(!port->hotSwappable && emulator.system.power) {
+      auto response = MessageDialog()
+      .setTitle("Warning")
+      .setText("The peripheral currently connected to this port isn't hot swappable.\n"
+               "Removing it may crash the emulated system.\n"
+               "What would you like to do?")
+      .setPlacement(Placement::Center, *this)
+      .question({"Force", "Power Off", "Cancel"});
+      if(response == "Cancel") return;
+      if(response == "Power Off") emulator.power(false);
+    }
+
     auto name = item.cell(0).text();
     auto label = nameValue.text().strip();
 
@@ -161,15 +173,14 @@ auto PortSelectionDialog::eventAccept() -> void {
       }
 
       if(directory::copy(source, target)) {
-        auto peripheral = port->allocate(name);
         file::write({target, "identity.bml"}, string{
           "system: ", root->name, "\n",
           "  type: ", port->type, "\n",
           "  name: ", name, "\n"
         });
-        peripheral->setProperty("name", nameValue.text().strip());
-        peripheral->setProperty("location", target);
-        port->connect(peripheral);
+        port->connect(name, [&](auto node) {
+          node->setProperty("location", target);
+        });
         systemManager.refresh();
       }
     }
@@ -184,9 +195,9 @@ auto PortSelectionDialog::eventAccept() -> void {
       if(auto document = BML::unserialize(file::read({location, "identity.bml"}))) {
         if(auto node = document["system/name"]) name = node.text();
       }
-      auto peripheral = port->allocate(name);
-      peripheral->setProperty("location", location);
-      port->connect(peripheral);
+      port->connect(name, [&](auto node) {
+        node->setProperty("location", location);
+      });
       systemManager.refresh();
     }
   }

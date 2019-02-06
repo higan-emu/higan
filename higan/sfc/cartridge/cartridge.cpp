@@ -13,11 +13,14 @@ auto Cartridge::initialize(Node::Object parent) -> void {
     return Node::Peripheral::create("Cartridge");
   };
   port->attach = [&](auto node) {
+    bus.reset();
     load();
+    power(false);
   };
   port->detach = [&](auto node) {
     save();
     unload();
+    bus.reset();
   };
   parent->append(port);
 }
@@ -131,6 +134,8 @@ auto Cartridge::loadGameBoy() -> bool {
 }
 
 auto Cartridge::save() -> void {
+  if(!port || !port->connected()) return;
+
   saveCartridge(game.document);
   if(has.GameBoySlot);  //todo
   if(has.BSMemorySlot) bsmemory.save();
@@ -139,8 +144,49 @@ auto Cartridge::save() -> void {
 }
 
 auto Cartridge::unload() -> void {
+  if(!port || !port->connected()) return;
+
+  if(has.ICD) cpu.coprocessors.removeValue(&icd), icd.unload();
+  if(has.MCC) mcc.unload();
+  if(has.Event) cpu.coprocessors.removeValue(&event), event.unload();
+  if(has.SA1) cpu.coprocessors.removeValue(&sa1), sa1.unload();
+  if(has.SuperFX) cpu.coprocessors.removeValue(&superfx), superfx.unload();
+  if(has.ARMDSP) cpu.coprocessors.removeValue(&armdsp);
+  if(has.HitachiDSP) cpu.coprocessors.removeValue(&hitachidsp), hitachidsp.unload();
+  if(has.NECDSP) cpu.coprocessors.removeValue(&necdsp);
+  if(has.EpsonRTC) cpu.coprocessors.removeValue(&epsonrtc);
+  if(has.SharpRTC) cpu.coprocessors.removeValue(&sharprtc);
+  if(has.SPC7110) cpu.coprocessors.removeValue(&spc7110), spc7110.unload();
+  if(has.SDD1) sdd1.unload();
+  if(has.OBC1) obc1.unload();
+  if(has.MSU1) cpu.coprocessors.removeValue(&msu1), msu1.unload();
+  if(has.BSMemorySlot) cpu.coprocessors.removeValue(&bsmemory), bsmemory.unload();
+  if(has.SufamiTurboSlotA) sufamiturboA.unload();
+  if(has.SufamiTurboSlotB) sufamiturboB.unload();
+
   rom.reset();
   ram.reset();
+}
+
+auto Cartridge::power(bool reset) -> void {
+  if(has.ICD) icd.power(), cpu.coprocessors.append(&icd);
+  if(has.MCC) mcc.power();
+  if(has.DIP) dip.power();
+  if(has.Event) event.power(), cpu.coprocessors.append(&event);
+  if(has.SA1) sa1.power(), cpu.coprocessors.append(&sa1);
+  if(has.SuperFX) superfx.power(), cpu.coprocessors.append(&superfx);
+  if(has.ARMDSP) armdsp.power(), cpu.coprocessors.append(&armdsp);
+  if(has.HitachiDSP) hitachidsp.power(), cpu.coprocessors.append(&hitachidsp);
+  if(has.NECDSP) necdsp.power(), cpu.coprocessors.append(&necdsp);
+  if(has.EpsonRTC) epsonrtc.power(), cpu.coprocessors.append(&epsonrtc);
+  if(has.SharpRTC) sharprtc.power(), cpu.coprocessors.append(&sharprtc);
+  if(has.SPC7110) spc7110.power(), cpu.coprocessors.append(&spc7110);
+  if(has.SDD1) sdd1.power();
+  if(has.OBC1) obc1.power();
+  if(has.MSU1) msu1.power(), cpu.coprocessors.append(&msu1);
+  if(has.BSMemorySlot) bsmemory.power(), cpu.coprocessors.append(&bsmemory);
+  if(has.SufamiTurboSlotA) sufamiturboA.power();
+  if(has.SufamiTurboSlotB) sufamiturboB.power();
 }
 
 }

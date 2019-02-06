@@ -16,7 +16,6 @@ struct Controller : Thread {
 
   Controller(uint port);
   virtual ~Controller();
-  static auto Enter() -> void;
 
   virtual auto main() -> void;
   auto iobit() -> bool;
