@@ -16,7 +16,7 @@ higan-linux-x86_64-binaries:
     - cp -a icarus/Database higan-nightly/
     - cp -a icarus/Firmware higan-nightly/
     - cp -a higan/out/higan higan-nightly/higan
-    - cp -a higan/systems/ higan-nightly/
+    - cp -a higan/System/ higan-nightly/
     - cp -a shaders higan-nightly/
     - cp -a docs_build higan-nightly/docs
     - cp -a GPLv3.txt higan-nightly/
@@ -50,7 +50,7 @@ higan-windows-x86_64-binaries:
     - cp -a icarus/Database higan-nightly/
     - cp -a icarus/Firmware higan-nightly/
     - cp -a higan/out/higan higan-nightly/higan.exe
-    - cp -a higan/systems/ higan-nightly/
+    - cp -a higan/System/ higan-nightly/
     - cp -a shaders higan-nightly/
     - cp -a docs_build higan-nightly/docs
     - cp -a GPLv3.txt higan-nightly/
