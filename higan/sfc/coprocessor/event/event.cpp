@@ -26,12 +26,16 @@ auto Event::unload() -> void {
   rom[1].reset();
   rom[2].reset();
   rom[3].reset();
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
 }
 
 auto Event::power() -> void {
+  cpu.coprocessors.removeValue(this);
   create(1, [&] {
     while(true) scheduler.synchronize(), main();
   });
+  cpu.coprocessors.append(this);
 
   //DIP switches 0-3 control the time: 3 minutes + 0-15 extra minutes
   timer = (3 + dip.value.bits(0,3)) * 60;  //in seconds

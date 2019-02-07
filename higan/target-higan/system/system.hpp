@@ -1,36 +1,47 @@
-struct InputMappingDialog : Window {
-  InputMappingDialog();
-  auto map(higan::Node::Object) -> void;
+struct SystemOverviewPanel : VerticalLayout {
+  SystemOverviewPanel(HorizontalLayout*, Size);
+  auto show() -> void;
+  auto hide() -> void;
+
+  TreeView treeView{this, Size{~0, ~0}};
+  HorizontalLayout controlLayout{this, Size{~0, 0}};
+    Widget spacerWidget{&controlLayout, Size{~0, 0}};
+    Button spacerButton{&controlLayout, Size{80, 0}};
+};
+
+struct InputMappingPanel : VerticalLayout {
+  InputMappingPanel(HorizontalLayout*, Size);
+  auto show(higan::Node::Object) -> void;
+  auto hide() -> void;
   auto refresh() -> void;
   auto eventChange() -> void;
   auto eventAssign() -> void;
   auto eventClear() -> void;
   auto eventInput(shared_pointer<HID::Device>, uint group, uint input, int16_t oldValue, int16_t newValue) -> void;
 
-  VerticalLayout layout{this};
-    TableView inputList{&layout, Size{~0, ~0}};
-    HorizontalLayout controlLayout{&layout, Size{~0, 0}};
-      Label message{&controlLayout, Size{~0, 0}};
-      Button assignButton{&controlLayout, Size{80, 0}};
-      Button clearButton{&controlLayout, Size{80, 0}};
+  TableView inputList{this, Size{~0, ~0}};
+  HorizontalLayout controlLayout{this, Size{~0, 0}};
+    Label message{&controlLayout, Size{~0, 0}};
+    Button assignButton{&controlLayout, Size{80, 0}};
+    Button clearButton{&controlLayout, Size{80, 0}};
 
   higan::Node::Object node;
   higan::Node::Input assigning;
 };
 
-struct PortSelectionDialog : Window {
-  PortSelectionDialog();
-  auto select(higan::Node::Port) -> void;
+struct PortSelectionPanel : VerticalLayout {
+  PortSelectionPanel(HorizontalLayout*, Size);
+  auto show(higan::Node::Port) -> void;
+  auto hide() -> void;
   auto refresh() -> void;
   auto eventChange() -> void;
   auto eventAccept() -> void;
 
-  VerticalLayout layout{this};
-    TableView nodeList{&layout, Size{~0, ~0}};
-    HorizontalLayout controlLayout{&layout, Size{~0, 0}};
-      Label nameLabel{&controlLayout, Size{0, 0}};
-      LineEdit nameValue{&controlLayout, Size{~0, 0}};
-      Button acceptButton{&controlLayout, Size{80, 0}};
+  TableView nodeList{this, Size{~0, ~0}};
+  HorizontalLayout controlLayout{this, Size{~0, 0}};
+    Label nameLabel{&controlLayout, Size{0, 0}};
+    LineEdit nameValue{&controlLayout, Size{~0, 0}};
+    Button acceptButton{&controlLayout, Size{80, 0}};
 
   PopupMenu contextMenu;
     MenuItem renameAction{&contextMenu};
@@ -45,9 +56,10 @@ struct SystemManager : Window {
   auto show() -> void;
   auto refresh() -> void;
   auto selected() -> higan::Node::Object;
-  template<typename T> auto attach(T parent, higan::Node::Object) -> void;
+  template<typename T> auto attach(T parent, higan::Node::Object, uint depth = 0) -> void;
   auto eventChange() -> void;
-  auto eventActivate() -> void;
+  auto eventChangePath() -> void;
+  auto eventContext() -> void;
   auto eventInput(shared_pointer<HID::Device>, uint group, uint input, int16_t oldValue, int16_t newValue) -> void;
 
   MenuBar menuBar{this};
@@ -60,16 +72,21 @@ struct SystemManager : Window {
       MenuSeparator aboutSeparator{&helpMenu};
       MenuItem aboutAction{&helpMenu};
 
-  VerticalLayout layout{this};
-    TreeView connectionList{&layout, Size{~0, ~0}};
-    HorizontalLayout controlLayout{&layout, Size{~0, 0}};
-      Button inputMappingButton{&controlLayout, Size{80, 0}};
-      Widget controlSpacer{&controlLayout, Size{~0, 0}};
+  PopupMenu contextMenu;
+    MenuItem changePathAction{&contextMenu};
 
-  StatusBar statusBar{this};
-
-  InputMappingDialog inputMapping;
-  PortSelectionDialog portSelection;
+  HorizontalLayout layout{this};
+    VerticalLayout connectionLayout{&layout, Size{250, ~0}, 0};
+      TreeView connectionList{&connectionLayout, Size{~0, ~0}};
+      HorizontalLayout controlLayout{&connectionLayout, Size{~0, 0}};
+        Button spacerButton{&controlLayout, Size{80, 0}};
+        Widget spacerWidget{&controlLayout, Size{~0, 0}};
+    VerticalLayout resizeLayout{&layout, Size{9, ~0}, 0};
+      HorizontalResizeGrip resizeGrip{&resizeLayout, Size{9, ~0}};
+      Button resizeSpacer{&resizeLayout, Size{0, 0}};
+    SystemOverviewPanel overview{&layout, Size{~0, ~0}};
+    InputMappingPanel inputMapping{&layout, Size{~0, ~0}};
+    PortSelectionPanel portSelection{&layout, Size{~0, ~0}};
 
   higan::Node::Object root;
 };

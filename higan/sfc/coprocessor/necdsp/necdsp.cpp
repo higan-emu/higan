@@ -35,9 +35,16 @@ auto NECDSP::writeRAM(uint24 addr, uint8 data) -> void {
   return uPD96050::writeDP(addr, data);
 }
 
+auto NECDSP::unload() -> void {
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
+}
+
 auto NECDSP::power() -> void {
   uPD96050::power();
+  cpu.coprocessors.removeValue(this);
   create(Frequency, [&] {
     while(true) scheduler.synchronize(), main();
   });
+  cpu.coprocessors.append(this);
 }

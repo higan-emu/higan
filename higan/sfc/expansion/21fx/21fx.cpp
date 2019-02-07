@@ -3,7 +3,7 @@ auto S21FX::create() -> Node::Peripheral {
   return node;
 }
 
-S21FX::S21FX() {
+S21FX::S21FX(Node::Peripheral node) : node(node) {
   create(10'000'000, [&] {
     while(true) scheduler.synchronize(), main();
   });

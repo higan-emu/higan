@@ -32,9 +32,8 @@ struct Scheduler {
     return _threads.append(&thread), true;
   }
 
-  auto remove(Thread& thread) -> bool {
-    if(auto offset = _threads.find(&thread)) return _threads.remove(*offset), true;
-    return false;
+  auto remove(Thread& thread) -> void {
+    _threads.removeValue(&thread);
   }
 
   auto enter(Mode mode = Mode::Run) -> Event {

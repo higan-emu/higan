@@ -14,7 +14,7 @@
 struct Controller : Thread {
   Node::Peripheral node;
 
-  Controller(uint port);
+  Controller();
   virtual ~Controller();
 
   virtual auto main() -> void;
@@ -22,23 +22,30 @@ struct Controller : Thread {
   auto iobit(bool data) -> void;
   virtual auto data() -> uint2 { return 0; }
   virtual auto latch(bool data) -> void {}
-
-  const uint port;
 };
 
 struct ControllerPort {
+  static auto create(string_view name) -> Node::Port;
+
   Node::Port port;
   auto initialize(Node::Object) -> void;
+  auto bind(Node::Port) -> void;
 
-  auto connect(uint deviceID) -> void;  //deprecated
-  auto connect(Node::Peripheral = {}) -> void;
+  ControllerPort(string_view name);
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
 
-  auto power(uint portID) -> void;
-  auto unload() -> void;
+  auto iobit() -> bool { if(device) return device->iobit(); return 0; }
+  auto iobit(bool data) -> void { if(device) return device->iobit(data); }
+  auto data() -> uint2 { if(device) return device->data(); return 0; }
+  auto latch(bool data) -> void { if(device) return device->latch(data); }
+
   auto serialize(serializer&) -> void;
 
-  uint portID;
+  const string name;
+private:
   Controller* device = nullptr;
+  friend class Controller;
 };
 
 extern ControllerPort controllerPort1;
@@ -46,6 +53,6 @@ extern ControllerPort controllerPort2;
 
 #include "gamepad/gamepad.hpp"
 //#include "mouse/mouse.hpp"
-//#include "super-multitap/super-multitap.hpp"
+#include "super-multitap/super-multitap.hpp"
 //#include "super-scope/super-scope.hpp"
 //#include "justifier/justifier.hpp"

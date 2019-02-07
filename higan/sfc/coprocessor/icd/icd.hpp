@@ -3,7 +3,6 @@
 struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   shared_pointer<Stream> stream;
 
-  static auto Enter() -> void;
   auto main() -> void;
 
   auto load() -> bool;

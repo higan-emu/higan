@@ -3,7 +3,7 @@ struct ViewportWindow : Window {
   Video video;
 
   auto create(higan::Node::Video) -> void;
-  auto show(Window& parent) -> void;
+  auto show(Window parent) -> void;
 
   VerticalLayout layout{this};
     Viewport viewport{&layout, Size{~0, ~0}};

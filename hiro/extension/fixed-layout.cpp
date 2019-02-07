@@ -63,6 +63,11 @@ auto mFixedLayout::reset() -> type& {
   return synchronize();
 }
 
+auto mFixedLayout::resize() -> type& {
+  setGeometry(geometry());
+  return *this;
+}
+
 auto mFixedLayout::setEnabled(bool enabled) -> type& {
   mSizable::setEnabled(enabled);
   for(auto& cell : state.cells) cell.sizable().setEnabled(cell.sizable().enabled());

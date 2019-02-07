@@ -3,7 +3,7 @@ auto Satellaview::create() -> Node::Peripheral {
   return node;
 }
 
-Satellaview::Satellaview() {
+Satellaview::Satellaview(Node::Peripheral node) : node(node) {
   bus.map({&Satellaview::read, this}, {&Satellaview::write, this}, "00-3f,80-bf:2188-219f");
   regs = {};
 }

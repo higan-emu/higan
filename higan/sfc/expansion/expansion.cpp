@@ -2,7 +2,7 @@
 
 namespace higan::SuperFamicom {
 
-ExpansionPort expansionPort;
+ExpansionPort expansionPort{"Expansion Port"};
 #include <sfc/expansion/21fx/21fx.cpp>
 #include <sfc/expansion/satellaview/satellaview.cpp>
 
@@ -15,7 +15,7 @@ Expansion::Expansion() {
 
 Expansion::~Expansion() {
   cpu.peripherals.removeValue(this);
-  scheduler.remove(*this);
+  Thread::destroy();
 }
 
 auto Expansion::main() -> void {
@@ -25,30 +25,33 @@ auto Expansion::main() -> void {
 
 //
 
+auto ExpansionPort::create(string_view name) -> Node::Port {
+  return Node::Port::create(name, "Expansion");
+}
+
+ExpansionPort::ExpansionPort(string_view name) : name(name) {
+}
+
 auto ExpansionPort::initialize(Node::Object parent) -> void {
-  port = Node::Port::create("Expansion Port", "Expansion");
-/*
-  port->attach = [&](auto) {
-    connect(0);
-  };
-*/
+  bind(port = create(name));
   parent->append(port);
 }
 
-auto ExpansionPort::connect(uint deviceID) -> void {
-  delete device;
-  device = nullptr;
-//  if(auto leaf = port->first()) {
-//    if(leaf->name == "Satellaview") device = new Expansion;
-//    if(leaf->name == "21fx") device = new S21FX;
-//  }
-  if(!device) device = new Expansion;
+auto ExpansionPort::bind(Node::Port port) -> void {
+  this->port = port;
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
 }
 
-auto ExpansionPort::power() -> void {
+auto ExpansionPort::connect(Node::Peripheral node) -> void {
+  disconnect();
+  if(node) {
+    if(node->name == "Satellaview") device = new Satellaview(node);
+    if(node->name == "21fx") device = new S21FX(node);
+  }
 }
 
-auto ExpansionPort::unload() -> void {
+auto ExpansionPort::disconnect() -> void {
   delete device;
   device = nullptr;
 }

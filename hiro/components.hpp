@@ -95,6 +95,11 @@
 #define Hiro_VerticalLayout
 #define Hiro_TableLayout
 
+#if defined(Hiro_Timer) && defined(Hiro_Canvas)
+  #define Hiro_HorizontalResizeGrip
+  #define Hiro_VerticalResizeGrip
+#endif
+
 #if defined(Hiro_TableView)
   #define Hiro_ListView
 #endif

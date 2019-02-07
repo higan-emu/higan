@@ -7,6 +7,7 @@ struct NECDSP : uPD96050, Thread {
   auto readRAM(uint24 addr, uint8 data) -> uint8;
   auto writeRAM(uint24 addr, uint8 data) -> void;
 
+  auto unload() -> void;
   auto power() -> void;
 
   auto firmware() const -> vector<uint8>;

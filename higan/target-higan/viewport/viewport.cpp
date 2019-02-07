@@ -4,18 +4,15 @@ auto ViewportWindow::create(higan::Node::Video node) -> void {
   this->node = node;
 
   onClose([&] {
-    emulator.quit();
+    emulator.power(false);
   });
 
   setTitle(node->name);
   setSize({node->width * node->aspect, node->height});
 }
 
-auto ViewportWindow::show(Window& parent) -> void {
-  setFramePosition({
-    parent.frameGeometry().x() + parent.frameGeometry().width(),
-    parent.frameGeometry().y()
-  });
+auto ViewportWindow::show(Window parent) -> void {
+  setAlignment(Alignment::Center);
   setVisible();
   setFocused();
 

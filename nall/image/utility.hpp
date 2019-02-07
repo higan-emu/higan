@@ -2,6 +2,71 @@
 
 namespace nall {
 
+//scan all four sides of the image for fully transparent pixels, and then crop them
+//imagine an icon centered on a transparent background: this function removes the bordering
+//this certainly won't win any speed awards, but nall::image is meant to be correct and simple, not fast
+auto image::shrink(uint64_t transparentColor) -> void {
+  //top
+  { uint padding = 0;
+    for(uint y : range(_height)) {
+      const uint8_t* sp = _data + pitch() * y;
+      bool found = false;
+      for(uint x : range(_width)) {
+        if(read(sp) != transparentColor) { found = true; break; }
+        sp += stride();
+      }
+      if(found) break;
+      padding++;
+    }
+    crop(0, padding, _width, _height - padding);
+  }
+
+  //bottom
+  { uint padding = 0;
+    for(uint y : reverse(range(_height))) {
+      const uint8_t* sp = _data + pitch() * y;
+      bool found = false;
+      for(uint x : range(_width)) {
+        if(read(sp) != transparentColor) { found = true; break; }
+        sp += stride();
+      }
+      if(found) break;
+      padding++;
+    }
+    crop(0, 0, _width, _height - padding);
+  }
+
+  //left
+  { uint padding = 0;
+    for(uint x : range(_width)) {
+      const uint8_t* sp = _data + stride() * x;
+      bool found = false;
+      for(uint y : range(_height)) {
+        if(read(sp) != transparentColor) { found = true; break; }
+        sp += pitch();
+      }
+      if(found) break;
+      padding++;
+    }
+    crop(padding, 0, _width - padding, _height);
+  }
+
+  //right
+  { uint padding = 0;
+    for(uint x : reverse(range(_width))) {
+      const uint8_t* sp = _data + stride() * x;
+      bool found = false;
+      for(uint y : range(_height)) {
+        if(read(sp) != transparentColor) { found = true; break; }
+        sp += pitch();
+      }
+      if(found) break;
+      padding++;
+    }
+    crop(0, 0, _width - padding, _height);
+  }
+}
+
 auto image::crop(unsigned outputX, unsigned outputY, unsigned outputWidth, unsigned outputHeight) -> bool {
   if(outputX + outputWidth > _width) return false;
   if(outputY + outputHeight > _height) return false;

@@ -33,7 +33,7 @@ struct Thread {
   }
 
   virtual ~Thread() {
-    if(_handle) co_delete(_handle);
+    destroy();
   }
 
   inline auto active() const { return co_active() == _handle; }
@@ -60,7 +60,7 @@ struct Thread {
   }
 
   auto create(double frequency, function<void ()> entryPoint) -> void {
-    if(_handle) co_delete(_handle);
+    destroy();
     _handle = co_create(64 * 1024 * sizeof(void*), &Thread::Enter);
     EntryPoints().append({_handle, entryPoint});
     setFrequency(frequency);
@@ -70,6 +70,11 @@ struct Thread {
   __attribute__((deprecated))
   auto create(auto (*entryPoint)() -> void, double frequency) -> void {
     create(frequency, entryPoint);
+  }
+
+  auto destroy() -> void {
+    if(_handle) co_delete(_handle);
+    _handle = nullptr;
   }
 
   inline auto step(uint clocks) -> void {

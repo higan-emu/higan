@@ -72,6 +72,11 @@ auto ArmDSP::write(uint24 addr, uint8 data) -> void {
   }
 }
 
+auto ArmDSP::unload() -> void {
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
+}
+
 auto ArmDSP::power() -> void {
   random.array((uint8*)programRAM, sizeof(programRAM));
   bridge.reset = false;
@@ -80,10 +85,12 @@ auto ArmDSP::power() -> void {
 
 auto ArmDSP::reset() -> void {
   ARM7TDMI::power();
+  cpu.coprocessors.removeValue(this);
   create(Frequency, [&] {
     boot();
     while(true) scheduler.synchronize(), main();
   });
+  cpu.coprocessors.append(this);
 
   bridge.ready = false;
   bridge.signal = false;

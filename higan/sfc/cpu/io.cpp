@@ -14,13 +14,13 @@ auto CPU::readCPU(uint24 addr, uint8 data) -> uint8 {
 
   case 0x4016:  //JOYSER0
     data &= 0xfc;
-    data |= controllerPort1.device->data();
+    data |= controllerPort1.data();
     return data;
 
   case 0x4017:  //JOYSER1
     data &= 0xe0;
     data |= 0x1c;  //pins are connected to GND
-    data |= controllerPort2.device->data();
+    data |= controllerPort2.data();
     return data;
 
   case 0x4210:  //RDNMI
@@ -126,8 +126,8 @@ auto CPU::writeCPU(uint24 addr, uint8 data) -> void {
     //bit 0 is shared between JOYSER0 and JOYSER1:
     //strobing $4016.d0 affects both controller port latches.
     //$4017 bit 0 writes are ignored.
-    controllerPort1.device->latch(data.bit(0));
-    controllerPort2.device->latch(data.bit(0));
+    controllerPort1.latch(data.bit(0));
+    controllerPort2.latch(data.bit(0));
     return;
 
   case 0x4200:  //NMITIMEN

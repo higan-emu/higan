@@ -26,6 +26,18 @@ auto MessageDialog::question(const vector<string>& buttons) -> string {
   return _run();
 }
 
+auto MessageDialog::setAlignment(Alignment alignment) -> type& {
+  state.alignment = alignment;
+  state.relativeTo = {};
+  return *this;
+}
+
+auto MessageDialog::setAlignment(sWindow relativeTo, Alignment alignment) -> type& {
+  state.alignment = alignment;
+  state.relativeTo = relativeTo;
+  return *this;
+}
+
 auto MessageDialog::setChecked(bool checked) -> type& {
   state.checked = checked;
   return *this;
@@ -33,12 +45,6 @@ auto MessageDialog::setChecked(bool checked) -> type& {
 
 auto MessageDialog::setOption(const string& option) -> type& {
   state.option = option;
-  return *this;
-}
-
-auto MessageDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
-  state.placement = placement;
-  state.relativeTo = relativeTo;
   return *this;
 }
 
@@ -110,7 +116,7 @@ auto MessageDialog::_run() -> string {
   window.setTitle(state.title);
   window.setResizable(false);
   window.setSize({width, layout.minimumSize().height()});
-  window.setPlacement(state.placement, state.relativeTo);
+  window.setAlignment(state.relativeTo, state.alignment);
   window.setDismissable();
   window.setVisible();
   window.setModal();

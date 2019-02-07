@@ -161,10 +161,10 @@ auto CPU::joypadEdge() -> void {
 
     if(status.autoJoypadActive && status.autoJoypadLatch) {
       if(status.autoJoypadCounter == 0) {
-        controllerPort1.device->latch(1);
-        controllerPort2.device->latch(1);
-        controllerPort1.device->latch(0);
-        controllerPort2.device->latch(0);
+        controllerPort1.latch(1);
+        controllerPort2.latch(1);
+        controllerPort1.latch(0);
+        controllerPort2.latch(0);
 
         //shift registers are cleared at start of auto joypad polling
         io.joy1 = 0;
@@ -173,8 +173,8 @@ auto CPU::joypadEdge() -> void {
         io.joy4 = 0;
       }
 
-      uint2 port0 = controllerPort1.device->data();
-      uint2 port1 = controllerPort2.device->data();
+      uint2 port0 = controllerPort1.data();
+      uint2 port1 = controllerPort2.data();
 
       io.joy1 = io.joy1 << 1 | port0.bit(0);
       io.joy2 = io.joy2 << 1 | port1.bit(0);

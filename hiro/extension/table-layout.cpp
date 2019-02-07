@@ -118,6 +118,11 @@ auto mTableLayout::reset() -> type& {
   return synchronize();
 }
 
+auto mTableLayout::resize() -> type& {
+  setGeometry(geometry());
+  return *this;
+}
+
 auto mTableLayout::row(uint position) const -> TableLayoutRow {
   return state.rows(position, {});
 }

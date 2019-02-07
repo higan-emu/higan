@@ -13,8 +13,6 @@ static auto TableView_popup(GtkTreeView*, pTableView* p) -> void { return p->_do
 static auto TableView_dataFunc(GtkTreeViewColumn* column, GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter, pTableView* p) -> void { return p->_doDataFunc(column, renderer, iter); }
 static auto TableView_toggle(GtkCellRendererToggle* toggle, const char* path, pTableView* p) -> void { return p->_doToggle(toggle, path); }
 
-//gtk_tree_view_set_rules_hint(gtkTreeView, true);
-
 auto pTableView::construct() -> void {
   gtkWidget = gtk_scrolled_window_new(0, 0);
   gtkScrolledWindow = GTK_SCROLLED_WINDOW(gtkWidget);
@@ -58,6 +56,7 @@ auto pTableView::destruct() -> void {
 }
 
 auto pTableView::append(sTableViewColumn column) -> void {
+  _updateRulesHint();
 }
 
 auto pTableView::append(sTableViewItem item) -> void {
@@ -68,6 +67,7 @@ auto pTableView::focused() const -> bool {
 }
 
 auto pTableView::remove(sTableViewColumn column) -> void {
+  _updateRulesHint();
 }
 
 auto pTableView::remove(sTableViewItem item) -> void {
@@ -108,11 +108,13 @@ auto pTableView::resizeColumns() -> void {
 }
 
 auto pTableView::setAlignment(Alignment alignment) -> void {
+  _updateRulesHint();
 }
 
 auto pTableView::setBackgroundColor(Color color) -> void {
   GdkColor gdkColor = CreateColor(color);
   gtk_widget_modify_base(gtkWidgetChild, GTK_STATE_NORMAL, color ? &gdkColor : nullptr);
+  _updateRulesHint();
 }
 
 auto pTableView::setBatchable(bool batchable) -> void {
@@ -141,6 +143,7 @@ auto pTableView::setFont(const Font& font) -> void {
 auto pTableView::setForegroundColor(Color color) -> void {
   GdkColor gdkColor = CreateColor(color);
   gtk_widget_modify_text(gtkWidgetChild, GTK_STATE_NORMAL, color ? &gdkColor : nullptr);
+  _updateRulesHint();
 }
 
 auto pTableView::setGeometry(Geometry geometry) -> void {
@@ -216,10 +219,10 @@ auto pTableView::_createModel() -> void {
   gtkTreeModel = GTK_TREE_MODEL(gtkListStore);
   gtk_tree_view_set_model(gtkTreeView, gtkTreeModel);
 
-//  for(auto& item : state().items) {
-//    gtk_list_store_append(gtkListStore, &item->self()->gtkIter);
-//    item->self()->_setState();
-//  }
+//for(auto& item : state().items) {
+//  gtk_list_store_append(gtkListStore, &item->self()->gtkIter);
+//  item->self()->_setState();
+//}
 }
 
 auto pTableView::_doActivate() -> void {
@@ -375,6 +378,17 @@ auto pTableView::_doToggle(GtkCellRendererToggle* gtkCellRendererToggle, const c
       }
     }
   }
+}
+
+//the rules hint draws each row with alternating background colors
+//this isn't currently exposed as a hiro API call, so try and determine if we should apply it here
+//basically, if there's two or more columns and no custom colors applied, then we do so
+auto pTableView::_updateRulesHint() -> void {
+  bool rules = true;
+  if(state().backgroundColor) rules = false;
+  if(state().foregroundColor) rules = false;
+  if(state().columns.size() <= 1) rules = false;
+  gtk_tree_view_set_rules_hint(gtkTreeView, rules);
 }
 
 //compare currently selected items to previously selected items

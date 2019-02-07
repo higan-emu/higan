@@ -20,16 +20,6 @@ struct Video : Object {
     aspect = node["aspect"].real();
   }
 
-  auto copy(Node::Object node) -> void override {
-    if(auto source = node->cast<Node::Video>()) {
-      type = source->type;
-      width = source->width;
-      height = source->height;
-      aspect = source->aspect;
-    }
-    Object::copy(node);
-  }
-
   string type;  //"CRT", "LCD"
   uint width = 0;
   uint height = 0;

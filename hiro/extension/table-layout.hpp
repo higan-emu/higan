@@ -31,7 +31,8 @@ struct mTableLayout : mSizable {
   auto padding() const -> Geometry;
   auto remove(sSizable sizable) -> type&;
   auto remove(sTableLayoutCell cell) -> type&;
-  auto reset() -> type&;
+  auto reset() -> type& override;
+  auto resize() -> type&;
   auto row(uint position) const -> TableLayoutRow;
   auto rowCount() const -> uint;
   auto setAlignment(Alignment alignment) -> type&;

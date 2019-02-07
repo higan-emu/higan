@@ -6,6 +6,7 @@ struct EpsonRTC : Thread {
   auto main() -> void;
 
   auto initialize() -> void;
+  auto unload() -> void;
   auto power() -> void;
   auto synchronize(uint64 timestamp) -> void;
 

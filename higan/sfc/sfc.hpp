@@ -31,6 +31,11 @@ namespace higan::SuperFamicom {
       scheduler.append(*this);
     }
 
+    auto destroy() -> void {
+      scheduler.remove(*this);
+      higan::Thread::destroy();
+    }
+
     inline auto synchronize(Thread& thread) -> void {
       if(clock() >= thread.clock()) scheduler.resume(thread);
     }

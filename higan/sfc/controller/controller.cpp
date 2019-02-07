@@ -2,15 +2,15 @@
 
 namespace higan::SuperFamicom {
 
-ControllerPort controllerPort1;
-ControllerPort controllerPort2;
+ControllerPort controllerPort1{"Controller Port 1"};
+ControllerPort controllerPort2{"Controller Port 2"};
 #include "gamepad/gamepad.cpp"
 //#include "mouse/mouse.cpp"
-//#include "super-multitap/super-multitap.cpp"
+#include "super-multitap/super-multitap.cpp"
 //#include "super-scope/super-scope.cpp"
 //#include "justifier/justifier.cpp"
 
-Controller::Controller(uint port) : port(port) {
+Controller::Controller() {
   if(!handle()) create(1, [&] {
     while(true) scheduler.synchronize(), main();
   });
@@ -19,7 +19,7 @@ Controller::Controller(uint port) : port(port) {
 
 Controller::~Controller() {
   cpu.peripherals.removeValue(this);
-  scheduler.remove(*this);
+  Thread::destroy();
 }
 
 auto Controller::main() -> void {
@@ -28,65 +28,57 @@ auto Controller::main() -> void {
 }
 
 auto Controller::iobit() -> bool {
-  switch(port) {
-  case ID::Port::Controller1: return cpu.pio() & 0x40;
-  case ID::Port::Controller2: return cpu.pio() & 0x80;
-  }
-  unreachable;
+  if(co_active() == controllerPort1.device) return cpu.pio() & 0x40;
+  if(co_active() == controllerPort2.device) return cpu.pio() & 0x80;
+  return 0;
 }
 
 auto Controller::iobit(bool data) -> void {
-  switch(port) {
-  case ID::Port::Controller1: bus.write(0x4201, cpu.pio() & ~0x40 | data << 6); break;
-  case ID::Port::Controller2: bus.write(0x4201, cpu.pio() & ~0x80 | data << 7); break;
-  }
+  if(co_active() == controllerPort1.device) bus.write(0x4201, cpu.pio() & ~0x40 | data << 6);
+  if(co_active() == controllerPort2.device) bus.write(0x4201, cpu.pio() & ~0x80 | data << 7);
 }
 
 //
 
-auto ControllerPort::initialize(Node::Object parent) -> void {
-  auto portID = this == &controllerPort2;
-  connect();  //temporary hack
-
-  port = Node::Port::create(string{"Controller Port ", 1 + portID}, "Controller");
+auto ControllerPort::create(string_view name) -> Node::Port {
+  auto port = Node::Port::create(name, "Controller");
   port->hotSwappable = true;
   port->allocate = [&](auto name) {
     if(name == "Gamepad") return Gamepad::create();
-  //if(name == "Super Multitap") return SuperMultitap::create();
+    if(name == "Super Multitap") return SuperMultitap::create();
     return Node::Peripheral::create("Controller");
   };
-  port->attach = [&](auto node) {
-    connect(node);
-  };
-  port->detach = [&](auto node) {
-    connect();
-  };
+  return port;
+}
+
+ControllerPort::ControllerPort(string_view name) : name(name) {
+}
+
+auto ControllerPort::initialize(Node::Object parent) -> void {
+  bind(port = create(name));
   parent->append(port);
 }
 
-auto ControllerPort::connect(uint deviceID) -> void {
+auto ControllerPort::bind(Node::Port port) -> void {
+  this->port = port;
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
 }
 
 auto ControllerPort::connect(Node::Peripheral node) -> void {
-  delete device;
-  device = nullptr;
+  disconnect();
   if(node) {
-    if(node->name == "Gamepad") device = new Gamepad(node, portID);
+    if(node->name == "Gamepad") device = new Gamepad(node);
 //  if(node->name == "Mouse") device = new Mouse(portID);
-//  if(node->name == "Super Multitap") device = new SuperMultitap(node, portID);
+  if(node->name == "Super Multitap") device = new SuperMultitap(node);
 //  if(node->name == "Super Scope") device = new SuperScope(portID);
 //  if(node->name == "Justifier") device = new Justifier(portID, false);
 //  if(node->name == "Justifiers") device = new Justifier(portID, true);
   }
-  if(!device) device = new Controller(portID);
 //if(auto peripheral = device->node) port->prepend(peripheral);
 }
 
-auto ControllerPort::power(uint portID) -> void {
-  this->portID = portID;
-}
-
-auto ControllerPort::unload() -> void {
+auto ControllerPort::disconnect() -> void {
   delete device;
   device = nullptr;
 }

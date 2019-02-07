@@ -23,6 +23,7 @@ struct mVerticalLayout : mSizable {
   auto remove(sSizable sizable) -> type&;
   auto remove(sVerticalLayoutCell cell) -> type&;
   auto reset() -> type& override;
+  auto resize() -> type&;
   auto setAlignment(maybe<float> alignment) -> type&;
   auto setEnabled(bool enabled) -> type& override;
   auto setFont(const Font& font) -> type& override;

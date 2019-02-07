@@ -7,9 +7,6 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   higan::platform = this;
   interface = instance;
 
-  Instances::systemManager.construct();
-  Instances::inputManager.construct();
-
   system = {};
   system.name = Location::base(location).trimRight("/", 1L);
   system.data = location;
@@ -38,8 +35,8 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   Application::onMain({&Emulator::main, this});
 
   for(auto& display : root->find<higan::Node::Video>()) {
-    display->setProperty("viewportID", viewports.size());
     auto viewport = shared_pointer_make<ViewportWindow>();
+    display->setProperty<shared_pointer<ViewportWindow>>("viewport", viewport);
     viewport->create(display);
     viewports.append(viewport);
   }
@@ -49,6 +46,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 }
 
 auto Emulator::main() -> void {
+  if(Application::modal()) return (void)usleep(20 * 1000);
   inputManager.poll();
 
   if(!system.power) {
@@ -79,12 +77,19 @@ auto Emulator::power(bool on) -> void {
   if(system.power = on) {
     for(auto& viewport : viewports) {
       viewport->show(systemManager);
+      Application::processEvents();
+      if(!systemManager.maximized() && !systemManager.minimized()) {
+        systemManager.setAlignment(*viewport, {-0.0, 0.5});
+      }
     }
     interface->power();
   } else {
     for(auto& viewport : viewports) {
       viewport->setVisible(false);
     }
+    if(systemManager.minimized()) systemManager.setMinimized(false);
+    if(!systemManager.maximized()) systemManager.setAlignment(Alignment::Center);
+    systemManager.setFocused();
   }
   systemManager.powerToggle.setChecked(on);
 }

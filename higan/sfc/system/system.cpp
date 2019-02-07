@@ -118,10 +118,9 @@ auto System::save() -> void {
 }
 
 auto System::unload() -> void {
-  cpu.peripherals.reset();
-  controllerPort1.unload();
-  controllerPort2.unload();
-  expansionPort.unload();
+  controllerPort1.disconnect();
+  controllerPort2.disconnect();
+  expansionPort.disconnect();
   cartridge.unload();
 }
 
@@ -139,10 +138,6 @@ auto System::power(bool reset) -> void {
   cartridge.power(reset);
 
   scheduler.primary(cpu);
-
-  controllerPort1.power(ID::Port::Controller1);
-  controllerPort2.power(ID::Port::Controller2);
-  expansionPort.power();
 }
 
 }

@@ -7,14 +7,6 @@ ICD icd;
 #include "io.cpp"
 #include "serialization.cpp"
 
-auto ICD::Enter() -> void {
-  while(true) {
-    if(scheduler.synchronizing()) GameBoy::system.runToSave();
-    scheduler.synchronize();
-    icd.main();
-  }
-}
-
 auto ICD::main() -> void {
   if(r6003 & 0x80) {
     GameBoy::system.run();
@@ -36,11 +28,21 @@ auto ICD::load() -> bool {
 auto ICD::unload() -> void {
   GameBoy::system.save();
   GameBoy::system.unload();
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
 }
 
 auto ICD::power() -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
-  create(ICD::Enter, (Frequency ? Frequency : system.cpuFrequency()) / 5.0);
+  cpu.coprocessors.removeValue(this);
+  create((Frequency ? Frequency : system.cpuFrequency()) / 5.0, [&] {
+    while(true) {
+      if(scheduler.synchronizing()) GameBoy::system.runToSave();
+      scheduler.synchronize();
+      icd.main();
+    }
+  });
+  cpu.coprocessors.append(this);
   stream = audio.createStream(2, frequency() / 2.0);
   stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();

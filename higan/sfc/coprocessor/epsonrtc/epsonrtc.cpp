@@ -63,10 +63,17 @@ auto EpsonRTC::initialize() -> void {
   test = 0;
 }
 
+auto EpsonRTC::unload() -> void {
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
+}
+
 auto EpsonRTC::power() -> void {
+  cpu.coprocessors.removeValue(this);
   create(32'768 * 64, [&] {
     while(true) scheduler.synchronize(), main();
   });
+  cpu.coprocessors.append(this);
 
   clocks = 0;
   seconds = 0;

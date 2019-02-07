@@ -95,6 +95,11 @@ auto mVerticalLayout::reset() -> type& {
   return synchronize();
 }
 
+auto mVerticalLayout::resize() -> type& {
+  setGeometry(geometry());
+  return *this;
+}
+
 auto mVerticalLayout::setAlignment(maybe<float> alignment) -> type& {
   state.alignment = alignment;
   return synchronize();

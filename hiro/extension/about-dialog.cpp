@@ -1,5 +1,17 @@
 #if defined(Hiro_AboutDialog)
 
+auto AboutDialog::setAlignment(Alignment alignment) -> type& {
+  state.alignment = alignment;
+  state.relativeTo = {};
+  return *this;
+}
+
+auto AboutDialog::setAlignment(sWindow relativeTo, Alignment alignment) -> type& {
+  state.alignment = alignment;
+  state.relativeTo = relativeTo;
+  return *this;
+}
+
 auto AboutDialog::setAuthor(const string& author) -> type& {
   state.author = author;
   return *this;
@@ -24,12 +36,6 @@ auto AboutDialog::setLogo(const image& logo) -> type& {
 
 auto AboutDialog::setName(const string& name) -> type& {
   state.name = name;
-  return *this;
-}
-
-auto AboutDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
-  state.placement = placement;
-  state.relativeTo = relativeTo;
   return *this;
 }
 
@@ -133,7 +139,7 @@ auto AboutDialog::show() -> void {
   window.setBackgroundColor({255, 255, 240});
   window.setSize({max(360, layout.minimumSize().width()), layout.minimumSize().height()});
   window.setResizable(false);
-  window.setPlacement(state.placement, state.relativeTo);
+  window.setAlignment(state.relativeTo, state.alignment);
   window.setDismissable();
   window.setVisible();
   window.setModal();

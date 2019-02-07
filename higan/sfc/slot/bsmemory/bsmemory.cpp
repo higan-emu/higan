@@ -135,12 +135,16 @@ auto BSMemory::unload() -> void {
   }
 
   memory.reset();
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
 }
 
 auto BSMemory::power() -> void {
+  cpu.coprocessors.removeValue(this);
   create(1'000'000, [&] {  //microseconds
     while(true) scheduler.synchronize(), main();
   });
+  cpu.coprocessors.append(this);
 
   for(auto& block : blocks) {
     block.erasing = 0;

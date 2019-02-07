@@ -20,10 +20,17 @@ auto SharpRTC::initialize() -> void {
   weekday = 0;
 }
 
+auto SharpRTC::unload() -> void {
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
+}
+
 auto SharpRTC::power() -> void {
+  cpu.coprocessors.removeValue(this);
   create(1, [&] {
     while(true) scheduler.synchronize(), main();
   });
+  cpu.coprocessors.append(this);
 
   state = State::Read;
   index = -1;

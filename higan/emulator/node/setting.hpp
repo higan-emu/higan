@@ -49,12 +49,13 @@ template<typename Cast, typename Type> struct Abstract : Setting {
     if constexpr(is_same_v<Type, string>)  currentValue = node["value"].text(),    latchedValue = node["latch"].text();
   }
 
-  auto copy(Node::Object node) -> void override {
+  auto copy(Node::Object node) -> bool override {
+    if(!Setting::copy(node)) return false;
     if(auto source = node->cast<shared_pointer<Cast>>()) {
       currentValue = source->currentValue;
       latchedValue = source->latchedValue;
     }
-    Setting::copy(node);
+    return true;
   }
 
   const Type defaultValue;

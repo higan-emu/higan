@@ -15,7 +15,7 @@ auto Gamepad::create() -> Node::Peripheral {
   return node;
 }
 
-Gamepad::Gamepad(Node::Peripheral peripheral, uint port) : Controller(port) {
+Gamepad::Gamepad(Node::Peripheral peripheral) {
   node   = peripheral;
   up     = node->find<Node::Button>("Up");
   down   = node->find<Node::Button>("Down");

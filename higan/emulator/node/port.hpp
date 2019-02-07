@@ -38,17 +38,18 @@ struct Port : Object {
     hotSwappable = node["hotSwappable"].boolean();
   }
 
-  auto copy(Node::Object node) -> void override {
+  auto copy(Node::Object node) -> bool override {
+    if(!Object::copy(node)) return false;
     if(auto source = node->cast<Node::Port>()) {
-      type = source->type;
-      hotSwappable = source->hotSwappable;
-      if(auto peripheral = source->connected()) {
-        connect(peripheral->name, [&](auto node) {
-          node->copy(peripheral);
-        });
+      if(type == source->type) {
+        if(auto peripheral = source->connected()) {
+          connect(peripheral->name, [&](auto node) {
+            node->copy(peripheral);
+          });
+        }
       }
     }
-    Object::copy(node);
+    return true;
   }
 
   string type;

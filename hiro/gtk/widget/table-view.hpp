@@ -34,6 +34,7 @@ struct pTableView : pWidget {
   auto _doHeaderActivate(GtkTreeViewColumn* column) -> void;
   auto _doMouseMove() -> int;
   auto _doToggle(GtkCellRendererToggle* gtkCellRendererToggle, const char* path) -> void;
+  auto _updateRulesHint() -> void;
   auto _updateSelected() -> void;
   auto _width(uint column) -> uint;
 

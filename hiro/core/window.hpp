@@ -39,7 +39,8 @@ struct mWindow : mObject {
   auto remove(sStatusBar statusBar) -> type&;
   auto reset() -> type& override;
   auto resizable() const -> bool;
-  auto setAlignment(Alignment alignment) -> type&;
+  auto setAlignment(Alignment = Alignment::Center) -> type&;
+  auto setAlignment(sWindow relativeTo, Alignment = Alignment::Center) -> type&;
   auto setBackgroundColor(Color color = {}) -> type&;
   auto setDismissable(bool dismissable = true) -> type&;
   auto setDroppable(bool droppable = true) -> type&;
@@ -53,8 +54,8 @@ struct mWindow : mObject {
   auto setMinimized(bool minimized = true) -> type&;
   auto setMinimumSize(Size size = {}) -> type&;
   auto setModal(bool modal = true) -> type&;
-  auto setPlacement(Placement placement, sWindow relativeTo = {}) -> type&;
-  auto setPosition(Position position) -> type&;
+  auto setPosition(Position) -> type&;
+  auto setPosition(sWindow relativeTo, Position) -> type&;
   auto setResizable(bool resizable = true) -> type&;
   auto setSize(Size size) -> type&;
   auto setTitle(const string& title = "") -> type&;

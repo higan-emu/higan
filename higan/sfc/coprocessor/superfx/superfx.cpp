@@ -26,13 +26,17 @@ auto SuperFX::main() -> void {
 auto SuperFX::unload() -> void {
   rom.reset();
   ram.reset();
+  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
 }
 
 auto SuperFX::power() -> void {
   GSU::power();
+  cpu.coprocessors.removeValue(this);
   create(Frequency, [&] {
     while(true) scheduler.synchronize(), main();
   });
+  cpu.coprocessors.append(this);
 
   romMask = rom.size() - 1;
   ramMask = ram.size() - 1;

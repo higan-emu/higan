@@ -26,14 +26,20 @@ auto NameDialog::rename(string name) -> string {
   return show("Rename", name);
 }
 
-auto NameDialog::setIcon(const image& icon) -> type& {
-  state.icon = icon;
+auto NameDialog::setAlignment(Alignment alignment) -> type& {
+  state.alignment = alignment;
+  state.relativeTo = {};
   return *this;
 }
 
-auto NameDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
-  state.placement = placement;
+auto NameDialog::setAlignment(sWindow relativeTo, Alignment alignment) -> type& {
+  state.alignment = alignment;
   state.relativeTo = relativeTo;
+  return *this;
+}
+
+auto NameDialog::setIcon(const image& icon) -> type& {
+  state.icon = icon;
   return *this;
 }
 
@@ -63,7 +69,7 @@ auto NameDialog::show(string mode, string name) -> string {
   acceptButton.setText(mode);
   window.setTitle(state.title);
   window.setSize({400, layout.minimumSize().height()});
-  window.setPlacement(state.placement, state.relativeTo);
+  window.setAlignment(state.relativeTo, state.alignment);
   window.setVisible();
   nameValue.setFocused();
   window.setModal();

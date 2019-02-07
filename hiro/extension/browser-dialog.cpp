@@ -224,7 +224,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
     .setTitle("Create Folder")
     .setText("Enter a new folder name:")
     .setIcon(Icon::Emblem::Folder)
-    .setPlacement(Placement::Center, window)
+    .setAlignment(window)
     .create()
     ) {
       directory::create({state.path, name});
@@ -241,14 +241,14 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
       .setTitle({"Rename ", name})
       .setText("Enter the new folder name:")
       .setIcon(Icon::Emblem::Folder)
-      .setPlacement(Placement::Center, window)
+      .setAlignment(window)
       .rename(name)
       ) {
         if(name == rename) return;
         if(!directory::rename({state.path, name}, {state.path, rename})) return (void)MessageDialog()
         .setTitle("Error")
         .setText("Failed to rename folder.")
-        .setPlacement(Placement::Center, window)
+        .setAlignment(window)
         .error();
         pathRefresh.doActivate();
       }
@@ -257,14 +257,14 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
       .setTitle({"Rename ", name})
       .setText("Enter the new file name:")
       .setIcon(Icon::Emblem::File)
-      .setPlacement(Placement::Center, window)
+      .setAlignment(window)
       .rename(name)
       ) {
         if(name == rename) return;
         if(!file::rename({state.path, name}, {state.path, rename})) return (void)MessageDialog()
         .setTitle("Error")
         .setText("Failed to rename file.")
-        .setPlacement(Placement::Center, window)
+        .setAlignment(window)
         .error();
         pathRefresh.doActivate();
       }
@@ -277,7 +277,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
     if(MessageDialog()
     .setTitle("Remove Selected")
     .setText({"Are you sure you want to permanently delete the selected item", batched.size() == 1 ? "" : "s", "?"})
-    .setPlacement(Placement::Center, window)
+    .setAlignment(window)
     .question() == "No") return;
     for(auto& item : batched) {
       auto name = item.text();
@@ -313,7 +313,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   window.onClose([&] { window.setModal(false); });
   window.setTitle(state.title);
   window.setSize({640, 480});
-  window.setPlacement(state.placement, state.relativeTo);
+  window.setAlignment(state.relativeTo, state.alignment);
   window.setDismissable();
   window.setVisible();
   view.setFocused();
@@ -419,6 +419,18 @@ auto BrowserDialog::selectFolder() -> string {
   return {};
 }
 
+auto BrowserDialog::setAlignment(Alignment alignment) -> type& {
+  state.alignment = alignment;
+  state.relativeTo = {};
+  return *this;
+}
+
+auto BrowserDialog::setAlignment(sWindow relativeTo, Alignment alignment) -> type& {
+  state.alignment = alignment;
+  state.relativeTo = relativeTo;
+  return *this;
+}
+
 auto BrowserDialog::setFilters(const vector<string>& filters) -> type& {
   state.filters = filters;
   return *this;
@@ -431,12 +443,6 @@ auto BrowserDialog::setOptions(const vector<string>& options) -> type& {
 
 auto BrowserDialog::setPath(const string& path) -> type& {
   state.path = path;
-  return *this;
-}
-
-auto BrowserDialog::setPlacement(Placement placement, sWindow relativeTo) -> type& {
-  state.placement = placement;
-  state.relativeTo = relativeTo;
   return *this;
 }
 

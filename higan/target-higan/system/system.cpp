@@ -1,4 +1,5 @@
 #include "../higan.hpp"
+#include "overview.cpp"
 #include "input-mapping.cpp"
 #include "port-selection.cpp"
 
@@ -26,48 +27,55 @@ SystemManager::SystemManager() {
     .setAuthor(higan::Author)
     .setLicense(higan::License)
     .setWebsite(higan::Website)
-    .setPlacement(Placement::Center, *this).show();
+    .setAlignment(*this).show();
   });
+
+  changePathAction.setIcon(Icon::Action::Open).setText("Change Path ...").onActivate([&] { eventChangePath(); });
 
   layout.setPadding(5);
   connectionList.setBackgroundColor(Theme::BackgroundColor);
   connectionList.setForegroundColor(Theme::ForegroundColor);
-  connectionList.onChange([&] {
-    eventChange();
+  connectionList.onChange([&] { eventChange(); });
+  connectionList.onContext([&] { eventContext(); });
+  resizeGrip.onActivate([&] {
+    resizeGrip.setProperty<float>("width", connectionLayout.geometry().width());
   });
-  connectionList.onActivate([&] {
-    eventActivate();
-  });
-  inputMappingButton.setCollapsible().setText("Inputs").onActivate([&] {
-    if(auto node = selected()) {
-      inputMapping.map(node);
+  resizeGrip.onResize([&](auto offset) {
+    float min = 125, max = layout.geometry().width() - 125;
+    float width = resizeGrip.property<float>("width") + offset;
+    width = width < min ? min : width > max ? max : width;
+    if(layout.cell(connectionLayout).size().width() != width) {
+      layout.cell(connectionLayout).setSize({width, ~0});
+      layout.resize();
     }
   });
-
-  statusBar.setFont(Font().setBold()).setVisible(false);
+  resizeSpacer.setVisible(false);
+  overview.setCollapsible();
+  inputMapping.setCollapsible().setVisible(false);
+  portSelection.setCollapsible().setVisible(false);
+  spacerButton.setVisible(false);
 
   onClose([&] {
     root = {};
     emulator.quit();
   });
 
-  setSize({600, 480});
+  setSize({720, 360});
 }
 
 auto SystemManager::show() -> void {
   root = interface->root();
   refresh();
   setTitle(emulator.system.name);
-  setAlignment({0.25, 0.5});
+  setAlignment(Alignment::Center);
   setVisible();
   setFocused();
 }
 
 auto SystemManager::refresh() -> void {
   connectionList.reset();
-  for(auto& node : *root) {
-    attach(connectionList, node);
-  }
+  connectionList.append(TreeViewItem().setText(interface->name()));
+  for(auto& node : *root) attach(connectionList, node);
   connectionList.expand().doChange();
 }
 
@@ -78,11 +86,24 @@ auto SystemManager::selected() -> higan::Node::Object {
   return {};
 }
 
-template<typename T> auto SystemManager::attach(T parent, higan::Node::Object node) -> void {
+template<typename T> auto SystemManager::attach(T parent, higan::Node::Object node, uint depth) -> void {
   if(node->cast<higan::Node::Input>()) return;
 
   TreeViewItem item{&parent};
   item.setProperty<higan::Node::Object>("node", node);
+
+  image icon;
+  icon.allocate(16, 16);
+  icon.fill(0x00000000);
+  for(uint y = 2; y < 12; y++) {
+    auto data = icon.data() + y * icon.pitch() + 6 * icon.stride();
+    icon.write(data, 0xff8f8f8f);
+  }
+  for(uint x = 6; x < 16; x++) {
+    auto data = icon.data() + 12 * icon.pitch() + x * icon.stride();
+    icon.write(data, 0xff8f8f8f);
+  }
+  item.setIcon(icon);
 
   if(auto boolean = node->cast<higan::Node::Boolean>()) {
     item.setText({boolean->name, ": ", boolean->value()});
@@ -92,28 +113,49 @@ template<typename T> auto SystemManager::attach(T parent, higan::Node::Object no
   auto name = node->property("name");
   item.setText(name ? name : node->name);
   for(auto& child : *node) {
-    attach(item, child);
+    attach(item, child, depth + 1);
   }
 }
 
 auto SystemManager::eventChange() -> void {
-  auto node = selected();
-  inputMappingButton.setEnabled(node && !(bool)node->cast<higan::Node::Port>() && (bool)node->find<higan::Node::Input>());
+  overview.hide();
+  inputMapping.hide();
+  portSelection.hide();
+  if(auto node = selected()) {
+    if(auto nodes = node->find<higan::Node::Input>()) {
+      if(nodes.first()->parent == node) inputMapping.show(node);
+    }
+    if(auto port = node->cast<higan::Node::Port>()) {
+      portSelection.show(node);
+    }
+  }
+  if(!inputMapping.visible() && !portSelection.visible()) overview.show();
+  layout.setGeometry(layout.geometry());
 }
 
-auto SystemManager::eventActivate() -> void {
+auto SystemManager::eventChangePath() -> void {
   if(auto node = selected()) {
-    if(auto boolean = node->cast<higan::Node::Boolean>()) {
-      boolean->setValue(!boolean->value());
-      return refresh();
-    }
-
     if(auto port = node->cast<higan::Node::Port>()) {
-      return portSelection.select(port);
+      auto path = port->property("location");
+      if(!path) path = {emulator.system.data, port->type, "/"};
+      if(auto location = BrowserDialog()
+      .setTitle({port->name, " Path"})
+      .setPath(path)
+      .setAlignment(*this)
+      .selectFolder()
+      ) {
+        port->setProperty("location", location);
+        portSelection.show(node);
+      }
     }
+  }
+}
 
-    if(node->find<higan::Node::Input>()) {
-      return inputMapping.map(node);
+auto SystemManager::eventContext() -> void {
+  if(auto node = selected()) {
+    if(auto port = node->cast<higan::Node::Port>()) {
+      changePathAction.setVisible();
+      contextMenu.setVisible();
     }
   }
 }

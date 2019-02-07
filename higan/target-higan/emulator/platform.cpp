@@ -39,7 +39,7 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
     MessageDialog()
     .setTitle("Error")
     .setText({"Missing required file:\n", location, name})
-    .setPlacement(Placement::Center)
+    .setAlignment(Alignment::Center)
     .error();
   }
 
@@ -47,9 +47,8 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
 }
 
 auto Emulator::videoFrame(higan::Node::Video node, const uint32* data, uint pitch, uint width, uint height) -> void {
-  auto viewportID = node->property("viewportID").natural();
-  if(viewportID >= viewports.size()) return;
-  auto viewport = viewports[viewportID];
+  auto viewport = node->property<shared_pointer<ViewportWindow>>("viewport");
+  if(!viewport) return;
 
   pitch >>= 2;
   if(auto [output, length] = viewport->video.acquire(width, height); output) {

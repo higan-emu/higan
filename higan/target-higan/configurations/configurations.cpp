@@ -1,6 +1,7 @@
 #include "../higan.hpp"
+#include "home.cpp"
 #include "create.cpp"
-#include "properties.cpp"
+#include "review.cpp"
 
 namespace Instances { Instance<ConfigurationManager> configurationManager; }
 ConfigurationManager& configurationManager = Instances::configurationManager();
@@ -9,24 +10,11 @@ ConfigurationManager::ConfigurationManager() {
   directory::create(Path::data);
 
   actionMenu.setText("System");
-  launchAction.setIcon(Icon::Emblem::Program).setText("Launch ...").onActivate([&] {
-    eventActivate();
-  });
-  createAction.setIcon(Icon::Action::Add).setText("Create ...").onActivate([&] {
-    eventCreate();
-  });
-  renameAction.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] {
-    eventRename();
-  });
-  removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] {
-    eventRemove();
-  });
-  propertiesAction.setIcon(Icon::Action::Properties).setText("Properties ...").onActivate([&] {
-    eventProperties();
-  });
-  quitAction.setIcon(Icon::Action::Quit).setText("Quit").onActivate([&] {
-    doClose();
-  });
+  launchAction.setIcon(Icon::Emblem::Program).setText("Launch ...").onActivate([&] { reviewPanel.eventLaunch(); });
+  createAction.setIcon(Icon::Action::Add).setText("Create ...").onActivate([&] { eventCreate(); });
+  renameAction.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] { eventRename(); });
+  removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] { eventRemove(); });
+  quitAction.setIcon(Icon::Action::Quit).setText("Quit").onActivate([&] { doClose(); });
 
   settingsMenu.setText("Settings");
 
@@ -35,7 +23,7 @@ ConfigurationManager::ConfigurationManager() {
     if(auto location = BrowserDialog()
     .setTitle("Select Data Path")
     .setPath(Path::data)
-    .setPlacement(Placement::Overlap, *this).selectFolder()
+    .setAlignment(*this).selectFolder()
     ) {
       Path::data = location;
       file::write({Path::settings, "paths.bml"}, string{
@@ -45,20 +33,12 @@ ConfigurationManager::ConfigurationManager() {
       refresh();
     }
   });
-  dataPathOpen.setIcon(Icon::Action::Open).setText("Open Data Path ...").onActivate([&] {
-    invoke(Path::data);
-  });
-  templatesPathOpen.setIcon(Icon::Action::Open).setText("Open Templates Path ...").onActivate([&] {
-    invoke(Path::templates);
-  });
-  settingsPathOpen.setIcon(Icon::Action::Open).setText("Open Settings Path ...").onActivate([&] {
-    invoke(Path::settings);
-  });
+  dataPathOpen.setIcon(Icon::Action::Open).setText("Open Data Path ...").onActivate([&] { invoke(Path::data); });
+  templatesPathOpen.setIcon(Icon::Action::Open).setText("Open Templates Path ...").onActivate([&] { invoke(Path::templates); });
+  settingsPathOpen.setIcon(Icon::Action::Open).setText("Open Settings Path ...").onActivate([&] { invoke(Path::settings); });
 
   helpMenu.setText("Help");
-  documentation.setIcon(Icon::Application::Browser).setText("Documentation ...").onActivate([&] {
-    invoke("https://doc.byuu.org/higan/");
-  });
+  documentation.setIcon(Icon::Application::Browser).setText("Documentation ...").onActivate([&] { invoke("https://doc.byuu.org/higan/"); });
   about.setIcon(Icon::Prompt::Question).setText("About ...").onActivate([&] {
     AboutDialog()
     .setLogo(Resource::Logo)
@@ -66,56 +46,47 @@ ConfigurationManager::ConfigurationManager() {
     .setAuthor(higan::Author)
     .setLicense(higan::License)
     .setWebsite(higan::Website)
-    .setPlacement(Placement::Center, *this).show();
+    .setAlignment(*this).show();
   });
 
-  launchPopup.setIcon(Icon::Emblem::Program).setText("Launch ...").onActivate([&] {
-    eventActivate();
-  });
-  createPopup.setIcon(Icon::Action::Add).setText("Create ...").onActivate([&] {
-    eventCreate();
-  });
-  renamePopup.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] {
-    eventRename();
-  });
-  removePopup.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] {
-    eventRemove();
-  });
+  launchPopup.setIcon(Icon::Emblem::Program).setText("Launch ...").onActivate([&] { reviewPanel.eventLaunch(); });
+  createPopup.setIcon(Icon::Action::Add).setText("Create ...").onActivate([&] { eventCreate(); });
+  renamePopup.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] { eventRename(); });
+  removePopup.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] { eventRemove(); });
 
   layout.setPadding(5);
   configurationList.setBackgroundColor(Theme::BackgroundColor);
   configurationList.setForegroundColor(Theme::ForegroundColor);
-  configurationList.onActivate([&] {
-    eventActivate();
+  resizeGrip.onActivate([&] {
+    resizeGrip.setProperty<float>("width", configurationLayout.geometry().width());
   });
-  configurationList.onChange([&] {
-    eventChange();
+  resizeGrip.onResize([&](auto offset) {
+    float min = 125, max = layout.geometry().width() - 125;
+    float width = resizeGrip.property<float>("width") + offset;
+    width = width < min ? min : width > max ? max : width;
+    if(layout.cell(configurationLayout).size().width() != width) {
+      layout.cell(configurationLayout).setSize({width, ~0});
+      layout.resize();
+    }
   });
-  configurationList.onContext([&] {
-    eventContext();
-  });
+  resizeSpacer.setVisible(false);
+  homePanel.setCollapsible();
+  createPanel.setCollapsible();
+  reviewPanel.setCollapsible();
+  configurationList.onActivate([&] { reviewPanel.eventLaunch(); });
+  configurationList.onChange([&] { eventChange(); });
+  configurationList.onContext([&] { eventContext(); });
   controlLayout.setAlignment(0.5);
-  createButton.setText("Create").onActivate([&] {
-    eventCreate();
-  });
-  renameButton.setText("Rename").onActivate([&] {
-    eventRename();
-  });
-  removeButton.setText("Delete").onActivate([&] {
-    eventRemove();
-  });
-  propertiesButton.setText("Properties").onActivate([&] {
-    eventProperties();
-  });
-  launchButton.setText("Launch").onActivate([&] {
-    eventActivate();
-  });
+  createButton.setText("Create").onActivate([&] { eventCreate(); });
+  renameButton.setText("Rename").onActivate([&] { eventRename(); });
+  removeButton.setText("Delete").onActivate([&] { eventRemove(); });
 
-  onClose([&] { Application::exit(); });
+  onClose([&] { Application::quit(); });
 
   setTitle({"higan v", higan::Version});
-  setSize({640, 360});
-  setPlacement(Placement::Center);
+  setSize({720, 360});
+  setAlignment(Alignment::Center);
+//setBackgroundColor({255, 255, 240});
 
   refresh();
 }
@@ -146,15 +117,14 @@ template<typename T> auto ConfigurationManager::scan(T parent, string location) 
   }
 }
 
-auto ConfigurationManager::eventActivate() -> void {
-  if(auto item = configurationList.selected()) {
-    if(auto system = item.property("system")) {
-      if(auto index = interfaces.find([&](auto emulator) { return emulator->name() == system; })) {
-        setVisible(false);
-        emulator.create(interfaces[*index], item.property("location"));
-      }
-    }
-  }
+template<typename T> auto ConfigurationManager::attach(T parent, higan::Node::Object node) -> void {
+  if(node->cast<higan::Node::Input>()) return;
+
+  TreeViewItem item{&parent};
+
+  auto name = node->property("name");
+  item.setText(name ? name : node->name);
+  for(auto& child : *node) attach(item, child);
 }
 
 auto ConfigurationManager::eventChange() -> void {
@@ -166,10 +136,19 @@ auto ConfigurationManager::eventChange() -> void {
   renameButton.setEnabled((bool)item);
   removeAction.setEnabled((bool)item);
   removeButton.setEnabled((bool)item);
-  propertiesAction.setEnabled((bool)system);
-  propertiesButton.setEnabled((bool)system);
   launchAction.setEnabled((bool)system);
-  launchButton.setEnabled((bool)system);
+
+  homePanel.setVisible(false);
+  createPanel.setVisible(false);
+  reviewPanel.setVisible(false);
+  if(system) {
+    reviewPanel.refresh(item.property("location"));
+    reviewPanel.setVisible();
+  } else {
+    homePanel.setVisible();
+  }
+  layout.setGeometry(layout.geometry());
+  controlLayout.setEnabled(true);
 }
 
 auto ConfigurationManager::eventContext() -> void {
@@ -184,39 +163,11 @@ auto ConfigurationManager::eventContext() -> void {
 }
 
 auto ConfigurationManager::eventCreate() -> void {
-  auto [system, name] = createDialog.run();
-  if(!name) return;  //user cancelled the operation
-  name.append("/");
-  auto location = Path::data;
-  if(auto item = configurationList.selected()) location = item.property("location");
-  if(directory::exists({location, name})) {
-    if(MessageDialog()
-      .setTitle("Warning")
-      .setText("A directory by this name already exists.\n"
-               "Do you wish to delete the existing directory and create a new one?")
-      .setPlacement(Placement::Center, *this).question() == "No"
-    ) return;
-    if(!directory::remove({location, name})) return (void)MessageDialog()
-      .setTitle("Error")
-      .setText({"Failed to remove previous directory. The location may be read-only.\n",
-                "Location: ", location,
-                "Name: ", name})
-      .setPlacement(Placement::Center, *this).error();
-  }
-  if(!directory::create({location, name})) return (void)MessageDialog()
-    .setTitle("Error")
-    .setText({"Failed to create directory. Either the location is read-only, or the name contains invalid characters.\n",
-              "Location: ", location, "\n",
-              "Name: ", name})
-    .setPlacement(Placement::Center, *this).error();
-  if(system) {
-    if(auto index = interfaces.find([&](auto emulator) { return emulator->name() == system; })) {
-      file::write({location, name, "identity.bml"}, string{
-        "system: ", system, "\n"
-      });
-    }
-  }
-  refresh();
+  controlLayout.setEnabled(false);
+  homePanel.setVisible(false);
+  reviewPanel.setVisible(false);
+  createPanel.show();
+  layout.setGeometry(layout.geometry());
 }
 
 auto ConfigurationManager::eventRename() -> void {
@@ -227,7 +178,7 @@ auto ConfigurationManager::eventRename() -> void {
   auto name = NameDialog()
   .setTitle({"Rename ", item.text()})
   .setText("Enter a new name:")
-  .setPlacement(Placement::Overlap, *this)
+  .setAlignment(*this)
   .rename(item.text());
   if(!name) return;  //user cancelled the operation
   name.append("/");
@@ -238,21 +189,21 @@ auto ConfigurationManager::eventRename() -> void {
       .setTitle("Warning")
       .setText("A directory by this name already exists.\n"
                "Do you wish to delete the existing directory and replace it with this one?")
-      .setPlacement(Placement::Center, *this).question() == "No"
+      .setAlignment(*this).question() == "No"
     ) return;
     if(!directory::remove({location, name})) return (void)MessageDialog()
       .setTitle("Error")
       .setText({"Failed to remove previous directory. The location may be read-only.\n",
                 "Location: ", location, "\n",
                 "Name: ", name})
-      .setPlacement(Placement::Center, *this).error();
+      .setAlignment(*this).error();
   }
   if(!directory::rename({location, originalName}, {location, name})) return (void)MessageDialog()
     .setTitle("Error")
     .setText({"Failed to rename directory. Either the location is read-only, or the name contains invalid characters.\n",
               "Location: ", location, "\n",
               "Name: ", name})
-    .setPlacement(Placement::Center, *this).error();
+    .setAlignment(*this).error();
   refresh();
 }
 
@@ -265,25 +216,12 @@ auto ConfigurationManager::eventRemove() -> void {
     .setText({"This will permanently destroy this directory, and all of its contents recursively.\n",
               "All related settings and content will be lost. Are you really sure you want to do this?\n",
               "Location: ", location})
-    .setPlacement(Placement::Center, *this).question() == "No"
+    .setAlignment(*this).question() == "No"
   ) return;
   if(!directory::remove(location)) return (void)MessageDialog()
     .setTitle("Error")
     .setText({"Failed to remove directory. The location may be read-only.\n",
               "Location: ", location})
-    .setPlacement(Placement::Center, *this).error();
+    .setAlignment(*this).error();
   refresh();
-}
-
-auto ConfigurationManager::eventProperties() -> void {
-  auto item = configurationList.selected();
-  if(!item || !item.property("system")) return;
-  auto location = item.property("location");
-  auto properties = propertiesDialog.run(item.text(), file::read({location, "properties.bml"}));
-  if(!properties) return;  //user cancelled the operation
-  if(!file::write({location, "properties.bml"}, properties)) return (void)MessageDialog()
-    .setTitle("Error")
-    .setText({"Failed to write properties.bml file. The location may be read-only.\n"
-              "Location: ", location})
-    .setPlacement(Placement::Center, *this).error();
 }

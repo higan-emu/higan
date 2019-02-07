@@ -95,6 +95,11 @@ auto mHorizontalLayout::reset() -> type& {
   return synchronize();
 }
 
+auto mHorizontalLayout::resize() -> type& {
+  setGeometry(geometry());
+  return *this;
+}
+
 auto mHorizontalLayout::setAlignment(maybe<float> alignment) -> type& {
   state.alignment = alignment;
   return synchronize();

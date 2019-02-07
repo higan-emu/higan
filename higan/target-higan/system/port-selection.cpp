@@ -1,5 +1,4 @@
-PortSelectionDialog::PortSelectionDialog() {
-  layout.setPadding(5);
+PortSelectionPanel::PortSelectionPanel(HorizontalLayout* parent, Size size) : VerticalLayout(parent, size) {
   nodeList.setBackgroundColor(Theme::BackgroundColor);
   nodeList.setForegroundColor(Theme::ForegroundColor);
   nodeList.onChange([&] {
@@ -27,7 +26,7 @@ PortSelectionDialog::PortSelectionDialog() {
     if(auto item = nodeList.selected(); item.property("type") == "object") {
       auto name = item.cell(0).text();
       if(auto rename = NameDialog()
-      .setPlacement(Placement::Center, *this)
+      .setAlignment(systemManager)
       .rename(item.cell(0).text()
       )) {
         if(rename != name) {
@@ -36,7 +35,7 @@ PortSelectionDialog::PortSelectionDialog() {
           if(directory::exists(target)) return (void)MessageDialog()
           .setTitle("Error")
           .setText("A directory by the chosen name already exists.")
-          .setPlacement(Placement::Center, *this)
+          .setAlignment(systemManager)
           .error();
 
           //todo: handle case where this renames a currently selected port node in the tree
@@ -53,7 +52,7 @@ PortSelectionDialog::PortSelectionDialog() {
       .setTitle("Warning")
       .setText("Are you sure you want to delete this entry?\n"
                "All data it contains will be permanently lost!")
-      .setPlacement(Placement::Center, *this)
+      .setAlignment(systemManager)
       .question() == "No") return;
 
       //todo: handle case where this removes a currently selected port node in the tree
@@ -61,31 +60,23 @@ PortSelectionDialog::PortSelectionDialog() {
       refresh();
     }
   });
-
-  onClose([&] {
-    nodeList.reset();
-    port = {};
-    root = {};
-    setModal(false);
-    setVisible(false);
-  });
-
-  setDismissable();
 }
 
-auto PortSelectionDialog::select(higan::Node::Port port) -> void {
-  this->root = interface->root();
+auto PortSelectionPanel::show(higan::Node::Port port) -> void {
   this->port = port;
+  root = interface->root();
   refresh();
-  setTitle(port->name);
-  setSize({480, 400});
-  setPlacement(Placement::After, systemManager);
   setVisible();
-  setFocused();
-  setModal();
 }
 
-auto PortSelectionDialog::refresh() -> void {
+auto PortSelectionPanel::hide() -> void {
+  setVisible(false);
+  nodeList.reset();
+  port = {};
+  root = {};
+}
+
+auto PortSelectionPanel::refresh() -> void {
   nodeList.reset();
   nodeList.append(TableViewColumn().setExpandable());
 
@@ -105,7 +96,9 @@ auto PortSelectionDialog::refresh() -> void {
     }
   }
 
-  if(string location = {emulator.system.data, port->type, "/"}) {
+  auto location = port->property("location");
+  if(!location) location = {emulator.system.data, port->type, "/"};
+  if(location) {
     for(auto& name : directory::folders(location)) {
       TableViewItem item{&nodeList};
       item.setProperty("type", "object");
@@ -118,7 +111,7 @@ auto PortSelectionDialog::refresh() -> void {
   nodeList.doChange();
 }
 
-auto PortSelectionDialog::eventChange() -> void {
+auto PortSelectionPanel::eventChange() -> void {
   if(auto item = nodeList.selected()) {
     bool isTemplate = item.property("type") == "template";
     nameLabel.setVisible(isTemplate);
@@ -131,7 +124,7 @@ auto PortSelectionDialog::eventChange() -> void {
   }
 }
 
-auto PortSelectionDialog::eventAccept() -> void {
+auto PortSelectionPanel::eventAccept() -> void {
   if(auto item = nodeList.selected()) {
     if(!port->hotSwappable && emulator.system.power) {
       auto response = MessageDialog()
@@ -139,7 +132,7 @@ auto PortSelectionDialog::eventAccept() -> void {
       .setText("The peripheral currently connected to this port isn't hot swappable.\n"
                "Removing it may crash the emulated system.\n"
                "What would you like to do?")
-      .setPlacement(Placement::Center, *this)
+      .setAlignment(systemManager)
       .question({"Force", "Power Off", "Cancel"});
       if(response == "Cancel") return;
       if(response == "Power Off") emulator.power(false);
@@ -158,7 +151,7 @@ auto PortSelectionDialog::eventAccept() -> void {
       auto target = string{emulator.system.data, port->type, "/", label, "/"};
       if(emulator.connected(target)) return (void)MessageDialog()
       .setText("This peripheral is already connected to a port.")
-      .setPlacement(Placement::Center, *this)
+      .setAlignment(systemManager)
       .information();
 
       if(directory::exists(target)) {
@@ -167,7 +160,7 @@ auto PortSelectionDialog::eventAccept() -> void {
         .setText("A folder by this name already exists.\n"
                  "Do you want to erase it and create a new folder?\n"
                  "If you choose yes, all contents of the original folder will be lost!")
-        .setPlacement(Placement::Center, *this)
+        .setAlignment(systemManager)
         .question() == "No") return;
         directory::remove(target);
       }
@@ -189,7 +182,7 @@ auto PortSelectionDialog::eventAccept() -> void {
       auto location = item.property("location");
       if(emulator.connected(location)) return (void)MessageDialog()
       .setText("This peripheral is already connected to a port.")
-      .setPlacement(Placement::Center, *this)
+      .setAlignment(systemManager)
       .information();
 
       if(auto document = BML::unserialize(file::read({location, "identity.bml"}))) {
@@ -202,5 +195,5 @@ auto PortSelectionDialog::eventAccept() -> void {
     }
   }
 
-  doClose();
+  hide();
 }

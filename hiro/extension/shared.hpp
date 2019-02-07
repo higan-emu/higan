@@ -18,6 +18,7 @@ struct FixedLayout : sFixedLayout {
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
   auto remove(sFixedLayoutCell cell) { return self().remove(cell), *this; }
   auto reset() { return self().reset(), *this; }
+  auto resize() { return self().resize(), *this; }
 };
 #endif
 
@@ -47,6 +48,7 @@ struct HorizontalLayout : sHorizontalLayout {
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
   auto remove(sHorizontalLayoutCell cell) { return self().remove(cell), *this; }
   auto reset() { return self().reset(), *this; }
+  auto resize() { return self().resize(), *this; }
   auto setAlignment(maybe<float> alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setPadding(float padding) { return self().setPadding({padding, padding, padding, padding}), *this; }
   auto setPadding(Geometry padding = {}) { return self().setPadding(padding), *this; }
@@ -80,6 +82,7 @@ struct VerticalLayout : sVerticalLayout {
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
   auto remove(sVerticalLayoutCell cell) { return self().remove(cell), *this; }
   auto reset() { return self().reset(), *this; }
+  auto resize() { return self().resize(), *this; }
   auto setAlignment(maybe<float> alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setPadding(float padding) { return self().setPadding({padding, padding, padding, padding}), *this; }
   auto setPadding(Geometry padding = {}) { return self().setPadding(padding), *this; }
@@ -132,6 +135,7 @@ struct TableLayout : sTableLayout {
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
   auto remove(sTableLayoutCell cell) { return self().remove(cell), *this; }
   auto reset() { return self().reset(), *this; }
+  auto resize() { return self().resize(), *this; }
   auto row(uint position) const { return self().row(position); }
   auto rowCount() const { return self().rowCount(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
@@ -139,6 +143,28 @@ struct TableLayout : sTableLayout {
   auto setPadding(Geometry padding = {}) { return self().setPadding(padding), *this; }
   auto setSize(Size size) { return self().setSize(size), *this; }
   auto size() const { return self().size(); }
+};
+#endif
+
+#if defined(Hiro_HorizontalResizeGrip)
+struct HorizontalResizeGrip : sHorizontalResizeGrip {
+  DeclareSharedWidget(HorizontalResizeGrip)
+
+  auto doActivate() const { return self().doActivate(); }
+  auto doResize(int offset) const { return self().doResize(offset); }
+  auto onActivate(const function<void ()>& callback) { return self().onActivate(callback), *this; }
+  auto onResize(const function<void (int)>& callback) { return self().onResize(callback), *this; }
+};
+#endif
+
+#if defined(Hiro_VerticalResizeGrip)
+struct VerticalResizeGrip : sVerticalResizeGrip {
+  DeclareSharedWidget(VerticalResizeGrip)
+
+  auto doActivate() const { return self().doActivate(); }
+  auto doResize(int offset) const { return self().doResize(offset); }
+  auto onActivate(const function<void ()>& callback) { return self().onActivate(callback), *this; }
+  auto onResize(const function<void (int)>& callback) { return self().onResize(callback), *this; }
 };
 #endif
 

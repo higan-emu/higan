@@ -140,26 +140,23 @@ struct Object : shared_pointer_this<Object> {
     }
   }
 
-  virtual auto copy(Node::Object source) -> void {
-    name = source->name;
+  virtual auto copy(Node::Object source) -> bool {
+    if(identity() != source->identity() || name != source->name) return false;
     properties = source->properties;
     for(auto& from : source->nodes) {
       auto identity = from->identity();
-      auto offset = from->offset();
-      if(!offset) continue;
+      auto name = from->name;
 
       bool found = false;
       for(auto& to : nodes) {
-        auto index = to->offset();
-        if(!index) continue;
-
-        if(identity == to->identity() && *offset == *index) {
+        if(identity == to->identity() && name == to->name) {
           found = true;
           to->copy(from);
           break;
         }
       }
     }
+    return true;
   }
 
   auto load(string_view markup) -> bool {

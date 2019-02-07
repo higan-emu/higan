@@ -9,21 +9,22 @@ struct MessageDialog {
   auto error(const vector<string>& buttons = {"Ok"}) -> string;
   auto information(const vector<string>& buttons = {"Ok"}) -> string;
   auto question(const vector<string>& buttons = {"Yes", "No"}) -> string;
+  auto setAlignment(Alignment = Alignment::Center) -> type&;
+  auto setAlignment(sWindow relativeTo, Alignment = Alignment::Center) -> type&;
   auto setChecked(bool checked = true) -> type&;
   auto setOption(const string& option = "") -> type&;
-  auto setPlacement(Placement placement, sWindow relativeTo = {}) -> type&;
   auto setText(const string& text = "") -> type&;
   auto setTitle(const string& title = "") -> type&;
   auto warning(const vector<string>& buttons = {"Ok"}) -> string;
 
 private:
   struct State {
+    Alignment alignment = Alignment::Center;
     vector<string> buttons;
     bool checked = false;
     bool dismissed = false;
     image icon;
     string option;
-    Placement placement = Placement::Center;
     sWindow relativeTo;
     string response;
     string text;

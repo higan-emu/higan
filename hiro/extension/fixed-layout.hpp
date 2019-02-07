@@ -21,6 +21,7 @@ struct mFixedLayout : mSizable {
   auto remove(sSizable sizable) -> type&;
   auto remove(sFixedLayoutCell cell) -> type&;
   auto reset() -> type& override;
+  auto resize() -> type&;
   auto setEnabled(bool enabled) -> type& override;
   auto setFont(const Font& font) -> type& override;
   auto setParent(mObject* parent = nullptr, int offset = -1) -> type& override;

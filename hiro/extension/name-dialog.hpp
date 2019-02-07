@@ -7,7 +7,8 @@ struct NameDialog {
   auto create() -> string;
   auto rename(string name) -> string;
   auto setIcon(const image& icon = {}) -> type&;
-  auto setPlacement(Placement, sWindow = {}) -> type&;
+  auto setAlignment(Alignment = Alignment::Center) -> type&;
+  auto setAlignment(sWindow relativeTo, Alignment = Alignment::Center) -> type&;
   auto setText(const string& text = {}) -> type&;
   auto setTitle(const string& title = {}) -> type&;
 
@@ -26,8 +27,8 @@ private:
         Button cancelButton{&controlLayout, Size{80, 0}};
 
   struct State {
+    Alignment alignment = Alignment::Center;
     image icon;
-    Placement placement = Placement::Center;
     sWindow relativeTo;
     string text;
     string title;
