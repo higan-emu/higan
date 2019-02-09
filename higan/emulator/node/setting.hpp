@@ -1,8 +1,16 @@
 namespace higan::Core {
 
+struct Settings : Object {
+  DeclareClass(Settings, "Settings")
+  using Object::Object;
+};
+
 struct Setting : Object {
   DeclareClass(Setting, "Setting")
   using Object::Object;
+
+  virtual auto getValue() const -> string { return {}; }
+  virtual auto getLatch() const -> string { return {}; }
 };
 
 template<typename Cast, typename Type> struct Abstract : Setting {
@@ -21,6 +29,9 @@ template<typename Cast, typename Type> struct Abstract : Setting {
   auto latch() const -> Type {
     return latchedValue;
   }
+
+  auto getValue() const -> string override { return value(); }
+  auto getLatch() const -> string override { return latch(); }
 
   auto& setValue(Type value) {
     if(allowedValues && !allowedValues.find(value)) return *this;

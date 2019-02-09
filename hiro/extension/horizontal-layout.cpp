@@ -29,6 +29,10 @@ auto mHorizontalLayout::cell(sSizable sizable) const -> HorizontalLayoutCell {
   return {};
 }
 
+auto mHorizontalLayout::cells() const -> vector<HorizontalLayoutCell> {
+  return state.cells;
+}
+
 auto mHorizontalLayout::cellCount() const -> uint {
   return state.cells.size();
 }

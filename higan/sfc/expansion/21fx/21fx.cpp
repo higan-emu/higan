@@ -21,11 +21,19 @@ S21FX::S21FX(Node::Peripheral node) : node(node) {
   ram[1] = 0xfc;
   ram[2] = 0xff;
 
-  if(auto buffer = file::read({platform->path(ID::System), "21fx.rom"})) {
-    memory::copy(ram, sizeof(ram), buffer.data(), buffer.size());
+  if(auto fp = platform->open(node, "21fx.rom", File::Read, File::Required)) {
+    fp->read(ram, sizeof(ram));
   }
 
-  string filename{platform->path(ID::SuperFamicom), "21fx.so"};
+  //dynamic libraries can only be loaded via filename ...
+  //there's not really much choice but to copy the library to a temporary directory here
+  if(auto fp = platform->open(node, "21fx.so", File::Read, File::Required)) {
+    if(auto buffer = file::open({Path::temporary(), "21fx.so"}, file::mode::write)) {
+      for(uint index : range(fp->size())) buffer.write(fp->read());
+    }
+  }
+
+  string filename{Path::temporary(), "21fx.so"};
   if(link.openAbsolute(filename)) {
     linkInit = link.sym("fx_init");
     linkMain = link.sym("fx_main");

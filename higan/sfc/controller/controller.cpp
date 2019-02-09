@@ -5,9 +5,9 @@ namespace higan::SuperFamicom {
 ControllerPort controllerPort1{"Controller Port 1"};
 ControllerPort controllerPort2{"Controller Port 2"};
 #include "gamepad/gamepad.cpp"
-//#include "mouse/mouse.cpp"
+#include "mouse/mouse.cpp"
 #include "super-multitap/super-multitap.cpp"
-//#include "super-scope/super-scope.cpp"
+#include "super-scope/super-scope.cpp"
 //#include "justifier/justifier.cpp"
 
 Controller::Controller() {
@@ -30,7 +30,7 @@ auto Controller::main() -> void {
 auto Controller::iobit() -> bool {
   if(co_active() == controllerPort1.device) return cpu.pio() & 0x40;
   if(co_active() == controllerPort2.device) return cpu.pio() & 0x80;
-  return 0;
+  return 1;
 }
 
 auto Controller::iobit(bool data) -> void {
@@ -45,7 +45,10 @@ auto ControllerPort::create(string_view name) -> Node::Port {
   port->hotSwappable = true;
   port->allocate = [&](auto name) {
     if(name == "Gamepad") return Gamepad::create();
+    if(name == "Mouse") return Mouse::create();
     if(name == "Super Multitap") return SuperMultitap::create();
+    if(name == "Super Scope") return SuperScope::create();
+  //if(name == "Justifier") return Justifier::create();
     return Node::Peripheral::create("Controller");
   };
   return port;
@@ -69,13 +72,11 @@ auto ControllerPort::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {
     if(node->name == "Gamepad") device = new Gamepad(node);
-//  if(node->name == "Mouse") device = new Mouse(portID);
-  if(node->name == "Super Multitap") device = new SuperMultitap(node);
-//  if(node->name == "Super Scope") device = new SuperScope(portID);
-//  if(node->name == "Justifier") device = new Justifier(portID, false);
-//  if(node->name == "Justifiers") device = new Justifier(portID, true);
+    if(node->name == "Mouse") device = new Mouse(node);
+    if(node->name == "Super Multitap") device = new SuperMultitap(node);
+    if(node->name == "Super Scope") device = new SuperScope(node);
+  //if(node->name == "Justifier") device = new Justifier(node);
   }
-//if(auto peripheral = device->node) port->prepend(peripheral);
 }
 
 auto ControllerPort::disconnect() -> void {

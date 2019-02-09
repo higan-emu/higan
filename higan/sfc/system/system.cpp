@@ -41,7 +41,7 @@ auto Tree::Speakers::initialize(Node::Object parent) -> void {
 }
 
 auto Tree::Hacks::initialize(Node::Object parent) -> void {
-  parent->append(node = Node::Object::create("Hacks"));
+  parent->append(node = Node::Settings::create("Hacks"));
   node->append(ppu.node = Node::Object::create("PPU"));
   ppu.node->append(ppu.fast = Node::Boolean::create("Fast", false));
   ppu.node->append(ppu.noSpriteLimit = Node::Boolean::create("No Sprite Limit", false));

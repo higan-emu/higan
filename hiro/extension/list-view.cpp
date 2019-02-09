@@ -1,15 +1,9 @@
 #if defined(Hiro_ListView)
 
 mListView::mListView() {
-  mTableView::onActivate([&] {
-    doActivate();
-  });
-  mTableView::onChange([&] {
-    doChange();
-  });
-  mTableView::onContext([&] {
-    doContext();
-  });
+  mTableView::onActivate([&] { doActivate(); });
+  mTableView::onChange([&] { doChange(); });
+  mTableView::onContext([&] { doContext(); });
   mTableView::onToggle([&](TableViewCell cell) {
     if(auto item = cell->parentTableViewItem()) {
       if(auto shared = item->instance.acquire()) {
@@ -77,6 +71,11 @@ auto mListView::onToggle(const function<void (ListViewItem)>& callback) -> type&
 auto mListView::reset() -> type& {
   mTableView::reset();
   append(TableViewColumn().setExpandable());
+  return *this;
+}
+
+auto mListView::resize() -> type& {
+  mTableView::resizeColumns();
   return *this;
 }
 

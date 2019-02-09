@@ -1,31 +1,28 @@
 struct Justifier : Controller {
-  using Controller::create;
-  static auto create(bool) -> Node::Peripheral;
+  static auto create() -> Node::Peripheral;
+  ControllerPort linkPort;
+  Node::Axis x;
+  Node::Axis y;
+  Node::Button trigger;
+  Node::Button start;
 
-  enum : uint {
-    X, Y, Trigger, Start,
-  };
+  shared_pointer<Sprite> sprite;
 
-  Justifier(uint port, bool chained);
+  Justifier(Node::Peripheral);
   ~Justifier();
 
   auto main() -> void;
   auto data() -> uint2;
   auto latch(bool data) -> void;
 
+  auto linked() -> maybe<Justifier&>;
+
 //private:
-  const bool chained;  //true if the second justifier is attached to the first
-  const uint device;
   bool latched;
   uint counter;
-  uint prev;
+  uint previous;
 
   bool active;
-  struct Player {
-    shared_pointer<Sprite> sprite;
-    int x;
-    int y;
-    bool trigger;
-    bool start;
-  } player1, player2;
+  int  cx;
+  int  cy;
 };

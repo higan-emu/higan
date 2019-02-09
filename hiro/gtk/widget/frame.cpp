@@ -18,7 +18,10 @@ auto pFrame::destruct() -> void {
 }
 
 auto pFrame::append(sSizable sizable) -> void {
-  if(auto sizable = _sizable()) sizable->setFont(sizable->self().font(true));
+  if(auto sizable = _sizable()) {
+    sizable->setFont(sizable->self().font(true));
+    sizable->setVisible(sizable->self().visible(true));
+  }
 }
 
 auto pFrame::container(mWidget& widget) -> GtkWidget* {
@@ -39,7 +42,17 @@ auto pFrame::setFont(const Font& font) -> void {
 }
 
 auto pFrame::setGeometry(Geometry geometry) -> void {
+  if(!state().text) {
+    //a frame without a title is generally used as a border box (client edge)
+    //remove the excess spacing so that the frame renders around the entire widget
+    //todo: it may be better to custom draw the frame in this case to avoid hard-coded offsets
+    geometry.setY(geometry.y() - 7);
+    geometry.setHeight(geometry.height() + 8);
+  }
+  //match the dimensions of other client edge widgets (eg GtkTreeView)
+  geometry.setWidth(geometry.width() + 1);
   pWidget::setGeometry(geometry);
+
   if(auto& sizable = state().sizable) {
     Size size = pFont::size(self().font(true), state().text);
     if(!state().text) size.setHeight(10);
@@ -48,11 +61,14 @@ auto pFrame::setGeometry(Geometry geometry) -> void {
     geometry.setWidth(geometry.width() - 5);
     geometry.setHeight(geometry.height() - (size.height() + 2));
     sizable->setGeometry(geometry);
+    //todo: this really shouldn't be necessary: for some reason, Widgets inside Layouts aren't being shown otherwise
+    sizable->setVisible(sizable->visible(true));
   }
 }
 
 auto pFrame::setText(const string& text) -> void {
   gtk_label_set_text(GTK_LABEL(gtkLabel), text);
+  setGeometry(self().geometry());
 }
 
 auto pFrame::setVisible(bool visible) -> void {

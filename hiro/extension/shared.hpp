@@ -14,6 +14,7 @@ struct FixedLayout : sFixedLayout {
   auto append(sSizable sizable, Geometry geometry) { return self().append(sizable, geometry), *this; }
   auto cell(uint position) const { return self().cell(position); }
   auto cell(sSizable sizable) const { return self().cell(sizable); }
+  auto cells() const { return self().cells(); }
   auto cellCount() const { return self().cellCount(); }
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
   auto remove(sFixedLayoutCell cell) { return self().remove(cell), *this; }
@@ -44,6 +45,7 @@ struct HorizontalLayout : sHorizontalLayout {
   auto append(sSizable sizable, Size size, float spacing = 5) { return self().append(sizable, size, spacing), *this; }
   auto cell(uint position) const { return self().cell(position); }
   auto cell(sSizable sizable) const { return self().cell(sizable); }
+  auto cells() const { return self().cells(); }
   auto cellCount() const { return self().cellCount(); }
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
   auto remove(sHorizontalLayoutCell cell) { return self().remove(cell), *this; }
@@ -78,6 +80,7 @@ struct VerticalLayout : sVerticalLayout {
   auto append(sSizable sizable, Size size, float spacing = 5) { return self().append(sizable, size, spacing), *this; }
   auto cell(uint position) const { return self().cell(position); }
   auto cell(sSizable sizable) const { return self().cell(sizable); }
+  auto cells() const { return self().cells(); }
   auto cellCount() const { return self().cellCount(); }
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
   auto remove(sVerticalLayoutCell cell) { return self().remove(cell), *this; }
@@ -128,8 +131,10 @@ struct TableLayout : sTableLayout {
   auto cell(uint position) const { return self().cell(position); }
   auto cell(uint x, uint y) const { return self().cell(x, y); }
   auto cell(sSizable sizable) const { return self().cell(sizable); }
+  auto cells() const { return self().cells(); }
   auto cellCount() const { return self().cellCount(); }
   auto column(uint position) const { return self().column(position); }
+  auto columns() const { return self().columns(); }
   auto columnCount() const { return self().columnCount(); }
   auto padding() const { return self().padding(); }
   auto remove(sSizable sizable) { return self().remove(sizable), *this; }
@@ -137,6 +142,7 @@ struct TableLayout : sTableLayout {
   auto reset() { return self().reset(), *this; }
   auto resize() { return self().resize(), *this; }
   auto row(uint position) const { return self().row(position); }
+  auto rows() const { return self().rows(); }
   auto rowCount() const { return self().rowCount(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setPadding(float padding) { return self().setPadding({padding, padding, padding, padding}), *this; }
@@ -179,12 +185,14 @@ struct ListViewItem : sListViewItem {
   auto foregroundColor() const { return self().foregroundColor(); }
   auto icon() const { return self().icon(); }
   auto reset() { return self().reset(), *this; }
+  auto selected() const { return self().selected(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setBackgroundColor(Color color = {}) { return self().setBackgroundColor(color), *this; }
   auto setCheckable(bool checkable = true) { return self().setCheckable(checkable), *this; }
   auto setChecked(bool checked = true) { return self().setChecked(checked), *this; }
   auto setForegroundColor(Color color = {}) { return self().setForegroundColor(color), *this; }
   auto setIcon(const image& icon = {}) { return self().setIcon(icon), *this; }
+  auto setSelected(bool selected = true) { return self().setSelected(selected), *this; }
   auto setText(const string& text = "") { return self().setText(text), *this; }
   auto text() const { return self().text(); }
 };
@@ -211,6 +219,7 @@ struct ListView : sListView {
   auto onToggle(const function<void (ListViewItem)>& callback = {}) { return self().onToggle(callback), *this; }
   auto remove(sListViewItem item) { return self().remove(item), *this; }
   auto reset() { return self().reset(), *this; }
+  auto resize() { return self().resize(), *this; }
   auto selected() { return self().selected(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setBackgroundColor(Color color = {}) { return self().setBackgroundColor(color), *this; }

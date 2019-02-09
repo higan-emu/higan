@@ -1,4 +1,4 @@
-target := bsnes
+target := higan
 binary := application
 build := performance
 openmp := true
@@ -40,7 +40,7 @@ obj/libco.o: ../libco/libco.c
 obj/emulator.o: emulator/emulator.cpp
 
 ifeq ($(target),higan)
-  cores := fc sfc ms md pce msx gb gba ws ngp
+  cores := sfc
 endif
 
 ifeq ($(target),legacy)

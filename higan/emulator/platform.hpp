@@ -10,9 +10,6 @@ struct Platform {
   virtual auto audioFrame(Node::Audio, const double* samples, uint channels) -> void {}
   virtual auto inputPoll(Node::Input) -> void {}
   virtual auto inputRumble(uint port, uint device, uint input, bool enable) -> void {}
-
-  //21fx can only load shared libraries by file system path
-  virtual auto path(uint id) -> string { return {}; }
 };
 
 extern Platform* platform;

@@ -24,6 +24,10 @@ auto mFixedLayout::cell(sSizable sizable) const -> FixedLayoutCell {
   return {};
 }
 
+auto mFixedLayout::cells() const -> vector<FixedLayoutCell> {
+  return state.cells;
+}
+
 auto mFixedLayout::cellCount() const -> uint {
   return state.cells.size();
 }

@@ -16,6 +16,7 @@ struct mFixedLayout : mSizable {
   auto append(sSizable sizable, Geometry geometry) -> type&;
   auto cell(uint position) const -> FixedLayoutCell;
   auto cell(sSizable sizable) const -> FixedLayoutCell;
+  auto cells() const -> vector<FixedLayoutCell>;
   auto cellCount() const -> uint;
   auto minimumSize() const -> Size override;
   auto remove(sSizable sizable) -> type&;

@@ -96,9 +96,7 @@ auto nall::main(Arguments arguments) -> void {
   #endif
   for(auto& interface : interfaces) interface->initialize();
 
-  Instances::configurationManager.construct();
-  Instances::systemManager.construct();
+  Instances::programWindow.construct();
   Instances::inputManager.construct();
-  configurationManager.show();
   Application::run();
 }

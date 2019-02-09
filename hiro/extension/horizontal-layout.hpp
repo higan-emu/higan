@@ -17,6 +17,7 @@ struct mHorizontalLayout : mSizable {
   auto append(sSizable sizable, Size size, float spacing = 5) -> type&;
   auto cell(uint position) const -> HorizontalLayoutCell;
   auto cell(sSizable sizable) const -> HorizontalLayoutCell;
+  auto cells() const -> vector<HorizontalLayoutCell>;
   auto cellCount() const -> uint;
   auto minimumSize() const -> Size override;
   auto padding() const -> Geometry;

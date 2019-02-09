@@ -64,6 +64,10 @@ struct Object : shared_pointer_this<Object> {
     return {};
   }
 
+  template<typename T> auto is() -> bool {
+    return (bool)cast<T>();
+  }
+
   template<typename T> auto find() -> vector<shared_pointer<typename T::type>> {
     vector<shared_pointer<typename T::type>> result;
     if(dynamic_cast<typename T::type*>(this)) {

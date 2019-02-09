@@ -1,11 +1,11 @@
 struct Mouse : Controller {
   static auto create() -> Node::Peripheral;
+  Node::Axis x;
+  Node::Axis y;
+  Node::Button left;
+  Node::Button right;
 
-  enum : uint {
-    X, Y, Left, Right,
-  };
-
-  Mouse(uint port);
+  Mouse(Node::Peripheral);
 
   auto data() -> uint2;
   auto latch(bool data) -> void;
@@ -14,11 +14,9 @@ private:
   bool latched;
   uint counter;
 
-  uint speed;  //0 = slow, 1 = normal, 2 = fast
-  int  x;      //x-coordinate
-  int  y;      //y-coordinate
-  bool dx;     //x-direction
-  bool dy;     //y-direction
-  bool l;      //left button
-  bool r;      //right button
+  uint2 speed;  //0 = slow, 1 = normal, 2 = fast
+  int32 cx;     //x-coordinate
+  int32 cy;     //y-coordinate
+  uint1 dx;     //x-direction
+  uint1 dy;     //y-direction
 };

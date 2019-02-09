@@ -1,19 +1,27 @@
 auto Mouse::create() -> Node::Peripheral {
   auto node = Node::Peripheral::create("Mouse");
+  node->append<Node::Axis>("X-Axis");
+  node->append<Node::Axis>("Y-Axis");
+  node->append<Node::Button>("Left");
+  node->append<Node::Button>("Right");
   return node;
 }
 
-Mouse::Mouse(uint port) : Controller(port) {
+Mouse::Mouse(Node::Peripheral peripheral) {
+  node  = peripheral;
+  x     = node->find<Node::Axis>("X-Axis");
+  y     = node->find<Node::Axis>("Y-Axis");
+  left  = node->find<Node::Button>("Left");
+  right = node->find<Node::Button>("Right");
+
   latched = 0;
   counter = 0;
 
   speed = 0;
-  x = 0;
-  y = 0;
+  cx = 0;
+  cy = 0;
   dx = 0;
   dy = 0;
-  l = 0;
-  r = 0;
 }
 
 auto Mouse::data() -> uint2 {
@@ -34,33 +42,33 @@ auto Mouse::data() -> uint2 {
   case  6: return 0;
   case  7: return 0;
 
-  case  8: return r;
-  case  9: return l;
-  case 10: return (speed >> 1) & 1;
-  case 11: return (speed >> 0) & 1;
+  case  8: return right->value;
+  case  9: return left->value;
+  case 10: return speed.bit(1);
+  case 11: return speed.bit(0);
 
-  case 12: return 0;  //signature
-  case 13: return 0;  // ||
-  case 14: return 0;  // ||
-  case 15: return 1;  // ||
+  case 12: return 0;  //4-bit device signature
+  case 13: return 0;
+  case 14: return 0;
+  case 15: return 1;
 
   case 16: return dy;
-  case 17: return (y >> 6) & 1;
-  case 18: return (y >> 5) & 1;
-  case 19: return (y >> 4) & 1;
-  case 20: return (y >> 3) & 1;
-  case 21: return (y >> 2) & 1;
-  case 22: return (y >> 1) & 1;
-  case 23: return (y >> 0) & 1;
+  case 17: return cy.bit(6);
+  case 18: return cy.bit(5);
+  case 19: return cy.bit(4);
+  case 20: return cy.bit(3);
+  case 21: return cy.bit(2);
+  case 22: return cy.bit(1);
+  case 23: return cy.bit(0);
 
   case 24: return dx;
-  case 25: return (x >> 6) & 1;
-  case 26: return (x >> 5) & 1;
-  case 27: return (x >> 4) & 1;
-  case 28: return (x >> 3) & 1;
-  case 29: return (x >> 2) & 1;
-  case 30: return (x >> 1) & 1;
-  case 31: return (x >> 0) & 1;
+  case 25: return cx.bit(6);
+  case 26: return cx.bit(5);
+  case 27: return cx.bit(4);
+  case 28: return cx.bit(3);
+  case 29: return cx.bit(2);
+  case 30: return cx.bit(1);
+  case 31: return cx.bit(0);
   }
 }
 
@@ -69,23 +77,26 @@ auto Mouse::latch(bool data) -> void {
   latched = data;
   counter = 0;
 
-  x = platform->inputPoll(port, ID::Device::Mouse, X);  //-n = left, 0 = center, +n = right
-  y = platform->inputPoll(port, ID::Device::Mouse, Y);  //-n = up,   0 = center, +n = down
-  l = platform->inputPoll(port, ID::Device::Mouse, Left);
-  r = platform->inputPoll(port, ID::Device::Mouse, Right);
+  platform->inputPoll(x);  //-n = left, 0 = center, +n = right
+  platform->inputPoll(y);  //-n = up,   0 = center, +n = down
+  platform->inputPoll(left);
+  platform->inputPoll(right);
 
-  dx = x < 0;  //0 = right, 1 = left
-  dy = y < 0;  //0 = down,  1 = up
+  cx = x->value;
+  cy = y->value;
 
-  if(x < 0) x = -x;  //abs(position_x)
-  if(y < 0) y = -y;  //abs(position_y)
+  dx = cx < 0;  //0 = right, 1 = left
+  dy = cy < 0;  //0 = down,  1 = up
+
+  if(cx < 0) cx = -cx;  //abs(position_x)
+  if(cy < 0) cy = -cy;  //abs(position_y)
 
   double multiplier = 1.0;
   if(speed == 1) multiplier = 1.5;
   if(speed == 2) multiplier = 2.0;
-  x = (double)x * multiplier;
-  y = (double)y * multiplier;
+  cx = (double)cx * multiplier;
+  cy = (double)cy * multiplier;
 
-  x = min(127, x);
-  y = min(127, y);
+  cx = min(127, cx);
+  cy = min(127, cy);
 }

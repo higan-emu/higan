@@ -24,8 +24,10 @@ struct mTableLayout : mSizable {
   auto cell(uint position) const -> TableLayoutCell;
   auto cell(uint x, uint y) const -> TableLayoutCell;
   auto cell(sSizable sizable) const -> TableLayoutCell;
+  auto cells() const -> vector<TableLayoutCell>;
   auto cellCount() const -> uint;
   auto column(uint position) const -> TableLayoutColumn;
+  auto columns() const -> vector<TableLayoutColumn>;
   auto columnCount() const -> uint;
   auto minimumSize() const -> Size override;
   auto padding() const -> Geometry;
@@ -34,6 +36,7 @@ struct mTableLayout : mSizable {
   auto reset() -> type& override;
   auto resize() -> type&;
   auto row(uint position) const -> TableLayoutRow;
+  auto rows() const -> vector<TableLayoutRow>;
   auto rowCount() const -> uint;
   auto setAlignment(Alignment alignment) -> type&;
   auto setEnabled(bool enabled) -> type& override;

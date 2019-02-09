@@ -1,7 +1,6 @@
-InputMappingPanel::InputMappingPanel(HorizontalLayout* parent, Size size) : VerticalLayout(parent, size) {
-  inputList.setBackgroundColor(Theme::BackgroundColor);
-  inputList.setForegroundColor(Theme::ForegroundColor);
-//inputList.setHeadered();
+InputMapper::InputMapper(View* view) : Panel(view, Size{~0, ~0}) {
+  setCollapsible().setVisible(false);
+  nameLabel.setFont(Font().setBold());
   inputList.setBatchable();
   inputList.onActivate([&] { eventAssign(); });
   inputList.onChange([&] { eventChange(); });
@@ -10,25 +9,25 @@ InputMappingPanel::InputMappingPanel(HorizontalLayout* parent, Size size) : Vert
   clearButton.setText("Clear").onActivate([&] { eventClear(); });
 }
 
-auto InputMappingPanel::show(higan::Node::Object node) -> void {
-  this->node = node;
-  assigning = {};
-  refresh();
+auto InputMapper::show() -> void {
   setVisible(true);
 }
 
-auto InputMappingPanel::hide() -> void {
-  assigning = {};
-  inputList.reset();
-  node = {};
+auto InputMapper::hide() -> void {
   setVisible(false);
+  node = {};
+  inputList.reset();
 }
 
-auto InputMappingPanel::refresh() -> void {
+auto InputMapper::refresh(higan::Node::Object node) -> void {
+  this->node = node;
+
+  nameLabel.setText(node->name);
   inputList.reset().setEnabled();
   inputList.append(TableViewColumn().setText("Name"));
   inputList.append(TableViewColumn().setText("Mapping").setExpandable());
-  for(auto& node : this->node->find<higan::Node::Input>()) {
+  for(auto& node : node->find<higan::Node::Input>()) {
+    if(node->parent != this->node) continue;
     TableViewItem item{&inputList};
     item.setProperty<higan::Node::Input>("node", node);
     TableViewCell name{&item};
@@ -44,13 +43,7 @@ auto InputMappingPanel::refresh() -> void {
   message.setText();
 }
 
-auto InputMappingPanel::eventChange() -> void {
-  auto batched = inputList.batched();
-  assignButton.setEnabled(batched.size() == 1);
-  clearButton.setEnabled((bool)batched);
-}
-
-auto InputMappingPanel::eventAssign() -> void {
+auto InputMapper::eventAssign() -> void {
   auto batched = inputList.batched();
   for(auto& item : batched) {
     auto input = item.property<higan::Node::Input>("node");
@@ -62,22 +55,29 @@ auto InputMappingPanel::eventAssign() -> void {
   }
 }
 
-auto InputMappingPanel::eventClear() -> void {
-  auto batched = inputList.batched();
-  for(auto& item : batched) {
-    auto input = item.property<higan::Node::Input>("node");
-    input->setProperty("name");
-    input->setProperty("pathID");
-    input->setProperty("vendorID");
-    input->setProperty("productID");
-    input->setProperty("groupID");
-    input->setProperty("inputID");
-    inputManager.bind();
+auto InputMapper::eventClear() -> void {
+  if(auto batched = inputList.batched()) {
+    for(auto& item : batched) {
+      auto input = item.property<higan::Node::Input>("node");
+      input->setProperty("name");
+      input->setProperty("pathID");
+      input->setProperty("vendorID");
+      input->setProperty("productID");
+      input->setProperty("groupID");
+      input->setProperty("inputID");
+      inputManager.bind();
+    }
+    refresh(node);
   }
-  refresh();
 }
 
-auto InputMappingPanel::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
+auto InputMapper::eventChange() -> void {
+  auto batched = inputList.batched();
+  assignButton.setEnabled(batched.size() == 1);
+  clearButton.setEnabled((bool)batched);
+}
+
+auto InputMapper::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
   if(!assigning || !device->isKeyboard()) return;
   assigning->setProperty("name", device->group(group).input(input).name());
   assigning->setProperty("pathID", device->pathID());
@@ -87,5 +87,5 @@ auto InputMappingPanel::eventInput(shared_pointer<HID::Device> device, uint grou
   assigning->setProperty("inputID", input);
   assigning = {};
   inputManager.bind();
-  refresh();
+  refresh(node);
 }

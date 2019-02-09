@@ -12,11 +12,27 @@
 
 auto SuperScope::create() -> Node::Peripheral {
   auto node = Node::Peripheral::create("Super Scope");
+  node->append<Node::Axis>("X-Axis");
+  node->append<Node::Axis>("Y-Axis");
+  node->append<Node::Button>("Trigger");
+  node->append<Node::Button>("Cursor");
+  node->append<Node::Button>("Turbo");
+  node->append<Node::Button>("Pause");
   return node;
 }
 
-SuperScope::SuperScope(uint port) : Controller(port) {
-  create(Controller::Enter, system.cpuFrequency());
+SuperScope::SuperScope(Node::Peripheral peripheral) {
+  node    = peripheral;
+  x       = node->find<Node::Axis>("X-Axis");
+  y       = node->find<Node::Axis>("Y-Axis");
+  trigger = node->find<Node::Button>("Trigger");
+  cursor  = node->find<Node::Button>("Cursor");
+  turbo   = node->find<Node::Button>("Turbo");
+  pause   = node->find<Node::Button>("Pause");
+
+  Thread::create(system.cpuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   sprite = video.createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
@@ -24,20 +40,18 @@ SuperScope::SuperScope(uint port) : Controller(port) {
   counter = 0;
 
   //center cursor onscreen
-  x = 256 / 2;
-  y = 240 / 2;
+  cx = 256 / 2;
+  cy = 240 / 2;
 
-  trigger   = false;
-  cursor    = false;
-  turbo     = false;
-  pause     = false;
-  offscreen = false;
+  triggerValue = false;
+  turboEdge    = false;
+  pauseEdge    = false;
 
-  oldturbo    = false;
-  triggerlock = false;
-  pauselock   = false;
-
-  prev = 0;
+  offscreen   = false;
+  turboOld    = false;
+  triggerLock = false;
+  pauseLock   = false;
+  previous    = 0;
 }
 
 SuperScope::~SuperScope() {
@@ -48,28 +62,28 @@ auto SuperScope::main() -> void {
   uint next = cpu.vcounter() * 1364 + cpu.hcounter();
 
   if(!offscreen) {
-    uint target = y * 1364 + (x + 24) * 4;
-    if(next >= target && prev < target) {
+    uint target = cy * 1364 + (cx + 24) * 4;
+    if(next >= target && previous < target) {
       //CRT raster detected, toggle iobit to latch counters
       iobit(0);
       iobit(1);
     }
   }
 
-  if(next < prev) {
+  if(next < previous) {
     //Vcounter wrapped back to zero; update cursor coordinates for start of new frame
-    int nx = platform->inputPoll(port, ID::Device::SuperScope, X);
-    int ny = platform->inputPoll(port, ID::Device::SuperScope, Y);
-    nx += x;
-    ny += y;
-    x = max(-16, min(256 + 16, nx));
-    y = max(-16, min(240 + 16, ny));
-    offscreen = (x < 0 || y < 0 || x >= 256 || y >= ppu.vdisp());
-    sprite->setPosition(x * 2 - 16, y * 2 - 16);
+    platform->inputPoll(x);
+    platform->inputPoll(y);
+    int nx = x->value + cx;
+    int ny = y->value + cy;
+    cx = max(-16, min(256 + 16, nx));
+    cy = max(-16, min(240 + 16, ny));
+    offscreen = (cx < 0 || cy < 0 || cx >= 256 || cy >= ppu.vdisp());
+    sprite->setPosition(cx * 2 - 16, cy * 2 - 16);
     sprite->setVisible(true);
   }
 
-  prev = next;
+  previous = next;
   step(2);
   synchronize(cpu);
 }
@@ -79,45 +93,48 @@ auto SuperScope::data() -> uint2 {
 
   if(counter == 0) {
     //turbo is a switch; toggle is edge sensitive
-    bool newturbo = platform->inputPoll(port, ID::Device::SuperScope, Turbo);
-    if(newturbo && !oldturbo) {
-      turbo = !turbo;  //toggle state
-      sprite->setPixels(turbo ? (image)Resource::Sprite::CrosshairRed : (image)Resource::Sprite::CrosshairGreen);
+    platform->inputPoll(turbo);
+    bool turboNew = turbo->value;
+    if(turboNew && !turboOld) {
+      turboEdge = !turboEdge;  //toggle state
+      sprite->setPixels(turboEdge ? (image)Resource::Sprite::CrosshairRed : (image)Resource::Sprite::CrosshairGreen);
     }
-    oldturbo = newturbo;
+    turboOld = turboNew;
 
     //trigger is a button
     //if turbo is active, trigger is level sensitive; otherwise, it is edge sensitive
-    trigger = false;
-    bool newtrigger = platform->inputPoll(port, ID::Device::SuperScope, Trigger);
-    if(newtrigger && (turbo || !triggerlock)) {
-      trigger = true;
-      triggerlock = true;
-    } else if(!newtrigger) {
-      triggerlock = false;
+    triggerValue = false;
+    platform->inputPoll(trigger);
+    bool triggerNew = trigger->value;
+    if(triggerNew && (turboEdge || !triggerLock)) {
+      triggerValue = true;
+      triggerLock = true;
+    } else if(!triggerNew) {
+      triggerLock = false;
     }
 
     //cursor is a button; it is always level sensitive
-    cursor = platform->inputPoll(port, ID::Device::SuperScope, Cursor);
+    platform->inputPoll(cursor);
 
     //pause is a button; it is always edge sensitive
-    pause = false;
-    bool newpause = platform->inputPoll(port, ID::Device::SuperScope, Pause);
-    if(newpause && !pauselock) {
-      pause = true;
-      pauselock = true;
-    } else if(!newpause) {
-      pauselock = false;
+    pauseEdge = false;
+    platform->inputPoll(pause);
+    bool pauseNew = pause->value;
+    if(pauseNew && !pauseLock) {
+      pauseEdge = true;
+      pauseLock = true;
+    } else if(!pauseNew) {
+      pauseLock = false;
     }
 
-    offscreen = (x < 0 || y < 0 || x >= 256 || y >= ppu.vdisp());
+    offscreen = (cx < 0 || cy < 0 || cx >= 256 || cy >= ppu.vdisp());
   }
 
   switch(counter++) {
-  case 0: return offscreen ? 0 : trigger;
-  case 1: return cursor;
-  case 2: return turbo;
-  case 3: return pause;
+  case 0: return triggerValue & !offscreen;
+  case 1: return cursor->value;
+  case 2: return turboEdge;
+  case 3: return pauseEdge;
   case 4: return 0;
   case 5: return 0;
   case 6: return offscreen;

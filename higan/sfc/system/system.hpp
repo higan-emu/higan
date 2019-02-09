@@ -19,7 +19,7 @@ namespace Tree {
 
   struct Hacks {
     auto initialize(Node::Object) -> void;
-    Node::Object node;
+    Node::Settings node;
     struct PPU {
       Node::Object node;
       Node::Boolean fast;

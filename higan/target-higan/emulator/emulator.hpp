@@ -8,7 +8,7 @@ struct Emulator : higan::Platform {
   auto quit() -> void;
   auto power(bool on) -> void;
 
-  auto connected(string location) -> bool;
+  auto connected(string location) -> higan::Node::Port;
 
   //platform.cpp
   auto attach(higan::Node::Object) -> void override;

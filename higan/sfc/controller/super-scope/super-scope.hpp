@@ -1,14 +1,15 @@
 struct SuperScope : Controller {
-  using Controller::create;
   static auto create() -> Node::Peripheral;
+  Node::Axis x;
+  Node::Axis y;
+  Node::Button trigger;
+  Node::Button cursor;
+  Node::Button turbo;
+  Node::Button pause;
 
   shared_pointer<Sprite> sprite;
 
-  enum : uint {
-    X, Y, Trigger, Cursor, Turbo, Pause,
-  };
-
-  SuperScope(uint port);
+  SuperScope(Node::Peripheral);
   ~SuperScope();
 
   auto main() -> void;
@@ -19,18 +20,15 @@ private:
   bool latched;
   uint counter;
 
-  int x;
-  int y;
+  int  cx;
+  int  cy;
+  bool triggerValue;
+  bool turboEdge;
+  bool pauseEdge;
 
-  bool trigger;
-  bool cursor;
-  bool turbo;
-  bool pause;
   bool offscreen;
-
-  bool oldturbo;
-  bool triggerlock;
-  bool pauselock;
-
-  uint prev;
+  bool turboOld;
+  bool triggerLock;
+  bool pauseLock;
+  uint previous;
 };

@@ -210,6 +210,7 @@ struct Button : sButton {
 struct Canvas : sCanvas {
   DeclareSharedWidget(Canvas)
 
+  auto alignment() const { return self().alignment(); }
   auto color() const { return self().color(); }
   auto data() { return self().data(); }
   auto droppable() const { return self().droppable(); }
@@ -225,6 +226,7 @@ struct Canvas : sCanvas {
   auto onMouseMove(const function<void (Position)>& callback = {}) { return self().onMouseMove(callback), *this; }
   auto onMousePress(const function<void (Mouse::Button)>& callback = {}) { return self().onMousePress(callback), *this; }
   auto onMouseRelease(const function<void (Mouse::Button)>& callback = {}) { return self().onMouseRelease(callback), *this; }
+  auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setColor(Color color) { return self().setColor(color), *this; }
   auto setDroppable(bool droppable = true) { return self().setDroppable(droppable), *this; }
   auto setGradient(Gradient gradient = {}) { return self().setGradient(gradient), *this; }

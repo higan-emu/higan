@@ -33,12 +33,20 @@ auto mTableLayout::cell(sSizable sizable) const -> TableLayoutCell {
   return {};
 }
 
+auto mTableLayout::cells() const -> vector<TableLayoutCell> {
+  return state.cells;
+}
+
 auto mTableLayout::cellCount() const -> uint {
   return state.cells.size();
 }
 
 auto mTableLayout::column(uint position) const -> TableLayoutColumn {
   return state.columns(position, {});
+}
+
+auto mTableLayout::columns() const -> vector<TableLayoutColumn> {
+  return state.columns;
 }
 
 auto mTableLayout::columnCount() const -> uint {
@@ -125,6 +133,10 @@ auto mTableLayout::resize() -> type& {
 
 auto mTableLayout::row(uint position) const -> TableLayoutRow {
   return state.rows(position, {});
+}
+
+auto mTableLayout::rows() const -> vector<TableLayoutRow> {
+  return state.rows;
 }
 
 auto mTableLayout::rowCount() const -> uint {

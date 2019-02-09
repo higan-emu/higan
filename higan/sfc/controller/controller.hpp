@@ -43,7 +43,6 @@ struct ControllerPort {
   auto serialize(serializer&) -> void;
 
   const string name;
-private:
   Controller* device = nullptr;
   friend class Controller;
 };
@@ -52,7 +51,7 @@ extern ControllerPort controllerPort1;
 extern ControllerPort controllerPort2;
 
 #include "gamepad/gamepad.hpp"
-//#include "mouse/mouse.hpp"
+#include "mouse/mouse.hpp"
 #include "super-multitap/super-multitap.hpp"
-//#include "super-scope/super-scope.hpp"
+#include "super-scope/super-scope.hpp"
 //#include "justifier/justifier.hpp"

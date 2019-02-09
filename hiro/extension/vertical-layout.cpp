@@ -29,6 +29,10 @@ auto mVerticalLayout::cell(sSizable sizable) const -> VerticalLayoutCell {
   return {};
 }
 
+auto mVerticalLayout::cells() const -> vector<VerticalLayoutCell> {
+  return state.cells;
+}
+
 auto mVerticalLayout::cellCount() const -> uint {
   return state.cells.size();
 }

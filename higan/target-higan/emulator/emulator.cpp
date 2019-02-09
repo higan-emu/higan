@@ -24,9 +24,13 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   root = interface->root();
 
   systemManager.show();
+  programWindow.setTitle(system.name);
+  programWindow.show(home);
+  programWindow.show(nodeManager);
+  programWindow.setFocused();
 
   audio.create("OSS");
-  audio.setContext(systemManager.handle());
+  audio.setContext(programWindow.handle());
   audio.setBlocking(false);
   audio.setFrequency(48000.0);
 
@@ -57,6 +61,8 @@ auto Emulator::main() -> void {
 }
 
 auto Emulator::quit() -> void {
+  if(!interface) return Application::quit();
+
   if(auto location = root->property("location")) {
     file::write({location, "node.bml"}, higan::Node::serialize(root));
   }
@@ -66,7 +72,7 @@ auto Emulator::quit() -> void {
   audio.reset();
   inputManager.reset();
   Instances::inputManager.destruct();
-  Instances::systemManager.destruct();
+  Instances::programWindow.destruct();
   root = {};
   interface->terminate();
   interface.reset();
@@ -76,10 +82,10 @@ auto Emulator::quit() -> void {
 auto Emulator::power(bool on) -> void {
   if(system.power = on) {
     for(auto& viewport : viewports) {
-      viewport->show(systemManager);
+      viewport->show(programWindow);
       Application::processEvents();
-      if(!systemManager.maximized() && !systemManager.minimized()) {
-        systemManager.setAlignment(*viewport, {-0.0, 0.5});
+      if(!programWindow.maximized() && !programWindow.minimized()) {
+        programWindow.setAlignment(*viewport, {-0.0, 0.5});
       }
     }
     interface->power();
@@ -87,17 +93,17 @@ auto Emulator::power(bool on) -> void {
     for(auto& viewport : viewports) {
       viewport->setVisible(false);
     }
-    if(systemManager.minimized()) systemManager.setMinimized(false);
-    if(!systemManager.maximized()) systemManager.setAlignment(Alignment::Center);
-    systemManager.setFocused();
+    if(programWindow.minimized()) programWindow.setMinimized(false);
+    if(!programWindow.maximized()) programWindow.setAlignment(Alignment::Center);
+    programWindow.setFocused();
   }
-  systemManager.powerToggle.setChecked(on);
+  systemMenu.power.setChecked(on);
 }
 
 //used to prevent connecting the same (emulated) physical device to multiple ports simultaneously
-auto Emulator::connected(string location) -> bool {
+auto Emulator::connected(string location) -> higan::Node::Port {
   for(auto& peripheral : root->find<higan::Node::Peripheral>()) {
-    if(location == peripheral->property("location")) return true;
+    if(location == peripheral->property("location")) return peripheral->parent.acquire();
   }
-  return false;
+  return {};
 }

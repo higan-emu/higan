@@ -13,7 +13,7 @@ auto InputManager::create() -> void {
   root = interface->root();
 
   input.create("SDL");
-  input.setContext(systemManager.handle());
+  input.setContext(programWindow.handle());
   input.onChange({&InputManager::eventInput, this});
 }
 
@@ -76,5 +76,5 @@ auto InputManager::bind() -> void {
 }
 
 auto InputManager::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
-  systemManager.eventInput(device, group, input, oldValue, newValue);
+  inputMapper.eventInput(device, group, input, oldValue, newValue);
 }

@@ -4,36 +4,6 @@ namespace higan::SuperFamicom {
 
 extern Interface* interface;
 
-struct ID {
-  enum : uint {
-    System,
-    SuperFamicom,
-    GameBoy,
-    BSMemory,
-    SufamiTurboA,
-    SufamiTurboB,
-  };
-
-  struct Port { enum : uint {
-    Controller1,
-    Controller2,
-    Expansion,
-  };};
-
-  struct Device { enum : uint {
-    None,
-    Gamepad,
-    Mouse,
-    SuperMultitap,
-    SuperScope,
-    Justifier,
-    Justifiers,
-
-    Satellaview,
-    S21FX,
-  };};
-};
-
 struct SuperFamicomInterface : Interface {
   auto name() -> string override;
   auto colors() -> uint32 override;

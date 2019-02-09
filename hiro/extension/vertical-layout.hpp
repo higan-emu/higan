@@ -17,6 +17,7 @@ struct mVerticalLayout : mSizable {
   auto append(sSizable sizable, Size size, float spacing = 5) -> type&;
   auto cell(uint position) const -> VerticalLayoutCell;
   auto cell(sSizable sizable) const -> VerticalLayoutCell;
+  auto cells() const -> vector<VerticalLayoutCell>;
   auto cellCount() const -> uint;
   auto minimumSize() const -> Size override;
   auto padding() const -> Geometry;
