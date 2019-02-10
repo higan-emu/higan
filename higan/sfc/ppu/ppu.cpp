@@ -2,30 +2,6 @@
 
 namespace higan::SuperFamicom {
 
-auto Tree::PPU1::initialize(Node::Object parent) -> void {
-  node = Node::Component::create("PPU1");
-  version = Node::Natural::create("Version", 1);
-  version->allowedValues = {1};
-  node->append(version);
-  parent->append(node);
-}
-
-auto Tree::PPU2::initialize(Node::Object parent) -> void {
-  node = Node::Component::create("PPU2");
-  version = Node::Natural::create("Version", 3);
-  version->allowedValues = {1, 2, 3};
-  node->append(version);
-  parent->append(node);
-}
-
-auto Tree::VRAM::initialize(Node::Object parent) -> void {
-  node = Node::Component::create("VRAM");
-  size = Node::Natural::create("Size", 64_KiB);
-  size->allowedValues = {64_KiB, 128_KiB};
-  node->append(size);
-  parent->append(node);
-}
-
 PPU ppu;
 #include "io.cpp"
 #include "background.cpp"
@@ -53,13 +29,31 @@ PPU::~PPU() {
   delete[] output;
 }
 
-auto PPU::step(uint clocks) -> void {
-  clocks >>= 1;
-  while(clocks--) {
-    tick(2);
-    Thread::step(2);
-    synchronize(cpu);
+auto PPU::load(Node::Object parent, Node::Object from) -> void {
+  parent->append(node = Node::Component::create("PPU"));
+  from = Node::load(node, from);
+
+  node->append(versionPPU1 = Node::Natural::create("PPU1 Version", 1));
+  versionPPU1->allowedValues = {1};
+  Node::load(versionPPU1, from);
+
+  node->append(versionPPU2 = Node::Natural::create("PPU2 Version", 3));
+  versionPPU2->allowedValues = {1, 2, 3};
+  Node::load(versionPPU2, from);
+
+  node->append(vramSize = Node::Natural::create("VRAM", 64_KiB));
+  vramSize->allowedValues = {64_KiB, 128_KiB};
+  Node::load(vramSize, from);
+}
+
+auto PPU::map() -> void {
+  if(hacks.ppu.fast->latch()) {
+    return ppufast.map();
   }
+
+  function<auto (uint24, uint8) -> uint8> reader{&PPU::readIO, this};
+  function<auto (uint24, uint8) -> void> writer{&PPU::writeIO, this};
+  bus.map(reader, writer, "00-3f,80-bf:2100-213f");
 }
 
 auto PPU::main() -> void {
@@ -97,14 +91,13 @@ auto PPU::main() -> void {
   step(lineclocks() - hcounter());
 }
 
-auto PPU::map() -> void {
-  if(hacks.ppu.fast->latch()) {
-    return ppufast.map();
+auto PPU::step(uint clocks) -> void {
+  clocks >>= 1;
+  while(clocks--) {
+    tick(2);
+    Thread::step(2);
+    synchronize(cpu);
   }
-
-  function<auto (uint24, uint8) -> uint8> reader{&PPU::readIO, this};
-  function<auto (uint24, uint8) -> void> writer{&PPU::writeIO, this};
-  bus.map(reader, writer, "00-3f,80-bf:2100-213f");
 }
 
 auto PPU::power(bool reset) -> void {
@@ -121,13 +114,13 @@ auto PPU::power(bool reset) -> void {
 
   if(!reset) random.array((uint8*)vram.data, sizeof(vram.data));
 
-  ppu1.version = nodes.ppu1.version->value();
+  ppu1.version = versionPPU1->value();
   ppu1.mdr = random.bias(0xff);
 
-  ppu2.version = nodes.ppu2.version->value();
+  ppu2.version = versionPPU2->value();
   ppu2.mdr = random.bias(0xff);
 
-  vram.mask = nodes.vram.size->value() / sizeof(uint16) - 1;
+  vram.mask = vramSize->value() / sizeof(uint16) - 1;
   if(vram.mask != 0xffff) vram.mask = 0x7fff;
 
   latch.vram = random();
@@ -261,8 +254,8 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  video.setEffect(Video::Effect::ColorBleed, system.display.colorBleed->value());
-  video.refresh(system.display.node, output, pitch * sizeof(uint32), width, height);
+  video.setEffect(Video::Effect::ColorBleed, display.colorBleed->value());
+  video.refresh(display.node, output, pitch * sizeof(uint32), width, height);
 }
 
 }

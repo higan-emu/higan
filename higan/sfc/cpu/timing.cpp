@@ -55,14 +55,14 @@ auto CPU::scanline() -> void {
 
   if(vcounter() == 0) {
     //HDMA setup triggers once every frame
-    status.hdmaSetupPosition = (version == 1 ? 12 + 8 - dmaCounter() : 12 + dmaCounter());
+    status.hdmaSetupPosition = (io.version == 1 ? 12 + 8 - dmaCounter() : 12 + dmaCounter());
     status.hdmaSetupTriggered = false;
 
     status.autoJoypadCounter = 0;
   }
 
   //DRAM refresh occurs once every scanline
-  if(version == 2) status.dramRefreshPosition = 530 + 8 - dmaCounter();
+  if(io.version == 2) status.dramRefreshPosition = 530 + 8 - dmaCounter();
   status.dramRefresh = 0;
 
   //HDMA triggers once every visible scanline

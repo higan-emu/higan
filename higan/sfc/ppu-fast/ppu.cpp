@@ -93,8 +93,8 @@ auto PPU::refresh() -> void {
   auto pitch  = 512 << !interlace();
   auto width  = 256 << hires();
   auto height = 240 << interlace();
-  video.setEffect(Video::Effect::ColorBleed, system.display.colorBleed->value() && hires());
-  video.refresh(system.display.node, output, pitch * sizeof(uint32), width, height);
+  video.setEffect(Video::Effect::ColorBleed, display.colorBleed->value() && hires());
+  video.refresh(display.node, output, pitch * sizeof(uint32), width, height);
 }
 
 auto PPU::map() -> void {

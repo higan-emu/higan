@@ -76,8 +76,24 @@ namespace higan::Node {
     return node;
   }
 
-  static inline auto copy(Object target, string markup) -> void {
-    auto source = unserialize(markup);
-    target->copy(source);
+  static inline auto load(Object to, Object from) -> Object {
+    if(!to || !from) return {};
+    if(auto object = from->find(to)) return to->load(object), object;
+    return {};
+  }
+
+  template<typename T> static inline auto append(Object parent, Object from, string name) -> T {
+    auto node = T::create(name);
+    if(from) {
+      if(auto object = from->find<T>(name)) node->load(object);
+    }
+    if(parent) parent->append(node);
+    return node;
+  }
+
+  template<typename T> static inline auto find(Object from, string name) -> Object {
+    if(!from) return {};
+    if(auto object = from->find<T>(name)) return object;
+    return {};
   }
 }

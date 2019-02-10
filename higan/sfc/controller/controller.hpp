@@ -28,8 +28,7 @@ struct ControllerPort {
   static auto create(string_view name) -> Node::Port;
 
   Node::Port port;
-  auto initialize(Node::Object) -> void;
-  auto bind(Node::Port) -> void;
+  auto load(Node::Object parent, Node::Object from) -> void;
 
   ControllerPort(string_view name);
   auto connect(Node::Peripheral) -> void;
@@ -43,7 +42,7 @@ struct ControllerPort {
   auto serialize(serializer&) -> void;
 
   const string name;
-  Controller* device = nullptr;
+  unique_pointer<Controller> device;
   friend class Controller;
 };
 
@@ -51,7 +50,10 @@ extern ControllerPort controllerPort1;
 extern ControllerPort controllerPort2;
 
 #include "gamepad/gamepad.hpp"
-#include "mouse/mouse.hpp"
-#include "super-multitap/super-multitap.hpp"
-#include "super-scope/super-scope.hpp"
 //#include "justifier/justifier.hpp"
+//#include "justifiers/justifiers.hpp"
+//#include "mouse/mouse.hpp"
+//#include "ntt-data-keypad/ntt-data-keypad.hpp"
+//#include "super-multitap/super-multitap.hpp"
+//#include "super-scope/super-scope.hpp"
+//#include "twin-tap/twin-tap.hpp"

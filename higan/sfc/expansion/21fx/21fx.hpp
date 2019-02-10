@@ -1,9 +1,7 @@
 struct S21FX : Expansion {
-  static auto create() -> Node::Peripheral;
-
   Node::Peripheral node;
-  using Expansion::create;
-  S21FX(Node::Peripheral node);
+
+  S21FX(Node::Port parent, Node::Peripheral with);
   ~S21FX();
 
   auto step(uint clocks) -> void;

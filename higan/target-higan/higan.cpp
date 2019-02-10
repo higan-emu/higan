@@ -94,7 +94,7 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
   interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketColorInterface);
   #endif
-  for(auto& interface : interfaces) interface->initialize();
+  for(auto& interface : interfaces) interface->load();
 
   Instances::programWindow.construct();
   Instances::inputManager.construct();

@@ -6,6 +6,7 @@ SufamiTurboCartridge sufamiturboB;
 auto SufamiTurboCartridge::initialize(Node::Object parent) -> void {
   bool portID = this == &sufamiturboB;
   port = Node::Port::create(string{"Sufami Turbo Slot ", !portID ? "A" : "B"}, "Sufami Turbo");
+/*
   port->allocate = [&](auto name) {
     return Node::Peripheral::create("Sufami Turbo");
   };
@@ -16,6 +17,7 @@ auto SufamiTurboCartridge::initialize(Node::Object parent) -> void {
     save();
     unload();
   };
+*/
   parent->append(port);
 }
 

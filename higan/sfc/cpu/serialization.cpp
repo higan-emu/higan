@@ -5,8 +5,6 @@ auto CPU::serialize(serializer& s) -> void {
 
   s.array(wram);
 
-  s.integer(version);
-
   s.integer(counter.cpu);
   s.integer(counter.dma);
 
@@ -70,6 +68,8 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(io.vtime);
 
   s.integer(io.romSpeed);
+
+  s.integer(io.version);
 
   s.integer(io.rddiv);
   s.integer(io.rdmpy);

@@ -230,10 +230,6 @@ auto DSP::write(uint8 addr, uint8 data) -> void {
 
 /* initialization */
 
-auto DSP::load() -> bool {
-  return true;
-}
-
 auto DSP::power(bool reset) -> void {
   create(system.apuFrequency(), [&] {
     while(true) scheduler.synchronize(), main();

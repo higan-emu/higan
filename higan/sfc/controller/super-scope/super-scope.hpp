@@ -17,18 +17,18 @@ struct SuperScope : Controller {
   auto latch(bool data) -> void;
 
 private:
-  bool latched;
-  uint counter;
+  bool latched = 0;
+  uint counter = 0;
 
-  int  cx;
-  int  cy;
-  bool triggerValue;
-  bool turboEdge;
-  bool pauseEdge;
+  int  cx = 256 / 2;
+  int  cy = 240 / 2;
+  bool triggerValue = 0;
+  bool turboEdge = 0;
+  bool pauseEdge = 0;
 
-  bool offscreen;
-  bool turboOld;
-  bool triggerLock;
-  bool pauseLock;
-  uint previous;
+  bool offscreen = 0;
+  bool turboOld = 0;
+  bool triggerLock = 0;
+  bool pauseLock = 0;
+  uint previous = 0;
 };

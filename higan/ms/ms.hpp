@@ -16,9 +16,14 @@ namespace higan::MasterSystem {
   extern Cheat cheat;
 
   struct Thread : higan::Thread {
-    auto create(auto (*entrypoint)() -> void, double frequency) -> void {
-      higan::Thread::create(entrypoint, frequency);
+    auto create(double frequency, function<void ()> entryPoint) -> void {
+      higan::Thread::create(frequency, entryPoint);
       scheduler.append(*this);
+    }
+
+    auto destroy() -> void {
+      scheduler.remove(*this);
+      higan::Thread::destroy();
     }
 
     inline auto synchronize(Thread& thread) -> void {

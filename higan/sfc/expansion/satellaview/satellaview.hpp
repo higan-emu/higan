@@ -1,9 +1,7 @@
 struct Satellaview : Expansion {
-  static auto create() -> Node::Peripheral;
-
   Node::Peripheral node;
-  using Expansion::create;
-  Satellaview(Node::Peripheral);
+
+  Satellaview(Node::Port parent, Node::Peripheral with);
   ~Satellaview();
 
   auto read(uint24 addr, uint8 data) -> uint8;

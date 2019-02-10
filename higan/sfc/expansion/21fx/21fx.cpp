@@ -1,9 +1,7 @@
-auto S21FX::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("21fx");
-  return node;
-}
+S21FX::S21FX(Node::Port parent, Node::Peripheral with) {
+  parent->append(node = Node::Peripheral::create("21fx", parent->type));
+  node->load(with);
 
-S21FX::S21FX(Node::Peripheral node) : node(node) {
   create(10'000'000, [&] {
     while(true) scheduler.synchronize(), main();
   });

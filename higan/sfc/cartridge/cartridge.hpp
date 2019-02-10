@@ -1,15 +1,10 @@
 struct Cartridge {
   Node::Port port;
-  auto initialize(Node::Object) -> void;
+  auto load(Node::Object parent, Node::Object from) -> void;
 
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
-
-  auto hashes() const -> vector<string>;
-  auto manifests() const -> vector<string>;
-  auto titles() const -> vector<string>;
-
   auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;

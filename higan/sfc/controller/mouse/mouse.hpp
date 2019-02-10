@@ -11,8 +11,8 @@ struct Mouse : Controller {
   auto latch(bool data) -> void;
 
 private:
-  bool latched;
-  uint counter;
+  bool latched = 0;
+  uint counter = 0;
 
   uint2 speed;  //0 = slow, 1 = normal, 2 = fast
   int32 cx;     //x-coordinate

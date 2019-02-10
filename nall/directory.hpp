@@ -156,6 +156,18 @@ private:
   static auto ufiles(const string& pathname, const string& pattern = "*") -> vector<string>;
 };
 
+inline auto directory::copy(const string& source, const string& target) -> bool {
+  bool result = true;
+  if(!directory::create(target)) return result = false;
+  for(auto& name : directory::folders(source)) {
+    if(!directory::copy({source, name}, {target, name})) result = false;
+  }
+  for(auto& name : directory::files(source)) {
+    if(!file::copy({source, name}, {target, name})) result = false;
+  }
+  return result;
+}
+
 #if defined(PLATFORM_WINDOWS)
   inline auto directory::create(const string& pathname, uint permissions) -> bool {
     string path;
@@ -263,18 +275,6 @@ private:
       return S_ISDIR(sp.st_mode);
     }
     return false;
-  }
-
-  inline auto directory::copy(const string& source, const string& target) -> bool {
-    bool result = true;
-    if(!directory::create(target)) return result = false;
-    for(auto& name : directory::folders(source)) {
-      if(!directory::copy({source, name}, {target, name})) result = false;
-    }
-    for(auto& name : directory::files(source)) {
-      if(!file::copy({source, name}, {target, name})) result = false;
-    }
-    return result;
   }
 
   inline auto directory::create(const string& pathname, uint permissions) -> bool {

@@ -84,7 +84,7 @@ inline auto desktop(string_view name = {}) -> string {
 inline auto userSettings() -> string {
   #if defined(PLATFORM_WINDOWS)
   wchar_t path[PATH_MAX] = L"";
-  SHGetFolderPathW(nullptr, CSIDL_LOCAL_ALLDATA | CSIDL_FLAG_CREATE, nullptr, 0, path);
+  SHGetFolderPathW(nullptr, CSIDL_LOCAL_APPDATA | CSIDL_FLAG_CREATE, nullptr, 0, path);
   string result = (const char*)utf8_t(path);
   result.transform("\\", "/");
   #elif defined(PLATFORM_MACOS)

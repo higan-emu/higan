@@ -12,8 +12,8 @@
 
 auto SuperScope::create() -> Node::Peripheral {
   auto node = Node::Peripheral::create("Super Scope");
-  node->append<Node::Axis>("X-Axis");
-  node->append<Node::Axis>("Y-Axis");
+  node->append<Node::Axis  >("X");
+  node->append<Node::Axis  >("Y");
   node->append<Node::Button>("Trigger");
   node->append<Node::Button>("Cursor");
   node->append<Node::Button>("Turbo");
@@ -23,35 +23,19 @@ auto SuperScope::create() -> Node::Peripheral {
 
 SuperScope::SuperScope(Node::Peripheral peripheral) {
   node    = peripheral;
-  x       = node->find<Node::Axis>("X-Axis");
-  y       = node->find<Node::Axis>("Y-Axis");
+  x       = node->find<Node::Axis  >("X");
+  y       = node->find<Node::Axis  >("Y");
   trigger = node->find<Node::Button>("Trigger");
   cursor  = node->find<Node::Button>("Cursor");
   turbo   = node->find<Node::Button>("Turbo");
   pause   = node->find<Node::Button>("Pause");
 
-  Thread::create(system.cpuFrequency(), [&] {
-    while(true) scheduler.synchronize(), main();
-  });
   sprite = video.createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
-  latched = 0;
-  counter = 0;
-
-  //center cursor onscreen
-  cx = 256 / 2;
-  cy = 240 / 2;
-
-  triggerValue = false;
-  turboEdge    = false;
-  pauseEdge    = false;
-
-  offscreen   = false;
-  turboOld    = false;
-  triggerLock = false;
-  pauseLock   = false;
-  previous    = 0;
+  Thread::create(system.cpuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 }
 
 SuperScope::~SuperScope() {
@@ -64,7 +48,7 @@ auto SuperScope::main() -> void {
   if(!offscreen) {
     uint target = cy * 1364 + (cx + 24) * 4;
     if(next >= target && previous < target) {
-      //CRT raster detected, toggle iobit to latch counters
+      //CRT raster detected, strobe iobit to latch counters
       iobit(0);
       iobit(1);
     }
@@ -89,8 +73,6 @@ auto SuperScope::main() -> void {
 }
 
 auto SuperScope::data() -> uint2 {
-  if(counter >= 8) return 1;
-
   if(counter == 0) {
     //turbo is a switch; toggle is edge sensitive
     platform->inputPoll(turbo);
@@ -141,11 +123,13 @@ auto SuperScope::data() -> uint2 {
   case 7: return 0;  //noise (1 = yes)
   }
 
-  unreachable;
+  if(counter > 8) counter = 8;
+  return 1;
 }
 
 auto SuperScope::latch(bool data) -> void {
-  if(latched == data) return;
-  latched = data;
-  counter = 0;
+  if(latched != data) {
+    latched = data;
+    counter = 0;
+  }
 }

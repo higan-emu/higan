@@ -1,21 +1,9 @@
-auto ColecoVisionInterface::information() -> Information {
-  Information information;
-  information.manufacturer = "Coleco Industries";
-  information.name         = "ColecoVision";
-  information.extension    = "cv";
-  return information;
+auto ColecoVisionInterface::name() -> string {
+  return "ColecoVision";
 }
 
-auto ColecoVisionInterface::display() -> Display {
-  Display display;
-  display.type = Display::Type::CRT;
-  display.colors = 1 << 4;
-  display.width = 256;
-  display.height = 192;
-  display.internalWidth = 256;
-  display.internalHeight = 192;
-  display.aspectCorrection = 1.0;
-  return display;
+auto ColecoVisionInterface::colors() -> uint32 {
+  return 1 << 4;
 }
 
 auto ColecoVisionInterface::color(uint32 color) -> uint64 {
@@ -38,65 +26,4 @@ auto ColecoVisionInterface::color(uint32 color) -> uint64 {
   case 15: return 0xffff'ffff'ffffull;  //white
   }
   unreachable;
-}
-
-auto ColecoVisionInterface::ports() -> vector<Port> { return {
-  {ID::Port::Controller1, "Controller Port 1"},
-  {ID::Port::Controller2, "Controller Port 2"}};
-}
-
-auto ColecoVisionInterface::devices(uint port) -> vector<Device> {
-  if(port == ID::Port::Controller1) return {
-    {ID::Device::None, "None"},
-    {ID::Device::NumberPad, "Gamepad"}
-  };
-
-  if(port == ID::Port::Controller2) return {
-    {ID::Device::None, "None"},
-    {ID::Device::NumberPad, "Gamepad"}
-  };
-
-  return {};
-}
-
-auto ColecoVisionInterface::inputs(uint device) -> vector<Input> {
-  using Type = Input::Type;
-
-  if(device == ID::Device::NumberPad) return {
-    {Type::Hat, "Up"},
-    {Type::Hat, "Down"},
-    {Type::Hat, "Left"},
-    {Type::Hat, "Right"},
-    {Type::Button, "L"},
-    {Type::Button, "R"},
-    {Type::Button, "1"},
-    {Type::Button, "2"},
-    {Type::Button, "3"},
-    {Type::Button, "4"},
-    {Type::Button, "5"},
-    {Type::Button, "6"},
-    {Type::Button, "7"},
-    {Type::Button, "8"},
-    {Type::Button, "9"},
-    {Type::Button, "Star"},
-    {Type::Button, "0"},
-    {Type::Button, "Pound"}
-  };
-
-  return {};
-}
-
-auto ColecoVisionInterface::load() -> bool {
-  return system.load(this, System::Model::ColecoVision);
-}
-
-auto ColecoVisionInterface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return option.port.controller1.device();
-  if(port == ID::Port::Controller2) return option.port.controller2.device();
-  return 0;
-}
-
-auto ColecoVisionInterface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(option.port.controller1.device(device));
-  if(port == ID::Port::Controller2) controllerPort2.connect(option.port.controller2.device(device));
 }

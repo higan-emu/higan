@@ -1,25 +1,9 @@
-namespace Tree {
-  struct PPU1 {
-    auto initialize(Node::Object) -> void;
-    Node::Component node;
-    Node::Natural version;
-  };
-
-  struct PPU2 {
-    auto initialize(Node::Object) -> void;
-    Node::Component node;
-    Node::Natural version;
-  };
-
-  struct VRAM {
-    auto initialize(Node::Object) -> void;
-    Node::Component node;
-    Node::Natural size;
-  };
-}
-
 struct PPU : Thread, PPUcounter {
-  struct Nodes { Tree::PPU1 ppu1; Tree::PPU2 ppu2; Tree::VRAM vram; } nodes;
+  Node::Component node;
+  Node::Natural versionPPU1;
+  Node::Natural versionPPU2;
+  Node::Natural vramSize;
+
   alwaysinline auto interlace() const -> bool { return self.interlace; }
   alwaysinline auto overscan() const -> bool { return self.overscan; }
   alwaysinline auto vdisp() const -> uint { return self.vdisp; }
@@ -28,8 +12,9 @@ struct PPU : Thread, PPUcounter {
   PPU();
   ~PPU();
 
-  auto main() -> void;
+  auto load(Node::Object parent, Node::Object from) -> void;
   auto map() -> void;
+  auto main() -> void;
   auto power(bool reset) -> void;
 
   //io.cpp

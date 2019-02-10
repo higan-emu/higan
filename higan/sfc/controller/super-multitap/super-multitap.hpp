@@ -1,6 +1,5 @@
 struct SuperMultitap : Controller {
   static auto create() -> Node::Peripheral;
-
   ControllerPort port1;
   ControllerPort port2;
   ControllerPort port3;

@@ -1,18 +1,14 @@
-namespace Tree {
-  struct CPU {
-    auto initialize(Node::Object) -> void;
-    Node::Component node;
-    Node::Natural version;
-  };
-}
+struct CPU : WDC65816, Thread, PPUcounter {
+  Node::Component node;
+  Node::Natural version;
 
-struct CPU : WDC65816, Thread, PPUcounter, Tree::CPU {
   inline auto interruptPending() const -> bool override { return status.interruptPending; }
   inline auto pio() const -> uint8 { return io.pio; }
   inline auto refresh() const -> bool { return status.dramRefresh == 1; }
   inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //cpu.cpp
+  auto load(Node::Object parent, Node::Object from) -> void;
   auto main() -> void;
   auto map() -> void;
   auto power(bool reset) -> void;
@@ -76,8 +72,6 @@ struct CPU : WDC65816, Thread, PPUcounter, Tree::CPU {
   vector<Thread*> peripherals;
 
 private:
-  uint version = 2;  //allowed: 1, 2
-
   struct Counter {
     uint cpu = 0;
     uint dma = 0;
@@ -153,6 +147,9 @@ private:
 
     //$420d
     uint romSpeed = 8;
+
+    //$4210
+    uint4 version = 2;  //allowed values: 1, 2
 
     //$4214-$4217
     uint16 rddiv;

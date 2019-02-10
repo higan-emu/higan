@@ -1,4 +1,20 @@
+namespace Tree {
+  struct System {
+    auto initialize(string = {}) -> void;
+    operator Node::Object() const { return node; }
+    Node::System node;
+  };
+
+  struct Display {
+    auto initialize(Node::Object) -> void;
+    Node::Video node;
+  };
+}
+
 struct System {
+  Tree::System root;
+  Tree::Display display;
+
   enum class Model : uint { ColecoVision, SG1000, SC3000, MasterSystem, GameGear };
   enum class Region : uint { NTSC, PAL };
 
@@ -11,10 +27,11 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Interface* interface, Model model) -> bool;
+  auto initialize(string) -> void;
+  auto terminate() -> void;
+  auto load() -> void;
   auto save() -> void;
   auto unload() -> void;
-
   auto power() -> void;
 
   //serialization.cpp

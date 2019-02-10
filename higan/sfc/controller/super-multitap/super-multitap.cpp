@@ -31,11 +31,9 @@ auto SuperMultitap::data() -> uint2 {
 }
 
 auto SuperMultitap::latch(bool data) -> void {
+  latched = data;
   port1.latch(data);
   port2.latch(data);
   port3.latch(data);
   port4.latch(data);
-
-  if(latched == data) return;
-  latched = data;
 }

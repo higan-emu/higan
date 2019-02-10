@@ -91,12 +91,13 @@ auto PortConnector::eventActivate() -> void {
       if(directory::copy(source, target)) {
         file::write({target, "identity.bml"}, string{
           "system: ", interface->name(), "\n",
-          "  type: ", port->name, "\n",
+          "  type: ", port->type, "\n",
           "  name: ", name, "\n"
         });
-        port->connect(name, [&](auto node) {
-          node->setProperty("location", target);
-        });
+        auto peripheral = higan::Node::Peripheral::create(name, port->type);
+        peripheral->setProperty("location", target);
+        peripheral->setProperty("name", name);
+        port->connect(peripheral);
         nodeManager.refresh();
       }
     }
@@ -112,12 +113,14 @@ auto PortConnector::eventActivate() -> void {
       .setText({"This peripheral is already connected to another port:\n\n", connected->name})
       .setTitle("Error").setAlignment(programWindow).error();
 
+      name = port->type;
       if(auto document = BML::unserialize(file::read({location, "identity.bml"}))) {
         if(auto node = document["system/name"]) name = node.text();
       }
-      port->connect(name, [&](auto node) {
-        node->setProperty("location", location);
-      });
+      auto peripheral = higan::Node::Peripheral::create(name, port->type);
+      peripheral->setProperty("location", location);
+      peripheral->setProperty("name", name);
+      port->connect(peripheral);
       nodeManager.refresh();
     }
   }

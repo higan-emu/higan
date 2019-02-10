@@ -7,52 +7,19 @@ namespace higan::SuperFamicom {
 #include "serialization.cpp"
 Cartridge cartridge;
 
-auto Cartridge::initialize(Node::Object parent) -> void {
-  port = Node::Port::create("Cartridge Slot", "Cartridge");
-  port->allocate = [&](auto name) {
-    return Node::Peripheral::create("Cartridge");
-  };
-  port->attach = [&](auto node) {
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  parent->append(port = Node::Port::create("Cartridge Slot", "Cartridge"));
+  port->attach = [&](auto with) {
+    auto node = Node::Peripheral::create("Cartridge", port->type);
+    node->load(with);
+    port->prepend(node);
     bus.reset();
     load();
     power(false);
   };
-  port->detach = [&](auto node) {
-    save();
-    unload();
-    bus.reset();
-  };
-  parent->append(port);
-}
-
-auto Cartridge::hashes() const -> vector<string> {
-  vector<string> hashes;
-  hashes.append(game.sha256);
-  if(slotGameBoy.sha256) hashes.append(slotGameBoy.sha256);
-  if(slotBSMemory.sha256) hashes.append(slotBSMemory.sha256);
-  if(slotSufamiTurboA.sha256) hashes.append(slotSufamiTurboA.sha256);
-  if(slotSufamiTurboB.sha256) hashes.append(slotSufamiTurboB.sha256);
-  return hashes;
-}
-
-auto Cartridge::manifests() const -> vector<string> {
-  vector<string> manifests;
-  manifests.append(string{BML::serialize(game.document), "\n", BML::serialize(board)});
-  if(slotGameBoy.document) manifests.append(BML::serialize(slotGameBoy.document));
-  if(slotBSMemory.document) manifests.append(BML::serialize(slotBSMemory.document));
-  if(slotSufamiTurboA.document) manifests.append(BML::serialize(slotSufamiTurboA.document));
-  if(slotSufamiTurboB.document) manifests.append(BML::serialize(slotSufamiTurboB.document));
-  return manifests;
-}
-
-auto Cartridge::titles() const -> vector<string> {
-  vector<string> titles;
-  titles.append(game.label);
-  if(slotGameBoy.label) titles.append(slotGameBoy.label);
-  if(slotBSMemory.label) titles.append(slotBSMemory.label);
-  if(slotSufamiTurboA.label) titles.append(slotSufamiTurboA.label);
-  if(slotSufamiTurboB.label) titles.append(slotSufamiTurboB.label);
-  return titles;
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
 }
 
 auto Cartridge::load() -> bool {
@@ -166,6 +133,7 @@ auto Cartridge::unload() -> void {
 
   rom.reset();
   ram.reset();
+  port->disconnect();
 }
 
 auto Cartridge::power(bool reset) -> void {

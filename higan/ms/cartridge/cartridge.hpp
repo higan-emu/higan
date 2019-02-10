@@ -1,10 +1,10 @@
 struct Cartridge {
-  auto pathID() const -> uint { return information.pathID; }
-  auto region() const -> string { return information.region; }
-  auto hash() const -> string { return information.sha256; }
-  auto manifest() const -> string { return information.manifest; }
-  auto title() const -> string { return information.title; }
+  Node::Port port;
+  auto initialize(Node::Object) -> void;
 
+  auto region() const -> string { return information.region; }
+
+  //cartridge.cpp
   auto load() -> bool;
   auto save() -> void;
   auto unload() -> void;

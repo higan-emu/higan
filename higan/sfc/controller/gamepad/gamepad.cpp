@@ -1,41 +1,22 @@
-auto Gamepad::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Gamepad");
-  node->append<Node::Button>("Up");
-  node->append<Node::Button>("Down");
-  node->append<Node::Button>("Left");
-  node->append<Node::Button>("Right");
-  node->append<Node::Button>("B");
-  node->append<Node::Button>("A");
-  node->append<Node::Button>("Y");
-  node->append<Node::Button>("X");
-  node->append<Node::Button>("L");
-  node->append<Node::Button>("R");
-  node->append<Node::Button>("Select");
-  node->append<Node::Button>("Start");
-  return node;
-}
+Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
+  parent->prepend(node = Node::Peripheral::create("Gamepad", parent->type));
+  node->load(with);
 
-Gamepad::Gamepad(Node::Peripheral peripheral) {
-  node   = peripheral;
-  up     = node->find<Node::Button>("Up");
-  down   = node->find<Node::Button>("Down");
-  left   = node->find<Node::Button>("Left");
-  right  = node->find<Node::Button>("Right");
-  b      = node->find<Node::Button>("B");
-  a      = node->find<Node::Button>("A");
-  y      = node->find<Node::Button>("Y");
-  x      = node->find<Node::Button>("X");
-  l      = node->find<Node::Button>("L");
-  r      = node->find<Node::Button>("R");
-  select = node->find<Node::Button>("Select");
-  start  = node->find<Node::Button>("Start");
-
-  latched = 0;
-  counter = 0;
+  up     = Node::append<Node::Button>(node, with, "Up");
+  down   = Node::append<Node::Button>(node, with, "Down");
+  left   = Node::append<Node::Button>(node, with, "Left");
+  right  = Node::append<Node::Button>(node, with, "Right");
+  b      = Node::append<Node::Button>(node, with, "B");
+  a      = Node::append<Node::Button>(node, with, "A");
+  y      = Node::append<Node::Button>(node, with, "Y");
+  x      = Node::append<Node::Button>(node, with, "X");
+  l      = Node::append<Node::Button>(node, with, "L");
+  r      = Node::append<Node::Button>(node, with, "R");
+  select = Node::append<Node::Button>(node, with, "Select");
+  start  = Node::append<Node::Button>(node, with, "Start");
 }
 
 auto Gamepad::data() -> uint2 {
-  if(counter >= 16) return 1;
   if(latched == 1) return platform->inputPoll(b), b->value;
 
   //note: D-pad physically prevents up+down and left+right from being pressed at the same time
@@ -44,17 +25,23 @@ auto Gamepad::data() -> uint2 {
   case  1: return y->value;
   case  2: return select->value;
   case  3: return start->value;
-  case  4: return up->value & !down->value;
-  case  5: return down->value & !up->value;
-  case  6: return left->value & !right->value;
-  case  7: return right->value & !left->value;
+  case  4: return upLatch;
+  case  5: return downLatch;
+  case  6: return leftLatch;
+  case  7: return rightLatch;
   case  8: return a->value;
   case  9: return x->value;
   case 10: return l->value;
   case 11: return r->value;
+
+  case 12: return 0;  //4-bit device signature
+  case 13: return 0;
+  case 14: return 0;
+  case 15: return 0;
   }
 
-  return 0;  //12-15: signature
+  counter = 16;
+  return 1;
 }
 
 auto Gamepad::latch(bool data) -> void {
@@ -75,5 +62,17 @@ auto Gamepad::latch(bool data) -> void {
     platform->inputPoll(x);
     platform->inputPoll(l);
     platform->inputPoll(r);
+
+    if(!(up->value & down->value)) {
+      yHold = 0, upLatch = up->value, downLatch = down->value;
+    } else if(!yHold) {
+      yHold = 1, swap(upLatch, downLatch);
+    }
+
+    if(!(left->value & right->value)) {
+      xHold = 0, leftLatch = left->value, rightLatch = right->value;
+    } else if(!xHold) {
+      xHold = 1, swap(leftLatch, rightLatch);
+    }
   }
 }

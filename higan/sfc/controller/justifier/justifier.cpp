@@ -1,43 +1,25 @@
 auto Justifier::create() -> Node::Peripheral {
   auto node = Node::Peripheral::create("Justifier");
-  node->append<Node::Axis>("X-Axis");
-  node->append<Node::Axis>("Y-Axis");
+  node->append<Node::Axis  >("X");
+  node->append<Node::Axis  >("Y");
   node->append<Node::Button>("Trigger");
   node->append<Node::Button>("Start");
-  node->append(ControllerPort::create("Link Port"));
   return node;
 }
 
-Justifier::Justifier(Node::Peripheral peripheral) : linkPort{"Link Port"} {
+Justifier::Justifier(Node::Peripheral peripheral) {
   node    = peripheral;
-  x       = node->find<Node::Axis>("X-Axis");
-  y       = node->find<Node::Axis>("Y-Axis");
+  x       = node->find<Node::Axis  >("X");
+  y       = node->find<Node::Axis  >("Y");
   trigger = node->find<Node::Button>("Trigger");
   start   = node->find<Node::Button>("Start");
-  linkPort.bind(node->find<Node::Port>(linkPort.name));
-
-  latched  = 0;
-  counter  = 0;
-  active   = 0;
-  previous = 0;
-
-  cx = 256 / 2;
-  cy = 240 / 2;
-  trigger->value = false;
-  start->value   = false;
 
   sprite = video.createSprite(32, 32);
-  if(node->parent.acquire() == controllerPort2.port) {
-    Thread::create(system.cpuFrequency(), [&] {
-      while(true) scheduler.synchronize(), main();
-    });
+  sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
-    sprite->setPixels(Resource::Sprite::CrosshairGreen);
-    cx -= 16;
-  } else {
-    sprite->setPixels(Resource::Sprite::CrosshairRed);
-    cx += 16;
-  }
+  Thread::create(system.cpuFrequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 }
 
 Justifier::~Justifier() {
@@ -46,21 +28,15 @@ Justifier::~Justifier() {
 
 auto Justifier::main() -> void {
   uint next = cpu.vcounter() * 1364 + cpu.hcounter();
-  auto linked = this->linked();
 
-  int px = !active ? (int)x->value : -1;
-  int py = !active ? (int)y->value : -1;
-  if(active && linked) {
-    px = linked->x->value;
-    py = linked->y->value;
-  }
-
-  bool offscreen = (px < 0 || py < 0 || px >= 256 || py >= ppu.vdisp());
+  int px = active == 0 ? (int)x->value : -1;
+  int py = active == 0 ? (int)y->value : -1;
+  bool offscreen = px < 0 || py < 0 || px >= 256 || py >= ppu.vdisp();
 
   if(!offscreen) {
     uint target = py * 1364 + (px + 24) * 4;
     if(next >= target && previous < target) {
-      //CRT raster detected, toggle iobit to latch counters
+      //CRT raster detected, strobe iobit to latch counters
       iobit(0);
       iobit(1);
     }
@@ -73,19 +49,8 @@ auto Justifier::main() -> void {
     int ny = y->value + cy;
     cx = max(-16, min(256 + 16, nx));
     cy = max(-16, min(240 + 16, ny));
-    sprite->setPosition(cx * 2 - 16, cy * 2 - 16);
+    sprite->setPosition(cx * 2 - 16, cy * 2 -16);
     sprite->setVisible(true);
-  }
-
-  if(next < previous && linked) {
-    platform->inputPoll(linked->x);
-    platform->inputPoll(linked->x);
-    int nx = linked->x->value + linked->cx;
-    int ny = linked->y->value + linked->cy;
-    linked->cx = max(-16, min(256 + 16, nx));
-    linked->cy = max(-16, min(240 + 16, ny));
-    linked->sprite->setPosition(linked->cx * 2 - 16, linked->cy * 2 - 16);
-    linked->sprite->setVisible(true);
   }
 
   previous = next;
@@ -94,17 +59,9 @@ auto Justifier::main() -> void {
 }
 
 auto Justifier::data() -> uint2 {
-  if(counter >= 32) return 1;
-  auto linked = this->linked();
-
   if(counter == 0) {
     platform->inputPoll(trigger);
     platform->inputPoll(start);
-
-    if(linked) {
-      platform->inputPoll(linked->trigger);
-      platform->inputPoll(linked->start);
-    }
   }
 
   switch(counter++) {
@@ -136,35 +93,23 @@ auto Justifier::data() -> uint2 {
   case 23: return 1;
 
   case 24: return trigger->value;
-  case 25: return linked ? (bool)linked->trigger->value : 0;
+  case 25: return 0;
   case 26: return start->value;
-  case 27: return linked ? (bool)linked->start->value : 0;
+  case 27: return 0;
   case 28: return active;
-
   case 29: return 0;
   case 30: return 0;
   case 31: return 0;
   }
 
-  unreachable;
+  if(counter > 32) counter = 32;
+  return 1;
 }
 
 auto Justifier::latch(bool data) -> void {
-  if(latched == data) return;
-  latched = data;
-  counter = 0;
-  if(latched == 0) active = !active;  //toggle between both controllers, even when unchained
-}
-
-auto Justifier::linked() -> maybe<Justifier&> {
-  if(auto device = controllerPort2.device) {
-    if(auto justifier = dynamic_cast<Justifier*>(device)) {
-      if(auto linkedDevice = justifier->linkPort.device) {
-        if(auto linkedJustifier = dynamic_cast<Justifier*>(linkedDevice)) {
-          return *linkedJustifier;
-        }
-      }
-    }
+  if(latched != data) {
+    latched = data;
+    counter = 0;
+    if(!latched) active = !active;  //occurs even with only one Justifier
   }
-  return {};
 }

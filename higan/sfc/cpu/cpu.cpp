@@ -2,13 +2,13 @@
 
 namespace higan::SuperFamicom {
 
-auto Tree::CPU::initialize(Node::Object parent) -> void {
+/*auto Tree::CPU::initialize(Node::Object parent) -> void {
   node = Node::Component::create("CPU");
   version = Node::Natural::create("Version", 2);
   version->allowedValues = {1, 2};
   node->append(version);
   parent->append(node);
-}
+}*/
 
 CPU cpu;
 #include "dma.cpp"
@@ -17,6 +17,15 @@ CPU cpu;
 #include "timing.cpp"
 #include "irq.cpp"
 #include "serialization.cpp"
+
+auto CPU::load(Node::Object parent, Node::Object from) -> void {
+  parent->append(node = Node::Component::create("CPU"));
+  from = Node::load(node, from);
+
+  node->append(version = Node::Natural::create("Version", 2));
+  version->allowedValues = {1, 2};
+  Node::load(version, from);
+}
 
 auto CPU::main() -> void {
   if(r.wai) return instructionWait();
@@ -71,8 +80,6 @@ auto CPU::map() -> void {
 }
 
 auto CPU::power(bool reset) -> void {
-  version = Tree::CPU::version->value();
-
   WDC65816::power();
   create(system.cpuFrequency(), [&] {
     while(true) scheduler.synchronize(), main();
@@ -89,13 +96,16 @@ auto CPU::power(bool reset) -> void {
   }
 
   counter = {};
+
   io = {};
+  io.version = version->value();
+
   alu = {};
 
   status = {};
   status.lineClocks = lineclocks();
-  status.dramRefreshPosition = (version == 1 ? 530 : 538);
-  status.hdmaSetupPosition = (version == 1 ? 12 + 8 - dmaCounter() : 12 + dmaCounter());
+  status.dramRefreshPosition = (io.version == 1 ? 530 : 538);
+  status.hdmaSetupPosition = (io.version == 1 ? 12 + 8 - dmaCounter() : 12 + dmaCounter());
   status.hdmaPosition = 1104;
   status.powerPending = reset == 0;
   status.resetPending = reset == 1;

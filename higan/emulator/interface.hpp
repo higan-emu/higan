@@ -10,22 +10,14 @@ struct Interface {
   virtual auto colors() -> uint32 { return 1; }
   virtual auto color(uint32 color) -> uint64 { return 0; }
 
-  //game interface
-  virtual auto hashes() -> vector<string> { return {}; }
-  virtual auto manifests() -> vector<string> { return {}; }
-  virtual auto titles() -> vector<string> { return {}; }
-  virtual auto load() -> bool { return false; }
-  virtual auto load(uint slot) -> bool { return false; }
-  virtual auto save() -> void {}
-  virtual auto unload() -> void {}
-
   //system interface
-  virtual auto initialize(string configuration = {}) -> void {}
-  virtual auto terminate() -> void {}
   virtual auto root() -> Node::Object { return {}; }
+  virtual auto load(string tree = {}) -> void {}
   virtual auto power() -> void {}
   virtual auto reset() -> void {}
   virtual auto run() -> void {}
+  virtual auto save() -> void {}
+  virtual auto unload() -> void {}
 
   //time functions
   virtual auto rtc() -> bool { return false; }

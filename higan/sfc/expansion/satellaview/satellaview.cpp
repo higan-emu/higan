@@ -1,9 +1,7 @@
-auto Satellaview::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Satellaview");
-  return node;
-}
+Satellaview::Satellaview(Node::Port parent, Node::Peripheral with) {
+  parent->append(node = Node::Peripheral::create("Satellaview", parent->type));
+  node->load(with);
 
-Satellaview::Satellaview(Node::Peripheral node) : node(node) {
   bus.map({&Satellaview::read, this}, {&Satellaview::write, this}, "00-3f,80-bf:2188-219f");
   regs = {};
 }

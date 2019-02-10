@@ -1,6 +1,5 @@
 struct Justifier : Controller {
   static auto create() -> Node::Peripheral;
-  ControllerPort linkPort;
   Node::Axis x;
   Node::Axis y;
   Node::Button trigger;
@@ -15,14 +14,12 @@ struct Justifier : Controller {
   auto data() -> uint2;
   auto latch(bool data) -> void;
 
-  auto linked() -> maybe<Justifier&>;
+private:
+  int  cx = 256 / 2;
+  int  cy = 240 / 2;
 
-//private:
-  bool latched;
-  uint counter;
-  uint previous;
-
-  bool active;
-  int  cx;
-  int  cy;
+  bool active = 0;  //0 = player 1; 1 = player 2 (disconnected)
+  uint latched = 0;
+  uint counter = 0;
+  uint previous = 0;
 };

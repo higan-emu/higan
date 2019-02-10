@@ -91,7 +91,7 @@ struct Object : shared_pointer_this<Object> {
     return {};
   }
 
-  template<typename T> auto find(string name) -> Node::Object {
+  template<typename T = Node::Object> auto find(string name) -> Node::Object {
     using Type = typename T::type;
     for(auto& node : nodes) {
       if(node->identity() == Type::identifier && node->name == name) return node;
@@ -144,32 +144,9 @@ struct Object : shared_pointer_this<Object> {
     }
   }
 
-  virtual auto copy(Node::Object source) -> bool {
-    if(identity() != source->identity() || name != source->name) return false;
+  virtual auto load(Node::Object source) -> bool {
+    if(!source || identity() != source->identity() || name != source->name) return false;
     properties = source->properties;
-    for(auto& from : source->nodes) {
-      auto identity = from->identity();
-      auto name = from->name;
-
-      bool found = false;
-      for(auto& to : nodes) {
-        if(identity == to->identity() && name == to->name) {
-          found = true;
-          to->copy(from);
-          break;
-        }
-      }
-    }
-    return true;
-  }
-
-  auto load(string_view markup) -> bool {
-    auto document = BML::unserialize(markup);
-    if(!document) return false;  //invalid markup
-    auto node = Class::create(document["node"].text());
-    node->unserialize(document["node"]);
-    if(identity() != node->identity() || name != node->name) return false;  //wrong type
-    copy(node);
     return true;
   }
 
@@ -177,25 +154,6 @@ struct Object : shared_pointer_this<Object> {
     string markup;
     serialize(markup, {});
     return markup;
-  }
-
-  //returns the Nth occurrence of this node's type in its parent node list
-  //this is done so that exact ordering of nodes isn't required: only exact type ordering
-  auto offset() const -> maybe<uint> {
-    if(auto parent = this->parent) {
-      if(auto acquired = parent.acquire()) {
-        if(auto self = shared()) {
-          auto identity = this->identity();
-          uint offset = 0;
-          for(auto& node : acquired->nodes) {
-            if(node->identity() != identity) continue;
-            if(node == self) return offset;
-            offset++;
-          }
-        }
-      }
-    }
-    return nothing;
   }
 
   auto begin() { return nodes.begin(); }

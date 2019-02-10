@@ -5,11 +5,8 @@ struct Expansion : Thread {
 };
 
 struct ExpansionPort {
-  static auto create(string_view name) -> Node::Port;
-
   Node::Port port;
-  auto initialize(Node::Object) -> void;
-  auto bind(Node::Port) -> void;
+  auto load(Node::Object parent, Node::Object from) -> void;
 
   ExpansionPort(string_view name);
   auto connect(Node::Peripheral) -> void;
@@ -18,8 +15,7 @@ struct ExpansionPort {
   auto serialize(serializer&) -> void;
 
   const string name;
-private:
-  Expansion* device = nullptr;
+  unique_pointer<Expansion> device;
 };
 
 extern ExpansionPort expansionPort;

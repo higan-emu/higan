@@ -3,6 +3,7 @@ BSMemory bsmemory;
 
 auto BSMemory::initialize(Node::Object parent) -> void {
   port = Node::Port::create("BS Memory Slot", "BS Memory");
+/*
   port->allocate = [&](auto name) {
     return Node::Peripheral::create("BS Memory");
   };
@@ -13,6 +14,7 @@ auto BSMemory::initialize(Node::Object parent) -> void {
     save();
     unload();
   };
+*/
   parent->append(port);
 }
 

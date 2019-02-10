@@ -2,61 +2,13 @@
 
 namespace higan::SuperFamicom {
 
-auto Tree::System::initialize(string configuration) -> void {
-  node = Node::System::create("Super Famicom");
-  node->copy(Node::unserialize(configuration));  //temporary hack (load needs system("location") for IPLROM)
-  cartridge.initialize(node);
-  controllerPort1.initialize(node);
-  controllerPort2.initialize(node);
-  expansionPort.initialize(node);
-  system.display.initialize(node);
-  system.speakers.initialize(node);
-  cpu.initialize(node);
-  ppu.nodes.ppu1.initialize(node);
-  ppu.nodes.ppu2.initialize(node);
-  ppu.nodes.vram.initialize(node);
-  hacks.initialize(node);
-  system.load();
-  node->copy(Node::unserialize(configuration));
-}
-
-auto Tree::Display::initialize(Node::Object parent) -> void {
-  node = Node::Video::create("Display");
-  node->type   = "CRT";
-  node->width  = 512;
-  node->height = 480;
-  node->aspect = 8.0 / 7.0;
-  node->append(colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto) {
-    video.setPalette();
-  }));
-  node->append(colorBleed = Node::Boolean::create("Color Bleed", true, [&](auto value) {
-    video.setEffect(higan::Video::Effect::ColorBleed, value);
-  }));
-  parent->append(node);
-}
-
-auto Tree::Speakers::initialize(Node::Object parent) -> void {
-  node = Node::Audio::create("Speakers");
-  parent->append(node);
-}
-
-auto Tree::Hacks::initialize(Node::Object parent) -> void {
-  parent->append(node = Node::Settings::create("Hacks"));
-  node->append(ppu.node = Node::Object::create("PPU"));
-  ppu.node->append(ppu.fast = Node::Boolean::create("Fast", false));
-  ppu.node->append(ppu.noSpriteLimit = Node::Boolean::create("No Sprite Limit", false));
-  ppu.node->append(ppu.hiresMode7 = Node::Boolean::create("Hires Mode 7", false));
-  node->append(dsp.node = Node::Object::create("DSP"));
-  dsp.node->append(dsp.fast = Node::Boolean::create("Fast", false));
-  node->append(coprocessors.node = Node::Object::create("Coprocessors"));
-  coprocessors.node->append(coprocessors.fast = Node::Boolean::create("Fast", false));
-}
-
 System system;
+Display display;
+Speakers speakers;
+Hacks hacks;
 Scheduler scheduler;
 Random random;
 Cheat cheat;
-Tree::Hacks hacks;
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -72,19 +24,25 @@ auto System::runToSave() -> void {
   for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
 }
 
-auto System::initialize(string configuration) -> void {
-  terminate();
-  root.initialize(configuration);
-}
+auto System::load(Node::Object from) -> void {
+  if(root) {
+    save();
+    unload();
+    bus.reset();
+  }
 
-auto System::terminate() -> void {
-  save();
-  unload();
-  if(root.node) root.node->reset();
-  root = {};
-}
+  root = Node::System::create("Super Famicom");
+  root->load(from);
+  hacks.load(root, from);
+  cartridge.load(root, from);
+  controllerPort1.load(root, from);
+  controllerPort2.load(root, from);
+  expansionPort.load(root, from);
+  display.load(root, from);
+  speakers.load(root, from);
+  cpu.load(root, from);
+  ppu.load(root, from);
 
-auto System::load() -> bool {
   information = {};
 
   //these values cannot change at run-time
@@ -93,9 +51,6 @@ auto System::load() -> bool {
   hacks.ppu.hiresMode7->setLatch();
   hacks.dsp.fast->setLatch();
   hacks.coprocessors.fast->setLatch();
-
-  bus.reset();
-  if(!dsp.load()) return false;
 
   if(cartridge.region() == "NTSC") {
     information.region = Region::NTSC;
@@ -110,7 +65,6 @@ auto System::load() -> bool {
   if(cartridge.has.BSMemorySlot) bsmemory.load();
 
   serializeInit();
-  return true;
 }
 
 auto System::save() -> void {
@@ -138,6 +92,46 @@ auto System::power(bool reset) -> void {
   cartridge.power(reset);
 
   scheduler.primary(cpu);
+}
+
+auto Display::load(Node::Object parent, Node::Object from) -> void {
+  parent->append(node = Node::Video::create("Display"));
+  node->type   = "CRT";
+  node->width  = 512;
+  node->height = 480;
+  node->aspect = 8.0 / 7.0;
+  node->append(colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto) {
+    video.setPalette();
+  }));
+  node->append(colorBleed = Node::Boolean::create("Color Bleed", true, [&](auto value) {
+    video.setEffect(higan::Video::Effect::ColorBleed, value);
+  }));
+  Node::load(node, from);
+}
+
+auto Speakers::load(Node::Object parent, Node::Object from) -> void {
+  parent->append(node = Node::Audio::create("Speakers"));
+  Node::load(node, from);
+}
+
+auto Hacks::load(Node::Object parent, Node::Object from) -> void {
+  parent->append(node = Node::Settings::create("Hacks"));
+  from = Node::load(node, from);
+
+  node->append(ppu.fast = Node::Boolean::create("Fast PPU", false));
+  Node::load(ppu.fast, from);
+
+  node->append(ppu.noSpriteLimit = Node::Boolean::create("No Sprite Limit", false));
+  Node::load(ppu.noSpriteLimit, from);
+
+  node->append(ppu.hiresMode7 = Node::Boolean::create("Hires Mode 7", false));
+  Node::load(ppu.hiresMode7, from);
+
+  node->append(dsp.fast = Node::Boolean::create("Fast DSP", false));
+  Node::load(dsp.fast, from);
+
+  node->append(coprocessors.fast = Node::Boolean::create("Fast Coprocessors", false));
+  Node::load(coprocessors.fast, from);
 }
 
 }

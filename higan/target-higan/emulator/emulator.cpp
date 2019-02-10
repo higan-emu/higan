@@ -20,7 +20,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
     configuration = higan::Node::serialize(system);
   }
 
-  interface->initialize(configuration);
+  interface->load(configuration);
   root = interface->root();
 
   systemManager.show();
@@ -61,20 +61,20 @@ auto Emulator::main() -> void {
 }
 
 auto Emulator::quit() -> void {
-  if(!interface) return Application::quit();
+  Application::quit();  //stop processing callbacks and timers
+  if(!interface) return;
 
   if(auto location = root->property("location")) {
     file::write({location, "node.bml"}, higan::Node::serialize(root));
   }
 
-  Application::quit();  //stop processing hiro callbacks before destructing everything
   viewports.reset();
   audio.reset();
   inputManager.reset();
   Instances::inputManager.destruct();
   Instances::programWindow.destruct();
   root = {};
-  interface->terminate();
+  interface->unload();
   interface.reset();
   interfaces.reset();
 }

@@ -75,6 +75,10 @@ auto pWindow::frameMargin() const -> Geometry {
   return {abs(rc.left), abs(rc.top), (rc.right - rc.left) - 640, (rc.bottom - rc.top) + _statusHeight() - 480};
 }
 
+auto pWindow::handle() const -> uintptr_t {
+  return (uintptr_t)hwnd;
+}
+
 auto pWindow::monitor() const -> uint {
   //TODO
   return 0;

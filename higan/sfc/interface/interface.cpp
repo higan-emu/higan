@@ -25,7 +25,7 @@ auto SuperFamicomInterface::color(uint32 color) -> uint64 {
   uint64 G = L * image::normalize(g, 5, 16);
   uint64 B = L * image::normalize(b, 5, 16);
 
-  if(system.display.colorEmulation->value()) {
+  if(display.colorEmulation->value()) {
     static const uint8 gammaRamp[32] = {
       0x00, 0x01, 0x03, 0x06, 0x0a, 0x0f, 0x15, 0x1c,
       0x24, 0x2d, 0x37, 0x42, 0x4e, 0x5b, 0x69, 0x78,
@@ -40,46 +40,13 @@ auto SuperFamicomInterface::color(uint32 color) -> uint64 {
   return R << 32 | G << 16 | B << 0;
 }
 
-auto SuperFamicomInterface::hashes() -> vector<string> {
-  return cartridge.hashes();
-}
-
-auto SuperFamicomInterface::manifests() -> vector<string> {
-  return cartridge.manifests();
-}
-
-auto SuperFamicomInterface::titles() -> vector<string> {
-  return cartridge.titles();
-}
-
-auto SuperFamicomInterface::load() -> bool {
-  return system.load();
-}
-
-auto SuperFamicomInterface::load(uint slot) -> bool {
-  return true;
-}
-
-auto SuperFamicomInterface::save() -> void {
-  system.save();
-}
-
-auto SuperFamicomInterface::unload() -> void {
-  save();
-  system.unload();
-}
-
-auto SuperFamicomInterface::initialize(string configuration) -> void {
-  interface = this;
-  return system.initialize(configuration);
-}
-
-auto SuperFamicomInterface::terminate() -> void {
-  return system.terminate();
-}
-
 auto SuperFamicomInterface::root() -> Node::Object {
   return system.root;
+}
+
+auto SuperFamicomInterface::load(string tree) -> void {
+  auto from = Node::unserialize(tree);
+  system.load(from);
 }
 
 auto SuperFamicomInterface::power() -> void {
@@ -92,6 +59,15 @@ auto SuperFamicomInterface::reset() -> void {
 
 auto SuperFamicomInterface::run() -> void {
   system.run();
+}
+
+auto SuperFamicomInterface::save() -> void {
+  system.save();
+}
+
+auto SuperFamicomInterface::unload() -> void {
+  save();
+  system.unload();
 }
 
 auto SuperFamicomInterface::rtc() -> bool {

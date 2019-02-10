@@ -1,7 +1,7 @@
 auto Mouse::create() -> Node::Peripheral {
   auto node = Node::Peripheral::create("Mouse");
-  node->append<Node::Axis>("X-Axis");
-  node->append<Node::Axis>("Y-Axis");
+  node->append<Node::Axis  >("X");
+  node->append<Node::Axis  >("Y");
   node->append<Node::Button>("Left");
   node->append<Node::Button>("Right");
   return node;
@@ -9,19 +9,10 @@ auto Mouse::create() -> Node::Peripheral {
 
 Mouse::Mouse(Node::Peripheral peripheral) {
   node  = peripheral;
-  x     = node->find<Node::Axis>("X-Axis");
-  y     = node->find<Node::Axis>("Y-Axis");
+  x     = node->find<Node::Axis  >("X");
+  y     = node->find<Node::Axis  >("Y");
   left  = node->find<Node::Button>("Left");
   right = node->find<Node::Button>("Right");
-
-  latched = 0;
-  counter = 0;
-
-  speed = 0;
-  cx = 0;
-  cy = 0;
-  dx = 0;
-  dy = 0;
 }
 
 auto Mouse::data() -> uint2 {
@@ -30,9 +21,7 @@ auto Mouse::data() -> uint2 {
     return 0;
   }
 
-  if(counter >= 32) return 1;
-
-  switch(counter++) { default:
+  switch(counter++) {
   case  0: return 0;
   case  1: return 0;
   case  2: return 0;
@@ -70,6 +59,9 @@ auto Mouse::data() -> uint2 {
   case 30: return cx.bit(1);
   case 31: return cx.bit(0);
   }
+
+  counter = 32;
+  return 1;
 }
 
 auto Mouse::latch(bool data) -> void {

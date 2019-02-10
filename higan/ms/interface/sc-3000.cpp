@@ -1,21 +1,9 @@
-auto SC3000Interface::information() -> Information {
-  Information information;
-  information.manufacturer = "Sega";
-  information.name         = "SC-3000";
-  information.extension    = "sc3000";
-  return information;
+auto SC3000Interface::name() -> string {
+  return "SC-3000";
 }
 
-auto SC3000Interface::display() -> Display {
-  Display display;
-  display.type = Display::Type::CRT;
-  display.colors = 1 << 4;
-  display.width = 256;
-  display.height = 192;
-  display.internalWidth = 256;
-  display.internalHeight = 192;
-  display.aspectCorrection = 1.0;
-  return display;
+auto SC3000Interface::colors() -> uint32 {
+  return 1 << 4;
 }
 
 auto SC3000Interface::color(uint32 color) -> uint64 {
@@ -38,66 +26,4 @@ auto SC3000Interface::color(uint32 color) -> uint64 {
   case 15: return 0xffff'ffff'ffffull;  //white
   }
   unreachable;
-}
-
-auto SC3000Interface::ports() -> vector<Port> { return {
-  {ID::Port::Controller1, "Controller Port 1"},
-  {ID::Port::Controller2, "Controller Port 2"},
-  {ID::Port::Hardware,    "Hardware"         }};
-}
-
-auto SC3000Interface::devices(uint port) -> vector<Device> {
-  if(port == ID::Port::Controller1) return {
-    {ID::Device::None,    "None"   },
-    {ID::Device::Gamepad, "Gamepad"}
-  };
-
-  if(port == ID::Port::Controller2) return {
-    {ID::Device::None,    "None"   },
-    {ID::Device::Gamepad, "Gamepad"}
-  };
-
-  if(port == ID::Port::Hardware) return {
-    {ID::Device::SC3000Controls, "Controls"}
-  };
-
-  return {};
-}
-
-auto SC3000Interface::inputs(uint device) -> vector<Input> {
-  using Type = Input::Type;
-
-  if(device == ID::Device::None) return {
-  };
-
-  if(device == ID::Device::Gamepad) return {
-    {Type::Hat,    "Up"   },
-    {Type::Hat,    "Down" },
-    {Type::Hat,    "Left" },
-    {Type::Hat,    "Right"},
-    {Type::Button, "1"    },
-    {Type::Button, "2"    }
-  };
-
-  if(device == ID::Device::SC3000Controls) return {
-    {Type::Control, "Pause"}
-  };
-
-  return {};
-}
-
-auto SC3000Interface::load() -> bool {
-  return system.load(this, System::Model::SC3000);
-}
-
-auto SC3000Interface::connected(uint port) -> uint {
-  if(port == ID::Port::Controller1) return option.port.controller1.device();
-  if(port == ID::Port::Controller2) return option.port.controller2.device();
-  if(port == ID::Port::Hardware) return ID::Device::SC3000Controls;
-  return 0;
-}
-
-auto SC3000Interface::connect(uint port, uint device) -> void {
-  if(port == ID::Port::Controller1) controllerPort1.connect(option.port.controller1.device(device));
-  if(port == ID::Port::Controller2) controllerPort2.connect(option.port.controller2.device(device));
 }

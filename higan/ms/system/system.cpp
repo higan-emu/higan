@@ -2,6 +2,11 @@
 
 namespace higan::MasterSystem {
 
+auto Tree::System::initialize(string configuration) -> void {
+  node = Node::System::create(interface->name());
+  node->copy(Node::unserialize(configuration));  //temporary hack
+}
+
 System system;
 Scheduler scheduler;
 Cheat cheat;

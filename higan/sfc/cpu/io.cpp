@@ -26,7 +26,7 @@ auto CPU::readCPU(uint24 addr, uint8 data) -> uint8 {
   case 0x4210:  //RDNMI
     data &= 0x70;
     data |= rdnmi() << 7;
-    data |= (uint4)version;
+    data |= (uint4)io.version;
     return data;
 
   case 0x4211:  //TIMEUP

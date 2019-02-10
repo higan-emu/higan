@@ -2,28 +2,32 @@
 
 namespace higan::MasterSystem {
 
-Options option;
-Properties property;
+Interface* interface = nullptr;
 #include "colecovision.cpp"
 #include "sg-1000.cpp"
 #include "sc-3000.cpp"
 #include "master-system.cpp"
 #include "game-gear.cpp"
 
-auto AbstractInterface::loaded() -> bool {
-  return system.loaded();
+auto AbstractInterface::initialize(string configuration) -> void {
+  interface = this;
+  return system.initialize(configuration);
 }
 
-auto AbstractInterface::hashes() -> vector<string> {
-  return {cartridge.hash()};
+auto AbstractInterface::terminate() -> void {
+  return system.terminate();
 }
 
-auto AbstractInterface::manifests() -> vector<string> {
-  return {cartridge.manifest()};
+auto AbstractInterface::root() -> Node::Object {
+  return system.root;
 }
 
-auto AbstractInterface::titles() -> vector<string> {
-  return {cartridge.title()};
+auto AbstractInterface::power() -> void {
+  system.power();
+}
+
+auto AbstractInterface::run() -> void {
+  system.run();
 }
 
 auto AbstractInterface::save() -> void {
@@ -33,14 +37,6 @@ auto AbstractInterface::save() -> void {
 auto AbstractInterface::unload() -> void {
   save();
   system.unload();
-}
-
-auto AbstractInterface::power() -> void {
-  system.power();
-}
-
-auto AbstractInterface::run() -> void {
-  system.run();
 }
 
 auto AbstractInterface::serialize() -> serializer {
@@ -54,14 +50,6 @@ auto AbstractInterface::unserialize(serializer& s) -> bool {
 
 auto AbstractInterface::cheats(const vector<string>& list) -> void {
   cheat.assign(list);
-}
-
-auto AbstractInterface::options() -> Settings& {
-  return option;
-}
-
-auto AbstractInterface::properties() -> Settings& {
-  return property;
 }
 
 }
