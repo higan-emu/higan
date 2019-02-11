@@ -43,7 +43,7 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
   return {};
 }
 
-auto Emulator::videoFrame(higan::Node::Video node, const uint32* data, uint pitch, uint width, uint height) -> void {
+auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
   auto viewport = node->property<shared_pointer<ViewportWindow>>("viewport");
   if(!viewport) return;
 
@@ -58,16 +58,16 @@ auto Emulator::videoFrame(higan::Node::Video node, const uint32* data, uint pitc
   }
 }
 
-auto Emulator::audioFrame(higan::Node::Audio node, const double* samples, uint channels) -> void {
+auto Emulator::audio(higan::Node::Audio node, const double* samples, uint channels) -> void {
   if(channels == 1) {
     double stereo[] = {samples[0], samples[0]};
-    audio.output(stereo);
+    sound.output(stereo);
   } else {
-    audio.output(samples);
+    sound.output(samples);
   }
 }
 
-auto Emulator::inputPoll(higan::Node::Input input) -> void {
+auto Emulator::input(higan::Node::Input input) -> void {
   inputManager.poll();
 
   if(auto button = input->cast<higan::Node::Button>()) {

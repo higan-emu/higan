@@ -1,6 +1,6 @@
 struct Emulator : higan::Platform {
   higan::Node::Object root;
-  Audio audio;
+  Audio sound;
 
   //emulator.cpp
   auto create(shared_pointer<higan::Interface>, string location) -> void;
@@ -14,9 +14,9 @@ struct Emulator : higan::Platform {
   auto attach(higan::Node::Object) -> void override;
   auto detach(higan::Node::Object) -> void override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> vfs::shared::file override;
-  auto videoFrame(higan::Node::Video, const uint32* data, uint pitch, uint width, uint height) -> void override;
-  auto audioFrame(higan::Node::Audio, const double* samples, uint channels) -> void override;
-  auto inputPoll(higan::Node::Input) -> void override;
+  auto video(higan::Node::Video, const uint32_t* data, uint pitch, uint width, uint height) -> void override;
+  auto audio(higan::Node::Audio, const double* samples, uint channels) -> void override;
+  auto input(higan::Node::Input) -> void override;
 
   struct System {
     string name;

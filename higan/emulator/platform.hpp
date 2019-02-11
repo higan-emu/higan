@@ -6,10 +6,9 @@ struct Platform {
   virtual auto attach(Node::Object) -> void {}
   virtual auto detach(Node::Object) -> void {}
   virtual auto open(Node::Object, string name, vfs::file::mode mode, bool required = false) -> vfs::shared::file { return {}; }
-  virtual auto videoFrame(Node::Video, const uint32* data, uint pitch, uint width, uint height) -> void {}
-  virtual auto audioFrame(Node::Audio, const double* samples, uint channels) -> void {}
-  virtual auto inputPoll(Node::Input) -> void {}
-  virtual auto inputRumble(uint port, uint device, uint input, bool enable) -> void {}
+  virtual auto video(Node::Video, const uint32_t* data, uint pitch, uint width, uint height) -> void {}
+  virtual auto audio(Node::Audio, const double* samples, uint channels) -> void {}
+  virtual auto input(Node::Input) -> void {}
 };
 
 extern Platform* platform;

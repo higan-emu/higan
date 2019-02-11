@@ -15,7 +15,7 @@ struct Video {
   ~Video();
   auto reset(Interface* interface) -> void;
 
-  auto setPalette() -> void;
+  auto setPalette(Node::Video) -> void;
   auto setDepth(uint depth) -> void;
   auto setSaturation(double saturation) -> void;
   auto setGamma(double gamma) -> void;

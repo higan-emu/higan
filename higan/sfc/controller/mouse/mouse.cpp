@@ -1,18 +1,11 @@
-auto Mouse::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Mouse");
-  node->append<Node::Axis  >("X");
-  node->append<Node::Axis  >("Y");
-  node->append<Node::Button>("Left");
-  node->append<Node::Button>("Right");
-  return node;
-}
-
-Mouse::Mouse(Node::Peripheral peripheral) {
-  node  = peripheral;
-  x     = node->find<Node::Axis  >("X");
-  y     = node->find<Node::Axis  >("Y");
-  left  = node->find<Node::Button>("Left");
-  right = node->find<Node::Button>("Right");
+Mouse::Mouse(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Mouse", parent->type);
+  node->load(with);
+  x     = Node::append<Node::Axis  >(node, with, "X");
+  y     = Node::append<Node::Axis  >(node, with, "Y");
+  left  = Node::append<Node::Button>(node, with, "Left");
+  right = Node::append<Node::Button>(node, with, "Right");
+  parent->prepend(node);
 }
 
 auto Mouse::data() -> uint2 {
@@ -69,10 +62,10 @@ auto Mouse::latch(bool data) -> void {
   latched = data;
   counter = 0;
 
-  platform->inputPoll(x);  //-n = left, 0 = center, +n = right
-  platform->inputPoll(y);  //-n = up,   0 = center, +n = down
-  platform->inputPoll(left);
-  platform->inputPoll(right);
+  platform->input(x);  //-n = left, 0 = center, +n = right
+  platform->input(y);  //-n = up,   0 = center, +n = down
+  platform->input(left);
+  platform->input(right);
 
   cx = x->value;
   cy = y->value;

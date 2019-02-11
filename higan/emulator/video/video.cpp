@@ -24,14 +24,12 @@ auto Video::reset(Interface* interface) -> void {
   effects.rotateLeft = false;
 }
 
-auto Video::setPalette() -> void {
-  if(!interface) return;
-
+auto Video::setPalette(Node::Video video) -> void {
   delete palette;
-  colors = interface->colors();
+  colors = video->colors;
   palette = new uint32[colors];
   for(auto index : range(colors)) {
-    uint64 color = interface->color(index);
+    uint64 color = video->color(index);
     uint16 b = color.bits( 0,15);
     uint16 g = color.bits(16,31);
     uint16 r = color.bits(32,47);
@@ -185,7 +183,7 @@ auto Video::refresh(Node::Video node, uint32* input, uint pitch, uint width, uin
     }
   }
 
-  platform->videoFrame(node, output, width * sizeof(uint32), width, height);
+  platform->video(node, (const uint32_t*)output, width * sizeof(uint32), width, height);
 }
 
 }

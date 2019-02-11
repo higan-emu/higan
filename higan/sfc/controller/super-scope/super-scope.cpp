@@ -10,25 +10,16 @@
 //require manual polling of PIO ($4201.d6) to determine when iobit was written.
 //Note that no commercial game ever utilizes a Super Scope in port 1.
 
-auto SuperScope::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Super Scope");
-  node->append<Node::Axis  >("X");
-  node->append<Node::Axis  >("Y");
-  node->append<Node::Button>("Trigger");
-  node->append<Node::Button>("Cursor");
-  node->append<Node::Button>("Turbo");
-  node->append<Node::Button>("Pause");
-  return node;
-}
-
-SuperScope::SuperScope(Node::Peripheral peripheral) {
-  node    = peripheral;
-  x       = node->find<Node::Axis  >("X");
-  y       = node->find<Node::Axis  >("Y");
-  trigger = node->find<Node::Button>("Trigger");
-  cursor  = node->find<Node::Button>("Cursor");
-  turbo   = node->find<Node::Button>("Turbo");
-  pause   = node->find<Node::Button>("Pause");
+SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Super Scope");
+  node->load(with);
+  x       = Node::append<Node::Axis  >(node, with, "X");
+  y       = Node::append<Node::Axis  >(node, with, "Y");
+  trigger = Node::append<Node::Button>(node, with, "Trigger");
+  cursor  = Node::append<Node::Button>(node, with, "Cursor");
+  turbo   = Node::append<Node::Button>(node, with, "Turbo");
+  pause   = Node::append<Node::Button>(node, with, "Pause");
+  parent->prepend(node);
 
   sprite = video.createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
@@ -56,8 +47,8 @@ auto SuperScope::main() -> void {
 
   if(next < previous) {
     //Vcounter wrapped back to zero; update cursor coordinates for start of new frame
-    platform->inputPoll(x);
-    platform->inputPoll(y);
+    platform->input(x);
+    platform->input(y);
     int nx = x->value + cx;
     int ny = y->value + cy;
     cx = max(-16, min(256 + 16, nx));
@@ -75,7 +66,7 @@ auto SuperScope::main() -> void {
 auto SuperScope::data() -> uint2 {
   if(counter == 0) {
     //turbo is a switch; toggle is edge sensitive
-    platform->inputPoll(turbo);
+    platform->input(turbo);
     bool turboNew = turbo->value;
     if(turboNew && !turboOld) {
       turboEdge = !turboEdge;  //toggle state
@@ -86,7 +77,7 @@ auto SuperScope::data() -> uint2 {
     //trigger is a button
     //if turbo is active, trigger is level sensitive; otherwise, it is edge sensitive
     triggerValue = false;
-    platform->inputPoll(trigger);
+    platform->input(trigger);
     bool triggerNew = trigger->value;
     if(triggerNew && (turboEdge || !triggerLock)) {
       triggerValue = true;
@@ -96,11 +87,11 @@ auto SuperScope::data() -> uint2 {
     }
 
     //cursor is a button; it is always level sensitive
-    platform->inputPoll(cursor);
+    platform->input(cursor);
 
     //pause is a button; it is always edge sensitive
     pauseEdge = false;
-    platform->inputPoll(pause);
+    platform->input(pause);
     bool pauseNew = pause->value;
     if(pauseNew && !pauseLock) {
       pauseEdge = true;

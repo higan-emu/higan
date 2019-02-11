@@ -96,7 +96,7 @@ auto PortConnector::eventActivate() -> void {
         });
         auto peripheral = higan::Node::Peripheral::create(name, port->type);
         peripheral->setProperty("location", target);
-        peripheral->setProperty("name", name);
+        peripheral->setProperty("name", label);
         port->connect(peripheral);
         nodeManager.refresh();
       }
@@ -119,7 +119,10 @@ auto PortConnector::eventActivate() -> void {
       }
       auto peripheral = higan::Node::Peripheral::create(name, port->type);
       peripheral->setProperty("location", location);
-      peripheral->setProperty("name", name);
+      peripheral->setProperty("name", item.property("name"));
+      if(auto document = file::read({location, "node.bml"})) {
+        peripheral = higan::Node::unserialize(document);
+      }
       port->connect(peripheral);
       nodeManager.refresh();
     }
@@ -148,10 +151,8 @@ auto PortConnector::eventChange() -> void {
       browseButton.setVisible(true);
       acceptButton.setText("Connect").setVisible();
     }
-
-    else {
-      browseButton.setVisible(true);
-    }
+  } else {
+    browseButton.setVisible(true);
   }
 
   controlLayout.resize();

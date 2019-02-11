@@ -1,5 +1,4 @@
 struct NTTDataKeypad : Controller {
-  static auto create() -> Node::Peripheral;
   Node::Button up;
   Node::Button down;
   Node::Button left;
@@ -28,7 +27,7 @@ struct NTTDataKeypad : Controller {
   Node::Button point;
   Node::Button end;
 
-  NTTDataKeypad(Node::Peripheral);
+  NTTDataKeypad(Node::Port, Node::Peripheral);
 
   auto data() -> uint2;
   auto latch(bool data) -> void;

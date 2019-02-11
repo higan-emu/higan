@@ -1,7 +1,6 @@
 Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
-  parent->prepend(node = Node::Peripheral::create("Gamepad", parent->type));
+  node = Node::Peripheral::create("Gamepad", parent->type);
   node->load(with);
-
   up     = Node::append<Node::Button>(node, with, "Up");
   down   = Node::append<Node::Button>(node, with, "Down");
   left   = Node::append<Node::Button>(node, with, "Left");
@@ -14,10 +13,11 @@ Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
   r      = Node::append<Node::Button>(node, with, "R");
   select = Node::append<Node::Button>(node, with, "Select");
   start  = Node::append<Node::Button>(node, with, "Start");
+  parent->prepend(node);
 }
 
 auto Gamepad::data() -> uint2 {
-  if(latched == 1) return platform->inputPoll(b), b->value;
+  if(latched == 1) return platform->input(b), b->value;
 
   //note: D-pad physically prevents up+down and left+right from being pressed at the same time
   switch(counter++) {
@@ -50,18 +50,18 @@ auto Gamepad::latch(bool data) -> void {
   counter = 0;
 
   if(latched == 0) {
-    platform->inputPoll(b);
-    platform->inputPoll(y);
-    platform->inputPoll(select);
-    platform->inputPoll(start);
-    platform->inputPoll(up);
-    platform->inputPoll(down);
-    platform->inputPoll(left);
-    platform->inputPoll(right);
-    platform->inputPoll(a);
-    platform->inputPoll(x);
-    platform->inputPoll(l);
-    platform->inputPoll(r);
+    platform->input(b);
+    platform->input(y);
+    platform->input(select);
+    platform->input(start);
+    platform->input(up);
+    platform->input(down);
+    platform->input(left);
+    platform->input(right);
+    platform->input(a);
+    platform->input(x);
+    platform->input(l);
+    platform->input(r);
 
     if(!(up->value & down->value)) {
       yHold = 0, upLatch = up->value, downLatch = down->value;

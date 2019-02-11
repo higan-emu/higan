@@ -29,10 +29,10 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   programWindow.show(nodeManager);
   programWindow.setFocused();
 
-  audio.create("OSS");
-  audio.setContext(programWindow.handle());
-  audio.setBlocking(false);
-  audio.setFrequency(48000.0);
+  sound.create("OSS");
+  sound.setContext(programWindow.handle());
+  sound.setBlocking(false);
+  sound.setFrequency(48000.0);
 
   inputManager.create();
 
@@ -69,7 +69,7 @@ auto Emulator::quit() -> void {
   }
 
   viewports.reset();
-  audio.reset();
+  sound.reset();
   inputManager.reset();
   Instances::inputManager.destruct();
   Instances::programWindow.destruct();

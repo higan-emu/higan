@@ -10,6 +10,7 @@ struct Video : Object {
     output.append(depth, "  width: ", width, "\n");
     output.append(depth, "  height: ", height, "\n");
     output.append(depth, "  aspect: ", aspect, "\n");
+    output.append(depth, "  colors: ", colors, "\n");
   }
 
   auto unserialize(Markup::Node node) -> void override {
@@ -18,12 +19,16 @@ struct Video : Object {
     width = node["width"].natural();
     height = node["height"].natural();
     aspect = node["aspect"].real();
+    colors = node["colors"].natural();
   }
 
   string type;  //"CRT", "LCD"
   uint width = 0;
   uint height = 0;
   double aspect = 1.0;
+  uint colors = 0;
+
+  function<uint64_t (natural)> color;
 };
 
 }

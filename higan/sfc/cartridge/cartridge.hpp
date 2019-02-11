@@ -1,15 +1,16 @@
 struct Cartridge {
   Node::Port port;
+  Node::Peripheral node;
   auto load(Node::Object parent, Node::Object from) -> void;
 
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
-  auto load() -> bool;
-  auto save() -> void;
-  auto unload() -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
 
   auto power(bool reset) -> void;
+  auto save() -> void;
 
   auto serialize(serializer&) -> void;
 

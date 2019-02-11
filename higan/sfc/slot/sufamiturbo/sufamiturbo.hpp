@@ -1,11 +1,13 @@
 struct SufamiTurboCartridge {
   Node::Port port;
-  auto initialize(Node::Object) -> void;
+  Node::Peripheral node;
+  auto load(Node::Peripheral, Node::Peripheral) -> void;
 
-  auto load() -> void;
-  auto save() -> void;
-  auto unload() -> void;
+  //sufamiturbo.cpp
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
   auto power() -> void;
+  auto save() -> void;
 
   //memory.cpp
   auto readROM(uint24 address, uint8 data) -> uint8;

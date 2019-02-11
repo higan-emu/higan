@@ -1,5 +1,4 @@
 struct SuperScope : Controller {
-  static auto create() -> Node::Peripheral;
   Node::Axis x;
   Node::Axis y;
   Node::Button trigger;
@@ -9,7 +8,7 @@ struct SuperScope : Controller {
 
   shared_pointer<Sprite> sprite;
 
-  SuperScope(Node::Peripheral);
+  SuperScope(Node::Port, Node::Peripheral);
   ~SuperScope();
 
   auto main() -> void;

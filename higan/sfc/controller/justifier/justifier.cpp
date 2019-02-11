@@ -1,18 +1,11 @@
-auto Justifier::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Justifier");
-  node->append<Node::Axis  >("X");
-  node->append<Node::Axis  >("Y");
-  node->append<Node::Button>("Trigger");
-  node->append<Node::Button>("Start");
-  return node;
-}
-
-Justifier::Justifier(Node::Peripheral peripheral) {
-  node    = peripheral;
-  x       = node->find<Node::Axis  >("X");
-  y       = node->find<Node::Axis  >("Y");
-  trigger = node->find<Node::Button>("Trigger");
-  start   = node->find<Node::Button>("Start");
+Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Justifier");
+  node->load(with);
+  x       = Node::append<Node::Axis  >(node, with, "X");
+  y       = Node::append<Node::Axis  >(node, with, "Y");
+  trigger = Node::append<Node::Button>(node, with, "Trigger");
+  start   = Node::append<Node::Button>(node, with, "Start");
+  parent->prepend(node);
 
   sprite = video.createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
@@ -43,8 +36,8 @@ auto Justifier::main() -> void {
   }
 
   if(next < previous) {
-    platform->inputPoll(x);
-    platform->inputPoll(y);
+    platform->input(x);
+    platform->input(y);
     int nx = x->value + cx;
     int ny = y->value + cy;
     cx = max(-16, min(256 + 16, nx));
@@ -60,8 +53,8 @@ auto Justifier::main() -> void {
 
 auto Justifier::data() -> uint2 {
   if(counter == 0) {
-    platform->inputPoll(trigger);
-    platform->inputPoll(start);
+    platform->input(trigger);
+    platform->input(start);
   }
 
   switch(counter++) {

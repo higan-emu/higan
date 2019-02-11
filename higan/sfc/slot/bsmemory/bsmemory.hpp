@@ -17,8 +17,8 @@
 
 struct BSMemory : Thread, Memory {
   Node::Port port;
-  using Thread::create;
-  auto initialize(Node::Object) -> void;
+  Node::Peripheral node;
+  auto load(Node::Peripheral, Node::Peripheral) -> void;
 
   uint ROM = 1;
 
@@ -30,10 +30,11 @@ struct BSMemory : Thread, Memory {
   auto main() -> void;
   auto step(uint clocks) -> void;
 
-  auto load() -> bool;
-  auto save() -> void;
-  auto unload() -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
+
   auto power() -> void;
+  auto save() -> void;
 
   auto data() -> uint8* override;
   auto size() const -> uint override;

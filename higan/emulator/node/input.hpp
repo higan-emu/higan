@@ -30,4 +30,11 @@ struct Trigger : Input {
   integer maximum = +32767;
 };
 
+struct Rumble : Input {
+  DeclareClass(Rumble, "Rumble")
+  using Input::Input;
+
+  boolean enable;
+};
+
 }

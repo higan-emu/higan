@@ -3,26 +3,22 @@ SufamiTurboCartridge sufamiturboB;
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto SufamiTurboCartridge::initialize(Node::Object parent) -> void {
+auto SufamiTurboCartridge::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   bool portID = this == &sufamiturboB;
   port = Node::Port::create(string{"Sufami Turbo Slot ", !portID ? "A" : "B"}, "Sufami Turbo");
-/*
-  port->allocate = [&](auto name) {
-    return Node::Peripheral::create("Sufami Turbo");
-  };
-  port->attach = [&](auto node) {
-    load();
-  };
-  port->detach = [&](auto node) {
-    save();
-    unload();
-  };
-*/
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
   parent->append(port);
 }
 
-auto SufamiTurboCartridge::load() -> void {
-  if(auto fp = platform->open(port->connected(), "manifest.bml", File::Read, File::Required)) {
+auto SufamiTurboCartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Sufami Turbo", port->type);
+  node->load(with);
+
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     self.manifest = fp->reads();
   } else return;
 
@@ -30,7 +26,7 @@ auto SufamiTurboCartridge::load() -> void {
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.allocate(memory["size"].natural());
-    if(auto fp = platform->open(port->connected(), "program.rom", File::Read, File::Required)) {
+    if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
       fp->read(rom.data(), rom.size());
     }
   }
@@ -38,30 +34,35 @@ auto SufamiTurboCartridge::load() -> void {
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
     ram.allocate(memory["size"].natural());
     if(!(bool)memory["volatile"]) {
-      if(auto fp = platform->open(port->connected(), "save.ram", File::Read)) {
+      if(auto fp = platform->open(node, "save.ram", File::Read)) {
         fp->read(ram.data(), ram.size());
       }
     }
   }
+
+  port->prepend(node);
+}
+
+auto SufamiTurboCartridge::disconnect() -> void {
+  if(!node) return;
+  save();
+  rom.reset();
+  ram.reset();
+  node = {};
+}
+
+auto SufamiTurboCartridge::power() -> void {
 }
 
 auto SufamiTurboCartridge::save() -> void {
+  if(!node) return;
   auto document = BML::unserialize(self.manifest);
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
     if(!(bool)memory["volatile"]) {
-      if(auto fp = platform->open(port->connected(), "save.ram", File::Write)) {
+      if(auto fp = platform->open(node, "save.ram", File::Write)) {
         fp->write(ram.data(), ram.size());
       }
     }
   }
-}
-
-auto SufamiTurboCartridge::unload() -> void {
-  save();
-  rom.reset();
-  ram.reset();
-}
-
-auto SufamiTurboCartridge::power() -> void {
 }

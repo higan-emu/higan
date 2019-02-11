@@ -1,5 +1,4 @@
 struct Justifiers : Controller {
-  static auto create() -> Node::Peripheral;
   Node::Axis x1;
   Node::Axis y1;
   Node::Button trigger1;
@@ -12,7 +11,7 @@ struct Justifiers : Controller {
   shared_pointer<Sprite> sprite1;
   shared_pointer<Sprite> sprite2;
 
-  Justifiers(Node::Peripheral);
+  Justifiers(Node::Port, Node::Peripheral);
   ~Justifiers();
 
   auto main() -> void;

@@ -3,6 +3,12 @@ EpsonRTC epsonrtc;
 #include "time.cpp"
 #include "serialization.cpp"
 
+auto EpsonRTC::load(Node::Object parent, Node::Object from) -> void {
+  rtc = Node::RealTimeClock::create("RTC");
+  Node::load(rtc, from);
+  parent->append(rtc);
+}
+
 auto EpsonRTC::main() -> void {
   if(wait) { if(--wait == 0) ready = 1; }
 

@@ -1,5 +1,6 @@
 struct System {
   Node::Object root;
+  Node::Button resetButton;
   enum class Region : uint { NTSC, PAL };
 
   inline auto region() const -> Region { return information.region; }
@@ -40,6 +41,7 @@ struct Display {
   Node::Boolean colorBleed;
 
   auto load(Node::Object parent, Node::Object from) -> void;
+  auto color(natural) -> uint64_t;
 };
 
 struct Speakers {

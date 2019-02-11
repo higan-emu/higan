@@ -30,7 +30,7 @@ struct ProgramWindow : Window {
   HorizontalLayout panels{this};
     SystemManager systemManager{&panels};
     NodeManager nodeManager{&panels};
-    VerticalLayout resizeLayout{&panels, Size{9, ~0}};
+    VerticalLayout resizeLayout{&panels, Size{7, ~0}};
       HorizontalResizeGrip resizeGrip{&resizeLayout, Size{~0, ~0}};
       Button resizeSpacer{&resizeLayout, Size{0, 0}};
     Home home{&panels};

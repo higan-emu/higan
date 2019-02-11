@@ -132,6 +132,7 @@ struct Object : shared_pointer_this<Object> {
   }
 
   virtual auto unserialize(Markup::Node markup) -> void {
+    if(!markup) return;
     name = markup["name"].text();
     properties.reset();
     for(auto& property : markup.find("property")) {

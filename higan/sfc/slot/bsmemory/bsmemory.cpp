@@ -1,20 +1,13 @@
 BSMemory bsmemory;
 #include "serialization.cpp"
 
-auto BSMemory::initialize(Node::Object parent) -> void {
+auto BSMemory::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   port = Node::Port::create("BS Memory Slot", "BS Memory");
-/*
-  port->allocate = [&](auto name) {
-    return Node::Peripheral::create("BS Memory");
-  };
-  port->attach = [&](auto node) {
-    load();
-  };
-  port->detach = [&](auto node) {
-    save();
-    unload();
-  };
-*/
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
   parent->append(port);
 }
 
@@ -43,27 +36,30 @@ auto BSMemory::step(uint clocks) -> void {
   synchronize(cpu);
 }
 
-auto BSMemory::load() -> bool {
-  if(auto fp = platform->open(port->connected(), "manifest.bml", File::Read, File::Required)) {
+auto BSMemory::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("BS Memory", port->type);
+  node->load(with);
+
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     self.manifest = fp->reads();
-  } else return false;
+  } else return;
 
   auto document = BML::unserialize(self.manifest);
 
   if(auto memory = document["game/board/memory(content=Program)"]) {
     ROM = memory["type"].text() == "ROM";
     this->memory.allocate(memory["size"].natural());
-    if(auto fp = platform->open(port->connected(), {"program.", memory["type"].text().downcase()}, File::Read, File::Required)) {
+    if(auto fp = platform->open(node, {"program.", memory["type"].text().downcase()}, File::Read, File::Required)) {
       fp->read(this->memory.data(), this->memory.size());
-    } else return false;
-  } else return false;
+    } else return;
+  } else return;
 
   auto memory = document["game/board/memory"];
-  if(!memory) return false;
+  if(!memory) return;
 
   if(size() != 0x100000 && size() != 0x200000 && size() != 0x400000) {
     memory.reset();
-    return false;
+    return;
   }
 
   chip.vendor = 0x00'b0;  //Sharp
@@ -82,7 +78,7 @@ auto BSMemory::load() -> bool {
     block.locked = 1;
   }
 
-  if(auto fp = platform->open(port->connected(), "metadata.bml", File::Read, File::Optional)) {
+  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Optional)) {
     auto document = BML::unserialize(fp->reads());
     if(auto node = document["flash/vendor"]) {
       chip.vendor = node.natural();
@@ -105,23 +101,15 @@ auto BSMemory::load() -> bool {
     }
   }
 
-  return true;
+  power();
+  port->prepend(node);
 }
 
-auto BSMemory::save() -> void {
-  auto document = BML::unserialize(self.manifest);
-
-  if(auto memory = document["game/board/memory(type=Flash,content=Program)"]) {
-    if(auto fp = platform->open(port->connected(), "program.flash", File::Write)) {
-      fp->write(this->memory.data(), this->memory.size());
-    }
-  }
-}
-
-auto BSMemory::unload() -> void {
+auto BSMemory::disconnect() -> void {
+  if(!node) return;
   if(ROM) return memory.reset();
 
-  if(auto fp = platform->open(port->connected(), "metadata.bml", File::Write, File::Optional)) {
+  if(auto fp = platform->open(node, "metadata.bml", File::Write, File::Optional)) {
     string manifest;
     manifest.append("flash\n");
     manifest.append("  vendor: 0x", hex(chip.vendor,  4L), "\n");
@@ -157,6 +145,17 @@ auto BSMemory::power() -> void {
   mode = Mode::Flash;
   readyBusyMode = ReadyBusyMode::Disable;
   queue.flush();
+}
+
+auto BSMemory::save() -> void {
+  if(!node) return;
+  auto document = BML::unserialize(self.manifest);
+
+  if(auto memory = document["game/board/memory(type=Flash,content=Program)"]) {
+    if(auto fp = platform->open(node, "program.flash", File::Write)) {
+      fp->write(this->memory.data(), this->memory.size());
+    }
+  }
 }
 
 auto BSMemory::data() -> uint8* {

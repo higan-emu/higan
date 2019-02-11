@@ -1,18 +1,13 @@
-auto TwinTap::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Twin Tap");
-  node->append<Node::Button>("1");
-  node->append<Node::Button>("2");
-  return node;
-}
-
-TwinTap::TwinTap(Node::Peripheral peripheral) {
-  node = peripheral;
-  one  = node->find<Node::Button>("1");
-  two  = node->find<Node::Button>("2");
+TwinTap::TwinTap(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Twin Tap");
+  node->load(with);
+  one = Node::append<Node::Button>(node, with, "1");
+  two = Node::append<Node::Button>(node, with, "2");
+  parent->prepend(node);
 }
 
 auto TwinTap::data() -> uint2 {
-  if(latched == 1) return platform->inputPoll(two), two->value;  //unconfirmed
+  if(latched == 1) return platform->input(two), two->value;  //unconfirmed
 
   switch(counter++) {
   case 0: return two->value;
@@ -30,7 +25,7 @@ auto TwinTap::latch(bool data) -> void {
   counter = 0;
 
   if(latched == 0) {
-    platform->inputPoll(one);
-    platform->inputPoll(two);
+    platform->input(two);
+    platform->input(one);
   }
 }

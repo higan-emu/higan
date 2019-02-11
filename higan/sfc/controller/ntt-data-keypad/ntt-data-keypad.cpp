@@ -1,68 +1,38 @@
-auto NTTDataKeypad::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("NTT Data Keypad");
-  node->append<Node::Button>("Up");
-  node->append<Node::Button>("Down");
-  node->append<Node::Button>("Left");
-  node->append<Node::Button>("Right");
-  node->append<Node::Button>("B");
-  node->append<Node::Button>("A");
-  node->append<Node::Button>("Y");
-  node->append<Node::Button>("X");
-  node->append<Node::Button>("L");
-  node->append<Node::Button>("R");
-  node->append<Node::Button>("Back");
-  node->append<Node::Button>("Next");
-  node->append<Node::Button>("1");
-  node->append<Node::Button>("2");
-  node->append<Node::Button>("3");
-  node->append<Node::Button>("4");
-  node->append<Node::Button>("5");
-  node->append<Node::Button>("6");
-  node->append<Node::Button>("7");
-  node->append<Node::Button>("8");
-  node->append<Node::Button>("9");
-  node->append<Node::Button>("0");
-  node->append<Node::Button>("*");
-  node->append<Node::Button>("C");
-  node->append<Node::Button>("#");
-  node->append<Node::Button>(".");
-  node->append<Node::Button>("End");
-  return node;
-}
-
-NTTDataKeypad::NTTDataKeypad(Node::Peripheral peripheral) {
-  node  = peripheral;
-  up    = node->find<Node::Button>("Up");
-  down  = node->find<Node::Button>("Down");
-  left  = node->find<Node::Button>("Left");
-  right = node->find<Node::Button>("Right");
-  b     = node->find<Node::Button>("B");
-  a     = node->find<Node::Button>("A");
-  y     = node->find<Node::Button>("Y");
-  x     = node->find<Node::Button>("X");
-  l     = node->find<Node::Button>("L");
-  r     = node->find<Node::Button>("R");
-  back  = node->find<Node::Button>("Back");
-  next  = node->find<Node::Button>("Next");
-  one   = node->find<Node::Button>("1");
-  two   = node->find<Node::Button>("2");
-  three = node->find<Node::Button>("3");
-  four  = node->find<Node::Button>("4");
-  five  = node->find<Node::Button>("5");
-  six   = node->find<Node::Button>("6");
-  seven = node->find<Node::Button>("7");
-  eight = node->find<Node::Button>("8");
-  nine  = node->find<Node::Button>("9");
-  zero  = node->find<Node::Button>("0");
-  star  = node->find<Node::Button>("*");
-  clear = node->find<Node::Button>("C");
-  pound = node->find<Node::Button>("#");
-  point = node->find<Node::Button>(".");
-  end   = node->find<Node::Button>("End");
+NTTDataKeypad::NTTDataKeypad(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("NTT Data Keypad", parent->type);
+  node->load(with);
+  up    = Node::append<Node::Button>(node, with, "Up");
+  down  = Node::append<Node::Button>(node, with, "Down");
+  left  = Node::append<Node::Button>(node, with, "Left");
+  right = Node::append<Node::Button>(node, with, "Right");
+  b     = Node::append<Node::Button>(node, with, "B");
+  a     = Node::append<Node::Button>(node, with, "A");
+  y     = Node::append<Node::Button>(node, with, "Y");
+  x     = Node::append<Node::Button>(node, with, "X");
+  l     = Node::append<Node::Button>(node, with, "L");
+  r     = Node::append<Node::Button>(node, with, "R");
+  back  = Node::append<Node::Button>(node, with, "Back");
+  next  = Node::append<Node::Button>(node, with, "Next");
+  one   = Node::append<Node::Button>(node, with, "1");
+  two   = Node::append<Node::Button>(node, with, "2");
+  three = Node::append<Node::Button>(node, with, "3");
+  four  = Node::append<Node::Button>(node, with, "4");
+  five  = Node::append<Node::Button>(node, with, "5");
+  six   = Node::append<Node::Button>(node, with, "6");
+  seven = Node::append<Node::Button>(node, with, "7");
+  eight = Node::append<Node::Button>(node, with, "8");
+  nine  = Node::append<Node::Button>(node, with, "9");
+  zero  = Node::append<Node::Button>(node, with, "0");
+  star  = Node::append<Node::Button>(node, with, "*");
+  clear = Node::append<Node::Button>(node, with, "C");
+  pound = Node::append<Node::Button>(node, with, "#");
+  point = Node::append<Node::Button>(node, with, ".");
+  end   = Node::append<Node::Button>(node, with, "End");
+  parent->append(node);
 }
 
 auto NTTDataKeypad::data() -> uint2 {
-  if(latched == 1) return platform->inputPoll(b), b->value;
+  if(latched == 1) return platform->input(b), b->value;
 
   switch(counter++) {
   case  0: return b->value;
@@ -111,33 +81,33 @@ auto NTTDataKeypad::latch(bool data) -> void {
   counter = 0;
 
   if(latched == 0) {
-    platform->inputPoll(b);
-    platform->inputPoll(y);
-    platform->inputPoll(back);
-    platform->inputPoll(next);
-    platform->inputPoll(up);
-    platform->inputPoll(down);
-    platform->inputPoll(left);
-    platform->inputPoll(right);
-    platform->inputPoll(a);
-    platform->inputPoll(x);
-    platform->inputPoll(l);
-    platform->inputPoll(r);
-    platform->inputPoll(zero);
-    platform->inputPoll(one);
-    platform->inputPoll(two);
-    platform->inputPoll(three);
-    platform->inputPoll(four);
-    platform->inputPoll(five);
-    platform->inputPoll(six);
-    platform->inputPoll(seven);
-    platform->inputPoll(eight);
-    platform->inputPoll(nine);
-    platform->inputPoll(star);
-    platform->inputPoll(pound);
-    platform->inputPoll(point);
-    platform->inputPoll(clear);
-    platform->inputPoll(end);
+    platform->input(b);
+    platform->input(y);
+    platform->input(back);
+    platform->input(next);
+    platform->input(up);
+    platform->input(down);
+    platform->input(left);
+    platform->input(right);
+    platform->input(a);
+    platform->input(x);
+    platform->input(l);
+    platform->input(r);
+    platform->input(zero);
+    platform->input(one);
+    platform->input(two);
+    platform->input(three);
+    platform->input(four);
+    platform->input(five);
+    platform->input(six);
+    platform->input(seven);
+    platform->input(eight);
+    platform->input(nine);
+    platform->input(star);
+    platform->input(pound);
+    platform->input(point);
+    platform->input(clear);
+    platform->input(end);
 
     if(!(up->value & down->value)) {
       yHold = 0, upLatch = up->value, downLatch = down->value;

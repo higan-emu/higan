@@ -1,26 +1,15 @@
-auto Justifiers::create() -> Node::Peripheral {
-  auto node = Node::Peripheral::create("Justifiers");
-  node->append<Node::Axis  >("Player 1: X");
-  node->append<Node::Axis  >("Player 1: Y");
-  node->append<Node::Button>("Player 1: Trigger");
-  node->append<Node::Button>("Player 1: Start");
-  node->append<Node::Axis  >("Player 2: X");
-  node->append<Node::Axis  >("Player 2: Y");
-  node->append<Node::Button>("Player 2: Trigger");
-  node->append<Node::Button>("Player 2: Start");
-  return node;
-}
-
-Justifiers::Justifiers(Node::Peripheral peripheral) {
-  node     = peripheral;
-  x1       = node->find<Node::Axis  >("Player 1: X");
-  y1       = node->find<Node::Axis  >("Player 1: Y");
-  trigger1 = node->find<Node::Button>("Player 1: Trigger");
-  start1   = node->find<Node::Button>("Player 1: Start");
-  x2       = node->find<Node::Axis  >("Player 2: X");
-  y2       = node->find<Node::Axis  >("Player 2: Y");
-  trigger2 = node->find<Node::Button>("Player 2: Trigger");
-  start2   = node->find<Node::Button>("Player 2: Start");
+Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Justifiers");
+  node->load(with);
+  x1       = Node::append<Node::Axis  >(node, with, "Player 1: X");
+  y1       = Node::append<Node::Axis  >(node, with, "Player 1: Y");
+  trigger1 = Node::append<Node::Button>(node, with, "Player 1: Trigger");
+  start1   = Node::append<Node::Button>(node, with, "Player 1: Start");
+  x2       = Node::append<Node::Axis  >(node, with, "Player 2: X");
+  y2       = Node::append<Node::Axis  >(node, with, "Player 2: Y");
+  trigger2 = Node::append<Node::Button>(node, with, "Player 2: Trigger");
+  start2   = Node::append<Node::Button>(node, with, "Player 2: Start");
+  parent->prepend(node);
 
   sprite1 = video.createSprite(32, 32);
   sprite1->setPixels(Resource::Sprite::CrosshairGreen);
@@ -55,8 +44,8 @@ auto Justifiers::main() -> void {
   }
 
   if(next < previous) {
-    platform->inputPoll(x1);
-    platform->inputPoll(y1);
+    platform->input(x1);
+    platform->input(y1);
     int nx1 = x1->value + cx1;
     int ny1 = y1->value + cy1;
     cx1 = max(-16, min(256 + 16, nx1));
@@ -64,8 +53,8 @@ auto Justifiers::main() -> void {
     sprite1->setPosition(cx1 * 2 - 16, cy1 * 2 - 16);
     sprite1->setVisible(true);
 
-    platform->inputPoll(x2);
-    platform->inputPoll(y2);
+    platform->input(x2);
+    platform->input(y2);
     int nx2 = x2->value + cx2;
     int ny2 = y2->value + cy2;
     cx2 = max(-16, min(256 + 16, nx2));
@@ -81,11 +70,11 @@ auto Justifiers::main() -> void {
 
 auto Justifiers::data() -> uint2 {
   if(counter == 0) {
-    platform->inputPoll(trigger1);
-    platform->inputPoll(start1);
+    platform->input(trigger1);
+    platform->input(start1);
 
-    platform->inputPoll(trigger2);
-    platform->inputPoll(start2);
+    platform->input(trigger2);
+    platform->input(start2);
   }
 
   switch(counter++) {

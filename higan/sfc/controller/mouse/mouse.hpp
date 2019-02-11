@@ -1,11 +1,10 @@
 struct Mouse : Controller {
-  static auto create() -> Node::Peripheral;
   Node::Axis x;
   Node::Axis y;
   Node::Button left;
   Node::Button right;
 
-  Mouse(Node::Peripheral);
+  Mouse(Node::Port, Node::Peripheral);
 
   auto data() -> uint2;
   auto latch(bool data) -> void;

@@ -8,21 +8,19 @@ namespace higan::SuperFamicom {
 Cartridge cartridge;
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  parent->append(port = Node::Port::create("Cartridge Slot", "Cartridge"));
-  port->attach = [&](auto with) {
-    auto node = Node::Peripheral::create("Cartridge", port->type);
-    node->load(with);
-    port->prepend(node);
-    bus.reset();
-    load();
-    power(false);
-  };
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
   if(from = Node::load(port, from)) {
     if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
   }
+  parent->append(port);
 }
 
-auto Cartridge::load() -> bool {
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Cartridge", port->type);
+  node->load(with);
+
   information = {};
   has = {};
   game = {};
@@ -31,87 +29,25 @@ auto Cartridge::load() -> bool {
   slotSufamiTurboA = {};
   slotSufamiTurboB = {};
 
-  if(auto fp = platform->open(port->connected(), "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     game.load(fp->reads());
-  } else return false;
+  } else return;
+
   loadCartridge(game.document);
-
-  if(has.GameBoySlot) {
-    //todo
-  }
-
-  if(has.BSMemorySlot) bsmemory.initialize(port->connected());
-  if(has.SufamiTurboSlotA) sufamiturboA.initialize(port->connected());
-  if(has.SufamiTurboSlotB) sufamiturboB.initialize(port->connected());
-
-  //Game Boy
-  if(cartridge.has.ICD) {
-    information.sha256 = "";  //Game Boy cartridge not loaded yet: set later via loadGameBoy()
-  }
-
-  //BS Memory
-  else if(cartridge.has.MCC && cartridge.has.BSMemorySlot) {
-    information.sha256 = Hash::SHA256({bsmemory.memory.data(), bsmemory.memory.size()}).digest();
-  }
-
-  //Sufami Turbo
-  else if(cartridge.has.SufamiTurboSlotA || cartridge.has.SufamiTurboSlotB) {
-    Hash::SHA256 sha;
-    if(cartridge.has.SufamiTurboSlotA) sha.input(sufamiturboA.rom.data(), sufamiturboA.rom.size());
-    if(cartridge.has.SufamiTurboSlotB) sha.input(sufamiturboB.rom.data(), sufamiturboB.rom.size());
-    information.sha256 = sha.digest();
-  }
-
-  //Super Famicom
-  else {
-    Hash::SHA256 sha;
-    //hash each ROM image that exists; any with size() == 0 is ignored by sha256_chunk()
-    sha.input(rom.data(), rom.size());
-    sha.input(mcc.rom.data(), mcc.rom.size());
-    sha.input(sa1.rom.data(), sa1.rom.size());
-    sha.input(superfx.rom.data(), superfx.rom.size());
-    sha.input(hitachidsp.rom.data(), hitachidsp.rom.size());
-    sha.input(spc7110.prom.data(), spc7110.prom.size());
-    sha.input(spc7110.drom.data(), spc7110.drom.size());
-    sha.input(sdd1.rom.data(), sdd1.rom.size());
-    //hash all firmware that exists
-    vector<uint8> buffer;
-    buffer = armdsp.firmware();
-    sha.input(buffer.data(), buffer.size());
-    buffer = hitachidsp.firmware();
-    sha.input(buffer.data(), buffer.size());
-    buffer = necdsp.firmware();
-    sha.input(buffer.data(), buffer.size());
-    //finalize hash
-    information.sha256 = sha.digest();
-  }
-
-  return true;
-}
-
-auto Cartridge::loadGameBoy() -> bool {
-  #if defined(CORE_GB)
-  //invoked from ICD::load()
-  information.sha256 = GameBoy::cartridge.hash();
-  slotGameBoy.load(GameBoy::cartridge.manifest());
-  loadCartridgeGameBoy(slotGameBoy.document);
-  return true;
-  #endif
-  return false;
-}
-
-auto Cartridge::save() -> void {
-  if(!port || !port->connected()) return;
-
-  saveCartridge(game.document);
   if(has.GameBoySlot);  //todo
-  if(has.BSMemorySlot) bsmemory.save();
-  if(has.SufamiTurboSlotA) sufamiturboA.save();
-  if(has.SufamiTurboSlotB) sufamiturboB.save();
+  if(has.BSMemorySlot) bsmemory.load(node, with);
+  if(has.SufamiTurboSlotA) sufamiturboA.load(node, with);
+  if(has.SufamiTurboSlotB) sufamiturboB.load(node, with);
+
+  if(has.EpsonRTC) epsonrtc.load(node, with);
+  if(has.SharpRTC) sharprtc.load(node, with);
+
+  power(false);
+  port->prepend(node);
 }
 
-auto Cartridge::unload() -> void {
-  if(!port || !port->connected()) return;
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
 
   if(has.ICD) icd.unload();
   if(has.MCC) mcc.unload();
@@ -127,13 +63,26 @@ auto Cartridge::unload() -> void {
   if(has.SDD1) sdd1.unload();
   if(has.OBC1) obc1.unload();
   if(has.MSU1) msu1.unload();
-  if(has.BSMemorySlot) bsmemory.unload();
-  if(has.SufamiTurboSlotA) sufamiturboA.unload();
-  if(has.SufamiTurboSlotB) sufamiturboB.unload();
+  if(has.BSMemorySlot) bsmemory.disconnect();
+  if(has.SufamiTurboSlotA) sufamiturboA.disconnect();
+  if(has.SufamiTurboSlotB) sufamiturboB.disconnect();
 
   rom.reset();
   ram.reset();
-  port->disconnect();
+  bus.reset();
+  node = {};
+}
+
+//deprecated
+auto Cartridge::loadGameBoy() -> bool {
+  #if defined(CORE_GB)
+  //invoked from ICD::load()
+  information.sha256 = GameBoy::cartridge.hash();
+  slotGameBoy.load(GameBoy::cartridge.manifest());
+  loadCartridgeGameBoy(slotGameBoy.document);
+  return true;
+  #endif
+  return false;
 }
 
 auto Cartridge::power(bool reset) -> void {
@@ -155,6 +104,16 @@ auto Cartridge::power(bool reset) -> void {
   if(has.BSMemorySlot) bsmemory.power();
   if(has.SufamiTurboSlotA) sufamiturboA.power();
   if(has.SufamiTurboSlotB) sufamiturboB.power();
+}
+
+auto Cartridge::save() -> void {
+  if(!node) return;
+
+  saveCartridge(game.document);
+  if(has.GameBoySlot);  //todo
+  if(has.BSMemorySlot) bsmemory.save();
+  if(has.SufamiTurboSlotA) sufamiturboA.save();
+  if(has.SufamiTurboSlotB) sufamiturboB.save();
 }
 
 }
