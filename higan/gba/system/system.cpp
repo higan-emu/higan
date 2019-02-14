@@ -3,13 +3,15 @@
 namespace higan::GameBoyAdvance {
 
 System system;
-UniqueID uniqueID;
 Scheduler scheduler;
 #include "bios.cpp"
+#include "controls.cpp"
+#include "display.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
+  if(GameBoyAdvance::Model::GameBoyPlayer()) player.frame();
 }
 
 auto System::runToSave() -> void {
@@ -19,11 +21,38 @@ auto System::runToSave() -> void {
   scheduler.synchronize(player);
 }
 
+auto System::load(Node::Object from) -> void {
+  if(root) save(), unload();
+
+  root = Node::System::create(interface->name());
+  root->load(from);
+
+  controls.load(root, from);
+  display.load(root, from);
+  cartridge.load(root, from);
+}
+
+auto System::unload() -> void {
+  cartridge.disconnect();
+  root = {};
+}
+
+auto System::save() -> void {
+  cartridge.save();
+}
+
 auto System::power() -> void {
+  for(auto& setting : root->find<Node::Setting>()) setting->setLatch();
+  information = {};
+
+  if(auto fp = platform->open(root, "bios.rom", File::Read, File::Required)) {
+    fp->read(bios.data, bios.size);
+  }
+
+  serializeInit();
+
   video.reset(interface);
-  video.setPalette();
-  video.setEffect(Video::Effect::InterframeBlending, option.video.interframeBlending());
-  video.setEffect(Video::Effect::RotateLeft, option.video.rotateLeft());
+  display.screen = video.createScreen(display.node, 240, 160);
   audio.reset(interface);
 
   scheduler.reset();
@@ -34,42 +63,6 @@ auto System::power() -> void {
   apu.power();
   cartridge.power();
   scheduler.primary(cpu);
-}
-
-auto System::initialize() -> void {
-  uniqueID.initialize();
-  node = Node::create();
-  node->id = uniqueID();
-  node->type = "System";
-  node->name = "Game Boy Advance";
-}
-
-auto System::load() -> bool {
-  information = {};
-
-  auto document = BML::unserialize(interface->properties().serialize());
-
-  if(auto name = document["system/memory(type=ROM,content=BIOS)"]) {
-    if(auto fp = platform->open(ID::System, "bios.rom", File::Read, File::Required)) {
-      fp->read(bios.data, bios.size);
-    } else return false;
-  } else return false;
-
-//if(!cartridge.load()) return false;
-
-  serializeInit();
-  return _loaded = true;
-}
-
-auto System::save() -> void {
-  if(!loaded()) return;
-  cartridge.save();
-}
-
-auto System::unload() -> void {
-  if(!loaded()) return;
-  cartridge.unload();
-  _loaded = false;
 }
 
 }

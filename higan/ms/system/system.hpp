@@ -1,24 +1,13 @@
-namespace Tree {
-  struct System {
-    auto initialize(string = {}) -> void;
-    operator Node::Object() const { return node; }
-    Node::System node;
-  };
-
-  struct Display {
-    auto initialize(Node::Object) -> void;
-    Node::Video node;
-  };
-}
+#include "controls.hpp"
+#include "display.hpp"
 
 struct System {
-  Tree::System root;
-  Tree::Display display;
+  Node::Object root;
+  Node::String regionNode;
 
   enum class Model : uint { ColecoVision, SG1000, SC3000, MasterSystem, GameGear };
   enum class Region : uint { NTSC, PAL };
 
-  auto loaded() const -> bool { return information.loaded; }
   auto model() const -> Model { return information.model; }
   auto region() const -> Region { return information.region; }
   auto colorburst() const -> double { return information.colorburst; }
@@ -27,9 +16,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto initialize(string) -> void;
-  auto terminate() -> void;
-  auto load() -> void;
+  auto load(Node::Object) -> void;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;
@@ -44,10 +31,7 @@ struct System {
   uint8 bios[0x2000];
 
 private:
-  Interface* interface = nullptr;
-
   struct Information {
-    bool loaded = false;
     Model model = Model::MasterSystem;
     Region region = Region::NTSC;
     double colorburst = Constants::Colorburst::NTSC;

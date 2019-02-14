@@ -1,25 +1,18 @@
 struct Cartridge {
-  struct Slot { uint id; } slot;  //temporary
+  Node::Port port;
+  Node::Peripheral node;
+
   #include "memory.hpp"
 
-  auto loaded() const -> bool { return information.loaded; }
-  auto hash() const -> string { return information.sha256; }
-  auto manifest() const -> string { return information.manifest; }
-  auto title() const -> string { return information.title; }
-
-  struct Information {
-    boolean loaded;
-    string sha256;
-    string manifest;
-    string title;
-  } information;
-
+  //cartridge.cpp
   Cartridge();
   ~Cartridge();
 
-  auto load() -> bool;
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
+
   auto save() -> void;
-  auto unload() -> void;
   auto power() -> void;
 
   auto read(uint mode, uint32 addr) -> uint32;
@@ -28,6 +21,10 @@ struct Cartridge {
   auto serialize(serializer&) -> void;
 
 private:
+  struct {
+    string manifest;
+  } information;
+
   bool hasSRAM = false;
   bool hasEEPROM = false;
   bool hasFLASH = false;

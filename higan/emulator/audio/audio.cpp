@@ -1,11 +1,7 @@
 namespace higan {
 
-#include "stream.cpp"
 Audio audio;
-
-Audio::~Audio() {
-  reset(nullptr);
-}
+#include "stream.cpp"
 
 auto Audio::reset(Interface* interface) -> void {
   this->interface = interface;

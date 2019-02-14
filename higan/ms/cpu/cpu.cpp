@@ -7,10 +7,6 @@ CPU cpu;
 #include "sega.cpp"
 #include "serialization.cpp"
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
   if(state.nmiLine) {
     state.nmiLine = 0;  //edge-sensitive
@@ -38,16 +34,10 @@ auto CPU::synchronizing() const -> bool {
 
 //called once per frame
 auto CPU::pollPause() -> void {
-  if(Model::SG1000() || Model::SC3000()) {
+  if(Model::SG1000() || Model::SC3000() || Model::MasterSystem()) {
     static bool pause = 0;
-    bool state = platform->inputPoll(ID::Port::Hardware, ID::Device::SG1000Controls, 0);
-    if(!pause && state) setNMI(1);
-    pause = state;
-  }
-
-  if(Model::MasterSystem()) {
-    static bool pause = 0;
-    bool state = platform->inputPoll(ID::Port::Hardware, ID::Device::MasterSystemControls, 1);
+    platform->input(controls.pause);
+    bool state = controls.pause->value;
     if(!pause && state) setNMI(1);
     pause = state;
   }
@@ -80,7 +70,9 @@ auto CPU::out(uint8 address, uint8 data) -> void {
 auto CPU::power() -> void {
   Z80::bus = this;
   Z80::power();
-  create(CPU::Enter, system.colorburst());
+  Thread::create(system.colorburst(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   if(Model::ColecoVision()) ram.allocate(0x0400), expansion.allocate(0x1000);
   if(Model::SG1000())       ram.allocate(0x0400);

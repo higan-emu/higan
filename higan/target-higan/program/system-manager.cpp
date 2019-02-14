@@ -18,10 +18,10 @@ auto SystemManager::hide() -> void {
 
 auto SystemManager::refresh() -> void {
   systemList.reset();
-  scan(Path::data);
+  refresh(Path::data);
 }
 
-auto SystemManager::scan(string location, uint depth) -> void {
+auto SystemManager::refresh(string location, uint depth) -> void {
   for(auto& name : directory::folders(location)) {
     ListViewItem item{&systemList};
     item.setProperty("location", {location, name});
@@ -29,14 +29,20 @@ auto SystemManager::scan(string location, uint depth) -> void {
     item.setProperty("name", name.trimRight("/", 1L));
     string spacing;
     for(auto n : range(depth)) spacing.append("   ");
-    if(auto document = BML::unserialize(file::read({location, name, "/", "identity.bml"}))) {
+    if(auto document = BML::unserialize(file::read({location, name, "/", "metadata.bml"}))) {
       auto label = document["system"].text();
       item.setProperty("system", label);
       item.setText({spacing, "\xe2\x97\xb9\xe2\x80\x82", name});
     } else {
-      scan({location, name, "/"}, depth + 1);
+      refresh({location, name, "/"}, depth + 1);
       item.setText({spacing, "\xe2\x97\xa2\xe2\x80\x82", name});
     }
+  }
+}
+
+auto SystemManager::deselect() -> void {
+  if(auto item = systemList.selected()) {
+    item.setSelected(false);
   }
 }
 
@@ -44,7 +50,6 @@ auto SystemManager::eventActivate() -> void {
   if(auto item = systemList.selected()) {
     if(auto system = item.property("system")) {
       if(auto index = interfaces.find([&](auto interface) { return interface->name() == system; })) {
-      //programWindow.setVisible(false);
         emulator.create(interfaces[*index], {item.property("path"), item.property("name"), "/"});
       }
     }

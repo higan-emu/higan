@@ -13,10 +13,6 @@ APU apu;
 #include "fifo.cpp"
 #include "serialization.cpp"
 
-auto APU::Enter() -> void {
-  while(true) scheduler.synchronize(), apu.main();
-}
-
 auto APU::main() -> void {
   //GBA clock runs at 16777216hz
   //GBA PSG channels run at 2097152hz
@@ -75,7 +71,9 @@ auto APU::step(uint clocks) -> void {
 }
 
 auto APU::power() -> void {
-  create(APU::Enter, system.frequency());
+  create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   stream = audio.createStream(2, frequency() / 64.0);
   stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();

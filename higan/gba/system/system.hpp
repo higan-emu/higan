@@ -1,32 +1,22 @@
-enum class Input : uint {
-  A, B, Select, Start, Right, Left, Up, Down, R, L,
-};
-
-struct BIOS {
-  BIOS();
-  ~BIOS();
-
-  auto read(uint mode, uint32 addr) -> uint32;
-  auto write(uint mode, uint32 addr, uint32 word) -> void;
-
-  uint8* data = nullptr;
-  uint size = 0;
-  uint32 mdr = 0;
-};
+#include "bios.hpp"
+#include "controls.hpp"
+#include "display.hpp"
 
 struct System {
-  Node node;
+  Node::Object root;
 
-  auto loaded() const -> bool { return _loaded; }
-  auto frequency() const -> double { return 16 * 1024 * 1024; }
+  enum class Model : uint { GameBoyAdvance, GameBoyPlayer };
 
+  inline auto model() const -> Model { return information.model; }
+  inline auto frequency() const -> double { return 16 * 1024 * 1024; }
+
+  //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto initialize() -> void;
-  auto load() -> bool;
-  auto save() -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto save() -> void;
   auto power() -> void;
 
   //serialization.cpp
@@ -39,11 +29,12 @@ struct System {
 
 private:
   struct Information {
+    Model model = Model::GameBoyAdvance;
+    uint serializeSize = 0;
   } information;
-
-  bool _loaded = false;
-  uint _serializeSize = 0;
 };
 
-extern BIOS bios;
 extern System system;
+
+auto Model::GameBoyAdvance() -> bool { return system.model() == System::Model::GameBoyAdvance; }
+auto Model::GameBoyPlayer() -> bool { return system.model() == System::Model::GameBoyPlayer; }

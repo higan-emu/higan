@@ -18,6 +18,10 @@ struct Emulator : higan::Platform {
   auto audio(higan::Node::Audio, const double* samples, uint channels) -> void override;
   auto input(higan::Node::Input) -> void override;
 
+  //states.cpp
+  auto saveState(uint slot) -> bool;
+  auto loadState(uint slot) -> bool;
+
   struct System {
     string name;
     string data;

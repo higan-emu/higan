@@ -182,6 +182,7 @@ public:
   auto end() const -> const char* { return &data()[size()]; }
 
   //atoi.hpp
+  inline auto boolean() const -> bool;
   inline auto integer() const -> intmax;
   inline auto natural() const -> uintmax;
   inline auto hex() const -> uintmax;

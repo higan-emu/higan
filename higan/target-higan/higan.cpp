@@ -81,6 +81,7 @@ auto nall::main(Arguments arguments) -> void {
   #endif
   #ifdef CORE_GBA
   interfaces.append(new higan::GameBoyAdvance::GameBoyAdvanceInterface);
+  interfaces.append(new higan::GameBoyAdvance::GameBoyPlayerInterface);
   #endif
   #ifdef CORE_MS
   interfaces.append(new higan::MasterSystem::GameGearInterface);

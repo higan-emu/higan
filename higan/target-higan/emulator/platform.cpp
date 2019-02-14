@@ -32,12 +32,27 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
       }
     }
 
-    //todo: show file browser to select file here ... eg to select GBA BIOS
-    MessageDialog()
-    .setTitle("Error")
-    .setText({"Missing required file:\n", location, name})
+    if(MessageDialog()
+    .setTitle("Warning")
+    .setText({"Missing required file:\n",
+              location, name, "\n\n",
+              "Would you like to browse for this file now?"})
     .setAlignment(Alignment::Center)
-    .error();
+    .question() == "No") return {};
+
+    if(auto source = BrowserDialog()
+    .setTitle({"Load ", name})
+    .setPath(location)
+    .setAlignment(Alignment::Center)
+    .openFile()
+    ) {
+      if(auto input = vfs::memory::file::open(source, true)) {
+        if(auto output = file::open({location, name}, file::mode::write)) {
+          output.write({input->data(), (uint)input->size()});
+        }
+      }
+      if(auto result = vfs::fs::file::open({location, name}, mode)) return result;
+    }
   }
 
   return {};
@@ -55,6 +70,17 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
     }
     viewport->video.release();
     viewport->video.output();
+  }
+
+  static uint frameCounter = 0;
+  static uint64_t previous, current;
+  frameCounter++;
+
+  current = chrono::timestamp();
+  if(current != previous) {
+    previous = current;
+    viewport->setTitle({"Display: ", frameCounter, " FPS"});
+    frameCounter = 0;
   }
 }
 

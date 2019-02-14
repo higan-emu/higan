@@ -12,7 +12,6 @@ struct Filter;
 struct Stream;
 
 struct Audio {
-  ~Audio();
   auto reset(Interface* interface) -> void;
 
   auto setFrequency(double frequency) -> void;
@@ -49,7 +48,7 @@ struct Filter {
 struct Stream {
   auto reset(uint channels, double inputFrequency, double outputFrequency) -> void;
 
-  auto setFrequency(double inputFrequency, maybe<double> outputFrequency = nothing) -> void;
+  auto setFrequency(double inputFrequency, maybe<double> outputFrequency = {}) -> void;
 
   auto addDCRemovalFilter() -> void;
   auto addLowPassFilter(double cutoffFrequency, Filter::Order order, uint passes = 1) -> void;

@@ -1,5 +1,6 @@
 #include "../higan.hpp"
 #include "platform.cpp"
+#include "states.cpp"
 
 Emulator emulator;
 
@@ -23,7 +24,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   interface->load(configuration);
   root = interface->root();
 
-  systemManager.show();
+  nodeManager.bind(root);
   programWindow.setTitle(system.name);
   programWindow.show(home);
   programWindow.show(nodeManager);
@@ -47,6 +48,8 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
   //this call will bind all inputs on account of InputManager::devices currently being empty
   inputManager.poll();
+
+  power(false);
 }
 
 auto Emulator::main() -> void {
@@ -89,6 +92,8 @@ auto Emulator::power(bool on) -> void {
       }
     }
     interface->power();
+    //powering on the system latches static settings
+    nodeManager.refreshSettings();
   } else {
     for(auto& viewport : viewports) {
       viewport->setVisible(false);
@@ -98,6 +103,8 @@ auto Emulator::power(bool on) -> void {
     programWindow.setFocused();
   }
   systemMenu.power.setChecked(on);
+  toolsMenu.saveStateMenu.setEnabled(on);
+  toolsMenu.loadStateMenu.setEnabled(on);
 }
 
 //used to prevent connecting the same (emulated) physical device to multiple ports simultaneously

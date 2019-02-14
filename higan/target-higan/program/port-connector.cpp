@@ -89,10 +89,10 @@ auto PortConnector::eventActivate() -> void {
       .setTitle("Error").setAlignment(programWindow).error();
 
       if(directory::copy(source, target)) {
-        file::write({target, "identity.bml"}, string{
+        file::write({target, "metadata.bml"}, string{
           "system: ", interface->name(), "\n",
-          "  type: ", port->type, "\n",
-          "  name: ", name, "\n"
+          "type: ", port->type, "\n",
+          "name: ", name, "\n"
         });
         auto peripheral = higan::Node::Peripheral::create(name, port->type);
         peripheral->setProperty("location", target);
@@ -114,8 +114,8 @@ auto PortConnector::eventActivate() -> void {
       .setTitle("Error").setAlignment(programWindow).error();
 
       name = port->type;
-      if(auto document = BML::unserialize(file::read({location, "identity.bml"}))) {
-        if(auto node = document["system/name"]) name = node.text();
+      if(auto document = BML::unserialize(file::read({location, "metadata.bml"}))) {
+        if(auto node = document["name"]) name = node.text();
       }
       auto peripheral = higan::Node::Peripheral::create(name, port->type);
       peripheral->setProperty("location", location);
@@ -205,8 +205,7 @@ auto PortConnector::eventRename() -> void {
             connected->setProperty("location", {path, rename, "/"});
             connected->setProperty("name", rename);
             //the name will be updated in the node manager, so it must be refreshed:
-            //note that this will close the port connector dialog
-            return nodeManager.refresh();
+            nodeManager.refresh();
           }
         }
 
@@ -241,9 +240,6 @@ auto PortConnector::eventRemove() -> void {
       if(!directory::remove(location)) return (void)MessageDialog()
       .setText("Failed to remove directory.")
       .setTitle("Error").setAlignment(programWindow).error();
-
-      //node manager was refreshed above, which means the port connector panel is now closed: no need to refresh
-      if(connected) return;
 
       refresh(port);
     }

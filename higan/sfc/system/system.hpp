@@ -1,5 +1,10 @@
+#include "display.hpp"
+#include "speakers.hpp"
+#include "hacks.hpp"
+
 struct System {
   Node::Object root;
+  Node::String regionSetting;
   Node::Button resetButton;
   enum class Region : uint { NTSC, PAL };
 
@@ -10,9 +15,9 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Node::Object from) -> void;
-  auto save() -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto save() -> void;
   auto power(bool reset) -> void;
 
   //serialization.cpp
@@ -35,42 +40,7 @@ private:
   friend class Cartridge;
 };
 
-struct Display {
-  Node::Video node;
-  Node::Boolean colorEmulation;
-  Node::Boolean colorBleed;
-
-  auto load(Node::Object parent, Node::Object from) -> void;
-  auto color(natural) -> uint64_t;
-};
-
-struct Speakers {
-  Node::Audio node;
-
-  auto load(Node::Object parent, Node::Object from) -> void;
-};
-
-struct Hacks {
-  Node::Settings node;
-  struct PPU {
-    Node::Boolean fast;
-    Node::Boolean noSpriteLimit;
-    Node::Boolean hiresMode7;
-  } ppu;
-  struct DSP {
-    Node::Boolean fast;
-  } dsp;
-  struct Coprocessors {
-    Node::Boolean fast;
-  } coprocessors;
-
-  auto load(Node::Object parent, Node::Object from) -> void;
-};
-
 extern System system;
-extern Display display;
-extern Speakers speakers;
-extern Hacks hacks;
 
 auto Region::NTSC() -> bool { return system.region() == System::Region::NTSC; }
 auto Region::PAL() -> bool { return system.region() == System::Region::PAL; }

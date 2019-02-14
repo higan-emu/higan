@@ -71,7 +71,7 @@ auto SystemCreation::eventAccept() -> void {
     .setAlignment(programWindow).error();
 
   if(auto interface = systemList.selected().property<shared_pointer<higan::Interface>>("interface")) {
-    file::write({location, name, "identity.bml"}, string{
+    file::write({location, name, "metadata.bml"}, string{
       "system: ", interface->name(), "\n"
     });
     auto root = interface->root();

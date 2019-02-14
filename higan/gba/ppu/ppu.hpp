@@ -4,7 +4,6 @@ struct PPU : Thread, IO {
 
   inline auto blank() -> bool;
 
-  static auto Enter() -> void;
   auto step(uint clocks) -> void;
   auto main() -> void;
 

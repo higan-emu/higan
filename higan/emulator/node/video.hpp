@@ -28,7 +28,7 @@ struct Video : Object {
   double aspect = 1.0;
   uint colors = 0;
 
-  function<uint64_t (natural)> color;
+  function<uint64 (uint32)> color;
 };
 
 }

@@ -116,6 +116,18 @@ struct Object : shared_pointer_this<Object> {
     }
   }
 
+  virtual auto load(Node::Object source) -> bool {
+    if(!source || identity() != source->identity() || name != source->name) return false;
+    properties = source->properties;
+    return true;
+  }
+
+  auto save() -> string {
+    string markup;
+    serialize(markup, {});
+    return markup;
+  }
+
   virtual auto serialize(string& output, string depth) -> void {
     output.append(depth, "node: ", identity(), "\n");
     output.append(depth, "  name: ", name, "\n");
@@ -143,18 +155,6 @@ struct Object : shared_pointer_this<Object> {
       append(node);
       node->unserialize(leaf);
     }
-  }
-
-  virtual auto load(Node::Object source) -> bool {
-    if(!source || identity() != source->identity() || name != source->name) return false;
-    properties = source->properties;
-    return true;
-  }
-
-  auto save() -> string {
-    string markup;
-    serialize(markup, {});
-    return markup;
   }
 
   auto begin() { return nodes.begin(); }

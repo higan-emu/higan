@@ -1,7 +1,6 @@
 //Texas Instruments TMS9918A (derivative)
 
 struct VDP : Thread {
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto refresh() -> void;

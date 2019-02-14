@@ -23,15 +23,27 @@ Cartridge::~Cartridge() {
   delete[] flash.data;
 }
 
-auto Cartridge::load() -> bool {
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
+}
+
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Cartridge", port->type);
+  node->load(with);
+
   information = {};
 
-  if(auto fp = platform->open(slot.id, "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
-  } else return false;
+  } else return;
 
   auto document = BML::unserialize(information.manifest);
-  information.title = document["game/label"].text();
 
   hasSRAM   = false;
   hasEEPROM = false;
@@ -39,7 +51,7 @@ auto Cartridge::load() -> bool {
 
   if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     mrom.size = min(32 * 1024 * 1024, (uint)memory.size);
-    if(auto fp = platform->open(slot.id, memory.name(), File::Read, File::Required)) {
+    if(auto fp = platform->open(node, memory.name(), File::Read, File::Required)) {
       fp->read(mrom.data, mrom.size);
     }
   }
@@ -51,7 +63,7 @@ auto Cartridge::load() -> bool {
     for(auto n : range(sram.size)) sram.data[n] = 0xff;
 
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(slot.id, memory.name(), File::Read)) {
+      if(auto fp = platform->open(node, memory.name(), File::Read)) {
         fp->read(sram.data, sram.size);
       }
     }
@@ -66,7 +78,7 @@ auto Cartridge::load() -> bool {
     eeprom.test = mrom.size > 16 * 1024 * 1024 ? 0x0dffff00 : 0x0d000000;
     for(auto n : range(eeprom.size)) eeprom.data[n] = 0xff;
 
-    if(auto fp = platform->open(slot.id, memory.name(), File::Read)) {
+    if(auto fp = platform->open(node, memory.name(), File::Read)) {
       fp->read(eeprom.data, eeprom.size);
     }
   }
@@ -85,41 +97,17 @@ auto Cartridge::load() -> bool {
     if(flash.manufacturer == "Sanyo"     && flash.size == 128 * 1024) flash.id = 0x1362;
     if(flash.manufacturer == "SST"       && flash.size ==  64 * 1024) flash.id = 0xd4bf;
 
-    if(auto fp = platform->open(slot.id, memory.name(), File::Read)) {
+    if(auto fp = platform->open(node, memory.name(), File::Read)) {
       fp->read(flash.data, flash.size);
     }
   }
 
-  information.sha256 = Hash::SHA256({mrom.data, mrom.size}).digest();
-  return information.loaded = true;
+  power();
+  port->prepend(node);
 }
 
-auto Cartridge::save() -> void {
-  auto document = BML::unserialize(information.manifest);
-
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(slot.id, memory.name(), File::Write)) {
-        fp->write(sram.data, sram.size);
-      }
-    }
-  }
-
-  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
-    if(auto fp = platform->open(slot.id, memory.name(), File::Write)) {
-      fp->write(eeprom.data, eeprom.size);
-    }
-  }
-
-  if(auto memory = Game::Memory{document["game/board/memory(type=Flash,content=Save)"]}) {
-    if(auto fp = platform->open(slot.id, memory.name(), File::Write)) {
-      fp->write(flash.data, flash.size);
-    }
-  }
-}
-
-auto Cartridge::unload() -> void {
-  information = {};
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
   memory::fill<uint8>(mrom.data, mrom.size);
   memory::fill<uint8>(sram.data, sram.size);
   memory::fill<uint8>(eeprom.data, eeprom.size);
@@ -127,6 +115,31 @@ auto Cartridge::unload() -> void {
   hasSRAM = false;
   hasEEPROM = false;
   hasFLASH = false;
+  node = {};
+}
+
+auto Cartridge::save() -> void {
+  auto document = BML::unserialize(information.manifest);
+
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+    if(memory.nonVolatile) {
+      if(auto fp = platform->open(node, memory.name(), File::Write)) {
+        fp->write(sram.data, sram.size);
+      }
+    }
+  }
+
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+    if(auto fp = platform->open(node, memory.name(), File::Write)) {
+      fp->write(eeprom.data, eeprom.size);
+    }
+  }
+
+  if(auto memory = Game::Memory{document["game/board/memory(type=Flash,content=Save)"]}) {
+    if(auto fp = platform->open(node, memory.name(), File::Write)) {
+      fp->write(flash.data, flash.size);
+    }
+  }
 }
 
 auto Cartridge::power() -> void {

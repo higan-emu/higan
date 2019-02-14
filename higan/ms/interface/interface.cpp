@@ -3,23 +3,14 @@
 namespace higan::MasterSystem {
 
 Interface* interface = nullptr;
-#include "colecovision.cpp"
-#include "sg-1000.cpp"
-#include "sc-3000.cpp"
-#include "master-system.cpp"
-#include "game-gear.cpp"
-
-auto AbstractInterface::initialize(string configuration) -> void {
-  interface = this;
-  return system.initialize(configuration);
-}
-
-auto AbstractInterface::terminate() -> void {
-  return system.terminate();
-}
 
 auto AbstractInterface::root() -> Node::Object {
   return system.root;
+}
+
+auto AbstractInterface::load(string tree) -> void {
+  interface = this;
+  system.load(Node::unserialize(tree));
 }
 
 auto AbstractInterface::power() -> void {

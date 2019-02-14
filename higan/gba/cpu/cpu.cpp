@@ -12,10 +12,6 @@ CPU cpu;
 #include "keypad.cpp"
 #include "serialization.cpp"
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
   ARM7TDMI::irq = irq.ime && (irq.enable & irq.flag);
 
@@ -67,7 +63,9 @@ auto CPU::step(uint clocks) -> void {
 
 auto CPU::power() -> void {
   ARM7TDMI::power();
-  create(CPU::Enter, system.frequency());
+  Thread::create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   for(auto& byte : iwram) byte = 0x00;
   for(auto& byte : ewram) byte = 0x00;

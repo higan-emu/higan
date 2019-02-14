@@ -254,8 +254,8 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  video.setEffect(Video::Effect::ColorBleed, display.colorBleed->value());
-  video.refresh(display.node, output, pitch * sizeof(uint32), width, height);
+  display.screen->setColorBleed(display.colorBleed->value());
+  display.screen->refresh(output, pitch * sizeof(uint32), width, height);
 }
 
 }

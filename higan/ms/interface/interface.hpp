@@ -5,10 +5,8 @@ namespace higan::MasterSystem {
 extern Interface* interface;
 
 struct AbstractInterface : Interface {
-  auto initialize(string configuration = {}) -> void override;
-  auto terminate() -> void override;
   auto root() -> Node::Object override;
-
+  auto load(string tree = {}) -> void override;
   auto power() -> void override;
   auto run() -> void override;
   auto save() -> void override;
@@ -21,33 +19,23 @@ struct AbstractInterface : Interface {
 };
 
 struct ColecoVisionInterface : AbstractInterface {
-  auto name() -> string override;
-  auto colors() -> uint32 override;
-  auto color(uint32 color) -> uint64 override;
+  auto name() -> string override { return "ColecoVision"; }
 };
 
 struct SG1000Interface : AbstractInterface {
-  auto name() -> string override;
-  auto colors() -> uint32 override;
-  auto color(uint32 color) -> uint64 override;
+  auto name() -> string override { return "SG-1000"; }
 };
 
 struct SC3000Interface : AbstractInterface {
-  auto name() -> string override;
-  auto colors() -> uint32 override;
-  auto color(uint32 color) -> uint64 override;
+  auto name() -> string override { return "SC-3000"; }
 };
 
 struct MasterSystemInterface : AbstractInterface {
-  auto name() -> string override;
-  auto colors() -> uint32 override;
-  auto color(uint32 color) -> uint64 override;
+  auto name() -> string override { return "Master System"; }
 };
 
 struct GameGearInterface : AbstractInterface {
-  auto name() -> string override;
-  auto colors() -> uint32 override;
-  auto color(uint32 color) -> uint64 override;
+  auto name() -> string override { return "Game Gear"; }
 };
 
 }

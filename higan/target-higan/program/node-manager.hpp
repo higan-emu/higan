@@ -2,8 +2,11 @@ struct NodeManager : Panel {
   NodeManager(View*);
   auto show() -> void override;
   auto hide() -> void override;
+  auto bind(higan::Node::Object) -> void;
   auto refresh() -> void;
-  auto scan(higan::Node::Object node, uint depth = 1) -> void;
+  auto refresh(higan::Node::Object, uint depth = 1) -> void;
+  auto refreshSettings() -> void;
+  auto deselect() -> void;
 
   auto eventChange() -> void;
 
@@ -12,5 +15,4 @@ struct NodeManager : Panel {
     Button spacerButton{&controlLayout, Size{0, 0}};
 
   higan::Node::Object root;
-  higan::Node::Port port;
 };

@@ -13,8 +13,16 @@ auto SuperFamicomInterface::root() -> Node::Object {
 }
 
 auto SuperFamicomInterface::load(string tree) -> void {
-  auto from = Node::unserialize(tree);
-  system.load(from);
+  interface = this;
+  system.load(Node::unserialize(tree));
+}
+
+auto SuperFamicomInterface::unload() -> void {
+  system.unload();
+}
+
+auto SuperFamicomInterface::save() -> void {
+  system.save();
 }
 
 auto SuperFamicomInterface::power() -> void {
@@ -23,15 +31,6 @@ auto SuperFamicomInterface::power() -> void {
 
 auto SuperFamicomInterface::run() -> void {
   system.run();
-}
-
-auto SuperFamicomInterface::save() -> void {
-  system.save();
-}
-
-auto SuperFamicomInterface::unload() -> void {
-  save();
-  system.unload();
 }
 
 auto SuperFamicomInterface::serialize() -> serializer {

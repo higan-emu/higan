@@ -10,7 +10,6 @@
 #include <component/processor/arm7tdmi/arm7tdmi.hpp>
 
 namespace higan::GameBoyAdvance {
-  extern UniqueID uniqueID;
   extern Scheduler scheduler;
 
   enum : uint {           //mode flags for bus read, write:
@@ -26,14 +25,24 @@ namespace higan::GameBoyAdvance {
   };
 
   struct Thread : higan::Thread {
-    auto create(auto (*entrypoint)() -> void, double frequency) -> void {
-      higan::Thread::create(entrypoint, frequency);
+    auto create(double frequency, function<void ()> entryPoint) -> void {
+      higan::Thread::create(frequency, entryPoint);
       scheduler.append(*this);
+    }
+
+    auto destroy() -> void {
+      scheduler.remove(*this);
+      higan::Thread::destroy();
     }
 
     inline auto synchronize(Thread& thread) -> void {
       if(clock() >= thread.clock()) scheduler.resume(thread);
     }
+  };
+
+  struct Model {
+    inline static auto GameBoyAdvance() -> bool;
+    inline static auto GameBoyPlayer() -> bool;
   };
 
   #include <gba/memory/memory.hpp>

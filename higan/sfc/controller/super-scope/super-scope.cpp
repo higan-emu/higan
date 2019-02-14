@@ -21,7 +21,7 @@ SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
   pause   = Node::append<Node::Button>(node, with, "Pause");
   parent->prepend(node);
 
-  sprite = video.createSprite(32, 32);
+  sprite = display.screen->createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
   Thread::create(system.cpuFrequency(), [&] {
@@ -30,7 +30,7 @@ SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
 }
 
 SuperScope::~SuperScope() {
-  video.removeSprite(sprite);
+  display.screen->removeSprite(sprite);
 }
 
 auto SuperScope::main() -> void {

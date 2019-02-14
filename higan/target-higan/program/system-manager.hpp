@@ -3,7 +3,8 @@ struct SystemManager : Panel {
   auto show() -> void override;
   auto hide() -> void override;
   auto refresh() -> void;
-  auto scan(string location, uint depth = 0) -> void;
+  auto refresh(string location, uint depth = 0) -> void;
+  auto deselect() -> void;
 
   auto eventActivate() -> void;
   auto eventChange() -> void;

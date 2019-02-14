@@ -14,9 +14,9 @@ auto SystemOverview::hide() -> void {
 auto SystemOverview::refresh() -> void {
   auto location = systemManager.systemList.selected().property("location");
   nodeList.reset();
-  auto identity = BML::unserialize(file::read({location, "identity.bml"}));
+  auto metadata = BML::unserialize(file::read({location, "metadata.bml"}));
   auto root = higan::Node::unserialize(file::read({location, "node.bml"}));
-  nodeList.append(ListViewItem().setText(identity["system"].text()));
+  nodeList.append(ListViewItem().setText(metadata["system"].text()));
   for(auto& node : *root) scan(node);
 }
 
@@ -30,7 +30,7 @@ auto SystemOverview::scan(higan::Node::Object node, uint depth) -> void {
   for(uint n : range(depth)) name.append("   ");
   name.append(node->property("name") ? node->property("name") : node->name);
   if(auto setting = node->cast<higan::Node::Setting>()) {
-    name.append(": ", setting->getValue());
+    name.append(": ", setting->readValue());
   }
 
   item.setText(name);

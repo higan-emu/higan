@@ -14,6 +14,7 @@ using View = HorizontalLayout;
 #include "system-overview.hpp"
 #include "port-connector.hpp"
 #include "input-mapper.hpp"
+#include "setting-editor.hpp"
 
 struct ProgramWindow : Window {
   ProgramWindow();
@@ -38,6 +39,7 @@ struct ProgramWindow : Window {
     SystemOverview systemOverview{&panels};
     PortConnector portConnector{&panels};
     InputMapper inputMapper{&panels};
+    SettingEditor settingEditor{&panels};
 
 private:
   maybe<Panel&> primaryPanel;
@@ -59,3 +61,4 @@ extern SystemCreation& systemCreation;
 extern SystemOverview& systemOverview;
 extern PortConnector& portConnector;
 extern InputMapper& inputMapper;
+extern SettingEditor& settingEditor;

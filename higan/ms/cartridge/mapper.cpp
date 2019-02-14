@@ -1,4 +1,6 @@
 auto Cartridge::read(uint16 addr) -> maybe<uint8> {
+  if(!node) return nothing;
+
   uint2 page = addr >> 14;
   addr &= 0x3fff;
 
@@ -35,6 +37,8 @@ auto Cartridge::read(uint16 addr) -> maybe<uint8> {
 }
 
 auto Cartridge::write(uint16 addr, uint8 data) -> bool {
+  if(!node) return false;
+
   if(addr == 0xfffc) {
     mapper.shift = data.bits(0,1);
     mapper.ramPage2 = data.bit(2);

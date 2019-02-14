@@ -7,15 +7,8 @@ namespace higan::GameBoyAdvance {
 Player player;
 #include "serialization.cpp"
 
-auto Player::Enter() -> void {
-  while(true) scheduler.synchronize(), player.main();
-}
-
 auto Player::main() -> void {
-  if(status.timeout && !--status.timeout) {
-    platform->inputRumble(0, 0, 10, false);
-  }
-
+  if(status.timeout && !--status.timeout) controls.rumble(false);
   step(1);
 }
 
@@ -25,7 +18,9 @@ auto Player::step(uint clocks) -> void {
 }
 
 auto Player::power() -> void {
-  create(Player::Enter, 1'000.0);
+  create(1000, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   status.enable = false;
   status.rumble = false;
@@ -122,7 +117,7 @@ auto Player::write(uint2 addr, uint8 byte) -> void {
 
   if(addr == 3 && status.packet == 15) {
     status.rumble = (status.recv & 0xff) == 0x26;  //on = 0x26, off = 0x04
-    platform->inputRumble(0, 0, 10, status.rumble);
+    controls.rumble(status.rumble);
     if(status.rumble) status.timeout = 500;  //stop rumble manually after 500ms
   }
 }

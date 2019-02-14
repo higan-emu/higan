@@ -7,7 +7,7 @@ Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
   start   = Node::append<Node::Button>(node, with, "Start");
   parent->prepend(node);
 
-  sprite = video.createSprite(32, 32);
+  sprite = display.screen->createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
   Thread::create(system.cpuFrequency(), [&] {
@@ -16,7 +16,7 @@ Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
 }
 
 Justifier::~Justifier() {
-  video.removeSprite(sprite);
+  display.screen->removeSprite(sprite);
 }
 
 auto Justifier::main() -> void {

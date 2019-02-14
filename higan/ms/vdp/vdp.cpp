@@ -8,10 +8,6 @@ VDP vdp;
 #include "sprite.cpp"
 #include "serialization.cpp"
 
-auto VDP::Enter() -> void {
-  while(true) scheduler.synchronize(), vdp.main();
-}
-
 auto VDP::main() -> void {
   if(io.vcounter <= vlines()) {
     if(io.lcounter-- == 0) {
@@ -75,7 +71,7 @@ auto VDP::refresh() -> void {
   if(Model::ColecoVision() || Model::SG1000() || Model::SC3000()) {
     uint32* screen = buffer;
     screen += 24 * 256;
-    video.refresh(screen, 256 * sizeof(uint32), 256, 192);
+    display.screen->refresh(screen, 256 * sizeof(uint32), 256, 192);
   }
 
   if(Model::MasterSystem()) {
@@ -84,11 +80,11 @@ auto VDP::refresh() -> void {
     if(vlines() == 224) screen += 16 * 256;
     if(vlines() == 240) screen += 24 * 256;
 
-    video.refresh(screen, 256 * sizeof(uint32), 256, 240);
+    display.screen->refresh(screen, 256 * sizeof(uint32), 256, 240);
   }
 
   if(Model::GameGear()) {
-    video.refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
+    display.screen->refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
   }
 }
 
@@ -105,7 +101,9 @@ auto VDP::vblank() -> bool {
 }
 
 auto VDP::power() -> void {
-  create(VDP::Enter, system.colorburst() * 15.0 / 5.0);
+  Thread::create(system.colorburst() * 15.0 / 5.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   memory::fill<uint32>(buffer, 256 * 264);
   for(auto& byte : vram) byte = 0x00;

@@ -21,7 +21,8 @@ auto CPU::inSega(uint8 addr) -> uint8 {
 
   case 0: {
     if(Model::GameGear()) {
-      bool start = !platform->inputPoll(ID::Port::Hardware, ID::Device::GameGearControls, 6);
+      platform->input(controls.start);
+      bool start = !controls.start->value;
       return start << 7 | 0x7f;
     }
 
@@ -38,8 +39,8 @@ auto CPU::inSega(uint8 addr) -> uint8 {
 
   case 3: {
     if(Model::SG1000() || Model::SC3000()) {
-      auto port1 = controllerPort1.device->readData();
-      auto port2 = controllerPort2.device->readData();
+      auto port1 = controllerPort1.read();
+      auto port2 = controllerPort2.read();
       if(addr.bit(0) == 0) {
         return port1.bits(0,5) << 0 | port2.bits(0,1) << 6;
       } else {
@@ -48,9 +49,10 @@ auto CPU::inSega(uint8 addr) -> uint8 {
     }
 
     if(Model::MasterSystem()) {
-      bool reset = !platform->inputPoll(ID::Port::Hardware, ID::Device::MasterSystemControls, 0);
-      auto port1 = controllerPort1.device->readData();
-      auto port2 = controllerPort2.device->readData();
+      platform->input(controls.reset);
+      bool reset = !controls.reset->value;
+      auto port1 = controllerPort1.read();
+      auto port2 = controllerPort2.read();
       if(addr.bit(0) == 0) {
         return port1.bits(0,5) << 0 | port2.bits(0,1) << 6;
       } else {
@@ -59,12 +61,19 @@ auto CPU::inSega(uint8 addr) -> uint8 {
     }
 
     if(Model::GameGear()) {
-      bool up    = !platform->inputPoll(ID::Port::Hardware, ID::Device::GameGearControls, 0);
-      bool down  = !platform->inputPoll(ID::Port::Hardware, ID::Device::GameGearControls, 1);
-      bool left  = !platform->inputPoll(ID::Port::Hardware, ID::Device::GameGearControls, 2);
-      bool right = !platform->inputPoll(ID::Port::Hardware, ID::Device::GameGearControls, 3);
-      bool one   = !platform->inputPoll(ID::Port::Hardware, ID::Device::GameGearControls, 4);
-      bool two   = !platform->inputPoll(ID::Port::Hardware, ID::Device::GameGearControls, 5);
+      platform->input(controls.up);
+      platform->input(controls.down);
+      platform->input(controls.left);
+      platform->input(controls.right);
+      platform->input(controls.one);
+      platform->input(controls.two);
+      bool up    = !controls.up->value;
+      bool down  = !controls.down->value;
+      bool left  = !controls.left->value;
+      bool right = !controls.right->value;
+      bool one   = !controls.one->value;
+      bool two   = !controls.two->value;
+      //todo: update logic to hold most recent pressed direction
       if(!up && !down) up = 1, down = 1;
       if(!left && !right) left = 1, right = 1;
       if(addr.bit(0) == 0) {

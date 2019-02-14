@@ -33,10 +33,6 @@ PPU::~PPU() {
   delete[] output;
 }
 
-auto PPU::Enter() -> void {
-  while(true) scheduler.synchronize(), ppu.main();
-}
-
 auto PPU::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(cpu);
@@ -105,16 +101,17 @@ auto PPU::main() -> void {
 }
 
 auto PPU::frame() -> void {
-  player.frame();
   scheduler.exit(Scheduler::Event::Frame);
 }
 
 auto PPU::refresh() -> void {
-  video.refresh(output, 240 * sizeof(uint32), 240, 160);
+  display.screen->refresh(output, 240 * sizeof(uint32), 240, 160);
 }
 
 auto PPU::power() -> void {
-  create(PPU::Enter, system.frequency());
+  create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   for(uint n = 0x000; n <= 0x055; n++) bus.io[n] = this;
 

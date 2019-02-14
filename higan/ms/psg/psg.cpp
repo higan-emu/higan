@@ -5,10 +5,6 @@ namespace higan::MasterSystem {
 PSG psg;
 #include "serialization.cpp"
 
-auto PSG::Enter() -> void {
-  while(true) scheduler.synchronize(), psg.main();
-}
-
 auto PSG::main() -> void {
   auto samples = SN76489::clock();
   stream->sample(samples[0], samples[1]);
@@ -26,7 +22,9 @@ auto PSG::balance(uint8 data) -> void {
 
 auto PSG::power() -> void {
   SN76489::power(0x2000);
-  create(PSG::Enter, system.colorburst() / 16.0);
+  create(system.colorburst() / 16.0, [&] {
+    while(true) scheduler.synchronize(), psg.main();
+  });
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();

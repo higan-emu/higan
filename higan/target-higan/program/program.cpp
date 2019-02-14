@@ -7,6 +7,7 @@
 #include "system-overview.cpp"
 #include "port-connector.cpp"
 #include "input-mapper.cpp"
+#include "setting-editor.cpp"
 
 namespace Instances { Instance<ProgramWindow> programWindow; }
 ProgramWindow& programWindow = Instances::programWindow();
@@ -22,6 +23,7 @@ SystemCreation& systemCreation = programWindow.systemCreation;
 SystemOverview& systemOverview = programWindow.systemOverview;
 PortConnector& portConnector = programWindow.portConnector;
 InputMapper& inputMapper = programWindow.inputMapper;
+SettingEditor& settingEditor = programWindow.settingEditor;
 
 ProgramWindow::ProgramWindow() {
   panels.setPadding(5);
@@ -65,7 +67,7 @@ auto ProgramWindow::show(Panel& panel) -> void {
     if(&panel == &nodeManager) {
       actionMenu.setVisible(false);
       systemMenu.setVisible(true);
-      toolsMenu.setVisible(false);  //todo: enable after adding at least one tool entry
+      toolsMenu.setVisible(true);
     }
     return (void)panels.resize();
   }

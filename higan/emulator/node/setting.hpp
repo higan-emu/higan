@@ -9,8 +9,24 @@ struct Setting : Object {
   DeclareClass(Setting, "Setting")
   using Object::Object;
 
-  virtual auto getValue() const -> string { return {}; }
-  virtual auto getLatch() const -> string { return {}; }
+  virtual auto setLatch() -> void {}
+
+  virtual auto readValue() const -> string { return {}; }
+  virtual auto readLatch() const -> string { return {}; }
+  virtual auto readAllowedValues() const -> vector<string> { return {}; }
+  virtual auto writeValue(string value) -> void {}
+
+  auto serialize(string& output, string depth) -> void override {
+    Object::serialize(output, depth);
+    output.append(depth, "  dynamic: ", dynamic, "\n");
+  }
+
+  auto unserialize(Markup::Node node) -> void override {
+    Object::unserialize(node);
+    dynamic = node["dynamic"].boolean();
+  }
+
+  bool dynamic = false;
 };
 
 template<typename Cast, typename Type> struct Abstract : Setting {
@@ -18,6 +34,7 @@ template<typename Cast, typename Type> struct Abstract : Setting {
 
   Abstract(string name = {}, Type value = {}, function<void (Type)> modify = {}) : Setting(name), defaultValue(value) {
     this->currentValue = value;
+    this->latchedValue = value;
     if constexpr(is_same_v<Type, boolean>) this->allowedValues = {false, true};
     this->modify = modify;
   }
@@ -30,19 +47,45 @@ template<typename Cast, typename Type> struct Abstract : Setting {
     return latchedValue;
   }
 
-  auto getValue() const -> string override { return value(); }
-  auto getLatch() const -> string override { return latch(); }
-
-  auto& setValue(Type value) {
-    if(allowedValues && !allowedValues.find(value)) return *this;
+  auto setValue(Type value) -> void {
+    if(allowedValues && !allowedValues.find(value)) return;
     currentValue = value;
+    if(dynamic) latchedValue = currentValue;
     if(modify) modify(value);
-    return *this;
   }
 
-  auto& setLatch() {
+  auto setLatch() -> void override {
     latchedValue = currentValue;
-    return *this;
+  }
+
+  auto readValue() const -> string override { return value(); }
+  auto readLatch() const -> string override { return latch(); }
+  auto readAllowedValues() const -> vector<string> override {
+    vector<string> values;
+    for(auto& value : allowedValues) values.append(value);
+    return values;
+  }
+
+  auto writeValue(string value) -> void override {
+    if(allowedValues && !readAllowedValues().find(value)) return;
+    if constexpr(is_same_v<Type, boolean>) currentValue = value.boolean();
+    if constexpr(is_same_v<Type, natural>) currentValue = value.natural();
+    if constexpr(is_same_v<Type, integer>) currentValue = value.integer();
+    if constexpr(is_same_v<Type, real   >) currentValue = value.real();
+    if constexpr(is_same_v<Type, string >) currentValue = value;
+    if(dynamic) latchedValue = currentValue;
+    if(modify) modify(currentValue);
+  }
+
+  auto load(Node::Object source) -> bool override {
+    if(!Setting::load(source)) return false;
+    if(auto setting = source->cast<shared_pointer<Cast>>()) {
+      if(allowedValues.find(setting->currentValue)) {
+        currentValue = setting->currentValue;
+        latchedValue = currentValue;
+      }
+    }
+    return true;
   }
 
   auto serialize(string& output, string depth) -> void override {

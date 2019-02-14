@@ -1,14 +1,15 @@
 struct Cartridge {
   Node::Port port;
-  auto initialize(Node::Object) -> void;
+  Node::Peripheral node;
 
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
-  auto load() -> bool;
-  auto save() -> void;
-  auto unload() -> void;
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
 
+  auto save() -> void;
   auto power() -> void;
 
   //mapper.cpp

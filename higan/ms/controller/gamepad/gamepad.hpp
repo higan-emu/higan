@@ -1,9 +1,20 @@
 struct Gamepad : Controller {
-  enum : uint {
-    Up, Down, Left, Right, One, Two,
-  };
+  Node::Button up;
+  Node::Button down;
+  Node::Button left;
+  Node::Button right;
+  Node::Button one;
+  Node::Button two;
 
-  Gamepad(uint port);
+  Gamepad(Node::Port, Node::Peripheral);
 
-  auto readData() -> uint8 override;
+  auto read() -> uint8 override;
+
+private:
+  bool yHold = 0;
+  bool upLatch = 0;
+  bool downLatch = 0;
+  bool xHold = 0;
+  bool leftLatch = 0;
+  bool rightLatch = 0;
 };

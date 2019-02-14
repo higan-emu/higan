@@ -65,21 +65,37 @@ auto CPU::readIO(uint32 addr) -> uint8 {
 
   //KEYINPUT
   case 0x04000130: {
-    static const uint landscape[] = {5, 4, 8, 9, 3, 2, 0, 1};
-    static const uint portrait[]  = {5, 4, 8, 9, 0, 1, 2, 3};
-    auto lookup = !option.video.rotateLeft() ? landscape : portrait;
-    if(auto result = player.keyinput()) return result() >> 0;
-    uint8 result = 0;
-    for(uint n = 0; n < 8; n++) result |= platform->inputPoll(0, 0, lookup[n]) << n;
-    if((result & 0xc0) == 0xc0) result &= (uint8)~0xc0;  //up+down cannot be pressed simultaneously
-    if((result & 0x30) == 0x30) result &= (uint8)~0x30;  //left+right cannot be pressed simultaneously
+    if(Model::GameBoyPlayer()) {
+      if(auto result = player.keyinput()) return result() >> 0;
+    }
+    controls.poll();
+    uint8 result;
+    result.bit(0) = controls.a->value;
+    result.bit(1) = controls.b->value;
+    result.bit(2) = controls.select->value;
+    result.bit(3) = controls.start->value;
+    if(display.orientation->value() == "Horizontal") {
+      result.bit(4) = controls.rightLatch;
+      result.bit(5) = controls.leftLatch;
+      result.bit(6) = controls.upLatch;
+      result.bit(7) = controls.downLatch;
+    }
+    if(display.orientation->value() == "Vertical") {
+      result.bit(4) = controls.upLatch;
+      result.bit(5) = controls.downLatch;
+      result.bit(6) = controls.leftLatch;
+      result.bit(7) = controls.rightLatch;
+    }
     return result ^ 0xff;
   }
   case 0x04000131: {
-    if(auto result = player.keyinput()) return result() >> 8;
-    uint8 result = 0;
-    result |= platform->inputPoll(0, 0, 7) << 0;
-    result |= platform->inputPoll(0, 0, 6) << 1;
+    if(Model::GameBoyPlayer()) {
+      if(auto result = player.keyinput()) return result() >> 8;
+    }
+    controls.poll();
+    uint8 result;
+    result.bit(0) = controls.r->value;
+    result.bit(1) = controls.l->value;
     return result ^ 0x03;
   }
 

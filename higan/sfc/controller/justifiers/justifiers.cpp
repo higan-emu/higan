@@ -11,10 +11,10 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
   start2   = Node::append<Node::Button>(node, with, "Player 2: Start");
   parent->prepend(node);
 
-  sprite1 = video.createSprite(32, 32);
+  sprite1 = display.screen->createSprite(32, 32);
   sprite1->setPixels(Resource::Sprite::CrosshairGreen);
 
-  sprite2 = video.createSprite(32, 32);
+  sprite2 = display.screen->createSprite(32, 32);
   sprite2->setPixels(Resource::Sprite::CrosshairRed);
 
   Thread::create(system.cpuFrequency(), [&] {
@@ -23,8 +23,8 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
 }
 
 Justifiers::~Justifiers() {
-  video.removeSprite(sprite1);
-  video.removeSprite(sprite2);
+  display.screen->removeSprite(sprite1);
+  display.screen->removeSprite(sprite2);
 }
 
 auto Justifiers::main() -> void {
