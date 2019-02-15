@@ -28,12 +28,11 @@ auto SPC7110::unload() -> void {
   prom.reset();
   drom.reset();
   ram.reset();
-  cpu.coprocessors.removeValue(this);
+  Thread::destroy();
 }
 
 auto SPC7110::power() -> void {
-  cpu.coprocessors.removeValue(this);
-  create(21'477'272, [&] {
+  Thread::create(21'477'272, [&] {
     while(true) scheduler.synchronize(), main();
   });
   cpu.coprocessors.append(this);

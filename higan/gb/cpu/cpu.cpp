@@ -8,10 +8,6 @@ namespace higan::GameBoy {
 #include "serialization.cpp"
 CPU cpu;
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
   interruptTest();
   instruction();
@@ -85,7 +81,9 @@ auto CPU::stop() -> bool {
 }
 
 auto CPU::power() -> void {
-  create(Enter, 4 * 1024 * 1024);
+  Thread::create(4 * 1024 * 1024, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   SM83::power();
 
   for(uint n = 0xc000; n <= 0xdfff; n++) bus.mmio[n] = this;  //WRAM

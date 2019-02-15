@@ -89,6 +89,7 @@ auto nall::main(Arguments arguments) -> void {
   #ifdef CORE_WS
   interfaces.append(new higan::WonderSwan::WonderSwanInterface);
   interfaces.append(new higan::WonderSwan::WonderSwanColorInterface);
+  interfaces.append(new higan::WonderSwan::SwanCrystalInterface);
   interfaces.append(new higan::WonderSwan::PocketChallengeV2Interface);
   #endif
   #ifdef CORE_NGP

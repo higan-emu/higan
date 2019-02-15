@@ -8,10 +8,6 @@ Cartridge cartridge;
 #include "io.cpp"
 #include "serialization.cpp"
 
-auto Cartridge::Enter() -> void {
-  while(true) scheduler.synchronize(), cartridge.main();
-}
-
 auto Cartridge::main() -> void {
   if(rtc.data) {
     rtcTickSecond();
@@ -25,41 +21,25 @@ auto Cartridge::step(uint clocks) -> void {
   synchronize(cpu);
 }
 
-auto Cartridge::power() -> void {
-  create(Cartridge::Enter, 3'072'000);
-  eeprom.power();
-
-  bus.map(this, 0x00c0, 0x00c8);
-  if(rtc.data) bus.map(this, 0x00ca, 0x00cb);
-  bus.map(this, 0x00cc, 0x00cd);
-
-  r = {};
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
 }
 
-auto Cartridge::load() -> bool {
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Cartridge", port->type);
+  node->load(with);
+
   information = {};
 
-  if(Model::WonderSwan()) {
-    if(auto loaded = platform->load(ID::WonderSwan, "WonderSwan", "ws")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(Model::WonderSwanColor() || Model::SwanCrystal()) {
-    if(auto loaded = platform->load(ID::WonderSwanColor, "WonderSwan Color", "wsc")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(Model::PocketChallengeV2()) {
-    if(auto loaded = platform->load(ID::PocketChallengeV2, "Pocket Challenge V2", "pc2")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(auto fp = platform->open(pathID(), "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
-  } else return false;
+  } else return;
 
   auto document = BML::unserialize(information.manifest);
 
@@ -68,7 +48,7 @@ auto Cartridge::load() -> bool {
     rom.mask = bit::round(rom.size) - 1;
     rom.data = new uint8[rom.mask + 1];
     memory::fill<uint8>(rom.data, rom.mask + 1, 0xff);
-    if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Required)) {
+    if(auto fp = platform->open(node, memory.name(), File::Read, File::Required)) {
       fp->read(rom.data, rom.size);
     }
   }
@@ -79,7 +59,7 @@ auto Cartridge::load() -> bool {
     ram.data = new uint8[ram.mask + 1];
     memory::fill<uint8>(ram.data, ram.mask + 1, 0xff);
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Read)) {
+      if(auto fp = platform->open(node, memory.name(), File::Read)) {
         fp->read(ram.data, ram.size);
       }
     }
@@ -88,7 +68,7 @@ auto Cartridge::load() -> bool {
   if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
     eeprom.setSize(memory.size / sizeof(uint16));
     eeprom.erase();
-    if(auto fp = platform->open(pathID(), memory.name(), File::Read)) {
+    if(auto fp = platform->open(node, memory.name(), File::Read)) {
       fp->read(eeprom.data(), eeprom.size());
     }
   }
@@ -99,45 +79,23 @@ auto Cartridge::load() -> bool {
     rtc.data = new uint8[rtc.mask + 1];
     memory::fill<uint8>(rtc.data, rtc.mask + 1, 0x00);
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Read)) {
+      if(auto fp = platform->open(node, memory.name(), File::Read)) {
         fp->read(rtc.data, rtc.size);
       }
     }
   }
 
-  information.title = document["game/label"].text();
-  information.orientation = document["game/orientation"].text() == "vertical";
-  information.sha256 = Hash::SHA256({rom.data, rom.size}).digest();
-  return true;
+  if(document["game/orientation"].text() == "horizontal") information.orientation = "Horizontal";
+  if(document["game/orientation"].text() == "vertical"  ) information.orientation = "Vertical";
+
+  power();
+  port->prepend(node);
 }
 
-auto Cartridge::save() -> void {
-  auto document = BML::unserialize(information.manifest);
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
+  Thread::destroy();
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
-        fp->write(ram.data, ram.size);
-      }
-    }
-  }
-
-  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
-    if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
-      fp->write(eeprom.data(), eeprom.size());
-    }
-  }
-
-  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
-        fp->write(rtc.data, rtc.size);
-      }
-    }
-  }
-}
-
-auto Cartridge::unload() -> void {
   delete[] rom.data;
   rom.data = nullptr;
   rom.size = 0;
@@ -152,6 +110,47 @@ auto Cartridge::unload() -> void {
   rtc.data = nullptr;
   rtc.size = 0;
   rtc.mask = 0;
+}
+
+auto Cartridge::save() -> void {
+  if(!node) return;
+
+  auto document = BML::unserialize(information.manifest);
+
+  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
+    if(memory.nonVolatile) {
+      if(auto fp = platform->open(node, memory.name(), File::Write)) {
+        fp->write(ram.data, ram.size);
+      }
+    }
+  }
+
+  if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
+    if(auto fp = platform->open(node, memory.name(), File::Write)) {
+      fp->write(eeprom.data(), eeprom.size());
+    }
+  }
+
+  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
+    if(memory.nonVolatile) {
+      if(auto fp = platform->open(node, memory.name(), File::Write)) {
+        fp->write(rtc.data, rtc.size);
+      }
+    }
+  }
+}
+
+auto Cartridge::power() -> void {
+  Thread::create(3'072'000, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
+  eeprom.power();
+
+  bus.map(this, 0x00c0, 0x00c8);
+  if(rtc.data) bus.map(this, 0x00ca, 0x00cb);
+  bus.map(this, 0x00cc, 0x00cd);
+
+  r = {};
 }
 
 }

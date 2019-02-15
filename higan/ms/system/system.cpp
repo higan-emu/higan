@@ -23,50 +23,51 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Node::Object from) -> void {
-  if(root) {
-    save();
-    unload();
-  }
+  if(node) unload();
 
-  root = Node::System::create(interface->name());
-  root->load(from);
-
-  regionNode = Node::String::create("Region", "NTSC");
-  regionNode->allowedValues = {"NTSC", "PAL"};
-  Node::load(regionNode, from);
-  root->append(regionNode);
-
-  controls.load(root, from);
-  display.load(root, from);
-  cartridge.load(root, from);
-  if(!MasterSystem::Model::GameGear()) {
-    controllerPort1.load(root, from);
-    controllerPort2.load(root, from);
-  }
-}
-
-auto System::save() -> void {
-  cartridge.save();
-}
-
-auto System::unload() -> void {
-  if(!MasterSystem::Model::GameGear()) {
-    cpu.peripherals.reset();
-    controllerPort1.disconnect();
-    controllerPort2.disconnect();
-  }
-  cartridge.disconnect();
-  root = {};
-}
-
-auto System::power() -> void {
   information = {};
   if(interface->name() == "ColecoVision" ) information.model = Model::ColecoVision;
   if(interface->name() == "SG-1000"      ) information.model = Model::SG1000;
   if(interface->name() == "SC-3000"      ) information.model = Model::SC3000;
   if(interface->name() == "Master System") information.model = Model::MasterSystem;
   if(interface->name() == "Game Gear"    ) information.model = Model::GameGear;
-  for(auto& setting : root->find<Node::Setting>()) setting->setLatch();
+
+  node = Node::System::create(interface->name());
+  node->load(from);
+
+  regionNode = Node::String::create("Region", "NTSC");
+  regionNode->allowedValues = {"NTSC", "PAL"};
+  Node::load(regionNode, from);
+  node->append(regionNode);
+
+  controls.load(node, from);
+  display.load(node, from);
+  cartridge.load(node, from);
+  if(!MasterSystem::Model::GameGear()) {
+    controllerPort1.load(node, from);
+    controllerPort2.load(node, from);
+  }
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
+}
+
+auto System::unload() -> void {
+  if(!node) return;
+  save();
+  if(!MasterSystem::Model::GameGear()) {
+    cpu.peripherals.reset();
+    controllerPort1.disconnect();
+    controllerPort2.disconnect();
+  }
+  cartridge.disconnect();
+  node = {};
+}
+
+auto System::power() -> void {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
   if(regionNode->latch() == "NTSC") {
     information.region = Region::NTSC;
@@ -79,7 +80,7 @@ auto System::power() -> void {
   }
 
   if(MasterSystem::Model::ColecoVision()) {
-    if(auto fp = platform->open(root, "bios.rom", File::Read, File::Required)) {
+    if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
       fp->read(bios, 0x2000);
     }
   }

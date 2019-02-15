@@ -1,3 +1,7 @@
+auto Cartridge::MBC5::load(Node::Object parent, Node::Object from) -> void {
+  rumble = Node::append<Node::Rumble>(parent, from, "Rumble");
+}
+
 auto Cartridge::MBC5::read(uint16 address) -> uint8 {
   if((address & 0xc000) == 0x0000) {  //$0000-3fff
     return cartridge.rom.read(address.bits(0,13));
@@ -32,7 +36,11 @@ auto Cartridge::MBC5::write(uint16 address, uint8 data) -> void {
   }
 
   if((address & 0xe000) == 0x4000) {  //$4000-5fff
-    if(cartridge.rumble) platform->inputRumble(ID::Port::Cartridge, ID::Device::MBC5, 0, data.bit(3));
+    if(cartridge.rumble) {
+      //todo: add rumble timeout?
+      rumble->enable = data.bit(3);
+      platform->input(rumble);
+    }
     io.ram.bank = data.bits(0,3);
     return;
   }

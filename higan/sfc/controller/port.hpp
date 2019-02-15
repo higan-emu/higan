@@ -1,6 +1,6 @@
 struct ControllerPort {
   Node::Port port;
-  auto load(Node::Object parent, Node::Object from) -> void;
+  auto load(Node::Object, Node::Object) -> void;
 
   ControllerPort(string_view name);
   auto connect(Node::Peripheral) -> void;

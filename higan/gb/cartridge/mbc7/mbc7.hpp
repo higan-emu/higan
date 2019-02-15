@@ -1,7 +1,11 @@
 struct MBC7 : Mapper {
+  Node::Axis x;
+  Node::Axis y;
+
   enum : uint { Center = 0x81d0 };  //not 0x8000
 
   //mbc7.cpp
+  auto load(Node::Object, Node::Object) -> void;
   auto load(Markup::Node document) -> void override;
   auto save(Markup::Node document) -> void override;
   auto main() -> void override;

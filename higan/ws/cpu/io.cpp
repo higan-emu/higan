@@ -2,23 +2,37 @@ auto CPU::keypadRead() -> uint4 {
   uint4 data = 0;
 
   if(r.ypadEnable) {
-    data |= system.keypad.y1 << 0;
-    data |= system.keypad.y2 << 1;
-    data |= system.keypad.y3 << 2;
-    data |= system.keypad.y4 << 3;
+    if(display.orientation->value() == "Horizontal") {
+      data.bit(0) = controls.y1->value;
+      data.bit(1) = controls.y2->value;
+      data.bit(2) = controls.y3->value;
+      data.bit(3) = controls.y4->value;
+    } else {
+      data.bit(0) = controls.x4->value;
+      data.bit(1) = controls.x1->value;
+      data.bit(2) = controls.x2->value;
+      data.bit(3) = controls.x3->value;
+    }
   }
 
   if(r.xpadEnable) {
-    data |= system.keypad.x1 << 0;
-    data |= system.keypad.x2 << 1;
-    data |= system.keypad.x3 << 2;
-    data |= system.keypad.x4 << 3;
+    if(display.orientation->value() == "Horizontal") {
+      data.bit(0) = controls.x1->value;
+      data.bit(1) = controls.x2->value;
+      data.bit(2) = controls.x3->value;
+      data.bit(3) = controls.x4->value;
+    } else {
+      data.bit(0) = controls.y4->value;
+      data.bit(1) = controls.y1->value;
+      data.bit(2) = controls.y2->value;
+      data.bit(3) = controls.y3->value;
+    }
   }
 
   if(r.buttonEnable) {
-    data |= system.keypad.start << 1;
-    data |= system.keypad.a     << 2;
-    data |= system.keypad.b     << 3;
+    data.bit(1) = controls.start->value;
+    data.bit(2) = controls.a->value;
+    data.bit(3) = controls.b->value;
   }
 
   return data;

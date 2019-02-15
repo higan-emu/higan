@@ -1,17 +1,18 @@
 struct Cartridge : Thread, IO {
-  auto pathID() const -> uint { return information.pathID; }
-  auto hash() const -> string { return information.sha256; }
-  auto manifest() const -> string { return information.manifest; }
-  auto title() const -> string { return information.title; }
+  Node::Port port;
+  Node::Peripheral node;
 
-  static auto Enter() -> void;
+  inline auto orientation() const { return information.orientation; }
+
+  //cartridge.cpp
   auto main() -> void;
   auto step(uint clocks) -> void;
-  auto power() -> void;
 
-  auto load() -> bool;
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
   auto save() -> void;
-  auto unload() -> void;
+  auto power() -> void;
 
   //memory.cpp
   auto romRead(uint20 addr) -> uint8;
@@ -38,11 +39,8 @@ struct Cartridge : Thread, IO {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    uint pathID = 0;
-    string sha256;
     string manifest;
-    string title;
-    boolean orientation;  //0 = horizontal; 1 = vertical
+    string orientation = "Horizontal";
   } information;
 
   struct Registers {

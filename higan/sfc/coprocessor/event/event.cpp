@@ -26,13 +26,11 @@ auto Event::unload() -> void {
   rom[1].reset();
   rom[2].reset();
   rom[3].reset();
-  cpu.coprocessors.removeValue(this);
   Thread::destroy();
 }
 
 auto Event::power() -> void {
-  cpu.coprocessors.removeValue(this);
-  create(1, [&] {
+  Thread::create(1, [&] {
     while(true) scheduler.synchronize(), main();
   });
   cpu.coprocessors.append(this);

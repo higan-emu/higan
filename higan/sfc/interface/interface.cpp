@@ -4,12 +4,8 @@ namespace higan::SuperFamicom {
 
 Interface* interface = nullptr;
 
-auto SuperFamicomInterface::name() -> string {
-  return "Super Famicom";
-}
-
 auto SuperFamicomInterface::root() -> Node::Object {
-  return system.root;
+  return system.node;
 }
 
 auto SuperFamicomInterface::load(string tree) -> void {

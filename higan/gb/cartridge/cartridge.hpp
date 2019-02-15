@@ -1,21 +1,20 @@
 struct Cartridge : Thread, MMIO {
-  auto pathID() const -> uint { return information.pathID; }
-  auto hash() const -> string { return information.sha256; }
-  auto manifest() const -> string { return information.manifest; }
-  auto title() const -> string { return information.title; }
+  Node::Port port;
+  Node::Peripheral node;
 
-  static auto Enter() -> void;
-  auto load() -> bool;
+  //cartridge.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
   auto save() -> void;
-  auto unload() -> void;
-
-  auto readIO(uint16 address) -> uint8;
-  auto writeIO(uint16 address, uint8 data) -> void;
 
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto power() -> void;
   auto second() -> void;
+
+  auto readIO(uint16 address) -> uint8;
+  auto writeIO(uint16 address, uint8 data) -> void;
 
   auto serialize(serializer&) -> void;
 

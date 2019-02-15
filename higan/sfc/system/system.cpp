@@ -29,59 +29,57 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Node::Object from) -> void {
-  if(root) unload();
+  if(node) unload();
 
-  root = Node::System::create("Super Famicom");
-  root->load(from);
+  node = Node::System::create(interface->name());
+  node->load(from);
 
-  regionSetting = Node::String::create("Region", "NTSC");
-  regionSetting->allowedValues = {"NTSC", "PAL"};
-  Node::load(regionSetting, from);
-  root->append(regionSetting);
+  regionNode = Node::String::create("Region", "NTSC");
+  regionNode->allowedValues = {"NTSC", "PAL"};
+  Node::load(regionNode, from);
+  node->append(regionNode);
 
   resetButton = Node::Button::create("Reset");
   Node::load(resetButton, from);
-  root->append(resetButton);
+  node->append(resetButton);
 
-  hacks.load(root, from);
+  hacks.load(node, from);
   bus.reset();
-  cartridge.load(root, from);
-  controllerPort1.load(root, from);
-  controllerPort2.load(root, from);
-  expansionPort.load(root, from);
-  display.load(root, from);
-  speakers.load(root, from);
-  cpu.load(root, from);
-  ppu.load(root, from);
+  cartridge.load(node, from);
+  controllerPort1.load(node, from);
+  controllerPort2.load(node, from);
+  expansionPort.load(node, from);
+  display.load(node, from);
+  speakers.load(node, from);
+  cpu.load(node, from);
+  ppu.load(node, from);
 }
 
 auto System::save() -> void {
-  if(!root) return;
+  if(!node) return;
   cartridge.save();
 }
 
 auto System::unload() -> void {
-  if(!root) return;
+  if(!node) return;
   save();
   controllerPort1.disconnect();
   controllerPort2.disconnect();
   expansionPort.disconnect();
   cartridge.disconnect();
-  root = {};
+  node = {};
 }
 
 auto System::power(bool reset) -> void {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
   information = {};
-  for(auto& setting : root->find<Node::Setting>()) {
-    if(!setting->dynamic) setting->setLatch();
-  }
 
-  if(regionSetting->latch() == "NTSC") {
+  if(regionNode->latch() == "NTSC") {
     information.region = Region::NTSC;
     information.cpuFrequency = Constants::Colorburst::NTSC * 6.0;
   }
 
-  if(regionSetting->latch() == "PAL") {
+  if(regionNode->latch() == "PAL") {
     information.region = Region::PAL;
     information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
   }
@@ -99,7 +97,6 @@ auto System::power(bool reset) -> void {
   dsp.power(reset);
   ppu.power(reset);
   cartridge.power(reset);
-
   scheduler.primary(cpu);
 }
 

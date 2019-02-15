@@ -3,8 +3,7 @@
 #include "display.hpp"
 
 struct System {
-  Node::Object root;
-
+  Node::Object node;
   enum class Model : uint { GameBoyAdvance, GameBoyPlayer };
 
   inline auto model() const -> Model { return information.model; }

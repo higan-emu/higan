@@ -1,18 +1,21 @@
 #if defined(CORE_GB)
 
 struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
+  Node::Port port;
+  Node::Peripheral node;
   shared_pointer<Stream> stream;
 
   auto main() -> void;
 
-  auto load() -> bool;
-  auto unload() -> void;
+  auto load(Node::Peripheral, Node::Peripheral) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
   auto power() -> void;
   auto reset() -> void;  //software reset
 
   //platform.cpp
-  auto audioSample(const double* samples, uint channels) -> void override;
-  auto inputPoll(uint port, uint device, uint id) -> int16 override;
+  auto audio(const double* samples, uint channels) -> void override;
+  auto input() -> uint8 override;
 
   //interface.cpp
   auto lcdScanline() -> void override;
@@ -68,11 +71,10 @@ private:
 #else
 
 struct ICD : Thread {
-  auto init() -> void {}
-  auto load() -> void {}
-  auto unload() -> void {}
+  auto load(Node::Peripheral, Node::Peripheral) -> void {}
+  auto connect(Node::Peripheral) -> void {}
+  auto disconnect() -> void {}
   auto power() -> void {}
-  auto reset() -> void {}
 
   auto readIO(uint24, uint8) -> uint8 { return 0; }
   auto writeIO(uint24, uint8) -> void { return; }

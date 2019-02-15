@@ -23,7 +23,7 @@ auto CPU::step(uint clocks) -> void {
   }
 
   if(Model::SuperGameBoy()) {
-    system._clocksExecuted += clocks;
+    system.information.clocksExecuted += clocks;
     scheduler.exit(Scheduler::Event::Step);
   }
 }

@@ -1,7 +1,6 @@
 struct CPU : SM83, Thread, MMIO {
   enum class Interrupt : uint { Vblank, Stat, Timer, Serial, Joypad };
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto raise(Interrupt id) -> void;
   auto interruptTest() -> void;

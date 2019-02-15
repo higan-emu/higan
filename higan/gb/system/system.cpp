@@ -2,10 +2,12 @@
 
 namespace higan::GameBoy {
 
-#include "serialization.cpp"
 System system;
 Scheduler scheduler;
 Cheat cheat;
+#include "controls.cpp"
+#include "display.cpp"
+#include "serialization.cpp"
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
@@ -18,46 +20,46 @@ auto System::runToSave() -> void {
   scheduler.synchronize(cartridge);
 }
 
-auto System::init() -> void {
-  assert(interface != nullptr);
-}
+auto System::load(Node::Object from) -> void {
+  if(node) unload();
 
-auto System::load(Interface* interface, Model model_, maybe<uint> systemID) -> bool {
-  this->interface = interface;
-  _model = model_;
+  information = {};
+  if(interface->name() == "Game Boy"      ) information.model = Model::GameBoy;
+  if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
 
-  auto document = BML::unserialize(interface->properties().serialize());
-  if(auto memory = document["system/memory(type=ROM,content=Boot)"]) {
-    bootROM.allocate(memory["size"].natural());
-    uint id = model() != Model::SuperGameBoy ? ID::System : systemID();
-    string name = model() != Model::SuperGameBoy ? "boot.rom" : "lr35902.boot.rom";
-    if(auto fp = platform->open(id, name, File::Read, File::Required)) {
-      bootROM.load(fp);
-    } else return false;
-  } else return false;
+  node = Node::System::create(interface->name());
+  node->load(from);
 
-  if(!cartridge.load()) return false;
-  serializeInit();
-  return _loaded = true;
+  controls.load(node, from);
+  display.load(node, from);
+  cartridge.load(node, from);
 }
 
 auto System::save() -> void {
-  if(!loaded()) return;
+  if(!node) return;
   cartridge.save();
 }
 
 auto System::unload() -> void {
-  if(!loaded()) return;
-  cartridge.unload();
+  if(!node) return;
+  save();
+  cartridge.disconnect();
   bootROM.reset();
-  _loaded = false;
+  node = {};
 }
 
 auto System::power() -> void {
-  if(model() != Model::SuperGameBoy) {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+
+  bootROM.allocate(!GameBoy::Model::GameBoyColor() ? 256 : 2048);
+  string name = !GameBoy::Model::SuperGameBoy() ? "boot.rom" : "lr35902.boot.rom";
+  if(auto fp = platform->open(node, name, File::Read, File::Required)) {
+    bootROM.load(fp);
+  } else return;
+
+  if(!GameBoy::Model::SuperGameBoy()) {
     video.reset(interface);
-    video.setPalette();
-    video.setEffect(Video::Effect::InterframeBlending, option.video.interframeBlending());
+    display.screen = video.createScreen(display.node, 160, 144);
     audio.reset(interface);
   }
 
@@ -69,7 +71,7 @@ auto System::power() -> void {
   apu.power();
   scheduler.primary(cpu);
 
-  _clocksExecuted = 0;
+  serializeInit();
 }
 
 }

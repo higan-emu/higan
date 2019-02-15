@@ -27,13 +27,11 @@ auto SharpRTC::initialize() -> void {
 }
 
 auto SharpRTC::unload() -> void {
-  cpu.coprocessors.removeValue(this);
   Thread::destroy();
 }
 
 auto SharpRTC::power() -> void {
-  cpu.coprocessors.removeValue(this);
-  create(1, [&] {
+  Thread::create(1, [&] {
     while(true) scheduler.synchronize(), main();
   });
   cpu.coprocessors.append(this);

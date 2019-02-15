@@ -16,14 +16,12 @@ auto HitachiDSP::halt() -> void {
 auto HitachiDSP::unload() -> void {
   rom.reset();
   ram.reset();
-  cpu.coprocessors.removeValue(this);
   Thread::destroy();
 }
 
 auto HitachiDSP::power() -> void {
   HG51B::power();
-  cpu.coprocessors.removeValue(this);
-  create(Frequency, [&] {
+  Thread::create(Frequency, [&] {
     while(true) scheduler.synchronize(), main();
   });
   cpu.coprocessors.append(this);

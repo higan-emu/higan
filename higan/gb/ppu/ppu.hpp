@@ -1,5 +1,4 @@
 struct PPU : Thread, MMIO {
-  static auto Enter() -> void;
   auto main() -> void;
   auto stat() -> void;
   auto coincidence() -> bool;

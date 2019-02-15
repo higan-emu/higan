@@ -1,20 +1,21 @@
 struct Cartridge {
-  auto pathID() const -> uint { return information.pathID; }
-  auto region() const -> string { return information.region; }
+  Node::Port port;
+  Node::Peripheral node;
 
+  inline auto region() const -> string { return information.region; }
+
+  //cartridge.cpp
   Cartridge() = default;
   Cartridge(uint depth) : depth(depth) {}
 
-  auto hashes() const -> vector<string>;
-  auto manifests() const -> vector<string>;
-  auto titles() const -> vector<string>;
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
 
-  struct Memory;
-  auto load() -> bool;
   auto save() -> void;
-  auto unload() -> void;
   auto power() -> void;
 
+  struct Memory;
   auto loadROM(Memory& rom, Markup::Node memory) -> bool;
   auto loadRAM(Memory& ram, Markup::Node memory) -> bool;
   auto saveRAM(Memory& ram, Markup::Node memory) -> bool;
@@ -38,12 +39,8 @@ struct Cartridge {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    uint pathID = 0;
-    string region;
-    string hash;
     string manifest;
-    string title;
-    Markup::Node document;
+    string region;
   };
 
   struct Memory {

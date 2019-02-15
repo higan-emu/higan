@@ -125,13 +125,11 @@ auto BSMemory::disconnect() -> void {
   }
 
   memory.reset();
-  cpu.coprocessors.removeValue(this);
   Thread::destroy();
 }
 
 auto BSMemory::power() -> void {
-  cpu.coprocessors.removeValue(this);
-  create(1'000'000, [&] {  //microseconds
+  Thread::create(1'000'000, [&] {  //microseconds
     while(true) scheduler.synchronize(), main();
   });
   cpu.coprocessors.append(this);

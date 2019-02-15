@@ -17,20 +17,22 @@ Cartridge cartridge;
 #include "tama/tama.cpp"
 #include "serialization.cpp"
 
-auto Cartridge::Enter() -> void {
-  while(true) scheduler.synchronize(), cartridge.main();
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
 }
 
-auto Cartridge::main() -> void {
-  mapper->main();
-}
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  if(!Model::SuperGameBoy()) {
+    node = Node::Peripheral::create("Cartridge", port->type);
+    node->load(with);
+  }
 
-auto Cartridge::step(uint clocks) -> void {
-  Thread::step(clocks);
-  synchronize(cpu);
-}
-
-auto Cartridge::load() -> bool {
   information = {};
   rom = {};
   ram = {};
@@ -39,30 +41,11 @@ auto Cartridge::load() -> bool {
   accelerometer = false;
   rumble = false;
 
-  if(Model::GameBoy()) {
-    if(auto loaded = platform->load(ID::GameBoy, "Game Boy", "gb")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(Model::GameBoyColor()) {
-    if(auto loaded = platform->load(ID::GameBoyColor, "Game Boy Color", "gbc")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(Model::SuperGameBoy()) {
-    if(auto loaded = platform->load(ID::SuperGameBoy, "Game Boy", "gb")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(auto fp = platform->open(pathID(), "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
-  } else return false;
+  } else return;
 
   auto document = BML::unserialize(information.manifest);
-  information.title = document["game/label"].text();
 
   auto mapperID = document["game/board"].text();
   if(mapperID == "MBC0" ) mapper = &mbc0;
@@ -84,7 +67,7 @@ auto Cartridge::load() -> bool {
   if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     rom.size = max(0x4000, (uint)memory.size);
     rom.data = memory::allocate<uint8>(rom.size, 0xff);
-    if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Required)) {
+    if(auto fp = platform->open(node, memory.name(), File::Read, File::Required)) {
       fp->read(rom.data, min(rom.size, fp->size()));
     }
   }
@@ -93,7 +76,7 @@ auto Cartridge::load() -> bool {
     ram.size = memory.size;
     ram.data = memory::allocate<uint8>(ram.size, 0xff);
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Optional)) {
+      if(auto fp = platform->open(node, memory.name(), File::Read, File::Optional)) {
         fp->read(ram.data, min(ram.size, fp->size()));
       }
     }
@@ -103,7 +86,7 @@ auto Cartridge::load() -> bool {
     rtc.size = memory.size;
     rtc.data = memory::allocate<uint8>(rtc.size, 0xff);
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Optional)) {
+      if(auto fp = platform->open(node, memory.name(), File::Read, File::Optional)) {
         fp->read(rtc.data, min(rtc.size, fp->size()));
       }
     }
@@ -111,15 +94,29 @@ auto Cartridge::load() -> bool {
 
   information.sha256 = Hash::SHA256({rom.data, rom.size}).digest();
   mapper->load(document);
-  return true;
+
+  power();
+  port->prepend(node);
+}
+
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
+  delete[] rom.data;
+  delete[] ram.data;
+  delete[] rtc.data;
+  rom = {};
+  ram = {};
+  rtc = {};
+  node = {};
 }
 
 auto Cartridge::save() -> void {
+  if(!node) return;
   auto document = BML::unserialize(information.manifest);
 
   if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
+      if(auto fp = platform->open(node, memory.name(), File::Write)) {
         fp->write(ram.data, ram.size);
       }
     }
@@ -127,7 +124,7 @@ auto Cartridge::save() -> void {
 
   if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(pathID(), memory.name(), File::Write)) {
+      if(auto fp = platform->open(node, memory.name(), File::Write)) {
         fp->write(rtc.data, rtc.size);
       }
     }
@@ -136,13 +133,31 @@ auto Cartridge::save() -> void {
   mapper->save(document);
 }
 
-auto Cartridge::unload() -> void {
-  delete[] rom.data;
-  delete[] ram.data;
-  delete[] rtc.data;
-  rom = {};
-  ram = {};
-  rtc = {};
+auto Cartridge::power() -> void {
+  Thread::create(4 * 1024 * 1024, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
+
+  for(uint n = 0x0000; n <= 0x7fff; n++) bus.mmio[n] = this;
+  for(uint n = 0xa000; n <= 0xbfff; n++) bus.mmio[n] = this;
+  bus.mmio[0xff50] = this;
+
+  bootromEnable = true;
+
+  if(mapper) mapper->power();
+}
+
+auto Cartridge::main() -> void {
+  mapper->main();
+}
+
+auto Cartridge::step(uint clocks) -> void {
+  Thread::step(clocks);
+  synchronize(cpu);
+}
+
+auto Cartridge::second() -> void {
+  mapper->second();
 }
 
 auto Cartridge::readIO(uint16 address) -> uint8 {
@@ -157,22 +172,6 @@ auto Cartridge::readIO(uint16 address) -> uint8 {
 auto Cartridge::writeIO(uint16 address, uint8 data) -> void {
   if(bootromEnable && address == 0xff50) return void(bootromEnable = false);
   mapper->write(address, data);
-}
-
-auto Cartridge::power() -> void {
-  create(Enter, 4 * 1024 * 1024);
-
-  for(uint n = 0x0000; n <= 0x7fff; n++) bus.mmio[n] = this;
-  for(uint n = 0xa000; n <= 0xbfff; n++) bus.mmio[n] = this;
-  bus.mmio[0xff50] = this;
-
-  bootromEnable = true;
-
-  mapper->power();
-}
-
-auto Cartridge::second() -> void {
-  mapper->second();
 }
 
 auto Cartridge::Memory::read(uint address) const -> uint8 {

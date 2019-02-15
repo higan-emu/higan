@@ -5,7 +5,7 @@ namespace higan::MasterSystem {
 Interface* interface = nullptr;
 
 auto AbstractInterface::root() -> Node::Object {
-  return system.root;
+  return system.node;
 }
 
 auto AbstractInterface::load(string tree) -> void {

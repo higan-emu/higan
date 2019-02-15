@@ -26,16 +26,8 @@ namespace higan::SuperFamicom {
   extern Cheat cheat;
 
   struct Thread : higan::Thread {
-    auto create(double frequency, function<void ()> entryPoint) -> void {
-      higan::Thread::create(frequency, entryPoint);
-      scheduler.append(*this);
-    }
-
-    auto destroy() -> void {
-      scheduler.remove(*this);
-      higan::Thread::destroy();
-    }
-
+    inline auto create(double frequency, function<void ()> entryPoint) -> void;
+    inline auto destroy() -> void;
     inline auto synchronize(Thread& thread) -> void {
       if(clock() >= thread.clock()) scheduler.resume(thread);
     }
@@ -64,6 +56,20 @@ namespace higan::SuperFamicom {
 
   #include <sfc/memory/memory-inline.hpp>
   #include <sfc/ppu/counter/counter-inline.hpp>
+
+  auto Thread::create(double frequency, function<void ()> entryPoint) -> void {
+    if(handle()) destroy();
+    higan::Thread::create(frequency, entryPoint);
+    scheduler.append(*this);
+  }
+
+  auto Thread::destroy() -> void {
+    //Thread may not be a coprocessor or peripheral; in which case this will be a no-op
+    removeWhere(cpu.coprocessors) == this;
+    removeWhere(cpu.peripherals) == this;
+    scheduler.remove(*this);
+    higan::Thread::destroy();
+  }
 }
 
 #include <sfc/interface/interface.hpp>

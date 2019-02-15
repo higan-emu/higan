@@ -5,62 +5,41 @@ namespace higan::MegaDrive {
 Cartridge cartridge;
 #include "serialization.cpp"
 
-auto Cartridge::hashes() const -> vector<string> {
-  vector<string> hashes;
-  hashes.append(information.hash);
-  if(slot) for(auto& hash : slot->hashes()) hashes.append(hash);
-  return hashes;
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
 }
 
-auto Cartridge::manifests() const -> vector<string> {
-  vector<string> manifests;
-  manifests.append(information.manifest);
-  if(slot) for(auto& manifest : slot->manifests()) manifests.append(manifest);
-  return manifests;
-}
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Cartridge", port->type);
+  node->load(with);
 
-auto Cartridge::titles() const -> vector<string> {
-  vector<string> titles;
-  titles.append(information.title);
-  if(slot) for(auto& title : slot->titles()) titles.append(title);
-  return titles;
-}
+  information = {};
 
-auto Cartridge::load() -> bool {
-  unload();
-
-  if(auto loaded = platform->load(ID::MegaDrive, "Mega Drive", "md", {"Auto", "NTSC-J", "NTSC-U", "PAL"})) {
-    information.pathID = loaded.pathID;
-    information.region = loaded.option;
-  } else return false;
-
-  if(auto fp = platform->open(pathID(), "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
-  } else return false;
+  } else return;
 
-  information.document = BML::unserialize(information.manifest);
-  information.hash = information.document["game/sha256"].text();
-  information.title = information.document["game/label"].text();
+  auto document = BML::unserialize(information.manifest);
 
-  if(!loadROM(rom, information.document["game/board/memory(type=ROM,content=Program)"])) {
-    return unload(), false;
+  if(!loadROM(rom, document["game/board/memory(type=ROM,content=Program)"])) {
+    return;
   }
 
-  if(!loadROM(patch, information.document["game/board/memory(type=ROM,content=Patch)"])) {
+  if(!loadROM(patch, document["game/board/memory(type=ROM,content=Patch)"])) {
     patch.reset();
   }
 
-  if(!loadRAM(ram, information.document["game/board/memory(type=RAM,content=Save)"])) {
+  if(!loadRAM(ram, document["game/board/memory(type=RAM,content=Save)"])) {
     ram.reset();
   }
 
-  if(information.region == "Auto") {
-    if(auto region = information.document["game/region"].text()) {
-      information.region = region.upcase();
-    } else {
-      information.region = "NTSC-J";
-    }
-  }
+  information.region = document["game/region"].text();
 
   read = {&Cartridge::readLinear, this};
   write = {&Cartridge::writeLinear, this};
@@ -70,9 +49,9 @@ auto Cartridge::load() -> bool {
     write = {&Cartridge::writeBanked, this};
   }
 
-  if(information.document["game/board/slot(type=MegaDrive)"]) {
+  if(document["game/board/slot(type=MegaDrive)"]) {
     slot = new Cartridge{depth + 1};
-    if(!slot->load()) slot.reset();
+    slot->load(node, with);
 
     if(patch) {
       read = {&Cartridge::readLockOn, this};
@@ -101,22 +80,27 @@ auto Cartridge::load() -> bool {
     };
   }
 
-  return true;
+  power();
+  port->prepend(node);
 }
 
-auto Cartridge::save() -> void {
-  saveRAM(ram, information.document["game/board/memory(type=RAM,content=Save)"]);
-  if(slot) slot->save();
-}
-
-auto Cartridge::unload() -> void {
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
   rom.reset();
   patch.reset();
   ram.reset();
   read.reset();
   write.reset();
-  if(slot) slot->unload();
+  if(slot) slot->disconnect();
   slot.reset();
+  node = {};
+}
+
+auto Cartridge::save() -> void {
+  if(!node) return;
+  auto document = BML::unserialize(information.manifest);
+  saveRAM(ram, document["game/board/memory(type=RAM,content=Save)"]);
+  if(slot) slot->save();
 }
 
 auto Cartridge::power() -> void {
@@ -135,7 +119,7 @@ auto Cartridge::loadROM(Memory& rom, Markup::Node memory) -> bool {
   rom.size = memory["size"].natural() >> 1;
   rom.mask = bit::round(rom.size) - 1;
   rom.data = new uint16[rom.mask + 1]();
-  if(auto fp = platform->open(pathID(), name, File::Read, File::Required)) {
+  if(auto fp = platform->open(node, name, File::Read, File::Required)) {
     for(uint n : range(rom.size)) rom.data[n] = fp->readm(2);
   } else return false;
 
@@ -155,7 +139,7 @@ auto Cartridge::loadRAM(Memory& ram, Markup::Node memory) -> bool {
   ram.mask = bit::round(ram.size) - 1;
   ram.data = new uint16[ram.mask + 1]();
   if(!(bool)memory["volatile"]) {
-    if(auto fp = platform->open(pathID(), name, File::Read)) {
+    if(auto fp = platform->open(node, name, File::Read)) {
       for(uint n : range(ram.size)) {
         if(ram.bits != 0xffff) ram.data[n] = fp->readm(1) * 0x0101;
         if(ram.bits == 0xffff) ram.data[n] = fp->readm(2);
@@ -171,7 +155,7 @@ auto Cartridge::saveRAM(Memory& ram, Markup::Node memory) -> bool {
   if((bool)memory["volatile"]) return true;
 
   auto name = string{memory["content"].text(), ".", memory["type"].text()}.downcase();
-  if(auto fp = platform->open(pathID(), name, File::Write)) {
+  if(auto fp = platform->open(node, name, File::Write)) {
     for(uint n : range(ram.size)) {
       if(ram.bits != 0xffff) fp->writem(ram.data[n], 1);
       if(ram.bits == 0xffff) fp->writem(ram.data[n], 2);

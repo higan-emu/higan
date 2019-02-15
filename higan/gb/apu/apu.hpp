@@ -1,7 +1,6 @@
 struct APU : Thread, MMIO {
   shared_pointer<Stream> stream;
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto power() -> void;
 

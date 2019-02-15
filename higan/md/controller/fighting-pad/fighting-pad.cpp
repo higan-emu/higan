@@ -1,5 +1,23 @@
-FightingPad::FightingPad(uint port) : Controller(port) {
-  create(Controller::Enter, 1'000'000);
+FightingPad::FightingPad(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Fighting Pad", parent->type);
+  node->load(with);
+  up    = Node::append<Node::Button>(node, with, "Up");
+  down  = Node::append<Node::Button>(node, with, "Down");
+  left  = Node::append<Node::Button>(node, with, "Left");
+  right = Node::append<Node::Button>(node, with, "Right");
+  a     = Node::append<Node::Button>(node, with, "A");
+  b     = Node::append<Node::Button>(node, with, "B");
+  c     = Node::append<Node::Button>(node, with, "C");
+  x     = Node::append<Node::Button>(node, with, "X");
+  y     = Node::append<Node::Button>(node, with, "Y");
+  z     = Node::append<Node::Button>(node, with, "Z");
+  mode  = Node::append<Node::Button>(node, with, "Mode");
+  start = Node::append<Node::Button>(node, with, "Start");
+  parent->prepend(node);
+
+  Thread::create(1'000'000, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 }
 
 auto FightingPad::main() -> void {
@@ -13,12 +31,37 @@ auto FightingPad::main() -> void {
 }
 
 auto FightingPad::readData() -> uint8 {
+  platform->input(up);
+  platform->input(down);
+  platform->input(left);
+  platform->input(right);
+  platform->input(a);
+  platform->input(b);
+  platform->input(c);
+  platform->input(x);
+  platform->input(y);
+  platform->input(z);
+  platform->input(mode);
+  platform->input(start);
+
+  if(!(up->value & down->value)) {
+    yHold = 0, upLatch = up->value, downLatch = down->value;
+  } else if(!yHold) {
+    yHold = 1, swap(upLatch, downLatch);
+  }
+
+  if(!(left->value & right->value)) {
+    xHold = 0, leftLatch = left->value, rightLatch = right->value;
+  } else if(!xHold) {
+    xHold = 1, swap(leftLatch, rightLatch);
+  }
+
   uint6 data;
 
   if(select == 0) {
     if(counter == 0 || counter == 1 || counter == 4) {
-      data.bit(0) = platform->inputPoll(port, ID::Device::FightingPad, Up);
-      data.bit(1) = platform->inputPoll(port, ID::Device::FightingPad, Down);
+      data.bit(0) = upLatch;
+      data.bit(1) = downLatch;
       data.bits(2,3) = ~0;
     }
 
@@ -30,23 +73,23 @@ auto FightingPad::readData() -> uint8 {
       data.bits(0,3) = 0;
     }
 
-    data.bit(4) = platform->inputPoll(port, ID::Device::FightingPad, A);
-    data.bit(5) = platform->inputPoll(port, ID::Device::FightingPad, Start);
+    data.bit(4) = a->value;
+    data.bit(5) = start->value;
   } else {
     if(counter == 0 || counter == 1 || counter == 2 || counter == 4) {
-      data.bit(0) = platform->inputPoll(port, ID::Device::FightingPad, Up);
-      data.bit(1) = platform->inputPoll(port, ID::Device::FightingPad, Down);
-      data.bit(2) = platform->inputPoll(port, ID::Device::FightingPad, Left);
-      data.bit(3) = platform->inputPoll(port, ID::Device::FightingPad, Right);
-      data.bit(4) = platform->inputPoll(port, ID::Device::FightingPad, B);
-      data.bit(5) = platform->inputPoll(port, ID::Device::FightingPad, C);
+      data.bit(0) = upLatch;
+      data.bit(1) = downLatch;
+      data.bit(2) = leftLatch;
+      data.bit(3) = rightLatch;
+      data.bit(4) = b->value;
+      data.bit(5) = c->value;
     }
 
     if(counter == 3) {
-      data.bit(0) = platform->inputPoll(port, ID::Device::FightingPad, Z);
-      data.bit(1) = platform->inputPoll(port, ID::Device::FightingPad, Y);
-      data.bit(2) = platform->inputPoll(port, ID::Device::FightingPad, X);
-      data.bit(3) = platform->inputPoll(port, ID::Device::FightingPad, Mode);
+      data.bit(0) = z->value;
+      data.bit(1) = y->value;
+      data.bit(2) = x->value;
+      data.bit(3) = mode->value;
       data.bits(4,5) = 0;
     }
   }

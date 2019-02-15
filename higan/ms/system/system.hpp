@@ -2,7 +2,7 @@
 #include "display.hpp"
 
 struct System {
-  Node::Object root;
+  Node::Object node;
   Node::String regionNode;
 
   enum class Model : uint { ColecoVision, SG1000, SC3000, MasterSystem, GameGear };

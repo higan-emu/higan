@@ -1,6 +1,11 @@
 #include "eeprom.cpp"
 #include "serialization.cpp"
 
+auto Cartridge::MBC7::load(Node::Object parent, Node::Object from) -> void {
+  x = Node::append<Node::Axis>(parent, from, "X");
+  y = Node::append<Node::Axis>(parent, from, "Y");
+}
+
 auto Cartridge::MBC7::load(Markup::Node document) -> void {
   eeprom.load(document);
 }
@@ -72,8 +77,10 @@ auto Cartridge::MBC7::write(uint16 address, uint8 data) -> void {
 
     case 1: {
       if(data != 0xaa) break;
-      io.accelerometer.x = Center - platform->inputPoll(ID::Port::Cartridge, ID::Device::MBC7, 0);
-      io.accelerometer.y = Center + platform->inputPoll(ID::Port::Cartridge, ID::Device::MBC7, 1);
+      platform->input(x);
+      platform->input(y);
+      io.accelerometer.x = Center - x->value;
+      io.accelerometer.y = Center + y->value;
       break;
     }
 

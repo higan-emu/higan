@@ -10,7 +10,6 @@ struct CPU : M68K, M68K::Bus, Thread {
   using Thread::synchronize;
 
   //cpu.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void override;
   auto synchronize() -> void;
@@ -18,7 +17,6 @@ struct CPU : M68K, M68K::Bus, Thread {
   auto raise(Interrupt) -> void;
   auto lower(Interrupt) -> void;
 
-  auto load(Markup::Node) -> bool;
   auto power(bool reset) -> void;
 
   //bus.cpp

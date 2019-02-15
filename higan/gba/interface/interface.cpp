@@ -5,7 +5,7 @@ namespace higan::GameBoyAdvance {
 Interface* interface = nullptr;
 
 auto GameBoyAdvanceInterface::root() -> Node::Object {
-  return system.root;
+  return system.node;
 }
 
 auto GameBoyAdvanceInterface::load(string tree) -> void {
@@ -14,7 +14,6 @@ auto GameBoyAdvanceInterface::load(string tree) -> void {
 }
 
 auto GameBoyAdvanceInterface::unload() -> void {
-  system.save();
   system.unload();
 }
 

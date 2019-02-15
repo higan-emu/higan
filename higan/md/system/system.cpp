@@ -6,10 +6,15 @@ System system;
 Scheduler scheduler;
 Random random;
 Cheat cheat;
+#include "display.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) vdp.refresh();
+
+  auto reset = resetButton->value;
+  platform->input(resetButton);
+  if(!reset && resetButton->value) power(true);
 }
 
 auto System::runToSave() -> void {
@@ -20,30 +25,30 @@ auto System::runToSave() -> void {
   scheduler.synchronize(ym2612);
 }
 
-auto System::load(Interface* interface, maybe<Region> region) -> bool {
-  this->interface = interface;
-  information = {};
+auto System::load(Node::Object from) -> void {
+  if(node) unload();
 
-  auto document = BML::unserialize(interface->properties().serialize());
-  auto system = document["system"];
-  if(!cpu.load(system)) return false;
-  if(!cartridge.load()) return false;
+  node = Node::System::create(interface->name());
+  node->load(from);
 
-  if(cartridge.region() == "NTSC-J") {
-    information.region = Region::NTSCJ;
-    information.frequency = Constants::Colorburst::NTSC * 15.0;
-  }
-  if(cartridge.region() == "NTSC-U") {
-    information.region = Region::NTSCU;
-    information.frequency = Constants::Colorburst::NTSC * 15.0;
-  }
-  if(cartridge.region() == "PAL") {
-    information.region = Region::PAL;
-    information.frequency = Constants::Colorburst::PAL * 12.0;
-  }
+  tmss = Node::Boolean::create("TMSS", false);
+  Node::load(tmss, from);
+  node->append(tmss);
 
-  serializeInit();
-  return information.loaded = true;
+  regionNode = Node::String::create("Region", "NTSC-J");
+  regionNode->allowedValues = {"NTSC-J", "NTSC-U", "PAL"};
+  Node::load(regionNode, from);
+  node->append(regionNode);
+
+  resetButton = Node::Button::create("Reset");
+  Node::load(resetButton, from);
+  node->append(resetButton);
+
+  cartridge.load(node, from);
+  controllerPort1.load(node, from);
+  controllerPort2.load(node, from);
+  extensionPort.load(node, from);
+  display.load(node, from);
 }
 
 auto System::save() -> void {
@@ -52,17 +57,37 @@ auto System::save() -> void {
 
 auto System::unload() -> void {
   cpu.peripherals.reset();
-  controllerPort1.unload();
-  controllerPort2.unload();
-  extensionPort.unload();
-  cartridge.unload();
+  controllerPort1.disconnect();
+  controllerPort2.disconnect();
+  extensionPort.disconnect();
+  cartridge.disconnect();
 }
 
 auto System::power(bool reset) -> void {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+  information = {};
+
+  if(regionNode->latch() == "NTSC-J") {
+    information.region = Region::NTSCJ;
+    information.frequency = Constants::Colorburst::NTSC * 15.0;
+  }
+
+  if(regionNode->latch() == "NTSC-U") {
+    information.region = Region::NTSCU;
+    information.frequency = Constants::Colorburst::NTSC * 15.0;
+  }
+
+  if(regionNode->latch() == "PAL") {
+    information.region = Region::PAL;
+    information.frequency = Constants::Colorburst::PAL * 12.0;
+  }
+
+  serializeInit();
+
   video.reset(interface);
-  video.setPalette();
+  display.screen = video.createScreen(display.node, 1280, 480);
   audio.reset(interface);
-  random.entropy(Random::Entropy::High);
+  random.entropy(Random::Entropy::Low);
 
   scheduler.reset();
   cartridge.power();
@@ -72,14 +97,6 @@ auto System::power(bool reset) -> void {
   psg.power(reset);
   ym2612.power(reset);
   scheduler.primary(cpu);
-
-  controllerPort1.power(ID::Port::Controller1);
-  controllerPort2.power(ID::Port::Controller2);
-  extensionPort.power(ID::Port::Extension);
-
-  controllerPort1.connect(option.port.controller1.device());
-  controllerPort2.connect(option.port.controller2.device());
-  extensionPort.connect(option.port.extension.device());
 }
 
 }

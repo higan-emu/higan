@@ -73,7 +73,6 @@ auto ArmDSP::write(uint24 addr, uint8 data) -> void {
 }
 
 auto ArmDSP::unload() -> void {
-  cpu.coprocessors.removeValue(this);
   Thread::destroy();
 }
 
@@ -85,8 +84,7 @@ auto ArmDSP::power() -> void {
 
 auto ArmDSP::reset() -> void {
   ARM7TDMI::power();
-  cpu.coprocessors.removeValue(this);
-  create(Frequency, [&] {
+  Thread::create(Frequency, [&] {
     boot();
     while(true) scheduler.synchronize(), main();
   });

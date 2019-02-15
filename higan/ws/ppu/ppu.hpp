@@ -1,5 +1,4 @@
 struct PPU : Thread, IO {
-  static auto Enter() -> void;
   auto main() -> void;
   auto scanline() -> void;
   auto frame() -> void;

@@ -12,10 +12,6 @@ APU apu;
 #include "channel5.cpp"
 #include "serialization.cpp"
 
-auto APU::Enter() -> void {
-  while(true) scheduler.synchronize(), apu.main();
-}
-
 auto APU::main() -> void {
   dma.run();
   channel1.run();
@@ -66,7 +62,9 @@ auto APU::step(uint clocks) -> void {
 }
 
 auto APU::power() -> void {
-  create(APU::Enter, 3'072'000);
+  Thread::create(3'072'000, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();

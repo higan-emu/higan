@@ -6,10 +6,6 @@ APU apu;
 #include "bus.cpp"
 #include "serialization.cpp"
 
-auto APU::Enter() -> void {
-  while(true) scheduler.synchronize(), apu.main();
-}
-
 auto APU::main() -> void {
   if(!state.enabled) {
     return step(1);
@@ -56,8 +52,9 @@ auto APU::power(bool reset) -> void {
   Z80::bus = this;
   Z80::power();
   bus->grant(false);
-  create(APU::Enter, system.frequency() / 15.0);
-
+  Thread::create(system.frequency() / 15.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   if(!reset) memory::fill(ram, sizeof(ram));
   state = {};
 }
@@ -65,7 +62,9 @@ auto APU::power(bool reset) -> void {
 auto APU::reset() -> void {
   Z80::power();
   bus->grant(false);
-  create(APU::Enter, system.frequency() / 15.0);
+  Thread::create(system.frequency() / 15.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   state = {};
 }
 

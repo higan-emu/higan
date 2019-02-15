@@ -1,8 +1,9 @@
-enum class Input : uint {
-  Up, Down, Left, Right, B, A, Select, Start,
-};
+#include "controls.hpp"
+#include "display.hpp"
 
 struct System {
+  Node::Object node;
+
   enum class Model : uint {
     GameBoy,
     GameBoyColor,
@@ -10,22 +11,17 @@ struct System {
   };
   higan::Memory::Readable<uint8> bootROM;  //todo: no higan:: prefix
 
-  inline auto loaded() const -> bool { return _loaded; }
-  inline auto model() const -> Model { return _model; }
-  inline auto clocksExecuted() const -> uint { return _clocksExecuted; }
+  inline auto model() const -> Model { return information.model; }
+  inline auto clocksExecuted() const -> uint { return information.clocksExecuted; }
 
+  //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto init() -> void;
-  auto load(Interface*, Model, maybe<uint> = nothing) -> bool;
-  auto save() -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto save() -> void;
   auto power() -> void;
-
-  //video.cpp
-  auto configureVideoPalette() -> void;
-  auto configureVideoEffects() -> void;
 
   //serialization.cpp
   auto serialize() -> serializer;
@@ -35,16 +31,11 @@ struct System {
   auto serializeAll(serializer&) -> void;
   auto serializeInit() -> void;
 
-  Interface* interface = nullptr;
-
   struct Information {
-    string manifest;
+    Model model = Model::GameBoy;
+    uint serializeSize = 0;
+    uint clocksExecuted = 0;
   } information;
-
-  bool _loaded = false;
-  Model _model = Model::GameBoy;
-  uint _serializeSize = 0;
-  uint _clocksExecuted = 0;
 };
 
 #include <gb/interface/interface.hpp>

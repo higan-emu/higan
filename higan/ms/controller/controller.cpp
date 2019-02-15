@@ -7,14 +7,14 @@ namespace higan::MasterSystem {
 #include "gamepad/gamepad.cpp"
 
 Controller::Controller() {
-  if(!handle()) create(1, [&] {
+  if(!handle()) Thread::create(1, [&] {
     while(true) scheduler.synchronize(), main();
   });
   cpu.peripherals.append(this);
 }
 
 Controller::~Controller() {
-  cpu.peripherals.removeValue(this);
+  removeWhere(cpu.peripherals) == this;
   Thread::destroy();
 }
 

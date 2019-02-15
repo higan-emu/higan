@@ -1,7 +1,6 @@
 struct APU : Thread, IO {
   shared_pointer<Stream> stream;
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto sample(uint channel, uint5 index) -> uint4;
   auto dacRun() -> void;

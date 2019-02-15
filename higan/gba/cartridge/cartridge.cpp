@@ -119,6 +119,7 @@ auto Cartridge::disconnect() -> void {
 }
 
 auto Cartridge::save() -> void {
+  if(!node) return;
   auto document = BML::unserialize(information.manifest);
 
   if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {

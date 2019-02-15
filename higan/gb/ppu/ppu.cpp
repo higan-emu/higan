@@ -8,10 +8,6 @@ PPU ppu;
 #include "cgb.cpp"
 #include "serialization.cpp"
 
-auto PPU::Enter() -> void {
-  while(true) scheduler.synchronize(), ppu.main();
-}
-
 auto PPU::main() -> void {
   if(!status.displayEnable) {
     for(uint n : range(160 * 144)) screen[n] = Model::GameBoy() ? 0 : 0x7fff;
@@ -73,7 +69,7 @@ auto PPU::coincidence() -> bool {
 }
 
 auto PPU::refresh() -> void {
-  if(!Model::SuperGameBoy()) video.refresh(screen, 160 * sizeof(uint32), 160, 144);
+  if(!Model::SuperGameBoy()) display.screen->refresh(screen, 160 * sizeof(uint32), 160, 144);
 }
 
 auto PPU::step(uint clocks) -> void {
@@ -109,7 +105,9 @@ auto PPU::hflip(uint data) const -> uint {
 }
 
 auto PPU::power() -> void {
-  create(Enter, 4 * 1024 * 1024);
+  Thread::create(4 * 1024 * 1024, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   if(Model::GameBoyColor()) {
     scanline = {&PPU::scanlineCGB, this};

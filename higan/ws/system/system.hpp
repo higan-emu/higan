@@ -1,21 +1,24 @@
+#include "controls.hpp"
+#include "display.hpp"
+
 struct System : IO {
+  Node::Object node;
   enum class Model : uint { WonderSwan, WonderSwanColor, SwanCrystal, PocketChallengeV2 };
 
-  inline auto loaded() const -> bool { return _loaded; }
-  inline auto model() const -> Model { return _model; }
+  inline auto model() const -> Model { return information.model; }
   inline auto color() const -> bool { return r.color; }
   inline auto planar() const -> bool { return r.format == 0; }
   inline auto packed() const -> bool { return r.format == 1; }
   inline auto depth() const -> bool { return r.color && r.depth == 1; }
 
+  //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Interface*, Model) -> bool;
-  auto save() -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto save() -> void;
   auto power() -> void;
-  auto pollKeypad() -> void;
 
   //io.cpp
   auto portRead(uint16 addr) -> uint8 override;
@@ -29,20 +32,13 @@ struct System : IO {
   auto serialize(serializer&) -> void;
 
   struct Information {
+    Model model = Model::WonderSwan;
+    uint serializeSize = 0;
   } information;
 
   EEPROM eeprom;
 
-  struct Keypad {
-    bool y1, y2, y3, y4;
-    bool x1, x2, x3, x4;
-    bool b, a, start;
-    bool rotate;
-  } keypad;
-
 private:
-  Interface* interface = nullptr;
-
   struct Registers {
     //$0060  DISP_MODE
     uint5 unknown;
@@ -50,10 +46,6 @@ private:
     uint1 depth;
     uint1 color;
   } r;
-
-  bool _loaded = false;
-  Model _model = Model::WonderSwan;
-  uint _serializeSize = 0;
 };
 
 extern System system;

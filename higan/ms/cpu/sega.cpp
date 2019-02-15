@@ -61,22 +61,14 @@ auto CPU::inSega(uint8 addr) -> uint8 {
     }
 
     if(Model::GameGear()) {
-      platform->input(controls.up);
-      platform->input(controls.down);
-      platform->input(controls.left);
-      platform->input(controls.right);
-      platform->input(controls.one);
-      platform->input(controls.two);
-      bool up    = !controls.up->value;
-      bool down  = !controls.down->value;
-      bool left  = !controls.left->value;
-      bool right = !controls.right->value;
-      bool one   = !controls.one->value;
-      bool two   = !controls.two->value;
-      //todo: update logic to hold most recent pressed direction
-      if(!up && !down) up = 1, down = 1;
-      if(!left && !right) left = 1, right = 1;
       if(addr.bit(0) == 0) {
+        controls.poll();
+        bool up    = !controls.upLatch;
+        bool down  = !controls.downLatch;
+        bool left  = !controls.leftLatch;
+        bool right = !controls.rightLatch;
+        bool one   = !controls.one->value;
+        bool two   = !controls.two->value;
         return up << 0 | down << 1 | left << 2 | right << 3 | one << 4 | two << 5 | 1 << 6 | 1 << 7;
       } else {
         return 0xff;

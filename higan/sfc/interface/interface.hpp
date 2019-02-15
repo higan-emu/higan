@@ -5,7 +5,7 @@ namespace higan::SuperFamicom {
 extern Interface* interface;
 
 struct SuperFamicomInterface : Interface {
-  auto name() -> string override;
+  auto name() -> string override { return "Super Famicom"; }
 
   auto root() -> Node::Object override;
   auto load(string tree = {}) -> void override;

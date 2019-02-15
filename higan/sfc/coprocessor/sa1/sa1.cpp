@@ -117,14 +117,12 @@ auto SA1::unload() -> void {
   rom.reset();
   iram.reset();
   bwram.reset();
-  cpu.coprocessors.removeValue(this);
   Thread::destroy();
 }
 
 auto SA1::power() -> void {
   WDC65816::power();
-  cpu.coprocessors.removeValue(this);
-  create(system.cpuFrequency(), [&] {
+  Thread::create(system.cpuFrequency(), [&] {
     while(true) scheduler.synchronize(), main();
   });
   cpu.coprocessors.append(this);

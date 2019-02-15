@@ -8,10 +8,6 @@ CPU cpu;
 #include "dma.cpp"
 #include "serialization.cpp"
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
   poll();
 //static uint c=0;if(auto d = disassemble()) if(++c<60) print(d, "\n");
@@ -47,7 +43,9 @@ auto CPU::out(uint16 port, uint8 data) -> void {
 
 auto CPU::power() -> void {
   V30MZ::power();
-  create(CPU::Enter, 3'072'000);
+  Thread::create(3'072'000, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   bus.map(this, 0x00a0);
   bus.map(this, 0x00b0, 0x00b6);

@@ -10,7 +10,6 @@ struct CPU : V30MZ, Thread, IO {
     HblankTimer,
   };
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
 

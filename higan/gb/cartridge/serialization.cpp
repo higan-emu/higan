@@ -5,5 +5,5 @@ auto Cartridge::serialize(serializer& s) -> void {
 
   s.integer(bootromEnable);
 
-  mapper->serialize(s);
+  if(mapper) mapper->serialize(s);
 }

@@ -34,7 +34,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   } else return;
 
   loadCartridge(game.document);
-  if(has.GameBoySlot);  //todo
+  if(has.GameBoySlot) icd.load(node, with);
   if(has.BSMemorySlot) bsmemory.load(node, with);
   if(has.SufamiTurboSlotA) sufamiturboA.load(node, with);
   if(has.SufamiTurboSlotB) sufamiturboB.load(node, with);
@@ -49,7 +49,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 auto Cartridge::disconnect() -> void {
   if(!node) return;
 
-  if(has.ICD) icd.unload();
+  if(has.ICD) icd.disconnect();
   if(has.MCC) mcc.unload();
   if(has.Event) event.unload();
   if(has.SA1) sa1.unload();
@@ -71,18 +71,6 @@ auto Cartridge::disconnect() -> void {
   ram.reset();
   bus.reset();
   node = {};
-}
-
-//deprecated
-auto Cartridge::loadGameBoy() -> bool {
-  #if defined(CORE_GB)
-  //invoked from ICD::load()
-  information.sha256 = GameBoy::cartridge.hash();
-  slotGameBoy.load(GameBoy::cartridge.manifest());
-  loadCartridgeGameBoy(slotGameBoy.document);
-  return true;
-  #endif
-  return false;
 }
 
 auto Cartridge::power(bool reset) -> void {

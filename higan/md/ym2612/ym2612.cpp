@@ -9,10 +9,6 @@ YM2612 ym2612;
 #include "constants.cpp"
 #include "serialization.cpp"
 
-auto YM2612::Enter() -> void {
-  while(true) scheduler.synchronize(), ym2612.main();
-}
-
 auto YM2612::main() -> void {
   sample();
 
@@ -155,7 +151,9 @@ auto YM2612::step(uint clocks) -> void {
 }
 
 auto YM2612::power(bool reset) -> void {
-  create(YM2612::Enter, system.frequency() / 7.0);
+  Thread::create(system.frequency() / 7.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   stream = audio.createStream(2, frequency() / 144.0);
   stream->addHighPassFilter(  20.0, Filter::Order::First);
   stream->addLowPassFilter (2840.0, Filter::Order::First);

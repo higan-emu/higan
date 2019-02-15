@@ -10,10 +10,6 @@ namespace higan::GameBoy {
 #include "serialization.cpp"
 APU apu;
 
-auto APU::Enter() -> void {
-  while(true) scheduler.synchronize(), apu.main();
-}
-
 auto APU::main() -> void {
   square1.run();
   square2.run();
@@ -25,7 +21,7 @@ auto APU::main() -> void {
     stream->sample(sequencer.left / 32768.0, sequencer.right / 32768.0);
   } else {
     double samples[] = {sequencer.left / 32768.0, sequencer.right / 32768.0};
-    superGameBoy->audioSample(samples, 2);
+    superGameBoy->audio(samples, 2);
   }
 
   if(cycle == 0) {  //512hz
@@ -52,7 +48,9 @@ auto APU::main() -> void {
 }
 
 auto APU::power() -> void {
-  create(Enter, 2 * 1024 * 1024);
+  Thread::create(2 * 1024 * 1024, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   if(!Model::SuperGameBoy()) {
     stream = audio.createStream(2, frequency());
     stream->addHighPassFilter(20.0, Filter::Order::First);

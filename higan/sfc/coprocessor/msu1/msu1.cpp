@@ -33,13 +33,11 @@ auto MSU1::main() -> void {
 auto MSU1::unload() -> void {
   dataFile.reset();
   audioFile.reset();
-  cpu.coprocessors.removeValue(this);
   Thread::destroy();
 }
 
 auto MSU1::power() -> void {
-  cpu.coprocessors.removeValue(this);
-  create(44100, [&] {
+  Thread::create(44100, [&] {
     while(true) scheduler.synchronize(), main();
   });
   cpu.coprocessors.append(this);

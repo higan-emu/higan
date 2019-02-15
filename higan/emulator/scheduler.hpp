@@ -33,7 +33,7 @@ struct Scheduler {
   }
 
   auto remove(Thread& thread) -> void {
-    _threads.removeValue(&thread);
+    removeWhere(_threads) == &thread;
   }
 
   auto enter(Mode mode = Mode::Run) -> Event {

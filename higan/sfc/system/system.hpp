@@ -3,8 +3,8 @@
 #include "hacks.hpp"
 
 struct System {
-  Node::Object root;
-  Node::String regionSetting;
+  Node::Object node;
+  Node::String regionNode;
   Node::Button resetButton;
   enum class Region : uint { NTSC, PAL };
 

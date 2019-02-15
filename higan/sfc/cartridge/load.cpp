@@ -7,7 +7,7 @@ auto Cartridge::loadBoard(string board) -> Markup::Node {
   if(board.beginsWith("EA-"  )) board.replace("EA-",   "SHVC-", 1L);
   if(board.beginsWith("WEI-" )) board.replace("WEI-",  "SHVC-", 1L);
 
-  if(auto fp = platform->open(system.root, "boards.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(system.node, "boards.bml", File::Read, File::Required)) {
     auto document = BML::unserialize(fp->reads());
     for(auto leaf : document.find("board")) {
       auto id = leaf.text();

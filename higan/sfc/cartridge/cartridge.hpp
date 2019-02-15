@@ -53,10 +53,6 @@ private:
   Game slotSufamiTurboB;
   Markup::Node board;
 
-  //cartridge.cpp
-  auto loadGameBoy() -> bool;
-  auto loadBSMemory() -> bool;
-
   //load.cpp
   auto loadBoard(string) -> Markup::Node;
   auto loadCartridge(Markup::Node) -> void;

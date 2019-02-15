@@ -11,10 +11,6 @@ VDP vdp;
 #include "sprite.cpp"
 #include "serialization.cpp"
 
-auto VDP::Enter() -> void {
-  while(true) scheduler.synchronize(), vdp.main();
-}
-
 auto VDP::main() -> void {
   scanline();
 
@@ -78,11 +74,13 @@ auto VDP::step(uint clocks) -> void {
 auto VDP::refresh() -> void {
   auto data = output;
   if(!latch.overscan) data -= 16 * 1280;
-  video.refresh(data, 1280 * sizeof(uint32), 1280, 480);
+  display.screen->refresh(data, 1280 * sizeof(uint32), 1280, 480);
 }
 
 auto VDP::power(bool reset) -> void {
-  create(VDP::Enter, system.frequency() / 2.0);
+  Thread::create(system.frequency() / 2.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   output = buffer + 16 * 1280;  //overscan offset
 

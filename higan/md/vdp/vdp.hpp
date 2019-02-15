@@ -1,7 +1,6 @@
 //Yamaha YM7101
 
 struct VDP : Thread {
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto refresh() -> void;

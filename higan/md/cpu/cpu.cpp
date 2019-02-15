@@ -6,10 +6,6 @@ CPU cpu;
 #include "bus.cpp"
 #include "serialization.cpp"
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
   if(state.interruptPending) {
     if(state.interruptPending.bit((uint)Interrupt::Reset)) {
@@ -66,24 +62,20 @@ auto CPU::lower(Interrupt interrupt) -> void {
   state.interruptPending.bit((uint)interrupt) = 0;
 }
 
-auto CPU::load(Markup::Node node) -> bool {
-  tmssEnable = false;
-  if(property.cpu.version() == 1) {
-    if(auto memory = node["memory(type=ROM,content=TMSS)"]) {
-      if(auto fp = platform->open(ID::System, "tmss.rom", File::Read, File::Required)) {
-        fp->read(tmss, 2 * 1024);
-        tmssEnable = true;
-      } else return false;
-    }
-  }
-
-  return true;
-}
-
 auto CPU::power(bool reset) -> void {
   M68K::bus = this;
   M68K::power();
-  create(CPU::Enter, system.frequency() / 7.0);
+  Thread::create(system.frequency() / 7.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
+
+  tmssEnable = false;
+  if(system.tmss->value()) {
+    if(auto fp = platform->open(system.node, "tmss.rom", File::Read, File::Required)) {
+      fp->read(tmss, 2 * 1024);
+      tmssEnable = true;
+    }
+  }
 
   if(!reset) memory::fill(ram, sizeof(ram));
 

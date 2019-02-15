@@ -6,27 +6,19 @@ auto CPU::wramAddress(uint16 addr) const -> uint {
 }
 
 auto CPU::joypPoll() -> void {
-  function<auto (uint, uint, uint) -> int16> inputPoll = {&Platform::inputPoll, platform};
-  if(Model::SuperGameBoy()) inputPoll = {&SuperGameBoyInterface::inputPoll, superGameBoy};
+  controls.poll();
 
-  uint button = 0;
-  button |= inputPoll(0, 0, (uint)Input::Start) << 3;
-  button |= inputPoll(0, 0, (uint)Input::Select) << 2;
-  button |= inputPoll(0, 0, (uint)Input::B) << 1;
-  button |= inputPoll(0, 0, (uint)Input::A) << 0;
+  uint4 dpad;
+  dpad.bit(0) = controls.rightLatch;
+  dpad.bit(1) = controls.leftLatch;
+  dpad.bit(2) = controls.upLatch;
+  dpad.bit(3) = controls.downLatch;
 
-  uint dpad = 0;
-  dpad |= inputPoll(0, 0, (uint)Input::Down) << 3;
-  dpad |= inputPoll(0, 0, (uint)Input::Up) << 2;
-  dpad |= inputPoll(0, 0, (uint)Input::Left) << 1;
-  dpad |= inputPoll(0, 0, (uint)Input::Right) << 0;
-
-  if(!Model::SuperGameBoy()) {
-    //D-pad pivot makes it impossible to press opposing directions at the same time
-    //however, Super Game Boy BIOS is able to set these bits together
-    if(dpad & 4) dpad &= ~8;  //disallow up+down
-    if(dpad & 2) dpad &= ~1;  //disallow left+right
-  }
+  uint4 button;
+  button.bit(0) = controls.a->value;
+  button.bit(1) = controls.b->value;
+  button.bit(2) = controls.select->value;
+  button.bit(3) = controls.start->value;
 
   status.joyp = 0x0f;
   if(status.p15 == 1 && status.p14 == 1 && Model::SuperGameBoy()) {

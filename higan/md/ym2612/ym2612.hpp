@@ -3,7 +3,6 @@
 struct YM2612 : Thread {
   shared_pointer<Stream> stream;
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto sample() -> void;
   auto step(uint clocks) -> void;

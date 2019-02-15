@@ -22,30 +22,36 @@ auto System::runToSave() -> void {
 }
 
 auto System::load(Node::Object from) -> void {
-  if(root) save(), unload();
+  if(node) unload();
 
-  root = Node::System::create(interface->name());
-  root->load(from);
+  information = {};
+  if(interface->name() == "Game Boy Advance") information.model = Model::GameBoyAdvance;
+  if(interface->name() == "Game Boy Player" ) information.model = Model::GameBoyPlayer;
 
-  controls.load(root, from);
-  display.load(root, from);
-  cartridge.load(root, from);
+  node = Node::System::create(interface->name());
+  node->load(from);
+
+  controls.load(node, from);
+  display.load(node, from);
+  cartridge.load(node, from);
 }
 
 auto System::unload() -> void {
+  if(!node) return;
+  save();
   cartridge.disconnect();
-  root = {};
+  node = {};
 }
 
 auto System::save() -> void {
+  if(!node) return;
   cartridge.save();
 }
 
 auto System::power() -> void {
-  for(auto& setting : root->find<Node::Setting>()) setting->setLatch();
-  information = {};
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
-  if(auto fp = platform->open(root, "bios.rom", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
     fp->read(bios.data, bios.size);
   }
 

@@ -8,10 +8,6 @@ PPU ppu;
 #include "render.cpp"
 #include "serialization.cpp"
 
-auto PPU::Enter() -> void {
-  while(true) scheduler.synchronize(), ppu.main();
-}
-
 auto PPU::main() -> void {
   if(s.vtime == 142) {
     latchOAM();
@@ -79,7 +75,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  video.refresh(output, 224 * sizeof(uint32), 224, 144);
+  display.screen->refresh(output, 224 * sizeof(uint32), 224, 144);
 }
 
 auto PPU::step(uint clocks) -> void {
@@ -88,7 +84,9 @@ auto PPU::step(uint clocks) -> void {
 }
 
 auto PPU::power() -> void {
-  create(PPU::Enter, 3'072'000);
+  Thread::create(3'072'000, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   bus.map(this, 0x0000, 0x0017);
   bus.map(this, 0x001c, 0x003f);

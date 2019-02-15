@@ -10,8 +10,8 @@ ICD icd;
 auto ICD::main() -> void {
   if(r6003 & 0x80) {
     GameBoy::system.run();
-    step(GameBoy::system._clocksExecuted);
-    GameBoy::system._clocksExecuted = 0;
+    step(GameBoy::system.information.clocksExecuted);
+    GameBoy::system.information.clocksExecuted = 0;
   } else {  //DMG halted
     stream->sample(0.0, 0.0);
     step(2);  //two clocks per audio sample
@@ -19,23 +19,39 @@ auto ICD::main() -> void {
   synchronize(cpu);
 }
 
-auto ICD::load() -> bool {
+auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
+  port = Node::Port::create("Game Boy Slot", "Game Boy");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
   GameBoy::superGameBoy = this;
-  GameBoy::system.load(&gameBoyInterface, GameBoy::System::Model::SuperGameBoy, cartridge.pathID());
-  return cartridge.loadGameBoy();
+  GameBoy::system.node = parent;
+  GameBoy::system.information.model = GameBoy::System::Model::SuperGameBoy;
+  GameBoy::cartridge.port = port;
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
 }
 
-auto ICD::unload() -> void {
-  GameBoy::system.save();
-  GameBoy::system.unload();
-  cpu.coprocessors.removeValue(this);
+auto ICD::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Game Boy", port->type);
+  node->load(with);
+
+  GameBoy::cartridge.node = node;
+  GameBoy::cartridge.connect(with);
+  power();
+}
+
+auto ICD::disconnect() -> void {
+  GameBoy::cartridge.disconnect();
   Thread::destroy();
+  node = {};
+  port = {};
 }
 
 auto ICD::power() -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
-  cpu.coprocessors.removeValue(this);
-  create((Frequency ? Frequency : system.cpuFrequency()) / 5.0, [&] {
+  Thread::create((Frequency ? Frequency : system.cpuFrequency()) / 5.0, [&] {
     while(true) {
       if(scheduler.synchronizing()) GameBoy::system.runToSave();
       scheduler.synchronize();
@@ -43,7 +59,7 @@ auto ICD::power() -> void {
     }
   });
   cpu.coprocessors.append(this);
-  stream = audio.createStream(2, frequency() / 2.0);
+  stream = higan::audio.createStream(2, frequency() / 2.0);
   stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();
 
@@ -67,12 +83,18 @@ auto ICD::power() -> void {
   joyp14Lock = 0;
   pulseLock = true;
 
-  GameBoy::system.init();
   GameBoy::system.power();
 }
 
 auto ICD::reset() -> void {
-  create(ICD::Enter, (Frequency ? Frequency : system.cpuFrequency()) / 5.0);
+  Thread::create(Frequency ? Frequency : system.cpuFrequency() / 5.0, [&] {
+    while(true) {
+      if(scheduler.synchronizing()) GameBoy::system.runToSave();
+      scheduler.synchronize();
+      main();
+    }
+  });
+  cpu.coprocessors.append(this);
 
   r6003 = 0x00;
   r6004 = 0xff;
@@ -94,7 +116,6 @@ auto ICD::reset() -> void {
   joyp14Lock = 0;
   pulseLock = true;
 
-  GameBoy::system.init();
   GameBoy::system.power();
 }
 

@@ -13,7 +13,7 @@ auto Cartridge::MBC7::EEPROM::load(Markup::Node document) -> void {
     if(memory.size == 256) size = 256;
     if(memory.size == 512) size = 512;
 
-    if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read, File::Optional)) {
+    if(auto fp = platform->open(cartridge.node, memory.name(), File::Read, File::Optional)) {
       fp->read(data, min(fp->size(), sizeof(data)));
     }
   }
@@ -27,7 +27,7 @@ auto Cartridge::MBC7::EEPROM::load(Markup::Node document) -> void {
 
 auto Cartridge::MBC7::EEPROM::save(Markup::Node document) -> void {
   if(auto memory = Game::Memory{document["game/board/memory(type=EEPROM,content=Save)"]}) {
-    if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Write)) {
+    if(auto fp = platform->open(cartridge.node, memory.name(), File::Write)) {
       fp->write(data, size);
     }
   }
