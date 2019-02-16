@@ -1,17 +1,22 @@
+#include "controls.hpp"
+#include "display.hpp"
+
 struct System {
+  Node::Object node;
+
   enum class Model : uint { NeoGeoPocket, NeoGeoPocketColor };
   Memory::Readable<uint8> bios;
 
-  inline auto loaded() const -> bool { return information.loaded; }
   inline auto model() const -> Model { return information.model; }
   inline auto frequency() const -> double { return 6'144'000; }
 
   //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
-  auto load(Interface*, Model) -> bool;
-  auto save() -> void;
+
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto save() -> void;
   auto power() -> void;
 
   //serialization.cpp
@@ -21,14 +26,11 @@ struct System {
   auto serializeAll(serializer&) -> void;
   auto serialize(serializer&) -> void;
 
+private:
   struct Information {
-    bool loaded = false;
     Model model = Model::NeoGeoPocket;
     natural serializeSize;
   } information;
-
-private:
-  Interface* interface = nullptr;
 };
 
 extern System system;

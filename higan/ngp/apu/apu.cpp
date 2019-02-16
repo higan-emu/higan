@@ -5,10 +5,6 @@ namespace higan::NeoGeoPocket {
 APU apu;
 #include "serialization.cpp"
 
-auto APU::Enter() -> void {
-  while(true) scheduler.synchronize(), apu.main();
-}
-
 auto APU::main() -> void {
   step(1);
 }
@@ -26,7 +22,9 @@ auto APU::power() -> void {
   Z80::bus = this;
   Z80::power();
   bus->grant(false);
-  create(APU::Enter, system.frequency() / 2.0);
+  Thread::create(system.frequency() / 2.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   ram.allocate(0x1000);
 }
 

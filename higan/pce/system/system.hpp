@@ -1,17 +1,19 @@
+#include "display.hpp"
+
 struct System {
+  Node::Object node;
   enum class Model : uint { PCEngine, SuperGrafx };
 
-  inline auto loaded() const -> bool { return information.loaded; }
   inline auto model() const -> Model { return information.model; }
   inline auto colorburst() const -> double { return information.colorburst; }
 
+  //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Interface*, Model) -> bool;
-  auto save() -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
-
+  auto save() -> void;
   auto power() -> void;
 
   //serialization.cpp
@@ -22,12 +24,9 @@ struct System {
   auto serialize(serializer&) -> void;
 
 private:
-  Interface* interface = nullptr;
-
   struct Information {
-    bool loaded = false;
     Model model = Model::PCEngine;
-    double colorburst = 0.0;
+    double colorburst = Constants::Colorburst::NTSC;
     uint serializeSize = 0;
   } information;
 };

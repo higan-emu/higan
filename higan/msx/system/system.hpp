@@ -1,8 +1,11 @@
+#include "display.hpp"
+
 struct System {
+  Node::Object node;
+  Node::String regionNode;
   enum class Model : uint { MSX, MSX2, MSX2Plus, MSXTurboR };
   enum class Region : uint { NTSC, PAL };
 
-  auto loaded() const -> bool { return information.loaded; }
   auto model() const -> Model { return information.model; }
   auto region() const -> Region { return information.region; }
   auto colorburst() const -> double { return information.colorburst; }
@@ -11,10 +14,9 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Interface*, Model) -> bool;
-  auto save() -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
-
+  auto save() -> void;
   auto power() -> void;
 
   //serialization.cpp
@@ -27,10 +29,7 @@ struct System {
   Memory::Readable<uint8> bios;
 
 private:
-  Interface* interface = nullptr;
-
   struct Information {
-    bool loaded = false;
     Model model = Model::MSX;
     Region region = Region::NTSC;
     double colorburst = Constants::Colorburst::NTSC;

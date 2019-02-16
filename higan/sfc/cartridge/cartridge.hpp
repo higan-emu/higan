@@ -1,7 +1,7 @@
 struct Cartridge {
   Node::Port port;
   Node::Peripheral node;
-  auto load(Node::Object parent, Node::Object from) -> void;
+  auto load(Node::Object, Node::Object) -> void;
 
   auto region() const -> string { return information.region; }
 

@@ -6,7 +6,6 @@ struct APU : Thread {
   //apu.cpp
   APU();
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto tick() -> void;
   auto setIRQ() -> void;

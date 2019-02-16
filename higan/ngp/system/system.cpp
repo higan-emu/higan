@@ -5,12 +5,12 @@ namespace higan::NeoGeoPocket {
 System system;
 Scheduler scheduler;
 Cheat cheat;
+#include "controls.cpp"
+#include "display.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) {
-    vpu.refresh();
-  }
+  if(scheduler.enter() == Scheduler::Event::Frame) vpu.refresh();
 }
 
 auto System::runToSave() -> void {
@@ -20,44 +20,43 @@ auto System::runToSave() -> void {
   scheduler.synchronize(psg);
 }
 
-auto System::load(Interface* interface, Model model_) -> bool {
-  this->interface = interface;
-  information.model = model_;
+auto System::load(Node::Object from) -> void {
+  if(node) unload();
 
-  auto document = BML::unserialize(interface->properties().serialize());
-  if(auto memory = document["system/memory(type=ROM,content=BIOS)"]) {
-    bios.allocate(memory["size"].natural());
-    if(auto fp = platform->open(ID::System, "bios.rom", File::Read, File::Required)) {
-      bios.load(fp);
-    } else return false;
-  } else return false;
+  information = {};
+  if(interface->name() == "Neo Geo Pocket"      ) information.model = Model::NeoGeoPocket;
+  if(interface->name() == "Neo Geo Pocket Color") information.model = Model::NeoGeoPocketColor;
 
-  if(model() == Model::NeoGeoPocket) {
-  }
+  node = Node::System::create(interface->name());
+  node->load(from);
 
-  if(model() == Model::NeoGeoPocketColor) {
-  }
-
-  if(!cartridge.load()) return false;
-  serializeInit();
-  return information.loaded = true;
-}
-
-auto System::save() -> void {
-  if(!loaded()) return;
-  cartridge.save();
+  controls.load(node, from);
+  display.load(node, from);
+  cartridge.load(node, from);
 }
 
 auto System::unload() -> void {
-  if(!loaded()) return;
+  if(!node) return;
   bios.reset();
-  cartridge.unload();
-  information.loaded = false;
+  cartridge.disconnect();
+  node = {};
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
 }
 
 auto System::power() -> void {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+
+  bios.allocate(64_KiB);
+  if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
+    bios.load(fp);
+  }
+
   video.reset(interface);
-  video.setPalette();
+  display.screen = video.createScreen(display.node, 160, 152);
   audio.reset(interface);
 
   scheduler.reset();
@@ -67,6 +66,8 @@ auto System::power() -> void {
   vpu.power();
   psg.power();
   scheduler.primary(cpu);
+
+  serializeInit();
 }
 
 }

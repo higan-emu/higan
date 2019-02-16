@@ -1,6 +1,5 @@
 struct CPU : Z80, Z80::Bus, Thread {
   //cpu.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void override;
   auto synchronizing() const -> bool override;

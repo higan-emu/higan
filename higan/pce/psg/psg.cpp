@@ -7,10 +7,6 @@ PSG psg;
 #include "channel.cpp"
 #include "serialization.cpp"
 
-auto PSG::Enter() -> void {
-  while(true) scheduler.synchronize(), psg.main();
-}
-
 auto PSG::main() -> void {
   static const uint5 volumeScale[16] = {
     0x00, 0x03, 0x05, 0x07, 0x09, 0x0b, 0x0d, 0x0f,
@@ -40,7 +36,7 @@ auto PSG::main() -> void {
     }
   }
 
-  stream->sample(sclamp<16>(outputLeft) / 32768.0, sclamp<16>(outputRight) / 32768.0);
+  stream->sample(sclamp<16>(outputLeft) / 32767.0, sclamp<16>(outputRight) / 32767.0);
   step(1);
 }
 
@@ -50,7 +46,9 @@ auto PSG::step(uint clocks) -> void {
 }
 
 auto PSG::power() -> void {
-  create(PSG::Enter, system.colorburst());
+  Thread::create(system.colorburst(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
   stream->addDCRemovalFilter();

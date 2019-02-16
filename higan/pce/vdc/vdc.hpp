@@ -4,7 +4,6 @@ struct VDC : Thread {
   inline auto bus() const -> uint9 { return data; }
   inline auto irqLine() const -> bool { return irq.line; }
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto scanline() -> void;

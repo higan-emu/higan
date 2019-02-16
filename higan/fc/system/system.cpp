@@ -2,13 +2,18 @@
 
 namespace higan::Famicom {
 
-#include "serialization.cpp"
 System system;
 Scheduler scheduler;
 Cheat cheat;
+#include "display.cpp"
+#include "serialization.cpp"
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
+
+  auto reset = resetButton->value;
+  platform->input(resetButton);
+  if(!reset && resetButton->value) power(true);
 }
 
 auto System::runToSave() -> void {
@@ -19,46 +24,60 @@ auto System::runToSave() -> void {
   for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
 }
 
-auto System::load(Interface* interface) -> bool {
-  this->interface = interface;
+auto System::load(Node::Object from) -> void {
+  if(node) unload();
+
+  node = Node::System::create(interface->name());
+  node->load(from);
+
+  regionNode = Node::String::create("Region", "NTSC-J");
+  regionNode->allowedValues = {"NTSC-J", "NTSC-U", "PAL"};
+  Node::load(regionNode, from);
+  node->append(regionNode);
+
+  resetButton = Node::Button::create("Reset");
+  Node::load(resetButton, from);
+  node->append(resetButton);
+
   information = {};
-
-  auto document = BML::unserialize(interface->properties().serialize());
-  if(!cartridge.load()) return false;
-
-  if(cartridge.region() == "NTSC-J") {
+  if(regionNode->value() == "NTSC-J") {
     information.region = Region::NTSCJ;
     information.frequency = Constants::Colorburst::NTSC * 6.0;
   }
-  if(cartridge.region() == "NTSC-U") {
+  if(regionNode->value() == "NTSC-U") {
     information.region = Region::NTSCU;
     information.frequency = Constants::Colorburst::NTSC * 6.0;
   }
-  if(cartridge.region() == "PAL") {
+  if(regionNode->value() == "PAL") {
     information.region = Region::PAL;
     information.frequency = Constants::Colorburst::PAL * 6.0;
   }
 
-  serializeInit();
-  return information.loaded = true;
-}
-
-auto System::save() -> void {
-  cartridge.save();
+  cartridge.load(node, from);
+  controllerPort1.load(node, from);
+  controllerPort2.load(node, from);
+  display.load(node, from);
 }
 
 auto System::unload() -> void {
-  if(!loaded()) return;
-  cpu.peripherals.reset();
-  controllerPort1.unload();
-  controllerPort2.unload();
-  cartridge.unload();
-  information.loaded = false;
+  if(!node) return;
+  save();
+  cartridge.disconnect();
+  controllerPort1.disconnect();
+  controllerPort2.disconnect();
+  node = {};
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
 }
 
 auto System::power(bool reset) -> void {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+
   video.reset(interface);
-  video.setPalette();
+  display.screen = video.createScreen(display.node, 256, 240);
   audio.reset(interface);
 
   scheduler.reset();
@@ -68,18 +87,7 @@ auto System::power(bool reset) -> void {
   ppu.power(reset);
   scheduler.primary(cpu);
 
-  controllerPort1.power(ID::Port::Controller1);
-  controllerPort2.power(ID::Port::Controller2);
-
-  controllerPort1.connect(option.port.controller1.device());
-  controllerPort2.connect(option.port.controller2.device());
-}
-
-auto System::init() -> void {
-  assert(interface != nullptr);
-}
-
-auto System::term() -> void {
+  serializeInit();
 }
 
 }

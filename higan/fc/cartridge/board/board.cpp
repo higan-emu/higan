@@ -25,7 +25,7 @@ Board::Board(Markup::Node& document) {
 
   if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
     if(prgrom.size = memory.size) prgrom.data = new uint8_t[prgrom.size]();
-    if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read, File::Required)) {
+    if(auto fp = platform->open(cartridge.node, memory.name(), File::Read, File::Required)) {
       fp->read(prgrom.data, min(prgrom.size, fp->size()));
     }
   }
@@ -33,7 +33,7 @@ Board::Board(Markup::Node& document) {
   if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(prgram.size = memory.size) prgram.data = new uint8_t[prgram.size](), prgram.writable = true;
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read)) {
+      if(auto fp = platform->open(cartridge.node, memory.name(), File::Read)) {
         fp->read(prgram.data, min(prgram.size, fp->size()));
       }
     }
@@ -41,7 +41,7 @@ Board::Board(Markup::Node& document) {
 
   if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Character)"]}) {
     if(chrrom.size = memory.size) chrrom.data = new uint8_t[chrrom.size]();
-    if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read, File::Required)) {
+    if(auto fp = platform->open(cartridge.node, memory.name(), File::Read, File::Required)) {
       fp->read(chrrom.data, min(chrrom.size, fp->size()));
     }
   }
@@ -49,7 +49,7 @@ Board::Board(Markup::Node& document) {
   if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
     if(chrram.size = memory.size) chrram.data = new uint8_t[chrram.size](), chrram.writable = true;
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Read)) {
+      if(auto fp = platform->open(cartridge.node, memory.name(), File::Read)) {
         fp->read(chrram.data, min(chrram.size, fp->size()));
       }
     }
@@ -61,7 +61,7 @@ auto Board::save() -> void {
 
   if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Write)) {
+      if(auto fp = platform->open(cartridge.node, memory.name(), File::Write)) {
         fp->write(prgram.data, prgram.size);
       }
     }
@@ -69,7 +69,7 @@ auto Board::save() -> void {
 
   if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
     if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.pathID(), memory.name(), File::Write)) {
+      if(auto fp = platform->open(cartridge.node, memory.name(), File::Write)) {
         fp->write(chrram.data, chrram.size);
       }
     }
@@ -132,7 +132,6 @@ auto Board::serialize(serializer& s) -> void {
 
 auto Board::load(string manifest) -> Board* {
   auto document = BML::unserialize(manifest);
-  cartridge.information.title = document["game/label"].text();
 
   string type = document["game/board"].text();
 

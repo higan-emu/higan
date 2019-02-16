@@ -4,7 +4,6 @@ struct PSG : Thread {
   shared_pointer<Stream> stream;
 
   //psg.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
 

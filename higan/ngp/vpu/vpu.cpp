@@ -5,10 +5,6 @@ namespace higan::NeoGeoPocket {
 VPU vpu;
 #include "serialization.cpp"
 
-auto VPU::Enter() -> void {
-  while(true) scheduler.synchronize(), vpu.main();
-}
-
 auto VPU::main() -> void {
   cpu.setInterruptHblank(0);
   for(uint hclock : range(480)) {
@@ -48,11 +44,13 @@ auto VPU::step(uint clocks) -> void {
 auto VPU::refresh() -> void {
   for(uint address : range(0x4000)) buffer[address] = ram[address];
   for(uint address : range(0x1f00)) buffer[address + 0x4000] = cpu.ram[address + 0x3000 - 0x1f00];
-  video.refresh(buffer, 160 * sizeof(uint32), 160, 152);
+  display.screen->refresh(buffer, 160 * sizeof(uint32), 160, 152);
 }
 
 auto VPU::power() -> void {
-  create(VPU::Enter, system.frequency());
+  Thread::create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   ram.allocate(0x4000);
   io = {};
 }

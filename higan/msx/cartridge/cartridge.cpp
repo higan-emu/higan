@@ -2,57 +2,70 @@
 
 namespace higan::MSX {
 
-Cartridge cartridge;
-Cartridge expansion;
+Cartridge cartridge{"Cartridge Slot"};
+Cartridge expansion{"Expansion Slot"};
 #include "serialization.cpp"
 
-auto Cartridge::load() -> bool {
+Cartridge::Cartridge(string_view name) : name(name) {
+}
+
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::Port::create(name, "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
+}
+
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Cartridge", port->type);
+  node->load(with);
+
   information = {};
 
-  if(Model::MSX()) {
-    if(auto loaded = platform->load(ID::MSX, "MSX", "msx", {"NTSC", "PAL"})) {
-      information.pathID = loaded.pathID;
-      information.region = loaded.option;
-    } else return false;
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
   }
 
-  if(auto fp = platform->open(pathID(), "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
-  } else return false;
-
   auto document = BML::unserialize(information.manifest);
-  information.title = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.allocate(memory["size"].natural());
-    if(auto fp = platform->open(pathID(), "program.rom", File::Read, File::Required)) {
+    if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
       rom.load(fp);
-    } else return false;
+    }
   }
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
     ram.allocate(memory["size"].natural());
-    if(auto fp = platform->open(pathID(), "save.ram", File::Read)) {
+    if(auto fp = platform->open(node, "save.ram", File::Read)) {
       ram.load(fp);
     }
   }
 
-  return true;
+  power();
+  port->prepend(node);
+}
+
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
+  save();
+  rom.reset();
+  ram.reset();
+  node = {};
 }
 
 auto Cartridge::save() -> void {
+  if(!node) return;
   auto document = BML::unserialize(information.manifest);
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
-    if(auto fp = platform->open(pathID(), "save.ram", File::Write)) {
+    if(auto fp = platform->open(node, "save.ram", File::Write)) {
       ram.save(fp);
     }
   }
-}
-
-auto Cartridge::unload() -> void {
-  rom.reset();
-  ram.reset();
 }
 
 auto Cartridge::power() -> void {

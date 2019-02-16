@@ -6,27 +6,27 @@ Cartridge cartridge;
 #include "flash.cpp"
 #include "serialization.cpp"
 
-auto Cartridge::load() -> bool {
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
+}
+
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Cartridge", port->type);
+  node->load(with);
+
   information = {};
 
-  if(Model::NeoGeoPocket()) {
-    if(auto loaded = platform->load(ID::NeoGeoPocket, "Neo Geo Pocket", "ngp")) {
-      information.pathID = loaded.pathID;
-    } else return true;  //boot into BIOS
-  }
-
-  if(Model::NeoGeoPocketColor()) {
-    if(auto loaded = platform->load(ID::NeoGeoPocketColor, "Neo Geo Pocket Color", "ngpc")) {
-      information.pathID = loaded.pathID;
-    } else return true;  //boot into BIOS
-  }
-
-  if(auto fp = platform->open(pathID(), "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
-  } else return false;
+  };
 
   auto document = BML::unserialize(information.manifest);
-  information.title = document["game/label"].text();
 
   flash[0].reset(0);
   flash[1].reset(1);
@@ -35,22 +35,25 @@ auto Cartridge::load() -> bool {
     auto size = memory["size"].natural();
     flash[0].allocate(min(16_Mibit, size));
     flash[1].allocate(size >= 16_Mibit ? 16_Mibit - size : 0);
-    if(auto fp = platform->open(pathID(), "program.rom", File::Read, File::Required)) {
+    if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
       flash[0].load(fp);
       flash[1].load(fp);
-    } else return false;
+    };
   }
 
-  return true;
+  power();
+  port->prepend(node);
+}
+
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
+  flash[0].reset(0);
+  flash[1].reset(1);
 }
 
 auto Cartridge::save() -> void {
+  if(!node) return;
   auto document = BML::unserialize(information.manifest);
-}
-
-auto Cartridge::unload() -> void {
-  flash[0].reset(0);
-  flash[1].reset(1);
 }
 
 auto Cartridge::power() -> void {

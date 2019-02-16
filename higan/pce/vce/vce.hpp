@@ -3,7 +3,6 @@
 struct VCE : Thread {
   inline auto clock() const -> uint { return io.clock; }
 
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto refresh() -> void;

@@ -43,6 +43,16 @@ auto System::load(Node::Object from) -> void {
   Node::load(resetButton, from);
   node->append(resetButton);
 
+  information = {};
+  if(regionNode->latch() == "NTSC") {
+    information.region = Region::NTSC;
+    information.cpuFrequency = Constants::Colorburst::NTSC * 6.0;
+  }
+  if(regionNode->latch() == "PAL") {
+    information.region = Region::PAL;
+    information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
+  }
+
   hacks.load(node, from);
   bus.reset();
   cartridge.load(node, from);
@@ -55,11 +65,6 @@ auto System::load(Node::Object from) -> void {
   ppu.load(node, from);
 }
 
-auto System::save() -> void {
-  if(!node) return;
-  cartridge.save();
-}
-
 auto System::unload() -> void {
   if(!node) return;
   save();
@@ -70,21 +75,13 @@ auto System::unload() -> void {
   node = {};
 }
 
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
+}
+
 auto System::power(bool reset) -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
-  information = {};
-
-  if(regionNode->latch() == "NTSC") {
-    information.region = Region::NTSC;
-    information.cpuFrequency = Constants::Colorburst::NTSC * 6.0;
-  }
-
-  if(regionNode->latch() == "PAL") {
-    information.region = Region::PAL;
-    information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
-  }
-
-  serializeInit();
 
   video.reset(interface);
   display.screen = video.createScreen(display.node, 512, 480);
@@ -98,6 +95,8 @@ auto System::power(bool reset) -> void {
   ppu.power(reset);
   cartridge.power(reset);
   scheduler.primary(cpu);
+
+  serializeInit();
 }
 
 }

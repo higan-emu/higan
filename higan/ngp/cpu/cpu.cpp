@@ -6,10 +6,6 @@ CPU cpu;
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
 static uint ctr=0;
 if(++ctr<200) print(disassemble(), "\n");
@@ -26,7 +22,9 @@ auto CPU::step(uint clocks) -> void {
 
 auto CPU::power() -> void {
   TLCS900H::power();
-  create(CPU::Enter, system.frequency());
+  Thread::create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   ram.allocate(0x3000);
   r.pc.l.l0 = 0xff1800;
   io = {};

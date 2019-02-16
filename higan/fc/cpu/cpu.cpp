@@ -2,14 +2,10 @@
 
 namespace higan::Famicom {
 
+CPU cpu;
 #include "memory.cpp"
 #include "timing.cpp"
 #include "serialization.cpp"
-CPU cpu;
-
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
 
 auto CPU::main() -> void {
   if(io.interruptPending) return interrupt();
@@ -27,7 +23,9 @@ auto CPU::step(uint clocks) -> void {
 auto CPU::power(bool reset) -> void {
   MOS6502::BCD = 0;
   MOS6502::power();
-  create(CPU::Enter, system.frequency());
+  Thread::create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   if(!reset) for(auto& data : ram) data = 0xff;
   ram[0x008] = 0xf7;  //todo: what is this about?

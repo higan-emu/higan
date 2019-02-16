@@ -34,10 +34,6 @@ APU::APU() {
   }
 }
 
-auto APU::Enter() -> void {
-  while(true) scheduler.synchronize(), apu.main();
-}
-
 auto APU::main() -> void {
   uint pulse_output, triangle_output, noise_output, dmc_output;
 
@@ -72,7 +68,9 @@ auto APU::setSample(int16 sample) -> void {
 }
 
 auto APU::power(bool reset) -> void {
-  create(APU::Enter, system.frequency());
+  Thread::create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   stream = audio.createStream(1, frequency() / rate());
   stream->addHighPassFilter(   90.0, Filter::Order::First);
   stream->addHighPassFilter(  440.0, Filter::Order::First);

@@ -6,10 +6,6 @@ CPU cpu;
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
-
 auto CPU::main() -> void {
   if(io.irqLine) irq(1, 0x0038, 0xff);
   instruction();
@@ -28,7 +24,9 @@ auto CPU::synchronizing() const -> bool {
 auto CPU::power() -> void {
   Z80::bus = this;
   Z80::power();
-  create(CPU::Enter, system.colorburst());
+  Thread::create(system.colorburst(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   r.pc = 0x0000;  //reset vector address
 

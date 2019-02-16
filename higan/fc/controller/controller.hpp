@@ -17,29 +17,15 @@
 //  7:  gnd
 
 struct Controller : Thread {
-  Controller(uint port);
+  Node::Peripheral node;
+
+  Controller();
   virtual ~Controller();
-  static auto Enter() -> void;
 
   virtual auto main() -> void;
-  virtual auto data() -> uint3 { return 0; }
-  virtual auto latch(bool data) -> void {}
-
-  const uint port;
+  virtual auto data() -> uint3 { return 0b000; }
+  virtual auto latch(uint1 data) -> void {}
 };
 
-struct ControllerPort {
-  auto connect(uint deviceID) -> void;
-
-  auto power(uint port) -> void;
-  auto unload() -> void;
-  auto serialize(serializer&) -> void;
-
-  uint port;
-  Controller* device = nullptr;
-};
-
-extern ControllerPort controllerPort1;
-extern ControllerPort controllerPort2;
-
+#include "port.hpp"
 #include "gamepad/gamepad.hpp"

@@ -4,47 +4,63 @@ namespace higan::PCEngine {
 
 Cartridge cartridge;
 
-auto Cartridge::load() -> bool {
+auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(port, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
+  }
+  parent->append(port);
+}
+
+auto Cartridge::connect(Node::Peripheral with) -> void {
+  node = Node::Peripheral::create("Cartridge", port->type);
+  node->load(with);
+
   information = {};
 
-  if(Model::PCEngine()) {
-    if(auto loaded = platform->load(ID::PCEngine, "PC Engine", "pce")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(Model::SuperGrafx()) {
-    if(auto loaded = platform->load(ID::SuperGrafx, "SuperGrafx", "sg")) {
-      information.pathID = loaded.pathID;
-    } else return false;
-  }
-
-  if(auto fp = platform->open(pathID(), "manifest.bml", File::Read, File::Required)) {
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
-  } else return false;
+  } else return;
 
   auto document = BML::unserialize(information.manifest);
-  information.title = document["game/label"].text();
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
-    rom.size = memory.size;
+  if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
+    rom.size = memory["size"].natural();
     rom.data = new uint8[rom.size]();
-    if(auto fp = platform->open(pathID(), memory.name(), File::Read, File::Required)) {
+    if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
       fp->read(rom.data, rom.size);
     }
   }
 
-  information.sha256 = Hash::SHA256({rom.data, rom.size}).digest();
-  return true;
+  if(auto fp = platform->open(node, "save.ram", File::Read)) {
+    fp->read(cpu.bram, 0x800);
+  }
+
+  power();
+  port->prepend(node);
 }
 
-auto Cartridge::save() -> void {
-  auto document = BML::unserialize(information.manifest);
-}
-
-auto Cartridge::unload() -> void {
+auto Cartridge::disconnect() -> void {
+  if(!node) return;
   delete[] rom.data;
   rom = {};
+  node = {};
+}
+
+//PC Engine HuCards lack save RAM on them due to the card size and cost savings.
+//The PC Engine CD adds 2KB of backup RAM that most HuCard games can use for saves.
+//However, all games must share this small amount of RAM.
+//Since this is an emulator, we can make this process nicer by storing BRAM per-game.
+
+auto Cartridge::save() -> void {
+  if(!node) return;
+  auto document = BML::unserialize(information.manifest);
+
+  if(auto fp = platform->open(node, "save.ram", File::Write)) {
+    fp->write(cpu.bram, 0x800);
+  }
 }
 
 auto Cartridge::power() -> void {

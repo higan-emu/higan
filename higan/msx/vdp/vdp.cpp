@@ -10,10 +10,6 @@ VDP vdp;
 #include "sprites.cpp"
 #include "serialization.cpp"
 
-auto VDP::Enter() -> void {
-  while(true) scheduler.synchronize(), vdp.main();
-}
-
 auto VDP::main() -> void {
   if(io.vcounter < 192) {
     uint8 y = io.vcounter;
@@ -42,11 +38,13 @@ auto VDP::step(uint clocks) -> void {
 }
 
 auto VDP::refresh() -> void {
-  video.refresh(buffer, 256 * sizeof(uint32), 256, 192);
+  display.screen->refresh(buffer, 256 * sizeof(uint32), 256, 192);
 }
 
 auto VDP::power() -> void {
-  create(VDP::Enter, system.colorburst() * 2);
+  Thread::create(system.colorburst() * 2, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
   vram.allocate(0x4000);
 
   io = {};

@@ -2,7 +2,6 @@
 
 struct VDP : Thread {
   //vdp.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto refresh() -> void;

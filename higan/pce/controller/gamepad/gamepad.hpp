@@ -1,13 +1,26 @@
 struct Gamepad : Controller {
-  enum : uint {
-    Up, Down, Left, Right, Two, One, Select, Run,
-  };
+  Node::Button up;
+  Node::Button down;
+  Node::Button left;
+  Node::Button right;
+  Node::Button two;
+  Node::Button one;
+  Node::Button select;
+  Node::Button run;
 
-  Gamepad();
+  Gamepad(Node::Port, Node::Peripheral);
 
-  auto readData() -> uint4 override;
-  auto writeData(uint2 data) -> void override;
+  auto read() -> uint4 override;
+  auto write(uint2 data) -> void override;
 
+private:
   bool sel;
   bool clr;
+
+  bool yHold = 0;
+  bool upLatch = 0;
+  bool downLatch = 0;
+  bool xHold = 0;
+  bool leftLatch = 0;
+  bool rightLatch = 0;
 };

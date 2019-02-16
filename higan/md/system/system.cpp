@@ -44,45 +44,44 @@ auto System::load(Node::Object from) -> void {
   Node::load(resetButton, from);
   node->append(resetButton);
 
+  display.load(node, from);
   cartridge.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   extensionPort.load(node, from);
-  display.load(node, from);
-}
-
-auto System::save() -> void {
-  cartridge.save();
 }
 
 auto System::unload() -> void {
-  cpu.peripherals.reset();
+  if(!node) return;
+  save();
+  cartridge.disconnect();
   controllerPort1.disconnect();
   controllerPort2.disconnect();
   extensionPort.disconnect();
-  cartridge.disconnect();
+  node = {};
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
 }
 
 auto System::power(bool reset) -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
-  information = {};
 
+  information = {};
   if(regionNode->latch() == "NTSC-J") {
     information.region = Region::NTSCJ;
     information.frequency = Constants::Colorburst::NTSC * 15.0;
   }
-
   if(regionNode->latch() == "NTSC-U") {
     information.region = Region::NTSCU;
     information.frequency = Constants::Colorburst::NTSC * 15.0;
   }
-
   if(regionNode->latch() == "PAL") {
     information.region = Region::PAL;
     information.frequency = Constants::Colorburst::PAL * 12.0;
   }
-
-  serializeInit();
 
   video.reset(interface);
   display.screen = video.createScreen(display.node, 1280, 480);
@@ -97,6 +96,8 @@ auto System::power(bool reset) -> void {
   psg.power(reset);
   ym2612.power(reset);
   scheduler.primary(cpu);
+
+  serializeInit();
 }
 
 }

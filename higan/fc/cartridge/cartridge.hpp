@@ -2,33 +2,28 @@
 #include "board/board.hpp"
 
 struct Cartridge : Thread {
+  Node::Port port;
+  Node::Peripheral node;
+
   inline auto rate() const -> uint { return Region::PAL() ? 16 : 12; }
+  inline auto region() const -> string { return information.region; }
+  inline auto manifest() const -> string { return information.manifest; }
 
   //cartridge.cpp
-  static auto Enter() -> void;
-  auto main() -> void;
-
-  auto pathID() const -> uint { return information.pathID; }
-  auto region() const -> string { return information.region; }
-  auto hash() const -> string { return information.sha256; }
-  auto manifest() const -> string { return information.manifest; }
-  auto title() const -> string { return information.title; }
-
-  auto load() -> bool;
-  auto save() -> void;
-  auto unload() -> void;
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
 
   auto power() -> void;
+  auto save() -> void;
+  auto main() -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
   struct Information {
-    uint pathID = 0;
     string region;
-    string sha256;
     string manifest;
-    string title;
   } information;
 
 //privileged:

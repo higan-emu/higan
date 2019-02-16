@@ -3,7 +3,6 @@ struct PPU : Thread {
   inline auto vlines() const -> uint { return Region::PAL() ? 312 : 262; }
 
   //ppu.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
 

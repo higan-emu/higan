@@ -7,10 +7,6 @@ PPU ppu;
 #include "render.cpp"
 #include "serialization.cpp"
 
-auto PPU::Enter() -> void {
-  while(true) scheduler.synchronize(), ppu.main();
-}
-
 auto PPU::main() -> void {
   renderScanline();
 }
@@ -51,11 +47,13 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  video.refresh(buffer, 256 * sizeof(uint32), 256, 240);
+  display.screen->refresh(buffer, 256 * sizeof(uint32), 256, 240);
 }
 
 auto PPU::power(bool reset) -> void {
-  create(PPU::Enter, system.frequency());
+  Thread::create(system.frequency(), [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   io = {};
   latch = {};

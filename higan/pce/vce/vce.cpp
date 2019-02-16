@@ -7,10 +7,6 @@ VCE vce;
 #include "io.cpp"
 #include "serialization.cpp"
 
-auto VCE::Enter() -> void {
-  while(true) scheduler.synchronize(), vce.main();
-}
-
 auto VCE::main() -> void {
   if(timing.vclock == 0) {
     vdc0.frame();
@@ -54,11 +50,13 @@ auto VCE::step(uint clocks) -> void {
 }
 
 auto VCE::refresh() -> void {
-  video.refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
+  display.screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
 }
 
 auto VCE::power() -> void {
-  create(VCE::Enter, system.colorburst() * 6.0);
+  Thread::create(system.colorburst() * 6.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   for(auto& pixel : buffer) pixel = 0;
   cram = {};

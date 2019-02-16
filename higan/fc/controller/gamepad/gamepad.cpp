@@ -1,36 +1,60 @@
-Gamepad::Gamepad(uint port) : Controller(port) {
+Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Gamepad", parent->type);
+  node->load(with);
+  up     = Node::append<Node::Button>(node, with, "Up");
+  down   = Node::append<Node::Button>(node, with, "Down");
+  left   = Node::append<Node::Button>(node, with, "Left");
+  right  = Node::append<Node::Button>(node, with, "Right");
+  b      = Node::append<Node::Button>(node, with, "B");
+  a      = Node::append<Node::Button>(node, with, "A");
+  select = Node::append<Node::Button>(node, with, "Select");
+  start  = Node::append<Node::Button>(node, with, "Start");
+  parent->prepend(node);
 }
 
 auto Gamepad::data() -> uint3 {
-  if(counter >= 8) return 1;
-  if(latched == 1) return platform->inputPoll(port, ID::Device::Gamepad, A);
+  if(latched == 1) return platform->input(a), a->value;
 
   switch(counter++) {
-  case 0: return a;
-  case 1: return b;
-  case 2: return select;
-  case 3: return start;
-  case 4: return up && !down;
-  case 5: return down && !up;
-  case 6: return left && !right;
-  case 7: return right && !left;
+  case 0: return a->value;
+  case 1: return b->value;
+  case 2: return select->value;
+  case 3: return start->value;
+  case 4: return upLatch;
+  case 5: return downLatch;
+  case 6: return leftLatch;
+  case 7: return rightLatch;
   }
-  unreachable;
+
+  counter = 8;
+  return 1;
 }
 
-auto Gamepad::latch(bool data) -> void {
+auto Gamepad::latch(uint1 data) -> void {
   if(latched == data) return;
   latched = data;
   counter = 0;
 
   if(latched == 0) {
-    a      = platform->inputPoll(port, ID::Device::Gamepad, A);
-    b      = platform->inputPoll(port, ID::Device::Gamepad, B);
-    select = platform->inputPoll(port, ID::Device::Gamepad, Select);
-    start  = platform->inputPoll(port, ID::Device::Gamepad, Start);
-    up     = platform->inputPoll(port, ID::Device::Gamepad, Up);
-    down   = platform->inputPoll(port, ID::Device::Gamepad, Down);
-    left   = platform->inputPoll(port, ID::Device::Gamepad, Left);
-    right  = platform->inputPoll(port, ID::Device::Gamepad, Right);
+    platform->input(a);
+    platform->input(b);
+    platform->input(select);
+    platform->input(start);
+    platform->input(up);
+    platform->input(down);
+    platform->input(left);
+    platform->input(right);
+
+    if(!(up->value & down->value)) {
+      yHold = 0, upLatch = up->value, downLatch = down->value;
+    } else if(!yHold) {
+      yHold = 1, swap(upLatch, downLatch);
+    }
+
+    if(!(left->value & right->value)) {
+      xHold = 0, leftLatch = left->value, rightLatch = right->value;
+    } else if(!xHold) {
+      xHold = 1, swap(leftLatch, rightLatch);
+    }
   }
 }

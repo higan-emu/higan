@@ -1,20 +1,21 @@
+#include "display.hpp"
+
 struct System {
+  Node::Object node;
+  Node::String regionNode;
+  Node::Button resetButton;
   enum class Region : uint { NTSCJ, NTSCU, PAL };
 
-  auto loaded() const -> bool { return information.loaded; }
-  auto region() const -> Region { return information.region; }
-  auto frequency() const -> double { return information.frequency; }
+  inline auto region() const -> Region { return information.region; }
+  inline auto frequency() const -> double { return information.frequency; }
 
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Interface*) -> bool;
-  auto save() -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto save() -> void;
   auto power(bool reset) -> void;
-
-  auto init() -> void;
-  auto term() -> void;
 
   //serialization.cpp
   auto serialize() -> serializer;
@@ -25,15 +26,11 @@ struct System {
   auto serializeInit() -> void;
 
 private:
-  Interface* interface = nullptr;
-
   struct Information {
-    bool loaded = false;
     Region region = Region::NTSCJ;
     double frequency = Constants::Colorburst::NTSC * 6.0;
+    uint serializeSize = 0;
   } information;
-
-  uint _serializeSize = 0;
 };
 
 extern System system;

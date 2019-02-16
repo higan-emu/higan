@@ -5,7 +5,6 @@ struct VPU : Thread {
   Memory::Writable<uint8> ram;
 
   //vpu.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto refresh() -> void;

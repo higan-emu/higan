@@ -3,15 +3,10 @@
 namespace higan::PCEngine {
 
 CPU cpu;
-#include "memory.cpp"
 #include "io.cpp"
 #include "irq.cpp"
 #include "timer.cpp"
 #include "serialization.cpp"
-
-auto CPU::Enter() -> void {
-  while(true) scheduler.synchronize(), cpu.main();
-}
 
 auto CPU::main() -> void {
   if(irq.pending()) return interrupt(irq.vector());
@@ -30,7 +25,9 @@ auto CPU::step(uint clocks) -> void {
 
 auto CPU::power() -> void {
   HuC6280::power();
-  create(CPU::Enter, system.colorburst() * 2.0);
+  Thread::create(system.colorburst() * 2.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   r.pc.byte(0) = read(0x00, 0x1ffe);
   r.pc.byte(1) = read(0x00, 0x1fff);

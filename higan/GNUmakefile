@@ -40,7 +40,7 @@ obj/libco.o: ../libco/libco.c
 obj/emulator.o: emulator/emulator.cpp
 
 ifeq ($(target),higan)
-  cores := sfc ms md gb gba ws
+  cores := fc sfc ms md pce msx gb gba ws ngp
 endif
 
 ifeq ($(target),legacy)

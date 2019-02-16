@@ -12,14 +12,6 @@ VDC vdc1;
 #include "sprite.cpp"
 #include "serialization.cpp"
 
-auto VDC::Enter() -> void {
-  while(true) {
-    scheduler.synchronize();
-    if(vdc0.active()) vdc0.main();
-    if(vdc1.active()) vdc1.main();
-  }
-}
-
 auto VDC::main() -> void {
   if(Model::PCEngine() && vdc1.active()) return step(frequency());
 
@@ -96,7 +88,9 @@ auto VDC::step(uint clocks) -> void {
 }
 
 auto VDC::power() -> void {
-  create(VDC::Enter, system.colorburst() * 6.0);
+  Thread::create(system.colorburst() * 6.0, [&] {
+    while(true) scheduler.synchronize(), main();
+  });
 
   memory::fill(&vram, sizeof(VRAM));
   satb = {};

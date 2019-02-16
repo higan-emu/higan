@@ -1,13 +1,13 @@
 struct Cartridge {
-  auto pathID() const -> uint { return information.pathID; }
-  auto hash() const -> string { return information.sha256; }
-  auto manifest() const -> string { return information.manifest; }
-  auto title() const -> string { return information.title; }
+  Node::Port port;
+  Node::Peripheral node;
 
-  auto load() -> bool;
+  //cartridge.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
+
   auto save() -> void;
-  auto unload() -> void;
-
   auto power() -> void;
 
   auto read(uint20 addr) -> uint8;
@@ -17,10 +17,7 @@ private:
   auto mirror(uint addr, uint size) -> uint;
 
   struct Information {
-    uint pathID = 0;
-    string sha256;
     string manifest;
-    string title;
   } information;
 
   struct Memory {

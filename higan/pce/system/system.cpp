@@ -5,6 +5,7 @@ namespace higan::PCEngine {
 System system;
 Scheduler scheduler;
 Cheat cheat;
+#include "display.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -19,34 +20,39 @@ auto System::runToSave() -> void {
   scheduler.synchronize(psg);
 }
 
-auto System::load(Interface* interface, Model model) -> bool {
-  this->interface = interface;
+auto System::load(Node::Object from) -> void {
+  if(node) unload();
+
   information = {};
-  information.model = model;
+  if(interface->name() == "PC Engine" ) information.model = Model::PCEngine;
+  if(interface->name() == "SuperGrafx") information.model = Model::SuperGrafx;
 
-  auto document = BML::unserialize(interface->properties().serialize());
-  if(!cartridge.load()) return false;
+  node = Node::System::create(interface->name());
+  node->load(from);
 
-  cpu.load();
-  serializeInit();
-  information.colorburst = Constants::Colorburst::NTSC;
-  return information.loaded = true;
-}
-
-auto System::save() -> void {
-  cartridge.save();
-  cpu.save();
+  display.load(node, from);
+  cartridge.load(node, from);
+  controllerPort.load(node, from);
 }
 
 auto System::unload() -> void {
-  cpu.peripherals.reset();
-  controllerPort.unload();
-  cartridge.unload();
+  if(!node) return;
+  save();
+  cartridge.disconnect();
+  controllerPort.disconnect();
+  node = {};
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
 }
 
 auto System::power() -> void {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+
   video.reset(interface);
-  video.setPalette();
+  display.screen = video.createScreen(display.node, 1120, 240);
   audio.reset(interface);
 
   scheduler.reset();
@@ -59,8 +65,7 @@ auto System::power() -> void {
   psg.power();
   scheduler.primary(cpu);
 
-  controllerPort.power();
-  controllerPort.connect(option.port.controller.device());
+  serializeInit();
 }
 
 }

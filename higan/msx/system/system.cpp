@@ -5,12 +5,11 @@ namespace higan::MSX {
 System system;
 Scheduler scheduler;
 Cheat cheat;
+#include "display.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) {
-    vdp.refresh();
-  }
+  if(scheduler.enter() == Scheduler::Event::Frame) vdp.refresh();
 }
 
 auto System::runToSave() -> void {
@@ -19,53 +18,66 @@ auto System::runToSave() -> void {
   scheduler.synchronize(psg);
 }
 
-auto System::load(Interface* interface, Model model) -> bool {
-  this->interface = interface;
+auto System::load(Node::Object from) -> void {
+  if(node) unload();
+
+  node = Node::System::create(interface->name());
+  node->load(from);
+
+  regionNode = Node::String::create("Region", "NTSC");
+  regionNode->allowedValues = {"NTSC", "PAL"};
+  Node::load(regionNode, from);
+  node->append(regionNode);
+
+  display.load(node, from);
+  cartridge.load(node, from);
+  expansion.load(node, from);
+}
+
+auto System::unload() -> void {
+  if(!node) return;
+  save();
+  cartridge.disconnect();
+  expansion.disconnect();
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
+  expansion.save();
+}
+
+auto System::power() -> void {
+  for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+
   information = {};
-  information.model = model;
-
-  auto document = BML::unserialize(interface->properties().serialize());
-
-  if(auto memory = document["system/memory(type=ROM,content=BIOS)"]) {
-    bios.allocate(memory["size"].natural());
-    if(auto fp = platform->open(ID::System, "bios.rom", File::Read, File::Required)) {
-      bios.load(fp);
-    } else return false;
-  } else return false;
-
-  if(!cartridge.load()) return false;
-
-  if(cartridge.region() == "NTSC") {
+  if(regionNode->latch() == "NTSC") {
     information.region = Region::NTSC;
     information.colorburst = Constants::Colorburst::NTSC;
   }
-  if(cartridge.region() == "PAL") {
+  if(regionNode->latch() == "PAL") {
     information.region = Region::PAL;
     information.colorburst = Constants::Colorburst::PAL;
   }
 
-  return information.loaded = true;
-}
+  bios.allocate(32_KiB);
+  if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
+    bios.load(fp);
+  }
 
-auto System::save() -> void {
-  cartridge.save();
-}
-
-auto System::unload() -> void {
-  cartridge.unload();
-}
-
-auto System::power() -> void {
   video.reset(interface);
-  video.setPalette();
+  display.screen = video.createScreen(display.node, 256, 192);
   audio.reset(interface);
 
   scheduler.reset();
   cartridge.power();
+  expansion.power();
   cpu.power();
   vdp.power();
   psg.power();
   scheduler.primary(cpu);
+
+  serializeInit();
 }
 
 }

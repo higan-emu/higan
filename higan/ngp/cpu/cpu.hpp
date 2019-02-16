@@ -2,7 +2,6 @@ struct CPU : TLCS900H, Thread {
   Memory::Writable<uint8> ram;
 
   //cpu.cpp
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void override;
   auto power() -> void;

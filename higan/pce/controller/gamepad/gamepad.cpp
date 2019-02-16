@@ -1,35 +1,59 @@
-Gamepad::Gamepad() {
+Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Gamepad", parent->type);
+  node->load(with);
+  up     = Node::append<Node::Button>(node, with, "Up");
+  down   = Node::append<Node::Button>(node, with, "Down");
+  left   = Node::append<Node::Button>(node, with, "Left");
+  right  = Node::append<Node::Button>(node, with, "Right");
+  two    = Node::append<Node::Button>(node, with, "II");
+  one    = Node::append<Node::Button>(node, with, "I");
+  select = Node::append<Node::Button>(node, with, "Select");
+  run    = Node::append<Node::Button>(node, with, "Run");
+  parent->prepend(node);
 }
 
-auto Gamepad::readData() -> uint4 {
+auto Gamepad::read() -> uint4 {
   if(clr) return 0;
+
+  platform->input(up);
+  platform->input(down);
+  platform->input(left);
+  platform->input(right);
+  platform->input(two);
+  platform->input(one);
+  platform->input(select);
+  platform->input(run);
+
+  if(!(up->value & down->value)) {
+    yHold = 0, upLatch = up->value, downLatch = down->value;
+  } else if(!yHold) {
+    yHold = 1, swap(upLatch, downLatch);
+  }
+
+  if(!(left->value & right->value)) {
+    xHold = 0, leftLatch = left->value, rightLatch = right->value;
+  } else if(!xHold) {
+    xHold = 1, swap(leftLatch, rightLatch);
+  }
 
   uint4 data;
 
   if(sel) {
-    bool up    = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, Up);
-    bool right = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, Right);
-    bool down  = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, Down);
-    bool left  = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, Left);
-    data.bit(0) = !(up & !down);
-    data.bit(1) = !(right & !left);
-    data.bit(2) = !(down & !up);
-    data.bit(3) = !(left & !right);
+    data.bit(0) = !upLatch;
+    data.bit(1) = !rightLatch;
+    data.bit(2) = !downLatch;
+    data.bit(3) = !leftLatch;
   } else {
-    bool one    = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, One);
-    bool two    = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, Two);
-    bool select = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, Select);
-    bool run    = platform->inputPoll(ID::Port::Controller, ID::Device::Gamepad, Run);
-    data.bit(0) = !one;
-    data.bit(1) = !two;
-    data.bit(2) = !select;
-    data.bit(3) = !run;
+    data.bit(0) = !one->value;
+    data.bit(1) = !two->value;
+    data.bit(2) = !select->value;
+    data.bit(3) = !run->value;
   }
 
   return data;
 }
 
-auto Gamepad::writeData(uint2 data) -> void {
+auto Gamepad::write(uint2 data) -> void {
   sel = data.bit(0);
   clr = data.bit(1);
 }

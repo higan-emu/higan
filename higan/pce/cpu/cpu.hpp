@@ -1,15 +1,10 @@
 //Hudson Soft HuC6280
 
 struct CPU : HuC6280, Thread {
-  static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void override;
   auto power() -> void;
   auto lastCycle() -> void override;
-
-  //memory.cpp
-  auto load() -> void;
-  auto save() -> void;
 
   //io.cpp
   auto read(uint8 bank, uint13 addr) -> uint8 override;
@@ -25,10 +20,10 @@ struct CPU : HuC6280, Thread {
 
   vector<Thread*> peripherals;
 
-private:
   uint8 ram[0x8000];  //PC Engine = 8KB, SuperGrafx = 32KB
   uint8 bram[0x800];  //PC Engine CD-ROM Backup RAM = 2KB
 
+private:
   struct IRQ {
     //irq.cpp
     auto pending() const -> bool;
