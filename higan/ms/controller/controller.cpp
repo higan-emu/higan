@@ -3,7 +3,6 @@
 namespace higan::MasterSystem {
 
 #include "port.cpp"
-#include "numberpad/numberpad.cpp"
 #include "gamepad/gamepad.cpp"
 
 Controller::Controller() {

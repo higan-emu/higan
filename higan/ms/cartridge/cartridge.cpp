@@ -24,16 +24,15 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
   if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
-  } else return;
+  }
 
   auto document = BML::unserialize(information.manifest);
-  information.title = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.allocate(memory["size"].natural());
     if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
       rom.load(fp);
-    } else return;
+    }
   }
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {

@@ -61,19 +61,13 @@ auto VDP::step(uint clocks) -> void {
       }
     }
 
-    cpu.setINT((io.lineInterrupts && io.intLine) || (io.frameInterrupts && io.intFrame));
+    cpu.setIRQ((io.lineInterrupts && io.intLine) || (io.frameInterrupts && io.intFrame));
     Thread::step(1);
     synchronize(cpu);
   }
 }
 
 auto VDP::refresh() -> void {
-  if(Model::ColecoVision() || Model::SG1000() || Model::SC3000()) {
-    uint32* screen = buffer;
-    screen += 24 * 256;
-    display.screen->refresh(screen, 256 * sizeof(uint32), 256, 192);
-  }
-
   if(Model::MasterSystem()) {
     //center the video output vertically in the viewport
     uint32* screen = buffer;
@@ -115,7 +109,6 @@ auto VDP::power() -> void {
 }
 
 auto VDP::palette(uint5 index) -> uint12 {
-  if(Model::ColecoVision() || Model::SG1000() || Model::SC3000()) return index.bits(0,3);
   //Master System and Game Gear approximate TMS9918A colors by converting to RGB6 palette colors
   static uint6 palette[16] = {
     0x00, 0x00, 0x08, 0x0c, 0x10, 0x30, 0x01, 0x3c,

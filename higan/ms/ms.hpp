@@ -32,9 +32,6 @@ namespace higan::MasterSystem {
   };
 
   struct Model {
-    inline static auto ColecoVision() -> bool;
-    inline static auto SG1000() -> bool;
-    inline static auto SC3000() -> bool;
     inline static auto MasterSystem() -> bool;
     inline static auto GameGear() -> bool;
   };

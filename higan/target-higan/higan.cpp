@@ -15,9 +15,11 @@ auto hiro::initialize() -> void {
 #include <fc/interface/interface.hpp>
 #include <gb/interface/interface.hpp>
 #include <gba/interface/interface.hpp>
-#include <md/interface/interface.hpp>
+#include <sg/interface/interface.hpp>
 #include <ms/interface/interface.hpp>
+#include <md/interface/interface.hpp>
 #include <msx/interface/interface.hpp>
+#include <cv/interface/interface.hpp>
 #include <ngp/interface/interface.hpp>
 #include <pce/interface/interface.hpp>
 #include <sfc/interface/interface.hpp>
@@ -57,9 +59,11 @@ auto nall::main(Arguments arguments) -> void {
   #ifdef CORE_SFC
   interfaces.append(new higan::SuperFamicom::SuperFamicomInterface);
   #endif
+  #ifdef CORE_SG
+  interfaces.append(new higan::SG1000::SG1000Interface);
+  interfaces.append(new higan::SG1000::SC3000Interface);
+  #endif
   #ifdef CORE_MS
-  interfaces.append(new higan::MasterSystem::SG1000Interface);
-  interfaces.append(new higan::MasterSystem::SC3000Interface);
   interfaces.append(new higan::MasterSystem::MasterSystemInterface);
   #endif
   #ifdef CORE_MD
@@ -69,11 +73,11 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::PCEngine::PCEngineInterface);
   interfaces.append(new higan::PCEngine::SuperGrafxInterface);
   #endif
-  #ifdef CORE_MS
-  interfaces.append(new higan::MasterSystem::ColecoVisionInterface);
-  #endif
   #ifdef CORE_MSX
   interfaces.append(new higan::MSX::MSXInterface);
+  #endif
+  #ifdef CORE_CV
+  interfaces.append(new higan::ColecoVision::ColecoVisionInterface);
   #endif
   #ifdef CORE_GB
   interfaces.append(new higan::GameBoy::GameBoyInterface);

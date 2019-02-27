@@ -9,6 +9,7 @@
 #include <emulator/cheat.hpp>
 
 #include <component/processor/z80/z80.hpp>
+#include <component/video/tms9918/tms9918.hpp>
 
 namespace higan::MSX {
   extern Scheduler scheduler;

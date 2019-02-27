@@ -5,11 +5,11 @@ mHorizontalResizeGrip::mHorizontalResizeGrip() {
   icon.allocate(5, 15);
   for(uint y : range(icon.height())) {
     auto data = icon.data() + y * icon.pitch();
-    icon.write(data, 0xff9f9f9f); data += icon.stride();
     icon.write(data, 0x00000000); data += icon.stride();
     icon.write(data, 0xff9f9f9f); data += icon.stride();
     icon.write(data, 0x00000000); data += icon.stride();
     icon.write(data, 0xff9f9f9f); data += icon.stride();
+    icon.write(data, 0x00000000); data += icon.stride();
   }
   mCanvas::setIcon(icon);
   mCanvas::onMousePress([&](auto button) {

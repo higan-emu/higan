@@ -47,6 +47,11 @@ auto pTreeViewItem::setExpanded(bool expanded) -> void {
     auto path = gtk_tree_model_get_path(parentWidget->gtkTreeModel, &gtkIter);
     if(expanded) {
       gtk_tree_view_expand_row(parentWidget->gtkTreeView, path, false);
+      //if you collapse a parent node, GTK collapses all child nodes
+      //this isn't very desirable, so restore any child expansions recursively here
+      for(auto& item : state().items) {
+        item->setExpanded(item->expanded());
+      }
     } else {
       gtk_tree_view_collapse_row(parentWidget->gtkTreeView, path);
     }

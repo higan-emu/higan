@@ -11,8 +11,8 @@ Cheat cheat;
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) {
-    cpu.pollPause();
     vdp.refresh();
+    controls.poll();
   }
 }
 
@@ -26,9 +26,6 @@ auto System::load(Node::Object from) -> void {
   if(node) unload();
 
   information = {};
-  if(interface->name() == "ColecoVision" ) information.model = Model::ColecoVision;
-  if(interface->name() == "SG-1000"      ) information.model = Model::SG1000;
-  if(interface->name() == "SC-3000"      ) information.model = Model::SC3000;
   if(interface->name() == "Master System") information.model = Model::MasterSystem;
   if(interface->name() == "Game Gear"    ) information.model = Model::GameGear;
 
@@ -57,12 +54,11 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
+  cartridge.disconnect();
   if(!MasterSystem::Model::GameGear()) {
-    cpu.peripherals.reset();
     controllerPort1.disconnect();
     controllerPort2.disconnect();
   }
-  cartridge.disconnect();
   node = {};
 }
 
@@ -77,12 +73,6 @@ auto System::power() -> void {
   if(regionNode->latch() == "PAL") {
     information.region = Region::PAL;
     information.colorburst = Constants::Colorburst::PAL * 4.0 / 5.0;
-  }
-
-  if(MasterSystem::Model::ColecoVision()) {
-    if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
-      fp->read(bios, 0x2000);
-    }
   }
 
   video.reset(interface);

@@ -5,7 +5,7 @@ struct System {
   Node::Object node;
   Node::String regionNode;
 
-  enum class Model : uint { ColecoVision, SG1000, SC3000, MasterSystem, GameGear };
+  enum class Model : uint { MasterSystem, GameGear };
   enum class Region : uint { NTSC, PAL };
 
   auto model() const -> Model { return information.model; }
@@ -28,8 +28,6 @@ struct System {
   auto serializeAll(serializer&) -> void;
   auto serialize(serializer&) -> void;
 
-  uint8 bios[0x2000];
-
 private:
   struct Information {
     Model model = Model::MasterSystem;
@@ -41,9 +39,6 @@ private:
 
 extern System system;
 
-auto Model::ColecoVision() -> bool { return system.model() == System::Model::ColecoVision; }
-auto Model::SG1000() -> bool { return system.model() == System::Model::SG1000; }
-auto Model::SC3000() -> bool { return system.model() == System::Model::SC3000; }
 auto Model::MasterSystem() -> bool { return system.model() == System::Model::MasterSystem; }
 auto Model::GameGear() -> bool { return system.model() == System::Model::GameGear; }
 

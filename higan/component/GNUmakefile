@@ -34,4 +34,4 @@ obj/processor-z80.o:      component/processor/z80/z80.cpp
 
 obj/audio-sn76489.o:      component/audio/sn76489/sn76489.cpp
 
-obj/audio-tms9918.o:      component/video/tms9918/tms9918.cpp
+obj/video-tms9918.o:      component/video/tms9918/tms9918.cpp

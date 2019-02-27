@@ -40,15 +40,7 @@ obj/libco.o: ../libco/libco.c
 obj/emulator.o: emulator/emulator.cpp
 
 ifeq ($(target),higan)
-  cores := fc sfc ms md pce msx gb gba ws ngp
-endif
-
-ifeq ($(target),legacy)
-  cores := fc sfc ms md pce msx gb gba ws ngp
-endif
-
-ifeq ($(target),bsnes)
-  cores := sfc gb
+  cores := fc sfc sg ms md pce msx cv gb gba ws ngp
 endif
 
 ifneq ($(filter $(cores),fc),)
@@ -57,6 +49,10 @@ endif
 
 ifneq ($(filter $(cores),sfc),)
   include sfc/GNUmakefile
+endif
+
+ifneq ($(filter $(cores),sg),)
+  include sg/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),ms),)
@@ -73,6 +69,10 @@ endif
 
 ifneq ($(filter $(cores),msx),)
   include msx/GNUmakefile
+endif
+
+ifneq ($(filter $(cores),cv),)
+  include cv/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),gb),)

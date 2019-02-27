@@ -1,0 +1,39 @@
+struct CPU : Z80, Z80::Bus, Thread {
+  //cpu.cpp
+  auto main() -> void;
+  auto step(uint clocks) -> void override;
+  auto synchronizing() const -> bool override;
+
+  auto setNMI(bool value) -> void;
+  auto setIRQ(bool value) -> void;
+
+  auto power() -> void;
+
+  //memory.cpp
+  auto read(uint16 address) -> uint8 override;
+  auto write(uint16 address, uint8 data) -> void override;
+
+  auto in(uint8 address) -> uint8 override;
+  auto out(uint8 address, uint8 data) -> void override;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
+  vector<Thread*> peripherals;
+
+private:
+  Memory::Writable<uint8> ram;
+  Memory::Writable<uint8> expansion;
+
+  struct State {
+    bool nmiLine = 0;
+    bool irqLine = 0;
+  } state;
+
+  struct IO {
+    bool replaceRAM = 0;
+    bool replaceBIOS = 0;
+  } io;
+};
+
+extern CPU cpu;

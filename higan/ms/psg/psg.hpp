@@ -1,6 +1,7 @@
 struct PSG : SN76489, Thread {
   shared_pointer<Stream> stream;
 
+  //psg.cpp
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto balance(uint8 data) -> void;

@@ -5,11 +5,11 @@ mVerticalResizeGrip::mVerticalResizeGrip() {
   icon.allocate(15, 5);
   for(uint x : range(icon.width())) {
     auto data = icon.data() + x * icon.stride();
-    icon.write(data, 0xff9f9f9f); data += icon.pitch();
     icon.write(data, 0x00000000); data += icon.pitch();
     icon.write(data, 0xff9f9f9f); data += icon.pitch();
     icon.write(data, 0x00000000); data += icon.pitch();
     icon.write(data, 0xff9f9f9f); data += icon.pitch();
+    icon.write(data, 0x00000000); data += icon.pitch();
   }
   mCanvas::setIcon(icon);
   mCanvas::onMousePress([&](auto button) {

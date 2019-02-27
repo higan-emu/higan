@@ -1,11 +1,8 @@
 Controls controls;
 
 auto Controls::load(Node::Object parent, Node::Object from) -> void {
-  if(Model::SG1000() || Model::SC3000() || Model::MasterSystem()) {
-    pause = Node::append<Node::Button>(parent, from, "Pause");
-  }
-
   if(Model::MasterSystem()) {
+    pause = Node::append<Node::Button>(parent, from, "Pause");
     reset = Node::append<Node::Button>(parent, from, "Reset");
   }
 
@@ -21,12 +18,13 @@ auto Controls::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto Controls::poll() -> void {
-  if(Model::SG1000() || Model::SC3000() || Model::MasterSystem()) {
-    platform->input(pause);
-  }
-
   if(Model::MasterSystem()) {
+    platform->input(pause);
     platform->input(reset);
+
+    auto value = pause->value;
+    platform->input(pause);
+    if(!value && pause->value) cpu.setNMI(1);
   }
 
   if(Model::GameGear()) {

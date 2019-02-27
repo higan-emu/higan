@@ -1,4 +1,4 @@
-struct NumberPad : Controller {
+struct Gamepad : Controller {
   Node::Button up;
   Node::Button down;
   Node::Button left;
@@ -18,7 +18,7 @@ struct NumberPad : Controller {
   Node::Button zero;
   Node::Button pound;
 
-  NumberPad(Node::Port, Node::Peripheral);
+  Gamepad(Node::Port, Node::Peripheral);
 
   auto read() -> uint8 override;
   auto write(uint8 data) -> void override;

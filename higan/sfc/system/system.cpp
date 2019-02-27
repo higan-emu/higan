@@ -12,11 +12,13 @@ Cheat cheat;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
+  if(scheduler.enter() == Scheduler::Event::Frame) {
+    ppu.refresh();
 
-  auto reset = resetButton->value;
-  platform->input(resetButton);
-  if(!reset && resetButton->value) power(true);
+    auto reset = resetButton->value;
+    platform->input(resetButton);
+    if(!reset && resetButton->value) power(true);
+  }
 }
 
 auto System::runToSave() -> void {

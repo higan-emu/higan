@@ -1,5 +1,5 @@
-NumberPad::NumberPad(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Number Pad", parent->type);
+Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
+  node = Node::Peripheral::create("Gamepad", parent->type);
   node->load(with);
   up    = Node::append<Node::Button>(node, with, "Up");
   down  = Node::append<Node::Button>(node, with, "Down");
@@ -22,7 +22,7 @@ NumberPad::NumberPad(Node::Port parent, Node::Peripheral with) {
   parent->prepend(node);
 }
 
-auto NumberPad::read() -> uint8 {
+auto Gamepad::read() -> uint8 {
   platform->input(up);
   platform->input(down);
   platform->input(left);
@@ -79,6 +79,6 @@ auto NumberPad::read() -> uint8 {
   return data;
 }
 
-auto NumberPad::write(uint8 data) -> void {
+auto Gamepad::write(uint8 data) -> void {
   select = data.bit(0);
 }

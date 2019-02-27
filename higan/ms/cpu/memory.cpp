@@ -1,4 +1,4 @@
-auto CPU::readSega(uint16 address) -> uint8 {
+auto CPU::read(uint16 address) -> uint8 {
   uint8 data = 0xff;
   if(auto result = cartridge.read(address)) {
     data = result();
@@ -9,14 +9,14 @@ auto CPU::readSega(uint16 address) -> uint8 {
   return data;
 }
 
-auto CPU::writeSega(uint16 address, uint8 data) -> void {
+auto CPU::write(uint16 address, uint8 data) -> void {
   if(cartridge.write(address, data)) {
   } else if(address >= 0xc000) {
     ram.write(address, data);
   }
 }
 
-auto CPU::inSega(uint8 addr) -> uint8 {
+auto CPU::in(uint8 addr) -> uint8 {
   switch(addr >> 6) {
 
   case 0: {
@@ -38,16 +38,6 @@ auto CPU::inSega(uint8 addr) -> uint8 {
   }
 
   case 3: {
-    if(Model::SG1000() || Model::SC3000()) {
-      auto port1 = controllerPort1.read();
-      auto port2 = controllerPort2.read();
-      if(addr.bit(0) == 0) {
-        return port1.bits(0,5) << 0 | port2.bits(0,1) << 6;
-      } else {
-        return port2.bits(2,5) << 0 | 1 << 4 | 1 << 5 | port1.bit(6) << 6 | port2.bit(6) << 7;
-      }
-    }
-
     if(Model::MasterSystem()) {
       platform->input(controls.reset);
       bool reset = !controls.reset->value;
@@ -83,7 +73,7 @@ auto CPU::inSega(uint8 addr) -> uint8 {
   return 0xff;
 }
 
-auto CPU::outSega(uint8 addr, uint8 data) -> void {
+auto CPU::out(uint8 addr, uint8 data) -> void {
   if(addr == 0x06) {
     if(Model::GameGear()) return psg.balance(data);
   }
@@ -96,10 +86,6 @@ auto CPU::outSega(uint8 addr, uint8 data) -> void {
 
   case 2: {
     return !addr.bit(0) ? vdp.data(data) : vdp.control(data);
-  }
-
-  case 3: {
-    return;  //unmapped
   }
 
   }

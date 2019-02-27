@@ -22,7 +22,7 @@ auto PSG::balance(uint8 data) -> void {
 
 auto PSG::power() -> void {
   SN76489::power(0x2000);
-  create(system.colorburst() / 16.0, [&] {
+  Thread::create(system.colorburst() / 16.0, [&] {
     while(true) scheduler.synchronize(), psg.main();
   });
   stream = audio.createStream(2, frequency());
