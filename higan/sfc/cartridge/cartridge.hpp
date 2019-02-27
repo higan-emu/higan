@@ -1,13 +1,13 @@
+#include "port.hpp"
+
 struct Cartridge {
-  Node::Port port;
   Node::Peripheral node;
-  auto load(Node::Object, Node::Object) -> void;
 
   auto metadata() const -> string { return information.metadata; }
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
-  auto connect(Node::Peripheral) -> void;
+  auto connect(Node::Port, Node::Peripheral) -> void;
   auto disconnect() -> void;
 
   auto power(bool reset) -> void;

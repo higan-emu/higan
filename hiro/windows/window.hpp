@@ -40,6 +40,7 @@ struct pWindow : pObject {
   auto modalDecrement() -> void;
   auto windowProc(HWND, UINT, WPARAM, LPARAM) -> maybe<LRESULT>;
 
+  auto _efb() const -> Geometry;
   auto _geometry() -> Geometry;
   auto _modalityCount() -> unsigned;
   auto _modalityDisabled() -> bool;

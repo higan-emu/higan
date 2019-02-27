@@ -5,7 +5,8 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
   node->type   = "LCD";
   node->width  = 160;
   node->height = 144;
-  node->aspect = 1.0;
+  node->scaleX = 3.0;
+  node->scaleY = 3.0;
   parent->append(node);
 
   if(Model::GameBoy()) {
@@ -19,13 +20,13 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
   }
 
   colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto value) {
-    screen->setPalette();
+    if(screen) screen->setPalette();
   });
   colorEmulation->dynamic = true;
   node->append(colorEmulation);
 
   interframeBlending = Node::Boolean::create("Interframe Blending", true, [&](auto value) {
-    screen->setInterframeBlending(value);
+    if(screen) screen->setInterframeBlending(value);
   });
   interframeBlending->dynamic = true;
   node->append(interframeBlending);

@@ -9,7 +9,10 @@ struct Video : Object {
     output.append(depth, "  type: ", type, "\n");
     output.append(depth, "  width: ", width, "\n");
     output.append(depth, "  height: ", height, "\n");
-    output.append(depth, "  aspect: ", aspect, "\n");
+    output.append(depth, "  scaleX: ", scaleX, "\n");
+    output.append(depth, "  scaleY: ", scaleY, "\n");
+    output.append(depth, "  aspectX: ", aspectX, "\n");
+    output.append(depth, "  aspectY: ", aspectY, "\n");
     output.append(depth, "  colors: ", colors, "\n");
   }
 
@@ -18,14 +21,20 @@ struct Video : Object {
     type = node["type"].text();
     width = node["width"].natural();
     height = node["height"].natural();
-    aspect = node["aspect"].real();
+    scaleX = node["scaleX"].real();
+    scaleY = node["scaleY"].real();
+    aspectX = node["aspectX"].real();
+    aspectY = node["aspectY"].real();
     colors = node["colors"].natural();
   }
 
   string type;  //"CRT", "LCD"
   uint width = 0;
   uint height = 0;
-  double aspect = 1.0;
+  double scaleX = 1.0;
+  double scaleY = 1.0;
+  double aspectX = 1.0;
+  double aspectY = 1.0;
   uint colors = 0;
 
   function<uint64 (uint32)> color;

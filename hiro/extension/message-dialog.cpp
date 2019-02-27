@@ -70,8 +70,8 @@ auto MessageDialog::_run() -> string {
 
   Window window;
     VerticalLayout layout{&window};
-      HorizontalLayout messageLayout{&layout, Size{~0, 0}, 5};
-        VerticalLayout messageIconLayout{&messageLayout, Size{16, ~0}, 5};
+      HorizontalLayout messageLayout{&layout, Size{~0, 0}, 5_sx};
+        VerticalLayout messageIconLayout{&messageLayout, Size{16, ~0}, 5_sx};
           Canvas messageIcon{&messageIconLayout, Size{16, 16}, 0};
           Widget messageIconSpacer{&messageIconLayout, Size{16, ~0}};
         Label messageText{&messageLayout, Size{~0, 0}};
@@ -80,7 +80,7 @@ auto MessageDialog::_run() -> string {
       HorizontalLayout controlLayout{&layout, Size{~0, 0}};
         Widget controlSpacer{&controlLayout, Size{~0, 0}};
 
-  layout.setPadding(5);
+  layout.setPadding(5_sx, 5_sy);
   messageIcon.setIcon(state.icon);
   messageText.setText(state.text);
   optionSpacer.setCollapsible().setVisible((bool)state.option);
@@ -88,7 +88,7 @@ auto MessageDialog::_run() -> string {
     state.checked = optionText.checked();
   });
   for(auto n : range(state.buttons.size())) {
-    Button button{&controlLayout, Size{80, 0}, 5};
+    Button button{&controlLayout, Size{80_sx, 0}, 5_sx};
     button.onActivate([&, n] {
       state.response = state.buttons[n];
       window.setModal(false);
@@ -97,9 +97,9 @@ auto MessageDialog::_run() -> string {
     button.setFocused();  //the last button will have effective focus
   }
 
-  int widthMessage = 5 + 16 + 5 + Font().size(state.text).width() + 5;
-  int widthButtons = 5 + state.buttons.size() * 85;
-  int width = max(320, widthMessage, widthButtons);
+  int widthMessage = 5_sx + 16 + 5_sx + Font().size(state.text).width() + 5_sx;
+  int widthButtons = 5_sx + state.buttons.size() * 85_sx;
+  int width = max(320_sx, widthMessage, widthButtons);
 
   window.onClose([&] {
     //if the dialog is dismissed (escape pressed, or window manager close button clicked),

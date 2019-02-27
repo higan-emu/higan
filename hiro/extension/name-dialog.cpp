@@ -1,7 +1,7 @@
 #if defined(Hiro_NameDialog)
 
 NameDialog::NameDialog() {
-  layout.setPadding(5);
+  layout.setPadding(5_sx, 5_sy);
   typeIcon.setCollapsible();
   nameValue.onActivate([&] { acceptButton.doActivate(); });
   acceptButton.onActivate([&] {
@@ -68,7 +68,7 @@ auto NameDialog::show(string mode, string name) -> string {
   nameValue.setText(name);
   acceptButton.setText(mode);
   window.setTitle(state.title);
-  window.setSize({400, layout.minimumSize().height()});
+  window.setSize({400_sx, layout.minimumSize().height()});
   window.setAlignment(state.relativeTo, state.alignment);
   window.setVisible();
   nameValue.setFocused();

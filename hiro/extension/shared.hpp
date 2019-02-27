@@ -32,7 +32,7 @@ struct HorizontalLayoutCell : sHorizontalLayoutCell {
   auto setAlignment(maybe<float> alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setSizable(sSizable sizable) { return self().setSizable(sizable), *this; }
   auto setSize(Size size) { return self().setSize(size), *this; }
-  auto setSpacing(float spacing = 5) { return self().setSpacing(spacing), *this; }
+  auto setSpacing(float spacing = 5_sx) { return self().setSpacing(spacing), *this; }
   auto sizable() const { return self().sizable(); }
   auto size() const { return self().size(); }
   auto spacing() const { return self().spacing(); }
@@ -42,7 +42,7 @@ struct HorizontalLayout : sHorizontalLayout {
   DeclareSharedSizable(HorizontalLayout)
 
   auto alignment() const { return self().alignment(); }
-  auto append(sSizable sizable, Size size, float spacing = 5) { return self().append(sizable, size, spacing), *this; }
+  auto append(sSizable sizable, Size size, float spacing = 5_sx) { return self().append(sizable, size, spacing), *this; }
   auto cell(uint position) const { return self().cell(position); }
   auto cell(sSizable sizable) const { return self().cell(sizable); }
   auto cells() const { return self().cells(); }
@@ -53,8 +53,9 @@ struct HorizontalLayout : sHorizontalLayout {
   auto resize() { return self().resize(), *this; }
   auto setAlignment(maybe<float> alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setPadding(float padding) { return self().setPadding({padding, padding, padding, padding}), *this; }
+  auto setPadding(float x, float y) { return self().setPadding({x, y, x, y}), *this; }
   auto setPadding(Geometry padding = {}) { return self().setPadding(padding), *this; }
-  auto setSpacing(float spacing = 5) { return self().setSpacing(spacing), *this; }
+  auto setSpacing(float spacing = 5_sx) { return self().setSpacing(spacing), *this; }
 };
 #endif
 
@@ -67,7 +68,7 @@ struct VerticalLayoutCell : sVerticalLayoutCell {
   auto setAlignment(maybe<float> alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setSizable(sSizable sizable) { return self().setSizable(sizable), *this; }
   auto setSize(Size size) { return self().setSize(size), *this; }
-  auto setSpacing(float spacing = 5) { return self().setSpacing(spacing), *this; }
+  auto setSpacing(float spacing = 5_sy) { return self().setSpacing(spacing), *this; }
   auto sizable() const { return self().sizable(); }
   auto size() const { return self().size(); }
   auto spacing() const { return self().spacing(); }
@@ -77,7 +78,7 @@ struct VerticalLayout : sVerticalLayout {
   DeclareSharedSizable(VerticalLayout)
 
   auto alignment() const { return self().alignment(); }
-  auto append(sSizable sizable, Size size, float spacing = 5) { return self().append(sizable, size, spacing), *this; }
+  auto append(sSizable sizable, Size size, float spacing = 5_sy) { return self().append(sizable, size, spacing), *this; }
   auto cell(uint position) const { return self().cell(position); }
   auto cell(sSizable sizable) const { return self().cell(sizable); }
   auto cells() const { return self().cells(); }
@@ -88,8 +89,9 @@ struct VerticalLayout : sVerticalLayout {
   auto resize() { return self().resize(), *this; }
   auto setAlignment(maybe<float> alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setPadding(float padding) { return self().setPadding({padding, padding, padding, padding}), *this; }
+  auto setPadding(float x, float y) { return self().setPadding({x, y, x, y}), *this; }
   auto setPadding(Geometry padding = {}) { return self().setPadding(padding), *this; }
-  auto setSpacing(float spacing = 5) { return self().setSpacing(spacing), *this; }
+  auto setSpacing(float spacing = 5_sy) { return self().setSpacing(spacing), *this; }
 };
 #endif
 
@@ -110,7 +112,7 @@ struct TableLayoutColumn : sTableLayoutColumn {
 
   auto alignment() const { return self().alignment(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
-  auto setSpacing(float spacing = 5) { return self().setSpacing(spacing), *this; }
+  auto setSpacing(float spacing = 5_sx) { return self().setSpacing(spacing), *this; }
   auto spacing() const { return self().spacing(); }
 };
 
@@ -119,7 +121,7 @@ struct TableLayoutRow : sTableLayoutRow {
 
   auto alignment() const { return self().alignment(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
-  auto setSpacing(float spacing = 5) { return self().setSpacing(spacing), *this; }
+  auto setSpacing(float spacing = 5_sy) { return self().setSpacing(spacing), *this; }
   auto spacing() const { return self().spacing(); }
 };
 
@@ -146,6 +148,7 @@ struct TableLayout : sTableLayout {
   auto rowCount() const { return self().rowCount(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setPadding(float padding) { return self().setPadding({padding, padding, padding, padding}), *this; }
+  auto setPadding(float x, float y) { return self().setPadding({x, y, x, y}), *this; }
   auto setPadding(Geometry padding = {}) { return self().setPadding(padding), *this; }
   auto setSize(Size size) { return self().setSize(size), *this; }
   auto size() const { return self().size(); }

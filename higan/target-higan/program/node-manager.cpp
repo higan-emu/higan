@@ -1,4 +1,4 @@
-NodeManager::NodeManager(View* parent) : Panel(parent, Size{200, ~0}) {
+NodeManager::NodeManager(View* parent) : Panel(parent, Size{200_sx, ~0}) {
   setCollapsible().setVisible(false);
   nodeList.onChange([&] { eventChange(); });
 }

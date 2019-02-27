@@ -12,7 +12,7 @@ auto InputButton::value() -> bool {
 auto InputManager::create() -> void {
   root = interface->root();
 
-  input.create("SDL");
+  input.create(settings.input.driver);
   input.setContext(programWindow.handle());
   input.onChange({&InputManager::eventInput, this});
 }

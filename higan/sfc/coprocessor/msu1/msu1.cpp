@@ -68,7 +68,7 @@ auto MSU1::power() -> void {
 auto MSU1::dataOpen() -> void {
   dataFile.reset();
   string name = {"msu1/data.rom"};
-  if(dataFile = platform->open(cartridge.port->connected(), name, File::Read)) {
+  if(dataFile = platform->open(cartridge.node, name, File::Read)) {
     dataFile->seek(io.dataReadOffset);
   }
 }
@@ -76,7 +76,7 @@ auto MSU1::dataOpen() -> void {
 auto MSU1::audioOpen() -> void {
   audioFile.reset();
   string name = {"msu1/track-", io.audioTrack, ".pcm"};
-  if(audioFile = platform->open(cartridge.port->connected(), name, File::Read)) {
+  if(audioFile = platform->open(cartridge.node, name, File::Read)) {
     if(audioFile->size() >= 8) {
       uint32 header = audioFile->readm(4);
       if(header == 0x4d535531) {  //"MSU1"

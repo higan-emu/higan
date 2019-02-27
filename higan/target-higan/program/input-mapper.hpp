@@ -14,8 +14,8 @@ struct InputMapper : Panel {
   TableView inputList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
     Label message{&controlLayout, Size{~0, 0}};
-    Button assignButton{&controlLayout, Size{80, 0}};
-    Button clearButton{&controlLayout, Size{80, 0}};
+    Button assignButton{&controlLayout, Size{80_sx, 0}};
+    Button clearButton{&controlLayout, Size{80_sx, 0}};
 
   higan::Node::Object node;
   higan::Node::Input assigning;

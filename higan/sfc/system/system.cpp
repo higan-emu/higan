@@ -57,7 +57,7 @@ auto System::load(Node::Object from) -> void {
 
   hacks.load(node, from);
   bus.reset();
-  cartridge.load(node, from);
+  cartridgePort.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   expansionPort.load(node, from);
@@ -70,11 +70,11 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  controllerPort1.port = {};
-  controllerPort2.port = {};
-  expansionPort.port = {};
-  cartridge.port = {};
-  node = {};
+  cartridgePort.port.reset();
+  controllerPort1.port.reset();
+  controllerPort2.port.reset();
+  expansionPort.port.reset();
+  node.reset();
 }
 
 auto System::save() -> void {

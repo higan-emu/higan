@@ -54,7 +54,7 @@ auto AboutDialog::show() -> void {
   window.onClose([&] { window.setModal(false); });
 
   VerticalLayout layout{&window};
-  layout.setPadding(5);
+  layout.setPadding(5_sx, 5_sy);
 
   Label nameLabel{&layout, Size{~0, 0}};
   nameLabel.setCollapsible();
@@ -137,7 +137,7 @@ auto AboutDialog::show() -> void {
 
   window.setTitle({"About ", state.name ? state.name : Application::name(), " ..."});
   window.setBackgroundColor({255, 255, 240});
-  window.setSize({max(360, layout.minimumSize().width()), layout.minimumSize().height()});
+  window.setSize({max(360_sx, layout.minimumSize().width()), layout.minimumSize().height()});
   window.setResizable(false);
   window.setAlignment(state.relativeTo, state.alignment);
   window.setDismissable();

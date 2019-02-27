@@ -11,5 +11,5 @@ struct SystemCreation : Panel {
   HorizontalLayout controlLayout{this, Size{~0, 0}};
     Label nameLabel{&controlLayout, Size{0, 0}};
     LineEdit nameValue{&controlLayout, Size{~0, 0}};
-    Button createButton{&controlLayout, Size{80, 0}};
+    Button createButton{&controlLayout, Size{80_sx, 0}};
 };

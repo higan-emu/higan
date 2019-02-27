@@ -14,7 +14,7 @@ struct mVerticalLayout : mSizable {
   using mSizable::remove;
 
   auto alignment() const -> maybe<float>;
-  auto append(sSizable sizable, Size size, float spacing = 5) -> type&;
+  auto append(sSizable sizable, Size size, float spacing = 5_sy) -> type&;
   auto cell(uint position) const -> VerticalLayoutCell;
   auto cell(sSizable sizable) const -> VerticalLayoutCell;
   auto cells() const -> vector<VerticalLayoutCell>;
@@ -43,7 +43,7 @@ private:
     maybe<float> alignment;
     vector<VerticalLayoutCell> cells;
     Geometry padding;
-    float spacing = 5;
+    float spacing = 5_sy;
   } state;
 };
 
@@ -72,7 +72,7 @@ private:
     maybe<float> alignment;
     sSizable sizable;
     Size size;
-    float spacing = 5;
+    float spacing = 5_sy;
   } state;
 
   friend class mVerticalLayout;

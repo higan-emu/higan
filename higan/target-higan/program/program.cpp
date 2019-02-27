@@ -32,11 +32,11 @@ AudioSettings& audioSettings = programWindow.audioSettings;
 InputSettings& inputSettings = programWindow.inputSettings;
 
 ProgramWindow::ProgramWindow() {
-  panels.setPadding(5);
+  panels.setPadding(5_sx, 5_sy);
   for(auto& cell : panels.cells()) cell.setSpacing(0);
   resizeGrip.onActivate([&] { resizeWidth = panels.cell(*primaryPanel).size().width(); });
   resizeGrip.onResize([&](auto offset) {
-    float min = 128, max = panels.geometry().width() - 128;
+    float min = 128_sx, max = panels.geometry().width() - 128_sx;
     float width = resizeWidth + offset;
     width = width < min ? min : width > max ? max : width;
     if(panels.cell(*primaryPanel).size().width() != width) {
@@ -51,7 +51,7 @@ ProgramWindow::ProgramWindow() {
   show(systemManager);
 
   setTitle({"higan v", higan::Version});
-  setSize({720, 360});
+  setSize({720_sx, 360_sy});
   setAlignment(Alignment::Center);
   setVisible();
 }

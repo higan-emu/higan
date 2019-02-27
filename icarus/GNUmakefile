@@ -36,7 +36,15 @@ endif
 	$(call delete,out/*)
 
 install: all
-ifeq ($(platform),macos)
+ifeq ($(shell id -un),root)
+	$(error "make install should not be run as root")
+else ifeq ($(platform),windows)
+	mkdir -p $(prefix)/$(name)/
+	mkdir -p $(prefix)/$(name)/Database/
+	mkdir -p $(prefix)/$(name)/Firmware/
+	cp -R Database/* $(prefix)/$(name)/Database/
+	cp -R Firmware/* $(prefix)/$(name)/Firmware/
+else ifeq ($(platform),macos)
 	cp -R out/$(name).app /Applications/$(name).app
 else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/bin/
@@ -53,7 +61,10 @@ else ifneq ($(filter $(platform),linux bsd),)
 endif
 
 uninstall:
-ifeq ($(platform),macos)
+ifeq ($(shell id -un),root)
+	$(error "make uninstall should not be run as root")
+else ifeq ($(platform),windows)
+else ifeq ($(platform),macos)
 	rm -rf /Applications/$(name).app
 else ifneq ($(filter $(platform),linux bsd),)
 	rm -f $(prefix)/bin/$(name)

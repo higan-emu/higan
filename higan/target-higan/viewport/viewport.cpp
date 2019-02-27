@@ -8,7 +8,10 @@ auto ViewportWindow::create(higan::Node::Video node) -> void {
   });
 
   setTitle(node->name);
-  setSize({node->width * node->aspect, node->height});
+  setSize({
+    node->width * node->scaleX * (node->aspectX / node->aspectY),
+    node->height * node->scaleY
+  });
 }
 
 auto ViewportWindow::show(Window parent) -> void {

@@ -30,7 +30,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   programWindow.show(nodeManager);
   programWindow.setFocused();
 
-  sound.create("OSS");
+  sound.create(settings.audio.driver);
   sound.setContext(programWindow.handle());
   sound.setBlocking(false);
   sound.setFrequency(48000.0);

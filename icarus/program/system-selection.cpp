@@ -1,4 +1,4 @@
-SystemSelection::SystemSelection(View* view) : Panel(view, Size{140, ~0}) {
+SystemSelection::SystemSelection(View* view) : Panel(view, Size{140_sx, ~0}) {
   setCollapsible().setVisible(false);
 
   systemList.append(ListViewItem().setText("BS Memory"));

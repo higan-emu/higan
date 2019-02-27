@@ -5,7 +5,8 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
   node->type   = "CRT";
   node->width  = 256;
   node->height = 192;
-  node->aspect = 1.0;
+  node->scaleX = 2.0;
+  node->scaleY = 2.0;
   node->colors = 1 << 4;
   node->color  = [&](auto index) { return color(index); };
   parent->append(node);

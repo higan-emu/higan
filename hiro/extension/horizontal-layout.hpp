@@ -14,7 +14,7 @@ struct mHorizontalLayout : mSizable {
   using mSizable::remove;
 
   auto alignment() const -> maybe<float>;
-  auto append(sSizable sizable, Size size, float spacing = 5) -> type&;
+  auto append(sSizable sizable, Size size, float spacing = 5_sy) -> type&;
   auto cell(uint position) const -> HorizontalLayoutCell;
   auto cell(sSizable sizable) const -> HorizontalLayoutCell;
   auto cells() const -> vector<HorizontalLayoutCell>;
@@ -43,7 +43,7 @@ private:
     maybe<float> alignment;
     vector<HorizontalLayoutCell> cells;
     Geometry padding;
-    float spacing = 5;
+    float spacing = 5_sx;
   } state;
 };
 
@@ -72,7 +72,7 @@ private:
     maybe<float> alignment;
     sSizable sizable;
     Size size;
-    float spacing = 5;
+    float spacing = 5_sx;
   } state;
 
   friend class mHorizontalLayout;

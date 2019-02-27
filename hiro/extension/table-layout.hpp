@@ -74,7 +74,7 @@ struct mTableLayoutColumn : mObject {
 private:
   struct State {
     Alignment alignment;
-    float spacing = 5;
+    float spacing = 5_sx;
   } state;
 
   friend class mTableLayout;
@@ -92,7 +92,7 @@ struct mTableLayoutRow : mObject {
 private:
   struct State {
     Alignment alignment;
-    float spacing = 5;
+    float spacing = 5_sy;
   } state;
 
   friend class mTableLayout;

@@ -2,23 +2,13 @@
 
 namespace higan::SuperFamicom {
 
+#include "port.cpp"
 #include "load.cpp"
 #include "save.cpp"
 #include "serialization.cpp"
 Cartridge cartridge;
 
-auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::Port::create("Cartridge Slot", "Cartridge");
-  port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
-}
-
-auto Cartridge::connect(Node::Peripheral with) -> void {
+auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
   node = Node::Peripheral::create(interface->name());
   node->load(with);
 
@@ -44,7 +34,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(has.SharpRTC) sharprtc.load(node, with);
 
   power(false);
-  port->prepend(node);
+  parent->prepend(node);
 }
 
 auto Cartridge::disconnect() -> void {

@@ -16,19 +16,19 @@ struct BrowserDialogWindow {
 private:
   Window window;
     VerticalLayout layout{&window};
-      HorizontalLayout pathLayout{&layout, Size{~0, 0}, 5};
+      HorizontalLayout pathLayout{&layout, Size{~0, 0}, 5_sx};
         LineEdit pathName{&pathLayout, Size{~0, 0}, 0};
         Button pathRefresh{&pathLayout, Size{0, 0}, 0};
         Button pathNew{&pathLayout, Size{0, 0}, 0};
         Button pathHome{&pathLayout, Size{0, 0}, 0};
         Button pathUp{&pathLayout, Size{0, 0}, 0};
-      ListView view{&layout, Size{~0, ~0}, 5};
+      ListView view{&layout, Size{~0, ~0}, 5_sx};
       HorizontalLayout controlLayout{&layout, Size{~0, 0}};
-        ComboButton filterList{&controlLayout, Size{0, 0}, 5};
-        LineEdit fileName{&controlLayout, Size{~0, 0}, 5};
-        ComboButton optionList{&controlLayout, Size{0, 0}, 5};
-        Button acceptButton{&controlLayout, Size{80, 0}, 5};
-        Button cancelButton{&controlLayout, Size{80, 0}, 5};
+        ComboButton filterList{&controlLayout, Size{0, 0}, 5_sx};
+        LineEdit fileName{&controlLayout, Size{~0, 0}, 5_sx};
+        ComboButton optionList{&controlLayout, Size{0, 0}, 5_sx};
+        Button acceptButton{&controlLayout, Size{80, 0}, 5_sx};
+        Button cancelButton{&controlLayout, Size{80, 0}, 5_sx};
 
   PopupMenu contextMenu;
     MenuItem createAction{&contextMenu};
@@ -186,7 +186,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   } settings;
   if(auto node = document["BrowserDialog/ShowHidden"]) settings.showHidden = node.boolean();
 
-  layout.setPadding(5);
+  layout.setPadding(5_sx, 5_sy);
   pathName.onActivate([&] { setPath(pathName.text()); });
   pathRefresh.setBordered(false).setIcon(Icon::Action::Refresh).onActivate([&] { setPath(state.path); });
   pathNew.setBordered(false).setIcon(Icon::Action::NewFolder).onActivate([&] { createAction.doActivate(); });
@@ -314,7 +314,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
 
   window.onClose([&] { window.setModal(false); });
   window.setTitle(state.title);
-  window.setSize({640, 480});
+  window.setSize({640_sx, 480_sy});
   window.setAlignment(state.relativeTo, state.alignment);
   window.setDismissable();
   window.setVisible();

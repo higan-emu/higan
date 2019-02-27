@@ -2,16 +2,19 @@ Display display;
 
 auto Display::load(Node::Object parent, Node::Object from) -> void {
   node = Node::Video::create("Display");
-  node->type   = "CRT";
-  node->width  = 256;
-  node->height = 240;
-  node->aspect = 8.0 / 7.0;
-  node->colors = 1 << 9;
-  node->color  = [&](auto index) { return color(index); };
+  node->type    = "CRT";
+  node->width   = 256;
+  node->height  = 240;
+  node->scaleX  = 2.0;
+  node->scaleY  = 2.0;
+  node->aspectX = 8.0;
+  node->aspectY = 7.0;
+  node->colors  = 1 << 9;
+  node->color   = [&](auto index) { return color(index); };
   parent->append(node);
 
   colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto value) {
-    display.screen->setPalette();
+    if(screen) screen->setPalette();
   });
   colorEmulation->dynamic = true;
   node->append(colorEmulation);

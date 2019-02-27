@@ -37,11 +37,11 @@ ProgramWindow::ProgramWindow() {
     .show();
   });
 
-  panels.setPadding(5);
+  panels.setPadding(5_sx, 5_sy);
   for(auto& cell : panels.cells()) cell.setSpacing(0);
   resizeGrip.onActivate([&] { resizeWidth = panels.cell(systemSelection).size().width(); });
   resizeGrip.onResize([&](auto offset) {
-    float min = 128, max = panels.geometry().width() - 128;
+    float min = 128_sx, max = panels.geometry().width() - 128_sx;
     float width = resizeWidth + offset;
     width = width < min ? min : width > max ? max : width;
     if(panels.cell(systemSelection).size().width() != width) {
@@ -54,7 +54,7 @@ ProgramWindow::ProgramWindow() {
 
   onClose(&Application::quit);
   setTitle({"icarus v", icarus::Version});
-  setSize({720, 415});
+  setSize({720_sx, 415_sy});
   setAlignment(Alignment::Center);
   setVisible();
 

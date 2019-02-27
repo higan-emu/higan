@@ -18,7 +18,7 @@ VideoSettings::VideoSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
   exclusiveOption.setText("Exclusive");
   synchronizeOption.setText("Synchronize");
   flushOption.setText("Flush");
-  auto width = max(driverLabel.minimumSize().width(), formatLabel.minimumSize().height());
+  auto width = max(driverLabel.minimumSize().width(), formatLabel.minimumSize().width());
   driverLayout.cell(0).setSize({width, 0});
   optionsLayout.cell(0).setSize({width, 0});
   colorHeader.setText("Color Adjustment").setFont(Font().setBold());

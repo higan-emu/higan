@@ -46,8 +46,8 @@ auto Screen::setPalette() -> void {
     }
 
     switch(depth) {
-    case 24: palette[index] = r >> 8 << 16 | g >> 8 <<  8 | b >> 8 << 0; break;
-    case 30: palette[index] = r >> 6 << 20 | g >> 6 << 10 | b >> 6 << 0; break;
+    case 24: palette[index] = a >>  8 << 24 | r >> 8 << 16 | g >> 8 <<  8 | b >> 8 << 0; break;
+    case 30: palette[index] = a >> 14 << 30 | r >> 6 << 20 | g >> 6 << 10 | b >> 6 << 0; break;
     }
   }
 

@@ -8,8 +8,8 @@ struct GameImporter : Panel {
   ListView importList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
     Widget controlSpacer{&controlLayout, Size{~0, 0}};
-    Button abortButton{&controlLayout, Size{80, 0}};
-    Button closeButton{&controlLayout, Size{80, 0}};
+    Button abortButton{&controlLayout, Size{80_sx, 0}};
+    Button closeButton{&controlLayout, Size{80_sx, 0}};
 
   bool processing = false;
 };

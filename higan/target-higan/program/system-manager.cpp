@@ -1,4 +1,4 @@
-SystemManager::SystemManager(View* view) : Panel(view, Size{200, ~0}) {
+SystemManager::SystemManager(View* view) : Panel(view, Size{200_sx, ~0}) {
   setCollapsible().setVisible(false);
   systemList.onActivate([&] { eventActivate(); });
   systemList.onChange([&] { eventChange(); });
