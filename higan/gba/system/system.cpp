@@ -39,7 +39,7 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.disconnect();
+  cartridge.port = {};
   node = {};
 }
 

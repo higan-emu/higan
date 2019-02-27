@@ -77,7 +77,7 @@ auto SystemCreation::eventAccept() -> void {
     auto root = interface->root();
     root->name = systemList.selected().text();
     root->setProperty("location", {location, name});
-    file::write({location, name, "node.bml"}, higan::Node::serialize(root));
+    file::write({location, name, "settings.bml"}, higan::Node::serialize(root));
   }
 
   systemManager.refresh();

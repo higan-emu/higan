@@ -51,6 +51,8 @@ struct Cartridge {
 
   Flash flash[2];
 
+  inline auto metadata() const -> string { return information.metadata; }
+
   //cartridge.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto connect(Node::Peripheral) -> void;
@@ -66,7 +68,7 @@ struct Cartridge {
 
 private:
   struct Information {
-    string manifest;
+    string metadata;
   } information;
 };
 

@@ -19,6 +19,7 @@ Cartridge cartridge;
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
   if(from = Node::load(port, from)) {
@@ -29,7 +30,7 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
 
 auto Cartridge::connect(Node::Peripheral with) -> void {
   if(!Model::SuperGameBoy()) {
-    node = Node::Peripheral::create("Cartridge", port->type);
+    node = Node::Peripheral::create(interface->name());
     node->load(with);
   }
 
@@ -41,11 +42,11 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   accelerometer = false;
   rumble = false;
 
-  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
+  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
+    information.metadata = fp->reads();
   } else return;
 
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(information.metadata);
 
   auto mapperID = document["game/board"].text();
   if(mapperID == "MBC0" ) mapper = &mbc0;
@@ -92,7 +93,6 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
     }
   }
 
-  information.sha256 = Hash::SHA256({rom.data, rom.size}).digest();
   mapper->load(document);
 
   power();
@@ -112,7 +112,7 @@ auto Cartridge::disconnect() -> void {
 
 auto Cartridge::save() -> void {
   if(!node) return;
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(information.metadata);
 
   if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
     if(memory.nonVolatile) {

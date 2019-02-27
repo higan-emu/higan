@@ -6,6 +6,7 @@ Cartridge cartridge;
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
   if(from = Node::load(port, from)) {
@@ -15,16 +16,16 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create("Cartridge", port->type);
+  node = Node::Peripheral::create(interface->name());
   node->load(with);
 
   information = {};
 
-  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
-    information.manifest = fp->reads();
+  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
+    information.metadata = fp->reads();
   } else return;
 
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(information.metadata);
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.size = memory["size"].natural();
@@ -56,7 +57,7 @@ auto Cartridge::disconnect() -> void {
 
 auto Cartridge::save() -> void {
   if(!node) return;
-  auto document = BML::unserialize(information.manifest);
+  auto document = BML::unserialize(information.metadata);
 
   if(auto fp = platform->open(node, "save.ram", File::Write)) {
     fp->write(cpu.bram, 0x800);

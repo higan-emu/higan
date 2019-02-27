@@ -1,5 +1,5 @@
 Satellaview::Satellaview(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Satellaview", parent->type);
+  node = Node::Peripheral::create("Satellaview");
   node->load(with);
   parent->append(node);
 

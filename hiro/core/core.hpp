@@ -33,8 +33,6 @@ using nall::vector;
 
 namespace hiro {
 
-auto initialize() -> void;
-
 struct Font;
 struct Keyboard;
 

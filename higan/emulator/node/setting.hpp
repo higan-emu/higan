@@ -112,27 +112,27 @@ template<typename Cast, typename Type> struct Abstract : Setting {
 };
 
 struct Boolean : Abstract<Boolean, boolean> {
-  DeclareClass(Boolean, "Setting.Boolean")
+  DeclareClass(Boolean, "Boolean")
   using Abstract::Abstract;
 };
 
 struct Natural : Abstract<Natural, natural> {
-  DeclareClass(Natural, "Setting.Natural")
+  DeclareClass(Natural, "Natural")
   using Abstract::Abstract;
 };
 
 struct Integer : Abstract<Integer, integer> {
-  DeclareClass(Integer, "Setting.Integer")
+  DeclareClass(Integer, "Integer")
   using Abstract::Abstract;
 };
 
 struct Real : Abstract<Real, real> {
-  DeclareClass(Real, "Setting.Real")
+  DeclareClass(Real, "Real")
   using Abstract::Abstract;
 };
 
 struct String : Abstract<String, string> {
-  DeclareClass(String, "Setting.String")
+  DeclareClass(String, "String")
   using Abstract::Abstract;
 };
 

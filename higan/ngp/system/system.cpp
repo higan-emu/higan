@@ -38,7 +38,7 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   bios.reset();
-  cartridge.disconnect();
+  cartridge.port = {};
   node = {};
 }
 

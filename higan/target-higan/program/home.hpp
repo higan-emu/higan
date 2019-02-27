@@ -5,6 +5,4 @@ struct Home : Panel {
 
   Frame frame{this, Size{~0, ~0}};
     Canvas iconCanvas{&frame};
-  HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Button spacerButton{&controlLayout, Size{0, 0}};
 };

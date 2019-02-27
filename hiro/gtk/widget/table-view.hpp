@@ -32,6 +32,7 @@ struct pTableView : pWidget {
   auto _doEdit(GtkCellRendererText* gtkCellRendererText, const char* path, const char* text) -> void;
   auto _doEvent(GdkEventButton* event) -> int;
   auto _doHeaderActivate(GtkTreeViewColumn* column) -> void;
+  auto _doKeyPress(GdkEventKey* event) -> bool;
   auto _doMouseMove() -> int;
   auto _doToggle(GtkCellRendererToggle* gtkCellRendererToggle, const char* path) -> void;
   auto _updateRulesHint() -> void;

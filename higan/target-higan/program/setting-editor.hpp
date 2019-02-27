@@ -12,8 +12,6 @@ struct SettingEditor : Panel {
       Label latchedLabel{&latchedLayout, Size{0, 0}};
       Label latchedValue{&latchedLayout, Size{~0, 0}};
     ListView valueList{&layout, Size{~0, ~0}};
-  HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Button spacerButton{&controlLayout, Size{0, 0}};
 
   higan::Node::Setting setting;
 };

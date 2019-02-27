@@ -1,25 +1,25 @@
 Icarus::Icarus() {
-  Database::Famicom = BML::unserialize(string::read(locate("Database/Famicom.bml")));
-  Database::SuperFamicom = BML::unserialize(string::read(locate("Database/Super Famicom.bml")));
-  Database::SG1000 = BML::unserialize(string::read(locate("Database/SG-1000.bml")));
-  Database::SC3000 = BML::unserialize(string::read(locate("Database/SC-3000.bml")));
-  Database::MasterSystem = BML::unserialize(string::read(locate("Database/Master System.bml")));
-  Database::MegaDrive = BML::unserialize(string::read(locate("Database/Mega Drive.bml")));
-  Database::PCEngine = BML::unserialize(string::read(locate("Database/PC Engine.bml")));
-  Database::SuperGrafx = BML::unserialize(string::read(locate("Database/SuperGrafx.bml")));
-  Database::ColecoVision = BML::unserialize(string::read(locate("Database/ColecoVision.bml")));
-  Database::MSX = BML::unserialize(string::read(locate("Database/MSX.bml")));
-  Database::GameBoy = BML::unserialize(string::read(locate("Database/Game Boy.bml")));
-  Database::GameBoyColor = BML::unserialize(string::read(locate("Database/Game Boy Color.bml")));
-  Database::GameBoyAdvance = BML::unserialize(string::read(locate("Database/Game Boy Advance.bml")));
-  Database::GameGear = BML::unserialize(string::read(locate("Database/Game Gear.bml")));
-  Database::WonderSwan = BML::unserialize(string::read(locate("Database/WonderSwan.bml")));
-  Database::WonderSwanColor = BML::unserialize(string::read(locate("Database/WonderSwan Color.bml")));
-  Database::PocketChallengeV2 = BML::unserialize(string::read(locate("Database/Pocket Challenge V2.bml")));
-  Database::NeoGeoPocket = BML::unserialize(string::read(locate("Database/Neo Geo Pocket.bml")));
+  Database::BSMemory          = BML::unserialize(string::read(locate("Database/BS Memory.bml")));
+  Database::ColecoVision      = BML::unserialize(string::read(locate("Database/ColecoVision.bml")));
+  Database::Famicom           = BML::unserialize(string::read(locate("Database/Famicom.bml")));
+  Database::GameBoy           = BML::unserialize(string::read(locate("Database/Game Boy.bml")));
+  Database::GameBoyAdvance    = BML::unserialize(string::read(locate("Database/Game Boy Advance.bml")));
+  Database::GameBoyColor      = BML::unserialize(string::read(locate("Database/Game Boy Color.bml")));
+  Database::GameGear          = BML::unserialize(string::read(locate("Database/Game Gear.bml")));
+  Database::MasterSystem      = BML::unserialize(string::read(locate("Database/Master System.bml")));
+  Database::MegaDrive         = BML::unserialize(string::read(locate("Database/Mega Drive.bml")));
+  Database::MSX               = BML::unserialize(string::read(locate("Database/MSX.bml")));
+  Database::NeoGeoPocket      = BML::unserialize(string::read(locate("Database/Neo Geo Pocket.bml")));
   Database::NeoGeoPocketColor = BML::unserialize(string::read(locate("Database/Neo Geo Pocket Color.bml")));
-  Database::BSMemory = BML::unserialize(string::read(locate("Database/BS Memory.bml")));
-  Database::SufamiTurbo = BML::unserialize(string::read(locate("Database/Sufami Turbo.bml")));
+  Database::PCEngine          = BML::unserialize(string::read(locate("Database/PC Engine.bml")));
+  Database::PocketChallengeV2 = BML::unserialize(string::read(locate("Database/Pocket Challenge V2.bml")));
+  Database::SC3000            = BML::unserialize(string::read(locate("Database/SC-3000.bml")));
+  Database::SG1000            = BML::unserialize(string::read(locate("Database/SG-1000.bml")));
+  Database::SufamiTurbo       = BML::unserialize(string::read(locate("Database/Sufami Turbo.bml")));
+  Database::SuperFamicom      = BML::unserialize(string::read(locate("Database/Super Famicom.bml")));
+  Database::SuperGrafx        = BML::unserialize(string::read(locate("Database/SuperGrafx.bml")));
+  Database::WonderSwan        = BML::unserialize(string::read(locate("Database/WonderSwan.bml")));
+  Database::WonderSwanColor   = BML::unserialize(string::read(locate("Database/WonderSwan Color.bml")));
 }
 
 auto Icarus::error() const -> string {
@@ -40,37 +40,36 @@ auto Icarus::failure(string message) -> string {
   return {};
 }
 
-auto Icarus::manifest(string location) -> string {
+auto Icarus::manifest(string system, string location) -> string {
   location.transform("\\", "/").trimRight("/").append("/");
   if(!directory::exists(location)) return {};
 
-  auto type = Location::suffix(location).downcase();
-  if(type == ".fc") return famicomManifest(location);
-  if(type == ".sfc") return superFamicomManifest(location);
-  if(type == ".sg1000") return sg1000Manifest(location);
-  if(type == ".sc3000") return sc3000Manifest(location);
-  if(type == ".ms") return masterSystemManifest(location);
-  if(type == ".md") return megaDriveManifest(location);
-  if(type == ".pce") return pcEngineManifest(location);
-  if(type == ".sgx") return superGrafxManifest(location);
-  if(type == ".cv") return colecoVisionManifest(location);
-  if(type == ".msx") return msxManifest(location);
-  if(type == ".gb") return gameBoyManifest(location);
-  if(type == ".gbc") return gameBoyColorManifest(location);
-  if(type == ".gba") return gameBoyAdvanceManifest(location);
-  if(type == ".gg") return gameGearManifest(location);
-  if(type == ".ws") return wonderSwanManifest(location);
-  if(type == ".wsc") return wonderSwanColorManifest(location);
-  if(type == ".pc2") return pocketChallengeV2Manifest(location);
-  if(type == ".ngp") return neoGeoPocketManifest(location);
-  if(type == ".ngpc") return neoGeoPocketColorManifest(location);
-  if(type == ".bs") return bsMemoryManifest(location);
-  if(type == ".st") return sufamiTurboManifest(location);
+  if(system == "BS Memory"           ) return bsMemoryManifest(location);
+  if(system == "ColecoVision"        ) return colecoVisionManifest(location);
+  if(system == "Famicom"             ) return famicomManifest(location);
+  if(system == "Game Boy"            ) return gameBoyManifest(location);
+  if(system == "Game Boy Advance"    ) return gameBoyAdvanceManifest(location);
+  if(system == "Game Boy Color"      ) return gameBoyColorManifest(location);
+  if(system == "Game Gear"           ) return gameGearManifest(location);
+  if(system == "Master System"       ) return masterSystemManifest(location);
+  if(system == "Mega Drive"          ) return megaDriveManifest(location);
+  if(system == "MSX"                 ) return msxManifest(location);
+  if(system == "Neo Geo Pocket"      ) return neoGeoPocketManifest(location);
+  if(system == "Neo Geo Pocket Color") return neoGeoPocketColorManifest(location);
+  if(system == "PC Engine"           ) return pcEngineManifest(location);
+  if(system == "Pocket Challenge V2" ) return pocketChallengeV2Manifest(location);
+  if(system == "SC-3000"             ) return sc3000Manifest(location);
+  if(system == "SG-1000"             ) return sg1000Manifest(location);
+  if(system == "Sufami Turbo"        ) return sufamiTurboManifest(location);
+  if(system == "Super Famicom"       ) return superFamicomManifest(location);
+  if(system == "SuperGrafx"          ) return superGrafxManifest(location);
+  if(system == "WonderSwan"          ) return wonderSwanManifest(location);
+  if(system == "WonderSwan Color"    ) return wonderSwanColorManifest(location);
 
   return {};
 }
 
-auto Icarus::import(string location) -> string {
+auto Icarus::import(string system, string location) -> string {
   errorMessage = {};
   missingFiles = {};
 
@@ -95,27 +94,27 @@ auto Icarus::import(string location) -> string {
     buffer = zip.extract(zip.file[0]);
   }
 
-  if(type == ".fc" || type == ".nes") return famicomImport(buffer, location);
-  if(type == ".sfc" || type == ".smc") return superFamicomImport(buffer, location);
-  if(type == ".sg1000" || type == ".sg") return sg1000Import(buffer, location);
-  if(type == ".sc3000" || type == ".sc") return sc3000Import(buffer, location);
-  if(type == ".ms" || type == ".sms") return masterSystemImport(buffer, location);
-  if(type == ".md" || type == ".smd" || type == ".gen") return megaDriveImport(buffer, location);
-  if(type == ".pce") return pcEngineImport(buffer, location);
-  if(type == ".sgx") return superGrafxImport(buffer, location);
-  if(type == ".cv" || type == ".col") return colecoVisionImport(buffer, location);
-  if(type == ".msx") return msxImport(buffer, location);
-  if(type == ".gb") return gameBoyImport(buffer, location);
-  if(type == ".gbc") return gameBoyColorImport(buffer, location);
-  if(type == ".gba") return gameBoyAdvanceImport(buffer, location);
-  if(type == ".gg") return gameGearImport(buffer, location);
-  if(type == ".ws") return wonderSwanImport(buffer, location);
-  if(type == ".wsc") return wonderSwanColorImport(buffer, location);
-  if(type == ".pc2") return pocketChallengeV2Import(buffer, location);
-  if(type == ".ngp") return neoGeoPocketImport(buffer, location);
-  if(type == ".ngpc" || type == ".ngc") return neoGeoPocketColorImport(buffer, location);
-  if(type == ".bs") return bsMemoryImport(buffer, location);
-  if(type == ".st") return sufamiTurboImport(buffer, location);
+  if(system == "BS Memory"           ) return bsMemoryImport(buffer, location);
+  if(system == "ColecoVision"        ) return colecoVisionImport(buffer, location);
+  if(system == "Famicom"             ) return famicomImport(buffer, location);
+  if(system == "Game Boy"            ) return gameBoyImport(buffer, location);
+  if(system == "Game Boy Advance"    ) return gameBoyAdvanceImport(buffer, location);
+  if(system == "Game Boy Color"      ) return gameBoyColorImport(buffer, location);
+  if(system == "Game Gear"           ) return gameGearImport(buffer, location);
+  if(system == "Master System"       ) return masterSystemImport(buffer, location);
+  if(system == "Mega Drive"          ) return megaDriveImport(buffer, location);
+  if(system == "MSX"                 ) return msxImport(buffer, location);
+  if(system == "Neo Geo Pocket"      ) return neoGeoPocketImport(buffer, location);
+  if(system == "Neo Geo Pocket Color") return neoGeoPocketColorImport(buffer, location);
+  if(system == "PC Engine"           ) return pcEngineImport(buffer, location);
+  if(system == "Pocket Challenge V2" ) return pocketChallengeV2Import(buffer, location);
+  if(system == "SC-3000"             ) return sc3000Import(buffer, location);
+  if(system == "SG-1000"             ) return sg1000Import(buffer, location);
+  if(system == "Sufami Turbo"        ) return sufamiTurboImport(buffer, location);
+  if(system == "Super Famicom"       ) return superFamicomImport(buffer, location);
+  if(system == "SuperGrafx"          ) return superGrafxImport(buffer, location);
+  if(system == "WonderSwan"          ) return wonderSwanImport(buffer, location);
+  if(system == "WonderSwan Color"    ) return wonderSwanColorImport(buffer, location);
 
   return failure("unrecognized file extension");
 }

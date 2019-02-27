@@ -1,5 +1,5 @@
 S21FX::S21FX(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("21fx", parent->type);
+  node = Node::Peripheral::create("21fx");
   node->load(with);
   parent->append(node);
 

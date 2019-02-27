@@ -37,8 +37,8 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.disconnect();
-  expansion.disconnect();
+  cartridge.port = {};
+  expansion.port = {};
 }
 
 auto System::save() -> void {

@@ -2,6 +2,7 @@ struct Cartridge : Thread, IO {
   Node::Port port;
   Node::Peripheral node;
 
+  inline auto metadata() const { return information.metadata; }
   inline auto orientation() const { return information.orientation; }
 
   //cartridge.cpp
@@ -39,7 +40,7 @@ struct Cartridge : Thread, IO {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    string manifest;
+    string metadata;
     string orientation = "Horizontal";
   } information;
 

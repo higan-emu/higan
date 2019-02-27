@@ -6,14 +6,14 @@ auto Icarus::megaDriveManifest(string location) -> string {
 }
 
 auto Icarus::megaDriveManifest(vector<uint8_t>& buffer, string location) -> string {
-  if(settings["icarus/UseDatabase"].boolean()) {
+  if(settings.useDatabase) {
     auto digest = Hash::SHA256(buffer).digest();
     for(auto game : Database::MegaDrive.find("game")) {
       if(game["sha256"].text() == digest) return BML::serialize(game);
     }
   }
 
-  if(settings["icarus/UseHeuristics"].boolean()) {
+  if(settings.useHeuristics) {
     Heuristics::MegaDrive game{buffer, location};
     if(auto manifest = game.manifest()) return manifest;
   }
@@ -24,7 +24,7 @@ auto Icarus::megaDriveManifest(vector<uint8_t>& buffer, string location) -> stri
 auto Icarus::megaDriveImport(vector<uint8_t>& buffer, string location) -> string {
   auto name = Location::prefix(location);
   auto source = Location::path(location);
-  string target{settings["Library/Location"].text(), "Mega Drive/", name, ".md/"};
+  string target{settings.megaDrive, name, "/"};
 
   auto manifest = megaDriveManifest(buffer, location);
   if(!manifest) return failure("failed to parse ROM image");
@@ -34,7 +34,7 @@ auto Icarus::megaDriveImport(vector<uint8_t>& buffer, string location) -> string
     copy({source, name, ".sav"}, {target, "save.ram"});
   }
 
-  if(settings["icarus/CreateManifests"].boolean()) write({target, "manifest.bml"}, manifest);
+  if(settings.createManifests) write({target, "manifest.bml"}, manifest);
   uint offset = 0;
   auto document = BML::unserialize(manifest);
   for(auto rom : document.find("game/board/memory(type=ROM)")) {

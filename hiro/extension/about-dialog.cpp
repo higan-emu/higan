@@ -130,7 +130,7 @@ auto AboutDialog::show() -> void {
   websiteValue.setFont(Font().setBold());
   websiteValue.setForegroundColor({0, 0, 240});
   websiteValue.setText(state.website);
-  websiteValue.onMouseRelease([&](Mouse::Button button) {
+  websiteValue.onMouseRelease([&](auto button) {
     if(button == Mouse::Button::Left) invoke(state.website);
   });
   if(!state.website) websiteLayout.setVisible(false);

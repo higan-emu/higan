@@ -54,10 +54,10 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.disconnect();
+  cartridge.port = {};
   if(!MasterSystem::Model::GameGear()) {
-    controllerPort1.disconnect();
-    controllerPort2.disconnect();
+    controllerPort1.port = {};
+    controllerPort2.port = {};
   }
   node = {};
 }

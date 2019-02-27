@@ -2,6 +2,7 @@ struct Cartridge {
   Node::Port port;
   Node::Peripheral node;
 
+  inline auto metadata() const -> string { return information.metadata; }
   inline auto region() const -> string { return information.region; }
 
   //cartridge.cpp
@@ -39,7 +40,7 @@ struct Cartridge {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    string manifest;
+    string metadata;
     string region;
   };
 

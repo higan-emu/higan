@@ -15,6 +15,9 @@ using View = HorizontalLayout;
 #include "port-connector.hpp"
 #include "input-mapper.hpp"
 #include "setting-editor.hpp"
+#include "../settings/video.hpp"
+#include "../settings/audio.hpp"
+#include "../settings/input.hpp"
 
 struct ProgramWindow : Window {
   ProgramWindow();
@@ -31,15 +34,16 @@ struct ProgramWindow : Window {
   HorizontalLayout panels{this};
     SystemManager systemManager{&panels};
     NodeManager nodeManager{&panels};
-    VerticalLayout resizeLayout{&panels, Size{7, ~0}};
-      HorizontalResizeGrip resizeGrip{&resizeLayout, Size{~0, ~0}};
-      Button resizeSpacer{&resizeLayout, Size{0, 0}};
+    HorizontalResizeGrip resizeGrip{&panels, Size{7, ~0}};
     Home home{&panels};
     SystemCreation systemCreation{&panels};
     SystemOverview systemOverview{&panels};
     PortConnector portConnector{&panels};
     InputMapper inputMapper{&panels};
     SettingEditor settingEditor{&panels};
+    VideoSettings videoSettings{&panels};
+    AudioSettings audioSettings{&panels};
+    InputSettings inputSettings{&panels};
 
 private:
   maybe<Panel&> primaryPanel;
@@ -62,3 +66,6 @@ extern SystemOverview& systemOverview;
 extern PortConnector& portConnector;
 extern InputMapper& inputMapper;
 extern SettingEditor& settingEditor;
+extern VideoSettings& videoSettings;
+extern AudioSettings& audioSettings;
+extern InputSettings& inputSettings;

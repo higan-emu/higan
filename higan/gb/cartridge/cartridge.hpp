@@ -2,6 +2,8 @@ struct Cartridge : Thread, MMIO {
   Node::Port port;
   Node::Peripheral node;
 
+  inline auto metadata() const -> string { return information.metadata; }
+
   //cartridge.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto connect(Node::Peripheral) -> void;
@@ -19,10 +21,7 @@ struct Cartridge : Thread, MMIO {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    uint pathID = 0;
-    string sha256;
-    string manifest;
-    string title;
+    string metadata;
   } information;
 
   struct Memory {

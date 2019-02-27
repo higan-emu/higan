@@ -1,5 +1,5 @@
 FightingPad::FightingPad(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Fighting Pad", parent->type);
+  node = Node::Peripheral::create("Fighting Pad");
   node->load(with);
   up    = Node::append<Node::Button>(node, with, "Up");
   down  = Node::append<Node::Button>(node, with, "Down");

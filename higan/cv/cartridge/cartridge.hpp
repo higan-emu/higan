@@ -2,6 +2,7 @@ struct Cartridge {
   Node::Port port;
   Node::Peripheral node;
 
+  inline auto metadata() const -> string { return information.metadata; }
   inline auto region() const -> string { return information.region; }
 
   //cartridge.cpp
@@ -17,8 +18,8 @@ struct Cartridge {
 
 //private:
   struct Information {
+    string metadata;
     string region;
-    string manifest;
   } information;
 
   Memory::Readable<uint8> rom;

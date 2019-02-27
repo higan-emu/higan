@@ -139,7 +139,6 @@ auto Application::Cocoa::onQuit(const function<void ()>& callback) -> void {
 auto Application::initialize() -> void {
   if(!state().initialized) {
     state().initialized = true;
-    hiro::initialize();
     pApplication::initialize();
     pApplication::setScreenSaver(state().screenSaver);
   }

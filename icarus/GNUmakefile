@@ -9,9 +9,10 @@ hiro.path := ../hiro
 hiro.resource := data/$(name).rc
 include $(hiro.path)/GNUmakefile
 
-objects := obj/icarus.o
+objects := obj/icarus.o obj/resource.o
 
 obj/icarus.o: icarus.cpp
+obj/resource.o: resource/resource.cpp
 
 all: $(hiro.objects) $(objects)
 	$(info Linking out/$(name) ...)

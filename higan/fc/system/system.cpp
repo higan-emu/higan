@@ -62,9 +62,9 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.disconnect();
-  controllerPort1.disconnect();
-  controllerPort2.disconnect();
+  cartridge.port = {};
+  controllerPort1.port = {};
+  controllerPort2.port = {};
   node = {};
 }
 

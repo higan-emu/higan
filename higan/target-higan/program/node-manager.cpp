@@ -1,7 +1,6 @@
-NodeManager::NodeManager(View* parent) : Panel(parent, Size{250, ~0}) {
+NodeManager::NodeManager(View* parent) : Panel(parent, Size{200, ~0}) {
   setCollapsible().setVisible(false);
   nodeList.onChange([&] { eventChange(); });
-  spacerButton.setVisible(false);
 }
 
 auto NodeManager::show() -> void {

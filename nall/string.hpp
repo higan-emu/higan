@@ -195,11 +195,11 @@ public:
   template<typename T, typename... P> inline auto prepend(const T&, P&&...) -> type&;
   template<typename... P> inline auto prepend(const nall::string_format&, P&&...) -> type&;
   inline auto prepend() -> type&;
-  template<typename T> inline auto _prepend(const stringify<T>&) -> string&;
+  template<typename T> inline auto _prepend(const stringify<T>&) -> type&;
   template<typename T, typename... P> inline auto append(const T&, P&&...) -> type&;
   template<typename... P> inline auto append(const nall::string_format&, P&&...) -> type&;
   inline auto append() -> type&;
-  template<typename T> inline auto _append(const stringify<T>&) -> string&;
+  template<typename T> inline auto _append(const stringify<T>&) -> type&;
   inline auto length() const -> uint;
 
   //find.hpp

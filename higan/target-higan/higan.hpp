@@ -18,6 +18,7 @@ namespace nall::Path {
 
 #include "resource/resource.hpp"
 #include "program/program.hpp"
+#include "settings/settings.hpp"
 #include "input/input.hpp"
 #include "viewport/viewport.hpp"
 #include "emulator/emulator.hpp"

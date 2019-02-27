@@ -19,7 +19,7 @@ auto ControllerPort::load(Node::Object parent, Node::Object from) -> void {
 auto ControllerPort::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {
-    if(node->name == "Control Pad") device = new ControlPad(port, node);
+    if(node->name == "Control Pad" ) device = new ControlPad(port, node);
     if(node->name == "Fighting Pad") device = new FightingPad(port, node);
   }
 }

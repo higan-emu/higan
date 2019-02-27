@@ -7,14 +7,14 @@ auto Icarus::famicomManifest(string location) -> string {
 }
 
 auto Icarus::famicomManifest(vector<uint8_t>& buffer, string location) -> string {
-  if(settings["icarus/UseDatabase"].boolean()) {
+  if(settings.useDatabase) {
     auto digest = Hash::SHA256(buffer).digest();
     for(auto game : Database::Famicom.find("game")) {
       if(game["sha256"].text() == digest) return BML::serialize(game);
     }
   }
 
-  if(settings["icarus/UseHeuristics"].boolean()) {
+  if(settings.useHeuristics) {
     Heuristics::Famicom game{buffer, location};
     if(auto manifest = game.manifest()) return manifest;
   }
@@ -25,7 +25,7 @@ auto Icarus::famicomManifest(vector<uint8_t>& buffer, string location) -> string
 auto Icarus::famicomImport(vector<uint8_t>& buffer, string location) -> string {
   auto name = Location::prefix(location);
   auto source = Location::path(location);
-  string target{settings["Library/Location"].text(), "Famicom/", name, ".fc/"};
+  string target{settings.famicom, name, "/"};
 
   auto manifest = famicomManifest(buffer, location);
   if(!manifest) return failure("failed to parse ROM image");
@@ -35,7 +35,7 @@ auto Icarus::famicomImport(vector<uint8_t>& buffer, string location) -> string {
     copy({source, name, ".sav"}, {target, "save.ram"});
   }
 
-  if(settings["icarus/CreateManifests"].boolean()) write({target, "manifest.bml"}, manifest);
+  if(settings.createManifests) write({target, "manifest.bml"}, manifest);
   auto document = BML::unserialize(manifest);
   uint offset = 0;
   if(true) {

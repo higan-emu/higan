@@ -17,7 +17,7 @@ auto ViewportWindow::show(Window parent) -> void {
   setFocused();
 
   if(!video) {
-    video.create("OpenGL 3.2");
+    video.create(settings.video.driver);
     video.setContext(viewport.handle());
     video.setBlocking(false);
   }

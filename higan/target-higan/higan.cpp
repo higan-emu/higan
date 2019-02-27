@@ -9,9 +9,6 @@ namespace nall::Path {
   string data;
 }
 
-auto hiro::initialize() -> void {
-}
-
 #include <fc/interface/interface.hpp>
 #include <gb/interface/interface.hpp>
 #include <gba/interface/interface.hpp>
@@ -29,6 +26,7 @@ auto hiro::initialize() -> void {
 auto nall::main(Arguments arguments) -> void {
   Application::setName("higan");
   Application::setScreenSaver(false);
+  settings.load();
 
   if(file::exists({Path::program(), "paths.bml"})) {
     Path::settings = Path::program();
@@ -105,4 +103,6 @@ auto nall::main(Arguments arguments) -> void {
   Instances::programWindow.construct();
   Instances::inputManager.construct();
   Application::run();
+
+  settings.save();
 }

@@ -6,8 +6,8 @@ struct Cartridge : Thread {
   Node::Peripheral node;
 
   inline auto rate() const -> uint { return Region::PAL() ? 16 : 12; }
+  inline auto metadata() const -> string { return information.metadata; }
   inline auto region() const -> string { return information.region; }
-  inline auto manifest() const -> string { return information.manifest; }
 
   //cartridge.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -22,8 +22,8 @@ struct Cartridge : Thread {
   auto serialize(serializer&) -> void;
 
   struct Information {
+    string metadata;
     string region;
-    string manifest;
   } information;
 
 //privileged:

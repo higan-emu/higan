@@ -54,6 +54,8 @@ auto BrowserDialogWindow::accept() -> void {
   }
 
   if(state.action == "openFiles" && batched) {
+    string name = batched[0].text();
+    if(isFolder(name) && batched.size() == 1) return setPath({state.path, name});
     for(auto item : batched) {
       string name = item.text();
       if(isFolder(name)) {

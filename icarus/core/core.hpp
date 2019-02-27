@@ -31,30 +31,45 @@ struct Icarus {
   auto success(string location) -> string;
   auto failure(string message) -> string;
 
-  auto manifest(string location) -> string;
-  auto import(string location) -> string;
+  auto manifest(string system, string location) -> string;
+  auto import(string system, string location) -> string;
 
   auto concatenate(vector<uint8_t>& output, string location) -> void;
+
+  //bs-memory.cpp
+  auto bsMemoryManifest(string location) -> string;
+  auto bsMemoryManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto bsMemoryImport(vector<uint8_t>& buffer, string location) -> string;
+
+  //colecovision.cpp
+  auto colecoVisionManifest(string location) -> string;
+  auto colecoVisionManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto colecoVisionImport(vector<uint8_t>& buffer, string location) -> string;
 
   //famicom.cpp
   auto famicomManifest(string location) -> string;
   auto famicomManifest(vector<uint8_t>& buffer, string location) -> string;
   auto famicomImport(vector<uint8_t>& buffer, string location) -> string;
 
-  //super-famicom.cpp
-  auto superFamicomManifest(string location) -> string;
-  auto superFamicomManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto superFamicomImport(vector<uint8_t>& buffer, string location) -> string;
+  //game-boy.cpp
+  auto gameBoyManifest(string location) -> string;
+  auto gameBoyManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto gameBoyImport(vector<uint8_t>& buffer, string location) -> string;
 
-  //sg-1000.cpp
-  auto sg1000Manifest(string location) -> string;
-  auto sg1000Manifest(vector<uint8_t>& buffer, string location) -> string;
-  auto sg1000Import(vector<uint8_t>& buffer, string location) -> string;
+  //game-boy-advance.cpp
+  auto gameBoyAdvanceManifest(string location) -> string;
+  auto gameBoyAdvanceManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto gameBoyAdvanceImport(vector<uint8_t>& buffer, string location) -> string;
 
-  //sc-3000.cpp
-  auto sc3000Manifest(string location) -> string;
-  auto sc3000Manifest(vector<uint8_t>& buffer, string location) -> string;
-  auto sc3000Import(vector<uint8_t>& buffer, string location) -> string;
+  //game-boy-color.cpp
+  auto gameBoyColorManifest(string location) -> string;
+  auto gameBoyColorManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto gameBoyColorImport(vector<uint8_t>& buffer, string location) -> string;
+
+  //game-gear.cpp
+  auto gameGearManifest(string location) -> string;
+  auto gameGearManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto gameGearImport(vector<uint8_t>& buffer, string location) -> string;
 
   //master-system.cpp
   auto masterSystemManifest(string location) -> string;
@@ -66,55 +81,10 @@ struct Icarus {
   auto megaDriveManifest(vector<uint8_t>& buffer, string location) -> string;
   auto megaDriveImport(vector<uint8_t>& buffer, string location) -> string;
 
-  //pc-engine.cpp
-  auto pcEngineManifest(string location) -> string;
-  auto pcEngineManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto pcEngineImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //supergrafx.cpp
-  auto superGrafxManifest(string location) -> string;
-  auto superGrafxManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto superGrafxImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //colecovision.cpp
-  auto colecoVisionManifest(string location) -> string;
-  auto colecoVisionManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto colecoVisionImport(vector<uint8_t>& buffer, string location) -> string;
-
   //msx.cpp
   auto msxManifest(string location) -> string;
   auto msxManifest(vector<uint8_t>& buffer, string location) -> string;
   auto msxImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //game-boy.cpp
-  auto gameBoyManifest(string location) -> string;
-  auto gameBoyManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto gameBoyImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //game-boy-color.cpp
-  auto gameBoyColorManifest(string location) -> string;
-  auto gameBoyColorManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto gameBoyColorImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //game-boy-advance.cpp
-  auto gameBoyAdvanceManifest(string location) -> string;
-  auto gameBoyAdvanceManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto gameBoyAdvanceImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //game-gear.cpp
-  auto gameGearManifest(string location) -> string;
-  auto gameGearManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto gameGearImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //wonderswan.cpp
-  auto wonderSwanManifest(string location) -> string;
-  auto wonderSwanManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto wonderSwanImport(vector<uint8_t>& buffer, string location) -> string;
-
-  //wonderswan-color.cpp
-  auto wonderSwanColorManifest(string location) -> string;
-  auto wonderSwanColorManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto wonderSwanColorImport(vector<uint8_t>& buffer, string location) -> string;
 
   //pocket-challenge-v2.cpp
   auto pocketChallengeV2Manifest(string location) -> string;
@@ -131,15 +101,45 @@ struct Icarus {
   auto neoGeoPocketColorManifest(vector<uint8_t>& buffer, string location) -> string;
   auto neoGeoPocketColorImport(vector<uint8_t>& buffer, string location) -> string;
 
-  //bs-memory.cpp
-  auto bsMemoryManifest(string location) -> string;
-  auto bsMemoryManifest(vector<uint8_t>& buffer, string location) -> string;
-  auto bsMemoryImport(vector<uint8_t>& buffer, string location) -> string;
+  //pc-engine.cpp
+  auto pcEngineManifest(string location) -> string;
+  auto pcEngineManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto pcEngineImport(vector<uint8_t>& buffer, string location) -> string;
+
+  //sc-3000.cpp
+  auto sc3000Manifest(string location) -> string;
+  auto sc3000Manifest(vector<uint8_t>& buffer, string location) -> string;
+  auto sc3000Import(vector<uint8_t>& buffer, string location) -> string;
+
+  //sg-1000.cpp
+  auto sg1000Manifest(string location) -> string;
+  auto sg1000Manifest(vector<uint8_t>& buffer, string location) -> string;
+  auto sg1000Import(vector<uint8_t>& buffer, string location) -> string;
 
   //sufami-turbo.cpp
   auto sufamiTurboManifest(string location) -> string;
   auto sufamiTurboManifest(vector<uint8_t>& buffer, string location) -> string;
   auto sufamiTurboImport(vector<uint8_t>& buffer, string location) -> string;
+
+  //super-famicom.cpp
+  auto superFamicomManifest(string location) -> string;
+  auto superFamicomManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto superFamicomImport(vector<uint8_t>& buffer, string location) -> string;
+
+  //supergrafx.cpp
+  auto superGrafxManifest(string location) -> string;
+  auto superGrafxManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto superGrafxImport(vector<uint8_t>& buffer, string location) -> string;
+
+  //wonderswan.cpp
+  auto wonderSwanManifest(string location) -> string;
+  auto wonderSwanManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto wonderSwanImport(vector<uint8_t>& buffer, string location) -> string;
+
+  //wonderswan-color.cpp
+  auto wonderSwanColorManifest(string location) -> string;
+  auto wonderSwanColorManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto wonderSwanColorImport(vector<uint8_t>& buffer, string location) -> string;
 
 private:
   string errorMessage;
@@ -147,25 +147,25 @@ private:
 };
 
 namespace Database {
+  Markup::Node BSMemory;
+  Markup::Node ColecoVision;
   Markup::Node Famicom;
-  Markup::Node SuperFamicom;
-  Markup::Node SG1000;
-  Markup::Node SC3000;
+  Markup::Node GameBoy;
+  Markup::Node GameBoyAdvance;
+  Markup::Node GameBoyColor;
+  Markup::Node GameGear;
   Markup::Node MasterSystem;
   Markup::Node MegaDrive;
-  Markup::Node PCEngine;
-  Markup::Node SuperGrafx;
-  Markup::Node ColecoVision;
   Markup::Node MSX;
-  Markup::Node GameBoy;
-  Markup::Node GameBoyColor;
-  Markup::Node GameBoyAdvance;
-  Markup::Node GameGear;
-  Markup::Node WonderSwan;
-  Markup::Node WonderSwanColor;
-  Markup::Node PocketChallengeV2;
   Markup::Node NeoGeoPocket;
   Markup::Node NeoGeoPocketColor;
-  Markup::Node BSMemory;
+  Markup::Node PCEngine;
+  Markup::Node PocketChallengeV2;
+  Markup::Node SC3000;
+  Markup::Node SG1000;
   Markup::Node SufamiTurbo;
+  Markup::Node SuperGrafx;
+  Markup::Node SuperFamicom;
+  Markup::Node WonderSwan;
+  Markup::Node WonderSwanColor;
 };

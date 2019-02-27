@@ -17,7 +17,7 @@ auto ExpansionPort::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {
     if(node->name == "Satellaview") device = new Satellaview(port, node);
-    if(node->name == "21fx") device = new S21FX(port, node);
+    if(node->name == "21fx"       ) device = new S21FX(port, node);
   }
 }
 

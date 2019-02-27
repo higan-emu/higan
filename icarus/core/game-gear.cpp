@@ -5,14 +5,14 @@ auto Icarus::gameGearManifest(string location) -> string {
 }
 
 auto Icarus::gameGearManifest(vector<uint8_t>& buffer, string location) -> string {
-  if(settings["icarus/UseDatabase"].boolean()) {
+  if(settings.useDatabase) {
     auto digest = Hash::SHA256(buffer).digest();
     for(auto game : Database::GameGear.find("game")) {
       if(game["sha256"].text() == digest) return BML::serialize(game);
     }
   }
 
-  if(settings["icarus/UseHeuristics"].boolean()) {
+  if(settings.useHeuristics) {
     Heuristics::GameGear game{buffer, location};
     if(auto manifest = game.manifest()) return manifest;
   }
@@ -23,7 +23,7 @@ auto Icarus::gameGearManifest(vector<uint8_t>& buffer, string location) -> strin
 auto Icarus::gameGearImport(vector<uint8_t>& buffer, string location) -> string {
   auto name = Location::prefix(location);
   auto source = Location::path(location);
-  string target{settings["Library/Location"].text(), "Game Gear/", name, ".gg/"};
+  string target{settings.gameGear, name, "/"};
 
   auto manifest = gameGearManifest(buffer, location);
   if(!manifest) return failure("failed to parse ROM image");
@@ -33,7 +33,7 @@ auto Icarus::gameGearImport(vector<uint8_t>& buffer, string location) -> string 
     copy({source, name, ".sav"}, {target, "save.ram"});
   }
 
-  if(settings["icarus/CreateManifests"].boolean()) write({target, "manifest.bml"}, manifest);
+  if(settings.createManifests) write({target, "manifest.bml"}, manifest);
   write({target, "program.rom"}, buffer);
   return success(target);
 }

@@ -5,10 +5,13 @@ PortConnector::PortConnector(View* parent) : Panel(parent, Size{~0, ~0}) {
   removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] { eventRemove(); });
 
   locationLabel.setFont(Font().setBold());
+  locationLabel.setForegroundColor({0, 0, 240});
+  locationLabel.onMousePress([&](auto button) {
+    if(button == Mouse::Button::Left) eventBrowse();
+  });
   peripheralList.onActivate([&] { eventActivate(); });
   peripheralList.onChange([&] { eventChange(); });
   peripheralList.onContext([&] { eventContext(); });
-  browseButton.setCollapsible().setText("Browse ...").onActivate([&] { eventBrowse(); });
   nameLabel.setText("Name:");
   nameValue.onActivate([&] { eventActivate(); });
   acceptButton.setText("Create").onActivate([&] { eventActivate(); });
@@ -26,7 +29,7 @@ auto PortConnector::hide() -> void {
 auto PortConnector::refresh(higan::Node::Port port) -> void {
   this->port = port;
 
-  auto path = port->property("location");
+  auto path = port->property("path");
   if(!path) path = {emulator.system.data, port->type, "/"};
   locationLabel.setText(path);
   peripheralList.reset();
@@ -45,7 +48,7 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
     }
   }
 
-  auto location = port->property("location");
+  auto location = port->property("path");
   if(!location) location = {emulator.system.data, port->type, "/"};
   if(location) {
     for(auto& name : directory::folders(location)) {
@@ -91,10 +94,10 @@ auto PortConnector::eventActivate() -> void {
       if(directory::copy(source, target)) {
         file::write({target, "metadata.bml"}, string{
           "system: ", interface->name(), "\n",
-          "type: ", port->type, "\n",
           "name: ", name, "\n"
         });
-        auto peripheral = higan::Node::Peripheral::create(name, port->type);
+        auto peripheral = port->allocate();
+        peripheral->name = name;
         peripheral->setProperty("location", target);
         peripheral->setProperty("name", label);
         port->connect(peripheral);
@@ -113,16 +116,12 @@ auto PortConnector::eventActivate() -> void {
       .setText({"This peripheral is already connected to another port:\n\n", connected->name})
       .setTitle("Error").setAlignment(programWindow).error();
 
-      name = port->type;
-      if(auto document = BML::unserialize(file::read({location, "metadata.bml"}))) {
-        if(auto node = document["name"]) name = node.text();
+      auto peripheral = port->allocate();
+      if(auto markup = file::read({location, "settings.bml"})) {
+        peripheral = higan::Node::unserialize(markup);
       }
-      auto peripheral = higan::Node::Peripheral::create(name, port->type);
       peripheral->setProperty("location", location);
       peripheral->setProperty("name", item.property("name"));
-      if(auto document = file::read({location, "node.bml"})) {
-        peripheral = higan::Node::unserialize(document);
-      }
       port->connect(peripheral);
       nodeManager.refresh();
     }
@@ -130,14 +129,12 @@ auto PortConnector::eventActivate() -> void {
 }
 
 auto PortConnector::eventChange() -> void {
-  browseButton.setVisible(false);
   nameLabel.setVisible(false);
   nameValue.setVisible(false);
   acceptButton.setVisible(false);
 
   if(auto item = peripheralList.selected()) {
     if(item.property("type") == "nothing") {
-      browseButton.setVisible(true);
       acceptButton.setText("Disconnect").setVisible();
     }
 
@@ -148,11 +145,8 @@ auto PortConnector::eventChange() -> void {
     }
 
     else if(item.property("type") == "peripheral") {
-      browseButton.setVisible(true);
       acceptButton.setText("Connect").setVisible();
     }
-  } else {
-    browseButton.setVisible(true);
   }
 
   controlLayout.resize();
@@ -167,14 +161,14 @@ auto PortConnector::eventContext() -> void {
 }
 
 auto PortConnector::eventBrowse() -> void {
-  auto path = port->property("location");
+  auto path = port->property("path");
   if(!path) path = {emulator.system.data, port->type, "/"};
   if(auto location = BrowserDialog()
   .setTitle({port->name, " Location"})
   .setPath(path)
   .setAlignment(programWindow).selectFolder()
   ) {
-    port->setProperty("location", location);
+    port->setProperty("path", location);
     refresh(port);
   }
 }

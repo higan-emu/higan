@@ -10,14 +10,14 @@ auto Icarus::superFamicomManifest(string location) -> string {
 }
 
 auto Icarus::superFamicomManifest(vector<uint8_t>& buffer, string location) -> string {
-  if(settings["icarus/UseDatabase"].boolean()) {
+  if(settings.useDatabase) {
     auto digest = Hash::SHA256(buffer).digest();
     for(auto game : Database::SuperFamicom.find("game")) {
       if(game["sha256"].text() == digest) return BML::serialize(game);
     }
   }
 
-  if(settings["icarus/UseHeuristics"].boolean()) {
+  if(settings.useHeuristics) {
     Heuristics::SuperFamicom game{buffer, location};
     if(auto manifest = game.manifest()) return manifest;
   }
@@ -28,7 +28,7 @@ auto Icarus::superFamicomManifest(vector<uint8_t>& buffer, string location) -> s
 auto Icarus::superFamicomImport(vector<uint8_t>& buffer, string location) -> string {
   auto name = Location::prefix(location);
   auto source = Location::path(location);
-  string target{settings["Library/Location"].text(), "Super Famicom/", name, ".sfc/"};
+  string target{settings.superFamicom, name, "/"};
 
   auto manifest = superFamicomManifest(buffer, location);
   if(!manifest) return failure("failed to parse ROM image");
@@ -38,7 +38,7 @@ auto Icarus::superFamicomImport(vector<uint8_t>& buffer, string location) -> str
     copy({source, name, ".srm"}, {target, "save.ram"});
   }
 
-  if(settings["icarus/CreateManifests"].boolean()) write({target, "manifest.bml"}, manifest);
+  if(settings.createManifests) write({target, "manifest.bml"}, manifest);
   uint offset = 0;
   auto document = BML::unserialize(manifest);
   for(auto rom : document.find("game/board/memory(type=ROM)")) {

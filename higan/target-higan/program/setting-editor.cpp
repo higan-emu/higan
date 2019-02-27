@@ -5,7 +5,6 @@ SettingEditor::SettingEditor(View* view) : Panel(view, Size{~0, ~0}) {
   latchedLabel.setText("Latched:");
   latchedValue;
   valueList.onChange([&] { eventChange(); });
-  spacerButton.setVisible(false);
 }
 
 auto SettingEditor::show() -> void {

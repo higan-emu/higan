@@ -2,6 +2,8 @@ struct Cartridge {
   Node::Port port;
   Node::Peripheral node;
 
+  inline auto metadata() const -> string { return information.metadata; }
+
   //cartridge.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto connect(Node::Peripheral) -> void;
@@ -17,7 +19,7 @@ private:
   auto mirror(uint addr, uint size) -> uint;
 
   struct Information {
-    string manifest;
+    string metadata;
   } information;
 
   struct Memory {

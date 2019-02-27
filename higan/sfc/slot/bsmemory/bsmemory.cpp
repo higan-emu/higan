@@ -2,7 +2,8 @@ BSMemory bsmemory;
 #include "serialization.cpp"
 
 auto BSMemory::load(Node::Peripheral parent, Node::Peripheral from) -> void {
-  port = Node::Port::create("BS Memory Slot", "BS Memory");
+  port = Node::Port::create("BS Memory Cartridge Slot", "BS Memory Cartridge");
+  port->allocate = [&] { return Node::Peripheral::create("BS Memory"); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
   if(from = Node::load(port, from)) {
@@ -37,14 +38,14 @@ auto BSMemory::step(uint clocks) -> void {
 }
 
 auto BSMemory::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create("BS Memory", port->type);
+  node = Node::Peripheral::create("BS Memory");
   node->load(with);
 
-  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
-    self.manifest = fp->reads();
+  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
+    self.metadata = fp->reads();
   } else return;
 
-  auto document = BML::unserialize(self.manifest);
+  auto document = BML::unserialize(self.metadata);
 
   if(auto memory = document["game/board/memory(content=Program)"]) {
     ROM = memory["type"].text() == "ROM";
@@ -78,7 +79,7 @@ auto BSMemory::connect(Node::Peripheral with) -> void {
     block.locked = 1;
   }
 
-  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Optional)) {
+  if(auto fp = platform->open(node, "flash.bml", File::Read, File::Optional)) {
     auto document = BML::unserialize(fp->reads());
     if(auto node = document["flash/vendor"]) {
       chip.vendor = node.natural();
@@ -109,7 +110,7 @@ auto BSMemory::disconnect() -> void {
   if(!node) return;
   if(ROM) return memory.reset();
 
-  if(auto fp = platform->open(node, "metadata.bml", File::Write, File::Optional)) {
+  if(auto fp = platform->open(node, "flash.bml", File::Write, File::Optional)) {
     string manifest;
     manifest.append("flash\n");
     manifest.append("  vendor: 0x", hex(chip.vendor,  4L), "\n");
@@ -147,7 +148,7 @@ auto BSMemory::power() -> void {
 
 auto BSMemory::save() -> void {
   if(!node) return;
-  auto document = BML::unserialize(self.manifest);
+  auto document = BML::unserialize(self.metadata);
 
   if(auto memory = document["game/board/memory(type=Flash,content=Program)"]) {
     if(auto fp = platform->open(node, "program.flash", File::Write)) {

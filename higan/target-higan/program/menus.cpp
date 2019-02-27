@@ -1,5 +1,14 @@
 ActionMenu::ActionMenu(MenuBar* parent) : Menu(parent) {
-  setText("Action");
+  setText("System");
+  create.setIcon(Icon::Action::Add).setText("Create").onActivate([&] {
+    systemManager.eventCreate();
+  });
+  rename.setIcon(Icon::Application::TextEditor).setText("Rename").onActivate([&] {
+    systemManager.eventRename();
+  });
+  remove.setIcon(Icon::Action::Remove).setText("Delete").onActivate([&] {
+    systemManager.eventRemove();
+  });
   quit.setIcon(Icon::Action::Quit).setText("Quit").onActivate([&] { emulator.quit(); });
 }
 
@@ -14,6 +23,15 @@ SystemMenu::SystemMenu(MenuBar* parent) : Menu(parent) {
 
 SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   setText("Settings");
+  video.setText("Video").setIcon(Icon::Device::Display).onActivate([&] {
+    programWindow.show(videoSettings);
+  });
+  audio.setText("Audio").setIcon(Icon::Device::Speaker).onActivate([&] {
+    programWindow.show(audioSettings);
+  });
+  input.setText("Input").setIcon(Icon::Device::Joypad).onActivate([&] {
+    programWindow.show(inputSettings);
+  });
   showComponents.setText("Show Components").onToggle([&] {
     if(systemOverview.visible()) systemOverview.refresh();
     if(nodeManager.visible()) nodeManager.refresh();

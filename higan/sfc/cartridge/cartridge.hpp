@@ -3,6 +3,7 @@ struct Cartridge {
   Node::Peripheral node;
   auto load(Node::Object, Node::Object) -> void;
 
+  auto metadata() const -> string { return information.metadata; }
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
@@ -18,8 +19,8 @@ struct Cartridge {
   WritableMemory ram;
 
   struct Information {
-    string region = "NTSC";
-    string sha256;
+    string metadata;
+    string region;
   } information;
 
   struct Has {

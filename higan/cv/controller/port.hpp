@@ -10,11 +10,9 @@ struct ControllerPort {
 
   auto serialize(serializer&) -> void;
 
-private:
   const string name;
   Node::Port port;
   unique_pointer<Controller> device;
-  friend class Controller;
 };
 
 extern ControllerPort controllerPort1;

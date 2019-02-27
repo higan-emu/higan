@@ -43,7 +43,7 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.disconnect();
+  cartridge.port = {};
   bootROM.reset();
   node = {};
 }

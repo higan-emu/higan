@@ -48,7 +48,7 @@ auto System::unload() -> void {
   if(!node) return;
   save();
   eeprom.setSize(0);
-  cartridge.disconnect();
+  cartridge.port = {};
   node = {};
 }
 

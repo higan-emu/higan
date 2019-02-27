@@ -8,6 +8,9 @@
 #include "port-connector.cpp"
 #include "input-mapper.cpp"
 #include "setting-editor.cpp"
+#include "../settings/video.cpp"
+#include "../settings/audio.cpp"
+#include "../settings/input.cpp"
 
 namespace Instances { Instance<ProgramWindow> programWindow; }
 ProgramWindow& programWindow = Instances::programWindow();
@@ -24,13 +27,16 @@ SystemOverview& systemOverview = programWindow.systemOverview;
 PortConnector& portConnector = programWindow.portConnector;
 InputMapper& inputMapper = programWindow.inputMapper;
 SettingEditor& settingEditor = programWindow.settingEditor;
+VideoSettings& videoSettings = programWindow.videoSettings;
+AudioSettings& audioSettings = programWindow.audioSettings;
+InputSettings& inputSettings = programWindow.inputSettings;
 
 ProgramWindow::ProgramWindow() {
   panels.setPadding(5);
   for(auto& cell : panels.cells()) cell.setSpacing(0);
   resizeGrip.onActivate([&] { resizeWidth = panels.cell(*primaryPanel).size().width(); });
   resizeGrip.onResize([&](auto offset) {
-    float min = 250, max = panels.geometry().width() - 128;
+    float min = 128, max = panels.geometry().width() - 128;
     float width = resizeWidth + offset;
     width = width < min ? min : width > max ? max : width;
     if(panels.cell(*primaryPanel).size().width() != width) {
@@ -38,7 +44,6 @@ ProgramWindow::ProgramWindow() {
       panels.resize();
     }
   });
-  resizeSpacer.setVisible(false);
 
   onClose([&] { emulator.quit(); });
 

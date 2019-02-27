@@ -7,6 +7,7 @@ static auto TableView_buttonEvent(GtkTreeView* treeView, GdkEventButton* event, 
 static auto TableView_change(GtkTreeSelection*, pTableView* p) -> void { return p->_doChange(); }
 static auto TableView_edit(GtkCellRendererText* renderer, const char* path, const char* text, pTableView* p) -> void { return p->_doEdit(renderer, path, text); }
 static auto TableView_headerActivate(GtkTreeViewColumn* column, pTableView* p) -> void { return p->_doHeaderActivate(column); }
+static auto TableView_keyPressEvent(GtkTreeView* treeView, GdkEventKey* event, pTableView* p) -> bool { return p->_doKeyPress(event); }
 static auto TableView_mouseMoveEvent(GtkWidget*, GdkEvent*, pTableView* p) -> signed { return p->_doMouseMove(); }
 static auto TableView_popup(GtkTreeView*, pTableView* p) -> void { return p->_doContext(); }
 
@@ -37,6 +38,7 @@ auto pTableView::construct() -> void {
 
   g_signal_connect(G_OBJECT(gtkTreeView), "button-press-event", G_CALLBACK(TableView_buttonEvent), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeView), "button-release-event", G_CALLBACK(TableView_buttonEvent), (gpointer)this);
+  g_signal_connect(G_OBJECT(gtkTreeView), "key-press-event", G_CALLBACK(TableView_keyPressEvent), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeView), "motion-notify-event", G_CALLBACK(TableView_mouseMoveEvent), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeView), "popup-menu", G_CALLBACK(TableView_popup), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeView), "row-activated", G_CALLBACK(TableView_activate), (gpointer)this);
@@ -218,11 +220,6 @@ auto pTableView::_createModel() -> void {
   gtkListStore = gtk_list_store_newv(types.size(), types.data());
   gtkTreeModel = GTK_TREE_MODEL(gtkListStore);
   gtk_tree_view_set_model(gtkTreeView, gtkTreeModel);
-
-//for(auto& item : state().items) {
-//  gtk_list_store_append(gtkListStore, &item->self()->gtkIter);
-//  item->self()->_setState();
-//}
 }
 
 auto pTableView::_doActivate() -> void {
@@ -352,6 +349,26 @@ auto pTableView::_doHeaderActivate(GtkTreeViewColumn* gtkTreeViewColumn) -> void
       }
     }
   }
+}
+
+auto pTableView::_doKeyPress(GdkEventKey* event) -> bool {
+  if(state().batchable && event->type == GDK_KEY_PRESS) {
+    //when using keyboard to activate tree view items in GTK_SELECTION_MULTIPLE mode, GTK will deselect all but the last item
+    //this code detects said case, blocks the key from being propagated, and calls the activate callback directly
+    //the result is that the enter key can be used to activate multiple selected items at a time
+    //there are four ways to activate items via the keyboard in GTK, so we have to detect all of them here
+    auto modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_SUPER_MASK);  //ignore other modifiers (eg mouse buttons)
+    if((event->keyval == GDK_KEY_Return && !modifiers)
+    || (event->keyval == GDK_KEY_KP_Enter && !modifiers)
+    || (event->keyval == GDK_KEY_space && !modifiers)
+    || (event->keyval == GDK_KEY_space && modifiers == GDK_SHIFT_MASK)
+    ) {
+      _doActivate();
+      return true;
+    }
+  }
+  //allow GTK to handle this keypress
+  return false;
 }
 
 //GtkTreeView::cursor-changed and GtkTreeSelection::changed do not send signals for changes during rubber-banding selection

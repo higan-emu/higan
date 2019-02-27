@@ -5,14 +5,14 @@ auto Icarus::neoGeoPocketManifest(string location) -> string {
 }
 
 auto Icarus::neoGeoPocketManifest(vector<uint8_t>& buffer, string location) -> string {
-  if(settings["icarus/UseDatabase"].boolean()) {
+  if(settings.useDatabase) {
     auto digest = Hash::SHA256(buffer).digest();
     for(auto game : Database::NeoGeoPocket.find("game")) {
       if(game["sha256"].text() == digest) return BML::serialize(game);
     }
   }
 
-  if(settings["icarus/UseHeuristics"].boolean()) {
+  if(settings.useHeuristics) {
     Heuristics::NeoGeoPocket game{buffer, location};
     if(auto manifest = game.manifest()) return manifest;
   }
@@ -23,7 +23,7 @@ auto Icarus::neoGeoPocketManifest(vector<uint8_t>& buffer, string location) -> s
 auto Icarus::neoGeoPocketImport(vector<uint8_t>& buffer, string location) -> string {
   auto name = Location::prefix(location);
   auto source = Location::path(location);
-  string target{settings["Library/Location"].text(), "Neo Geo Pocket/", name, ".ngp/"};
+  string target{settings.neoGeoPocket, name, "/"};
 
   auto manifest = neoGeoPocketManifest(buffer, location);
   if(!manifest) return failure("failed to parse ROM image");
@@ -33,7 +33,7 @@ auto Icarus::neoGeoPocketImport(vector<uint8_t>& buffer, string location) -> str
     copy({source, name, ".sav"}, {target, "save.ram"});
   }
 
-  if(settings["icarus/CreateManifests"].boolean()) write({target, "manifest.bml"}, manifest);
+  if(settings.createManifests) write({target, "manifest.bml"}, manifest);
   write({target, "program.rom"}, buffer);
   return success(target);
 }

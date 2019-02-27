@@ -1,5 +1,9 @@
 struct ActionMenu : Menu {
   ActionMenu(MenuBar*);
+  MenuItem create{this};
+  MenuItem rename{this};
+  MenuItem remove{this};
+  MenuSeparator quitSeparator{this};
   MenuItem quit{this};
 };
 
@@ -10,6 +14,10 @@ struct SystemMenu : Menu {
 
 struct SettingsMenu : Menu {
   SettingsMenu(MenuBar*);
+  MenuItem video{this};
+  MenuItem audio{this};
+  MenuItem input{this};
+  MenuSeparator showSeparator{this};
   MenuCheckItem showComponents{this};
   MenuCheckItem showHacks{this};
 };

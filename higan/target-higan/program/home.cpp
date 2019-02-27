@@ -11,7 +11,6 @@ Home::Home(View* parent) : Panel(parent, Size{~0, ~0}) {
     }
   }
   iconCanvas.setIcon(icon);
-  spacerButton.setVisible(false);
 }
 
 auto Home::show() -> void {

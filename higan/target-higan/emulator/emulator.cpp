@@ -13,7 +13,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   system.data = location;
   system.templates = {Path::templates, interface->name(), "/"};
 
-  string configuration = file::read({location, "node.bml"});
+  string configuration = file::read({location, "settings.bml"});
   if(!configuration) {
     auto system = higan::Node::System::create();
     system->name = interface->name();
@@ -68,7 +68,7 @@ auto Emulator::quit() -> void {
   if(!interface) return;
 
   if(auto location = root->property("location")) {
-    file::write({location, "node.bml"}, higan::Node::serialize(root));
+    file::write({location, "settings.bml"}, higan::Node::serialize(root));
   }
 
   viewports.reset();

@@ -47,7 +47,7 @@ struct BSMemory : Thread, Memory {
   WritableMemory memory;
 
   struct {
-    string manifest;
+    string metadata;
   } self;
 
 private:

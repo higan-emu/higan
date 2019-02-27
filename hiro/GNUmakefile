@@ -46,7 +46,7 @@ ifneq ($(filter $(platform),linux bsd),)
   endif
 
   ifeq ($(hiro),qt4)
-    moc = moc-qt4
+    moc = /usr/local/lib/qt4/bin/moc
     hiro.flags   = $(flags.cpp) -DHIRO_QT=4 $(shell pkg-config --cflags QtCore QtGui)
     hiro.options = -lX11 $(shell pkg-config --libs QtCore QtGui)
   endif

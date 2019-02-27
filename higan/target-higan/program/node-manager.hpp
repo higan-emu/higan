@@ -11,8 +11,6 @@ struct NodeManager : Panel {
   auto eventChange() -> void;
 
   ListView nodeList{this, Size{~0, ~0}};
-  HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Button spacerButton{&controlLayout, Size{0, 0}};
 
   higan::Node::Object root;
 };

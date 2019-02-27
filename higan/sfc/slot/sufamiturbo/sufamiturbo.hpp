@@ -23,7 +23,7 @@ struct SufamiTurboCartridge {
   WritableMemory ram;
 
   struct {
-    string manifest;
+    string metadata;
   } self;
 };
 

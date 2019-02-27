@@ -1,0 +1,30 @@
+struct VideoSettings : Panel {
+  VideoSettings(View*);
+  auto show() -> void override;
+  auto hide() -> void override;
+
+  Frame frame{this, Size{~0, ~0}};
+  VerticalLayout layout{&frame};
+  Label driverHeader{&layout, Size{~0, 0}};
+  HorizontalLayout driverLayout{&layout, Size{~0, 0}};
+    Label driverLabel{&driverLayout, Size{0, 0}};
+    ComboButton driverOption{&driverLayout, Size{0, 0}};
+  HorizontalLayout optionsLayout{&layout, Size{~0, 0}};
+    Label formatLabel{&optionsLayout, Size{0, 0}};
+    ComboButton formatOption{&optionsLayout, Size{0, 0}};
+  HorizontalLayout togglesLayout{&layout, Size{~0, 0}};
+    CheckLabel exclusiveOption{&togglesLayout, Size{0, 0}};
+    CheckLabel synchronizeOption{&togglesLayout, Size{0, 0}};
+    CheckLabel flushOption{&togglesLayout, Size{0, 0}};
+  Label colorHeader{&layout, Size{~0, 0}};
+  TableLayout colorLayout{&layout, Size{~0, 0}};
+    Label luminanceLabel{&colorLayout, Size{0, 0}};
+    Label luminanceValue{&colorLayout, Size{50, 0}};
+    HorizontalSlider luminanceSlider{&colorLayout, Size{~0, 0}};
+    Label saturationLabel{&colorLayout, Size{0, 0}};
+    Label saturationValue{&colorLayout, Size{50, 0}};
+    HorizontalSlider saturationSlider{&colorLayout, Size{~0, 0}};
+    Label gammaLabel{&colorLayout, Size{0, 0}};
+    Label gammeValue{&colorLayout, Size{50, 0}};
+    HorizontalSlider gammaSlider{&colorLayout, Size{~0, 0}};
+};

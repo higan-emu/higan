@@ -20,7 +20,8 @@ auto ICD::main() -> void {
 }
 
 auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
-  port = Node::Port::create("Game Boy Slot", "Game Boy");
+  port = Node::Port::create("Game Boy Cartridge Slot", "Game Boy Cartridge");
+  port->allocate = [&] { return Node::Peripheral::create("Game Boy"); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
   GameBoy::superGameBoy = this;
@@ -34,7 +35,7 @@ auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
 }
 
 auto ICD::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create("Game Boy", port->type);
+  node = Node::Peripheral::create("Game Boy");
   node->load(with);
 
   GameBoy::cartridge.node = node;

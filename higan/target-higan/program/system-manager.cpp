@@ -1,10 +1,7 @@
-SystemManager::SystemManager(View* view) : Panel(view, Size{250, ~0}) {
+SystemManager::SystemManager(View* view) : Panel(view, Size{200, ~0}) {
   setCollapsible().setVisible(false);
   systemList.onActivate([&] { eventActivate(); });
   systemList.onChange([&] { eventChange(); });
-  createButton.setText("Create").onActivate([&] { eventCreate(); });
-  renameButton.setText("Rename").onActivate([&] { eventRename(); });
-  removeButton.setText("Delete").onActivate([&] { eventRemove(); });
 }
 
 auto SystemManager::show() -> void {

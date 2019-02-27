@@ -13,8 +13,4 @@ struct SystemManager : Panel {
   auto eventRemove() -> void;
 
   ListView systemList{this, Size{~0, ~0}};
-  HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Button createButton{&controlLayout, Size{80, 0}};
-    Button renameButton{&controlLayout, Size{80, 0}};
-    Button removeButton{&controlLayout, Size{80, 0}};
 };

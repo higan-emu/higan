@@ -5,14 +5,14 @@ auto Icarus::pocketChallengeV2Manifest(string location) -> string {
 }
 
 auto Icarus::pocketChallengeV2Manifest(vector<uint8_t>& buffer, string location) -> string {
-  if(settings["icarus/UseDatabase"].boolean()) {
+  if(settings.useDatabase) {
     auto digest = Hash::SHA256(buffer).digest();
     for(auto game : Database::PocketChallengeV2.find("game")) {
       if(game["sha256"].text() == digest) return BML::serialize(game);
     }
   }
 
-  if(settings["icarus/UseHeuristics"].boolean()) {
+  if(settings.useHeuristics) {
     Heuristics::WonderSwan game{buffer, location};
     if(auto manifest = game.manifest()) return manifest;
   }
@@ -23,7 +23,7 @@ auto Icarus::pocketChallengeV2Manifest(vector<uint8_t>& buffer, string location)
 auto Icarus::pocketChallengeV2Import(vector<uint8_t>& buffer, string location) -> string {
   auto name = Location::prefix(location);
   auto source = Location::path(location);
-  string target{settings["Library/Location"].text(), "Pocket Challenge V2/", name, ".pc2/"};
+  string target{settings.pocketChallengeV2, name, "/"};
 
   auto manifest = pocketChallengeV2Manifest(buffer, location);
   if(!manifest) return failure("failed to parse ROM image");
@@ -33,7 +33,7 @@ auto Icarus::pocketChallengeV2Import(vector<uint8_t>& buffer, string location) -
     copy({source, name, ".sav"}, {target, "save.ram"});
   }
 
-  if(settings["icarus/CreateManifests"].boolean()) write({target, "manifest.bml"}, manifest);
+  if(settings.createManifests) write({target, "manifest.bml"}, manifest);
   write({target, "program.rom"}, buffer);
   return success(target);
 }

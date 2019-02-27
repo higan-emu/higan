@@ -35,7 +35,7 @@ struct Board {
 
   virtual auto serialize(serializer&) -> void;
 
-  static auto load(string manifest) -> Board*;
+  static auto load(string metadata) -> Board*;
 
   struct Information {
     string type;

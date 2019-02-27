@@ -6,16 +6,16 @@ auto Emulator::attach(higan::Node::Object node) -> void {
 
 auto Emulator::detach(higan::Node::Object node) -> void {
   if(auto location = node->property("location")) {
-    file::write({location, "node.bml"}, node->save());
+    file::write({location, "settings.bml"}, node->save());
   }
 }
 
 auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
   auto location = node->property("location");
 
-  if(name == "manifest.bml") {
+  if(name == "metadata.bml") {
     if(!file::exists({location, name}) && directory::exists(location)) {
-      if(auto manifest = execute("icarus", "--manifest", location)) {
+      if(auto manifest = execute("icarus", "--system", node->name, "--metadata", location)) {
         return vfs::memory::file::open(manifest.output.data<uint8_t>(), manifest.output.size());
       }
     }
