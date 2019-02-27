@@ -7,6 +7,7 @@ struct SystemCreation : Panel {
   auto eventChange() -> void;
   auto eventAccept() -> void;
 
+  Label header{this, Size{~0, 0}};
   ListView systemList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
     Label nameLabel{&controlLayout, Size{0, 0}};

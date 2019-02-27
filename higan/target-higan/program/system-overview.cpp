@@ -1,5 +1,6 @@
 SystemOverview::SystemOverview(View* parent) : Panel(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
+  header.setText("Overview").setFont(Font().setBold());
 }
 
 auto SystemOverview::show() -> void {

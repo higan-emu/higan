@@ -10,14 +10,17 @@ struct Monitor {
 };
 
 //DPI scale X
-inline auto operator"" _sx(unsigned long long x) -> float {
+inline auto sx(float x) -> float {
   static auto scale = Monitor::dpi().x() / 96.0;
-  return round(x * scale);
+  return x * scale;
 }
 
-//DPI scale Y
-inline auto operator"" _sy(unsigned long long y) -> float {
+//DPI scale y
+inline auto sy(float y) -> float {
   static auto scale = Monitor::dpi().y() / 96.0;
-  return round(y * scale);
+  return y * scale;
 }
+
+inline auto operator"" _sx(unsigned long long x) -> float { return sx(x); }
+inline auto operator"" _sy(unsigned long long y) -> float { return sy(y); }
 #endif

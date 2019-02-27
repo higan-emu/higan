@@ -66,8 +66,13 @@ auto AboutDialog::show() -> void {
 
   Canvas logoCanvas{&layout, Size{~0, 0}};
   logoCanvas.setCollapsible();
-  logoCanvas.setIcon(state.logo);
-  logoCanvas.setVisible((bool)state.logo);
+  if(state.logo) {
+    image logo{state.logo};
+    logo.scale(sx(logo.width()), sy(logo.height()));
+    logoCanvas.setIcon(logo);
+  } else {
+    logoCanvas.setVisible(false);
+  }
 
   Label descriptionLabel{&layout, Size{~0, 0}};
   descriptionLabel.setCollapsible();
@@ -78,7 +83,7 @@ auto AboutDialog::show() -> void {
 
   HorizontalLayout versionLayout{&layout, Size{~0, 0}, 0};
   versionLayout.setCollapsible();
-  Label versionLabel{&versionLayout, Size{~0, 0}, 3};
+  Label versionLabel{&versionLayout, Size{~0, 0}, 3_sx};
   versionLabel.setAlignment(1.0);
   versionLabel.setFont(Font().setBold());
   versionLabel.setForegroundColor({0, 0, 0});
@@ -92,7 +97,7 @@ auto AboutDialog::show() -> void {
 
   HorizontalLayout authorLayout{&layout, Size{~0, 0}, 0};
   authorLayout.setCollapsible();
-  Label authorLabel{&authorLayout, Size{~0, 0}, 3};
+  Label authorLabel{&authorLayout, Size{~0, 0}, 3_sx};
   authorLabel.setAlignment(1.0);
   authorLabel.setFont(Font().setBold());
   authorLabel.setForegroundColor({0, 0, 0});
@@ -106,7 +111,7 @@ auto AboutDialog::show() -> void {
 
   HorizontalLayout licenseLayout{&layout, Size{~0, 0}, 0};
   licenseLayout.setCollapsible();
-  Label licenseLabel{&licenseLayout, Size{~0, 0}, 3};
+  Label licenseLabel{&licenseLayout, Size{~0, 0}, 3_sx};
   licenseLabel.setAlignment(1.0);
   licenseLabel.setFont(Font().setBold());
   licenseLabel.setForegroundColor({0, 0, 0});
@@ -120,7 +125,7 @@ auto AboutDialog::show() -> void {
 
   HorizontalLayout websiteLayout{&layout, Size{~0, 0}, 0};
   websiteLayout.setCollapsible();
-  Label websiteLabel{&websiteLayout, Size{~0, 0}, 3};
+  Label websiteLabel{&websiteLayout, Size{~0, 0}, 3_sx};
   websiteLabel.setAlignment(1.0);
   websiteLabel.setFont(Font().setBold());
   websiteLabel.setForegroundColor({0, 0, 0});

@@ -83,6 +83,15 @@ auto mListView::selected() const -> ListViewItem {
   return ListViewItem{mTableView::selected()};
 }
 
+auto mListView::setVisible(bool visible) -> type& {
+  mTableView::setVisible(visible);
+  if(visible) {
+    Application::processEvents();  //heavy-handed, but necessary for proper Widget geometry
+    mTableView::resizeColumns();
+  }
+  return *this;
+}
+
 //
 
 mListViewItem::mListViewItem() {

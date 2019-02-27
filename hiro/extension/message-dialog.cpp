@@ -70,10 +70,10 @@ auto MessageDialog::_run() -> string {
 
   Window window;
     VerticalLayout layout{&window};
-      HorizontalLayout messageLayout{&layout, Size{~0, 0}, 5_sx};
-        VerticalLayout messageIconLayout{&messageLayout, Size{16, ~0}, 5_sx};
-          Canvas messageIcon{&messageIconLayout, Size{16, 16}, 0};
-          Widget messageIconSpacer{&messageIconLayout, Size{16, ~0}};
+      HorizontalLayout messageLayout{&layout, Size{~0, 0}, 5_sy};
+        VerticalLayout messageIconLayout{&messageLayout, Size{16_sx, ~0}, 5_sx};
+          Canvas messageIcon{&messageIconLayout, Size{16_sx, 16_sy}, 0};
+          Widget messageIconSpacer{&messageIconLayout, Size{16_sx, ~0}};
         Label messageText{&messageLayout, Size{~0, 0}};
       Widget optionSpacer{&layout, Size{0, 0}};
       CheckLabel optionText{&layout, Size{~0, 0}};
@@ -81,7 +81,9 @@ auto MessageDialog::_run() -> string {
         Widget controlSpacer{&controlLayout, Size{~0, 0}};
 
   layout.setPadding(5_sx, 5_sy);
-  messageIcon.setIcon(state.icon);
+  image icon{state.icon};
+  icon.scale(16_sx, 16_sy);
+  messageIcon.setIcon(icon);
   messageText.setText(state.text);
   optionSpacer.setCollapsible().setVisible((bool)state.option);
   optionText.setCollapsible().setChecked(state.checked).setText(state.option).setVisible((bool)state.option).onToggle([&] {

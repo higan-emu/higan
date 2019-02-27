@@ -10,6 +10,7 @@ Home::Home(View* parent) : Panel(parent, Size{~0, ~0}) {
       data += icon.stride();
     }
   }
+  icon.scale(sx(icon.width()), sy(icon.height()));
   iconCanvas.setIcon(icon);
 }
 

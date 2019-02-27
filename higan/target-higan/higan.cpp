@@ -51,53 +51,92 @@ auto nall::main(Arguments arguments) -> void {
     "templates: ", Path::templates, "\n"
   });
 
-  #ifdef CORE_FC
-  interfaces.append(new higan::Famicom::FamicomInterface);
-  #endif
-  #ifdef CORE_SFC
-  interfaces.append(new higan::SuperFamicom::SuperFamicomInterface);
-  #endif
-  #ifdef CORE_SG
-  interfaces.append(new higan::SG1000::SG1000Interface);
-  interfaces.append(new higan::SG1000::SC3000Interface);
-  #endif
-  #ifdef CORE_MS
-  interfaces.append(new higan::MasterSystem::MasterSystemInterface);
-  #endif
-  #ifdef CORE_MD
-  interfaces.append(new higan::MegaDrive::MegaDriveInterface);
-  #endif
-  #ifdef CORE_PCE
-  interfaces.append(new higan::PCEngine::PCEngineInterface);
-  interfaces.append(new higan::PCEngine::SuperGrafxInterface);
-  #endif
-  #ifdef CORE_MSX
-  interfaces.append(new higan::MSX::MSXInterface);
-  #endif
+  //create interfaces list in alphabetical order of interface->name() values
+
   #ifdef CORE_CV
   interfaces.append(new higan::ColecoVision::ColecoVisionInterface);
   #endif
+
+  #ifdef CORE_FC
+  interfaces.append(new higan::Famicom::FamicomInterface);
+  #endif
+
   #ifdef CORE_GB
   interfaces.append(new higan::GameBoy::GameBoyInterface);
-  interfaces.append(new higan::GameBoy::GameBoyColorInterface);
   #endif
+
   #ifdef CORE_GBA
   interfaces.append(new higan::GameBoyAdvance::GameBoyAdvanceInterface);
+  #endif
+
+  #ifdef CORE_GB
+  interfaces.append(new higan::GameBoy::GameBoyColorInterface);
+  #endif
+
+  #ifdef CORE_GBA
   interfaces.append(new higan::GameBoyAdvance::GameBoyPlayerInterface);
   #endif
+
   #ifdef CORE_MS
   interfaces.append(new higan::MasterSystem::GameGearInterface);
   #endif
-  #ifdef CORE_WS
-  interfaces.append(new higan::WonderSwan::WonderSwanInterface);
-  interfaces.append(new higan::WonderSwan::WonderSwanColorInterface);
-  interfaces.append(new higan::WonderSwan::SwanCrystalInterface);
-  interfaces.append(new higan::WonderSwan::PocketChallengeV2Interface);
+
+  #ifdef CORE_MS
+  interfaces.append(new higan::MasterSystem::MasterSystemInterface);
   #endif
+
+  #ifdef CORE_MD
+  interfaces.append(new higan::MegaDrive::MegaDriveInterface);
+  #endif
+
+  #ifdef CORE_MSX
+  interfaces.append(new higan::MSX::MSXInterface);
+  #endif
+
   #ifdef CORE_NGP
   interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
+  #endif
+
+  #ifdef CORE_NGP
   interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketColorInterface);
   #endif
+
+  #ifdef CORE_PCE
+  interfaces.append(new higan::PCEngine::PCEngineInterface);
+  #endif
+
+  #ifdef CORE_WS
+  interfaces.append(new higan::WonderSwan::PocketChallengeV2Interface);
+  #endif
+
+  #ifdef CORE_SG
+  interfaces.append(new higan::SG1000::SC3000Interface);
+  #endif
+
+  #ifdef CORE_SG
+  interfaces.append(new higan::SG1000::SG1000Interface);
+  #endif
+
+  #ifdef CORE_SFC
+  interfaces.append(new higan::SuperFamicom::SuperFamicomInterface);
+  #endif
+
+  #ifdef CORE_PCE
+  interfaces.append(new higan::PCEngine::SuperGrafxInterface);
+  #endif
+
+  #ifdef CORE_WS
+  interfaces.append(new higan::WonderSwan::SwanCrystalInterface);
+  #endif
+
+  #ifdef CORE_WS
+  interfaces.append(new higan::WonderSwan::WonderSwanInterface);
+  #endif
+
+  #ifdef CORE_WS
+  interfaces.append(new higan::WonderSwan::WonderSwanColorInterface);
+  #endif
+
   for(auto& interface : interfaces) interface->load();
 
   Instances::programWindow.construct();

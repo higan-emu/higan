@@ -60,8 +60,9 @@ auto NameDialog::show(string mode, string name) -> string {
   if(!state.title && mode == "Rename") setTitle({"Rename ", name});
   textLabel.setText(state.text ? state.text : "Enter a name:");
   if(state.icon) {
-    //todo: enforce 16x16 size?
-    typeIcon.setIcon(state.icon);
+    image icon{state.icon};
+    icon.scale(16_sx, 16_sy);
+    typeIcon.setIcon(icon);
   } else {
     typeIcon.setVisible(false);
   }

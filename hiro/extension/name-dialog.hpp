@@ -19,7 +19,7 @@ private:
     VerticalLayout layout{&window};
       Label textLabel{&layout, Size{~0, 0}};
       HorizontalLayout nameLayout{&layout, Size{~0, 0}};
-        Canvas typeIcon{&nameLayout, Size{16, 16}};
+        Canvas typeIcon{&nameLayout, Size{16_sx, 16_sy}};
         LineEdit nameValue{&nameLayout, Size{~0, 0}};
       HorizontalLayout controlLayout{&layout, Size{~0, 0}};
         Widget controlSpacer{&controlLayout, Size{~0, 0}};

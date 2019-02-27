@@ -29,6 +29,7 @@ struct mListView : mTableView {
   auto reset() -> type& override;
   auto resize() -> type&;
   auto selected() const -> ListViewItem;
+  auto setVisible(bool visible = true) -> type&;
 
 //private:
   struct State {

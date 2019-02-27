@@ -5,5 +5,6 @@ struct SystemOverview : Panel {
   auto refresh() -> void;
   auto scan(higan::Node::Object node, uint depth = 1) -> void;
 
+  Label header{this, Size{~0, 0}};
   ListView nodeList{this, Size{~0, ~0}};
 };

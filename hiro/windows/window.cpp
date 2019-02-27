@@ -7,9 +7,6 @@ static auto CALLBACK Window_windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARA
 
   if(auto window = (mWindow*)GetWindowLongPtr(hwnd, GWLP_USERDATA)) {
     if(auto self = window->self()) {
-      if(self->_modalityDisabled()) {
-        return DefWindowProc(hwnd, msg, wparam, lparam);
-      }
       if(auto result = self->windowProc(hwnd, msg, wparam, lparam)) {
         return result();
       }
@@ -74,11 +71,12 @@ auto pWindow::frameMargin() const -> Geometry {
   uint style = state().fullScreen ? 0 : state().resizable ? ResizableStyle : FixedStyle;
   bool menuVisible = state().menuBar && state().menuBar->visible();
   AdjustWindowRect(&rc, style, menuVisible);
+  auto& efb = state().fullScreen ? settings.efbPopup : !state().resizable ? settings.efbFixed : settings.efbResizable;
   return {
-    abs(rc.left) - _efb().x(),
-    abs(rc.top) - _efb().y(),
-    (rc.right - rc.left) - 640 - _efb().width(),
-    (rc.bottom - rc.top) + _statusHeight() - 480 - _efb().height()
+    abs(rc.left) - efb.x,
+    abs(rc.top) - efb.y,
+    (rc.right - rc.left) - 640 - efb.width,
+    (rc.bottom - rc.top) + _statusHeight() - 480 - efb.height
   };
 }
 
@@ -157,12 +155,13 @@ auto pWindow::setFullScreen(bool fullScreen) -> void {
 auto pWindow::setGeometry(Geometry geometry) -> void {
   auto lock = acquire();
   Geometry margin = frameMargin();
+  auto& efb = state().fullScreen ? settings.efbPopup : !state().resizable ? settings.efbFixed : settings.efbResizable;
   SetWindowPos(
     hwnd, nullptr,
-    geometry.x() - margin.x() - _efb().x(),
-    geometry.y() - margin.y() - _efb().y(),
-    geometry.width() + margin.width() + _efb().width(),
-    geometry.height() + margin.height() + _efb().height(),
+    geometry.x() - margin.x() - efb.x,
+    geometry.y() - margin.y() - efb.y,
+    geometry.width() + margin.width() + efb.width,
+    geometry.height() + margin.height() + efb.height,
     SWP_NOACTIVATE | SWP_NOZORDER | SWP_FRAMECHANGED
   );
   if(auto& statusBar = state().statusBar) {
@@ -198,9 +197,13 @@ auto pWindow::setModal(bool modality) -> void {
   if(modality) {
     modalIncrement();
     _modalityUpdate();
-    while(state().modal) {
+    while(!Application::state().quit && state().modal) {
+      if(Application::state().onMain) {
+        Application::doMain();
+      } else {
+        usleep(20 * 1000);
+      }
       Application::processEvents();
-      if(!Application::state().onMain) usleep(20 * 1000);
     }
     _modalityUpdate();
   } else {
@@ -332,11 +335,6 @@ auto pWindow::windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) -> m
 
 //
 
-auto pWindow::_efb() const -> Geometry {
-  auto efb = state().fullScreen ? settings.efbPopup : !state().resizable ? settings.efbFixed : settings.efbResizable;
-  return {efb.x, efb.y, efb.width, efb.height};
-}
-
 auto pWindow::_geometry() -> Geometry {
   Geometry margin = frameMargin();
 
@@ -350,10 +348,11 @@ auto pWindow::_geometry() -> Geometry {
     GetWindowRect(hwnd, &rc);
   }
 
-  signed x = rc.left + margin.x() + _efb().x();
-  signed y = rc.top + margin.y() + _efb().y();
-  signed width = (rc.right - rc.left) - margin.width() - _efb().width();
-  signed height = (rc.bottom - rc.top) - margin.height() - _efb().height();
+  auto& efb = state().fullScreen ? settings.efbPopup : !state().resizable ? settings.efbFixed : settings.efbResizable;
+  auto x = rc.left + margin.x() + efb.x;
+  auto y = rc.top + margin.y() + efb.y;
+  auto width = (rc.right - rc.left) - margin.width() - efb.width;
+  auto height = (rc.bottom - rc.top) - margin.height() - efb.height;
 
   return {x, y, width, height};
 }

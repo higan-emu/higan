@@ -27,8 +27,8 @@ private:
         ComboButton filterList{&controlLayout, Size{0, 0}, 5_sx};
         LineEdit fileName{&controlLayout, Size{~0, 0}, 5_sx};
         ComboButton optionList{&controlLayout, Size{0, 0}, 5_sx};
-        Button acceptButton{&controlLayout, Size{80, 0}, 5_sx};
-        Button cancelButton{&controlLayout, Size{80, 0}, 5_sx};
+        Button acceptButton{&controlLayout, Size{80_sx, 0}, 5_sx};
+        Button cancelButton{&controlLayout, Size{80_sx, 0}, 5_sx};
 
   PopupMenu contextMenu;
     MenuItem createAction{&contextMenu};
@@ -188,10 +188,18 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
 
   layout.setPadding(5_sx, 5_sy);
   pathName.onActivate([&] { setPath(pathName.text()); });
-  pathRefresh.setBordered(false).setIcon(Icon::Action::Refresh).onActivate([&] { setPath(state.path); });
-  pathNew.setBordered(false).setIcon(Icon::Action::NewFolder).onActivate([&] { createAction.doActivate(); });
-  pathHome.setBordered(false).setIcon(Icon::Go::Home).onActivate([&] { setPath(Path::user()); });
-  pathUp.setBordered(false).setIcon(Icon::Go::Up).onActivate([&] { setPath(Location::dir(state.path)); });
+  image iconRefresh{Icon::Action::Refresh};
+  iconRefresh.scale(16_sx, 16_sy);
+  pathRefresh.setBordered(false).setIcon(iconRefresh).onActivate([&] { setPath(state.path); });
+  image iconNew{Icon::Action::NewFolder};
+  iconNew.scale(16_sx, 16_sy);
+  pathNew.setBordered(false).setIcon(iconNew).onActivate([&] { createAction.doActivate(); });
+  image iconHome{Icon::Go::Home};
+  iconHome.scale(16_sx, 16_sy);
+  pathHome.setBordered(false).setIcon(iconHome).onActivate([&] { setPath(Path::user()); });
+  image iconUp{Icon::Go::Up};
+  iconUp.scale(16_sx, 16_sy);
+  pathUp.setBordered(false).setIcon(iconUp).onActivate([&] { setPath(Location::dir(state.path)); });
   view.setBatchable(state.action == "openFiles").onActivate([&] { activate(); }).onChange([&] { change(); });
   view.onContext([&] { context(); });
   filterList.setVisible(state.action != "selectFolder").onChange([&] { setPath(state.path); });
