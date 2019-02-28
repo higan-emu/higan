@@ -15,8 +15,8 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
 
   if(name == "metadata.bml") {
     if(!file::exists({location, name}) && directory::exists(location)) {
-      if(auto manifest = execute("icarus", "--system", node->name, "--metadata", location)) {
-        return vfs::memory::file::open(manifest.output.data<uint8_t>(), manifest.output.size());
+      if(auto metadata = execute("icarus", "--system", node->name, "--metadata", location).output) {
+        return vfs::memory::file::open(metadata.data<uint8_t>(), metadata.size());
       }
     }
   }

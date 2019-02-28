@@ -86,9 +86,6 @@ auto Emulator::power(bool on) -> void {
     for(auto& viewport : viewports) {
       viewport->show(programWindow);
       Application::processEvents();
-      if(!programWindow.maximized() && !programWindow.minimized()) {
-        programWindow.setAlignment(*viewport, {-0.0, 0.5});
-      }
     }
     interface->power();
     //powering on the system latches static settings

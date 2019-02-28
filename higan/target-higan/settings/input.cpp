@@ -16,9 +16,18 @@ InputSettings::InputSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
   });
   optionsHeader.setText("Options").setFont(Font().setBold());
   focusLabel.setText("When focus is lost:");
-  focusPause.setText("Pause emulation");
-  focusBlock.setText("Block input");
-  focusAllow.setText("Allow input");
+  focusPause.setText("Pause emulation").onActivate([&] {
+    settings.input.unfocused = "Pause";
+  });
+  focusBlock.setText("Block input").onActivate([&] {
+    settings.input.unfocused = "Block";
+  });
+  focusAllow.setText("Allow input").onActivate([&] {
+    settings.input.unfocused = "Allow";
+  });
+  if(settings.input.unfocused == "Pause") focusPause.setChecked();
+  if(settings.input.unfocused == "Block") focusBlock.setChecked();
+  if(settings.input.unfocused == "Allow") focusAllow.setChecked();
 }
 
 auto InputSettings::show() -> void {

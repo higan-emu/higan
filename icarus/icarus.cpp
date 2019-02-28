@@ -58,6 +58,8 @@ Icarus context;
 
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
+  Application::setName("icarus");
+
   if(auto document = file::read({Path::userSettings(), "icarus/settings.bml"})) {
     settings.unserialize(document);
   }
@@ -75,10 +77,33 @@ auto nall::main(Arguments arguments) -> void {
       if(string output = context.import(system, import)) {
         return print(output, "\n");
       }
+      return;
+    }
+
+    if(arguments.take("--import")) {
+      if(auto file = BrowserDialog()
+      .setTitle({"Import ", system, " Game"})
+      .setPath(settings.recent)
+      .setAlignment(Alignment::Center)
+      .openFile()
+      ) {
+        if(string output = context.import(system, file)) {
+          settings.recent = Location::path(file);
+          directory::create({Path::userSettings(), "icarus/"});
+          file::write({Path::userSettings(), "icarus/settings.bml"}, settings.serialize());
+          return print(output, "\n");
+        } else {
+          MessageDialog()
+          .setTitle("Error")
+          .setAlignment(Alignment::Center)
+          .setText({"Failed to import: ", Location::file(file), "\n\n", context.error(), "."})
+          .error();
+        }
+      }
+      return;
     }
   }
 
-  Application::setName("icarus");
   Instances::programWindow.construct();
 
   #if defined(PLATFORM_MACOS)

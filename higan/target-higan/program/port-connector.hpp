@@ -4,6 +4,7 @@ struct PortConnector : Panel {
   auto hide() -> void override;
   auto refresh(higan::Node::Port port) -> void;
 
+  auto eventImport() -> void;
   auto eventActivate() -> void;
   auto eventChange() -> void;
   auto eventContext() -> void;
@@ -18,8 +19,8 @@ struct PortConnector : Panel {
   Label locationLabel{this, Size{~0, 0}};
   ListView peripheralList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Label nameLabel{&controlLayout, Size{0, 0}};
-    LineEdit nameValue{&controlLayout, Size{~0, 0}};
+    Button importButton{&controlLayout, Size{80_sx, 0}};
+    Widget controlSpacer{&controlLayout, Size{~0, 0}};
     Button acceptButton{&controlLayout, Size{80_sx, 0}};
 
   higan::Node::Port port;

@@ -18,8 +18,8 @@ NameDialog::NameDialog() {
   window.setDismissable();
 }
 
-auto NameDialog::create() -> string {
-  return show("Create");
+auto NameDialog::create(string name) -> string {
+  return show("Create", name);
 }
 
 auto NameDialog::rename(string name) -> string {

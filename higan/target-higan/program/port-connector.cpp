@@ -12,12 +12,12 @@ PortConnector::PortConnector(View* parent) : Panel(parent, Size{~0, ~0}) {
   peripheralList.onActivate([&] { eventActivate(); });
   peripheralList.onChange([&] { eventChange(); });
   peripheralList.onContext([&] { eventContext(); });
-  nameLabel.setText("Name:");
-  nameValue.onActivate([&] { eventActivate(); });
+  importButton.setText("Import ...").onActivate([&] { eventImport(); });
   acceptButton.setText("Create").onActivate([&] { eventActivate(); });
 }
 
 auto PortConnector::show() -> void {
+  importButton.setVisible(port->type == "Cartridge");
   setVisible(true);
 }
 
@@ -44,7 +44,7 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
       item.setProperty("location", {location, name});
       item.setProperty("path", location);
       item.setProperty("name", name.trimRight("/", 1L));
-      item.setIcon(Icon::Emblem::FolderTemplate).setText(name);
+      item.setIcon(Icon::Action::Add).setText(name);
     }
   }
 
@@ -64,11 +64,17 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
   peripheralList.doChange();
 }
 
+auto PortConnector::eventImport() -> void {
+  if(auto location = execute("icarus", "--system", interface->name(), "--import").output) {
+    refresh(port);
+  }
+}
+
 auto PortConnector::eventActivate() -> void {
   if(auto item = peripheralList.selected()) {
     if(!port->hotSwappable && emulator.system.power) {
       auto response = MessageDialog()
-      .setText("The peripheral currently connected to this port isn't hot-swappable\n"
+      .setText("The peripheral currently connected to this port isn't hot-swappable.\n"
                "Removing it anyway may crash the emulated system.\n"
                "What would you like to do?")
       .setTitle("Warning").setAlignment(programWindow).question({"Force", "Power Off", "Cancel"});
@@ -77,14 +83,19 @@ auto PortConnector::eventActivate() -> void {
     }
 
     auto name = item.property("name");
-    auto label = nameValue.text().strip();
 
     if(item.property("type") == "nothing") {
       port->disconnect();
       nodeManager.refresh();
     }
 
-    else if(item.property("type") == "template" && label) {
+    else if(item.property("type") == "template") {
+      auto label = NameDialog()
+      .setTitle({"Create New ", name})
+      .setAlignment(programWindow)
+      .create(item.text());
+      if(!label) return;
+
       auto source = item.property("location");
       auto target = string{emulator.system.data, port->type, "/", label, "/"};
       if(directory::exists(target)) return (void)MessageDialog()
@@ -129,8 +140,6 @@ auto PortConnector::eventActivate() -> void {
 }
 
 auto PortConnector::eventChange() -> void {
-  nameLabel.setVisible(false);
-  nameValue.setVisible(false);
   acceptButton.setVisible(false);
 
   if(auto item = peripheralList.selected()) {
@@ -139,8 +148,6 @@ auto PortConnector::eventChange() -> void {
     }
 
     else if(item.property("type") == "template") {
-      nameLabel.setVisible(true);
-      nameValue.setText(item.property("name")).setVisible(true);
       acceptButton.setText("Create").setVisible();
     }
 

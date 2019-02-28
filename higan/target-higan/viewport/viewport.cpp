@@ -15,9 +15,26 @@ auto ViewportWindow::create(higan::Node::Video node) -> void {
 }
 
 auto ViewportWindow::show(Window parent) -> void {
-  setAlignment(Alignment::Center);
+  //currently, no systems are emulated that use more than one display
+  //this code will snap the program window (parent) and lone display together,
+  //in the center of the screen. something more complex will be necessary to
+  //position two or more displays onscreen at a time.
+
+  auto geometryW = Desktop::workspace();
+  auto geometryL = parent.frameGeometry();
+  auto geometryR = frameGeometry();
+
+  int LX = (geometryW.width() - (geometryL.width() + geometryR.width())) * 0.5;
+  int LY = (geometryW.height() - geometryL.height()) * 0.5;
+  parent.setFramePosition({LX, LY});
+
+  int RX = LX + geometryL.width();
+  int RY = (geometryW.height() - geometryR.height()) * 0.5;
+  setFramePosition({RX, RY});
+
   setVisible();
   setFocused();
+  Application::processEvents();
 
   if(!video) {
     video.create(settings.video.driver);

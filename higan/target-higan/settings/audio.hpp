@@ -23,12 +23,12 @@ struct AudioSettings : Panel {
   Label effectsHeader{&layout, Size{~0, 0}};
   TableLayout effectsLayout{&layout, Size{~0, 0}};
     Label skewLabel{&effectsLayout, Size{0, 0}};
-    Label skewValue{&effectsLayout, Size{50, 0}};
+    Label skewValue{&effectsLayout, Size{50_sx, 0}};
     HorizontalSlider skewSlider{&effectsLayout, Size{~0, 0}};
     Label volumeLabel{&effectsLayout, Size{0, 0}};
-    Label volumeValue{&effectsLayout, Size{50, 0}};
+    Label volumeValue{&effectsLayout, Size{50_sx, 0}};
     HorizontalSlider volumeSlider{&effectsLayout, Size{~0, 0}};
     Label balanceLabel{&effectsLayout, Size{0, 0}};
-    Label balanceValue{&effectsLayout, Size{50, 0}};
+    Label balanceValue{&effectsLayout, Size{50_sx, 0}};
     HorizontalSlider balanceSlider{&effectsLayout, Size{~0, 0}};
 };

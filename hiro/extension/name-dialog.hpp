@@ -4,7 +4,7 @@ struct NameDialog {
   using type = NameDialog;
 
   NameDialog();
-  auto create() -> string;
+  auto create(string name = "") -> string;
   auto rename(string name) -> string;
   auto setIcon(const image& icon = {}) -> type&;
   auto setAlignment(Alignment = Alignment::Center) -> type&;
@@ -13,7 +13,7 @@ struct NameDialog {
   auto setTitle(const string& title = {}) -> type&;
 
 private:
-  auto show(string mode, string name = {}) -> string;
+  auto show(string mode, string name) -> string;
 
   Window window;
     VerticalLayout layout{&window};
