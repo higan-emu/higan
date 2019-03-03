@@ -1,7 +1,9 @@
 #include "../higan.hpp"
+#include "hotkeys.cpp"
 
 namespace Instances { Instance<InputManager> inputManager; }
 InputManager& inputManager = Instances::inputManager();
+Hotkeys& hotkeys = inputManager.hotkeys;
 
 auto InputButton::value() -> bool {
   return device->group(groupID).input(inputID).value();
@@ -15,6 +17,7 @@ auto InputManager::create() -> void {
   input.create(settings.input.driver);
   input.setContext(programWindow.handle());
   input.onChange({&InputManager::eventInput, this});
+  inputSettings.eventActivate();
 }
 
 auto InputManager::reset() -> void {
@@ -45,7 +48,9 @@ auto InputManager::poll() -> void {
 }
 
 auto InputManager::bind() -> void {
+  hotkeys.bind();
   if(!root) return;
+
   for(auto& input : root->find<higan::Node::Input>()) {
     //not strictly necessary; but release any shared_pointer instances to free up the allocated memory
     input->setProperty<shared_pointer<InputButton>>("instance");
@@ -77,4 +82,5 @@ auto InputManager::bind() -> void {
 
 auto InputManager::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
   inputMapper.eventInput(device, group, input, oldValue, newValue);
+  hotkeySettings.eventInput(device, group, input, oldValue, newValue);
 }

@@ -11,6 +11,7 @@
 #include "../settings/video.cpp"
 #include "../settings/audio.cpp"
 #include "../settings/input.cpp"
+#include "../settings/hotkeys.cpp"
 
 namespace Instances { Instance<ProgramWindow> programWindow; }
 ProgramWindow& programWindow = Instances::programWindow();
@@ -30,6 +31,7 @@ SettingEditor& settingEditor = programWindow.settingEditor;
 VideoSettings& videoSettings = programWindow.videoSettings;
 AudioSettings& audioSettings = programWindow.audioSettings;
 InputSettings& inputSettings = programWindow.inputSettings;
+HotkeySettings& hotkeySettings = programWindow.hotkeySettings;
 
 ProgramWindow::ProgramWindow() {
   panels.setPadding(5_sx, 5_sy);

@@ -18,6 +18,7 @@ using View = HorizontalLayout;
 #include "../settings/video.hpp"
 #include "../settings/audio.hpp"
 #include "../settings/input.hpp"
+#include "../settings/hotkeys.hpp"
 
 struct ProgramWindow : Window {
   ProgramWindow();
@@ -44,6 +45,7 @@ struct ProgramWindow : Window {
     VideoSettings videoSettings{&panels};
     AudioSettings audioSettings{&panels};
     InputSettings inputSettings{&panels};
+    HotkeySettings hotkeySettings{&panels};
 
 private:
   maybe<Panel&> primaryPanel;
@@ -69,3 +71,4 @@ extern SettingEditor& settingEditor;
 extern VideoSettings& videoSettings;
 extern AudioSettings& audioSettings;
 extern InputSettings& inputSettings;
+extern HotkeySettings& hotkeySettings;

@@ -79,7 +79,11 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
   current = chrono::timestamp();
   if(current != previous) {
     previous = current;
-    viewport->setTitle({"Display: ", frameCounter, " FPS"});
+    if(settings.video.showFrameRate) {
+      viewport->setTitle({node->name, ": ", frameCounter, " FPS"});
+    } else {
+      viewport->setTitle(node->name);
+    }
     frameCounter = 0;
   }
 }
@@ -96,10 +100,16 @@ auto Emulator::audio(higan::Node::Audio node, const double* samples, uint channe
 auto Emulator::input(higan::Node::Input input) -> void {
   inputManager.poll();
 
+  bool allow = false;
+  for(auto& viewport : viewports) {
+    if(viewport->focused()) allow = true;
+  }
+  if(settings.input.unfocused == "Allow") allow = true;
+
   if(auto button = input->cast<higan::Node::Button>()) {
     button->value = 0;
     if(auto instance = button->property<shared_pointer<InputButton>>("instance")) {
-      button->value = instance->value();
+      button->value = allow ? instance->value() : 0;
     }
   }
 }

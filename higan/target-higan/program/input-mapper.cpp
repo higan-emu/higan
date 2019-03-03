@@ -65,8 +65,8 @@ auto InputMapper::eventClear() -> void {
       input->setProperty("productID");
       input->setProperty("groupID");
       input->setProperty("inputID");
-      inputManager.bind();
     }
+    inputManager.bind();
     refresh(node);
   }
 }

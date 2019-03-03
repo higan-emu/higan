@@ -2,24 +2,32 @@ struct AudioSettings : Panel {
   AudioSettings(View*);
   auto show() -> void override;
   auto hide() -> void override;
+  auto refresh() -> void;
+  auto eventActivate() -> void;
 
   Frame frame{this, Size{~0, ~0}};
   VerticalLayout layout{&frame};
+
   Label driverHeader{&layout, Size{~0, 0}};
   HorizontalLayout driverLayout{&layout, Size{~0, 0}};
     Label driverLabel{&driverLayout, Size{0, 0}};
     ComboButton driverOption{&driverLayout, Size{0, 0}};
-  HorizontalLayout optionsLayout{&layout, Size{~0, 0}};
-    Label deviceLabel{&optionsLayout, Size{0, 0}};
-    ComboButton deviceOption{&optionsLayout, Size{0, 0}};
-    Label frequencyLabel{&optionsLayout, Size{0, 0}};
-    ComboButton frequencyOption{&optionsLayout, Size{0, 0}};
-    Label latencyLabel{&optionsLayout, Size{0, 0}};
-    ComboButton latencyOption{&optionsLayout, Size{0, 0}};
-  HorizontalLayout togglesLayout{&layout, Size{~0, 0}};
+    Button activateButton{&driverLayout, Size{0, 0}};
+
+  Label settingsHeader{&layout, Size{~0, 0}};
+  VerticalLayout settingsLayout{&layout, Size{~0, 0}};
+  HorizontalLayout deviceLayout{&settingsLayout, Size{~0, 0}};
+    Label deviceLabel{&deviceLayout, Size{0, 0}};
+    ComboButton deviceOption{&deviceLayout, Size{~0, 0}};
+    Label frequencyLabel{&deviceLayout, Size{0, 0}};
+    ComboButton frequencyOption{&deviceLayout, Size{0, 0}};
+    Label latencyLabel{&deviceLayout, Size{0, 0}};
+    ComboButton latencyOption{&deviceLayout, Size{0, 0}};
+  HorizontalLayout togglesLayout{&settingsLayout, Size{~0, 0}};
     CheckLabel exclusiveOption{&togglesLayout, Size{0, 0}};
-    CheckLabel synchronizeOption{&togglesLayout, Size{0, 0}};
-    CheckLabel dynamicRateOption{&togglesLayout, Size{0, 0}};
+    CheckLabel blockingOption{&togglesLayout, Size{0, 0}};
+    CheckLabel dynamicOption{&togglesLayout, Size{0, 0}};
+
   Label effectsHeader{&layout, Size{~0, 0}};
   TableLayout effectsLayout{&layout, Size{~0, 0}};
     Label skewLabel{&effectsLayout, Size{0, 0}};

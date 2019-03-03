@@ -18,6 +18,20 @@ struct Emulator : higan::Platform {
   auto audio(higan::Node::Audio, const double* samples, uint channels) -> void override;
   auto input(higan::Node::Input) -> void override;
 
+  //video.cpp
+  auto videoUpdate() -> void;
+  auto videoUpdate(Video&, uintptr) -> void;
+  auto videoUpdateColors() -> void;
+
+  //audio.cpp
+  auto audioUpdate() -> void;
+  auto audioUpdate(Audio&, uintptr) -> void;
+  auto audioUpdateEffects() -> void;
+
+  //input.cpp
+  auto inputUpdate() -> void;
+  auto inputUpdate(Input&, uintptr) -> void;
+
   //states.cpp
   auto saveState(uint slot) -> bool;
   auto loadState(uint slot) -> bool;

@@ -32,6 +32,16 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   input.setText("Input").setIcon(Icon::Device::Joypad).onActivate([&] {
     programWindow.show(inputSettings);
   });
+  hotkeys.setText("Hotkeys").setIcon(Icon::Device::Keyboard).onActivate([&] {
+    programWindow.show(hotkeySettings);
+  });
+  showFrameRate.setText("Show Frame Rate").setChecked(settings.video.showFrameRate).onToggle([&] {
+    settings.video.showFrameRate = showFrameRate.checked();
+  });
+  muteAudio.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {
+    settings.audio.mute = muteAudio.checked();
+    emulator.audioUpdateEffects();
+  });
   showComponents.setText("Show Components").onToggle([&] {
     if(systemOverview.visible()) systemOverview.refresh();
     if(nodeManager.visible()) nodeManager.refresh();

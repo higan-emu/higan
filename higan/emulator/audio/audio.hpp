@@ -20,11 +20,12 @@ struct Audio {
 
   auto createStream(uint channels, double frequency) -> shared_pointer<Stream>;
 
+  vector<shared_pointer<Stream>> streams;
+
 private:
   auto process() -> void;
 
   Interface* interface = nullptr;
-  vector<shared_pointer<Stream>> streams;
 
   uint channels = 0;
   double frequency = 48000.0;

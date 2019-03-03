@@ -44,7 +44,7 @@ template<uint Precision> struct Integer {
   inline auto bit(int index) -> BitRange<Precision> { return {(utype&)data, index, index}; }
   inline auto byte(int index) -> BitRange<Precision> { return {(utype&)data, index * 8 + 0, index * 8 + 7}; }
 
-  inline auto bits(int lo, int hi) const -> const BitRange<Precision> { return {(utype&)*this, lo, lo}; }
+  inline auto bits(int lo, int hi) const -> const BitRange<Precision> { return {(utype&)*this, lo, hi}; }
   inline auto bit(int index) const -> const BitRange<Precision> { return {(utype&)*this, index, index}; }
   inline auto byte(int index) const -> const BitRange<Precision> { return {(utype&)*this, index * 8 + 0, index * 8 + 7}; }
 

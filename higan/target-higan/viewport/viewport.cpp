@@ -40,5 +40,9 @@ auto ViewportWindow::show(Window parent) -> void {
     video.create(settings.video.driver);
     video.setContext(viewport.handle());
     video.setBlocking(false);
+
+    //now that a video driver has been initialized,
+    //populate video settings if it hasn't already been
+    videoSettings.eventActivate();
   }
 }

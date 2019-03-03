@@ -144,4 +144,6 @@ auto nall::main(Arguments arguments) -> void {
   Application::run();
 
   settings.save();
+  Instances::inputManager.destruct();
+  Instances::programWindow.destruct();
 }

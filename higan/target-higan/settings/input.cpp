@@ -1,19 +1,18 @@
 InputSettings::InputSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
+
   driverHeader.setText("Input Settings").setFont(Font().setBold());
-  driverLabel.setText("Driver:").setAlignment(1.0);
+  driverLabel.setText("Driver:");
   for(auto& driver : Input::hasDrivers()) {
     ComboButtonItem item{&driverOption};
     item.setText(driver);
-    if(driver == settings.input.driver) {
-      item.setIcon(Icon::Emblem::Program).setSelected();
-    } else {
-      item.setIcon(Icon::Emblem::Binary);
-    }
+    if(driver == settings.input.driver) item.setSelected();
   }
   driverOption.onChange([&] {
     settings.input.driver = driverOption.selected().text();
   });
+  activateButton.setText("Activate").onActivate([&] { eventActivate(); });
+
   optionsHeader.setText("Options").setFont(Font().setBold());
   focusLabel.setText("When focus is lost:");
   focusPause.setText("Pause emulation").onActivate([&] {
@@ -36,4 +35,27 @@ auto InputSettings::show() -> void {
 
 auto InputSettings::hide() -> void {
   setVisible(false);
+}
+
+auto InputSettings::refresh() -> void {
+  Input* input = nullptr;
+  if(inputManager.input) {
+    input = &inputManager.input;
+    emulator.inputUpdate();
+  } else {
+    input = new Input;
+    emulator.inputUpdate(*input, programWindow.handle());
+  }
+
+  if(!inputManager.input) {
+    input->reset();
+    delete input;
+  }
+}
+
+auto InputSettings::eventActivate() -> void {
+  activateButton.setText("Change");
+  settings.input.driver = driverOption.selected().text();
+  refresh();
+  driverHeader.setText({"Input Driver (", settings.input.driver, ")"});
 }

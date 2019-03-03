@@ -17,6 +17,10 @@ struct SettingsMenu : Menu {
   MenuItem video{this};
   MenuItem audio{this};
   MenuItem input{this};
+  MenuItem hotkeys{this};
+  MenuSeparator panelSeparator{this};
+  MenuCheckItem showFrameRate{this};
+  MenuCheckItem muteAudio{this};
   MenuSeparator showSeparator{this};
   MenuCheckItem showComponents{this};
   MenuCheckItem showHacks{this};

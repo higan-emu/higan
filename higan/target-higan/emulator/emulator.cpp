@@ -1,5 +1,8 @@
 #include "../higan.hpp"
 #include "platform.cpp"
+#include "video.cpp"
+#include "audio.cpp"
+#include "input.cpp"
 #include "states.cpp"
 
 Emulator emulator;
@@ -34,6 +37,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   sound.setContext(programWindow.handle());
   sound.setBlocking(false);
   sound.setFrequency(48000.0);
+  audioSettings.eventActivate();
 
   inputManager.create();
 
@@ -54,8 +58,14 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
 auto Emulator::main() -> void {
   inputManager.poll();
+  hotkeys.poll();
 
-  if(!system.power) {
+  bool viewportFocused = false;
+  for(auto& viewport : viewports) {
+    if(viewport->focused()) viewportFocused = true;
+  }
+
+  if(!system.power || (!viewportFocused && settings.input.unfocused == "Pause")) {
     usleep(20 * 1000);
   } else {
     interface->run();
@@ -87,6 +97,8 @@ auto Emulator::power(bool on) -> void {
       viewport->show(programWindow);
       Application::processEvents();
     }
+    videoUpdateColors();
+    audioUpdateEffects();
     interface->power();
     //powering on the system latches static settings
     nodeManager.refreshSettings();

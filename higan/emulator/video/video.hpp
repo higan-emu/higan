@@ -11,9 +11,10 @@ struct Video {
   auto createScreen(Node::Video, uint width, uint height) -> shared_pointer<Screen>;
   auto removeScreen(shared_pointer<Screen>) -> bool;
 
+  vector<shared_pointer<Screen>> screens;
+
 private:
   Interface* interface = nullptr;
-  vector<shared_pointer<Screen>> screens;
 };
 
 struct Sprite {
