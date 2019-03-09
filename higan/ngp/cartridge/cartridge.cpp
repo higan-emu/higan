@@ -63,14 +63,12 @@ auto Cartridge::power() -> void {
 }
 
 auto Cartridge::read(uint1 chip, uint21 address) -> uint8 {
-  if(!flash[0]) return 0xff;
-  if(!flash[1]) chip = 0;
+  if(!flash[chip]) return 0xff;
   return flash[chip].read(address);
 }
 
 auto Cartridge::write(uint1 chip, uint21 address, uint8 data) -> void {
-  if(!flash[0]) return;
-  if(!flash[1]) chip = 0;
+  if(!flash[chip]) return;
   return flash[chip].write(address, data);
 }
 

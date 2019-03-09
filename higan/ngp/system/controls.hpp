@@ -11,7 +11,7 @@ struct Controls {
   auto load(Node::Object, Node::Object) -> void;
   auto poll() -> void;
 
-private:
+//private:
   bool yHold = 0;
   bool upLatch = 0;
   bool downLatch = 0;

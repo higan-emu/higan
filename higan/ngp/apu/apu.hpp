@@ -6,16 +6,22 @@ struct APU : Z80, Z80::Bus, Thread {
   auto step(uint clocks) -> void override;
   auto synchronizing() const -> bool override;
   auto power() -> void;
+  auto enable() -> void;
+  auto disable() -> void;
 
   //memory.cpp
-  auto read(uint16 address) -> uint8 override { return 0; }
-  auto write(uint16 address, uint8 data) -> void override {}
+  auto read(uint16 address) -> uint8 override;
+  auto write(uint16 address, uint8 data) -> void override;
 
-  auto in(uint8 address) -> uint8 override { return 0; }
-  auto out(uint8 address, uint8 data) -> void override {}
+  auto in(uint8 address) -> uint8 override;
+  auto out(uint8 address, uint8 data) -> void override;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
+
+  struct IO {
+    uint1 enable;
+  } io;
 };
 
 extern APU apu;

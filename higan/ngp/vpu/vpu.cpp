@@ -3,36 +3,42 @@
 namespace higan::NeoGeoPocket {
 
 VPU vpu;
+#include "memory.cpp"
 #include "serialization.cpp"
 
 auto VPU::main() -> void {
-  cpu.setInterruptHblank(0);
   for(uint hclock : range(480)) {
     io.hcounter++;
     step(1);
   }
   if(io.vcounter <= 150) {
-    if(ram[0x0000].bit(6)) cpu.setInterruptHblank(1);
+    io.hblankActive = 1;
+    cpu.setInterruptHblank(io.hblankEnableIRQ);
   }
   for(uint hclock : range(35)) {
     io.hcounter++;
     step(1);
   }
-  cpu.setInterruptHblank(0);
+
   io.hcounter = 0;
+  io.hblankActive = 0;
+  cpu.setInterruptHblank(0);
+
   io.vcounter++;
   if(io.vcounter == 152) {
-    ram[0x0010].bit(6) = 1;
-    if(ram[0x0000].bit(7)) cpu.setInterruptVblank(1);
+    io.vblankActive = 1;
+    cpu.setInterruptVblank(io.vblankEnableIRQ);
     scheduler.exit(Scheduler::Event::Frame);
   }
   if(io.vcounter == 198) {
-    if(ram[0x0000].bit(6)) cpu.setInterruptHblank(1);
+    io.hblankActive = 1;
+    cpu.setInterruptHblank(io.hblankEnableIRQ);
   }
   if(io.vcounter == 199) {
-    ram[0x0010].bit(6) = 0;
-    cpu.setInterruptVblank(0);
     io.vcounter = 0;
+    io.vblankActive = 0;
+    io.characterOver = 0;
+    cpu.setInterruptVblank(0);
   }
 }
 
@@ -42,8 +48,9 @@ auto VPU::step(uint clocks) -> void {
 }
 
 auto VPU::refresh() -> void {
-  for(uint address : range(0x4000)) buffer[address] = ram[address];
-  for(uint address : range(0x1f00)) buffer[address + 0x4000] = cpu.ram[address + 0x3000 - 0x1f00];
+  for(uint address : range(0x1000)) buffer[address] = scrollRAM[address];
+  for(uint address : range(0x2000)) buffer[address + 0x1000] = characterRAM[address];
+  for(uint address : range(0x2f00)) buffer[address + 0x3000] = cpu.ram[address + 0x100];
   display.screen->refresh(buffer, 160 * sizeof(uint32), 160, 152);
 }
 
@@ -51,7 +58,9 @@ auto VPU::power() -> void {
   Thread::create(system.frequency(), [&] {
     while(true) scheduler.synchronize(), main();
   });
-  ram.allocate(0x4000);
+  spriteRAM.allocate(0x100);
+  scrollRAM.allocate(0x1000);
+  characterRAM.allocate(0x2000);
   io = {};
 }
 

@@ -57,6 +57,8 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 }
 
 auto Emulator::main() -> void {
+  if(Application::modal()) return (void)usleep(20 * 1000);
+
   inputManager.poll();
   hotkeys.poll();
 

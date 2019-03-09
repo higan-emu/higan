@@ -74,7 +74,6 @@ auto image::crop(unsigned outputX, unsigned outputY, unsigned outputWidth, unsig
   uint8_t* outputData = allocate(outputWidth, outputHeight, stride());
   unsigned outputPitch = outputWidth * stride();
 
-  #pragma omp parallel for
   for(unsigned y = 0; y < outputHeight; y++) {
     const uint8_t* sp = _data + pitch() * (outputY + y) + stride() * outputX;
     uint8_t* dp = outputData + outputPitch * y;
@@ -97,7 +96,6 @@ auto image::alphaBlend(uint64_t alphaColor) -> void {
   uint64_t alphaG = (alphaColor & _green.mask()) >> _green.shift();
   uint64_t alphaB = (alphaColor & _blue.mask() ) >> _blue.shift();
 
-  #pragma omp parallel for
   for(unsigned y = 0; y < _height; y++) {
     uint8_t* dp = _data + pitch() * y;
     for(unsigned x = 0; x < _width; x++) {
@@ -123,7 +121,6 @@ auto image::alphaBlend(uint64_t alphaColor) -> void {
 auto image::alphaMultiply() -> void {
   unsigned divisor = (1 << _alpha.depth()) - 1;
 
-  #pragma omp parallel for
   for(unsigned y = 0; y < _height; y++) {
     uint8_t* dp = _data + pitch() * y;
     for(unsigned x = 0; x < _width; x++) {
@@ -154,7 +151,6 @@ auto image::transform(bool outputEndian, unsigned outputDepth, uint64_t outputAl
   image output(outputEndian, outputDepth, outputAlphaMask, outputRedMask, outputGreenMask, outputBlueMask);
   output.allocate(_width, _height);
 
-  #pragma omp parallel for
   for(unsigned y = 0; y < _height; y++) {
     const uint8_t* sp = _data + pitch() * y;
     uint8_t* dp = output._data + output.pitch() * y;
