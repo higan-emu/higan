@@ -6,12 +6,13 @@ image: ubuntu:latest
 higan-linux-x86_64-binaries:
   script:
     - apt-get update && apt-get -y install build-essential libgtk2.0-dev libpulse-dev mesa-common-dev libgtksourceview2.0-dev libcairo2-dev libsdl2-dev libxv-dev libao-dev libopenal-dev libudev-dev mkdocs
-    - make -C genius
+    # Genius does not currently build due to changes in hiro.
+    #- make -C genius
     - make -C icarus
     - make -C higan target=higan
     - LC_ALL=C.UTF-8 mkdocs build
     - mkdir higan-nightly
-    - cp -a genius/out/genius higan-nightly/genius
+    #- cp -a genius/out/genius higan-nightly/genius
     - cp -a icarus/out/icarus higan-nightly/icarus
     - cp -a icarus/Database higan-nightly/
     - cp -a icarus/Firmware higan-nightly/
