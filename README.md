@@ -23,6 +23,14 @@ or [shaders](shaders/)
 directories should be exactly as it appeared in official releases.
 Everything else has been added for various reasons.
 
+History before v068 has not been recorded in Git, but [the bsnes history
+kit][kit] is an attempt to reconstruct the development history of bsnes/higan.
+A pre-built example of its output is available as [the bsnes history][history]
+repository.
+
+[kit]: https://gitlab.com/higan/bsnes-history-kit
+[history]: https://gitlab.com/higan/bsnes-history
+
 Official higan resources
 ------------------------
 
