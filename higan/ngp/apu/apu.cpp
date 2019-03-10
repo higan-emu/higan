@@ -8,8 +8,15 @@ APU apu;
 
 auto APU::main() -> void {
   if(!io.enable) return step(16);
+
+  if(nmi.line) {
+    nmi.line = 0;  //edge-sensitive
+    irq(0, 0x0066, 0xff);
+  }
+
 //static uint ctr=0;
-//if(++ctr<20) print(disassemble(r.pc), "\n");
+//if(++ctr<4000) print(disassemble(r.pc), "\n");
+
   instruction();
 }
 
@@ -30,6 +37,7 @@ auto APU::power() -> void {
     while(true) scheduler.synchronize(), main();
   });
   ram.allocate(0x1000);
+  nmi = {};
   io = {};
 }
 

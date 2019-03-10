@@ -71,7 +71,7 @@ auto TLCS900H::instructionCompare(Target target) -> void {
   store(source, load(source) + Adjust);
   store(BC, load(BC) - 1);
   CF = cf;
-  VF = load(BC) == 0;
+  VF = load(BC) != 0;
 }
 
 template<typename Size, int Adjust, typename Target>
@@ -205,7 +205,7 @@ template<typename Size, int Adjust> auto TLCS900H::instructionLoad() -> void {
   store(source, load(source) + Adjust);
   store(BC, load(BC) - 1);
   NF = 0;
-  VF = load(BC) == 0;
+  VF = load(BC) != 0;
   HF = 0;
 }
 
@@ -488,11 +488,8 @@ auto TLCS900H::instructionStoreCarry(Target target, Offset offset) -> void {
   store(target, result);
 }
 
-auto TLCS900H::instructionSoftwareInterrupt(uint3 interrupt) -> void {
-  push(PC);
-  push(SR);
-  store(PC, load(Memory<uint24>{0xffff00 + interrupt * 4}));
-  store(INTNEST, load(INTNEST) + 1);  //note: not confirmed behavior
+auto TLCS900H::instructionSoftwareInterrupt(uint3 vector) -> void {
+  interrupt(vector << 2, 7);
 }
 
 template<typename Target, typename Source>

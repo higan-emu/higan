@@ -32,7 +32,7 @@ struct TLCS900H {
   template<typename T> auto load(Immediate<T> immediate) const -> T { return immediate.constant; }
 
   //tlcs900h.cpp
-  auto interrupt(uint24 vector) -> void;
+  auto interrupt(uint8 vector, uint3 priority) -> void;
   auto power() -> void;
 
   //registers.cpp

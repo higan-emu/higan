@@ -19,6 +19,10 @@ struct APU : Z80, Z80::Bus, Thread {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
+  struct NMI {
+    uint1 line;
+  } nmi;
+
   struct IO {
     uint1 enable;
   } io;
