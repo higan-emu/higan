@@ -11,7 +11,7 @@ auto VPU::read(uint24 address) -> uint8 {
   switch(address) {
   case 0x8000:
     data.bit(6) = io.hblankEnableIRQ;
-    data.bit(7) = io.vblankEnableIRQ;
+    data.bit(7) = cpu.int4.enable;
     break;
 
   case 0x8002: data = window.hoffset; break;
@@ -104,9 +104,8 @@ auto VPU::write(uint24 address, uint8 data) -> void {
   switch(address) {
   case 0x8000:
     io.hblankEnableIRQ = data.bit(6);
-    io.vblankEnableIRQ = data.bit(7);
+    cpu.int4.enable = data.bit(7);
   //cpu.setInterruptHblank(io.hblankActive & io.hblankEnableIRQ);
-    cpu.int4.set(io.vblankActive & io.vblankEnableIRQ);
     break;
 
   case 0x8002: window.hoffset = data; break;

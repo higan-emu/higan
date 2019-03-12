@@ -33,7 +33,7 @@ auto VPU::main() -> void {
     }
     if(io.vcounter <= 150) {
       io.hblankActive = 1;
-    //cpu.setInterruptHblank(io.hblankEnableIRQ);
+      cpu.setPin33(0);
     }
   }
   while(io.hcounter < 171) {
@@ -43,24 +43,28 @@ auto VPU::main() -> void {
 
   io.hcounter = 0;
   io.hblankActive = 0;
-//cpu.setInterruptHblank(0);
+  cpu.setPin33(1);
 
   io.vcounter++;
   if(io.vcounter == 152) {
     io.vblankActive = 1;
-    cpu.int4.set(io.vblankEnableIRQ);
+    cpu.setPin36(0);
     scheduler.exit(Scheduler::Event::Frame);
   }
   if(io.vcounter == io.vlines) {
     io.hblankActive = 1;
-  //cpu.setInterruptHblank(io.hblankEnableIRQ);
+    cpu.setPin33(0);
   }
   if(io.vcounter > io.vlines) {
     io.vcounter = 0;
     io.vblankActive = 0;
     io.characterOver = 0;
-    cpu.int4.set(0);
+    cpu.setPin36(1);
   }
+
+  //note: this is not the most intuitive place to call this,
+  //but calling after every CPU instruction is too demanding
+  cpu.pollPowerButton();
 }
 
 auto VPU::step(uint clocks) -> void {

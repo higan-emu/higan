@@ -23,6 +23,7 @@ auto APU::main() -> void {
 auto APU::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(cpu);
+  synchronize(psg);
 }
 
 auto APU::synchronizing() const -> bool {

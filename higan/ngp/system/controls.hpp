@@ -6,6 +6,7 @@ struct Controls {
   Node::Button a;
   Node::Button b;
   Node::Button option;
+  Node::Button power;
 
   //controls.cpp
   auto load(Node::Object, Node::Object) -> void;

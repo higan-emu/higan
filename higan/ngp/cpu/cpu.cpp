@@ -7,7 +7,9 @@ bool tracing=false;
 CPU cpu;
 #include "memory.cpp"
 #include "io.cpp"
+#include "pin.cpp"
 #include "interrupt.cpp"
+#include "timers.cpp"
 #include "adc.cpp"
 #include "serialization.cpp"
 
@@ -37,6 +39,7 @@ auto CPU::main() -> void {
   int5.test(i);
   int4.test(i);
   int0.test(i);
+  nmi.test(i);
 
   if(i->priority && i->priority >= r.iff) {
     if(tracing) print("* IRQ ", hex(i->vector, 2L), " ", i->priority, "\n");
@@ -56,11 +59,17 @@ else tracing=false;
 }
 
 auto CPU::step(uint clocks) -> void {
+  timers.step(clocks);
   adc.step(clocks);
   Thread::step(clocks);
   synchronize(vpu);
   synchronize(apu);
   synchronize(psg);
+}
+
+auto CPU::pollPowerButton() -> void {
+  platform->input(controls.power);
+  nmi.set(!controls.power->value);
 }
 
 auto CPU::power() -> void {
@@ -73,11 +82,44 @@ auto CPU::power() -> void {
   r.pc.b.b1 = read(0xffff01);
   r.pc.b.b2 = read(0xffff02);
   r.pc.b.b3 = read(0xffff03);
-  r.pc.l.l0 = 0xff1800;
+//r.pc.l.l0 = 0xff1800;
 
+  nmi.maskable = 0;
+  nmi.priority = 7;
+  nmi.edge.rising = 0;
+  nmi.edge.falling = 1;
+  int0.enable = 0;
+  int0.edge.rising = 1;
+  int0.level.high = 0;
   int4.edge.rising = 1;
   int5.edge.rising = 1;
+  int6.edge.rising = 1;
+  int7.edge.rising = 1;
+  intt0.edge.rising = 1;
+  intt1.edge.rising = 1;
+  intt2.edge.rising = 1;
+  intt3.edge.rising = 1;
   intad.edge.rising = 1;
+  inttr4.edge.rising = 1;
+  inttr5.edge.rising = 1;
+  inttr6.edge.rising = 1;
+  inttr7.edge.rising = 1;
+
+  timers = {};
+  timers.timer01.lo.interrupt = intt0;
+  timers.timer01.hi.interrupt = intt1;
+  timers.timer01.ff.edge = [&](bool line) { setPin34(line); };
+  timers.timer23.lo.interrupt = intt2;
+  timers.timer23.hi.interrupt = intt3;
+  timers.timer23.ff.edge = [&](bool line) { setPin35(line); };
+  timers.timer4.interruptA = inttr4;
+  timers.timer4.interruptB = inttr5;
+  timers.timer4.outputA = [&](bool line) { setPin38(line); };
+  timers.timer4.outputB = [&](bool line) { setPin39(line); };
+  timers.timer5.interruptA = inttr6;
+  timers.timer5.interruptB = inttr7;
+  timers.timer5.outputA = [&](bool line) { setPin42(line); };
+  timers.timer5.outputB = [&](bool line) {};  //pin does not exist
 
   io = {};
 }
