@@ -6,12 +6,12 @@ auto VPU::read(uint24 address) -> uint8 {
   if(address >= 0x9000 && address <= 0x9fff) return scrollRAM.read(address);
   if(address >= 0xa000 && address <= 0xbfff) return characterRAM.read(address);
 
-  uint8 data = 0xff;
+  uint8 data = 0x00;
 
   switch(address) {
   case 0x8000:
     data.bit(6) = io.hblankEnableIRQ;
-    data.bit(7) = cpu.int4.enable;
+    data.bit(7) = io.vblankEnableIRQ;
     break;
 
   case 0x8002: data = window.hoffset; break;
@@ -104,8 +104,7 @@ auto VPU::write(uint24 address, uint8 data) -> void {
   switch(address) {
   case 0x8000:
     io.hblankEnableIRQ = data.bit(6);
-    cpu.int4.enable = data.bit(7);
-  //cpu.setInterruptHblank(io.hblankActive & io.hblankEnableIRQ);
+    io.vblankEnableIRQ = data.bit(7);
     break;
 
   case 0x8002: window.hoffset = data; break;

@@ -31,7 +31,7 @@ auto Flash::power() -> void {
 
 auto Flash::read(uint21 address) -> uint8 {
   if(mode == ReadID) {
-    switch((uint15)address) {  //todo: actual mask value unknown
+    switch((uint14)address) {  //todo: actual mask value unknown
     case 0: return vendorID;
     case 1: return deviceID;
     case 2: return 0x02;  //unknown purpose
@@ -45,52 +45,70 @@ auto Flash::read(uint21 address) -> uint8 {
 auto Flash::write(uint21 address, uint8 data) -> void {
   if(mode == Write) return program(address, data);
   if(data == 0xf0) return status(Read);
-  address = (uint15)address;
-  if(address == 0x5555 && data == 0xaa) return status(Prefix);
-  if(mode == Prefix && address == 0x2aaa && data == 0x55) return status(Suffix);
-  if(mode == Suffix && address == 0x5555 && data == 0x90) return status(ReadID);
-  if(mode == Suffix && address == 0x5555 && data == 0xa0) return status(Write);
-  if(mode == Suffix && address == 0x5555 && data == 0xf0) return status(Read);
-  if(mode == Suffix && address == 0x5555 && data == 0x80) return status(ExtendedPrefix);
-  if(mode == ExtendedPrefix && address == 0x2aaa && data == 0x55) return status(ExtendedSuffix);
-  if(mode == ExtendedSuffix && address == 0x5555 && data == 0x10) return eraseAll();
-  if(mode == ExtendedSuffix && data == 0x30) return erase((uint6)address);
-  if(mode == ExtendedSuffix && data == 0x90) return protect((uint6)address);
-  return status(Read);  //invalid or unsupported command
+  uint15 addr = (uint15)address;
+  if(index == 0 && addr == 0x5555 && data == 0xaa) return status(Index);
+  if(index == 1 && addr == 0x2aaa && data == 0x55) return status(Index);
+  //todo: erase and protect diverge here; but they're treated the same for simplicity for now
+  if(index == 2 && addr == 0x5555 && data == 0x80) return status(Index);
+  if(index == 2 && addr == 0x5555 && data == 0x9a) return status(Index);
+  if(index == 2 && addr == 0x5555 && data == 0x90) return status(ReadID);
+  if(index == 2 && addr == 0x5555 && data == 0xa0) return status(Write);
+  if(index == 2 && addr == 0x5555 && data == 0xf0) return status(Read);
+  if(index == 3 && addr == 0x5555 && data == 0xaa) return status(Index);
+  if(index == 4 && addr == 0x2aaa && data == 0x55) return status(Index);
+  if(index == 5 && addr == 0x5555 && data == 0x10) return eraseAll();
+  if(index == 5                   && data == 0x30) return erase(address);
+  if(index == 5                   && data == 0x9a) return protect(address);
+  return status(Read);
 }
 
 auto Flash::status(uint mode_) -> void {
   mode = mode_;
+  if(mode == Read) index = 0;
+  if(mode == Index) index++;
+}
+
+auto Flash::block(uint21 address) -> maybe<uint6> {
+  for(uint6 index : range(blocks.size())) {
+    if(address <  blocks[index].offset) continue;
+    if(address >= blocks[index].offset + blocks[index].length) continue;
+    return index;
+  }
+  //todo: it is unknown what happens when protecting and erasing invalid block IDs
+  return {};
 }
 
 auto Flash::program(uint21 address, uint8 data) -> void {
-  for(auto& block : blocks) {
-    if(address >= block.offset && address < block.offset + block.length && block.writable) {
-      if(auto input = rom.read(address); input != (input & data)) {
-        modified = true;
-        return rom.write(address, input & data);
-      }
+  auto blockID = block(address);
+  if(blockID && blocks[*blockID].writable) {
+    if(auto input = rom.read(address); input != (input & data)) {
+      modified = true;
+      rom.write(address, input & data);
     }
   }
+  return status(Read);
 }
 
-auto Flash::erase(uint6 blockID) -> void {
-  //todo: unknown what happens when erasing invalid block IDs
-  if(blockID >= blocks.size() || !blocks[blockID].writable) return;
-  auto address = blocks[blockID].offset;
-  for(auto offset : range(blocks[blockID].length)) rom.write(address + offset, 0xff);
-  modified = true;
+auto Flash::protect(uint21 address) -> void {
+  auto blockID = block(address);
+  if(blockID && blocks[*blockID].writable) {
+    blocks[*blockID].writable = false;
+    modified = true;
+  }
+  return status(Read);
+}
+
+auto Flash::erase(uint21 address) -> void {
+  auto blockID = block(address);
+  if(blockID && blocks[*blockID].writable) {
+    auto address = blocks[*blockID].offset;
+    auto length = blocks[*blockID].length;
+    for(uint offset : range(length)) rom.write(address + offset, 0xff);
+    modified = true;
+  }
   return status(Read);
 }
 
 auto Flash::eraseAll() -> void {
-  for(uint blockID : range(blocks.size())) erase(blockID);
-}
-
-auto Flash::protect(uint6 blockID) -> void {
-  //todo: unknown what happens when protected invalid block IDs
-  if(blockID >= blocks.size() || !blocks[blockID].writable) return;
-  blocks[blockID].writable = false;
-  modified = true;
-  return status(Read);
+  for(auto& block : blocks) erase(block.offset);
 }

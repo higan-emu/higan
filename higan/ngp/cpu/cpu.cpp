@@ -41,6 +41,9 @@ auto CPU::main() -> void {
   int0.test(i);
   nmi.test(i);
 
+//platform->input(controls.debug);
+//if(controls.debug->value)tracing=true;
+
   if(i->priority && i->priority >= r.iff) {
     if(tracing) print("* IRQ ", hex(i->vector, 2L), " ", i->priority, "\n");
     interrupt(i->vector, i->priority);
@@ -51,17 +54,19 @@ auto CPU::main() -> void {
   if(r.halted) return step(16);
 
 static uint ctr=0;
-if(tracing&&++ctr<5000) print(disassemble(), "\n");
-else tracing=false;
+if(tracing) {
+  if(++ctr<3000) print(disassemble(), "\n");
+  else tracing=false;
+}
 
   instruction();
-  step(1);
+  step(4);
 }
 
 auto CPU::step(uint clocks) -> void {
+  Thread::step(clocks);
   timers.step(clocks);
   adc.step(clocks);
-  Thread::step(clocks);
   synchronize(vpu);
   synchronize(apu);
   synchronize(psg);
@@ -82,7 +87,7 @@ auto CPU::power() -> void {
   r.pc.b.b1 = read(0xffff01);
   r.pc.b.b2 = read(0xffff02);
   r.pc.b.b3 = read(0xffff03);
-//r.pc.l.l0 = 0xff1800;
+  r.pc.l.l0 = 0xff1800;
 
   nmi.maskable = 0;
   nmi.priority = 7;

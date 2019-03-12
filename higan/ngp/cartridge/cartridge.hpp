@@ -33,16 +33,18 @@ struct Flash {
   auto write(uint21 address, uint8 data) -> void;
 
   auto status(uint) -> void;
+  auto block(uint21 address) -> maybe<uint6>;
   auto program(uint21 address, uint8 data) -> void;
-  auto erase(uint6 blockID) -> void;
+  auto protect(uint21 blockID) -> void;
+  auto erase(uint21 blockID) -> void;
   auto eraseAll() -> void;
-  auto protect(uint6 blockID) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
-  enum : uint { Read, Prefix, Suffix, ExtendedPrefix, ExtendedSuffix, ReadID, Write };
+  enum : uint { Read, Index, ReadID, Write };
   natural mode;
+  natural index;
 };
 
 struct Cartridge {

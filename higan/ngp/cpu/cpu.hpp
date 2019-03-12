@@ -1,5 +1,7 @@
 //TMP95C061
 
+extern bool tracing;
+
 struct CPU : TLCS900H, Thread {
   Memory::Writable<uint8> ram;
 
@@ -21,12 +23,12 @@ struct CPU : TLCS900H, Thread {
   auto setPin33(bool) -> void;  //PA1, TI0
   auto setPin34(bool) -> void;  //PA2, TO1
   auto setPin35(bool) -> void;  //PA3, TO3
-  auto setPin36(bool) -> void;  //PB0, INT4, TI4
-  auto setPin37(bool) -> void;  //PB1, INT5, TI5
+  auto setPin36(bool) -> void;  //PB0, TI4, INT4
+  auto setPin37(bool) -> void;  //PB1, TI5, INT5
   auto setPin38(bool) -> void;  //PB2, TO4
   auto setPin39(bool) -> void;  //PB3, TO5
-  auto setPin40(bool) -> void;  //PB4, INT6, TI6
-  auto setPin41(bool) -> void;  //PB5, INT7, TI7
+  auto setPin40(bool) -> void;  //PB4, TI6, INT6
+  auto setPin41(bool) -> void;  //PB5, TI7, INT7
   auto setPin42(bool) -> void;  //PB6, TO6
 
   //serialization.cpp

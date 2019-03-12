@@ -101,6 +101,7 @@ struct VPU : Thread {
     uint10 hcounter;
 
     uint1 hblankEnableIRQ = 1;  //todo: should be 0
+    uint1 vblankEnableIRQ = 1;
     uint1 hblankActive;
     uint1 vblankActive;
 

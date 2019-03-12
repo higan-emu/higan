@@ -14,6 +14,7 @@ auto CPU::Interrupt::fired() -> void {
 }
 
 auto CPU::Interrupt::set(bool line) -> void {
+  if(!enable || line == this->line) return;
   line ? raise() : lower();
 }
 

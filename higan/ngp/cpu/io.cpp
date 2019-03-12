@@ -1,5 +1,5 @@
 auto CPU::readIO(uint8 address) -> uint8 {
-  uint8 data = 0xff;
+  uint8 data = 0x00;
 
   switch(address) {
 

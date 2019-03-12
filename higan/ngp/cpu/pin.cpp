@@ -22,8 +22,8 @@ auto CPU::setPin35(bool line) -> void {
 }
 
 //PB0
-//INT4
 //TI4
+//INT4
 auto CPU::setPin36(bool line) -> void {
   if(pins.p36 == line) return;
   pins.p36 = line;
@@ -32,8 +32,8 @@ auto CPU::setPin36(bool line) -> void {
 }
 
 //PB1
-//INT5
 //TI5
+//INT5
 auto CPU::setPin37(bool line) -> void {
   if(pins.p37 == line) return;
   pins.p37 = line;
@@ -56,8 +56,8 @@ auto CPU::setPin39(bool line) -> void {
 }
 
 //PB4
-//INT6
 //TI6
+//INT6
 auto CPU::setPin40(bool line) -> void {
   if(pins.p40 == line) return;
   pins.p40 = line;
@@ -66,8 +66,8 @@ auto CPU::setPin40(bool line) -> void {
 }
 
 //PB5
-//INT7
 //TI7
+//INT7
 auto CPU::setPin41(bool line) -> void {
   if(pins.p41 == line) return;
   pins.p41 = line;

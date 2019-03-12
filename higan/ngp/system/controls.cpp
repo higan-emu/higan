@@ -9,6 +9,7 @@ auto Controls::load(Node::Object parent, Node::Object from) -> void {
   b      = Node::append<Node::Button>(parent, from, "B");
   option = Node::append<Node::Button>(parent, from, "Option");
   power  = Node::append<Node::Button>(parent, from, "Power");
+debug=Node::append<Node::Button>(parent,from,"Debug");
 }
 
 auto Controls::poll() -> void {

@@ -181,7 +181,7 @@ auto TLCS900H::disassemble() -> string {
     if((uint2)data == 0) lhs.indirectRegister(opSize, data);
     if((uint2)data == 1) lhs.indirectRegisterDisplacement16(opSize, data, read16());
     if(data == 0x03) { auto r32 = read8(); lhs.indirectRegisterRegister8(opSize, r32, read8()); }
-    if(data == 0x07) { auto r32 = read8(); lhs.indirectRegisterRegister16(opSize, r32, read16()); }
+    if(data == 0x07) { auto r32 = read8(); lhs.indirectRegisterRegister16(opSize, r32, read8()); }
   } break;
   case 0xc4: case 0xd4: case 0xe4: case 0xf4:
     opSourceMemory = fetch < 0xf0; opTargetMemory = !opSourceMemory;

@@ -1,7 +1,7 @@
 auto APU::read(uint16 address) -> uint8 {
   if(address >= 0x0000 && address <= 0x0fff) return ram.read(address);
   if(address == 0x8000) return cpu.io.apuPort;
-  return 0xff;
+  return 0x00;
 }
 
 auto APU::write(uint16 address, uint8 data) -> void {
@@ -13,7 +13,7 @@ auto APU::write(uint16 address, uint8 data) -> void {
 }
 
 auto APU::in(uint8 address) -> uint8 {
-  return 0xff;
+  return 0x00;
 }
 
 auto APU::out(uint8 address, uint8 data) -> void {

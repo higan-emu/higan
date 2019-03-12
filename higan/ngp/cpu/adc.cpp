@@ -5,7 +5,7 @@ auto CPU::ADC::step(uint clocks) -> void {
   counter -= clocks;
   if(counter <= 0) {
     switch(channel) {
-    case 0: result[0] = 1023; break;  //battery level
+    case 0: result[0] = 1023; break;  //battery level (below 528 will not boot)
     case 1: result[1] = 1023; break;  //unknown
     case 2: result[2] = 1023; break;  //unknown
     case 3: result[3] = 1023; break;  //unknown
@@ -17,5 +17,6 @@ auto CPU::ADC::step(uint clocks) -> void {
     }
     end = 1;
     cpu.intad.set(1);
+    cpu.intad.set(0);
   }
 }

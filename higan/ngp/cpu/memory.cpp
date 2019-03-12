@@ -6,7 +6,7 @@ auto CPU::read(uint24 address) -> uint8 {
   if(address >= 0x200000 && address <= 0x3fffff) return cartridge.read(0, address);
   if(address >= 0x800000 && address <= 0x9fffff) return cartridge.read(1, address);
   if(address >= 0xff0000 && address <= 0xffffff) return system.bios.read(address);
-  return 0xff;
+  return 0x00;
 }
 
 auto CPU::write(uint24 address, uint8 data) -> void {
