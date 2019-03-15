@@ -11,6 +11,10 @@ struct CPU : TLCS900H, Thread {
   auto pollPowerButton() -> void;
   auto power() -> void;
 
+  auto load() -> void;
+  auto save() -> void;
+  auto unload() -> void;
+
   //memory.cpp
   auto read(uint24 address) -> uint8 override;
   auto write(uint24 address, uint8 data) -> void override;
@@ -19,35 +23,116 @@ struct CPU : TLCS900H, Thread {
   auto readIO(uint8 address) -> uint8;
   auto writeIO(uint8 address, uint8 data) -> void;
 
-  //pin.cpp
-  auto setPin33(bool) -> void;  //PA1, TI0
-  auto setPin34(bool) -> void;  //PA2, TO1
-  auto setPin35(bool) -> void;  //PA3, TO3
-  auto setPin36(bool) -> void;  //PB0, TI4, INT4
-  auto setPin37(bool) -> void;  //PB1, TI5, INT5
-  auto setPin38(bool) -> void;  //PB2, TO4
-  auto setPin39(bool) -> void;  //PB3, TO5
-  auto setPin40(bool) -> void;  //PB4, TI6, INT6
-  auto setPin41(bool) -> void;  //PB5, TI7, INT7
-  auto setPin42(bool) -> void;  //PB6, TO6
-
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
-//private:
-  struct Pins {
-    uint1 p33;
-    uint1 p34;
-    uint1 p35;
-    uint1 p36;
-    uint1 p37;
-    uint1 p38;
-    uint1 p39;
-    uint1 p40;
-    uint1 p41;
-    uint1 p42;
-  } pins;
+  uint24 mar;  //memory address register
+  uint16 mdr;  //memory data register
 
+  //pin.cpp
+
+  // PA0, /WAIT
+  struct Pin32 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+  } pin32, &pa0 = pin32, &wait = pin32;
+
+  // PA1, TI0, (/HBLANK)
+  struct Pin33 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+  } pin33, &pa1 = pin33, &ti0 = pin33, &hblank = pin33;
+
+  // PA2, TO1
+  struct Pin34 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+    uint1 mode;
+  } pin34, &pa2 = pin34, &to1 = pin34;
+
+  // PA3, TO3
+  struct Pin35 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+    uint1 mode;
+  } pin35, &pa3 = pin35, &to3 = pin35;
+
+  // PB0, INT4, TI4, (/VBLANK)
+  struct Pin36 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+  } pin36, &pb0 = pin36, &ti4 = pin36, &vblank = pin36;
+
+  // PB1, INT5, TI5, (APU)
+  struct Pin37 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+  } pin37, &pb1 = pin37, &ti5 = pin37;
+
+  // PB2, TO4
+  struct Pin38 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+    uint1 mode;
+  } pin38, &pb2 = pin38, &to4 = pin38;
+
+  // PB3, TO5
+  struct Pin39 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+    uint1 mode;
+  } pin39, &pb3 = pin39, &to5 = pin39;
+
+  // PB4, INT6, TI6
+  struct Pin40 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+  } pin40, &pb4 = pin40, &ti6 = pin40;
+
+  // PB5, INT7, TI7
+  struct Pin41 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+  } pin41, &pb5 = pin41, &ti7 = pin41;
+
+  // PB6, TO6
+  struct Pin42 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+    uint1 mode;
+  } pin42, &pb6 = pin42, &to6 = pin42;
+
+  // PB7, INT0
+  struct Pin43 {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 pin;
+    uint1 flow;
+  } pin43, &pb7 = pin43;
+
+//private:
   struct Interrupt {
     //interrupt.cpp
     inline auto test(maybe<Interrupt&>&) const -> void;
@@ -247,7 +332,78 @@ struct CPU : TLCS900H, Thread {
     uint1 enable;
   } watchdog;
 
+  struct RTC {
+    //rtc.cpp
+    auto step(uint clocks) -> void;
+    auto daysInMonth() -> uint8;
+    auto daysInFebruary() -> uint8;
+
+    uint32 counter;
+    uint1  enable;
+    uint8  second;
+    uint8  minute;
+    uint8  hour;
+    uint8  weekday;
+    uint8  day;
+    uint8  month;
+    uint8  year;
+  } rtc;
+
+  struct DMA {
+    uint8 vector;
+  } dma0, dma1, dma2, dma3;
+
+  struct ChipSelect {
+    //memory.cpp
+    auto select() -> void;
+
+    uint2 wait;
+    uint1 width;  //0 = 16-bit, 1 = 8-bit
+  };
+
+  struct ChipSelect0 : ChipSelect {
+    uint1  enable;
+    uint24 address;
+    uint24 mask;
+  } cs0;
+
+  struct ChipSelect1 : ChipSelect {
+    uint1  enable;
+    uint24 address;
+    uint24 mask;
+  } cs1;
+
+  struct ChipSelect2 : ChipSelect {
+    uint1  enable;
+    uint24 address;
+    uint24 mask;
+    uint1  mode;  //0 = 000080-ffffff, 1 = address,mask
+  } cs2;
+
+  struct ChipSelect3 : ChipSelect {
+    uint1  enable;
+    uint24 address;
+    uint24 mask;
+    uint1  cas;  //0 = /CS3, 1 = /CAS
+  } cs3;
+
+  struct ChipSelectExternal : ChipSelect {
+  } csx;
+
+  struct Clock {
+    //0 = 6144000hz
+    //1 = 3072000hz
+    //2 = 1536000hz
+    //3 =  768000hz
+    //4 =  384000hz
+    //5 =  192000hz? (undocumented)
+    //6 =   96000hz? (undocumented)
+    //7 =   48000hz? (undocumented)
+    uint3 rate;
+  } clock;
+
   struct IO {
+    uint1 rtsDisable;
     uint8 apuPort;
   } io;
 };

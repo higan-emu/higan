@@ -23,6 +23,10 @@ struct APU : Z80, Z80::Bus, Thread {
     uint1 line;
   } nmi;
 
+  struct IRQ {
+    uint1 line;
+  } irq;
+
   struct IO {
     uint1 enable;
   } io;

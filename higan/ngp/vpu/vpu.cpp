@@ -33,7 +33,7 @@ auto VPU::main() -> void {
     }
     if(io.vcounter <= 150) {
       io.hblankActive = 1;
-      if(io.hblankEnableIRQ) cpu.setPin33(0);
+      cpu.hblank = !io.hblankEnableIRQ;
     }
   }
   while(io.hcounter < 171) {
@@ -43,23 +43,23 @@ auto VPU::main() -> void {
 
   io.hcounter = 0;
   io.hblankActive = 0;
-  if(io.hblankEnableIRQ) cpu.setPin33(1);
+  cpu.hblank = 1;
 
   io.vcounter++;
   if(io.vcounter == 152) {
     io.vblankActive = 1;
-    if(io.vblankEnableIRQ) cpu.setPin36(0);
+    cpu.vblank = !io.vblankEnableIRQ;
     scheduler.exit(Scheduler::Event::Frame);
   }
   if(io.vcounter == io.vlines) {
     io.hblankActive = 1;
-    if(io.hblankEnableIRQ) cpu.setPin33(0);
+    cpu.hblank = !io.hblankEnableIRQ;
   }
   if(io.vcounter > io.vlines) {
     io.vcounter = 0;
     io.vblankActive = 0;
     io.characterOver = 0;
-    if(io.vblankEnableIRQ) cpu.setPin36(1);
+    cpu.vblank = 1;
   }
 
   //note: this is not the most intuitive place to call this,

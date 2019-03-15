@@ -11,11 +11,13 @@ auto APU::main() -> void {
 
   if(nmi.line) {
     nmi.line = 0;  //edge-sensitive
-    irq(0, 0x0066, 0xff);
+    Z80::irq(0, 0x0066, 0xff);
   }
 
-//static uint ctr=0;
-//if(++ctr<4000) print(disassemble(r.pc), "\n");
+  if(irq.line) {
+    //level-sensitive
+    Z80::irq(1, 0x0038, 0xff);
+  }
 
   instruction();
 }
@@ -39,6 +41,7 @@ auto APU::power() -> void {
   });
   ram.allocate(0x1000);
   nmi = {};
+  irq = {};
   io = {};
 }
 
@@ -49,6 +52,8 @@ auto APU::enable() -> void {
   Thread::create(system.frequency() / 2.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
+  nmi = {};
+  irq = {};
   io.enable = true;
 }
 

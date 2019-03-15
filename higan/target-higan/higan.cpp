@@ -137,6 +137,7 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::WonderSwan::WonderSwanColorInterface);
   #endif
 
+  higan::platform = &emulator;
   for(auto& interface : interfaces) interface->load();
 
   Instances::programWindow.construct();

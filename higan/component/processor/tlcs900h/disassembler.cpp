@@ -244,7 +244,7 @@ auto TLCS900H::disassemble() -> string {
   case 0x17: case 0x18: break;
   case 0x19: name = "mula"; break;
   case 0x1a: case 0x1b: break;
-  case 0x1c: name = "djnz"; rhs.displacement(8, read8()); break;
+  case 0x1c: name = "djnz"; rhs.displacementPC(8, read8()); break;
   case 0x1d: case 0x1e: case 0x1f: break;
   case 0x20: name = "andcf"; rhs.immediate(4, (uint4)read8()); break;
   case 0x21: name = "orcf"; rhs.immediate(4, (uint4)read8()); break;
@@ -551,9 +551,9 @@ auto TLCS900H::disassemble() -> string {
       "rwa1", "qwa1", "rbc1", "qbc1", "rde1", "qde1", "rhl1", "qhl1",  //10-1f
       "rwa2", "qwa2", "rbc2", "qbc2", "rde2", "qde2", "rhl2", "qhl2",  //20-2f
       "rwa3", "qwa3", "rbc3", "qbc3", "rde3", "qde3", "rhl3", "qhl3",  //30-3f
-      "rwa'", "qwa'", "rbc'", "qbc'", "rde'", "qde'", "rhl'", "qhl'",  //d0-df
-      "rwa",  "qwa",  "rbc",  "qbc",  "rde",  "qde",  "rhl",  "qhl",   //e0-ef
-      "ix",   "qix",  "iy",   "qiy",  "iz",   "qiz",  "sp",   "qsp",   //f0-ff
+       "wa'", "qwa'",  "bc'", "qbc'",  "de'", "qde'",  "hl'", "qhl'",  //d0-df
+       "wa",  "qwa",   "bc",  "qbc",   "de",  "qde",   "hl",  "qhl",   //e0-ef
+       "ix",  "qix",   "iy",  "qiy",   "iz",  "qiz",   "sp",  "qsp",   //f0-ff
     };
     auto register16 = [](uint8 register) -> string {
       if(register <  0x40) return registers16[register >> 1];

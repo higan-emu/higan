@@ -3,6 +3,37 @@ auto CPU::readIO(uint8 address) -> uint8 {
 
   switch(address) {
 
+  //PORT1
+  case 0x01:
+    //todo: this is actually MDR bits 8-15, but bus reads are always 8-bit for now
+    data.bits(0,7) = mdr.bits(0,7);
+    return data;
+
+  //PORT2
+  case 0x06:
+    data.bits(0,7) = mar.bits(16,23);
+    return data;
+
+  //PORTA
+  case 0x1e:
+    data.bit(0) = pa0;
+    data.bit(1) = pa1;
+    data.bit(2) = pa2;
+    data.bit(3) = pa3;
+    return data;
+
+  //PORTB
+  case 0x1f:
+    data.bit(0) = pb0;
+    data.bit(1) = pb1;
+    data.bit(2) = pb2;
+    data.bit(3) = pb3;
+    data.bit(4) = pb4;
+    data.bit(5) = pb5;
+    data.bit(6) = pb6;
+    data.bit(7) = pb7;
+    return data;
+
   //TRUN
   case 0x20:
     data.bit(0) = timers.timer01.lo.enable;
@@ -94,6 +125,28 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bits(6,7) = 0b11;
     return data;
 
+  //MSAR0
+  case 0x3c:
+    data.bits(0,7) = cs0.address.bits(16,23);
+    return data;
+
+  //MAMR0
+  case 0x3d:
+    data.bits(0,1) = cs0.mask.bits(8,9);
+    data.bits(2,7) = cs0.mask.bits(15,20);
+    return data;
+
+  //MSAR1
+  case 0x3e:
+    data.bits(0,7) = cs1.address.bits(16,23);
+    return data;
+
+  //MAMR1
+  case 0x3f:
+    data.bits(0,1) = cs1.mask.bits(8,9);
+    data.bits(2,7) = cs1.mask.bits(16,21);
+    return data;
+
   //TREG6 (write-only?)
   case 0x40: return data;
   case 0x41: return data;
@@ -131,6 +184,26 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(4) = timers.timer5.ffA.flipOnLoadA;
     data.bit(5) = timers.timer5.ffA.flipOnLoadB;
     data.bits(6,7) = 0b11;
+    return data;
+
+  //MSAR2
+  case 0x5c:
+    data.bits(0,7) = cs2.address.bits(16,23);
+    return data;
+
+  //MAMR2
+  case 0x5d:
+    data.bits(0,7) = cs2.mask.bits(15,22);
+    return data;
+
+  //MSAR3
+  case 0x5e:
+    data.bits(0,7) = cs3.address.bits(16,23);
+    return data;
+
+  //MAMR3
+  case 0x5f:
+    data.bits(0,7) = cs3.mask.bits(15,22);
     return data;
 
   //ADREG04L
@@ -308,6 +381,23 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(2) = int0.enable;
     return data;
 
+  case 0x80:
+    data.bits(0,2) = clock.rate;  //unconfirmed
+    data.bits(3,7) = 0b00000;     //unconfirmed
+    return data;
+
+  case 0x90: return rtc.enable;
+  case 0x91: return rtc.year;
+  case 0x92: return rtc.month;
+  case 0x93: return rtc.day;
+  case 0x94: return rtc.hour;
+  case 0x95: return rtc.minute;
+  case 0x96: return rtc.second;
+  case 0x97:
+    data.bits(0,3) = rtc.weekday;
+    data.bits(4,7) = rtc.year & 3;
+    return data;
+
   case 0xb0:
     controls.poll();
     data.bit(0) = controls.upLatch;
@@ -316,14 +406,17 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(3) = controls.rightLatch;
     data.bit(4) = controls.a->value;
     data.bit(5) = controls.b->value;
-    data.bit(6) = controls.option->value;
-    data.bit(7) = 0;  //unused?
+    data.bit(6) = controls.c->value;
+    data.bit(7) = controls.d->value;
     return data;
 
   case 0xb1:
     data.bit(0) = !controls.power->value;
     data.bit(1) = 1;  //sub battery (CR2032)
-  //note: d6 is probably? the debug button for development hardware ...
+    return data;
+
+  case 0xb2:
+    data.bit(0) = io.rtsDisable;
     return data;
 
   case 0xb3:
@@ -336,11 +429,39 @@ auto CPU::readIO(uint8 address) -> uint8 {
 
   }
 
+//print("CPU::readIO(", hex(address, 2L), ")\n");
   return data;
 }
 
 auto CPU::writeIO(uint8 address, uint8 data) -> void {
   switch(address) {
+
+  //PORT1
+  case 0x01:
+    //todo: this is actually MDR bits 8-15, but bus writes are always 8-bits for now
+    //todo: this probably won't work as intended
+    mdr.bits(0,7) = data;
+    return;
+
+  //PORT2
+  case 0x06:
+    //todo: this probably won't work as intended
+    mar.bits(16,23) = data;
+    return;
+
+  //PORTA
+  case 0x1e:
+    pa0 = data.bit(0);
+    pa1 = data.bit(1);
+    if(pa2.mode == 0) pa2 = data.bit(2);
+    if(pa2.mode == 0) pa3 = data.bit(3);
+    return;
+
+  //PORTB
+  case 0x1f:
+    pb0 = data.bit(0);
+    pb1 = data.bit(1);
+    return;
 
   //TRUN
   case 0x20:
@@ -415,6 +536,39 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     timers.timer23.buffer.enable = data.bit(1);
     return;
 
+  //PACR
+  case 0x2c:
+    pa0.flow = data.bit(0);
+    pa1.flow = data.bit(1);
+    pa2.flow = data.bit(2);
+    pa3.flow = data.bit(3);
+    return;
+
+  //PAFC
+  case 0x2d:
+    pa2.mode = data.bit(2);
+    pa3.mode = data.bit(3);
+    return;
+
+  //PBCR
+  case 0x2e:
+    pb0.flow = data.bit(0);
+    pb1.flow = data.bit(1);
+    pb2.flow = data.bit(2);
+    pb3.flow = data.bit(3);
+    pb4.flow = data.bit(4);
+    pb5.flow = data.bit(5);
+    pb6.flow = data.bit(6);
+    pb7.flow = data.bit(7);
+    return;
+
+  //PBFC
+  case 0x2f:
+    pb2.mode = data.bit(2);
+    pb3.mode = data.bit(3);
+    pb6.mode = data.bit(6);
+    return;
+
   //TREG4
   case 0x30:
     if(!timers.timer4.buffer.enable) timers.timer4.compareA.byte(0) = data;
@@ -469,6 +623,51 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     timers.timer5.buffer.enable = data.bit(1);
     return;
 
+  //MSAR0
+  case 0x3c:
+    cs0.address.bits(16,23) = data;
+    return;
+
+  //MAMR0
+  case 0x3d:
+    cs0.mask.bit( 8) = data.bit(0);
+    cs0.mask.bit( 9) = data.bit(1);  //9..
+    cs0.mask.bit(10) = data.bit(1);
+    cs0.mask.bit(11) = data.bit(1);
+    cs0.mask.bit(12) = data.bit(1);
+    cs0.mask.bit(13) = data.bit(1);
+    cs0.mask.bit(14) = data.bit(1);  //..14
+    cs0.mask.bit(15) = data.bit(2);
+    cs0.mask.bit(16) = data.bit(3);
+    cs0.mask.bit(17) = data.bit(4);
+    cs0.mask.bit(18) = data.bit(5);
+    cs0.mask.bit(19) = data.bit(6);
+    cs0.mask.bit(20) = data.bit(7);
+    return;
+
+  //MSAR1
+  case 0x3e:
+    cs1.address.bits(16,23) = data;
+    return;
+
+  //MAMR1
+  case 0x3f:
+    cs1.mask.bit( 8) = data.bit(0);
+    cs1.mask.bit( 9) = data.bit(1);  //9..
+    cs1.mask.bit(10) = data.bit(1);
+    cs1.mask.bit(11) = data.bit(1);
+    cs1.mask.bit(12) = data.bit(1);
+    cs1.mask.bit(13) = data.bit(1);
+    cs1.mask.bit(14) = data.bit(1);
+    cs1.mask.bit(15) = data.bit(1);  //..15
+    cs1.mask.bit(16) = data.bit(2);
+    cs1.mask.bit(17) = data.bit(3);
+    cs1.mask.bit(18) = data.bit(4);
+    cs1.mask.bit(19) = data.bit(5);
+    cs1.mask.bit(20) = data.bit(6);
+    cs1.mask.bit(21) = data.bit(7);
+    return;
+
   //TREG6
   case 0x40:
     if(!timers.timer5.buffer.enable) timers.timer5.compareA.byte(0) = data;
@@ -516,6 +715,62 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     if(data.bits(6,7) == 0) timers.timer5.outputB(timers.timer5.ffB.output ^= 1);
     if(data.bits(6,7) == 1) timers.timer5.outputB(timers.timer5.ffB.output  = 1);
     if(data.bits(6,7) == 2) timers.timer5.outputB(timers.timer5.ffB.output  = 0);
+    return;
+
+  //MSAR2
+  case 0x5c:
+    cs2.address.bits(16,23) = data;
+    return;
+
+  //MAMR2
+  case 0x5d:
+    cs2.mask.bits(15,22) = data;
+    return;
+
+  //MSAR3
+  case 0x5e:
+    cs3.address.bits(16,23) = data;
+    return;
+
+  //MAMR3
+  case 0x5f:
+    cs3.mask.bits(15,22) = data;
+    return;
+
+  //B0CS
+  case 0x68:
+    cs0.wait = data.bits(0,1);
+    cs0.width = data.bit(2);
+    cs0.enable = data.bit(4);
+    return;
+
+  //B1CS
+  case 0x69:
+    cs1.wait = data.bits(0,1);
+    cs1.width = data.bit(2);
+    cs1.enable = data.bit(4);
+    return;
+
+  //B2CS
+  case 0x6a:
+    cs2.wait = data.bits(0,1);
+    cs2.width = data.bit(2);
+    cs2.mode = data.bit(3);
+    cs2.enable = data.bit(4);
+    return;
+
+  //B3CS
+  case 0x6b:
+    cs3.wait = data.bits(0,1);
+    cs3.width = data.bit(2);
+    cs3.cas = data.bit(3);
+    cs3.enable = data.bit(4);
+    return;
+
+  //BEXCS
+  case 0x6c:
+    csx.wait = data.bits(0,1);
+    csx.width = data.bit(2);
     return;
 
   //ADMOD
@@ -645,6 +900,39 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     int0.enable = data.bit(2);
     return;
 
+  //DMA0V
+  case 0x7c:
+    dma0.vector.bits(4,8) = data.bits(0,4);
+    return;
+
+  //DMA1V
+  case 0x7d:
+    dma1.vector.bits(4,8) = data.bits(0,4);
+    return;
+
+  //DMA2V
+  case 0x7e:
+    dma2.vector.bits(4,8) = data.bits(0,4);
+    return;
+
+  //DMA3V
+  case 0x7f:
+    dma3.vector.bits(4,8) = data.bits(0,4);
+    return;
+
+  case 0x80:
+    clock.rate = data.bits(0,2);
+    return;
+
+  case 0x90: rtc.enable  = data.bit(0); return;
+  case 0x91: rtc.year    = data; return;
+  case 0x92: rtc.month   = data; return;
+  case 0x93: rtc.day     = data; return;
+  case 0x94: rtc.hour    = data; return;
+  case 0x95: rtc.minute  = data; return;
+  case 0x96: rtc.second  = data; return;
+  case 0x97: rtc.weekday = data.bits(0,3); return;
+
   case 0xa0:
     psg.psgRight.write(data);
     return;
@@ -661,8 +949,8 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     psg.dacLeft = data;
     return;
 
-  //???
   case 0xb2:
+    io.rtsDisable = data.bit(0);
     return;
 
   case 0xb3:

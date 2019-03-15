@@ -14,6 +14,7 @@ auto AbstractInterface::load(string tree) -> void {
 }
 
 auto AbstractInterface::unload() -> void {
+  system.save();
   system.unload();
 }
 

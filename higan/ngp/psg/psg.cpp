@@ -6,8 +6,8 @@ PSG psg;
 #include "serialization.cpp"
 
 auto PSG::main() -> void {
-  double outLeft  = dacLeft  / 256.0;
-  double outRight = dacRight / 256.0;
+  double outLeft  = dacLeft  / 255.0;
+  double outRight = dacRight / 255.0;
 
   if(psgEnable) {
     outLeft  += psgLeft .clock()[0];
@@ -28,7 +28,7 @@ auto PSG::step(uint clocks) -> void {
 }
 
 auto PSG::power() -> void {
-  Thread::create(system.frequency() / 2.0, [&] {
+  Thread::create(system.frequency() / 32.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
   stream = audio.createStream(2, frequency());

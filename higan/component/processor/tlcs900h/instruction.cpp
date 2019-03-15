@@ -363,8 +363,12 @@ auto TLCS900H::instructionRegister(R register) -> void {
     if constexpr(bits != 32) return instructionStoreCarry(register, A);
     return (void)Undefined;
   case 0x2d: return (void)Undefined;
-  case 0x2e: return instructionLoad(toControlRegister<T>(data), register);
-  case 0x2f: return instructionLoad(register, toControlRegister<T>(data));
+  case 0x2e:
+    data = fetch();
+    return instructionLoad(toControlRegister<T>(data), register);
+  case 0x2f:
+    data = fetch();
+    return instructionLoad(register, toControlRegister<T>(data));
   case 0x30:
     if constexpr(bits != 32) return instructionReset(register, fetchImmediate<uint8>());
     return (void)Undefined;

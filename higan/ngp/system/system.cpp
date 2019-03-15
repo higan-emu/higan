@@ -33,18 +33,21 @@ auto System::load(Node::Object from) -> void {
   controls.load(node, from);
   display.load(node, from);
   cartridge.load(node, from);
+  cpu.load();
 }
 
 auto System::unload() -> void {
   if(!node) return;
   bios.reset();
   cartridge.port = {};
+  cpu.unload();
   node = {};
 }
 
 auto System::save() -> void {
   if(!node) return;
   cartridge.save();
+  cpu.save();
 }
 
 auto System::power() -> void {

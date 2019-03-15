@@ -8,7 +8,6 @@
 Emulator emulator;
 
 auto Emulator::create(shared_pointer<higan::Interface> instance, string location) -> void {
-  higan::platform = this;
   interface = instance;
 
   system = {};
