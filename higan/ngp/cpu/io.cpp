@@ -3,18 +3,80 @@ auto CPU::readIO(uint8 address) -> uint8 {
 
   switch(address) {
 
-  //PORT1
+  //P1
   case 0x01:
-    //todo: this is actually MDR bits 8-15, but bus reads are always 8-bit for now
-    data.bits(0,7) = mdr.bits(0,7);
+    data.bit(0) = p10;
+    data.bit(1) = p11;
+    data.bit(2) = p12;
+    data.bit(3) = p13;
+    data.bit(4) = p14;
+    data.bit(5) = p15;
+    data.bit(6) = p16;
+    data.bit(7) = p17;
     return data;
 
-  //PORT2
+  //P2
   case 0x06:
-    data.bits(0,7) = mar.bits(16,23);
+    data.bit(0) = p20;
+    data.bit(1) = p21;
+    data.bit(2) = p22;
+    data.bit(3) = p23;
+    data.bit(4) = p24;
+    data.bit(5) = p25;
+    data.bit(6) = p26;
+    data.bit(7) = p27;
     return data;
 
-  //PORTA
+  //P5
+  case 0x0d:
+    data.bit(0) = io.p5;
+    data.bit(2) = p52;
+    data.bit(3) = p53;
+    data.bit(4) = p54;
+    data.bit(5) = p55;
+    return data;
+
+  //P6
+  case 0x12:
+    data.bit(0) = p60;
+    data.bit(1) = p61;
+    data.bit(2) = p62;
+    data.bit(3) = p63;
+    data.bit(4) = p64;
+    data.bit(5) = p65;
+    return data;
+
+  //P7
+  case 0x13:
+    data.bit(0) = p70;
+    data.bit(1) = p71;
+    data.bit(2) = p72;
+    data.bit(3) = p73;
+    data.bit(4) = p74;
+    data.bit(5) = p75;
+    data.bit(6) = p76;
+    data.bit(7) = p77;
+    return data;
+
+  //P8
+  case 0x18:
+    data.bit(0) = p80;
+    data.bit(1) = p81;
+    data.bit(2) = p82;
+    data.bit(3) = p83;
+    data.bit(4) = p84;
+    data.bit(5) = p85;
+    return data;
+
+  //P9
+  case 0x19:
+    data.bit(0) = p90;
+    data.bit(1) = p91;
+    data.bit(2) = p92;
+    data.bit(3) = p93;
+    return data;
+
+  //PA
   case 0x1e:
     data.bit(0) = pa0;
     data.bit(1) = pa1;
@@ -22,7 +84,7 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(3) = pa3;
     return data;
 
-  //PORTB
+  //PB
   case 0x1f:
     data.bit(0) = pb0;
     data.bit(1) = pb1;
@@ -36,13 +98,13 @@ auto CPU::readIO(uint8 address) -> uint8 {
 
   //TRUN
   case 0x20:
-    data.bit(0) = timers.timer01.lo.enable;
-    data.bit(1) = timers.timer01.hi.enable;
-    data.bit(2) = timers.timer23.lo.enable;
-    data.bit(3) = timers.timer23.hi.enable;
-    data.bit(4) = timers.timer4.enable;
-    data.bit(5) = timers.timer5.enable;
-    data.bit(7) = timers.enable;
+    data.bit(0) = t0.enable;
+    data.bit(1) = t1.enable;
+    data.bit(2) = t2.enable;
+    data.bit(3) = t3.enable;
+    data.bit(4) = t4.enable;
+    data.bit(5) = t5.enable;
+    data.bit(7) = prescaler.enable;
     return data;
 
   //TREG0 (write-only)
@@ -53,19 +115,19 @@ auto CPU::readIO(uint8 address) -> uint8 {
 
   //T01MOD
   case 0x24:
-    data.bits(0,1) = timers.timer01.lo.mode;
-    data.bits(2,3) = timers.timer01.hi.mode;
-    data.bits(4,5) = timers.timer01.pwm;
-    data.bits(6,7) = timers.timer01.mode;
+    data.bits(0,1) = t0.mode;
+    data.bits(2,3) = t1.mode;
+    data.bits(4,5) = t01.pwm;
+    data.bits(6,7) = t01.mode;
     return data;
 
   //TFFCR
   case 0x25:
-    data.bit(0) = timers.timer01.ff.select;
-    data.bit(1) = timers.timer01.ff.enable;
+    data.bit(0) = ff1.source;
+    data.bit(1) = ff1.invert;
     data.bits(2,3) = 0b11;  //write-only
-    data.bit(4) = timers.timer23.ff.select;
-    data.bit(5) = timers.timer23.ff.enable;
+    data.bit(4) = ff3.source;
+    data.bit(5) = ff3.invert;
     data.bits(6,7) = 0b11;  //write-only
     return data;
 
@@ -77,16 +139,16 @@ auto CPU::readIO(uint8 address) -> uint8 {
 
   //T23MOD
   case 0x28:
-    data.bits(0,1) = timers.timer23.lo.mode;
-    data.bits(2,3) = timers.timer23.hi.mode;
-    data.bits(4,5) = timers.timer23.pwm;
-    data.bits(6,7) = timers.timer23.mode;
+    data.bits(0,1) = t2.mode;
+    data.bits(2,3) = t3.mode;
+    data.bits(4,5) = t23.pwm;
+    data.bits(6,7) = t23.mode;
     return data;
 
   //TRDC
   case 0x29:
-    data.bit(0) = timers.timer01.buffer.enable;
-    data.bit(1) = timers.timer23.buffer.enable;
+    data.bit(0) = t01.buffer.enable;
+    data.bit(1) = t23.buffer.enable;
     return data;
 
   //TREG4 (write-only?)
@@ -98,30 +160,30 @@ auto CPU::readIO(uint8 address) -> uint8 {
   case 0x33: return data;
 
   //CAP1
-  case 0x34: return timers.timer4.captureA.byte(0);
-  case 0x35: return timers.timer4.captureA.byte(1);
+  case 0x34: return t4.capture1.byte(0);
+  case 0x35: return t4.capture1.byte(1);
 
   //CAP2
-  case 0x36: return timers.timer4.captureB.byte(0);
-  case 0x37: return timers.timer4.captureB.byte(1);
+  case 0x36: return t4.capture2.byte(0);
+  case 0x37: return t4.capture2.byte(1);
 
   //T4MOD
   case 0x38:
-    data.bits(0,1) = timers.timer4.mode;
-    data.bit(2) = timers.timer4.clearOnMatch;
-    data.bits(3,4) = timers.timer4.captureMode;
+    data.bits(0,1) = t4.mode;
+    data.bit(2) = t4.clearOnCompare5;
+    data.bits(3,4) = t4.captureMode;
     data.bit(5) = 1;
-    data.bit(6) = timers.timer4.ffB.flipOnMatchB;
-    data.bit(7) = timers.timer4.ffB.flipOnLoadB;
+    data.bit(6) = ff5.flipOnCompare5;
+    data.bit(7) = ff5.flipOnCapture2;
     return data;
 
   //T4FFCR
   case 0x39:
     data.bits(0,1) = 0b11;
-    data.bit(2) = timers.timer4.ffA.flipOnMatchA;
-    data.bit(3) = timers.timer4.ffA.flipOnMatchB;
-    data.bit(4) = timers.timer4.ffA.flipOnLoadA;
-    data.bit(5) = timers.timer4.ffA.flipOnLoadB;
+    data.bit(2) = ff4.flipOnCompare4;
+    data.bit(3) = ff4.flipOnCompare5;
+    data.bit(4) = ff4.flipOnCapture1;
+    data.bit(5) = ff4.flipOnCapture2;
     data.bits(6,7) = 0b11;
     return data;
 
@@ -156,33 +218,28 @@ auto CPU::readIO(uint8 address) -> uint8 {
   case 0x43: return data;
 
   //CAP3
-  case 0x44: return timers.timer5.captureA.byte(0);
-  case 0x45: return timers.timer5.captureA.byte(1);
+  case 0x44: return t5.capture3.byte(0);
+  case 0x45: return t5.capture4.byte(1);
 
   //CAP4
-  case 0x46: return timers.timer5.captureB.byte(0);
-  case 0x47: return timers.timer5.captureB.byte(1);
+  case 0x46: return t5.capture3.byte(0);
+  case 0x47: return t5.capture4.byte(1);
 
   //T5MOD
   case 0x48:
-    data.bits(0,1) = timers.timer5.mode;
-    data.bit(2) = timers.timer5.clearOnMatch;
-    data.bits(3,4) = timers.timer5.captureMode;
+    data.bits(0,1) = t5.mode;
+    data.bit(2) = t5.clearOnCompare7;
+    data.bits(3,4) = t5.captureMode;
     data.bit(5) = 1;
-    //note: this is unverified
-    //either timer 5 has the flip-flop but doesn't output the pin (assumed here),
-    //or the hardware itself doesn't exist, and this (probably) would return 0b11
-    data.bit(6) = timers.timer5.ffB.flipOnMatchB;
-    data.bit(7) = timers.timer5.ffB.flipOnLoadB;
     return data;
 
   //T5FFCR
   case 0x49:
     data.bits(0,1) = 0b11;
-    data.bit(2) = timers.timer5.ffA.flipOnMatchA;
-    data.bit(3) = timers.timer5.ffA.flipOnMatchB;
-    data.bit(4) = timers.timer5.ffA.flipOnLoadA;
-    data.bit(5) = timers.timer5.ffA.flipOnLoadB;
+    data.bit(2) = ff6.flipOnCompare6;
+    data.bit(3) = ff6.flipOnCompare7;
+    data.bit(4) = ff6.flipOnCapture3;
+    data.bit(5) = ff6.flipOnCapture4;
     data.bits(6,7) = 0b11;
     return data;
 
@@ -423,6 +480,9 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(2) = nmi.enable;
     return data;
 
+  case 0xb4: return io.b4;
+  case 0xb5: return io.b5;
+
   case 0xbc:
     data = io.apuPort;
     return data;
@@ -436,20 +496,164 @@ auto CPU::readIO(uint8 address) -> uint8 {
 auto CPU::writeIO(uint8 address, uint8 data) -> void {
   switch(address) {
 
-  //PORT1
+  //P1
   case 0x01:
-    //todo: this is actually MDR bits 8-15, but bus writes are always 8-bits for now
-    //todo: this probably won't work as intended
-    mdr.bits(0,7) = data;
+    p10 = data.bit(0);
+    p11 = data.bit(1);
+    p12 = data.bit(2);
+    p13 = data.bit(3);
+    p14 = data.bit(4);
+    p15 = data.bit(5);
+    p16 = data.bit(6);
+    p17 = data.bit(7);
     return;
 
-  //PORT2
+  //P1CR
+  case 0x04:
+    p10.flow = data.bit(0);
+    p11.flow = data.bit(1);
+    p12.flow = data.bit(2);
+    p13.flow = data.bit(3);
+    p14.flow = data.bit(4);
+    p15.flow = data.bit(5);
+    p16.flow = data.bit(6);
+    p17.flow = data.bit(7);
+    return;
+
+  //P2
   case 0x06:
-    //todo: this probably won't work as intended
-    mar.bits(16,23) = data;
+    p20 = data.bit(0);
+    p21 = data.bit(1);
+    p22 = data.bit(2);
+    p23 = data.bit(3);
+    p24 = data.bit(4);
+    p25 = data.bit(5);
+    p26 = data.bit(6);
+    p27 = data.bit(7);
     return;
 
-  //PORTA
+  //P2FC
+  case 0x09:
+    p20.mode = data.bit(0);
+    p21.mode = data.bit(1);
+    p22.mode = data.bit(2);
+    p23.mode = data.bit(3);
+    p24.mode = data.bit(4);
+    p25.mode = data.bit(5);
+    p26.mode = data.bit(6);
+    p27.mode = data.bit(7);
+    return;
+
+  //P5
+  case 0x0d:
+    io.p5 = data.bit(0);
+    p52 = data.bit(2);
+    p53 = data.bit(3);
+    p54 = data.bit(4);
+    p55 = data.bit(5);
+    return;
+
+  //P5CR
+  case 0x10:
+    p52.flow = data.bit(2);
+    p53.flow = data.bit(3);
+    p54.flow = data.bit(4);
+    p55.flow = data.bit(5);
+    return;
+
+  //P5FC
+  case 0x11:
+    p52.mode = data.bit(2);
+    p53.mode = data.bit(3);
+    p54.mode = data.bit(4);
+    p55.mode = data.bit(5);
+    return;
+
+  //P6
+  case 0x12:
+    p60 = data.bit(0);
+    p61 = data.bit(1);
+    p62 = data.bit(2);
+    p63 = data.bit(3);
+    p64 = data.bit(4);
+    p65 = data.bit(5);
+    return;
+
+  //P7
+  case 0x13:
+    p70 = data.bit(0);
+    p71 = data.bit(1);
+    p72 = data.bit(2);
+    p73 = data.bit(3);
+    p74 = data.bit(4);
+    p75 = data.bit(5);
+    p76 = data.bit(6);
+    p77 = data.bit(7);
+    return;
+
+  //P6FC
+  case 0x15:
+    p60.mode = data.bit(0);
+    p61.mode = data.bit(1);
+    p62.mode = data.bit(2);
+    p63.mode = data.bit(3);
+    p64.mode = data.bit(4);
+    p65.mode = data.bit(5);
+    return;
+
+  //P7CR
+  case 0x16:
+    p70.flow = data.bit(0);
+    p71.flow = data.bit(1);
+    p72.flow = data.bit(2);
+    p73.flow = data.bit(3);
+    p74.flow = data.bit(4);
+    p75.flow = data.bit(5);
+    p76.flow = data.bit(6);
+    p77.flow = data.bit(7);
+    return;
+
+  //P7FC
+  case 0x17:
+    p70.mode = data.bit(0);
+    p71.mode = data.bit(1);
+    p72.mode = data.bit(2);
+    p73.mode = data.bit(3);
+    p74.mode = data.bit(4);
+    p75.mode = data.bit(5);
+    p76.mode = data.bit(6);
+    p77.mode = data.bit(7);
+    return;
+
+  //P8
+  case 0x18:
+    p80 = data.bit(0);
+    p81 = data.bit(1);
+    p82 = data.bit(2);
+    p83 = data.bit(3);
+    p84 = data.bit(4);
+    p85 = data.bit(5);
+    return;
+
+  //P8CR
+  case 0x1a:
+    p80.flow = data.bit(0);
+    p81.flow = data.bit(1);
+    p82.flow = data.bit(2);
+    p83.flow = data.bit(3);
+    p84.flow = data.bit(4);
+    p85.flow = data.bit(5);
+    return;
+
+  //P8FC
+  case 0x1b:
+    p80.mode = data.bit(0);
+    p82.mode = data.bit(2);
+    p83.mode = data.bit(3);
+    p85.mode = data.bit(5);
+    return;
+
+  //PA
   case 0x1e:
     pa0 = data.bit(0);
     pa1 = data.bit(1);
@@ -457,7 +661,7 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     if(pa2.mode == 0) pa3 = data.bit(3);
     return;
 
-  //PORTB
+  //PB
   case 0x1f:
     pb0 = data.bit(0);
     pb1 = data.bit(1);
@@ -465,75 +669,77 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
   //TRUN
   case 0x20:
-    timers.timer01.lo.enableIf(data.bit(0));
-    timers.timer01.hi.enableIf(data.bit(1));
-    timers.timer23.lo.enableIf(data.bit(2));
-    timers.timer23.hi.enableIf(data.bit(3));
-    timers.timer4.enableIf(data.bit(4));
-    timers.timer5.enableIf(data.bit(5));
-    timers.enable = data.bit(7);
+    if(t0.enable && !data.bit(0)) t0.disable();
+    if(t1.enable && !data.bit(1)) t1.disable();
+    if(t2.enable && !data.bit(2)) t2.disable();
+    if(t3.enable && !data.bit(3)) t3.disable();
+    if(t4.enable && !data.bit(4)) t4.disable();
+    if(t5.enable && !data.bit(5)) t5.disable();
+    t0.enable = data.bit(0);
+    t1.enable = data.bit(1);
+    t2.enable = data.bit(2);
+    t3.enable = data.bit(3);
+    t4.enable = data.bit(4);
+    t5.enable = data.bit(5);
+    prescaler.enable = data.bit(7);
     return;
 
   //TREG0
   case 0x22:
-    if(!timers.timer01.buffer.enable) timers.timer01.lo.compare = data;
-    timers.timer01.buffer.compare = data;
-    if(timers.timer01.mode == 1) timers.timer01.lo.enable = 0;
+    if(!t01.buffer.enable) t0.compare = data;
+    t01.buffer.compare = data;
     return;
 
   //TREG1
   case 0x23:
-    timers.timer01.hi.compare = data;
-    if(timers.timer01.mode == 1) timers.timer01.lo.enable = 1;
+    t1.compare = data;
     return;
 
   //T01MOD
   case 0x24:
-    timers.timer01.lo.mode = data.bits(0,1);
-    timers.timer01.hi.mode = data.bits(2,3);
-    timers.timer01.pwm = data.bits(4,5);
-    timers.timer01.mode = data.bits(6,7);
+    t0.mode  = data.bits(0,1);
+    t1.mode  = data.bits(2,3);
+    t01.pwm  = data.bits(4,5);
+    t01.mode = data.bits(6,7);
     return;
 
   //TFFCR
   case 0x25:
-    timers.timer01.ff.select = data.bit(0);
-    timers.timer01.ff.enable = data.bit(1);
-    if(data.bits(2,3) == 0) timers.timer01.ff.invert();
-    if(data.bits(2,3) == 1) timers.timer01.ff.raise();
-    if(data.bits(2,3) == 2) timers.timer01.ff.lower();
-    timers.timer23.ff.select = data.bit(4);
-    timers.timer23.ff.enable = data.bit(5);
-    if(data.bits(6,7) == 0) timers.timer23.ff.invert();
-    if(data.bits(6,7) == 1) timers.timer23.ff.raise();
-    if(data.bits(6,7) == 2) timers.timer23.ff.lower();
+    ff1.source = data.bit(0);
+    ff1.invert = data.bit(1);
+    if(data.bits(2,3) == 0) ff1 = !ff1;
+    if(data.bits(2,3) == 1) ff1 = 1;
+    if(data.bits(2,3) == 2) ff1 = 0;
+    ff3.source = data.bit(4);
+    ff3.invert = data.bit(5);
+    if(data.bits(6,7) == 0) ff3 = !ff3;
+    if(data.bits(6,7) == 1) ff3 = 1;
+    if(data.bits(6,7) == 2) ff3 = 0;
     return;
 
   //TREG2
   case 0x26:
-    if(!timers.timer23.buffer.enable) timers.timer23.lo.compare = data;
-    timers.timer23.buffer.compare = data;
-    if(timers.timer23.mode == 1) timers.timer23.lo.enable = 0;
+    if(!t23.buffer.enable) t2.compare = data;
+    t23.buffer.compare = data;
     return;
 
   //TREG3
   case 0x27:
-    timers.timer23.hi.compare = data;
-    if(timers.timer23.mode == 1) timers.timer23.lo.enable = 1;
+    t3.compare = data;
     return;
 
   //T23MOD
   case 0x28:
-    timers.timer23.lo.mode = data.bits(0,1);
-    timers.timer23.hi.mode = data.bits(2,3);
-    timers.timer23.pwm = data.bits(4,5);
-    timers.timer23.mode = data.bits(6,7);
+    t2.mode  = data.bits(0,1);
+    t3.mode  = data.bits(2,3);
+    t23.pwm  = data.bits(4,5);
+    t23.mode = data.bits(6,7);
     return;
 
   //TRDC
   case 0x29:
-    timers.timer01.buffer.enable = data.bit(0);
-    timers.timer23.buffer.enable = data.bit(1);
+    t01.buffer.enable = data.bit(0);
+    t23.buffer.enable = data.bit(1);
     return;
 
   //PACR
@@ -571,56 +777,56 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
   //TREG4
   case 0x30:
-    if(!timers.timer4.buffer.enable) timers.timer4.compareA.byte(0) = data;
-    timers.timer4.buffer.compare.byte(0) = data;
+    if(!t4.buffer.enable) t4.compare4.byte(0) = data;
+    t4.buffer.compare.byte(0) = data;
     return;
   case 0x31:
-    if(!timers.timer4.buffer.enable) timers.timer4.compareA.byte(1) = data;
-    timers.timer4.buffer.compare.byte(1) = data;
+    if(!t4.buffer.enable) t4.compare4.byte(1) = data;
+    t4.buffer.compare.byte(1) = data;
     return;
 
   //TREG5
-  case 0x32: timers.timer4.compareB.byte(0) = data; return;
-  case 0x33: timers.timer4.compareB.byte(1) = data; return;
+  case 0x32: t4.compare5.byte(0) = data; return;
+  case 0x33: t4.compare5.byte(1) = data; return;
 
   //CAP1
-  case 0x34: timers.timer4.captureA.byte(0) = data; return;
-  case 0x35: timers.timer4.captureA.byte(1) = data; return;
+  case 0x34: t4.capture1.byte(0) = data; return;
+  case 0x35: t4.capture1.byte(1) = data; return;
 
   //CAP2
-  case 0x36: timers.timer4.captureB.byte(0) = data; return;
-  case 0x37: timers.timer4.captureB.byte(1) = data; return;
+  case 0x36: t4.capture2.byte(0) = data; return;
+  case 0x37: t4.capture2.byte(1) = data; return;
 
   //T4MOD
   case 0x38:
-    timers.timer4.mode = data.bits(0,1);
-    timers.timer4.clearOnMatch = data.bit(2);
-    timers.timer4.captureMode = data.bits(3,4);
-    if(!data.bit(5)) timers.timer4.captureA = timers.timer4.counter;
-    timers.timer4.ffB.flipOnMatchB = data.bit(6);
-    timers.timer4.ffB.flipOnLoadB = data.bit(7);
-    int4.edge.rising  = data.bits(3,4) != 2;
-    int4.edge.falling = data.bits(3,4) == 2;
+    t4.mode = data.bits(0,1);
+    t4.clearOnCompare5 = data.bit(2);
+    t4.captureMode = data.bits(3,4);
+    if(!data.bit(5)) t4.captureTo1();
+    ff5.flipOnCompare5 = data.bit(6);
+    ff5.flipOnCapture2 = data.bit(7);
+    int4.edge.rising  = t4.captureMode != 2;
+    int4.edge.falling = t4.captureMode == 2;
     return;
 
   //T4FFCR
   case 0x39:
-    if(data.bits(0,1) == 0) timers.timer4.outputA(timers.timer4.ffA.output ^= 1);
-    if(data.bits(0,1) == 1) timers.timer4.outputA(timers.timer4.ffA.output  = 1);
-    if(data.bits(0,1) == 2) timers.timer4.outputA(timers.timer4.ffA.output  = 0);
-    timers.timer4.ffA.flipOnMatchA = data.bit(2);
-    timers.timer4.ffA.flipOnMatchB = data.bit(3);
-    timers.timer4.ffA.flipOnLoadA = data.bit(4);
-    timers.timer4.ffA.flipOnLoadB = data.bit(5);
-    if(data.bits(6,7) == 0) timers.timer4.outputB(timers.timer4.ffB.output ^= 1);
-    if(data.bits(6,7) == 1) timers.timer4.outputB(timers.timer4.ffB.output  = 1);
-    if(data.bits(6,7) == 2) timers.timer4.outputB(timers.timer4.ffB.output  = 0);
+    if(data.bits(0,1) == 0) ff4 = !ff4;
+    if(data.bits(0,1) == 1) ff4 = 1;
+    if(data.bits(0,1) == 2) ff4 = 0;
+    ff4.flipOnCompare4 = data.bit(2);
+    ff4.flipOnCompare5 = data.bit(3);
+    ff4.flipOnCapture1 = data.bit(4);
+    ff4.flipOnCapture2 = data.bit(5);
+    if(data.bits(6,7) == 0) ff5 = !ff5;
+    if(data.bits(6,7) == 1) ff5 = 1;
+    if(data.bits(6,7) == 2) ff5 = 0;
     return;
 
   //T45CR
   case 0x3a:
-    timers.timer4.buffer.enable = data.bit(0);
-    timers.timer5.buffer.enable = data.bit(1);
+    t4.buffer.enable = data.bit(0);
+    t5.buffer.enable = data.bit(1);
     return;
 
   //MSAR0
@@ -670,51 +876,45 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
   //TREG6
   case 0x40:
-    if(!timers.timer5.buffer.enable) timers.timer5.compareA.byte(0) = data;
-    timers.timer5.buffer.compare.byte(0) = data;
+    if(!t5.buffer.enable) t5.compare6.byte(0) = data;
+    t5.buffer.compare.byte(0) = data;
     return;
   case 0x41:
-    if(!timers.timer5.buffer.enable) timers.timer5.compareA.byte(1) = data;
-    timers.timer5.buffer.compare.byte(1) = data;
+    if(!t5.buffer.enable) t5.compare6.byte(1) = data;
+    t5.buffer.compare.byte(1) = data;
     return;
 
   //TREG7
-  case 0x42: timers.timer5.compareB.byte(0) = data; return;
-  case 0x43: timers.timer5.compareB.byte(1) = data; return;
+  case 0x42: t5.compare7.byte(0) = data; return;
+  case 0x43: t5.compare7.byte(1) = data; return;
 
   //CAP3
-  case 0x44: timers.timer5.captureA.byte(0) = data; return;
-  case 0x45: timers.timer5.captureA.byte(1) = data; return;
+  case 0x44: t5.capture3.byte(0) = data; return;
+  case 0x45: t5.capture3.byte(1) = data; return;
 
   //CAP4
-  case 0x46: timers.timer5.captureB.byte(0) = data; return;
-  case 0x47: timers.timer5.captureB.byte(1) = data; return;
+  case 0x46: t5.capture4.byte(0) = data; return;
+  case 0x47: t5.capture4.byte(1) = data; return;
 
   //T5MOD
   case 0x48:
-    timers.timer5.mode = data.bits(0,1);
-    timers.timer5.clearOnMatch = data.bit(2);
-    timers.timer5.captureMode = data.bits(3,4);
-    if(!data.bit(5)) timers.timer5.captureA = timers.timer5.counter;
-    //note: this may not actually exist ...
-    timers.timer5.ffB.flipOnMatchB = data.bit(6);
-    timers.timer5.ffB.flipOnLoadB = data.bit(7);
-    int6.edge.rising  = data.bits(3,4) != 2;
-    int6.edge.falling = data.bits(3,4) == 2;
+    t5.mode = data.bits(0,1);
+    t5.clearOnCompare7 = data.bit(2);
+    t5.captureMode = data.bits(3,4);
+    if(!data.bit(5)) t5.captureTo3();
+    int6.edge.rising  = t5.captureMode != 2;
+    int6.edge.falling = t5.captureMode == 2;
     return;
 
   //T5FFCR
   case 0x49:
-    if(data.bits(0,1) == 0) timers.timer5.outputA(timers.timer5.ffA.output ^= 1);
-    if(data.bits(0,1) == 1) timers.timer5.outputA(timers.timer5.ffA.output  = 1);
-    if(data.bits(0,1) == 2) timers.timer5.outputA(timers.timer5.ffA.output  = 0);
-    timers.timer5.ffA.flipOnMatchA = data.bit(2);
-    timers.timer5.ffA.flipOnMatchB = data.bit(3);
-    timers.timer5.ffA.flipOnLoadA = data.bit(4);
-    timers.timer5.ffA.flipOnLoadB = data.bit(5);
-    if(data.bits(6,7) == 0) timers.timer5.outputB(timers.timer5.ffB.output ^= 1);
-    if(data.bits(6,7) == 1) timers.timer5.outputB(timers.timer5.ffB.output  = 1);
-    if(data.bits(6,7) == 2) timers.timer5.outputB(timers.timer5.ffB.output  = 0);
+    if(data.bits(0,1) == 0) ff6 = !ff6;
+    if(data.bits(0,1) == 1) ff6 = 1;
+    if(data.bits(0,1) == 2) ff6 = 0;
+    ff6.flipOnCompare6 = data.bit(2);
+    ff6.flipOnCompare7 = data.bit(3);
+    ff6.flipOnCapture3 = data.bit(4);
+    ff6.flipOnCapture4 = data.bit(5);
     return;
 
   //MSAR2
@@ -796,12 +996,13 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     watchdog.warmup = data.bit(4);
     watchdog.frequency = data.bits(5,6);
     watchdog.enable = data.bit(7);
+    if(watchdog.enable) watchdog.reload();
     return;
 
   //WDCR
   case 0x6f:
-    if(data == 0x4e);  //clear
-    if(data == 0xb1);  //disable
+    if(data == 0x4e) watchdog.reload();
+    if(data == 0xb1) watchdog.disable();
     return;
 
   //INTE0AD
@@ -902,22 +1103,22 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
   //DMA0V
   case 0x7c:
-    dma0.vector.bits(4,8) = data.bits(0,4);
+    dma0.vector.bits(2,6) = data.bits(0,4);
     return;
 
   //DMA1V
   case 0x7d:
-    dma1.vector.bits(4,8) = data.bits(0,4);
+    dma1.vector.bits(2,6) = data.bits(0,4);
     return;
 
   //DMA2V
   case 0x7e:
-    dma2.vector.bits(4,8) = data.bits(0,4);
+    dma2.vector.bits(2,6) = data.bits(0,4);
     return;
 
   //DMA3V
   case 0x7f:
-    dma3.vector.bits(4,8) = data.bits(0,4);
+    dma3.vector.bits(2,6) = data.bits(0,4);
     return;
 
   case 0x80:
@@ -957,6 +1158,14 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     nmi.enable = data.bit(2);
     return;
 
+  case 0xb4:
+    io.b4 = data;
+    return;
+
+  case 0xb5:
+    io.b5 = data;
+    return;
+
   case 0xb8:
     if(data == 0x55) psg.psgEnable = 1;
     if(data == 0xaa) psg.psgEnable = 0;
@@ -976,6 +1185,5 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     return;
   }
 
-//use to detect unimplemented internal registers
 //print("CPU::writeIO(", hex(address, 2L), " = ", hex(data, 2L), ")\n");
 }

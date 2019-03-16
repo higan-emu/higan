@@ -40,8 +40,8 @@ auto CPU::write(uint16 address, uint8 data) -> void {
   }
 }
 
-auto CPU::in(uint8 address) -> uint8 {
-  switch(address) {
+auto CPU::in(uint16 address) -> uint8 {
+  switch((uint8)address) {
   case 0x98: return vdp.data();
   case 0x99: return vdp.status();
   case 0xa8: return io.slot[0] << 0
@@ -52,8 +52,8 @@ auto CPU::in(uint8 address) -> uint8 {
   return 0xff;
 }
 
-auto CPU::out(uint8 address, uint8 data) -> void {
-  switch(address) {
+auto CPU::out(uint16 address, uint8 data) -> void {
+  switch((uint8)address) {
   case 0x98: return vdp.data(data);
   case 0x99: return vdp.control(data);
   case 0xa8: io.slot[0] = data.bits(0,1);

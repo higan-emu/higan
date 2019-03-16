@@ -1,3 +1,324 @@
+auto CPU::TI0::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+  if(cpu.t0.mode == 0 && latch == 1) cpu.t01.clockT0();
+}
+
+auto CPU::TI4::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+  if(cpu.t4.captureMode == 1 && latch == 1) cpu.t4.captureTo1();
+  if(cpu.t4.captureMode == 2 && latch == 1) cpu.t4.captureTo1();
+  if(cpu.t4.captureMode == 2 && latch == 0) cpu.t4.captureTo2();
+  if(cpu.t4.mode == 0 && latch == 1) cpu.t4.clock();
+}
+
+auto CPU::TI5::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+  if(cpu.t4.captureMode == 1 && latch == 1) cpu.t4.captureTo1();
+}
+
+auto CPU::TI6::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+  if(cpu.t5.captureMode == 1 && latch == 1) cpu.t5.captureTo3();
+  if(cpu.t5.captureMode == 2 && latch == 1) cpu.t5.captureTo3();
+  if(cpu.t5.captureMode == 2 && latch == 0) cpu.t5.captureTo4();
+  if(cpu.t5.mode == 0 && latch == 1) cpu.t5.clock();
+}
+
+auto CPU::TI7::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+  if(cpu.t5.captureMode == 1 && latch == 1) cpu.t5.captureTo4();
+}
+
+//
+
+auto CPU::TO1::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+}
+
+auto CPU::TO3::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+  if(latch) apu.irq.line = 1;
+}
+
+auto CPU::TO4::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+}
+
+auto CPU::TO5::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+}
+
+auto CPU::TO6::operator=(bool value) -> void {
+  if(latch == value) return;
+  latch = value;
+}
+
+//
+
+auto CPU::Timer0::disable() -> void {
+  counter = 0;
+  cpu.intt0 = 0;
+}
+
+auto CPU::Timer1::disable() -> void {
+  counter = 0;
+  cpu.intt1 = 0;
+}
+
+auto CPU::FlipFlop1::operator=(bool value) -> void {
+  if(cpu.t4.captureMode == 3 && output == 0 && value == 1) cpu.t4.captureTo1();
+  if(cpu.t4.captureMode == 3 && output == 1 && value == 0) cpu.t4.captureTo2();
+  output = value;
+  cpu.to1 = output;
+}
+
+auto CPU::Timer01::clockT0() -> void {
+  if(!cpu.t0.enable) return;
+  if(mode == 0) {
+    ++cpu.t0.counter;
+    bool matchT0 = cpu.t0.counter == cpu.t0.compare;
+    cpu.intt0 = matchT0;
+    if(matchT0) {
+      cpu.t0.counter = 0;
+      if(cpu.ff1.source == 0 && cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
+      if(cpu.t1.mode == 0) clockT1();
+    }
+  }
+  if(mode == 1) {
+    if(!++cpu.t0.counter) ++cpu.t1.counter;
+    bool matchT0 = cpu.t0.counter == cpu.t0.compare;
+    bool matchT1 = cpu.t1.counter == cpu.t1.compare;
+    cpu.intt1 = matchT0 && matchT1;
+    if(matchT0 && matchT1) {
+      cpu.t0.counter = 0;
+      cpu.t1.counter = 0;
+      if(cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
+    }
+  }
+  if(mode == 2) {
+    ++cpu.t0.counter;
+    bool matchT0 = cpu.t0.counter == cpu.t0.compare;
+    bool matchT1 = cpu.t0.counter == cpu.t1.compare;
+    cpu.intt0 = matchT0;
+    cpu.intt1 = matchT1;
+    if(matchT0 || matchT1) {
+      if(cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
+    }
+    if(matchT1) {
+      cpu.t0.counter = 0;
+      if(buffer.enable) cpu.t0.compare = buffer.compare;
+    }
+  }
+  if(mode == 3) {
+    ++cpu.t0.counter;
+    if(pwm == 1) cpu.t0.counter = (uint6)cpu.t0.counter;
+    if(pwm == 2) cpu.t0.counter = (uint7)cpu.t0.counter;
+    if(pwm == 3) cpu.t0.counter = (uint8)cpu.t0.counter;
+    bool matchT0  = cpu.t0.counter == cpu.t0.compare;
+    bool matchPWM = cpu.t0.counter == 0;
+    cpu.intt0 = matchT0 || matchPWM;
+    if(matchT0 || matchPWM) {
+      cpu.t0.counter = 0;
+      if(buffer.enable) cpu.t0.compare = buffer.compare;
+      if(cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
+    }
+  }
+}
+
+auto CPU::Timer01::clockT1() -> void {
+  if(!cpu.t1.enable) return;
+  if(mode == 0 || mode == 3) {
+    ++cpu.t1.counter;
+    bool matchT1 = cpu.t1.counter == cpu.t1.compare;
+    cpu.intt1 = matchT1;
+    if(matchT1) {
+      cpu.t1.counter = 0;
+      if(cpu.ff1.source == 1 && cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
+    }
+  }
+}
+
+//
+
+auto CPU::Timer2::disable() -> void {
+  counter = 0;
+  cpu.intt2 = 0;
+}
+
+auto CPU::Timer3::disable() -> void {
+  counter = 0;
+  cpu.intt3 = 0;
+}
+
+auto CPU::FlipFlop3::operator=(bool value) -> void {
+  output = value;
+  cpu.to3 = output;
+}
+
+auto CPU::Timer23::clockT2() -> void {
+  if(!cpu.t2.enable) return;
+  if(mode == 0) {
+    ++cpu.t2.counter;
+    bool matchT2 = cpu.t2.counter == cpu.t2.compare;
+    cpu.intt2 = matchT2;
+    if(matchT2) {
+      cpu.t2.counter = 0;
+      if(cpu.ff3.source == 0 && cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
+      if(cpu.t3.mode == 0) clockT3();
+    }
+  }
+  if(mode == 1) {
+    if(!++cpu.t2.counter) ++cpu.t3.counter;
+    bool matchT2 = cpu.t2.counter == cpu.t2.compare;
+    bool matchT3 = cpu.t3.counter == cpu.t3.compare;
+    cpu.intt3 = matchT2 && matchT3;
+    if(matchT2 && matchT3) {
+      cpu.t2.counter = 0;
+      cpu.t3.counter = 0;
+      if(cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
+    }
+  }
+  if(mode == 2) {
+    ++cpu.t2.counter;
+    bool matchT2 = cpu.t2.counter == cpu.t2.compare;
+    bool matchT3 = cpu.t2.counter == cpu.t3.compare;
+    cpu.intt2 = matchT2;
+    cpu.intt3 = matchT3;
+    if(matchT2 || matchT3) {
+      if(cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
+    }
+  }
+  if(mode == 3) {
+    ++cpu.t2.counter;
+    if(pwm == 1) cpu.t2.counter = (uint6)cpu.t2.counter;
+    if(pwm == 2) cpu.t2.counter = (uint7)cpu.t2.counter;
+    if(pwm == 3) cpu.t2.counter = (uint8)cpu.t2.counter;
+    bool matchT2  = cpu.t2.counter == cpu.t2.compare;
+    bool matchPWM = cpu.t2.counter == 0;
+    cpu.intt2 = matchT2 || matchPWM;
+    if(matchT2 || matchPWM) {
+      cpu.t2.counter = 0;
+      if(buffer.enable) cpu.t2.compare = buffer.compare;
+      if(cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
+    }
+  }
+}
+
+auto CPU::Timer23::clockT3() -> void {
+  if(!cpu.t3.enable) return;
+  if(mode == 0 || mode == 3) {
+    ++cpu.t3.counter;
+    bool matchT3 = cpu.t3.counter == cpu.t3.compare;
+    cpu.intt3 = matchT3;
+    if(matchT3) {
+      cpu.t3.counter = 0;
+      if(cpu.ff3.source == 1 && cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
+    }
+  }
+}
+
+//
+
+auto CPU::Timer4::disable() -> void {
+  counter = 0;
+  cpu.inttr4 = 0;
+  cpu.inttr5 = 0;
+}
+
+auto CPU::Timer4::captureTo1() -> void {
+  capture1 = counter;
+  if(cpu.ff4.flipOnCapture1) cpu.ff4 = !cpu.ff4;
+}
+
+auto CPU::Timer4::captureTo2() -> void {
+  capture2 = counter;
+  if(cpu.ff4.flipOnCapture2) cpu.ff4 = !cpu.ff4;
+  if(cpu.ff5.flipOnCapture2) cpu.ff5 = !cpu.ff5;
+}
+
+auto CPU::Timer4::clock() -> void {
+  if(!enable) return;
+  ++counter;
+  if(counter == compare4) {
+    cpu.inttr4 = 1;
+    if(cpu.ff4.flipOnCompare4) cpu.ff4 = !cpu.ff4;
+  } else {
+    cpu.inttr4 = 0;
+  }
+  if(counter == compare5) {
+    cpu.inttr5 = 1;
+    if(cpu.ff4.flipOnCompare5) cpu.ff4 = !cpu.ff4;
+    if(cpu.ff5.flipOnCompare5) cpu.ff5 = !cpu.ff5;
+    if(buffer.enable) compare4 = buffer.compare;
+    if(clearOnCompare5) counter = 0;
+  } else {
+    cpu.inttr5 = 0;
+  }
+}
+
+auto CPU::FlipFlop4::operator=(bool value) -> void {
+  output = value;
+  cpu.to4 = output;
+}
+
+auto CPU::FlipFlop5::operator=(bool value) -> void {
+  output = value;
+  cpu.to5 = value;
+}
+
+//
+
+auto CPU::Timer5::disable() -> void {
+  counter = 0;
+  cpu.inttr6 = 0;
+  cpu.inttr7 = 0;
+}
+
+auto CPU::Timer5::captureTo3() -> void {
+  capture3 = counter;
+  if(cpu.ff6.flipOnCapture3) cpu.ff6 = !cpu.ff6;
+}
+
+auto CPU::Timer5::captureTo4() -> void {
+  capture4 = counter;
+  if(cpu.ff6.flipOnCapture4) cpu.ff6 = !cpu.ff6;
+}
+
+auto CPU::Timer5::clock() -> void {
+  if(!enable) return;
+  ++counter;
+  if(counter == compare6) {
+    cpu.inttr6 = 1;
+    if(cpu.ff6.flipOnCompare6) cpu.ff6 = !cpu.ff6;
+  } else {
+    cpu.inttr6 = 0;
+  }
+  if(counter == compare7) {
+    cpu.inttr7 = 1;
+    if(cpu.ff6.flipOnCompare7) cpu.ff6 = !cpu.ff6;
+    if(buffer.enable) compare6 = buffer.compare;
+    if(clearOnCompare7) counter = 0;
+  } else {
+    cpu.inttr7 = 0;
+  }
+}
+
+auto CPU::FlipFlop6::operator=(bool value) -> void {
+  output = value;
+  cpu.to6 = output;
+}
+
+//
+
 /* Oscillator frequency = 6,144,000.0hz
  * Prescaler frequency  =   384,000.0hz ( d3)
  * Prescaler divisor    =    96,000.0hz ( d5)
@@ -7,252 +328,35 @@
  * clock3 frequency     =       187.5hz (d14)
  */
 
-auto CPU::Timers::step(uint clocks) -> void {
+auto CPU::Prescaler::step(uint clocks) -> void {
   if(!enable) return;
   while(clocks--) {
     auto latch = clock++;
-    if(!latch.bit( 6) || clock.bit( 6)) continue; timer01.clock0(); timer23.clock0(); timer4.clock0(); timer5.clock0();
-    if(!latch.bit( 8) || clock.bit( 8)) continue; timer01.clock1(); timer23.clock1(); timer4.clock1(); timer5.clock1();
-    if(!latch.bit(10) || clock.bit(10)) continue; timer01.clock2(); timer23.clock2(); timer4.clock2(); timer5.clock2();
-    if(!latch.bit(14) || clock.bit(14)) continue; timer01.clock3(); timer23.clock3();
-  }
-}
 
-auto CPU::Timers::input0(bool line) -> void {
-  if(line) timer01.clockExternal();
-}
+    if(!latch.bit( 6) || clock.bit( 6)) continue;
+    if(cpu.t0.mode == 1) cpu.t01.clockT0();
+    if(cpu.t1.mode == 1) cpu.t01.clockT1();
+    if(cpu.t2.mode == 1) cpu.t23.clockT2();
+    if(cpu.t3.mode == 1) cpu.t23.clockT3();
+    if(cpu.t4.mode == 1) cpu.t4.clock();
+    if(cpu.t5.mode == 1) cpu.t5.clock();
 
-auto CPU::TimerPair::clockExternal() -> void {
-  if(mode == 0) {
-    if(mode == 0) clockLo();
-    if(mode == 1) clockPair();
-    if(mode == 2) clockPPG();
-    if(mode == 3) clockPWM();
-  }
-}
+    if(!latch.bit( 8) || clock.bit( 8)) continue;
+    if(cpu.t0.mode == 2) cpu.t01.clockT0();
+    if(cpu.t2.mode == 2) cpu.t23.clockT2();
+    if(cpu.t4.mode == 2) cpu.t4.clock();
+    if(cpu.t5.mode == 2) cpu.t5.clock();
 
-auto CPU::TimerPair::clock0() -> void {
-  if(lo.mode == 1) {
-    if(mode == 0) clockLo();
-    if(mode == 1) clockPair();
-    if(mode == 2) clockPPG();
-    if(mode == 3) clockPWM();
-  }
-  if(hi.mode == 1) {
-    if(mode == 0) clockHi();
-    if(mode == 3) clockHi();
-  }
-}
+    if(!latch.bit(10) || clock.bit(10)) continue;
+    if(cpu.t0.mode == 3) cpu.t01.clockT0();
+    if(cpu.t1.mode == 2) cpu.t01.clockT1();
+    if(cpu.t2.mode == 3) cpu.t23.clockT2();
+    if(cpu.t3.mode == 2) cpu.t23.clockT3();
+    if(cpu.t4.mode == 3) cpu.t4.clock();
+    if(cpu.t5.mode == 3) cpu.t5.clock();
 
-auto CPU::TimerPair::clock1() -> void {
-  if(lo.mode == 2) {
-    if(mode == 0) clockLo();
-    if(mode == 1) clockPair();
-    if(mode == 2) clockPPG();
-    if(mode == 3) clockPWM();
-  }
-}
-
-auto CPU::TimerPair::clock2() -> void {
-  if(lo.mode == 3) {
-    if(mode == 0) clockLo();
-    if(mode == 1) clockPair();
-    if(mode == 2) clockPPG();
-    if(mode == 3) clockPWM();
-  }
-  if(hi.mode == 2) {
-    if(mode == 0) clockHi();
-    if(mode == 3) clockHi();
-  }
-}
-
-auto CPU::TimerPair::clock3() -> void {
-  if(hi.mode == 3) {
-    if(mode == 0) clockHi();
-    if(mode == 3) clockHi();
-  }
-}
-
-auto CPU::TimerPair::clockLo() -> void {
-  if(!lo.enable) return;
-  ++lo.counter;
-  bool equal = lo.counter == lo.compare;
-  lo.interrupt->set(equal);
-  if(equal) {
-    if(ff.enable && ff.select == 0) ff.invert();
-    if(hi.mode == 0) clockHi();
-    lo.counter = 0;
-  }
-}
-
-auto CPU::TimerPair::clockHi() -> void {
-  if(!hi.enable) return;
-  ++hi.counter;
-  bool equal = hi.counter == hi.compare;
-  hi.interrupt->set(equal);
-  if(equal) {
-    if(ff.enable && ff.select == 1) ff.invert();
-    hi.counter = 0;
-  }
-}
-
-auto CPU::TimerPair::clockPair() -> void {
-  if(!lo.enable || !hi.enable) return;
-  if(!++lo.counter) ++hi.counter;
-  bool equal = lo.counter == lo.compare && hi.counter == hi.compare;
-  hi.interrupt->set(equal);
-  if(equal) {
-    if(ff.enable) ff.invert();
-    lo.counter = 0;
-    hi.counter = 0;
-  }
-}
-
-//programmable pulse generation
-auto CPU::TimerPair::clockPPG() -> void {
-  if(!lo.enable) return;
-  ++lo.counter;
-  bool equalLo = lo.counter == lo.compare;
-  bool equalHi = lo.counter == hi.compare;
-  lo.interrupt->set(equalLo);
-  hi.interrupt->set(equalHi);
-  if(equalLo || equalHi) {
-    if(ff.enable) ff.invert();
-  }
-  if(equalHi) {
-    if(buffer.enable) lo.compare = buffer.compare;
-    lo.counter = 0;
-  }
-}
-
-//pulse width modulation
-auto CPU::TimerPair::clockPWM() -> void {
-  if(!lo.enable) return;
-  ++lo.counter;
-  if(pwm == 1) lo.counter = (uint6)lo.counter;
-  if(pwm == 2) lo.counter = (uint7)lo.counter;
-  if(pwm == 3) lo.counter = (uint8)lo.counter;
-  bool equal = lo.counter == lo.compare;
-  bool pulse = lo.counter == 0;
-  lo.interrupt->set(equal || pulse);
-  if(equal || pulse) {
-    if(ff.enable) ff.invert();
-  }
-  if(pulse) {
-    if(buffer.enable) lo.compare = buffer.compare;
-    lo.counter = 0;
-  }
-}
-
-auto CPU::TimerFlipFlop::invert() -> void {
-  edge(output ^= 1);
-}
-
-auto CPU::TimerFlipFlop::raise() -> void {
-  if(!output) edge(output = 1);
-}
-
-auto CPU::TimerFlipFlop::lower() -> void {
-  if(output) edge(output = 0);
-}
-
-auto CPU::TimerByte::enableIf(bool state) -> void {
-  enable = state;
-  if(!enable) {
-    counter = 0;
-    interrupt->set(0);
-  }
-}
-
-//
-
-auto CPU::Timers::input4(bool line) -> void {
-  if(timer4.captureMode == 1 && line == 1) {
-    timer4.captureA = timer4.counter;
-    if(timer4.ffA.flipOnLoadA) timer4.outputA(timer4.ffA.output ^= 1);
-  }
-  if(timer4.captureMode == 2 && line == 1) {
-    timer4.captureA = timer4.counter;
-    if(timer4.ffA.flipOnLoadA) timer4.outputA(timer4.ffA.output ^= 1);
-  }
-  if(timer4.captureMode == 2 && line == 0) {
-    timer4.captureB = timer4.counter;
-    if(timer4.ffA.flipOnLoadB) timer4.outputA(timer4.ffA.output ^= 1);
-    if(timer4.ffB.flipOnLoadB) timer4.outputB(timer4.ffB.output ^= 1);
-  }
-}
-
-auto CPU::Timers::input5(bool line) -> void {
-  if(timer4.captureMode == 1 && line == 1) {
-    timer4.captureB = timer4.counter;
-    if(timer4.ffA.flipOnLoadB) timer4.outputA(timer4.ffA.output ^= 1);
-    if(timer4.ffB.flipOnLoadB) timer4.outputB(timer4.ffB.output ^= 1);
-  }
-}
-
-auto CPU::Timers::input6(bool line) -> void {
-  if(timer5.captureMode == 1 && line == 1) {
-    timer5.captureA = timer5.counter;
-    if(timer5.ffA.flipOnLoadA) timer5.outputA(timer5.ffA.output ^= 1);
-  }
-  if(timer5.captureMode == 2 && line == 1) {
-    timer5.captureA = timer5.counter;
-    if(timer5.ffA.flipOnLoadA) timer5.outputA(timer5.ffA.output ^= 1);
-  }
-  if(timer5.captureMode == 2 && line == 0) {
-    timer5.captureB = timer5.counter;
-    if(timer5.ffA.flipOnLoadB) timer5.outputA(timer5.ffA.output ^= 1);
-    if(timer5.ffB.flipOnLoadB) timer5.outputB(timer5.ffB.output ^= 1);
-  }
-}
-
-auto CPU::Timers::input7(bool line) -> void {
-  if(timer5.captureMode == 1 && line == 1) {
-    timer5.captureB = timer5.counter;
-    if(timer5.ffA.flipOnLoadB) timer5.outputA(timer5.ffA.output ^= 1);
-    if(timer5.ffB.flipOnLoadB) timer5.outputB(timer5.ffB.output ^= 1);
-  }
-}
-
-auto CPU::TimerWord::enableIf(bool state) -> void {
-  enable = state;
-  if(!enable) {
-    counter = 0;
-    interruptA->set(0);
-    interruptB->set(0);
-  }
-}
-
-auto CPU::TimerWord::clock0() -> void {
-  if(!enable || mode != 1) return;
-  clock();
-}
-
-auto CPU::TimerWord::clock1() -> void {
-  if(!enable || mode != 2) return;
-  clock();
-}
-
-auto CPU::TimerWord::clock2() -> void {
-  if(!enable || mode != 3) return;
-  clock();
-}
-
-auto CPU::TimerWord::clock() -> void {
-  ++counter;
-  if(counter == compareA) {
-    interruptA->set(1);
-    if(ffA.flipOnMatchA) outputA(ffA.output ^= 1);
-  } else {
-    interruptA->set(0);
-  }
-  if(counter == compareB) {
-    interruptB->set(1);
-    if(ffA.flipOnMatchB) outputA(ffA.output ^= 1);
-    if(ffB.flipOnMatchB) outputB(ffB.output ^= 1);
-    if(buffer.enable) compareA = buffer.compare;
-    if(clearOnMatch) counter = 0;
-  } else {
-    interruptB->set(0);
+    if(!latch.bit(14) || clock.bit(14)) continue;
+    if(cpu.t1.mode == 3) cpu.t01.clockT1();
+    if(cpu.t3.mode == 3) cpu.t23.clockT3();
   }
 }

@@ -12,11 +12,11 @@ struct Z80 {
     virtual auto request(bool value) -> void { _requested = value; }
     virtual auto grant(bool value) -> void { _granted = value; }
 
-    virtual auto read(uint16 addr) -> uint8 = 0;
-    virtual auto write(uint16 addr, uint8 data) -> void = 0;
+    virtual auto read(uint16 address) -> uint8 = 0;
+    virtual auto write(uint16 address, uint8 data) -> void = 0;
 
-    virtual auto in(uint8 addr) -> uint8 = 0;
-    virtual auto out(uint8 addr, uint8 data) -> void = 0;
+    virtual auto in(uint16 address) -> uint8 = 0;
+    virtual auto out(uint16 address, uint8 data) -> void = 0;
 
     //serialization.cpp
     virtual auto serialize(serializer&) -> void;

@@ -22,14 +22,14 @@ struct VPU : Thread {
   auto writePaletteColor(uint9 address, uint8 data) -> void;
 
   //window.cpp
-  auto renderWindow() -> maybe<uint12>;
+  auto renderWindow() -> bool;
 
   //plane.cpp
   struct Plane;
-  auto renderPlane(Plane&) -> maybe<uint12>;
+  auto renderPlane(Plane&) -> bool;
 
   //sprite.cpp
-  auto renderSprite() -> maybe<uint12>;
+  auto renderSprite() -> bool;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -50,6 +50,8 @@ struct VPU : Thread {
     uint8 hlength;
     uint8 vlength;
     uint3 color;  //color drawn outside of window
+
+    uint12 output;
   } window;
 
   struct Plane {
@@ -59,6 +61,9 @@ struct VPU : Thread {
     uint8  hscroll;
     uint8  vscroll;
     uint3  palette[2][4];
+
+    uint12 output;
+    uint1  priority;
   } plane1, plane2;
 
   struct Sprites {
@@ -67,6 +72,9 @@ struct VPU : Thread {
     uint8 hscroll;
     uint8 vscroll;
     uint3 palette[2][4];
+
+    uint12 output;
+    uint2  priority;
   } sprite;
 
   struct Sprite {

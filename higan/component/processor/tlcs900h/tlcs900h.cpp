@@ -19,6 +19,7 @@ namespace higan {
 #include "memory.cpp"
 #include "conditions.cpp"
 #include "algorithms.cpp"
+#include "dma.cpp"
 #include "instruction.cpp"
 #include "instructions.cpp"
 #include "serialization.cpp"

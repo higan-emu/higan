@@ -19,7 +19,24 @@ auto CPU::ChipSelect::select() -> void {
 }
 
 auto CPU::read(uint24 address) -> uint8 {
+  #if defined(PORT2)
+  if(p20.mode == 0) address.bit(16) = p20;
+  if(p21.mode == 0) address.bit(17) = p21;
+  if(p22.mode == 0) address.bit(18) = p22;
+  if(p23.mode == 0) address.bit(19) = p23;
+  if(p24.mode == 0) address.bit(20) = p24;
+  if(p25.mode == 0) address.bit(21) = p25;
+  if(p26.mode == 0) address.bit(22) = p26;
+  if(p27.mode == 0) address.bit(23) = p27;
+  #endif
+
   mar = address;
+
+  if(address >= 0x000000 && address <= 0x0000ff) return mdr = cpu.readIO(address);
+  if(address >= 0x004000 && address <= 0x006fff) return mdr = cpu.ram.read(address);
+  if(address >= 0x007000 && address <= 0x007fff) return mdr = apu.ram.read(address);
+  if(address >= 0x008000 && address <= 0x00bfff) return mdr = vpu.read(address);
+  if(address >= 0xff0000 && address <= 0xffffff) return mdr = system.bios.read(address);
 
   if(cs0.enable && !(uint24)((address ^ cs0.address) & ~cs0.mask)) {
     cs0.select();
@@ -27,9 +44,6 @@ auto CPU::read(uint24 address) -> uint8 {
   }
 
   if(cs1.enable && !(uint24)((address ^ cs1.address) & ~cs1.mask)) {
-static uint ctr=0;
-if(++ctr>30)
-tracing=true;
     cs1.select();
     return mdr = cartridge.read(1, address);
   }
@@ -54,17 +68,29 @@ tracing=true;
   }
 
   csx.select();
-  if(address >= 0x000000 && address <= 0x0000ff) return mdr = cpu.readIO(address);
-  if(address >= 0x004000 && address <= 0x006fff) return mdr = cpu.ram.read(address);
-  if(address >= 0x007000 && address <= 0x007fff) return mdr = apu.ram.read(address);
-  if(address >= 0x008000 && address <= 0x00bfff) return mdr = vpu.read(address);
-  if(address >= 0xff0000 && address <= 0xffffff) return mdr = system.bios.read(address);
   return mdr = 0x00;
 }
 
 auto CPU::write(uint24 address, uint8 data) -> void {
+  #if defined(PORT2)
+  if(p20.mode == 0) address.bit(16) = p20;
+  if(p21.mode == 0) address.bit(17) = p21;
+  if(p22.mode == 0) address.bit(18) = p22;
+  if(p23.mode == 0) address.bit(19) = p23;
+  if(p24.mode == 0) address.bit(20) = p24;
+  if(p25.mode == 0) address.bit(21) = p25;
+  if(p26.mode == 0) address.bit(22) = p26;
+  if(p27.mode == 0) address.bit(23) = p27;
+  #endif
+
   mar = address;
   mdr = data;
+
+  if(address >= 0x000000 && address <= 0x0000ff) return cpu.writeIO(address, data);
+  if(address >= 0x004000 && address <= 0x006fff) return cpu.ram.write(address, data);
+  if(address >= 0x007000 && address <= 0x007fff) return apu.ram.write(address, data);
+  if(address >= 0x008000 && address <= 0x00bfff) return vpu.write(address, data);
+  if(address >= 0xff0000 && address <= 0xffffff) return system.bios.write(address, data);
 
   if(cs0.enable && !(uint24)((address ^ cs0.address) & ~cs0.mask)) {
     cs0.select();
@@ -96,9 +122,5 @@ auto CPU::write(uint24 address, uint8 data) -> void {
   }
 
   csx.select();
-  if(address >= 0x000000 && address <= 0x0000ff) return cpu.writeIO(address, data);
-  if(address >= 0x004000 && address <= 0x006fff) return cpu.ram.write(address, data);
-  if(address >= 0x007000 && address <= 0x007fff) return apu.ram.write(address, data);
-  if(address >= 0x008000 && address <= 0x00bfff) return vpu.write(address, data);
-  if(address >= 0xff0000 && address <= 0xffffff) return system.bios.write(address, data);
+  return;
 }

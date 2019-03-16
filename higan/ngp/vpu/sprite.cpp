@@ -1,6 +1,8 @@
-auto VPU::renderSprite() -> maybe<uint12> {
+auto VPU::renderSprite() -> bool {
   maybe<Sprite&> p;
   for(auto& s : sprites) {
+    if(s.priority == 0) continue;
+
     s.x = s.hoffset;
     s.y = s.voffset;
     if(s.hchain && p) s.x += p->x;
@@ -23,18 +25,20 @@ auto VPU::renderSprite() -> maybe<uint12> {
     tiledata.byte(1) = characterRAM[address + 1];
 
     if(uint2 index = tiledata >> (x << 1)) {
+      sprite.priority = s.priority;
       if(Model::NeoGeoPocket()) {
-        return (uint12)sprite.palette[s.palette][index];
+        sprite.output = sprite.palette[s.palette][index];
       }
       if(Model::NeoGeoPocketColor()) {
         if(screen.colorMode) {
-          return colorPalette[sprite.colorCompatible + s.palette * 8 + sprite.palette[s.palette][index]];
+          sprite.output = colorPalette[sprite.colorCompatible + s.palette * 8 + sprite.palette[s.palette][index]];
         } else {
-          return colorPalette[sprite.colorNative + s.code * 4 + index];
+          sprite.output = colorPalette[sprite.colorNative + s.code * 4 + index];
         }
       }
+      return true;
     }
   }
 
-  return {};
+  return false;
 }

@@ -49,7 +49,7 @@ auto TLCS900H::instruction() -> void {
   case 0x10: return instructionSetFlag(CF, 0);
   case 0x11: return instructionSetFlag(CF, 1);
   case 0x12: return instructionSetFlag(CF, !CF);
-  case 0x13: return instructionSetFlag(CF, ZF);
+  case 0x13: return instructionSetFlag(CF, !ZF);
   case 0x14: return instructionPush(A);
   case 0x15: return instructionPop(A);
   case 0x16: return instructionExchange(F, FP);

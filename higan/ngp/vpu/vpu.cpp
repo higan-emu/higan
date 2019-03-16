@@ -13,19 +13,24 @@ auto VPU::main() -> void {
   if(io.vcounter < 152) {
     auto output = buffer + io.vcounter * 160;
     for(uint hclock : range(160)) {
+      bool validPlane1 = renderPlane(plane1);
+      bool validPlane2 = renderPlane(plane2);
+      bool validSprite = renderSprite();
+      bool validWindow = renderWindow();
+
       uint12 color;
       if(Model::NeoGeoPocketColor() && background.mode == 2) {
         color = colorPalette[0xf0 + background.color];
       }
-      if(!io.planePriority) {
-        if(auto output = renderPlane(plane2)) color = *output;
-        if(auto output = renderPlane(plane1)) color = *output;
-      } else {
-        if(auto output = renderPlane(plane1)) color = *output;
-        if(auto output = renderPlane(plane2)) color = *output;
-      }
-      if(auto output = renderSprite()) color = *output;
-      if(auto output = renderWindow()) color = *output;
+
+      if(validSprite && sprite.priority == 1) color = sprite.output;
+      if(validPlane1 && plane1.priority == 0) color = plane1.output;
+      if(validPlane2 && plane2.priority == 0) color = plane2.output;
+      if(validSprite && sprite.priority == 2) color = sprite.output;
+      if(validPlane1 && plane1.priority == 1) color = plane1.output;
+      if(validPlane2 && plane2.priority == 1) color = plane2.output;
+      if(validSprite && sprite.priority == 3) color = sprite.output;
+      if(validWindow) color = window.output;
 
       output[hclock] = color;
       io.hcounter++;
@@ -33,7 +38,7 @@ auto VPU::main() -> void {
     }
     if(io.vcounter <= 150) {
       io.hblankActive = 1;
-      cpu.hblank = !io.hblankEnableIRQ;
+      cpu.ti0 = !io.hblankEnableIRQ;
     }
   }
   while(io.hcounter < 171) {
@@ -43,23 +48,23 @@ auto VPU::main() -> void {
 
   io.hcounter = 0;
   io.hblankActive = 0;
-  cpu.hblank = 1;
+  cpu.ti0 = 1;
 
   io.vcounter++;
   if(io.vcounter == 152) {
     io.vblankActive = 1;
-    cpu.vblank = !io.vblankEnableIRQ;
+    cpu.int4.set(!io.vblankEnableIRQ);
     scheduler.exit(Scheduler::Event::Frame);
   }
   if(io.vcounter == io.vlines) {
     io.hblankActive = 1;
-    cpu.hblank = !io.hblankEnableIRQ;
+    cpu.ti0 = !io.hblankEnableIRQ;
   }
   if(io.vcounter > io.vlines) {
     io.vcounter = 0;
     io.vblankActive = 0;
     io.characterOver = 0;
-    cpu.vblank = 1;
+    cpu.int4.set(1);
   }
 
   //note: this is not the most intuitive place to call this,

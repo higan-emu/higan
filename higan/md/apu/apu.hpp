@@ -15,11 +15,11 @@ struct APU : Z80, Z80::Bus, Thread {
   auto setINT(bool value) -> void;
 
   //bus.cpp
-  auto read(uint16 addr) -> uint8 override;
-  auto write(uint16 addr, uint8 data) -> void override;
+  auto read(uint16 address) -> uint8 override;
+  auto write(uint16 address, uint8 data) -> void override;
 
-  auto in(uint8 addr) -> uint8 override;
-  auto out(uint8 addr, uint8 data) -> void override;
+  auto in(uint16 address) -> uint8 override;
+  auto out(uint16 address, uint8 data) -> void override;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

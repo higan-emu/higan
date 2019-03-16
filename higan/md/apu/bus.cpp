@@ -44,10 +44,10 @@ auto APU::write(uint16 addr, uint8 data) -> void {
 }
 
 //unused on Mega Drive
-auto APU::in(uint8 addr) -> uint8 {
+auto APU::in(uint16 address) -> uint8 {
   return 0x00;
 }
 
 //unused on Mega Drive
-auto APU::out(uint8 addr, uint8 data) -> void {
+auto APU::out(uint16 address, uint8 data) -> void {
 }

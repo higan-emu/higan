@@ -13,8 +13,8 @@ struct APU : Z80, Z80::Bus, Thread {
   auto read(uint16 address) -> uint8 override;
   auto write(uint16 address, uint8 data) -> void override;
 
-  auto in(uint8 address) -> uint8 override;
-  auto out(uint8 address, uint8 data) -> void override;
+  auto in(uint16 address) -> uint8 override;
+  auto out(uint16 address, uint8 data) -> void override;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

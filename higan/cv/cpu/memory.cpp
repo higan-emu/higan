@@ -15,7 +15,8 @@ auto CPU::write(uint16 address, uint8 data) -> void {
   if(address >= 0x8000 && address <= 0xffff) return;
 }
 
-auto CPU::in(uint8 address) -> uint8 {
+auto CPU::in(uint16 address) -> uint8 {
+  address &= 0xff;
   uint8 data = 0xff;
   if(address >= 0xa0 && address <= 0xbf) return !address.bit(0) ? vdp.data() : vdp.status();
   if(address >= 0xe0 && address <= 0xff && address.bit(1) == 0) return controllerPort1.read();
@@ -23,7 +24,8 @@ auto CPU::in(uint8 address) -> uint8 {
   return data;
 }
 
-auto CPU::out(uint8 address, uint8 data) -> void {
+auto CPU::out(uint16 address, uint8 data) -> void {
+  address &= 0xff;
   if(address == 0x53) io.replaceRAM  = data.bit(0);
   if(address == 0x7f) io.replaceBIOS = data.bit(1);
   if(address >= 0x80 && address <= 0x9f) controllerPort1.write(0), controllerPort2.write(0);

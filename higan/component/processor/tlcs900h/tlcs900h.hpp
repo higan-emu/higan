@@ -80,6 +80,9 @@ struct TLCS900H {
   template<typename T> auto algorithmSubtract(T target, T source, uint1 carry = 0) -> T;
   template<typename T> auto algorithmXor(T target, T source) -> T;
 
+  //dma.cpp
+  auto dma(uint2 channel) -> bool;
+
   //instruction.cpp
   template<typename T> auto toRegister3(uint3) const -> Register<T>;
   template<typename T> auto toRegister8(uint8) const -> Register<T>;

@@ -1,4 +1,7 @@
-//TMP95C061
+//the Neo Geo Pocket CPU is a custom component, but its internal registers most
+//closely match the Toshiba TMP95C061. Until it's known exactly which components
+//actually exist, this class tries to emulate all TMP95C061 functionality that
+//it is able to.
 
 extern bool tracing;
 
@@ -26,123 +29,23 @@ struct CPU : TLCS900H, Thread {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
+//private:
   uint24 mar;  //memory address register
   uint16 mdr;  //memory data register
 
-  //pin.cpp
-
-  // PA0, /WAIT
-  struct Pin32 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-  } pin32, &pa0 = pin32, &wait = pin32;
-
-  // PA1, TI0, (/HBLANK)
-  struct Pin33 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-  } pin33, &pa1 = pin33, &ti0 = pin33, &hblank = pin33;
-
-  // PA2, TO1
-  struct Pin34 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-    uint1 mode;
-  } pin34, &pa2 = pin34, &to1 = pin34;
-
-  // PA3, TO3
-  struct Pin35 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-    uint1 mode;
-  } pin35, &pa3 = pin35, &to3 = pin35;
-
-  // PB0, INT4, TI4, (/VBLANK)
-  struct Pin36 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-  } pin36, &pb0 = pin36, &ti4 = pin36, &vblank = pin36;
-
-  // PB1, INT5, TI5, (APU)
-  struct Pin37 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-  } pin37, &pb1 = pin37, &ti5 = pin37;
-
-  // PB2, TO4
-  struct Pin38 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-    uint1 mode;
-  } pin38, &pb2 = pin38, &to4 = pin38;
-
-  // PB3, TO5
-  struct Pin39 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-    uint1 mode;
-  } pin39, &pb3 = pin39, &to5 = pin39;
-
-  // PB4, INT6, TI6
-  struct Pin40 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-  } pin40, &pb4 = pin40, &ti6 = pin40;
-
-  // PB5, INT7, TI7
-  struct Pin41 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-  } pin41, &pb5 = pin41, &ti7 = pin41;
-
-  // PB6, TO6
-  struct Pin42 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-    uint1 mode;
-  } pin42, &pb6 = pin42, &to6 = pin42;
-
-  // PB7, INT0
-  struct Pin43 {
-    operator bool() const;
-    auto operator=(bool) -> void;
-    uint1 pin;
-    uint1 flow;
-  } pin43, &pb7 = pin43;
-
-//private:
+  //interrupts.cpp
   struct Interrupt {
-    //interrupt.cpp
+    auto operator=(bool) -> void;
     inline auto test(maybe<Interrupt&>&) const -> void;
-    inline auto fired() -> void;
+    inline auto fire() -> void;
     auto set(bool line) -> void;
     auto clear() -> void;
     auto raise() -> void;
     auto lower() -> void;
+    auto testDMA() -> void;
 
     uint8 vector;
+    uint1 dmaAllowed;
     uint1 enable = 1;
     uint1 maskable = 1;
     uint3 priority;
@@ -161,154 +64,434 @@ struct CPU : TLCS900H, Thread {
   };
 
   //non-maskable
-  Interrupt nmi   {0x20};
+  Interrupt nmi   {0x20, 0};
+  Interrupt intwd {0x24, 0};
+
   //maskable
-  Interrupt int0  {0x28};
-  Interrupt intad {0x70};
-  Interrupt int4  {0x2c};
-  Interrupt int5  {0x30};
-  Interrupt int6  {0x34};
-  Interrupt int7  {0x38};
-  Interrupt intt0 {0x40};
-  Interrupt intt1 {0x44};
-  Interrupt intt2 {0x48};
-  Interrupt intt3 {0x4c};
-  Interrupt inttr4{0x50};
-  Interrupt inttr5{0x54};
-  Interrupt inttr6{0x58};
-  Interrupt inttr7{0x5c};
-  Interrupt intrx0{0x60};
-  Interrupt inttx0{0x64};
-  Interrupt intrx1{0x68};
-  Interrupt inttx1{0x6c};
-  Interrupt inttc0{0x74};
-  Interrupt inttc1{0x78};
-  Interrupt inttc2{0x7c};
-  Interrupt inttc3{0x80};
+  Interrupt int0  {0x28, 1};
+  Interrupt int4  {0x2c, 1};
+  Interrupt int5  {0x30, 1};
+  Interrupt int6  {0x34, 1};
+  Interrupt int7  {0x38, 1};
+  Interrupt intt0 {0x40, 1};
+  Interrupt intt1 {0x44, 1};
+  Interrupt intt2 {0x48, 1};
+  Interrupt intt3 {0x4c, 1};
+  Interrupt inttr4{0x50, 1};
+  Interrupt inttr5{0x54, 1};
+  Interrupt inttr6{0x58, 1};
+  Interrupt inttr7{0x5c, 1};
+  Interrupt intrx0{0x60, 1};
+  Interrupt inttx0{0x64, 1};
+  Interrupt intrx1{0x68, 1};
+  Interrupt inttx1{0x6c, 1};
+  Interrupt intad {0x70, 1};
+  Interrupt inttc0{0x74, 0};
+  Interrupt inttc1{0x78, 0};
+  Interrupt inttc2{0x7c, 0};
+  Interrupt inttc3{0x80, 0};
+
+  struct DMA {
+    uint8 vector;
+  } dma0, dma1, dma2, dma3;
+
+  //ports.cpp
+  struct PortFlow {
+    inline auto readable() const { return flow == 0; }  //in
+    inline auto writable() const { return flow == 1; }  //out
+    uint1 flow;
+  };
+
+  struct PortMode {
+    inline auto internal() const { return mode == 0; }  //port
+    inline auto external() const { return mode == 1; }  //timer, etc
+    uint1 mode;
+  };
+
+  // P10-17, D8-D15
+  struct P1 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } p10, p11, p12, p13, p14, p15, p16, p17;
+
+  // P20-P27, A16-A23
+  struct P2 : PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } p20, p21, p22, p23, p24, p25, p26, p27;
+
+  // P52, /HWR
+  // P53, /BUSRQ
+  // P54, /BUSAK
+  // P55, R, /W
+  struct P5 : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } p52, p53, p54, p55;
+
+  // P60, /CS0
+  // P61, /CS1
+  // P62, /CS2
+  // P63, /CS3, /CAS
+  // P64, /RAS
+  // P65, /REFOUT
+  struct P6 : PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } p60, p61, p62, p63, p64, p65;
+
+  // P70-P73, PG00-PG03
+  // P74-P77, PG10-PG13
+  struct P7 : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } p70, p71, p72, p73, p74, p75, p76, p77;
+
+  // P80, TXD0
+  // P81, RXD0
+  // P82, /CTS0, SCLK0
+  // P83, TCD1
+  // P84, RXD1
+  // P85, SCLK1
+  struct P8F : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } p81, p84;
+
+  struct P8M : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } p80, p82, p83, p85;
+
+  // P90-P93, AN0-AN3
+  struct P9 {
+    operator bool() const;
+    uint1 latch;
+  } p90, p91, p92, p93;
+
+  // PA0, /WAIT
+  struct PA0 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pa0, &wait = pa0;
+
+  // PA1, TI0, (/HBLANK)
+  struct PA1 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pa1;
+
+  // PA2, TO1
+  struct PA2 : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pa2;
+
+  // PA3, TO3
+  struct PA3 : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pa3;
+
+  // PB0, INT4, TI4, (/VBLANK)
+  struct PB0 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb0;
+
+  // PB1, INT5, TI5, (APU)
+  struct PB1 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb1;
+
+  // PB2, TO4
+  struct PB2 : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb2;
+
+  // PB3, TO5
+  struct PB3 : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb3;
+
+  // PB4, INT6, TI6
+  struct PB4 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb4;
+
+  // PB5, INT7, TI7
+  struct PB5 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb5;
+
+  // PB6, TO6
+  struct PB6 : PortFlow, PortMode {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb6;
+
+  // PB7, INT0
+  struct PB7 : PortFlow {
+    operator bool() const;
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } pb7;
+
+  //timers.cpp
+  struct TI0 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } ti0;
+
+  struct TI4 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } ti4;
+
+  struct TI5 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } ti5;
+
+  struct TI6 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } ti6;
+
+  struct TI7 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } ti7;
+
+  struct TO1 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } to1;
+
+  struct TO3 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } to3;
+
+  struct TO4 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } to4;
+
+  struct TO5 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } to5;
+
+  struct TO6 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } to6;
+
+  struct TO7 {
+    operator bool() const { return latch; }
+    auto operator=(bool) -> void;
+    uint1 latch;
+  } to7;
 
   //8-bit timers
 
-  struct TimerByte {
-    //timers.cpp
-    auto enableIf(bool) -> void;
+  struct Timer0 {
+    auto disable() -> void;
+
+    uint1 enable;   //t0run
+    uint2 mode;     //t0clk
+    uint8 counter;  //uc0
+    uint8 compare;  //treg0
+  } t0;
+
+  struct Timer1 {
+    auto disable() -> void;
+
+    uint1 enable;   //t1run
+    uint2 mode;     //t1clk
+    uint8 counter;  //uc1
+    uint8 compare;  //treg1
+  } t1;
+
+  struct FlipFlop1 {
+    operator bool() const { return output; }
+    auto operator=(bool) -> void;
+
+    uint1 source;  //ff1is
+    uint1 invert;  //ff1ie
+    uint1 output;
+  } ff1;
+
+  struct Timer01 {
+    auto clockT0() -> void;
+    auto clockT1() -> void;
+
+    uint2 mode;  //t01m
+    uint2 pwm;   //pwm0
+    struct Buffer {
+      uint1 enable;
+      uint8 compare;
+    } buffer;
+  } t01;
+
+  struct Timer2 {
+    auto disable() -> void;
 
     uint1 enable;
     uint2 mode;
     uint8 counter;
     uint8 compare;
+  } t2;
 
-    maybe<Interrupt&> interrupt;
-  };
-
-  struct TimerFlipFlop {
-    //timers.cpp
-    auto invert() -> void;
-    auto raise() -> void;
-    auto lower() -> void;
+  struct Timer3 {
+    auto disable() -> void;
 
     uint1 enable;
-    uint1 select;
+    uint2 mode;
+    uint8 counter;
+    uint8 compare;
+  } t3;
+
+  struct FlipFlop3 {
+    operator bool() const { return output; }
+    auto operator=(bool) -> void;
+
+    uint1 source;
+    uint1 invert;
     uint1 output;
+  } ff3;
 
-    function<void (bool)> edge;
-  };
-
-  struct TimerPair {
-    //timers.cpp
-    auto clockExternal() -> void;
-    auto clock0() -> void;
-    auto clock1() -> void;
-    auto clock2() -> void;
-    auto clock3() -> void;
-
-    auto clockLo() -> void;
-    auto clockHi() -> void;
-    auto clockPair() -> void;
-    auto clockPPG() -> void;
-    auto clockPWM() -> void;
+  struct Timer23 {
+    auto clockT2() -> void;
+    auto clockT3() -> void;
 
     uint2 mode;
     uint2 pwm;
-    TimerByte lo;
-    TimerByte hi;
-    TimerFlipFlop ff;
-
     struct Buffer {
       uint1 enable;
       uint8 compare;
     } buffer;
-  };
+  } t23;
 
   //16-bit timers
 
-  struct TimerWord {
-    //timers.cpp
-    auto enableIf(bool) -> void;
-    auto clock0() -> void;
-    auto clock1() -> void;
-    auto clock2() -> void;
+  struct FlipFlop4 {
+    operator bool() const { return output; }
+    auto operator=(bool) -> void;
 
+    uint1 flipOnCompare4;
+    uint1 flipOnCompare5;
+    uint1 flipOnCapture1;
+    uint1 flipOnCapture2;
+    uint1 output;
+  } ff4;
+
+  struct FlipFlop5 {
+    operator bool() const { return output; }
+    auto operator=(bool) -> void;
+
+    uint1 flipOnCompare5;
+    uint1 flipOnCapture2;
+    uint1 output;
+  } ff5;
+
+  struct Timer4 {
+    auto disable() -> void;
+    auto captureTo1() -> void;
+    auto captureTo2() -> void;
     auto clock() -> void;
 
-    uint1 enable;
-    uint1 line;
-    uint2 mode;
-    uint1 clearOnMatch;
-    uint2 captureMode;
-
+    uint1  enable;
+    uint2  mode;
+    uint2  captureMode;
+    uint1  clearOnCompare5;
     uint16 counter;
-    uint16 compareA;
-    uint16 compareB;
-    uint16 captureA;
-    uint16 captureB;
-
-    struct FlipFlopA {
-      uint1 flipOnMatchA;
-      uint1 flipOnMatchB;
-      uint1 flipOnLoadA;
-      uint1 flipOnLoadB;
-      uint1 output;
-    } ffA;
-
-    struct FlipFlopB {
-      uint1 flipOnMatchB;
-      uint1 flipOnLoadB;
-      uint1 output;
-    } ffB;
-
+    uint16 compare4;
+    uint16 compare5;
+    uint16 capture1;
+    uint16 capture2;
     struct Buffer {
       uint1  enable;
       uint16 compare;
     } buffer;
+  } t4;
 
-    maybe<Interrupt&> interruptA;
-    maybe<Interrupt&> interruptB;
+  struct FlipFlop6 {
+    operator bool() const { return output; }
+    auto operator=(bool) -> void;
 
-    function<void (bool)> outputA;
-    function<void (bool)> outputB;
-  };
+    uint1 flipOnCompare6;
+    uint1 flipOnCompare7;
+    uint1 flipOnCapture3;
+    uint1 flipOnCapture4;
+    uint1 output;
+  } ff6;
 
-  struct Timers {
+  struct Timer5 {
+    auto disable() -> void;
+    auto captureTo3() -> void;
+    auto captureTo4() -> void;
+    auto clock() -> void;
+
+    uint1  enable;
+    uint2  mode;
+    uint2  captureMode;
+    uint1  clearOnCompare7;
+    uint16 counter;
+    uint16 compare6;
+    uint16 compare7;
+    uint16 capture3;
+    uint16 capture4;
+    struct Buffer {
+      uint1  enable;
+      uint16 compare;
+    } buffer;
+  } t5;
+
+  struct Prescaler {
     //timers.cpp
     auto step(uint clocks) -> void;
 
-    auto input0(bool) -> void;
-    auto input4(bool) -> void;
-    auto input5(bool) -> void;
-    auto input6(bool) -> void;
-    auto input7(bool) -> void;
-
     uint1  enable;
     uint32 clock;
+  } prescaler;
 
-    TimerPair timer01;
-    TimerPair timer23;
-    TimerWord timer4;
-    TimerWord timer5;
-  } timers;
-
+  //adc.cpp
   struct ADC {
-    //adc.cpp
     auto step(uint clocks) -> void;
 
     uint2 channel;
@@ -323,17 +506,8 @@ struct CPU : TLCS900H, Thread {
     integer counter;
   } adc;
 
-  struct Watchdog {
-    uint1 drive;
-    uint1 reset;
-    uint2 standby;
-    uint1 warmup;
-    uint2 frequency;
-    uint1 enable;
-  } watchdog;
-
+  //rtc.cpp
   struct RTC {
-    //rtc.cpp
     auto step(uint clocks) -> void;
     auto daysInMonth() -> uint8;
     auto daysInFebruary() -> uint8;
@@ -349,12 +523,24 @@ struct CPU : TLCS900H, Thread {
     uint8  year;
   } rtc;
 
-  struct DMA {
-    uint8 vector;
-  } dma0, dma1, dma2, dma3;
+  //watchdog.cpp
+  struct Watchdog {
+    auto step(uint clocks) -> void;
+    auto disable() -> void;
+    auto reload() -> void;
 
+    uint1 enable;
+    uint1 drive;
+    uint1 reset;
+    uint2 standby;
+    uint1 warmup;
+    uint2 frequency;
+
+    int32 timeout;
+  } watchdog;
+
+  //memory.cpp
   struct ChipSelect {
-    //memory.cpp
     auto select() -> void;
 
     uint2 wait;
@@ -403,8 +589,11 @@ struct CPU : TLCS900H, Thread {
   } clock;
 
   struct IO {
+    uint1 p5;  //Port 5: 0 = PSRAM mode, 1 = (not PSRAM mode?) [unemulated]
     uint1 rtsDisable;
     uint8 apuPort;
+    uint8 b4;
+    uint8 b5;
   } io;
 };
 

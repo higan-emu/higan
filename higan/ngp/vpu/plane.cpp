@@ -1,4 +1,4 @@
-auto VPU::renderPlane(Plane& plane) -> maybe<uint12> {
+auto VPU::renderPlane(Plane& plane) -> bool {
   uint8 x = io.hcounter + plane.hscroll;
   uint8 y = io.vcounter + plane.vscroll;
 
@@ -30,17 +30,19 @@ auto VPU::renderPlane(Plane& plane) -> maybe<uint12> {
   tiledata.byte(1) = characterRAM[address + 1];
 
   if(uint2 index = tiledata >> (x << 1)) {
+    plane.priority = (&plane == &vpu.plane1) ^ vpu.io.planePriority;
     if(Model::NeoGeoPocket()) {
-      if(index) return (uint12)plane.palette[palette][index];
+      if(index) plane.output = plane.palette[palette][index];
     }
     if(Model::NeoGeoPocketColor()) {
       if(screen.colorMode) {
-        return colorPalette[plane.colorCompatible + palette * 8 + plane.palette[palette][index]];
+        plane.output = colorPalette[plane.colorCompatible + palette * 8 + plane.palette[palette][index]];
       } else {
-        return colorPalette[plane.colorNative + code * 4 + index];
+        plane.output = colorPalette[plane.colorNative + code * 4 + index];
       }
     }
+    return true;
   }
 
-  return {};
+  return false;
 }

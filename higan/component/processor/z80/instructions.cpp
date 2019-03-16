@@ -228,11 +228,11 @@ auto Z80::instructionIM_o(uint2 code) -> void {
 }
 
 auto Z80::instructionIN_a_in() -> void {
-  A = in(operand());
+  A = in(A << 8 | operand());
 }
 
 auto Z80::instructionIN_r_ic(uint8& x) -> void {
-  x = in(C);
+  x = in(BC);
 }
 
 auto Z80::instructionINC_irr(uint16& x) -> void {
@@ -253,7 +253,7 @@ auto Z80::instructionINC_rr(uint16& x) -> void {
 
 auto Z80::instructionIND() -> void {
   wait(1);
-  auto data = in(C);
+  auto data = in(BC);
   write(_HL--, data);
   NF = 1;
   ZF = --B == 0;
@@ -268,7 +268,7 @@ auto Z80::instructionINDR() -> void {
 
 auto Z80::instructionINI() -> void {
   wait(1);
-  auto data = in(C);
+  auto data = in(BC);
   write(_HL++, data);
   NF = 1;
   ZF = --B == 0;
@@ -438,28 +438,28 @@ auto Z80::instructionOTIR() -> void {
 }
 
 auto Z80::instructionOUT_ic_r(uint8& x) -> void {
-  out(C, x);
+  out(BC, x);
 }
 
 auto Z80::instructionOUT_n_a() -> void {
   auto addr = operand();
-  out(addr, A);
+  out(A << 8 | addr, A);
 }
 
 auto Z80::instructionOUTD() -> void {
   wait(1);
   auto data = read(_HL--);
-  out(C, data);
   NF = 1;
   ZF = --B == 0;
+  out(BC, data);
 }
 
 auto Z80::instructionOUTI() -> void {
   wait(1);
   auto data = read(_HL++);
-  out(C, data);
   NF = 1;
   ZF = --B == 0;
+  out(BC, data);
 }
 
 auto Z80::instructionPOP_rr(uint16& x) -> void {

@@ -1,17 +1,20 @@
 #include <ngp/ngp.hpp>
 
+//#define PORT2
+
 namespace higan::NeoGeoPocket {
 
-bool tracing=false;
+bool tracing = false;
 
 CPU cpu;
 #include "memory.cpp"
 #include "io.cpp"
-#include "pins.cpp"
+#include "ports.cpp"
 #include "interrupts.cpp"
 #include "timers.cpp"
 #include "adc.cpp"
 #include "rtc.cpp"
+#include "watchdog.cpp"
 #include "serialization.cpp"
 
 auto CPU::main() -> void {
@@ -40,41 +43,45 @@ auto CPU::main() -> void {
   int5.test(i);
   int4.test(i);
   int0.test(i);
+  intwd.test(i);
   nmi.test(i);
 
   if(i->priority && i->priority >= r.iff) {
     if(tracing) print("* IRQ ", hex(i->vector, 2L), " ", i->priority, "\n");
-    interrupt(i->vector, i->priority);
-    i->fired();
+    i->fire();
     r.halted = false;
   }
 
-auto pc=r.pc.l.l0;
-if(pc==0x2d8000){
-static bool once=false;
-if(!once){once=true;
+//platform->input(controls.debug);
+//if(!tracing&&controls.debug->value)tracing=true;
+
+//auto pc=r.pc.l.l0;
+//if(pc==0x2d8000){
+//static bool once=false;
+//if(!once){once=true;
 //instructionSoftwareInterrupt(1);
 //r.xwa[3].b.b1=0x02;
 //r.xhl[3].l.l0=0x5000;
 //r.xbc[3].b.b1=0x04;
 //r.xbc[3].b.b0=0x00;
 //tracing=true;
-}}
+//}}
 
 static uint ctr=0;
-if(tracing&&++ctr<300)print(disassemble(),"\n");
+if(tracing&&++ctr<3000)print(disassemble(),"\n");
 
   if(r.halted) return step(16);
 
   instruction();
-  step(1 << clock.rate);
+  step(2 << clock.rate);
 }
 
 auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  timers.step(clocks);
+  prescaler.step(clocks);
   adc.step(clocks);
   rtc.step(clocks);
+  watchdog.step(clocks);
   synchronize(vpu);
   synchronize(apu);
   synchronize(psg);
@@ -97,50 +104,86 @@ auto CPU::power() -> void {
   r.pc.b.b3 = 0x00;
   r.pc.l.l0 = 0xff1800;
 
-  pin32.pin = 1;
-  pin32.flow = 1;
+  p10.latch = 1; p10.flow = 1;
+  p11.latch = 1; p11.flow = 1;
+  p12.latch = 1; p12.flow = 1;
+  p13.latch = 1; p13.flow = 1;
+  p14.latch = 1; p14.flow = 1;
+  p15.latch = 1; p15.flow = 1;
+  p16.latch = 1; p16.flow = 1;
+  p17.latch = 1; p17.flow = 1;
 
-  pin33.pin = 1;
-  pin33.flow = 1;
+  p20.latch = 1; p20.mode = 1;
+  p21.latch = 1; p21.mode = 1;
+  p22.latch = 1; p22.mode = 1;
+  p23.latch = 1; p23.mode = 1;
+  p24.latch = 1; p24.mode = 1;
+  p25.latch = 1; p25.mode = 1;
+  p26.latch = 1; p26.mode = 1;
+  p27.latch = 1; p27.mode = 1;
 
-  pin34.pin = 1;
-  pin34.flow = 1;
-  pin34.mode = 1;
+  p52.latch = 1; p52.flow = 1; p52.mode = 1;
+  p53.latch = 1; p53.flow = 1; p53.mode = 1;
+  p54.latch = 1; p54.flow = 1; p54.mode = 1;
+  p55.latch = 1; p55.flow = 1; p55.mode = 1;
 
-  pin35.pin = 1;
-  pin35.flow = 1;
-  pin35.mode = 1;
+  p60.latch = 1; p60.mode = 1;
+  p61.latch = 1; p61.mode = 1;
+  p62.latch = 1; p62.mode = 1;
+  p63.latch = 1; p63.mode = 1;
+  p64.latch = 1; p64.mode = 1;
+  p65.latch = 1; p65.mode = 1;
 
-  pin36.pin = 1;
-  pin36.flow = 1;
+  p70.latch = 1; p70.mode = 1;
+  p71.latch = 1; p71.mode = 1;
+  p72.latch = 1; p72.mode = 1;
+  p73.latch = 1; p73.mode = 1;
+  p74.latch = 1; p74.mode = 1;
+  p75.latch = 1; p75.mode = 1;
+  p76.latch = 1; p76.mode = 1;
+  p77.latch = 1; p77.mode = 1;
 
-  pin37.pin = 1;
-  pin37.flow = 1;
+  p80.latch = 1; p80.flow = 1; p80.mode = 1;
+  p81.latch = 1; p81.flow = 1;
+  p82.latch = 1; p82.flow = 1; p82.mode = 1;
+  p83.latch = 1; p83.flow = 1; p83.mode = 1;
+  p84.latch = 1; p84.flow = 1;
+  p85.latch = 1; p85.flow = 1; p85.mode = 1;
 
-  pin38.pin = 1;
-  pin38.flow = 1;
-  pin38.mode = 1;
+  p90.latch = 1;
+  p91.latch = 1;
+  p92.latch = 1;
+  p93.latch = 1;
 
-  pin39.pin = 1;
-  pin39.flow = 1;
-  pin39.mode = 1;
+  pa0.latch = 0; pa0.flow = 1;
+  pa1.latch = 1; pa1.flow = 1;
+  pa2.latch = 1; pa2.flow = 1; pa2.mode = 1;
+  pa3.latch = 1; pa3.flow = 1; pa3.mode = 1;
 
-  pin40.pin = 1;
-  pin40.flow = 1;
+  pb0.latch = 1; pb0.flow = 1;
+  pb1.latch = 1; pb1.flow = 1;
+  pb2.latch = 1; pb2.flow = 1; pb2.mode = 1;
+  pb3.latch = 1; pb3.flow = 1; pb3.mode = 1;
+  pb4.latch = 1; pb4.flow = 1;
+  pb5.latch = 1; pb5.flow = 1;
+  pb6.latch = 1; pb6.flow = 1; pb6.mode = 1;
+  pb7.latch = 1; pb7.flow = 1;
 
-  pin41.pin = 1;
-  pin41.flow = 1;
-
-  pin42.pin = 1;
-  pin42.flow = 1;
-
-  pin43.pin = 1;
-  pin43.flow = 1;
-
+  nmi.enable = 0;
   nmi.maskable = 0;
   nmi.priority = 7;
+  nmi.line = 1;
+  nmi.request = 0;
   nmi.edge.rising = 0;
   nmi.edge.falling = 1;
+
+  intwd.enable = 1;
+  intwd.maskable = 0;
+  intwd.priority = 7;
+  intwd.line = 1;
+  intwd.request = 0;
+  intwd.edge.falling = 1;
+
   int0.enable = 0;
   int0.edge.rising = 1;
   int0.level.high = 0;
@@ -157,22 +200,10 @@ auto CPU::power() -> void {
   inttr5.edge.rising = 1;
   inttr6.edge.rising = 1;
   inttr7.edge.rising = 1;
-
-  timers = {};
-  timers.timer01.lo.interrupt = intt0;
-  timers.timer01.hi.interrupt = intt1;
-  timers.timer01.ff.edge = [&](bool line) { if(to1.mode == 1) to1 = line; };
-  timers.timer23.lo.interrupt = intt2;
-  timers.timer23.hi.interrupt = intt3;
-  timers.timer23.ff.edge = [&](bool line) { if(to3.mode == 1) to3 = line; };
-  timers.timer4.interruptA = inttr4;
-  timers.timer4.interruptB = inttr5;
-  timers.timer4.outputA = [&](bool line) { if(to4.mode == 1) to4 = line; };
-  timers.timer4.outputB = [&](bool line) { if(to5.mode == 1) to5 = line; };
-  timers.timer5.interruptA = inttr6;
-  timers.timer5.interruptB = inttr7;
-  timers.timer5.outputA = [&](bool line) { if(to6.mode == 1) to6 = line; };
-  timers.timer5.outputB = [&](bool line) {};  //pin does not exist
+  inttc0.edge.rising = 1;
+  inttc1.edge.rising = 1;
+  inttc2.edge.rising = 1;
+  inttc3.edge.rising = 1;
 
   cs0.enable  = 0;
   cs0.width   = 0;
@@ -186,7 +217,7 @@ auto CPU::power() -> void {
   cs1.address = 0xff0000;
   cs1.mask    = 0x3fffff;
 
-  cs2.enable  = 0;  //note: manual states this is 1; but that would block the BIOS at boot time ...
+  cs2.enable  = 1;
   cs2.width   = 0;
   cs2.wait    = 0;
   cs2.address = 0xff0000;
@@ -212,6 +243,9 @@ auto CPU::load() -> void {
   ram.allocate(0x3000);
   if(auto fp = platform->open(system.node, "cpu.ram", File::Read)) {
     ram.load(fp);
+    //somehow, this stops the BIOS from performing setup on subsequent boots ...
+    ram[0x2c14] = 0xdd;
+    ram[0x2c15] = 0x00;
   }
 }
 

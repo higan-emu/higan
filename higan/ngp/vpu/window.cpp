@@ -1,12 +1,13 @@
-auto VPU::renderWindow() -> maybe<uint12> {
+auto VPU::renderWindow() -> bool {
   if(io.hcounter >= window.hoffset
   && io.vcounter >=  window.voffset
   && io.hcounter <  window.hoffset + window.hlength
-  && io.vcounter <  window.voffset + window.vlength) return {};
+  && io.vcounter <  window.voffset + window.vlength) return false;
 
   if(Model::NeoGeoPocket()) {
-    return (uint12)window.color;
+    window.output = window.color;
   } else {
-    return colorPalette[0xf8 + window.color];
+    window.output = colorPalette[0xf8 + window.color];
   }
+  return true;
 }
