@@ -32,6 +32,7 @@ auto TLCS900H::interrupt(uint8 vector, uint3 priority) -> void {
   store(INTNEST, load(INTNEST) + 1);
   r.iff = priority;
   if(r.iff != 7) r.iff++;
+  step(18);
 }
 
 auto TLCS900H::power() -> void {

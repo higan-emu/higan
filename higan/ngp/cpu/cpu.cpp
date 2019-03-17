@@ -46,8 +46,8 @@ auto CPU::main() -> void {
   intwd.test(i);
   nmi.test(i);
 
-  if(i->priority && i->priority >= r.iff) {
-    if(tracing) print("* IRQ ", hex(i->vector, 2L), " ", i->priority, "\n");
+  if(i->iff() && i->iff() >= r.iff) {
+    if(tracing) print("* IRQ ", hex(i->vector, 2L), " ", i->iff(), "\n");
     i->fire();
     r.halted = false;
   }
@@ -71,12 +71,11 @@ static uint ctr=0;
 if(tracing&&++ctr<3000)print(disassemble(),"\n");
 
   if(r.halted) return step(16);
-
   instruction();
-  step(2 << clock.rate);
 }
 
 auto CPU::step(uint clocks) -> void {
+  clocks <<= clock.rate;
   Thread::step(clocks);
   prescaler.step(clocks);
   adc.step(clocks);

@@ -42,7 +42,8 @@ struct CPU : TLCS900H, Thread {
     auto clear() -> void;
     auto raise() -> void;
     auto lower() -> void;
-    auto testDMA() -> void;
+    auto iff() const -> uint3;
+    auto dma() -> bool;
 
     uint8 vector;
     uint1 dmaAllowed;

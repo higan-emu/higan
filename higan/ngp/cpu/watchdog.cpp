@@ -12,5 +12,5 @@ auto CPU::Watchdog::disable() -> void {
 }
 
 auto CPU::Watchdog::reload() -> void {
-  timeout = cpu.frequency() >> 3;
+  timeout = cpu.frequency() >> 2;
 }

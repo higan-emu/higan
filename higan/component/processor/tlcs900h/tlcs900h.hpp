@@ -84,12 +84,17 @@ struct TLCS900H {
   auto dma(uint2 channel) -> bool;
 
   //instruction.cpp
+  template<uint Bits> auto stepBW(uint b, uint w) -> void;
+  template<uint Bits> auto stepWL(uint w, uint l) -> void;
+  template<uint Bits> auto stepBWL(uint b, uint w, uint l) -> void;
+
   template<typename T> auto toRegister3(uint3) const -> Register<T>;
   template<typename T> auto toRegister8(uint8) const -> Register<T>;
   template<typename T> auto toControlRegister(uint8) const -> ControlRegister<T>;
   template<typename T> auto toMemory(uint32 address) const -> Memory<T>;
   template<typename T> auto toImmediate(uint32 constant) const -> Immediate<T>;
   template<typename T> auto toImmediate3(natural constant) const -> Immediate<T>;
+  auto undefined() -> void;
   auto instruction() -> void;
   template<typename Register> auto instructionRegister(Register) -> void;
   template<typename Memory> auto instructionSourceMemory(Memory) -> void;
@@ -103,7 +108,7 @@ struct TLCS900H {
   template<typename Source, typename Offset> auto instructionBit(Source, Offset) -> void;
   auto instructionBitSearch1Backward(Register<uint16>) -> void;
   auto instructionBitSearch1Forward(Register<uint16>) -> void;
-  template<typename Source> auto instructionCall(uint4 code, Source) -> void;
+  template<typename Source> auto instructionCall(Source) -> void;
   template<typename Source> auto instructionCallRelative(Source) -> void;
   template<typename Target, typename Offset> auto instructionChange(Target, Offset) -> void;
   template<typename Size, int Adjust, typename Target> auto instructionCompare(Target) -> void;
@@ -112,7 +117,7 @@ struct TLCS900H {
   template<typename Target> auto instructionComplement(Target) -> void;
   auto instructionDecimalAdjustAccumulator(Register<uint8>) -> void;
   template<typename Target, typename Source> auto instructionDecrement(Target, Source) -> void;
-  template<typename Target, typename Offset> auto instructionDecrementJumpNotZero(Target, Offset) -> void;
+  template<typename Target, typename Offset> auto instructionDecrementJumpNotZero(Target, Offset) -> bool;
   template<typename Target, typename Source> auto instructionDivide(Target, Source) -> void;
   template<typename Target, typename Source> auto instructionDivideSigned(Target, Source) -> void;
   template<typename Target, typename Source> auto instructionExchange(Target, Source) -> void;
@@ -120,8 +125,8 @@ struct TLCS900H {
   template<typename Target> auto instructionExtendZero(Target) -> void;
   auto instructionHalt() -> void;
   template<typename Target, typename Source> auto instructionIncrement(Target, Source) -> void;
-  template<typename Source> auto instructionJump(uint4 code, Source) -> void;
-  template<typename Source> auto instructionJumpRelative(uint4 code, Source) -> void;
+  template<typename Source> auto instructionJump(Source) -> void;
+  template<typename Source> auto instructionJumpRelative(Source) -> void;
   template<typename Target, typename Offset> auto instructionLink(Target, Offset) -> void;
   template<typename Target, typename Source> auto instructionLoad(Target, Source) -> void;
   template<typename Source, typename Offset> auto instructionLoadCarry(Source, Offset) -> void;
@@ -141,7 +146,7 @@ struct TLCS900H {
   template<typename Target> auto instructionPop(Target) -> void;
   template<typename Source> auto instructionPush(Source) -> void;
   template<typename Target, typename Offset> auto instructionReset(Target, Offset) -> void;
-  auto instructionReturn(uint4 code) -> void;
+  auto instructionReturn() -> void;
   template<typename Source> auto instructionReturnDeallocate(Source) -> void;
   auto instructionReturnInterrupt() -> void;
   template<typename LHS, typename RHS> auto instructionRotateLeftDigit(LHS, RHS) -> void;

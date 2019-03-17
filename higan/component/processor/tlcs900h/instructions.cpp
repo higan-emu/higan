@@ -45,9 +45,9 @@ auto TLCS900H::instructionBitSearch1Forward(Register<uint16> register) -> void {
 }
 
 template<typename Source>
-auto TLCS900H::instructionCall(uint4 code, Source source) -> void {
+auto TLCS900H::instructionCall(Source source) -> void {
   auto address = load(source);
-  if(condition(code)) push(PC), store(PC, address);
+  push(PC), store(PC, address);
 }
 
 template<typename Source>
@@ -65,6 +65,7 @@ auto TLCS900H::instructionChange(Target target, Offset offset) -> void {
 
 template<typename Size, int Adjust, typename Target>
 auto TLCS900H::instructionCompare(Target target) -> void {
+  step(6);
   auto source = toRegister3<uint32>(r.prefix);
   auto cf = CF;  //CF is not modified; but algorithmSubtract will modify it
   algorithmSubtract(load(target), load(toMemory<Size>(load(source))));
@@ -92,11 +93,13 @@ auto TLCS900H::instructionComplement(Target target) -> void {
 }
 
 auto TLCS900H::instructionDecimalAdjustAccumulator(Register<uint8> register) -> void {
-  auto value = load(register);
-  if(CF || (uint8)value > 0x99) value += NF ? -0x60 : 0x60, CF = 1;
+  auto input = load(register), value = input;
+  if(CF || (uint8)value > 0x99) value += NF ? -0x60 : 0x60;
   if(HF || (uint4)value > 0x09) value += NF ? -0x06 : 0x06;
+  if(NF == 0) CF |= value < input;
+  if(NF == 1) CF |= value > input;
   PF = parity(value);
-  HF = uint8(value ^ load(register)).bit(4);
+  HF = uint8(value ^ input).bit(4);
   ZF = value == 0;
   SF = value.bit(-1);
   store(register, value);
@@ -110,10 +113,12 @@ auto TLCS900H::instructionDecrement(Target target, Source source) -> void {
 }
 
 template<typename Target, typename Offset>
-auto TLCS900H::instructionDecrementJumpNotZero(Target target, Offset offset) -> void {
+auto TLCS900H::instructionDecrementJumpNotZero(Target target, Offset offset) -> bool {
   auto result = load(target);
   store(target, --result);
-  if(result) store(PC, load(PC) + load(offset));
+  if(!result) return false;
+  store(PC, load(PC) + load(offset));
+  return true;
 }
 
 template<typename Target, typename Source>
@@ -169,14 +174,14 @@ auto TLCS900H::instructionIncrement(Target target, Source source) -> void {
 }
 
 template<typename Source>
-auto TLCS900H::instructionJump(uint4 code, Source source) -> void {
+auto TLCS900H::instructionJump(Source source) -> void {
   auto address = load(source);
-  if(condition(code)) store(PC, address);
+  store(PC, address);
 }
 
 template<typename Source>
-auto TLCS900H::instructionJumpRelative(uint4 code, Source displacement) -> void {
-  if(condition(code)) store(PC, load(PC) + load(displacement));
+auto TLCS900H::instructionJumpRelative(Source displacement) -> void {
+  store(PC, load(PC) + load(displacement));
 }
 
 template<typename Target, typename Offset>
@@ -198,6 +203,7 @@ auto TLCS900H::instructionLoadCarry(Source source, Offset offset) -> void {
 }
 
 template<typename Size, int Adjust> auto TLCS900H::instructionLoad() -> void {
+  step(7);
   auto target = (uint3)r.prefix == 5 ? XIX : XDE;
   auto source = (uint3)r.prefix == 5 ? XIY : XHL;
   store(toMemory<Size>(load(target)), load(toMemory<Size>(load(source))));
@@ -315,8 +321,8 @@ auto TLCS900H::instructionReset(Target target, Offset offset) -> void {
   store(target, result);
 }
 
-auto TLCS900H::instructionReturn(uint4 code) -> void {
-  if(condition(code)) pop(PC);
+auto TLCS900H::instructionReturn() -> void {
+  pop(PC);
 }
 
 template<typename Source>
@@ -352,7 +358,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionRotateLeft(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     uint cf = result.bit(-1);
     result = result << 1 | CF;
     CF = cf;
@@ -364,7 +372,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionRotateLeftWithoutCarry(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     CF = result.bit(-1);
     result = result << 1 | CF;
   }
@@ -392,7 +402,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionRotateRight(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     uint cf = result.bit(0);
     result = CF << Target::bits - 1 | result >> 1;
     CF = cf;
@@ -404,7 +416,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionRotateRightWithoutCarry(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     CF = result.bit(0);
     result = CF << Target::bits - 1 | result >> 1;
   }
@@ -439,7 +453,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionShiftLeftArithmetic(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     CF = result.bit(-1);
     result = result << 1;
   }
@@ -450,7 +466,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionShiftLeftLogical(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     CF = result.bit(-1);
     result = result << 1;
   }
@@ -461,7 +479,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionShiftRightArithmetic(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     CF = result.bit(0);
     result = result >> 1;
     result.bit(-1) = result.bit(-2);
@@ -473,7 +493,9 @@ template<typename Target, typename Amount>
 auto TLCS900H::instructionShiftRightLogical(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
-  for(uint n : range(length ? length : 16)) {
+  if(!length) length = 16;
+  step(length >> 2);
+  for(uint n : range(length)) {
     CF = result.bit(0);
     result = result >> 1;
   }
