@@ -25,13 +25,11 @@ namespace higan {
 #include "serialization.cpp"
 #include "disassembler.cpp"
 
-auto TLCS900H::interrupt(uint8 vector, uint3 priority) -> void {
+auto TLCS900H::interrupt(uint8 vector) -> void {
   push(PC);
   push(SR);
   store(PC, load(Memory<uint24>{0xffff00 | vector}));
   store(INTNEST, load(INTNEST) + 1);
-  r.iff = priority;
-  if(r.iff != 7) r.iff++;
   step(18);
 }
 

@@ -32,7 +32,7 @@ struct TLCS900H {
   template<typename T> auto load(Immediate<T> immediate) const -> T { return immediate.constant; }
 
   //tlcs900h.cpp
-  auto interrupt(uint8 vector, uint3 priority) -> void;
+  auto interrupt(uint8 vector) -> void;
   auto power() -> void;
 
   //registers.cpp
@@ -67,6 +67,7 @@ struct TLCS900H {
 
   //conditions.cpp
   auto condition(uint4 code) -> bool;
+auto condition1(uint4)->bool;
 
   //algorithms.cpp
   template<typename T> auto parity(T) const -> bool;

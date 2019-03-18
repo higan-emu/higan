@@ -16,7 +16,6 @@ auto CPU::ADC::step(uint clocks) -> void {
       counter += !speed ? 160 : 320;
     }
     end = 1;
-    cpu.intad = 1;
-    cpu.intad = 0;
+    cpu.intad.trigger();
   }
 }

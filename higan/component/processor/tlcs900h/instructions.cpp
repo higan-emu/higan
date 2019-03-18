@@ -511,7 +511,7 @@ auto TLCS900H::instructionStoreCarry(Target target, Offset offset) -> void {
 }
 
 auto TLCS900H::instructionSoftwareInterrupt(uint3 vector) -> void {
-  interrupt(vector << 2, 7);
+  interrupt(vector << 2);
 }
 
 template<typename Target, typename Source>

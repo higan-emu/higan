@@ -39,7 +39,7 @@ template<typename T> auto TLCS900H::toImmediate3(natural constant) const -> Imme
 //the order of evaluations of function arguments. fetch() ordering is critical.
 
 auto TLCS900H::undefined() -> void {
-  interrupt(2 << 2, 7);
+  instructionSoftwareInterrupt(2);
   return step(1);
 }
 
@@ -232,22 +232,23 @@ auto TLCS900H::instruction() -> void {
   case 0xc4: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    if((data & 3) == 0) store(register, load(register) - 1);
-    if((data & 3) == 1) store(register, load(register) - 2);
-    if((data & 3) == 2) store(register, load(register) - 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location -= 1);
+    if((data & 3) == 1) store(register, location -= 2);
+    if((data & 3) == 2) store(register, location -= 4);
     if((data & 3) == 3) Undefined;
     step(1);
-    return instructionSourceMemory(toMemory<uint8>(load(register))); }
+    return instructionSourceMemory(toMemory<uint8>(location)); }
   case 0xc5: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    step(1);
-    instructionSourceMemory(toMemory<uint8>(load(register)));
-    if((data & 3) == 0) store(register, load(register) + 1);
-    if((data & 3) == 1) store(register, load(register) + 2);
-    if((data & 3) == 2) store(register, load(register) + 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location + 1);
+    if((data & 3) == 1) store(register, location + 2);
+    if((data & 3) == 2) store(register, location + 4);
     if((data & 3) == 3) Undefined;
-    return; }
+    step(1);
+    return instructionSourceMemory(toMemory<uint8>(location)); }
   case 0xc6:
     return undefined();
   case 0xc7:
@@ -289,22 +290,23 @@ auto TLCS900H::instruction() -> void {
   case 0xd4: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    if((data & 3) == 0) store(register, load(register) - 1);
-    if((data & 3) == 1) store(register, load(register) - 2);
-    if((data & 3) == 2) store(register, load(register) - 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location -= 1);
+    if((data & 3) == 1) store(register, location -= 2);
+    if((data & 3) == 2) store(register, location -= 4);
     if((data & 3) == 3) Undefined;
     step(1);
-    return instructionSourceMemory(toMemory<uint16>(load(register))); }
+    return instructionSourceMemory(toMemory<uint16>(location)); }
   case 0xd5: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    step(1);
-    instructionSourceMemory(toMemory<uint16>(load(register)));
-    if((data & 3) == 0) store(register, load(register) + 1);
-    if((data & 3) == 1) store(register, load(register) + 2);
-    if((data & 3) == 2) store(register, load(register) + 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location + 1);
+    if((data & 3) == 1) store(register, location + 2);
+    if((data & 3) == 2) store(register, location + 4);
     if((data & 3) == 3) Undefined;
-    return; }
+    step(1);
+    return instructionSourceMemory(toMemory<uint16>(location)); }
   case 0xd6:
     return undefined();
   case 0xd7:
@@ -346,22 +348,23 @@ auto TLCS900H::instruction() -> void {
   case 0xe4: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    if((data & 3) == 0) store(register, load(register) - 1);
-    if((data & 3) == 1) store(register, load(register) - 2);
-    if((data & 3) == 2) store(register, load(register) - 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location -= 1);
+    if((data & 3) == 1) store(register, location -= 2);
+    if((data & 3) == 2) store(register, location -= 4);
     if((data & 3) == 3) Undefined;
     step(1);
-    return instructionSourceMemory(toMemory<uint32>(load(register))); }
+    return instructionSourceMemory(toMemory<uint32>(location)); }
   case 0xe5: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    step(1);
-    instructionSourceMemory(toMemory<uint32>(load(register)));
-    if((data & 3) == 0) store(register, load(register) + 1);
-    if((data & 3) == 1) store(register, load(register) + 2);
-    if((data & 3) == 2) store(register, load(register) + 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location + 1);
+    if((data & 3) == 1) store(register, location + 2);
+    if((data & 3) == 2) store(register, location + 4);
     if((data & 3) == 3) Undefined;
-    return; }
+    step(1);
+    return instructionSourceMemory(toMemory<uint32>(location)); }
   case 0xe6:
     return undefined();
   case 0xe7:
@@ -403,22 +406,23 @@ auto TLCS900H::instruction() -> void {
   case 0xf4: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    if((data & 3) == 0) store(register, load(register) - 1);
-    if((data & 3) == 1) store(register, load(register) - 2);
-    if((data & 3) == 2) store(register, load(register) - 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location -= 1);
+    if((data & 3) == 1) store(register, location -= 2);
+    if((data & 3) == 2) store(register, location -= 4);
     if((data & 3) == 3) Undefined;
     step(1);
-    return instructionTargetMemory(load(register)); }
+    return instructionTargetMemory(location); }
   case 0xf5: {
     data = fetch();
     auto register = toRegister8<uint32>(data);
-    step(1);
-    instructionTargetMemory(load(register));
-    if((data & 3) == 0) store(register, load(register) + 1);
-    if((data & 3) == 1) store(register, load(register) + 2);
-    if((data & 3) == 2) store(register, load(register) + 4);
+    auto location = load(register);
+    if((data & 3) == 0) store(register, location + 1);
+    if((data & 3) == 1) store(register, location + 2);
+    if((data & 3) == 2) store(register, location + 4);
     if((data & 3) == 3) Undefined;
-    return; }
+    step(1);
+    return instructionTargetMemory(location); }
   case 0xf6:
     return undefined();
   case 0xf7: {

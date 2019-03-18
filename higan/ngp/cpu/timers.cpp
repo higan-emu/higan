@@ -1,3 +1,47 @@
+/* Oscillator frequency = 6,144,000.0hz
+ * Prescaler frequency  =   384,000.0hz ( d3)
+ * Prescaler divisor    =    96,000.0hz ( d5)
+ * clock0 frequency     =    48,000.0hz ( d6)
+ * clock1 frequency     =    12,000.0hz ( d8)
+ * clock2 frequency     =     3,000.0hz (d10)
+ * clock3 frequency     =       187.5hz (d14)
+ */
+
+auto CPU::Prescaler::step(uint clocks) -> void {
+  if(!enable) return;
+  while(clocks--) {
+    auto latch = clock++;
+
+    if(!latch.bit( 6) || clock.bit( 6)) continue;
+    if(cpu.t0.mode == 1) cpu.t01.clockT0();
+    if(cpu.t1.mode == 1) cpu.t01.clockT1();
+    if(cpu.t2.mode == 1) cpu.t23.clockT2();
+    if(cpu.t3.mode == 1) cpu.t23.clockT3();
+    if(cpu.t4.mode == 1) cpu.t4.clock();
+    if(cpu.t5.mode == 1) cpu.t5.clock();
+
+    if(!latch.bit( 8) || clock.bit( 8)) continue;
+    if(cpu.t0.mode == 2) cpu.t01.clockT0();
+    if(cpu.t2.mode == 2) cpu.t23.clockT2();
+    if(cpu.t4.mode == 2) cpu.t4.clock();
+    if(cpu.t5.mode == 2) cpu.t5.clock();
+
+    if(!latch.bit(10) || clock.bit(10)) continue;
+    if(cpu.t0.mode == 3) cpu.t01.clockT0();
+    if(cpu.t1.mode == 2) cpu.t01.clockT1();
+    if(cpu.t2.mode == 3) cpu.t23.clockT2();
+    if(cpu.t3.mode == 2) cpu.t23.clockT3();
+    if(cpu.t4.mode == 3) cpu.t4.clock();
+    if(cpu.t5.mode == 3) cpu.t5.clock();
+
+    if(!latch.bit(14) || clock.bit(14)) continue;
+    if(cpu.t1.mode == 3) cpu.t01.clockT1();
+    if(cpu.t3.mode == 3) cpu.t23.clockT3();
+  }
+}
+
+//
+
 auto CPU::TI0::operator=(bool value) -> void {
   if(latch == value) return;
   latch = value;
@@ -86,8 +130,8 @@ auto CPU::Timer01::clockT0() -> void {
   if(mode == 0) {
     ++cpu.t0.counter;
     bool matchT0 = cpu.t0.counter == cpu.t0.compare;
-    cpu.intt0 = matchT0;
     if(matchT0) {
+      cpu.intt0.trigger();
       cpu.t0.counter = 0;
       if(cpu.ff1.source == 0 && cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
       if(cpu.t1.mode == 0) clockT1();
@@ -97,8 +141,8 @@ auto CPU::Timer01::clockT0() -> void {
     if(!++cpu.t0.counter) ++cpu.t1.counter;
     bool matchT0 = cpu.t0.counter == cpu.t0.compare;
     bool matchT1 = cpu.t1.counter == cpu.t1.compare;
-    cpu.intt1 = matchT0 && matchT1;
     if(matchT0 && matchT1) {
+      cpu.intt1.trigger();
       cpu.t0.counter = 0;
       cpu.t1.counter = 0;
       if(cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
@@ -108,12 +152,14 @@ auto CPU::Timer01::clockT0() -> void {
     ++cpu.t0.counter;
     bool matchT0 = cpu.t0.counter == cpu.t0.compare;
     bool matchT1 = cpu.t0.counter == cpu.t1.compare;
-    cpu.intt0 = matchT0;
-    cpu.intt1 = matchT1;
     if(matchT0 || matchT1) {
       if(cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
     }
+    if(matchT0) {
+      cpu.intt0.trigger();
+    }
     if(matchT1) {
+      cpu.intt1.trigger();
       cpu.t0.counter = 0;
       if(buffer.enable) cpu.t0.compare = buffer.compare;
     }
@@ -125,8 +171,8 @@ auto CPU::Timer01::clockT0() -> void {
     if(pwm == 3) cpu.t0.counter = (uint8)cpu.t0.counter;
     bool matchT0  = cpu.t0.counter == cpu.t0.compare;
     bool matchPWM = cpu.t0.counter == 0;
-    cpu.intt0 = matchT0 || matchPWM;
     if(matchT0 || matchPWM) {
+      cpu.intt0.trigger();
       cpu.t0.counter = 0;
       if(buffer.enable) cpu.t0.compare = buffer.compare;
       if(cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
@@ -139,8 +185,8 @@ auto CPU::Timer01::clockT1() -> void {
   if(mode == 0 || mode == 3) {
     ++cpu.t1.counter;
     bool matchT1 = cpu.t1.counter == cpu.t1.compare;
-    cpu.intt1 = matchT1;
     if(matchT1) {
+      cpu.intt1.trigger();
       cpu.t1.counter = 0;
       if(cpu.ff1.source == 1 && cpu.ff1.invert) cpu.ff1 = !cpu.ff1;
     }
@@ -169,8 +215,8 @@ auto CPU::Timer23::clockT2() -> void {
   if(mode == 0) {
     ++cpu.t2.counter;
     bool matchT2 = cpu.t2.counter == cpu.t2.compare;
-    cpu.intt2 = matchT2;
     if(matchT2) {
+      cpu.intt2.trigger();
       cpu.t2.counter = 0;
       if(cpu.ff3.source == 0 && cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
       if(cpu.t3.mode == 0) clockT3();
@@ -180,8 +226,8 @@ auto CPU::Timer23::clockT2() -> void {
     if(!++cpu.t2.counter) ++cpu.t3.counter;
     bool matchT2 = cpu.t2.counter == cpu.t2.compare;
     bool matchT3 = cpu.t3.counter == cpu.t3.compare;
-    cpu.intt3 = matchT2 && matchT3;
     if(matchT2 && matchT3) {
+      cpu.intt3.trigger();
       cpu.t2.counter = 0;
       cpu.t3.counter = 0;
       if(cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
@@ -191,10 +237,16 @@ auto CPU::Timer23::clockT2() -> void {
     ++cpu.t2.counter;
     bool matchT2 = cpu.t2.counter == cpu.t2.compare;
     bool matchT3 = cpu.t2.counter == cpu.t3.compare;
-    cpu.intt2 = matchT2;
-    cpu.intt3 = matchT3;
     if(matchT2 || matchT3) {
       if(cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
+    }
+    if(matchT2) {
+      cpu.intt2.trigger();
+    }
+    if(matchT3) {
+      cpu.intt3.trigger();
+      cpu.t3.counter = 0;
+      if(buffer.enable) cpu.t2.compare = buffer.compare;
     }
   }
   if(mode == 3) {
@@ -204,8 +256,8 @@ auto CPU::Timer23::clockT2() -> void {
     if(pwm == 3) cpu.t2.counter = (uint8)cpu.t2.counter;
     bool matchT2  = cpu.t2.counter == cpu.t2.compare;
     bool matchPWM = cpu.t2.counter == 0;
-    cpu.intt2 = matchT2 || matchPWM;
     if(matchT2 || matchPWM) {
+      cpu.intt2.trigger();
       cpu.t2.counter = 0;
       if(buffer.enable) cpu.t2.compare = buffer.compare;
       if(cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
@@ -218,8 +270,8 @@ auto CPU::Timer23::clockT3() -> void {
   if(mode == 0 || mode == 3) {
     ++cpu.t3.counter;
     bool matchT3 = cpu.t3.counter == cpu.t3.compare;
-    cpu.intt3 = matchT3;
     if(matchT3) {
+      cpu.intt3.trigger();
       cpu.t3.counter = 0;
       if(cpu.ff3.source == 1 && cpu.ff3.invert) cpu.ff3 = !cpu.ff3;
     }
@@ -249,19 +301,15 @@ auto CPU::Timer4::clock() -> void {
   if(!enable) return;
   ++counter;
   if(counter == compare4) {
-    cpu.inttr4 = 1;
+    cpu.inttr4.trigger();
     if(cpu.ff4.flipOnCompare4) cpu.ff4 = !cpu.ff4;
-  } else {
-    cpu.inttr4 = 0;
   }
   if(counter == compare5) {
-    cpu.inttr5 = 1;
+    cpu.inttr5.trigger();
     if(cpu.ff4.flipOnCompare5) cpu.ff4 = !cpu.ff4;
     if(cpu.ff5.flipOnCompare5) cpu.ff5 = !cpu.ff5;
     if(buffer.enable) compare4 = buffer.compare;
     if(clearOnCompare5) counter = 0;
-  } else {
-    cpu.inttr5 = 0;
   }
 }
 
@@ -297,66 +345,18 @@ auto CPU::Timer5::clock() -> void {
   if(!enable) return;
   ++counter;
   if(counter == compare6) {
-    cpu.inttr6 = 1;
+    cpu.inttr6.trigger();
     if(cpu.ff6.flipOnCompare6) cpu.ff6 = !cpu.ff6;
-  } else {
-    cpu.inttr6 = 0;
   }
   if(counter == compare7) {
-    cpu.inttr7 = 1;
+    cpu.inttr7.trigger();
     if(cpu.ff6.flipOnCompare7) cpu.ff6 = !cpu.ff6;
     if(buffer.enable) compare6 = buffer.compare;
     if(clearOnCompare7) counter = 0;
-  } else {
-    cpu.inttr7 = 0;
   }
 }
 
 auto CPU::FlipFlop6::operator=(bool value) -> void {
   output = value;
   cpu.to6 = output;
-}
-
-//
-
-/* Oscillator frequency = 6,144,000.0hz
- * Prescaler frequency  =   384,000.0hz ( d3)
- * Prescaler divisor    =    96,000.0hz ( d5)
- * clock0 frequency     =    48,000.0hz ( d6)
- * clock1 frequency     =    12,000.0hz ( d8)
- * clock2 frequency     =     3,000.0hz (d10)
- * clock3 frequency     =       187.5hz (d14)
- */
-
-auto CPU::Prescaler::step(uint clocks) -> void {
-  if(!enable) return;
-  while(clocks--) {
-    auto latch = clock++;
-
-    if(!latch.bit( 6) || clock.bit( 6)) continue;
-    if(cpu.t0.mode == 1) cpu.t01.clockT0();
-    if(cpu.t1.mode == 1) cpu.t01.clockT1();
-    if(cpu.t2.mode == 1) cpu.t23.clockT2();
-    if(cpu.t3.mode == 1) cpu.t23.clockT3();
-    if(cpu.t4.mode == 1) cpu.t4.clock();
-    if(cpu.t5.mode == 1) cpu.t5.clock();
-
-    if(!latch.bit( 8) || clock.bit( 8)) continue;
-    if(cpu.t0.mode == 2) cpu.t01.clockT0();
-    if(cpu.t2.mode == 2) cpu.t23.clockT2();
-    if(cpu.t4.mode == 2) cpu.t4.clock();
-    if(cpu.t5.mode == 2) cpu.t5.clock();
-
-    if(!latch.bit(10) || clock.bit(10)) continue;
-    if(cpu.t0.mode == 3) cpu.t01.clockT0();
-    if(cpu.t1.mode == 2) cpu.t01.clockT1();
-    if(cpu.t2.mode == 3) cpu.t23.clockT2();
-    if(cpu.t3.mode == 2) cpu.t23.clockT3();
-    if(cpu.t4.mode == 3) cpu.t4.clock();
-    if(cpu.t5.mode == 3) cpu.t5.clock();
-
-    if(!latch.bit(14) || clock.bit(14)) continue;
-    if(cpu.t1.mode == 3) cpu.t01.clockT1();
-    if(cpu.t3.mode == 3) cpu.t23.clockT3();
-  }
 }

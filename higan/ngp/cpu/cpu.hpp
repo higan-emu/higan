@@ -34,16 +34,27 @@ struct CPU : TLCS900H, Thread {
   uint16 mdr;  //memory data register
 
   //interrupts.cpp
+  struct Interrupts {
+    auto poll() -> void;
+    auto fire() -> bool;
+
+  private:
+    uint8 vector;
+    uint3 priority;
+  } interrupts;
+
   struct Interrupt {
     auto operator=(bool) -> void;
-    inline auto test(maybe<Interrupt&>&) const -> void;
-    inline auto fire() -> void;
+    auto poll(uint8& vector, uint3& priority) -> void;
+    auto fire(uint8 vector) -> void;
     auto set(bool line) -> void;
-    auto clear() -> void;
     auto raise() -> void;
     auto lower() -> void;
-    auto iff() const -> uint3;
-    auto dma() -> bool;
+    auto trigger() -> void;
+    auto clear() -> void;
+
+    auto setEnable(uint1 enable) -> void;
+    auto setPriority(uint3 priority) -> void;
 
     uint8 vector;
     uint1 dmaAllowed;
@@ -51,7 +62,7 @@ struct CPU : TLCS900H, Thread {
     uint1 maskable = 1;
     uint3 priority;
     uint1 line;
-    uint1 request;
+    uint1 pending;
 
     struct Level {
       uint1 high;
@@ -65,32 +76,32 @@ struct CPU : TLCS900H, Thread {
   };
 
   //non-maskable
-  Interrupt nmi   {0x20, 0};
-  Interrupt intwd {0x24, 0};
+  Interrupt nmi;
+  Interrupt intwd;
 
   //maskable
-  Interrupt int0  {0x28, 1};
-  Interrupt int4  {0x2c, 1};
-  Interrupt int5  {0x30, 1};
-  Interrupt int6  {0x34, 1};
-  Interrupt int7  {0x38, 1};
-  Interrupt intt0 {0x40, 1};
-  Interrupt intt1 {0x44, 1};
-  Interrupt intt2 {0x48, 1};
-  Interrupt intt3 {0x4c, 1};
-  Interrupt inttr4{0x50, 1};
-  Interrupt inttr5{0x54, 1};
-  Interrupt inttr6{0x58, 1};
-  Interrupt inttr7{0x5c, 1};
-  Interrupt intrx0{0x60, 1};
-  Interrupt inttx0{0x64, 1};
-  Interrupt intrx1{0x68, 1};
-  Interrupt inttx1{0x6c, 1};
-  Interrupt intad {0x70, 1};
-  Interrupt inttc0{0x74, 0};
-  Interrupt inttc1{0x78, 0};
-  Interrupt inttc2{0x7c, 0};
-  Interrupt inttc3{0x80, 0};
+  Interrupt int0;
+  Interrupt int4;
+  Interrupt int5;
+  Interrupt int6;
+  Interrupt int7;
+  Interrupt intt0;
+  Interrupt intt1;
+  Interrupt intt2;
+  Interrupt intt3;
+  Interrupt inttr4;
+  Interrupt inttr5;
+  Interrupt inttr6;
+  Interrupt inttr7;
+  Interrupt intrx0;
+  Interrupt inttx0;
+  Interrupt intrx1;
+  Interrupt inttx1;
+  Interrupt intad;
+  Interrupt inttc0;
+  Interrupt inttc1;
+  Interrupt inttc2;
+  Interrupt inttc3;
 
   struct DMA {
     uint8 vector;
@@ -182,7 +193,7 @@ struct CPU : TLCS900H, Thread {
     operator bool() const;
     auto operator=(bool) -> void;
     uint1 latch;
-  } pa0, &wait = pa0;
+  } pa0;
 
   // PA1, TI0, (/HBLANK)
   struct PA1 : PortFlow {
@@ -262,6 +273,13 @@ struct CPU : TLCS900H, Thread {
   } pb7;
 
   //timers.cpp
+  struct Prescaler {
+    auto step(uint clocks) -> void;
+
+    uint1  enable;
+    uint32 clock;
+  } prescaler;
+
   struct TI0 {
     operator bool() const { return latch; }
     auto operator=(bool) -> void;
@@ -482,14 +500,6 @@ struct CPU : TLCS900H, Thread {
       uint16 compare;
     } buffer;
   } t5;
-
-  struct Prescaler {
-    //timers.cpp
-    auto step(uint clocks) -> void;
-
-    uint1  enable;
-    uint32 clock;
-  } prescaler;
 
   //adc.cpp
   struct ADC {

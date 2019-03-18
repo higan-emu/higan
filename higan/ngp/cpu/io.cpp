@@ -1,4 +1,5 @@
 auto CPU::readIO(uint8 address) -> uint8 {
+//print("CPU::readIO(", hex(address, 2L), ")\n");
   uint8 data = 0x00;
 
   switch(address) {
@@ -346,89 +347,89 @@ auto CPU::readIO(uint8 address) -> uint8 {
   //INTE0AD
   case 0x70:
     data.bits(0,2) = 0b000;
-    data.bit(3) = int0.request;
+    data.bit(3) = int0.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = intad.request;
+    data.bit(7) = intad.pending;
     return data;
 
   //INTE45
   case 0x71:
     data.bits(0,2) = 0b000;
-    data.bit(3) = int4.request;
+    data.bit(3) = int4.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = int5.request;
+    data.bit(7) = int5.pending;
     return data;
 
   //INTE67
   case 0x72:
     data.bits(0,2) = 0b000;
-    data.bit(3) = int6.request;
+    data.bit(3) = int6.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = int7.request;
+    data.bit(7) = int7.pending;
     return data;
 
   //INTET01
   case 0x73:
     data.bits(0,2) = 0b000;
-    data.bit(3) = intt0.request;
+    data.bit(3) = intt0.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = intt1.request;
+    data.bit(7) = intt1.pending;
     return data;
 
   //INTET23
   case 0x74:
     data.bits(0,2) = 0b000;
-    data.bit(3) = intt2.request;
+    data.bit(3) = intt2.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = intt3.request;
+    data.bit(7) = intt3.pending;
     return data;
 
   //INTET45
   case 0x75:
     data.bits(0,2) = 0b000;
-    data.bit(3) = inttr4.request;
+    data.bit(3) = inttr4.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = inttr5.request;
+    data.bit(7) = inttr5.pending;
     return data;
 
   //INTET67
   case 0x76:
     data.bits(0,2) = 0b000;
-    data.bit(3) = inttr6.request;
+    data.bit(3) = inttr6.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = inttr7.request;
+    data.bit(7) = inttr7.pending;
     return data;
 
   //INTE50
   case 0x77:
     data.bits(0,2) = 0b000;
-    data.bit(3) = intrx0.request;
+    data.bit(3) = intrx0.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = inttx0.request;
+    data.bit(7) = inttx0.pending;
     return data;
 
   //INTE51
   case 0x78:
     data.bits(0,2) = 0b000;
-    data.bit(3) = intrx1.request;
+    data.bit(3) = intrx1.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = inttx1.request;
+    data.bit(7) = inttx1.pending;
     return data;
 
   //INTETC01
   case 0x79:
     data.bits(0,2) = 0b000;
-    data.bit(3) = inttc0.request;
+    data.bit(3) = inttc0.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = inttc1.request;
+    data.bit(7) = inttc1.pending;
     return data;
 
   //INTETC23
   case 0x7a:
     data.bits(0,2) = 0b000;
-    data.bit(3) = inttc2.request;
+    data.bit(3) = inttc2.pending;
     data.bits(4,6) = 0b000;
-    data.bit(7) = inttc3.request;
+    data.bit(7) = inttc3.pending;
     return data;
 
   //IIMC
@@ -494,6 +495,8 @@ auto CPU::readIO(uint8 address) -> uint8 {
 }
 
 auto CPU::writeIO(uint8 address, uint8 data) -> void {
+//print("CPU::writeIO(", hex(address, 2L), " = ", hex(data, 2L), ")\n");
+
   switch(address) {
 
   //P1
@@ -1007,89 +1010,89 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
   //INTE0AD
   case 0x70:
-    int0.priority = data.bits(0,2);
+    int0.setPriority(data.bits(0,2));
     if(!data.bit(3)) int0.clear();
-    intad.priority = data.bits(4,6);
+    intad.setPriority(data.bits(4,6));
     if(!data.bit(7)) intad.clear();
     return;
 
   //INTE45
   case 0x71:
-    int4.priority = data.bits(0,2);
+    int4.setPriority(data.bits(0,2));
     if(!data.bit(3)) int4.clear();
-    int5.priority = data.bits(4,6);
+    int5.setPriority(data.bits(4,6));
     if(!data.bit(7)) int5.clear();
     return;
 
   //INTE67
   case 0x72:
-    int6.priority = data.bits(0,2);
+    int6.setPriority(data.bits(0,2));
     if(!data.bit(3)) int6.clear();
-    int7.priority = data.bits(4,6);
+    int7.setPriority(data.bits(4,6));
     if(!data.bit(7)) int7.clear();
     return;
 
   //INTET01
   case 0x73:
-    intt0.priority = data.bits(0,2);
+    intt0.setPriority(data.bits(0,2));
     if(!data.bit(3)) intt0.clear();
-    intt1.priority = data.bits(4,6);
+    intt1.setPriority(data.bits(4,6));
     if(!data.bit(7)) intt1.clear();
     return;
 
   //INTET23
   case 0x74:
-    intt2.priority = data.bits(0,2);
+    intt2.setPriority(data.bits(0,2));
     if(!data.bit(3)) intt2.clear();
-    intt3.priority = data.bits(4,6);
+    intt3.setPriority(data.bits(4,6));
     if(!data.bit(7)) intt3.clear();
     return;
 
   //INTET45
   case 0x75:
-    inttr4.priority = data.bits(0,2);
+    inttr4.setPriority(data.bits(0,2));
     if(!data.bit(3)) inttr4.clear();
-    inttr5.priority = data.bits(4,6);
+    inttr5.setPriority(data.bits(4,6));
     if(!data.bit(7)) inttr5.clear();
     return;
 
   //INTET67
   case 0x76:
-    inttr6.priority = data.bits(0,2);
+    inttr6.setPriority(data.bits(0,2));
     if(!data.bit(3)) inttr6.clear();
-    inttr7.priority = data.bits(4,6);
+    inttr7.setPriority(data.bits(4,6));
     if(!data.bit(7)) inttr7.clear();
     return;
 
   //INTE50
   case 0x77:
-    intrx0.priority = data.bits(0,2);
+    intrx0.setPriority(data.bits(0,2));
     if(!data.bit(3)) intrx0.clear();
-    inttx0.priority = data.bits(4,6);
+    inttx0.setPriority(data.bits(4,6));
     if(!data.bit(7)) inttx0.clear();
     return;
 
   //INTE51
   case 0x78:
-    intrx1.priority = data.bits(0,2);
+    intrx1.setPriority(data.bits(0,2));
     if(!data.bit(3)) intrx1.clear();
-    inttx1.priority = data.bits(4,6);
+    inttx1.setPriority(data.bits(4,6));
     if(!data.bit(7)) inttx1.clear();
     return;
 
   //INTETC01
   case 0x79:
-    inttc0.priority = data.bits(0,2);
+    inttc0.setPriority(data.bits(0,2));
     if(!data.bit(3)) inttc0.clear();
-    inttc1.priority = data.bits(4,6);
+    inttc1.setPriority(data.bits(4,6));
     if(!data.bit(7)) inttc1.clear();
     return;
 
   //INTETC23
   case 0x7a:
-    inttc2.priority = data.bits(0,2);
+    inttc2.setPriority(data.bits(0,2));
     if(!data.bit(3)) inttc2.clear();
-    inttc3.priority = data.bits(4,6);
+    inttc3.setPriority(data.bits(4,6));
     if(!data.bit(7)) inttc3.clear();
     return;
 
@@ -1098,27 +1101,32 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     nmi.edge.rising = data.bit(0);
     int0.edge.rising = !data.bit(1);
     int0.level.high = data.bit(1);
-    int0.enable = data.bit(2);
+    int0.setEnable(data.bit(2));
+    interrupts.poll();
     return;
 
   //DMA0V
   case 0x7c:
     dma0.vector.bits(2,6) = data.bits(0,4);
+    interrupts.poll();
     return;
 
   //DMA1V
   case 0x7d:
     dma1.vector.bits(2,6) = data.bits(0,4);
+    interrupts.poll();
     return;
 
   //DMA2V
   case 0x7e:
     dma2.vector.bits(2,6) = data.bits(0,4);
+    interrupts.poll();
     return;
 
   //DMA3V
   case 0x7f:
     dma3.vector.bits(2,6) = data.bits(0,4);
+    interrupts.poll();
     return;
 
   case 0x80:
@@ -1155,7 +1163,7 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     return;
 
   case 0xb3:
-    nmi.enable = data.bit(2);
+    nmi.setEnable(data.bit(2));
     return;
 
   case 0xb4:

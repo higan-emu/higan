@@ -4,7 +4,7 @@
 
 namespace higan::NeoGeoPocket {
 
-bool tracing = false;
+bool tracing = 0;
 
 CPU cpu;
 #include "memory.cpp"
@@ -18,42 +18,7 @@ CPU cpu;
 #include "serialization.cpp"
 
 auto CPU::main() -> void {
-  Interrupt empty;
-  maybe<Interrupt&> i = empty;
-
-  inttc3.test(i);
-  inttc2.test(i);
-  inttc1.test(i);
-  inttc0.test(i);
-  intad.test(i);
-  inttx1.test(i);
-  intrx1.test(i);
-  inttx0.test(i);
-  intrx0.test(i);
-  inttr7.test(i);
-  inttr6.test(i);
-  inttr5.test(i);
-  inttr4.test(i);
-  intt3.test(i);
-  intt2.test(i);
-  intt1.test(i);
-  intt0.test(i);
-  int7.test(i);
-  int6.test(i);
-  int5.test(i);
-  int4.test(i);
-  int0.test(i);
-  intwd.test(i);
-  nmi.test(i);
-
-  if(i->iff() && i->iff() >= r.iff) {
-    if(tracing) print("* IRQ ", hex(i->vector, 2L), " ", i->iff(), "\n");
-    i->fire();
-    r.halted = false;
-  }
-
-//platform->input(controls.debug);
-//if(!tracing&&controls.debug->value)tracing=true;
+  if(interrupts.fire()) r.halted = false;
 
 //auto pc=r.pc.l.l0;
 //if(pc==0x2d8000){
@@ -68,7 +33,7 @@ auto CPU::main() -> void {
 //}}
 
 static uint ctr=0;
-if(tracing&&++ctr<3000)print(disassemble(),"\n");
+if(tracing&&++ctr<3000) print(disassemble(),"\n");
 
   if(r.halted) return step(16);
   instruction();
@@ -168,40 +133,62 @@ auto CPU::power() -> void {
   pb6.latch = 1; pb6.flow = 1; pb6.mode = 1;
   pb7.latch = 1; pb7.flow = 1;
 
+  nmi.vector = 0x20; nmi.dmaAllowed = 0;
   nmi.enable = 0;
   nmi.maskable = 0;
   nmi.priority = 7;
   nmi.line = 1;
-  nmi.request = 0;
   nmi.edge.rising = 0;
   nmi.edge.falling = 1;
 
+  intwd.vector = 0x24; intwd.dmaAllowed = 0;
   intwd.enable = 1;
   intwd.maskable = 0;
   intwd.priority = 7;
   intwd.line = 1;
-  intwd.request = 0;
   intwd.edge.falling = 1;
 
+  int0.vector = 0x28; int0.dmaAllowed = 1;
   int0.enable = 0;
   int0.edge.rising = 1;
   int0.level.high = 0;
+  int4.vector = 0x2c; int4.dmaAllowed = 1;
   int4.edge.rising = 1;
+  int5.vector = 0x30; int5.dmaAllowed = 1;
   int5.edge.rising = 1;
+  int6.vector = 0x34; int6.dmaAllowed = 1;
   int6.edge.rising = 1;
+  int7.vector = 0x38; int7.dmaAllowed = 1;
   int7.edge.rising = 1;
+  intt0.vector = 0x40; intt0.dmaAllowed = 1;
   intt0.edge.rising = 1;
+  intt1.vector = 0x44; intt1.dmaAllowed = 1;
   intt1.edge.rising = 1;
+  intt2.vector = 0x48; intt2.dmaAllowed = 1;
   intt2.edge.rising = 1;
+  intt3.vector = 0x4c; intt3.dmaAllowed = 1;
   intt3.edge.rising = 1;
-  intad.edge.rising = 1;
+  inttr4.vector = 0x50; inttr4.dmaAllowed = 1;
   inttr4.edge.rising = 1;
+  inttr5.vector = 0x54; inttr5.dmaAllowed = 1;
   inttr5.edge.rising = 1;
+  inttr6.vector = 0x58; inttr6.dmaAllowed = 1;
   inttr6.edge.rising = 1;
+  inttr7.vector = 0x5c; inttr7.dmaAllowed = 1;
   inttr7.edge.rising = 1;
+  intrx0.vector = 0x60; intrx0.dmaAllowed = 1; intrx0.edge.rising = 1;
+  inttx0.vector = 0x64; inttx0.dmaAllowed = 1; inttx0.edge.rising = 1;
+  intrx1.vector = 0x68; intrx1.dmaAllowed = 1; intrx1.edge.rising = 1;
+  inttx1.vector = 0x6c; inttx1.dmaAllowed = 1; inttx1.edge.rising = 1;
+  intad.vector = 0x70; intad.dmaAllowed = 1;
+  intad.edge.rising = 1;
+  inttc0.vector = 0x74; inttc0.dmaAllowed = 0;
   inttc0.edge.rising = 1;
+  inttc1.vector = 0x78; inttc1.dmaAllowed = 0;
   inttc1.edge.rising = 1;
+  inttc2.vector = 0x7c; inttc2.dmaAllowed = 0;
   inttc2.edge.rising = 1;
+  inttc3.vector = 0x80; inttc3.dmaAllowed = 0;
   inttc3.edge.rising = 1;
 
   cs0.enable  = 0;

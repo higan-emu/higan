@@ -9,7 +9,7 @@ auto APU::write(uint16 address, uint8 data) -> void {
   if(address == 0x4000) return psg.psgRight.write(data);
   if(address == 0x4001) return psg.psgLeft.write(data);
   if(address == 0x8000) return (void)(cpu.io.apuPort = data);
-  if(address == 0xc000) return cpu.pb1 = 1;
+  if(address == 0xc000) return cpu.int5.raise();
 }
 
 auto APU::in(uint16 address) -> uint8 {
@@ -19,5 +19,5 @@ auto APU::in(uint16 address) -> uint8 {
 auto APU::out(uint16 address, uint8 data) -> void {
   //todo: unconfirmed
   irq.line = 0;
-  cpu.pb1 = 0;
+  cpu.int5.lower();
 }

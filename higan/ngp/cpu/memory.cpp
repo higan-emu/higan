@@ -11,7 +11,7 @@ auto CPU::ChipSelect::select() -> void {
     break;
   case 2:  //1+n states
     cpu.step(1);
-    while(cpu.wait) cpu.step(1);
+    while(0 /*cpu.wait*/) cpu.step(1);
     break;
   case 3:  //0 states
     break;

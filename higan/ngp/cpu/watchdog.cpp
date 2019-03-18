@@ -1,10 +1,8 @@
 auto CPU::Watchdog::step(uint clocks) -> void {
   if(!enable) return;
   timeout -= clocks;
-  if(timeout <= 0) {
-    cpu.intwd = 1;
-    cpu.intwd = 0;
-  }
+  if(timeout > 0) return;
+  cpu.intwd.trigger();
 }
 
 auto CPU::Watchdog::disable() -> void {
