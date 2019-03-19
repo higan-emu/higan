@@ -1,8 +1,6 @@
 auto PSG::serialize(serializer& s) -> void {
   Thread::serialize(s);
-  s.integer(psgEnable);
-  psgLeft.serialize(s);
-  psgRight.serialize(s);
-  s.integer(dacLeft);
-  s.integer(dacRight);
+  s.integer(psg.enable);
+  s.integer(dac.left);
+  s.integer(dac.right);
 }

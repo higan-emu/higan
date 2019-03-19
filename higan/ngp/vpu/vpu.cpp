@@ -32,6 +32,10 @@ auto VPU::main() -> void {
       if(validSprite && sprite.priority == 3) color = sprite.output;
       if(validWindow) color = window.output;
 
+      if(Model::NeoGeoPocket() && screen.negate) {
+        color ^= 7;
+      }
+
       output[hclock] = color;
       io.hcounter++;
       step(3);

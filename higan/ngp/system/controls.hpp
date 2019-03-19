@@ -5,8 +5,7 @@ struct Controls {
   Node::Button right;
   Node::Button a;
   Node::Button b;
-  Node::Button c;
-  Node::Button d;
+  Node::Button option;
   Node::Button power;
   Node::Button debug;
 

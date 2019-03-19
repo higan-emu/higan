@@ -32,9 +32,6 @@ auto CPU::main() -> void {
 //tracing=true;
 //}}
 
-static uint ctr=0;
-if(tracing&&++ctr<3000) print(disassemble(),"\n");
-
   if(r.halted) return step(16);
   instruction();
 }

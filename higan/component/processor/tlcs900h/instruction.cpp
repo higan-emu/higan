@@ -96,16 +96,16 @@ auto TLCS900H::instruction() -> void {
     instructionReturnDeallocate(fetchImmediate<int16>());
     return step(11);
   case 0x10:
-    instructionSetFlag(CF, 0);
+    instructionSetCarryFlag(0);
     return step(2);
   case 0x11:
-    instructionSetFlag(CF, 1);
+    instructionSetCarryFlag(1);
     return step(2);
   case 0x12:
-    instructionSetFlag(CF, !CF);
+    instructionSetCarryFlagComplement(CF);
     return step(2);
   case 0x13:
-    instructionSetFlag(CF, !ZF);
+    instructionSetCarryFlagComplement(ZF);
     return step(2);
   case 0x14:
     instructionPush(A);
@@ -806,36 +806,36 @@ auto TLCS900H::instructionSourceMemory(M memory) -> void {
   case 0x08: case 0x09: case 0x0a: case 0x0b: case 0x0c: case 0x0d: case 0x0e: case 0x0f:
     return undefined();
   case 0x10:
-    if constexpr(bits ==  8) { instructionLoad<T, +1>(); return step(1); }
-    if constexpr(bits == 16) { instructionLoad<T, +2>(); return step(1); }
+    if constexpr(bits ==  8) { instructionLoad<T, +1>(); return step(8); }
+    if constexpr(bits == 16) { instructionLoad<T, +2>(); return step(8); }
     return undefined();
   case 0x11:
-    if constexpr(bits ==  8) { instructionLoadRepeat<T, +1>(); return step(1); }
-    if constexpr(bits == 16) { instructionLoadRepeat<T, +2>(); return step(1); }
+    if constexpr(bits ==  8) { instructionLoadRepeat<T, +1>(); return step(7); }
+    if constexpr(bits == 16) { instructionLoadRepeat<T, +2>(); return step(7); }
     return undefined();
   case 0x12:
-    if constexpr(bits ==  8) { instructionLoad<T, -1>(); return step(1); }
-    if constexpr(bits == 16) { instructionLoad<T, -2>(); return step(1); }
+    if constexpr(bits ==  8) { instructionLoad<T, -1>(); return step(8); }
+    if constexpr(bits == 16) { instructionLoad<T, -2>(); return step(8); }
     return undefined();
   case 0x13:
-    if constexpr(bits ==  8) { instructionLoadRepeat<T, -1>(); return step(1); }
-    if constexpr(bits == 16) { instructionLoadRepeat<T, -2>(); return step(1); }
+    if constexpr(bits ==  8) { instructionLoadRepeat<T, -1>(); return step(7); }
+    if constexpr(bits == 16) { instructionLoadRepeat<T, -2>(); return step(7); }
     return undefined();
   case 0x14:
-    if constexpr(bits ==  8) { instructionCompare<T, +1>( A); return; }
-    if constexpr(bits == 16) { instructionCompare<T, +2>(WA); return; }
+    if constexpr(bits ==  8) { instructionCompare<T, +1>( A); return step(6); }
+    if constexpr(bits == 16) { instructionCompare<T, +2>(WA); return step(6); }
     return undefined();
   case 0x15:
-    if constexpr(bits ==  8) { instructionCompareRepeat<T, +1>( A); return step(1); }
-    if constexpr(bits == 16) { instructionCompareRepeat<T, +2>(WA); return step(1); }
+    if constexpr(bits ==  8) { instructionCompareRepeat<T, +1>( A); return step(6); }
+    if constexpr(bits == 16) { instructionCompareRepeat<T, +2>(WA); return step(6); }
     return undefined();
   case 0x16:
-    if constexpr(bits ==  8) { instructionCompare<T, -1>( A); return; }
-    if constexpr(bits == 16) { instructionCompare<T, -2>(WA); return; }
+    if constexpr(bits ==  8) { instructionCompare<T, -1>( A); return step(6); }
+    if constexpr(bits == 16) { instructionCompare<T, -2>(WA); return step(6); }
     return undefined();
   case 0x17:
-    if constexpr(bits ==  8) { instructionCompareRepeat<T, -1>( A); return step(1); }
-    if constexpr(bits == 16) { instructionCompareRepeat<T, -2>(WA); return step(1); }
+    if constexpr(bits ==  8) { instructionCompareRepeat<T, -1>( A); return step(6); }
+    if constexpr(bits == 16) { instructionCompareRepeat<T, -2>(WA); return step(6); }
     return undefined();
   case 0x18:
     return undefined();

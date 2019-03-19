@@ -31,17 +31,17 @@ auto TLCS900H::instructionBit(Source source, Offset offset) -> void {
 auto TLCS900H::instructionBitSearch1Backward(Register<uint16> register) -> void {
   auto value = load(register);
   for(uint index : reverse(range(16))) {
-    if(value.bit(index)) return VF = 1, store(A, index);
+    if(value.bit(index)) return VF = 0, store(A, index);
   }
-  VF = 0;
+  VF = 1;
 }
 
 auto TLCS900H::instructionBitSearch1Forward(Register<uint16> register) -> void {
   auto value = load(register);
   for(uint index : range(16)) {
-    if(value.bit(index)) return VF = 1, store(A, index);
+    if(value.bit(index)) return VF = 0, store(A, index);
   }
-  VF = 0;
+  VF = 1;
 }
 
 template<typename Source>
@@ -65,7 +65,6 @@ auto TLCS900H::instructionChange(Target target, Offset offset) -> void {
 
 template<typename Size, int Adjust, typename Target>
 auto TLCS900H::instructionCompare(Target target) -> void {
-  step(6);
   auto source = toRegister3<uint32>(r.prefix);
   auto cf = CF;  //CF is not modified; but algorithmSubtract will modify it
   algorithmSubtract(load(target), load(toMemory<Size>(load(source))));
@@ -75,9 +74,13 @@ auto TLCS900H::instructionCompare(Target target) -> void {
   VF = load(BC) != 0;
 }
 
+//note: unlike LDIR and LDDR, CPIR and CPDR do not appear to have the extra read when BC=0
+//however, the penalty cycle still exists and is emulated here.
 template<typename Size, int Adjust, typename Target>
 auto TLCS900H::instructionCompareRepeat(Target target) -> void {
-  do { instructionCompare<Size, Adjust>(target); } while(VF && !ZF);
+  instructionCompare<Size, Adjust>(target);
+  if(load(BC) && !ZF) return store(PC, load(PC) - 2);
+  step(1);
 }
 
 template<typename Target, typename Source>
@@ -109,7 +112,13 @@ template<typename Target, typename Source>
 auto TLCS900H::instructionDecrement(Target target, Source source) -> void {
   auto immediate = load(source);
   if(!immediate) immediate = 8;
-  store(target, algorithmDecrement(load(target), immediate));
+  if constexpr(is_same_v<Target, Register<uint16>> || is_same_v<Target, Register<uint32>>) {
+    //decw #n,r; decl #n,r: does not update flags
+    store(target, load(target) - immediate);
+  } else {
+    //decb #n,r; decb #n,(r); decw #n,(r): does update flags
+    store(target, algorithmDecrement(load(target), immediate));
+  }
 }
 
 template<typename Target, typename Offset>
@@ -170,7 +179,13 @@ template<typename Target, typename Source>
 auto TLCS900H::instructionIncrement(Target target, Source source) -> void {
   auto immediate = load(source);
   if(!immediate) immediate = 8;
-  store(target, algorithmIncrement(load(target), immediate));
+  if constexpr(is_same_v<Target, Register<uint16>> || is_same_v<Target, Register<uint32>>) {
+    //incw #n,r; incl #n,r: does not update flags
+    store(target, load(target) + immediate);
+  } else {
+    //incb #n,r; incb #n,(r); incw #n,(r): does update flags
+    store(target, algorithmIncrement(load(target), immediate));
+  }
 }
 
 template<typename Source>
@@ -203,20 +218,28 @@ auto TLCS900H::instructionLoadCarry(Source source, Offset offset) -> void {
 }
 
 template<typename Size, int Adjust> auto TLCS900H::instructionLoad() -> void {
-  step(7);
-  auto target = (uint3)r.prefix == 5 ? XIX : XDE;
   auto source = (uint3)r.prefix == 5 ? XIY : XHL;
+  auto target = (uint3)r.prefix == 5 ? XIX : XDE;
   store(toMemory<Size>(load(target)), load(toMemory<Size>(load(source))));
-  store(target, load(target) + Adjust);
   store(source, load(source) + Adjust);
+  store(target, load(target) + Adjust);
   store(BC, load(BC) - 1);
   NF = 0;
   VF = load(BC) != 0;
   HF = 0;
 }
 
+//note: the TLCS900/H manual states that when BC=0, an extra memory read cycle occurs and its value is discarded
+//further, the instruction list indicates LDIR and LDDR take 7n+1 wait states
+//however, the manual indicates it's the first address that is read twice
+//it further also isn't clear whether this only occurs when *starting* LDIR and LDDR with BC=0,
+//or if it always occurs at the end of ever LDIR and LDDR instruction.
+//since I'm not sure how to emulate this, I don't try and guess here.
+//I do however add the extra penalty cycle at the end of the transfer.
 template<typename Size, int Adjust> auto TLCS900H::instructionLoadRepeat() -> void {
-  do { instructionLoad<Size, Adjust>(); } while(VF);
+  instructionLoad<Size, Adjust>();
+  if(load(BC)) return store(PC, load(PC) - 2);
+  step(1);
 }
 
 //reverse all bits in a 16-bit register
@@ -432,13 +455,25 @@ auto TLCS900H::instructionSet(Target target, Offset offset) -> void {
   store(target, result);
 }
 
+//RCF: reset carry flag
+//SCF: set carry flag
+auto TLCS900H::instructionSetCarryFlag(uint1 value) -> void {
+  CF = value;
+  NF = 0;
+  HF = 0;
+}
+
+//CCF: complement carry flag
+//ZCF: complement zero flag to carry flag
+auto TLCS900H::instructionSetCarryFlagComplement(uint1 value) -> void {
+  CF = !value;
+  NF = 0;
+  HF = Undefined;
+}
+
 template<typename Target>
 auto TLCS900H::instructionSetConditionCode(uint4 code, Target target) -> void {
   store(target, condition(code));
-}
-
-auto TLCS900H::instructionSetFlag(uint1& flag, uint1 value) -> void {
-  flag = value;
 }
 
 auto TLCS900H::instructionSetInterruptFlipFlop(uint3 value) -> void {

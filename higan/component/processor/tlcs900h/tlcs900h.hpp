@@ -67,7 +67,6 @@ struct TLCS900H {
 
   //conditions.cpp
   auto condition(uint4 code) -> bool;
-auto condition1(uint4)->bool;
 
   //algorithms.cpp
   template<typename T> auto parity(T) const -> bool;
@@ -157,8 +156,9 @@ auto condition1(uint4)->bool;
   template<typename Target, typename Amount> auto instructionRotateRight(Target, Amount) -> void;
   template<typename Target, typename Amount> auto instructionRotateRightWithoutCarry(Target, Amount) -> void;
   template<typename Target, typename Offset> auto instructionSet(Target, Offset) -> void;
+  auto instructionSetCarryFlag(uint1 value) -> void;
+  auto instructionSetCarryFlagComplement(uint1 value) -> void;
   template<typename Target> auto instructionSetConditionCode(uint4 code, Target) -> void;
-  auto instructionSetFlag(uint1& flag, uint1 value) -> void;
   auto instructionSetInterruptFlipFlop(uint3 value) -> void;
   auto instructionSetRegisterFilePointer(uint2 value) -> void;
   template<typename Target, typename Amount> auto instructionShiftLeftArithmetic(Target, Amount) -> void;

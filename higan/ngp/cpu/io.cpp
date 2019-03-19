@@ -464,8 +464,12 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(3) = controls.rightLatch;
     data.bit(4) = controls.a->value;
     data.bit(5) = controls.b->value;
-    data.bit(6) = controls.c->value;
-    data.bit(7) = controls.d->value;
+    data.bit(6) = controls.option->value;
+    data.bit(7) = 0;
+    //the dev manual states that d6 = C and d7 = D when the Neo Geo controller is used,
+    //however there appears to be no way to connect a Neo Geo controller to a real Neo Geo Pocket.
+    //this may have been functionality of a devkit model, so it may be worth binding an input to it,
+    //however I can't think of a good name for it short of renaming "Option" to "C" first.
     return data;
 
   case 0xb1:
@@ -1143,19 +1147,19 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
   case 0x97: rtc.weekday = data.bits(0,3); return;
 
   case 0xa0:
-    psg.psgRight.write(data);
+    psg.writeRight(data);
     return;
 
   case 0xa1:
-    psg.psgLeft.write(data);
+    psg.writeLeft(data);
     return;
 
   case 0xa2:
-    psg.dacRight = data;
+    psg.writeRightDAC(data);
     return;
 
   case 0xa3:
-    psg.dacLeft = data;
+    psg.writeLeftDAC(data);
     return;
 
   case 0xb2:
@@ -1175,8 +1179,8 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     return;
 
   case 0xb8:
-    if(data == 0x55) psg.psgEnable = 1;
-    if(data == 0xaa) psg.psgEnable = 0;
+    if(data == 0x55) psg.enable();
+    if(data == 0xaa) psg.disable();
     return;
 
   case 0xb9:

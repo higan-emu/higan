@@ -46,25 +46,21 @@ template<typename T> auto TLCS900H::algorithmAnd(T target, T source) -> T {
 
 template<typename T> auto TLCS900H::algorithmDecrement(T target, T source) -> T {
   T result = target - source;
-  if constexpr(T::bits() == 8) {
-    NF = 1;
-    VF = T((target ^ source) & (target ^ result)).bit(-1);
-    HF = T(target ^ source ^ result).bit(4);
-    ZF = result == 0;
-    SF = result.bit(-1);
-  }
+  NF = 1;
+  VF = T((target ^ source) & (target ^ result)).bit(-1);
+  HF = T(target ^ source ^ result).bit(4);
+  ZF = result == 0;
+  SF = result.bit(-1);
   return result;
 }
 
 template<typename T> auto TLCS900H::algorithmIncrement(T target, T source) -> T {
   T result = target + source;
-  if constexpr(T::bits() == 8) {
-    NF = 0;
-    VF = T((target ^ result) & (source ^ result)).bit(-1);
-    HF = T(target ^ source ^ result).bit(4);
-    ZF = result == 0;
-    SF = result.bit(-1);
-  }
+  NF = 0;
+  VF = T((target ^ result) & (source ^ result)).bit(-1);
+  HF = T(target ^ source ^ result).bit(4);
+  ZF = result == 0;
+  SF = result.bit(-1);
   return result;
 }
 
