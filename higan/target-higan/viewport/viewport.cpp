@@ -36,13 +36,16 @@ auto ViewportWindow::show(Window parent) -> void {
   setFocused();
   Application::processEvents();
 
-  if(!video) {
-    video.create(settings.video.driver);
-    video.setContext(viewport.handle());
-    video.setBlocking(false);
+  video.create(settings.video.driver);
+  video.setContext(viewport.handle());
+  video.setBlocking(false);
 
-    //now that a video driver has been initialized,
-    //populate video settings if it hasn't already been
-    videoSettings.eventActivate();
-  }
+  //now that a video driver has been initialized,
+  //populate video settings if it hasn't already been
+  videoSettings.eventActivate();
+}
+
+auto ViewportWindow::hide() -> void {
+  video.reset();
+  setVisible(false);
 }

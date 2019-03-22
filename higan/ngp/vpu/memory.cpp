@@ -1,10 +1,10 @@
 auto VPU::read(uint24 address) -> uint8 {
   address = 0x8000 | (uint14)address;
-  if(address >= 0x8200 && address <= 0x83ff && Model::NeoGeoPocketColor()) return readPaletteColor(address);
+  if(address >= 0x8200 && address <= 0x83ff && Model::NeoGeoPocketColor()) return readColor(address);
   if(address >= 0x8800 && address <= 0x88ff) return readSprite(address);
   if(address >= 0x8c00 && address <= 0x8c3f && Model::NeoGeoPocketColor()) return readSpriteColor(address);
-  if(address >= 0x9000 && address <= 0x9fff) return scrollRAM.read(address);
-  if(address >= 0xa000 && address <= 0xbfff) return characterRAM.read(address);
+  if(address >= 0x9000 && address <= 0x9fff) return readAttribute(address);
+  if(address >= 0xa000 && address <= 0xbfff) return readCharacter(address);
 
   uint8 data = 0x00;
 
@@ -21,8 +21,8 @@ auto VPU::read(uint24 address) -> uint8 {
 
   case 0x8006: data = io.vlines; break;
 
-  case 0x8008: data = io.hcounter * 3 >> 2; break;  //hack
-  case 0x8009: data = io.vcounter; break;
+  case 0x8008: data = io.hcounter.bits(2,9); break;
+  case 0x8009: data = io.vcounter.bits(0,7); break;
 
   case 0x8010:
     data.bit(6) = io.vblankActive;
@@ -95,11 +95,11 @@ auto VPU::read(uint24 address) -> uint8 {
 
 auto VPU::write(uint24 address, uint8 data) -> void {
   address = 0x8000 | (uint14)address;
-  if(address >= 0x8200 && address <= 0x83ff && Model::NeoGeoPocketColor()) return writePaletteColor(address, data);
+  if(address >= 0x8200 && address <= 0x83ff && Model::NeoGeoPocketColor()) return writeColor(address, data);
   if(address >= 0x8800 && address <= 0x88ff) return writeSprite(address, data);
   if(address >= 0x8c00 && address <= 0x8cff && Model::NeoGeoPocketColor()) return writeSpriteColor(address, data);
-  if(address >= 0x9000 && address <= 0x9fff) return scrollRAM.write(address, data);
-  if(address >= 0xa000 && address <= 0xbfff) return characterRAM.write(address, data);
+  if(address >= 0x9000 && address <= 0x9fff) return writeAttribute(address, data);
+  if(address >= 0xa000 && address <= 0xbfff) return writeCharacter(address, data);
 
   switch(address) {
   case 0x8000:
@@ -160,9 +160,9 @@ auto VPU::write(uint24 address, uint8 data) -> void {
 
   case 0x8118:
     if(!Model::NeoGeoPocketColor()) break;
-    background.color = data.bits(0,2);
+    background.color  = data.bits(0,2);
     background.unused = data.bits(3,5);
-    background.mode = data.bits(6,7);
+    background.mode   = data.bits(6,7);
     break;
 
   case 0x8400: led.control.bits(3,7) = data.bits(3,7); break;
@@ -174,6 +174,7 @@ auto VPU::write(uint24 address, uint8 data) -> void {
 
   case 0x87e2:
     if(!Model::NeoGeoPocketColor()) break;
+    if(!cpu.privilegedMode()) break;  //user-mode code is not supposed to be able to write to this register
     screen.colorMode = data.bit(7);
     break;
   }
@@ -222,18 +223,64 @@ auto VPU::writeSpriteColor(uint6 address, uint8 data) -> void {
   sprites[address].code = data.bits(0,3);
 }
 
-auto VPU::readPaletteColor(uint9 address) -> uint8 {
+auto VPU::readColor(uint9 address) -> uint8 {
+  auto& p = colors[address >> 1];
   if(!address.bit(0)) {
-    return colorPalette[address >> 1].bits(0, 7);
+    return p.bits(0, 7);
   } else {
-    return colorPalette[address >> 1].bits(8,11);  //d4-d7 = 0
+    return p.bits(8,11);  //d4-d7 = 0
   }
 }
 
-auto VPU::writePaletteColor(uint9 address, uint8 data) -> void {
+auto VPU::writeColor(uint9 address, uint8 data) -> void {
+  auto& p = colors[address >> 1];
   if(!address.bit(0)) {
-    colorPalette[address >> 1].bits(0, 7) = data.bits(0,7);
+    p.bits(0, 7) = data.bits(0,7);
   } else {
-    colorPalette[address >> 1].bits(8,11) = data.bits(0,3);
+    p.bits(8,11) = data.bits(0,3);
   }
+}
+
+auto VPU::readAttribute(uint12 address) -> uint8 {
+  auto& a = attributes[address >> 1];
+  if(!address.bit(0)) {
+    return a.character.bits(0,7);
+  } else {
+    return a.character.bit(8) << 0 | a.code << 1 | a.palette << 5 | a.vflip << 6 | a.hflip << 7;
+  }
+}
+
+auto VPU::writeAttribute(uint12 address, uint8 data) -> void {
+  auto& a = attributes[address >> 1];
+  if(!address.bit(0)) {
+    a.character.bits(0,7) = data.bits(0,7);
+  } else {
+    a.character.bit(8) = data.bit(0);
+    a.code = data.bits(1,4);
+    a.palette = data.bit(5);
+    a.vflip = data.bit(6);
+    a.hflip = data.bit(7);
+  }
+}
+
+auto VPU::readCharacter(uint13 address) -> uint8 {
+  auto& c = characters[address >> 4];
+  uint3 y = address >> 1;
+  uint3 x = address >> 0 << 2;
+  uint8 data;
+  data.bits(0,1) = c[y][x++];
+  data.bits(2,3) = c[y][x++];
+  data.bits(4,5) = c[y][x++];
+  data.bits(6,7) = c[y][x++];
+  return data;
+}
+
+auto VPU::writeCharacter(uint13 address, uint8 data) -> void {
+  auto& c = characters[address >> 4];
+  uint3 y = address >> 1;
+  uint3 x = address >> 0 << 2;
+  c[y][x++] = data.bits(0,1);
+  c[y][x++] = data.bits(2,3);
+  c[y][x++] = data.bits(4,5);
+  c[y][x++] = data.bits(6,7);
 }

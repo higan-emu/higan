@@ -11,7 +11,7 @@ auto Flash::allocate(natural size) -> bool {
   if(size ==  4_Mibit) { rom.allocate(size); vendorID = 0x98; deviceID = 0xab; }  //vendorID 0x98 => Toshiba
   if(size ==  8_Mibit) { rom.allocate(size); vendorID = 0x98; deviceID = 0x2c; }  //vendorID 0xb0 => Sharp
   if(size == 16_Mibit) { rom.allocate(size); vendorID = 0x98; deviceID = 0x2f; }  //vendorID 0xec => Samsung
-  if(!size) return false;
+  if(!rom) return false;
 
   for(uint index : range(size / 64_KiB - 1)) blocks.append({true, index * 64_KiB, 64_KiB});
   blocks.append({true, size - 64_KiB, 32_KiB});

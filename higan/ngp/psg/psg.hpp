@@ -60,6 +60,8 @@ struct PSG : Thread {
   } dac;
 
   uint3 select;
+
+//unserialized
   int16 amplitude[16];
 };
 

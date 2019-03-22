@@ -89,7 +89,7 @@ private:
     frameIndex = 0;
     blockIndex = 0;
 
-    waveOutSetVolume(handle, 0xffff);  //100% volume (255 left, 255 right)
+    waveOutSetVolume(handle, 0xffff'ffff);  //100% volume (65535 left, 65535 right)
     waveOutRestart(handle);
     return true;
   }

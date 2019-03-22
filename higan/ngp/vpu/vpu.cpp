@@ -11,16 +11,20 @@ VPU vpu;
 
 auto VPU::main() -> void {
   if(io.vcounter < 152) {
-    auto output = buffer + io.vcounter * 160;
-    for(uint hclock : range(160)) {
-      bool validPlane1 = renderPlane(plane1);
-      bool validPlane2 = renderPlane(plane2);
-      bool validSprite = renderSprite();
-      bool validWindow = renderWindow();
+    uint8 y = io.vcounter;
+    auto output = buffer + y * 160;
+    for(uint8 x : range(160)) {
+      bool validPlane1 = renderPlane(x, y, plane1);
+      bool validPlane2 = renderPlane(x, y, plane2);
+      bool validSprite = renderSprite(x, y);
+      bool validWindow = renderWindow(x, y);
 
       uint12 color;
-      if(Model::NeoGeoPocketColor() && background.mode == 2) {
-        color = colorPalette[0xf0 + background.color];
+      //the dev manual says only background.mode = 0b10 enables background.color
+      //Ogre Battle however sets 0b00 and expects the background color to be used
+      //as such, it appears that only the lower bit of background.mode matters?
+      if(Model::NeoGeoPocketColor() && !background.mode.bit(0)) {
+        color = colors[0xf0 + background.color];
       }
 
       if(validSprite && sprite.priority == 1) color = sprite.output;
@@ -36,8 +40,8 @@ auto VPU::main() -> void {
         color ^= 7;
       }
 
-      output[hclock] = color;
-      io.hcounter++;
+      output[x] = color;
+      io.hcounter += 3;
       step(3);
     }
     if(io.vcounter <= 150) {
@@ -45,11 +49,8 @@ auto VPU::main() -> void {
       cpu.ti0 = !io.hblankEnableIRQ;
     }
   }
-  while(io.hcounter < 171) {
-    io.hcounter++;
-    step(3);
-  }
 
+  step(515 - io.hcounter);
   io.hcounter = 0;
   io.hblankActive = 0;
   cpu.ti0 = 1;
@@ -89,11 +90,12 @@ auto VPU::power() -> void {
   Thread::create(system.frequency(), [&] {
     while(true) scheduler.synchronize(), main();
   });
-  scrollRAM.allocate(0x1000);
-  characterRAM.allocate(0x2000);
-  for(auto& p : colorPalette) p = {};
+
+  for(auto& p : colors) p = {};
   background = {};
   window = {};
+  for(auto& a : attributes) a = {};
+  for(auto& c : characters) for(auto& y : c) for(auto& x : y) x = 0;
   plane1 = {0x000, 0x40, 0xd0};
   plane2 = {0x800, 0x80, 0xe0};
   sprite = {0x00, 0xc0};

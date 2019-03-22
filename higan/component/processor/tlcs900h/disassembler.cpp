@@ -540,7 +540,7 @@ auto TLCS900H::disassemble() -> string {
        "a",   "w",  "qa",  "qw",   "c",   "b",  "qc",  "qb",   "e",   "d",  "eq",  "qd",   "l",   "h",  "ql",  "qh",    //e0-ef
       "ixl", "ixh", "qixl","qixh","iyl", "iyh", "qiyl","qiyh","izl", "izh", "qizl","qizh","spl", "sph", "qspl","qsph",  //f0-ff
     };
-    auto register8 = [](uint8 register) -> string {
+    auto register8 = [&](uint8 register) -> string {
       if(register <  0x40) return registers8[register];
       if(register >= 0xd0) return registers8[(register - 0xd0 >> 0) + 0x40];
       return "rb?";
@@ -555,7 +555,7 @@ auto TLCS900H::disassemble() -> string {
        "wa",  "qwa",   "bc",  "qbc",   "de",  "qde",   "hl",  "qhl",   //e0-ef
        "ix",  "qix",   "iy",  "qiy",   "iz",  "qiz",   "sp",  "qsp",   //f0-ff
     };
-    auto register16 = [](uint8 register) -> string {
+    auto register16 = [&](uint8 register) -> string {
       if(register <  0x40) return registers16[register >> 1];
       if(register >= 0xd0) return registers16[(register - 0xd0 >> 1) + 0x20];
       return "rw?";
@@ -576,8 +576,15 @@ auto TLCS900H::disassemble() -> string {
       return "rl?";
     };
 
+    auto registerSize = [&](natural size, uint8 register) -> string {
+      if(size ==  8) return register8 (register);
+      if(size == 16) return register16(register);
+      if(size == 32) return register32(register);
+      return "r??";
+    };
+
     //there are no names for byte-accesses to control registers
-    auto control8 = [](uint8 register) -> string {
+    auto control8 = [&](uint8 register) -> string {
       return {"c", hex(register, 2L)};
     };
 
@@ -586,7 +593,7 @@ auto TLCS900H::disassemble() -> string {
       "dmad0l", "dmad0h", "dmad1l", "dmad1h", "dmad2l", "dmad2h", "dmad3l", "dmad3h",  //10-1f
       "dmac0",  "dmac0h", "dmac1",  "dmac1h", "dmac2",  "dmac2h", "dmac3",  "dmac3h",  //20-2f
     };
-    auto control16 = [](uint8 register) -> string {
+    auto control16 = [&](uint8 register) -> string {
       if(register <  0x30) return controls16[register >> 1];
       if(register >= 0x3c || register <= 0x3d) return "intnest";
       return "cw?";
@@ -597,10 +604,17 @@ auto TLCS900H::disassemble() -> string {
       "dmad0", "dmad1", "dmad2", "dmad3",  //10-1f
       "dmam0", "dmam1", "dmam2", "dmam3",  //20-2f
     };
-    auto control32 = [](uint8 register) -> string {
+    auto control32 = [&](uint8 register) -> string {
       if(register <  0x30) return controls32[register >> 2];
       if(register >= 0x3c && register <= 0x3f) return "intnest";
       return "cl?";
+    };
+
+    auto controlSize = [&](natural size, uint8 register) -> string {
+      if(size ==  8) return control8 (register);
+      if(size == 16) return control16(register);
+      if(size == 32) return control32(register);
+      return "c??";
     };
 
     if(operand.mode() == Text) return operand.text();
@@ -611,16 +625,8 @@ auto TLCS900H::disassemble() -> string {
       };
       return conditions[operand.condition()];
     }
-    if(operand.mode() == Register) {
-      if(operand.size() ==  8) return  register8(operand.register());
-      if(operand.size() == 16) return register16(operand.register());
-      if(operand.size() == 32) return register32(operand.register());
-    }
-    if(operand.mode() == Control) {
-      if(operand.size() ==  8) return  control8(operand.register());
-      if(operand.size() == 16) return control16(operand.register());
-      if(operand.size() == 32) return control32(operand.register());
-    }
+    if(operand.mode() == Register) return registerSize(operand.size(), operand.register());
+    if(operand.mode() == Control) return controlSize(operand.size(), operand.register());
     if(operand.mode() == Immediate) {
       if(operand.size() <=  7) return {operand.immediate()};
       if(operand.size() ==  8) return {"0x", hex(operand.immediate(), 2L)};
@@ -650,7 +656,7 @@ auto TLCS900H::disassemble() -> string {
         return {"0x", hex(displacement, 6L)};
       }
     }
-    if(operand.mode() == IndirectRegister) return {"(", register32(operand.register()), ")"};
+    if(operand.mode() == IndirectRegister) return {"(", registerSize(operand.size(), operand.register()), ")"};
     if(operand.mode() == IndirectRegisterDecrement) return {"(-", register32(operand.register()), ")"};
     if(operand.mode() == IndirectRegisterIncrement) return {"(", register32(operand.register()), "+)"};
     if(operand.mode() ==  IndirectRegisterRegister8) return {"(", register32(operand.register()), "+",  register8(operand.registerAdd()), ")"};

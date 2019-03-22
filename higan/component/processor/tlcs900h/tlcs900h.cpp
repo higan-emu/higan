@@ -28,7 +28,7 @@ namespace higan {
 auto TLCS900H::interrupt(uint8 vector) -> void {
   push(PC);
   push(SR);
-  store(PC, load(Memory<uint24>{0xffff00 | vector}));
+  store(PC, load(Memory<uint32>{0xffff00 | vector}));
   store(INTNEST, load(INTNEST) + 1);
   step(18);
 }
@@ -36,6 +36,7 @@ auto TLCS900H::interrupt(uint8 vector) -> void {
 auto TLCS900H::power() -> void {
   r = {};
   r.xsp.l.l0 = 0x100;
+  prefetch = {};
 }
 
 }

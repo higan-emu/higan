@@ -105,7 +105,7 @@ auto Emulator::power(bool on) -> void {
     nodeManager.refreshSettings();
   } else {
     for(auto& viewport : viewports) {
-      viewport->setVisible(false);
+      viewport->hide();
     }
     if(programWindow.minimized()) programWindow.setMinimized(false);
     if(!programWindow.maximized()) programWindow.setAlignment(Alignment::Center);

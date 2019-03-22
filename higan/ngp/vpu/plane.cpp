@@ -1,6 +1,6 @@
-auto VPU::renderPlane(Plane& plane) -> bool {
-  uint8 x = io.hcounter + plane.hscroll;
-  uint8 y = io.vcounter + plane.vscroll;
+auto VPU::renderPlane(uint8 x, uint8 y, Plane& plane) -> bool {
+  x += plane.hscroll;
+  y += plane.vscroll;
 
   uint address = plane.address;
   address += (y >> 3) << 6;
@@ -9,36 +9,20 @@ auto VPU::renderPlane(Plane& plane) -> bool {
   x = (uint3)x;
   y = (uint3)y;
 
-  uint16 attributes;
-  attributes.byte(0) = scrollRAM[address + 0];
-  attributes.byte(1) = scrollRAM[address + 1];
+  auto& a = attributes[address >> 1];
+  if(a.hflip == 0) x ^= 7;
+  if(a.vflip == 1) y ^= 7;
 
-  uint9 character = attributes.bits(0,8);
-  uint4 code      = attributes.bits(9,12);
-  uint1 palette   = attributes.bit(13);
-  uint1 vflip     = attributes.bit(14);
-  uint1 hflip     = attributes.bit(15);
-
-  if(hflip == 0) x ^= 7;
-  if(vflip == 1) y ^= 7;
-
-  address = character << 4;
-  address += y << 1;
-
-  uint16 tiledata;
-  tiledata.byte(0) = characterRAM[address + 0];
-  tiledata.byte(1) = characterRAM[address + 1];
-
-  if(uint2 index = tiledata >> (x << 1)) {
+  if(uint2 index = characters[a.character][y][x]) {
     plane.priority = (&plane == &vpu.plane1) ^ vpu.io.planePriority;
     if(Model::NeoGeoPocket()) {
-      if(index) plane.output = plane.palette[palette][index];
+      if(index) plane.output = plane.palette[a.palette][index];
     }
     if(Model::NeoGeoPocketColor()) {
       if(screen.colorMode) {
-        plane.output = colorPalette[plane.colorCompatible + palette * 8 + plane.palette[palette][index]];
+        plane.output = colors[plane.colorCompatible + a.palette * 8 + plane.palette[a.palette][index]];
       } else {
-        plane.output = colorPalette[plane.colorNative + code * 4 + index];
+        plane.output = colors[plane.colorNative + a.code * 4 + index];
       }
     }
     return true;

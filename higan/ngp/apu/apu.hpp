@@ -9,6 +9,10 @@ struct APU : Z80, Z80::Bus, Thread {
   auto enable() -> void;
   auto disable() -> void;
 
+  auto load() -> void;
+  auto save() -> void;
+  auto unload() -> void;
+
   //memory.cpp
   auto read(uint16 address) -> uint8 override;
   auto write(uint16 address, uint8 data) -> void override;
@@ -26,6 +30,10 @@ struct APU : Z80, Z80::Bus, Thread {
   struct IRQ {
     uint1 line;
   } irq;
+
+  struct Port {
+    uint8 data;
+  } port;
 
   struct IO {
     uint1 enable;

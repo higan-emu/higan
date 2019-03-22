@@ -43,16 +43,16 @@ auto PSG::power() -> void {
   Thread::create(system.frequency() / 32.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
+
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
-  psg = {};
+
   tone0 = {};
   tone1 = {};
   tone2 = {};
   noise = {};
+  psg = {};
   dac = {};
-
   select = 0;
   for(uint n : range(15)) {
     amplitude[n] = 0xfff * pow(2, n * -2.0 / 6.0) + 0.5;

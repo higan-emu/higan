@@ -1,126 +1,262 @@
-//CS# 16-bit width mode is not emulated, accesses are always treated as 8-bit
-//CS3 /CAS mode is irrelevant since nothing is connected to either /CS3 or /CAS
+/* Abstract memory bus implementation.
+ * The TLCS900/H can perform 8-bit (Byte), 16-bit (Word), and 32-bit (Long) reads.
+ * The actual internal bus of the CPU is always 16-bit.
+ * Each memory object on the bus may allow either 8-bit or 16-bit accesses.
+ * For CS0-CS3 and CSX, the bus width may be changed dynamically.
+ * Further, CS0-3 and CSX allow optional wait states to be added to accesses.
+ * Finally, CS0-3 and CSX have registers to control where they appear on the bus.
+ * CS2 has an additional fixed addressing mode setting.
+ */
 
-auto CPU::ChipSelect::select() -> void {
-  switch(wait) {
-  case 0:  //2 states
-    cpu.step(2);
-    break;
-  case 1:  //1 state
-    cpu.step(1);
-    break;
-  case 2:  //1+n states
-    cpu.step(1);
-    while(0 /*cpu.wait*/) cpu.step(1);
-    break;
-  case 3:  //0 states
-    break;
+auto CPU::Bus::wait() -> void {
+  switch(timing) {
+  case 0: return cpu.step(1);  //1 state
+  case 1: return cpu.step(2);  //2 states
+  case 2: return cpu.step(1);  //1 state + (not emulated) /WAIT
+  case 3: return;              //0 states
   }
 }
 
-auto CPU::read(uint24 address) -> uint8 {
-  #if defined(PORT2)
-  if(p20.mode == 0) address.bit(16) = p20;
-  if(p21.mode == 0) address.bit(17) = p21;
-  if(p22.mode == 0) address.bit(18) = p22;
-  if(p23.mode == 0) address.bit(19) = p23;
-  if(p24.mode == 0) address.bit(20) = p24;
-  if(p25.mode == 0) address.bit(21) = p25;
-  if(p26.mode == 0) address.bit(22) = p26;
-  if(p27.mode == 0) address.bit(23) = p27;
-  #endif
+auto CPU::Bus::read(uint size, uint24 address) -> uint32 {
+  uint32 data;
 
-  mar = address;
+  if(width == Byte) {
+    if(size == Byte) {
+      wait();
+      data.byte(0) = reader(address + 0);
+    }
 
-  if(address >= 0x000000 && address <= 0x0000ff) return mdr = cpu.readIO(address);
-  if(address >= 0x004000 && address <= 0x006fff) return mdr = cpu.ram.read(address);
-  if(address >= 0x007000 && address <= 0x007fff) return mdr = apu.ram.read(address);
-  if(address >= 0x008000 && address <= 0x00bfff) return mdr = vpu.read(address);
-  if(address >= 0xff0000 && address <= 0xffffff) return mdr = system.bios.read(address);
+    if(size == Word) {
+      wait();
+      data.byte(0) = reader(address + 0);
+      wait();
+      data.byte(1) = reader(address + 1);
+    }
 
-  if(cs0.enable && !(uint24)((address ^ cs0.address) & ~cs0.mask)) {
-    cs0.select();
-    return mdr = cartridge.read(0, address);
-  }
-
-  if(cs1.enable && !(uint24)((address ^ cs1.address) & ~cs1.mask)) {
-    cs1.select();
-    return mdr = cartridge.read(1, address);
-  }
-
-  if(cs2.enable) {
-    if(!cs2.mode) {
-      if(address >= 0x000080 & address <= 0xffffff) {
-        cs2.select();
-        return mdr = 0x00;
-      }
-    } else {
-      if(!(uint24)((address ^ cs2.address) & ~cs2.mask)) {
-        cs2.select();
-        return mdr = 0x00;
-      }
+    if(size == Long) {
+      wait();
+      data.byte(0) = reader(address + 0);
+      wait();
+      data.byte(1) = reader(address + 1);
+      wait();
+      data.byte(2) = reader(address + 2);
+      wait();
+      data.byte(3) = reader(address + 3);
     }
   }
 
-  if(cs3.enable && !(uint24)((address ^ cs3.address) & ~cs3.mask)) {
-    cs3.select();
-    return mdr = 0x00;
+  if(width == Word) {
+    if(size == Byte) {
+      wait();
+      data.byte(0) = reader(address + 0);
+    }
+
+    if(size == Word && address.bit(0) == 0) {
+      wait();
+      data.byte(0) = reader(address + 0);
+      data.byte(1) = reader(address + 1);
+    }
+
+    if(size == Word && address.bit(0) == 1) {
+      wait();
+      data.byte(0) = reader(address + 0);
+      wait();
+      data.byte(1) = reader(address + 1);
+    }
+
+    if(size == Long && address.bit(0) == 0) {
+      wait();
+      data.byte(0) = reader(address + 0);
+      data.byte(1) = reader(address + 1);
+      wait();
+      data.byte(2) = reader(address + 2);
+      data.byte(3) = reader(address + 3);
+    }
+
+    if(size == Long && address.bit(0) == 1) {
+      wait();
+      data.byte(0) = reader(address + 0);
+      wait();
+      data.byte(1) = reader(address + 1);
+      data.byte(2) = reader(address + 2);
+      wait();
+      data.byte(3) = reader(address + 3);
+    }
   }
 
-  csx.select();
-  return mdr = 0x00;
+  return data;
 }
 
-auto CPU::write(uint24 address, uint8 data) -> void {
-  #if defined(PORT2)
-  if(p20.mode == 0) address.bit(16) = p20;
-  if(p21.mode == 0) address.bit(17) = p21;
-  if(p22.mode == 0) address.bit(18) = p22;
-  if(p23.mode == 0) address.bit(19) = p23;
-  if(p24.mode == 0) address.bit(20) = p24;
-  if(p25.mode == 0) address.bit(21) = p25;
-  if(p26.mode == 0) address.bit(22) = p26;
-  if(p27.mode == 0) address.bit(23) = p27;
-  #endif
+auto CPU::Bus::write(uint size, uint24 address, uint32 data) -> void {
+  if(width == Byte) {
+    if(size == Byte) {
+      wait();
+      writer(address + 0, data.byte(0));
+    }
 
+    if(size == Word) {
+      wait();
+      writer(address + 0, data.byte(0));
+      wait();
+      writer(address + 1, data.byte(1));
+    }
+
+    if(size == Long) {
+      wait();
+      writer(address + 0, data.byte(0));
+      wait();
+      writer(address + 1, data.byte(1));
+      wait();
+      writer(address + 2, data.byte(2));
+      wait();
+      writer(address + 3, data.byte(3));
+    }
+  }
+
+  if(width == Word) {
+    if(size == Byte) {
+      wait();
+      writer(address + 0, data.byte(0));
+    }
+
+    if(size == Word && address.bit(0) == 0) {
+      wait();
+      writer(address + 0, data.byte(0));
+      writer(address + 1, data.byte(1));
+    }
+
+    if(size == Word && address.bit(0) == 1) {
+      wait();
+      writer(address + 0, data.byte(0));
+      wait();
+      writer(address + 1, data.byte(1));
+    }
+
+    if(size == Long && address.bit(0) == 0) {
+      wait();
+      writer(address + 0, data.byte(0));
+      writer(address + 1, data.byte(1));
+      wait();
+      writer(address + 2, data.byte(2));
+      writer(address + 3, data.byte(3));
+    }
+
+    if(size == Long && address.bit(0) == 1) {
+      wait();
+      writer(address + 0, data.byte(0));
+      wait();
+      writer(address + 1, data.byte(1));
+      writer(address + 2, data.byte(2));
+      wait();
+      writer(address + 3, data.byte(3));
+    }
+  }
+}
+
+/* IO: (internal I/O registers)
+ */
+
+auto CPU::IO::select(uint24 compare) const -> bool {
+  return compare <= 0x0000ff;
+}
+
+/* ROM: (BIOS)
+ */
+
+auto CPU::ROM::select(uint24 compare) const -> bool {
+  return compare >= 0xff0000;
+}
+
+/* CRAM: (CPU memory)
+ */
+
+auto CPU::CRAM::select(uint24 compare) const -> bool {
+  return compare >= 0x004000 && compare <= 0x006fff;
+}
+
+/* ARAM: (APU memory)
+ */
+
+auto CPU::ARAM::select(uint24 compare) const -> bool {
+  return compare >= 0x007000 && compare <= 0x007fff;
+}
+
+/* VRAM: (VPU memory)
+ */
+
+auto CPU::VRAM::select(uint24 compare) const -> bool {
+  return compare >= 0x008000 && compare <= 0x00bfff;
+}
+
+/* CS0: (chip select 0)
+ * Connected to cartridge flash chip 0.
+ */
+
+auto CPU::CS0::select(uint24 compare) const -> bool {
+  if(!enable) return false;
+  return !(uint24)((compare ^ address) & ~mask);
+}
+
+/* CS1: (chip select 1)
+ * Connected to cartridge flash chip 1.
+ */
+
+auto CPU::CS1::select(uint24 compare) const -> bool {
+  if(!enable) return false;
+  return !(uint24)((compare ^ address) & ~mask);
+}
+
+/* CS2: (chip select 2)
+ * Not connected and not used.
+ */
+
+auto CPU::CS2::select(uint24 compare) const -> bool {
+  if(!enable) return false;
+  //TMP95C061 range is 000080-ffffff
+  //however, the Neo Geo Pocket maps I/O registers from 000000-0000ff
+  //the exact range is unknown, so it is a guess that the range was expanded here
+  if(!mode) return compare >= 0x000100;
+  return !(uint24)((compare ^ address) & ~mask);
+}
+
+/* CS3: (chip select 3)
+ * Not connected and not used.
+ */
+
+auto CPU::CS3::select(uint24 compare) const -> bool {
+  if(!enable) return false;
+  return !(uint24)((compare ^ address) & ~mask);
+}
+
+/* CSX: (chip select external)
+ * Not connected and not used.
+ */
+
+auto CPU::read(uint size, uint24 address) -> uint32 {
+  mar = address;
+  if(  io.select(address)) return   io.read(size, address);
+  if( rom.select(address)) return  rom.read(size, address);
+  if(cram.select(address)) return cram.read(size, address);
+  if(aram.select(address)) return aram.read(size, address);
+  if(vram.select(address)) return vram.read(size, address);
+  if( cs0.select(address)) return  cs0.read(size, address);
+  if( cs1.select(address)) return  cs1.read(size, address);
+  if( cs2.select(address)) return  cs2.read(size, address);
+  if( cs3.select(address)) return  cs3.read(size, address);
+                           return  csx.read(size, address);
+}
+
+auto CPU::write(uint size, uint24 address, uint32 data) -> void {
   mar = address;
   mdr = data;
-
-  if(address >= 0x000000 && address <= 0x0000ff) return cpu.writeIO(address, data);
-  if(address >= 0x004000 && address <= 0x006fff) return cpu.ram.write(address, data);
-  if(address >= 0x007000 && address <= 0x007fff) return apu.ram.write(address, data);
-  if(address >= 0x008000 && address <= 0x00bfff) return vpu.write(address, data);
-  if(address >= 0xff0000 && address <= 0xffffff) return system.bios.write(address, data);
-
-  if(cs0.enable && !(uint24)((address ^ cs0.address) & ~cs0.mask)) {
-    cs0.select();
-    return cartridge.write(0, address, data);
-  }
-
-  if(cs1.enable && !(uint24)((address ^ cs1.address) & ~cs1.mask)) {
-    cs1.select();
-    return cartridge.write(1, address, data);
-  }
-
-  if(cs2.enable) {
-    if(!cs2.mode) {
-      if(address >= 0x000080 && address <= 0xffffff) {
-        cs2.select();
-        return;
-      }
-    } else {
-      if(!(uint24)((address ^ cs2.address) & ~cs2.mask)) {
-        cs2.select();
-        return;
-      }
-    }
-  }
-
-  if(cs3.enable && !(uint24)((address ^ cs3.address) & ~cs3.mask)) {
-    cs3.select();
-    return;
-  }
-
-  csx.select();
-  return;
+  if(  io.select(address)) return   io.write(size, address, data);
+  if( rom.select(address)) return  rom.write(size, address, data);
+  if(cram.select(address)) return cram.write(size, address, data);
+  if(aram.select(address)) return aram.write(size, address, data);
+  if(vram.select(address)) return vram.write(size, address, data);
+  if( cs0.select(address)) return  cs0.write(size, address, data);
+  if( cs1.select(address)) return  cs1.write(size, address, data);
+  if( cs2.select(address)) return  cs2.write(size, address, data);
+  if( cs3.select(address)) return  cs3.write(size, address, data);
+                           return  csx.write(size, address, data);
 }

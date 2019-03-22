@@ -8,8 +8,8 @@ auto Controls::load(Node::Object parent, Node::Object from) -> void {
   a      = Node::append<Node::Button>(parent, from, "A");
   b      = Node::append<Node::Button>(parent, from, "B");
   option = Node::append<Node::Button>(parent, from, "Option");
-  power  = Node::append<Node::Button>(parent, from, "Power");
   debug  = Node::append<Node::Button>(parent, from, "Debug");
+  power  = Node::append<Node::Button>(parent, from, "Power");
 }
 
 auto Controls::poll() -> void {
@@ -20,6 +20,7 @@ auto Controls::poll() -> void {
   platform->input(a);
   platform->input(b);
   platform->input(option);
+  platform->input(debug);
 
   if(!(up->value & down->value)) {
     yHold = 0, upLatch = up->value, downLatch = down->value;

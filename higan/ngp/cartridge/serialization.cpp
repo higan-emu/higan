@@ -1,7 +1,10 @@
 auto Flash::serialize(serializer& s) -> void {
   rom.serialize(s);
+  s.boolean(modified);
   s.integer(vendorID);
   s.integer(deviceID);
+  s.integer(mode);
+  s.integer(index);
 }
 
 auto Cartridge::serialize(serializer& s) -> void {

@@ -5,7 +5,7 @@ struct System {
   Node::Object node;
 
   enum class Model : uint { NeoGeoPocket, NeoGeoPocketColor };
-  Memory::Writable<uint8> bios;
+  Memory::Readable<uint8> bios;
 
   inline auto model() const -> Model { return information.model; }
   inline auto frequency() const -> double { return 6'144'000; }

@@ -116,5 +116,11 @@ auto TLCS900H::store(StatusRegister, uint16 data) -> void {
   r.iff = data.bits(12,14);
 }
 
-auto TLCS900H::load(ProgramCounter) const -> uint32 { return r.pc.l.l0; }
-auto TLCS900H::store(ProgramCounter, uint32 data) -> void { r.pc.l.l0 = data; }
+auto TLCS900H::load(ProgramCounter) const -> uint32 {
+  return r.pc.l.l0;
+}
+
+auto TLCS900H::store(ProgramCounter, uint32 data) -> void {
+  r.pc.l.l0 = data;
+  prefetch.valid = false;
+}

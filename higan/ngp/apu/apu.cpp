@@ -39,10 +39,11 @@ auto APU::power() -> void {
   Thread::create(system.frequency() / 2.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
-  ram.allocate(0x1000);
+
   nmi = {};
   irq = {};
   io = {};
+  io.enable = false;
 }
 
 auto APU::enable() -> void {
@@ -52,13 +53,32 @@ auto APU::enable() -> void {
   Thread::create(system.frequency() / 2.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
+
   nmi = {};
   irq = {};
+  io = {};
   io.enable = true;
 }
 
 auto APU::disable() -> void {
   io.enable = false;
+}
+
+auto APU::load() -> void {
+  ram.allocate(4_KiB);
+  if(auto fp = platform->open(system.node, "apu.ram", File::Read)) {
+    ram.load(fp);
+  }
+}
+
+auto APU::save() -> void {
+  if(auto fp = platform->open(system.node, "apu.ram", File::Write)) {
+    ram.save(fp);
+  }
+}
+
+auto APU::unload() -> void {
+  ram.reset();
 }
 
 }

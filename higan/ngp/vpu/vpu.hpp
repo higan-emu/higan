@@ -2,9 +2,6 @@
 //K2GE: K2 Graphics Engine (Neo Geo Pocket Color)
 
 struct VPU : Thread {
-  Memory::Writable<uint8> scrollRAM;
-  Memory::Writable<uint8> characterRAM;
-
   //vpu.cpp
   auto main() -> void;
   auto step(uint clocks) -> void;
@@ -18,30 +15,34 @@ struct VPU : Thread {
   auto writeSprite(uint8 address, uint8 data) -> void;
   auto readSpriteColor(uint6 address) -> uint8;
   auto writeSpriteColor(uint6 address, uint8 data) -> void;
-  auto readPaletteColor(uint9 address) -> uint8;
-  auto writePaletteColor(uint9 address, uint8 data) -> void;
+  auto readColor(uint9 address) -> uint8;
+  auto writeColor(uint9 address, uint8 data) -> void;
+  auto readAttribute(uint12 address) -> uint8;
+  auto writeAttribute(uint12 address, uint8 data) -> void;
+  auto readCharacter(uint13 address) -> uint8;
+  auto writeCharacter(uint13 address, uint8 data) -> void;
 
   //window.cpp
-  auto renderWindow() -> bool;
+  auto renderWindow(uint8 x, uint8 y) -> bool;
 
   //plane.cpp
   struct Plane;
-  auto renderPlane(Plane&) -> bool;
+  auto renderPlane(uint8 x, uint8 y, Plane&) -> bool;
 
   //sprite.cpp
-  auto renderSprite() -> bool;
+  auto renderSprite(uint8 x, uint8 y) -> bool;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
 //private:
   uint32 buffer[160 * 152];
-  uint12 colorPalette[256];
+  uint12 colors[256];
 
   struct Background {
-    uint3 color;
-    uint3 unused;
-    uint2 mode;  //2 = on; 0,1,3 = off (black)
+    uint3 color;   //K2GE
+    uint3 unused;  //K2GE
+    uint2 mode;    //K2GE
   } background;
 
   struct Window {
@@ -54,9 +55,19 @@ struct VPU : Thread {
     uint12 output;
   } window;
 
+  struct Attribute {
+    uint9 character;
+    uint4 code;  //K2GE
+    uint1 palette;
+    uint1 vflip;
+    uint1 hflip;
+  } attributes[2048];
+
+  uint2 characters[512][8][8];
+
   struct Plane {
     uint12 address;
-    uint8  colorNative;  //K2GE
+    uint8  colorNative;      //K2GE
     uint8  colorCompatible;  //K2GE
     uint8  hscroll;
     uint8  vscroll;
@@ -67,7 +78,7 @@ struct VPU : Thread {
   } plane1, plane2;
 
   struct Sprites {
-    uint8 colorNative;  //K2GE
+    uint8 colorNative;      //K2GE
     uint8 colorCompatible;  //K2GE
     uint8 hscroll;
     uint8 vscroll;
@@ -99,7 +110,7 @@ struct VPU : Thread {
   } led;
 
   struct Screen {
-    uint1 negate;     //0 = normal, 1 = switched display (not emulated)
+    uint1 negate;     //0 = normal, 1 = inverted display
     uint1 colorMode;  //0 = K2GE, 1 = K1GE compatible
   } screen;
 

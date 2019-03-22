@@ -30,7 +30,7 @@ auto CPU::readIO(uint8 address) -> uint8 {
 
   //P5
   case 0x0d:
-    data.bit(0) = io.p5;
+    data.bit(0) = misc.p5;
     data.bit(2) = p52;
     data.bit(3) = p53;
     data.bit(4) = p54;
@@ -465,11 +465,7 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(4) = controls.a->value;
     data.bit(5) = controls.b->value;
     data.bit(6) = controls.option->value;
-    data.bit(7) = 0;
-    //the dev manual states that d6 = C and d7 = D when the Neo Geo controller is used,
-    //however there appears to be no way to connect a Neo Geo controller to a real Neo Geo Pocket.
-    //this may have been functionality of a devkit model, so it may be worth binding an input to it,
-    //however I can't think of a good name for it short of renaming "Option" to "C" first.
+    data.bit(7) = controls.debug->value;
     return data;
 
   case 0xb1:
@@ -478,18 +474,18 @@ auto CPU::readIO(uint8 address) -> uint8 {
     return data;
 
   case 0xb2:
-    data.bit(0) = io.rtsDisable;
+    data.bit(0) = misc.rtsDisable;
     return data;
 
   case 0xb3:
     data.bit(2) = nmi.enable;
     return data;
 
-  case 0xb4: return io.b4;
-  case 0xb5: return io.b5;
+  case 0xb4: return misc.b4;
+  case 0xb5: return misc.b5;
 
   case 0xbc:
-    data = io.apuPort;
+    data = apu.port.data;
     return data;
 
   }
@@ -553,7 +549,7 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
   //P5
   case 0x0d:
-    io.p5 = data.bit(0);
+    misc.p5 = data.bit(0);
     p52 = data.bit(2);
     p53 = data.bit(3);
     p54 = data.bit(4);
@@ -689,6 +685,7 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     t4.enable = data.bit(4);
     t5.enable = data.bit(5);
     prescaler.enable = data.bit(7);
+    if(!prescaler.enable) prescaler.counter = 0;
     return;
 
   //TREG0
@@ -946,38 +943,38 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
   //B0CS
   case 0x68:
-    cs0.wait = data.bits(0,1);
-    cs0.width = data.bit(2);
+    cs0.timing = data.bits(0,1);
+    cs0.width = data.bit(2) ? Byte : Word;
     cs0.enable = data.bit(4);
     return;
 
   //B1CS
   case 0x69:
-    cs1.wait = data.bits(0,1);
-    cs1.width = data.bit(2);
+    cs1.timing = data.bits(0,1);
+    cs1.width = data.bit(2) ? Byte : Word;
     cs1.enable = data.bit(4);
     return;
 
   //B2CS
   case 0x6a:
-    cs2.wait = data.bits(0,1);
-    cs2.width = data.bit(2);
+    cs2.timing = data.bits(0,1);
+    cs2.width = data.bit(2) ? Byte : Word;
     cs2.mode = data.bit(3);
     cs2.enable = data.bit(4);
     return;
 
   //B3CS
   case 0x6b:
-    cs3.wait = data.bits(0,1);
-    cs3.width = data.bit(2);
+    cs3.timing = data.bits(0,1);
+    cs3.width = data.bit(2) ? Byte : Word;
     cs3.cas = data.bit(3);
     cs3.enable = data.bit(4);
     return;
 
   //BEXCS
   case 0x6c:
-    csx.wait = data.bits(0,1);
-    csx.width = data.bit(2);
+    csx.timing = data.bits(0,1);
+    csx.width = data.bit(2) ? Byte : Word;
     return;
 
   //ADMOD
@@ -991,7 +988,7 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
 
     if(!busy && start) {
       adc.busy = 1;
-      adc.counter = !adc.speed ? 160 : 320;
+      adc.counter = 0;
     }
   } return;
 
@@ -1003,13 +1000,13 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     watchdog.warmup = data.bit(4);
     watchdog.frequency = data.bits(5,6);
     watchdog.enable = data.bit(7);
-    if(watchdog.enable) watchdog.reload();
+    if(watchdog.enable) watchdog.counter = 0;  //todo: is this only on 0->1 transitions?
     return;
 
   //WDCR
   case 0x6f:
-    if(data == 0x4e) watchdog.reload();
-    if(data == 0xb1) watchdog.disable();
+    if(data == 0x4e) watchdog.counter = 0;
+    if(data == 0xb1) watchdog.enable = 0;
     return;
 
   //INTE0AD
@@ -1163,7 +1160,7 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     return;
 
   case 0xb2:
-    io.rtsDisable = data.bit(0);
+    misc.rtsDisable = data.bit(0);
     return;
 
   case 0xb3:
@@ -1171,11 +1168,11 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     return;
 
   case 0xb4:
-    io.b4 = data;
+    misc.b4 = data;
     return;
 
   case 0xb5:
-    io.b5 = data;
+    misc.b5 = data;
     return;
 
   case 0xb8:
@@ -1193,7 +1190,7 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     return;
 
   case 0xbc:
-    io.apuPort = data;
+    apu.port.data = data;
     return;
   }
 

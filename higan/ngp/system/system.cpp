@@ -33,7 +33,6 @@ auto System::load(Node::Object from) -> void {
   controls.load(node, from);
   display.load(node, from);
   cartridge.load(node, from);
-  cpu.load();
 }
 
 auto System::unload() -> void {
@@ -41,6 +40,7 @@ auto System::unload() -> void {
   bios.reset();
   cartridge.port = {};
   cpu.unload();
+  apu.unload();
   node = {};
 }
 
@@ -48,6 +48,7 @@ auto System::save() -> void {
   if(!node) return;
   cartridge.save();
   cpu.save();
+  apu.save();
 }
 
 auto System::power() -> void {
@@ -57,6 +58,8 @@ auto System::power() -> void {
   if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
     bios.load(fp);
   }
+  cpu.load();
+  apu.load();
 
   video.reset(interface);
   display.screen = video.createScreen(display.node, 160, 152);

@@ -139,3 +139,20 @@ auto CPU::Interrupt::setPriority(uint3 priority) -> void {
   this->priority = priority;
   cpu.interrupts.poll();
 }
+
+auto CPU::Interrupt::power(uint8 vector) -> void {
+  this->vector = vector;
+
+  //set up defaults that apply to most vectors
+  //CPU::power() will perform specialization as needed later
+  dmaAllowed = 1;
+  enable = 1;
+  maskable = 1;
+  priority = 0;
+  line = 0;
+  pending = 0;
+  level.high = 0;
+  level.low = 0;
+  edge.rising = 1;
+  edge.falling = 0;
+}

@@ -35,7 +35,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     auto size = memory["size"].natural();
     flash[0].allocate(min(16_Mibit, size));
-    flash[1].allocate(size >= 16_Mibit ? 16_Mibit - size : 0);
+    flash[1].allocate(size >= 16_Mibit ? size - 16_Mibit : 0);
     if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
       flash[0].load(fp);
       flash[1].load(fp);

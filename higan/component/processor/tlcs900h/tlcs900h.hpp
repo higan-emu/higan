@@ -17,9 +17,11 @@
 namespace higan {
 
 struct TLCS900H {
+  enum : uint { Byte = 1, Word = 2, Long = 4 };
+
   virtual auto step(uint clocks) -> void = 0;
-  virtual auto read(uint24 address) -> uint8 = 0;
-  virtual auto write(uint24 address, uint8 data) -> void = 0;
+  virtual auto read(uint size, uint24 address) -> uint32 = 0;
+  virtual auto write(uint size, uint24 address, uint32 data) -> void = 0;
 
   struct FlagRegister   { using type =  uint8; enum : uint { bits =  8 }; uint1 id; };
   struct StatusRegister { using type = uint16; enum : uint { bits = 16 }; };
@@ -178,7 +180,7 @@ struct TLCS900H {
   auto serialize(serializer&) -> void;
 
   union DataRegister {
-    DataRegister() {}
+    DataRegister() { l.l0 = 0; }
     struct { uint32 order_lsb1(l0); } l;
     struct { uint16 order_lsb2(w0, w1); } w;
     struct {  uint8 order_lsb4(b0, b1, b2, b3); } b;
@@ -212,6 +214,12 @@ struct TLCS900H {
     uint1 halted;   //set if halt instruction executed; waits for an interrupt to resume
     uint8 prefix;   //first opcode byte; needed for [CP|LD][ID](R) instructions
   } r;
+
+  struct Prefetch {
+    uint1 valid;
+    uint2 index;
+    uint8 queue[4];
+  } prefetch;
 
   static inline const Register< uint8> A{0xe0};
   static inline const Register< uint8> W{0xe1};
@@ -271,7 +279,7 @@ struct TLCS900H {
   static inline const uint1 Undefined = 0;
 
   //disassembler.cpp
-  virtual auto disassembleRead(uint24 address) -> uint8 { return read(address); }
+  virtual auto disassembleRead(uint24 address) -> uint8 { return read(Byte, address); }
   auto disassemble() -> string;
 };
 

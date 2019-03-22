@@ -1,10 +1,10 @@
 #include <ngp/ngp.hpp>
 
-//#define PORT2
-
 namespace higan::NeoGeoPocket {
 
 bool tracing = 0;
+uint counter = 0;
+vector<boolean> masking;
 
 CPU cpu;
 #include "memory.cpp"
@@ -49,7 +49,7 @@ auto CPU::step(uint clocks) -> void {
 }
 
 auto CPU::pollPowerButton() -> void {
-  platform->input(controls.power);
+//platform->input(controls.power);
   nmi.set(!controls.power->value);
 }
 
@@ -63,7 +63,71 @@ auto CPU::power() -> void {
   r.pc.b.b1 = system.bios.read(0xff01);
   r.pc.b.b2 = system.bios.read(0xff02);
   r.pc.b.b3 = 0x00;
+
+  //hack: real hardware boots once batteries are connected, and goes into a halt state.
+  //higan implements power as a switch rather than a button, so the PC is jumped past
+  //this to a hardware reset point, bypassing the need to press controls.power first.
   r.pc.l.l0 = 0xff1800;
+  //the reset vector sets (0x2e95)=0x4e50, which is needed to prevent entering setup on reboot.
+  ram[0x2e96] = 'N';  //'N'eo Geo
+  ram[0x2e95] = 'P';  //'P'ocket
+
+  mar = 0;
+  mdr = 0;
+
+  interrupts = {};
+
+  nmi.power(0x20);
+  nmi.enable = 0;
+  nmi.maskable = 0;
+  nmi.priority = 7;
+  nmi.line = 1;
+  nmi.edge.rising = 0;
+  nmi.edge.falling = 1;
+
+  intwd.power(0x24);
+  intwd.dmaAllowed = 0;
+  intwd.enable = 1;
+  intwd.maskable = 0;
+  intwd.priority = 7;
+  intwd.line = 1;
+  intwd.edge.falling = 1;
+
+  int0.power(0x28);
+  int4.power(0x2c);
+  int5.power(0x30);
+  int6.power(0x34);
+  int7.power(0x38);
+  intt0.power(0x40);
+  intt1.power(0x44);
+  intt2.power(0x48);
+  intt3.power(0x4c);
+  inttr4.power(0x50);
+  inttr5.power(0x54);
+  inttr6.power(0x58);
+  inttr7.power(0x5c);
+  intrx0.power(0x60);
+  inttx0.power(0x64);
+  intrx1.power(0x68);
+  inttx1.power(0x6c);
+  intad.power(0x70);
+
+  inttc0.power(0x74);
+  inttc0.dmaAllowed = 0;
+
+  inttc1.power(0x78);
+  inttc1.dmaAllowed = 0;
+
+  inttc2.power(0x7c);
+  inttc2.dmaAllowed = 0;
+
+  inttc3.power(0x80);
+  inttc3.dmaAllowed = 0;
+
+  dma0 = {};
+  dma1 = {};
+  dma2 = {};
+  dma3 = {};
 
   p10.latch = 1; p10.flow = 1;
   p11.latch = 1; p11.flow = 1;
@@ -130,105 +194,131 @@ auto CPU::power() -> void {
   pb6.latch = 1; pb6.flow = 1; pb6.mode = 1;
   pb7.latch = 1; pb7.flow = 1;
 
-  nmi.vector = 0x20; nmi.dmaAllowed = 0;
-  nmi.enable = 0;
-  nmi.maskable = 0;
-  nmi.priority = 7;
-  nmi.line = 1;
-  nmi.edge.rising = 0;
-  nmi.edge.falling = 1;
+  prescaler = {};
+  ti0 = {};
+  ti4 = {};
+  ti5 = {};
+  ti6 = {};
+  ti7 = {};
+  to1 = {};
+  to3 = {};
+  to4 = {};
+  to5 = {};
+  to6 = {};
+  to7 = {};
+  t0 = {};
+  t1 = {};
+  ff1 = {};
+  t01 = {};
+  t2 = {};
+  t3 = {};
+  ff3 = {};
+  t23 = {};
+  ff4 = {};
+  ff5 = {};
+  t4 = {};
+  ff6 = {};
+  t5 = {};
+  adc = {};
+  rtc = {};
+  watchdog = {};
 
-  intwd.vector = 0x24; intwd.dmaAllowed = 0;
-  intwd.enable = 1;
-  intwd.maskable = 0;
-  intwd.priority = 7;
-  intwd.line = 1;
-  intwd.edge.falling = 1;
+  io = {};
+  io.width  = Word;
+  io.timing = 3;
+  io.reader = [](uint24 address) -> uint8 { return cpu.readIO(address); };
+  io.writer = [](uint24 address, uint8 data) { return cpu.writeIO(address, data); };
 
-  int0.vector = 0x28; int0.dmaAllowed = 1;
-  int0.enable = 0;
-  int0.edge.rising = 1;
-  int0.level.high = 0;
-  int4.vector = 0x2c; int4.dmaAllowed = 1;
-  int4.edge.rising = 1;
-  int5.vector = 0x30; int5.dmaAllowed = 1;
-  int5.edge.rising = 1;
-  int6.vector = 0x34; int6.dmaAllowed = 1;
-  int6.edge.rising = 1;
-  int7.vector = 0x38; int7.dmaAllowed = 1;
-  int7.edge.rising = 1;
-  intt0.vector = 0x40; intt0.dmaAllowed = 1;
-  intt0.edge.rising = 1;
-  intt1.vector = 0x44; intt1.dmaAllowed = 1;
-  intt1.edge.rising = 1;
-  intt2.vector = 0x48; intt2.dmaAllowed = 1;
-  intt2.edge.rising = 1;
-  intt3.vector = 0x4c; intt3.dmaAllowed = 1;
-  intt3.edge.rising = 1;
-  inttr4.vector = 0x50; inttr4.dmaAllowed = 1;
-  inttr4.edge.rising = 1;
-  inttr5.vector = 0x54; inttr5.dmaAllowed = 1;
-  inttr5.edge.rising = 1;
-  inttr6.vector = 0x58; inttr6.dmaAllowed = 1;
-  inttr6.edge.rising = 1;
-  inttr7.vector = 0x5c; inttr7.dmaAllowed = 1;
-  inttr7.edge.rising = 1;
-  intrx0.vector = 0x60; intrx0.dmaAllowed = 1; intrx0.edge.rising = 1;
-  inttx0.vector = 0x64; inttx0.dmaAllowed = 1; inttx0.edge.rising = 1;
-  intrx1.vector = 0x68; intrx1.dmaAllowed = 1; intrx1.edge.rising = 1;
-  inttx1.vector = 0x6c; inttx1.dmaAllowed = 1; inttx1.edge.rising = 1;
-  intad.vector = 0x70; intad.dmaAllowed = 1;
-  intad.edge.rising = 1;
-  inttc0.vector = 0x74; inttc0.dmaAllowed = 0;
-  inttc0.edge.rising = 1;
-  inttc1.vector = 0x78; inttc1.dmaAllowed = 0;
-  inttc1.edge.rising = 1;
-  inttc2.vector = 0x7c; inttc2.dmaAllowed = 0;
-  inttc2.edge.rising = 1;
-  inttc3.vector = 0x80; inttc3.dmaAllowed = 0;
-  inttc3.edge.rising = 1;
+  rom = {};
+  rom.width  = Word;
+  rom.timing = 3;
+  rom.reader = [](uint24 address) -> uint8 { return system.bios.read(address); };
+  rom.writer = [](uint24 address, uint8 data) { return system.bios.write(address, data); };
 
-  cs0.enable  = 0;
-  cs0.width   = 0;
-  cs0.wait    = 0;
+  cram = {};
+  cram.width  = Word;
+  cram.timing = 3;
+  cram.reader = [](uint24 address) -> uint8 { return cpu.ram.read(address); };
+  cram.writer = [](uint24 address, uint8 data) { return cpu.ram.write(address, data); };
+
+  aram = {};
+  aram.width  = Word;
+  aram.timing = 3;
+  aram.reader = [](uint24 address) -> uint8 { return apu.ram.read(address); };
+  aram.writer = [](uint24 address, uint8 data) { return apu.ram.write(address, data); };
+
+  vram = {};
+  vram.width  = Word;
+  vram.timing = 3;
+  vram.reader = [](uint24 address) -> uint8 { return vpu.read(address); };
+  vram.writer = [](uint24 address, uint8 data) { return vpu.write(address, data); };
+
+  cs0 = {};
+  cs0.width   = Word;
+  cs0.timing  = 0;
+  cs0.reader  = [](uint24 address) -> uint8 { return cartridge.read(0, address); };
+  cs0.writer  = [](uint24 address, uint8 data) { return cartridge.write(0, address, data); };
   cs0.address = 0xff0000;
   cs0.mask    = 0x1fffff;
 
-  cs1.enable  = 0;
-  cs1.width   = 0;
-  cs1.wait    = 0;
+  cs1 = {};
+  cs1.width   = Word;
+  cs1.timing  = 0;
+  cs1.reader  = [](uint24 address) -> uint8 { return cartridge.read(1, address); };
+  cs1.writer  = [](uint24 address, uint8 data) { return cartridge.write(1, address, data); };
   cs1.address = 0xff0000;
   cs1.mask    = 0x3fffff;
 
-  cs2.enable  = 1;
-  cs2.width   = 0;
-  cs2.wait    = 0;
+  cs2 = {};
+  cs2.width   = Word;
+  cs2.timing  = 0;
+  cs2.reader  = [](uint24 address) -> uint8 { return 0x00; };
+  cs2.writer  = [](uint24 address, uint8 data) { return; };
   cs2.address = 0xff0000;
   cs2.mask    = 0x7fffff;
   cs2.mode    = 0;
 
-  cs3.enable  = 0;
-  cs3.width   = 0;
-  cs3.wait    = 0;
+  cs3 = {};
+  cs3.width   = Word;
+  cs3.timing  = 0;
+  cs3.reader  = [](uint24 address) -> uint8 { return 0x00; };
+  cs3.writer  = [](uint24 address, uint8 data) { return; };
   cs3.address = 0xff0000;
   cs3.mask    = 0x7fffff;
   cs3.cas     = 0;
 
-  csx.width  = 0;
-  csx.wait   = 0;
+  csx = {};
+  csx.width  = Word;
+  csx.timing = 0;
+  csx.reader = [](uint24 address) -> uint8 { return 0x00; };
+  csx.writer = [](uint24 address, uint8 data) { return; };
 
-  clock.rate = 4;  //unconfirmed
+  clock = {};
 
-  io = {};
+  misc = {};
 }
 
 auto CPU::load() -> void {
-  ram.allocate(0x3000);
+  ram.allocate(12_KiB);
   if(auto fp = platform->open(system.node, "cpu.ram", File::Read)) {
     ram.load(fp);
-    //somehow, this stops the BIOS from performing setup on subsequent boots ...
-    ram[0x2c14] = 0xdd;
-    ram[0x2c15] = 0x00;
+
+    //hack: the BIOS checks (0x6c14) to determine if the setup menu needs to be executed.
+    //for unknown reasons, the BIOS from (0xffff00) only writes 0x00dc.
+    //it is not updated when language/color choices are made.
+    //to prevent the setup from being run every boot, manually calculate and set this value.
+    uint16 data;
+    data += ram[0x2f87];  //language: Japanese, English
+    for(uint address = 0x2c25; address <= 0x2c2b; address++) data += ram[address];  //always 0x00dc
+    if(Model::NeoGeoPocketColor()) {
+      data += ram[0x2f94];  //K1GE color mode: Black & White, Blue, Green, Red, Classic
+    }
+    ram[0x2c14] = data.byte(0);
+    ram[0x2c15] = data.byte(1);
+
+    //this byte seems to indicate system state (0x00 = BIOS UI, 0x10 = setup, 0x40 = game playing)
+    //for unknown reasons, sometimes d4 gets set, which re-enters the BIOS setup again.
+    ram[0x2f83].bit(4) = 0;
   }
 }
 

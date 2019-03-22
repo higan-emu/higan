@@ -256,24 +256,24 @@ template<uint Modulo, typename Target, typename Source>
 auto TLCS900H::instructionModuloDecrement(Target target, Source source) -> void {
   auto result = load(target);
   auto number = load(source);
-  if(bit::count(number) != 1) return (void)Undefined;  //must be power of two (what about number==1?)
-  if(result % number == 0) {
-    store(target, result + (number - Modulo));
+  if((result & number) == number) {
+    result += number;
   } else {
-    store(target, result - Modulo);
+    result -= Modulo;
   }
+  store(target, result);
 }
 
 template<uint Modulo, typename Target, typename Source>
 auto TLCS900H::instructionModuloIncrement(Target target, Source source) -> void {
   auto result = load(target);
   auto number = load(source);
-  if(bit::count(number) != 1) return (void)Undefined;  //must be power of two (what about number==1?)
-  if(result % number == number - Modulo) {
-    store(target, result - (number - Modulo));
+  if((result & number) == number) {
+    result -= number;
   } else {
-    store(target, result + Modulo);
+    result += Modulo;
   }
+  store(target, result);
 }
 
 template<typename Target, typename Source>

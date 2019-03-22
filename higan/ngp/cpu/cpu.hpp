@@ -3,10 +3,19 @@
 //actually exist, this class tries to emulate all TMP95C061 functionality that
 //it is able to.
 
-extern bool tracing;
-
 struct CPU : TLCS900H, Thread {
   Memory::Writable<uint8> ram;
+
+  //Neo Geo Pocket Color: 0x87e2 (K2GE mode selection) is a privileged register.
+  //the development manual states user-mode code cannot change this value, and
+  //yet Dokodemo Mahjong does so anyway, and sets it to grayscale mode despite
+  //operating in color mode, and further fails to set the K1GE compatibility
+  //palette, resulting in incorrect colors. . I am not certain how, but the NGPC
+  //blocks this write command, so I attempt to simulate that here.
+  //VPU::write(uint24, uint8) calls this function.
+  inline auto privilegedMode() const -> bool {
+    return r.pc.l.l0 >= 0xff0000;  //may also be r.rfp == 3
+  }
 
   //cpu.cpp
   auto main() -> void;
@@ -19,8 +28,8 @@ struct CPU : TLCS900H, Thread {
   auto unload() -> void;
 
   //memory.cpp
-  auto read(uint24 address) -> uint8 override;
-  auto write(uint24 address, uint8 data) -> void override;
+  auto read(uint width, uint24 address) -> uint32 override;
+  auto write(uint width, uint24 address, uint32 data) -> void override;
 
   //io.cpp
   auto readIO(uint8 address) -> uint8;
@@ -30,20 +39,20 @@ struct CPU : TLCS900H, Thread {
   auto serialize(serializer&) -> void;
 
 //private:
-  uint24 mar;  //memory address register
-  uint16 mdr;  //memory data register
+  uint32 mar;  //memory address register
+  uint32 mdr;  //memory data register
 
   //interrupts.cpp
   struct Interrupts {
     auto poll() -> void;
     auto fire() -> bool;
 
-  private:
     uint8 vector;
     uint3 priority;
   } interrupts;
 
   struct Interrupt {
+    auto power(uint8 vector) -> void;
     auto operator=(bool) -> void;
     auto poll(uint8& vector, uint3& priority) -> void;
     auto fire(uint8 vector) -> void;
@@ -56,10 +65,13 @@ struct CPU : TLCS900H, Thread {
     auto setEnable(uint1 enable) -> void;
     auto setPriority(uint3 priority) -> void;
 
+    //serialization.cpp
+    auto serialize(serializer&) -> void;
+
     uint8 vector;
     uint1 dmaAllowed;
-    uint1 enable = 1;
-    uint1 maskable = 1;
+    uint1 enable;
+    uint1 maskable;
     uint3 priority;
     uint1 line;
     uint1 pending;
@@ -277,7 +289,7 @@ struct CPU : TLCS900H, Thread {
     auto step(uint clocks) -> void;
 
     uint1  enable;
-    uint32 clock;
+    uint32 counter;
   } prescaler;
 
   struct TI0 {
@@ -505,16 +517,14 @@ struct CPU : TLCS900H, Thread {
   struct ADC {
     auto step(uint clocks) -> void;
 
-    uint2 channel;
-    uint1 speed;  //0 = 160 states, 1 = 320 states
-    uint1 scan;
-    uint1 repeat;
-    uint1 busy;
-    uint1 end;
-
+    uint32 counter;
+    uint2  channel;
+    uint1  speed;  //0 = 160 states, 1 = 320 states
+    uint1  scan;
+    uint1  repeat;
+    uint1  busy;
+    uint1  end;
     uint10 result[4];
-
-    integer counter;
   } adc;
 
   //rtc.cpp
@@ -537,54 +547,83 @@ struct CPU : TLCS900H, Thread {
   //watchdog.cpp
   struct Watchdog {
     auto step(uint clocks) -> void;
-    auto disable() -> void;
-    auto reload() -> void;
 
-    uint1 enable;
-    uint1 drive;
-    uint1 reset;
-    uint2 standby;
-    uint1 warmup;
-    uint2 frequency;
-
-    int32 timeout;
+    uint32 counter;
+    uint1  enable;
+    uint1  drive;
+    uint1  reset;
+    uint2  standby;
+    uint1  warmup;
+    uint2  frequency;
   } watchdog;
 
   //memory.cpp
-  struct ChipSelect {
-    auto select() -> void;
+  struct Bus {
+    auto wait() -> void;
+    auto read(uint width, uint24 address) -> uint32;
+    auto write(uint width, uint24 address, uint32 data) -> void;
 
-    uint2 wait;
-    uint1 width;  //0 = 16-bit, 1 = 8-bit
+    uint8 width;
+    uint2 timing;
+    function<uint8 (uint24)> reader;
+    function<void (uint24, uint8)> writer;
   };
 
-  struct ChipSelect0 : ChipSelect {
-    uint1  enable;
+  struct IO : Bus {
+    auto select(uint24 address) const -> bool;
+  } io;
+
+  struct ROM : Bus {
+    auto select(uint24 address) const -> bool;
+  } rom;
+
+  struct CRAM : Bus {
+    auto select(uint24 address) const -> bool;
+  } cram;
+
+  struct ARAM : Bus {
+    auto select(uint24 address) const -> bool;
+  } aram;
+
+  struct VRAM : Bus {
+    auto select(uint24 address) const -> bool;
+  } vram;
+
+  struct CS0 : Bus {
+    auto select(uint24 address) const -> bool;
+
+     uint1 enable;
     uint24 address;
     uint24 mask;
   } cs0;
 
-  struct ChipSelect1 : ChipSelect {
-    uint1  enable;
+  struct CS1 : Bus {
+    auto select(uint24 address) const -> bool;
+
+     uint1 enable;
     uint24 address;
     uint24 mask;
   } cs1;
 
-  struct ChipSelect2 : ChipSelect {
-    uint1  enable;
+  struct CS2 : Bus {
+    auto select(uint24 address) const -> bool;
+
+     uint1 enable;
     uint24 address;
     uint24 mask;
-    uint1  mode;  //0 = 000080-ffffff, 1 = address,mask
+     uint1 mode;  //0 = fixed; 1 = address/mask
   } cs2;
 
-  struct ChipSelect3 : ChipSelect {
-    uint1  enable;
+  struct CS3 : Bus {
+    auto select(uint24 address) const -> bool;
+
+     uint1 enable;
     uint24 address;
     uint24 mask;
-    uint1  cas;  //0 = /CS3, 1 = /CAS
+     uint1 cas;  //0 = /CS3, 1 = /CAS
   } cs3;
 
-  struct ChipSelectExternal : ChipSelect {
+  struct CSX : Bus {
   } csx;
 
   struct Clock {
@@ -596,16 +635,15 @@ struct CPU : TLCS900H, Thread {
     //5 =  192000hz? (undocumented)
     //6 =   96000hz? (undocumented)
     //7 =   48000hz? (undocumented)
-    uint3 rate;
+    uint3 rate = 4;  //default value unconfirmed
   } clock;
 
-  struct IO {
+  struct Misc {
     uint1 p5;  //Port 5: 0 = PSRAM mode, 1 = (not PSRAM mode?) [unemulated]
     uint1 rtsDisable;
-    uint8 apuPort;
     uint8 b4;
     uint8 b5;
-  } io;
+  } misc;
 };
 
 extern CPU cpu;

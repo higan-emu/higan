@@ -15,14 +15,13 @@ NeoGeoPocket::NeoGeoPocket(vector<uint8_t>& data, string location) : data(data),
 }
 
 NeoGeoPocket::operator bool() const {
-  switch(data.size()) {
-  case 0x080000: return true;  // 4mbit
-  case 0x100000: return true;  // 8mbit
-  case 0x200000: return true;  //16mbit
-  case 0x280000: return true;  //20mbit
-  case 0x300000: return true;  //24mbit
-  case 0x400000: return true;  //32mbit
-  }
+  //expand ROMs that are smaller than valid flash chip sizes (homebrew games)
+  if(data.size() <= 0x080000) return data.resize(0x080000), true;  // 4mbit
+  if(data.size() <= 0x100000) return data.resize(0x100000), true;  // 8mbit
+  if(data.size() <= 0x200000) return data.resize(0x200000), true;  //16mbit
+  if(data.size() <= 0x280000) return data.resize(0x280000), true;  //16mbit +  4mbit
+  if(data.size() <= 0x300000) return data.resize(0x300000), true;  //16mbit +  8mbit
+  if(data.size() <= 0x400000) return data.resize(0x400000), true;  //16mbit + 16mbit
   return false;
 }
 
