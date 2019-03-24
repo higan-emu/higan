@@ -47,13 +47,20 @@ auto TLCS900H::instructionBitSearch1Forward(Register<uint16> register) -> void {
 template<typename Source>
 auto TLCS900H::instructionCall(Source source) -> void {
   auto address = load(source);
-  push(PC), store(PC, address);
+  push(PC);
+  store(PC, address);
+  idle(1);
+  prefetch();
+  prefetch();
 }
 
 template<typename Source>
 auto TLCS900H::instructionCallRelative(Source displacement) -> void {
   push(PC);
   store(PC, load(PC) + load(displacement));
+  idle(2);
+  prefetch();
+  prefetch();
 }
 
 template<typename Target, typename Offset>
@@ -80,7 +87,7 @@ template<typename Size, int Adjust, typename Target>
 auto TLCS900H::instructionCompareRepeat(Target target) -> void {
   instructionCompare<Size, Adjust>(target);
   if(load(BC) && !ZF) return store(PC, load(PC) - 2);
-  step(1);
+  idle(1);
 }
 
 template<typename Target, typename Source>
@@ -96,6 +103,7 @@ auto TLCS900H::instructionComplement(Target target) -> void {
 }
 
 auto TLCS900H::instructionDecimalAdjustAccumulator(Register<uint8> register) -> void {
+  prefetch();
   auto input = load(register), value = input;
   if(CF || (uint8)value > 0x99) value += NF ? -0x60 : 0x60;
   if(HF || (uint4)value > 0x09) value += NF ? -0x06 : 0x06;
@@ -122,12 +130,13 @@ auto TLCS900H::instructionDecrement(Target target, Source source) -> void {
 }
 
 template<typename Target, typename Offset>
-auto TLCS900H::instructionDecrementJumpNotZero(Target target, Offset offset) -> bool {
+auto TLCS900H::instructionDecrementJumpNotZero(Target target, Offset offset) -> void {
+  prefetch();
   auto result = load(target);
   store(target, --result);
-  if(!result) return false;
+  if(!result) return;
   store(PC, load(PC) + load(offset));
-  return true;
+  prefetch();
 }
 
 template<typename Target, typename Source>
@@ -172,6 +181,7 @@ auto TLCS900H::instructionExtendZero(Target target) -> void {
 }
 
 auto TLCS900H::instructionHalt() -> void {
+  idle(4);
   r.halted = true;
 }
 
@@ -192,11 +202,15 @@ template<typename Source>
 auto TLCS900H::instructionJump(Source source) -> void {
   auto address = load(source);
   store(PC, address);
+  idle(1);
+  prefetch();
 }
 
 template<typename Source>
 auto TLCS900H::instructionJumpRelative(Source displacement) -> void {
   store(PC, load(PC) + load(displacement));
+  idle(1);
+  prefetch();
 }
 
 template<typename Target, typename Offset>
@@ -239,12 +253,13 @@ template<typename Size, int Adjust> auto TLCS900H::instructionLoad() -> void {
 template<typename Size, int Adjust> auto TLCS900H::instructionLoadRepeat() -> void {
   instructionLoad<Size, Adjust>();
   if(load(BC)) return store(PC, load(PC) - 2);
-  step(1);
+  idle(1);
 }
 
 //reverse all bits in a 16-bit register
 //note: an 8-bit lookup table is faster (when in L1/L2 cache), but much more code
 auto TLCS900H::instructionMirror(Register<uint16> register) -> void {
+  idle(1);
   auto data = load(register);
   data = data << 1 & 0xaaaa | data >> 1 & 0x5555;
   data = data << 2 & 0xcccc | data >> 2 & 0x3333;
@@ -346,18 +361,27 @@ auto TLCS900H::instructionReset(Target target, Offset offset) -> void {
 
 auto TLCS900H::instructionReturn() -> void {
   pop(PC);
+  idle(1);
+  prefetch();
+  prefetch();
 }
 
 template<typename Source>
 auto TLCS900H::instructionReturnDeallocate(Source displacement) -> void {
   pop(PC);
   store(XSP, load(XSP) + load(displacement));
+  idle(1);
+  prefetch();
+  prefetch();
 }
 
 auto TLCS900H::instructionReturnInterrupt() -> void {
   pop(SR);
   pop(PC);
   store(INTNEST, load(INTNEST) - 1);
+  idle(2);
+  prefetch();
+  prefetch();
 }
 
 template<typename LHS, typename RHS>
@@ -382,7 +406,7 @@ auto TLCS900H::instructionRotateLeft(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     uint cf = result.bit(-1);
     result = result << 1 | CF;
@@ -396,7 +420,7 @@ auto TLCS900H::instructionRotateLeftWithoutCarry(Target target, Amount amount) -
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     CF = result.bit(-1);
     result = result << 1 | CF;
@@ -426,7 +450,7 @@ auto TLCS900H::instructionRotateRight(Target target, Amount amount) -> void {
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     uint cf = result.bit(0);
     result = CF << Target::bits - 1 | result >> 1;
@@ -440,7 +464,7 @@ auto TLCS900H::instructionRotateRightWithoutCarry(Target target, Amount amount) 
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     CF = result.bit(0);
     result = CF << Target::bits - 1 | result >> 1;
@@ -477,6 +501,7 @@ auto TLCS900H::instructionSetConditionCode(uint4 code, Target target) -> void {
 }
 
 auto TLCS900H::instructionSetInterruptFlipFlop(uint3 value) -> void {
+  idle(1 + (value == 7));
   IFF = value;
 }
 
@@ -489,7 +514,7 @@ auto TLCS900H::instructionShiftLeftArithmetic(Target target, Amount amount) -> v
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     CF = result.bit(-1);
     result = result << 1;
@@ -502,7 +527,7 @@ auto TLCS900H::instructionShiftLeftLogical(Target target, Amount amount) -> void
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     CF = result.bit(-1);
     result = result << 1;
@@ -515,7 +540,7 @@ auto TLCS900H::instructionShiftRightArithmetic(Target target, Amount amount) -> 
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     CF = result.bit(0);
     result = result >> 1;
@@ -529,7 +554,7 @@ auto TLCS900H::instructionShiftRightLogical(Target target, Amount amount) -> voi
   auto result = load(target);
   auto length = load(amount).clip(4);
   if(!length) length = 16;
-  step(length >> 2);
+  idle(length >> 2);
   for(uint n : range(length)) {
     CF = result.bit(0);
     result = result >> 1;
@@ -546,6 +571,7 @@ auto TLCS900H::instructionStoreCarry(Target target, Offset offset) -> void {
 }
 
 auto TLCS900H::instructionSoftwareInterrupt(uint3 vector) -> void {
+  idle(1);
   interrupt(vector << 2);
 }
 

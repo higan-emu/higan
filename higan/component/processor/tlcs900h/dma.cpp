@@ -13,9 +13,15 @@ auto TLCS900H::dma(uint2 channel) -> bool {
   case 3: size = Long; break;  //unknown behavior
   }
 
+  idle(1);
+  prefetch();
+
   if(mode <= 4) {
     auto data = read(size, source);
+    idle(1);
     write(size, target, data);
+  } else {
+    idle(2);
   }
 
   switch(mode) {
@@ -28,10 +34,6 @@ auto TLCS900H::dma(uint2 channel) -> bool {
   case 6: break;  //unknown behavior
   case 7: break;  //unknown behavior
   }
-
-  if(mode <= 4) step(size == Long ? 12 : 8);
-  if(mode == 5) step(5);
-  if(mode >= 6) step(5);  //unknown behavior
 
   return --length == 0;  //true indicates the transfer has completed
 }

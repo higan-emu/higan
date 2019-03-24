@@ -30,7 +30,9 @@ auto TLCS900H::serialize(serializer& s) -> void {
   s.integer(r.halted);
   s.integer(r.prefix);
 
-  s.integer(prefetch.valid);
-  s.integer(prefetch.index);
-  s.array(prefetch.queue);
+  s.integer(p.valid);
+  s.integer(p.data);
+
+  s.integer(mar);
+  s.integer(mdr);
 }

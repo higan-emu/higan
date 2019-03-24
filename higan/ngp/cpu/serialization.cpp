@@ -4,9 +4,6 @@ auto CPU::serialize(serializer& s) -> void {
 
   ram.serialize(s);
 
-  s.integer(mar);
-  s.integer(mdr);
-
   s.integer(interrupts.vector);
   s.integer(interrupts.priority);
 

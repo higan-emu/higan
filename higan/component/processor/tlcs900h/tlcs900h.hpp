@@ -19,7 +19,8 @@ namespace higan {
 struct TLCS900H {
   enum : uint { Byte = 1, Word = 2, Long = 4 };
 
-  virtual auto step(uint clocks) -> void = 0;
+  virtual auto idle(uint clocks) -> void = 0;
+  virtual auto width(uint24 address) -> uint = 0;
   virtual auto read(uint size, uint24 address) -> uint32 = 0;
   virtual auto write(uint size, uint24 address, uint32 data) -> void = 0;
 
@@ -86,9 +87,9 @@ struct TLCS900H {
   auto dma(uint2 channel) -> bool;
 
   //instruction.cpp
-  template<uint Bits> auto stepBW(uint b, uint w) -> void;
-  template<uint Bits> auto stepWL(uint w, uint l) -> void;
-  template<uint Bits> auto stepBWL(uint b, uint w, uint l) -> void;
+  template<uint Bits> auto idleBW(uint b, uint w) -> void;
+  template<uint Bits> auto idleWL(uint w, uint l) -> void;
+  template<uint Bits> auto idleBWL(uint b, uint w, uint l) -> void;
 
   template<typename T> auto toRegister3(uint3) const -> Register<T>;
   template<typename T> auto toRegister8(uint8) const -> Register<T>;
@@ -119,7 +120,7 @@ struct TLCS900H {
   template<typename Target> auto instructionComplement(Target) -> void;
   auto instructionDecimalAdjustAccumulator(Register<uint8>) -> void;
   template<typename Target, typename Source> auto instructionDecrement(Target, Source) -> void;
-  template<typename Target, typename Offset> auto instructionDecrementJumpNotZero(Target, Offset) -> bool;
+  template<typename Target, typename Offset> auto instructionDecrementJumpNotZero(Target, Offset) -> void;
   template<typename Target, typename Source> auto instructionDivide(Target, Source) -> void;
   template<typename Target, typename Source> auto instructionDivideSigned(Target, Source) -> void;
   template<typename Target, typename Source> auto instructionExchange(Target, Source) -> void;
@@ -187,15 +188,15 @@ struct TLCS900H {
   };
 
   struct Registers {
-    DataRegister  xwa[4];
-    DataRegister  xbc[4];
-    DataRegister  xde[4];
-    DataRegister  xhl[4];
-    DataRegister  xix;
-    DataRegister  xiy;
-    DataRegister  xiz;
-    DataRegister  xsp;
-    DataRegister   pc;
+    DataRegister xwa[4];
+    DataRegister xbc[4];
+    DataRegister xde[4];
+    DataRegister xhl[4];
+    DataRegister xix;
+    DataRegister xiy;
+    DataRegister xiz;
+    DataRegister xsp;
+    DataRegister  pc;
 
     DataRegister dmas[4];
     DataRegister dmad[4];
@@ -216,10 +217,16 @@ struct TLCS900H {
   } r;
 
   struct Prefetch {
-    uint1 valid;
-    uint2 index;
-    uint8 queue[4];
-  } prefetch;
+    uint3  valid;  //0-4 bytes
+    uint32 data;
+  } p;
+
+  //prefetch.cpp
+  auto invalidate() -> void;
+  auto prefetch() -> void;
+
+  uint24 mar;  //A0-A23: memory address register
+  uint16 mdr;  //D0-D15: memory data register
 
   static inline const Register< uint8> A{0xe0};
   static inline const Register< uint8> W{0xe1};

@@ -1,19 +1,12 @@
 #define PC r.pc.l.l0
 
 template<> auto TLCS900H::fetch< uint8>() ->  uint8 {
-  if(!prefetch.valid) {
-    auto data = read(Long, PC);
-    prefetch.queue[0] = data.byte(0);
-    prefetch.queue[1] = data.byte(1);
-    prefetch.queue[2] = data.byte(2);
-    prefetch.queue[3] = data.byte(3);
-    prefetch.valid = true;
-    prefetch.index = 0;
-  } else {
-    prefetch.queue[prefetch.index++] = read(Byte, PC + 3);
-  }
-  PC++;
-  return prefetch.queue[prefetch.index];
+//while(p.valid < 3) prefetch();
+  if(p.valid == 0) prefetch();
+  uint8 data = p.data;
+  p.data >>= 8;
+  p.valid--;
+  return PC++, data;
 }
 
 template<> auto TLCS900H::fetch<uint16>() -> uint16 {

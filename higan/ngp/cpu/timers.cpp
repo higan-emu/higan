@@ -1,18 +1,10 @@
-/* Frequency = 6144000.0hz
- * Prescaler = 1536000.0hz
- *        T1 =   48000.0hz
- *        T4 =   12000.0hz
- *       T16 =    3000.0hz
- *      T256 =     187.5hz
- */
-
 auto CPU::Prescaler::step(uint clocks) -> void {
   if(!enable) return;
   while(clocks--) {
     auto latch = counter++;
 
     // T1
-    if(!latch.bit( 6) || counter.bit( 6)) continue;
+    if(!latch.bit( 5) || counter.bit( 5)) continue;
     if(cpu.t0.mode == 1) cpu.t01.clockT0();
     if(cpu.t1.mode == 1) cpu.t01.clockT1();
     if(cpu.t2.mode == 1) cpu.t23.clockT2();
@@ -21,14 +13,14 @@ auto CPU::Prescaler::step(uint clocks) -> void {
     if(cpu.t5.mode == 1) cpu.t5.clock();
 
     // T4
-    if(!latch.bit( 8) || counter.bit( 8)) continue;
+    if(!latch.bit( 7) || counter.bit( 7)) continue;
     if(cpu.t0.mode == 2) cpu.t01.clockT0();
     if(cpu.t2.mode == 2) cpu.t23.clockT2();
     if(cpu.t4.mode == 2) cpu.t4.clock();
     if(cpu.t5.mode == 2) cpu.t5.clock();
 
     // T16
-    if(!latch.bit(10) || counter.bit(10)) continue;
+    if(!latch.bit( 9) || counter.bit( 9)) continue;
     if(cpu.t0.mode == 3) cpu.t01.clockT0();
     if(cpu.t1.mode == 2) cpu.t01.clockT1();
     if(cpu.t2.mode == 3) cpu.t23.clockT2();
@@ -37,7 +29,7 @@ auto CPU::Prescaler::step(uint clocks) -> void {
     if(cpu.t5.mode == 3) cpu.t5.clock();
 
     // T256
-    if(!latch.bit(14) || counter.bit(14)) continue;
+    if(!latch.bit(13) || counter.bit(13)) continue;
     if(cpu.t1.mode == 3) cpu.t01.clockT1();
     if(cpu.t3.mode == 3) cpu.t23.clockT3();
   }

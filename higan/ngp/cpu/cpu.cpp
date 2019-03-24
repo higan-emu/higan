@@ -48,6 +48,15 @@ auto CPU::step(uint clocks) -> void {
   synchronize(psg);
 }
 
+auto CPU::idle(uint clocks) -> void {
+  clocks <<= clock.rate;
+  Thread::step(clocks);
+  prescaler.step(clocks);
+  adc.step(clocks);
+  rtc.step(clocks);
+  watchdog.step(clocks);
+}
+
 auto CPU::pollPowerButton() -> void {
 //platform->input(controls.power);
   nmi.set(!controls.power->value);
@@ -55,22 +64,24 @@ auto CPU::pollPowerButton() -> void {
 
 auto CPU::power() -> void {
   TLCS900H::power();
-  Thread::create(system.frequency(), [&] {
+  Thread::create(system.frequency() / 2.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
 
-  r.pc.b.b0 = system.bios.read(0xff00);
-  r.pc.b.b1 = system.bios.read(0xff01);
-  r.pc.b.b2 = system.bios.read(0xff02);
-  r.pc.b.b3 = 0x00;
+  uint24 address;
+  address.byte(0) = system.bios.read(0xff00);
+  address.byte(1) = system.bios.read(0xff01);
+  address.byte(2) = system.bios.read(0xff02);
 
   //hack: real hardware boots once batteries are connected, and goes into a halt state.
   //higan implements power as a switch rather than a button, so the PC is jumped past
   //this to a hardware reset point, bypassing the need to press controls.power first.
-  r.pc.l.l0 = 0xff1800;
+  address = 0xff1800;
   //the reset vector sets (0x2e95)=0x4e50, which is needed to prevent entering setup on reboot.
   ram[0x2e96] = 'N';  //'N'eo Geo
   ram[0x2e95] = 'P';  //'P'ocket
+
+  store(PC, address);
 
   mar = 0;
   mdr = 0;
@@ -224,7 +235,7 @@ auto CPU::power() -> void {
   watchdog = {};
 
   io = {};
-  io.width  = Word;
+  io.width  = Byte;
   io.timing = 3;
   io.reader = [](uint24 address) -> uint8 { return cpu.readIO(address); };
   io.writer = [](uint24 address, uint8 data) { return cpu.writeIO(address, data); };

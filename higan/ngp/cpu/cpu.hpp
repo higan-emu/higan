@@ -19,7 +19,8 @@ struct CPU : TLCS900H, Thread {
 
   //cpu.cpp
   auto main() -> void;
-  auto step(uint clocks) -> void override;
+  auto step(uint clocks) -> void;
+  auto idle(uint clocks) -> void override;
   auto pollPowerButton() -> void;
   auto power() -> void;
 
@@ -28,6 +29,7 @@ struct CPU : TLCS900H, Thread {
   auto unload() -> void;
 
   //memory.cpp
+  auto width(uint24 address) -> uint override;
   auto read(uint width, uint24 address) -> uint32 override;
   auto write(uint width, uint24 address, uint32 data) -> void override;
 
@@ -39,9 +41,6 @@ struct CPU : TLCS900H, Thread {
   auto serialize(serializer&) -> void;
 
 //private:
-  uint32 mar;  //memory address register
-  uint32 mdr;  //memory data register
-
   //interrupts.cpp
   struct Interrupts {
     auto poll() -> void;

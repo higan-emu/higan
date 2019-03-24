@@ -10,11 +10,12 @@
 
 auto CPU::Bus::wait() -> void {
   switch(timing) {
-  case 0: return cpu.step(1);  //1 state
-  case 1: return cpu.step(2);  //2 states
-  case 2: return cpu.step(1);  //1 state + (not emulated) /WAIT
-  case 3: return;              //0 states
+  case 0: return cpu.step(2 + 1);  //1 state
+  case 1: return cpu.step(2 + 2);  //2 states
+  case 2: return cpu.step(2 + 1);  //1 state + (not emulated) /WAIT
+  case 3: return cpu.step(2 + 0);  //0 states
   }
+  unreachable;
 }
 
 auto CPU::Bus::read(uint size, uint24 address) -> uint32 {
@@ -231,6 +232,19 @@ auto CPU::CS3::select(uint24 compare) const -> bool {
 /* CSX: (chip select external)
  * Not connected and not used.
  */
+
+auto CPU::width(uint24 address) -> uint {
+  if(  io.select(address)) return   io.width;
+  if( rom.select(address)) return  rom.width;
+  if(cram.select(address)) return cram.width;
+  if(aram.select(address)) return aram.width;
+  if(vram.select(address)) return vram.width;
+  if( cs0.select(address)) return  cs0.width;
+  if( cs1.select(address)) return  cs1.width;
+  if( cs2.select(address)) return  cs2.width;
+  if( cs3.select(address)) return  cs3.width;
+                           return  csx.width;
+}
 
 auto CPU::read(uint size, uint24 address) -> uint32 {
   mar = address;

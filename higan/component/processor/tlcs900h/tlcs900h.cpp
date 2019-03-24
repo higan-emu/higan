@@ -17,6 +17,7 @@ namespace higan {
 #include "registers.cpp"
 #include "control-registers.cpp"
 #include "memory.cpp"
+#include "prefetch.cpp"
 #include "conditions.cpp"
 #include "algorithms.cpp"
 #include "dma.cpp"
@@ -30,13 +31,20 @@ auto TLCS900H::interrupt(uint8 vector) -> void {
   push(SR);
   store(PC, load(Memory<uint32>{0xffff00 | vector}));
   store(INTNEST, load(INTNEST) + 1);
-  step(18);
+  idle(1);
+  prefetch();
+  idle(1);
+  prefetch();
+  idle(1);
+  prefetch();
+  idle(1);
+  prefetch();
 }
 
 auto TLCS900H::power() -> void {
   r = {};
   r.xsp.l.l0 = 0x100;
-  prefetch = {};
+  invalidate();
 }
 
 }

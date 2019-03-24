@@ -53,7 +53,7 @@ template<> auto TLCS900H::map(Register<uint16> register) const -> maybe<uint16&>
   r(0xe0, xwa[a].w.w0) r(0xe2, xwa[a].w.w1) r(0xe4, xbc[a].w.w0) r(0xe6, xbc[a].w.w1)
   r(0xe8, xde[a].w.w0) r(0xea, xde[a].w.w1) r(0xec, xhl[a].w.w0) r(0xee, xhl[a].w.w1)
   r(0xf0, xix   .w.w0) r(0xf2, xix   .w.w1) r(0xf4, xiy   .w.w0) r(0xf6, xiy   .w.w1)
-  r(0xf8, xiz   .w.w0) r(0xfa, xiz   .w.w1) r(0xfc, xsp   .w.w0) r(0xfe, xsp   .w.w0)
+  r(0xf8, xiz   .w.w0) r(0xfa, xiz   .w.w1) r(0xfc, xsp   .w.w0) r(0xfe, xsp   .w.w1)
   #undef r
   }
   return nothing;
@@ -122,5 +122,5 @@ auto TLCS900H::load(ProgramCounter) const -> uint32 {
 
 auto TLCS900H::store(ProgramCounter, uint32 data) -> void {
   r.pc.l.l0 = data;
-  prefetch.valid = false;
+  invalidate();
 }

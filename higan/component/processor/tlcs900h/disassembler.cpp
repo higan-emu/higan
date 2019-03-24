@@ -182,6 +182,20 @@ auto TLCS900H::disassemble() -> string {
     if((uint2)data == 1) lhs.indirectRegisterDisplacement16(opSize, data, read16());
     if(data == 0x03) { auto r32 = read8(); lhs.indirectRegisterRegister8(opSize, r32, read8()); }
     if(data == 0x07) { auto r32 = read8(); lhs.indirectRegisterRegister16(opSize, r32, read8()); }
+    if(data == 0x17 && opTargetMemory) {
+      opTargetMemory = false;
+      name = "ldar";
+      int16 d16 = read16();
+      data = read8();
+      if((data & 0xf8) == 0x20) {
+        lhs.register3(16, data);
+        rhs.displacementPC(16, d16);
+      }
+      if((data & 0xf8) == 0x30) {
+        lhs.register3(32, data);
+        rhs.displacementPC(16, d16);
+      }
+    }
   } break;
   case 0xc4: case 0xd4: case 0xe4: case 0xf4:
     opSourceMemory = fetch < 0xf0; opTargetMemory = !opSourceMemory;
@@ -192,7 +206,7 @@ auto TLCS900H::disassemble() -> string {
   case 0xc6: case 0xd6: case 0xe6: case 0xf6: break;
   case 0xc7: case 0xd7: case 0xe7:
     opRegister = true;
-    lhs.indirectRegister(opSize, read8()); break;
+    lhs.register(opSize, read8()); break;
   case 0xf7:
     name = "ldx";
     read8(); lhs.indirectImmediate8(8, read8());
@@ -479,11 +493,11 @@ auto TLCS900H::disassemble() -> string {
   case 0x17: case 0x18: case 0x19: case 0x1a: case 0x1b: case 0x1c: case 0x1d: case 0x1e: case 0x1f: break;
   case 0x20: case 0x21: case 0x22: case 0x23: case 0x24: case 0x25: case 0x26: case 0x27:
     name = "lda"; lhs.size(16); rhs = lhs; lhs.register3(rhs.size(), fetch); break;
-  case 0x28: name = "andcf"; rhs.register3(8, A.id); break;
-  case 0x29: name = "orcf";  rhs.register3(8, A.id); break;
-  case 0x2a: name = "xorcf"; rhs.register3(8, A.id); break;
-  case 0x2b: name = "ldcf";  rhs.register3(8, A.id); break;
-  case 0x2c: name = "stcf";  rhs.register3(8, A.id); break;
+  case 0x28: name = "andcf"; lhs.size(8); rhs.register3(8, A.id); break;
+  case 0x29: name = "orcf";  lhs.size(8); rhs.register3(8, A.id); break;
+  case 0x2a: name = "xorcf"; lhs.size(8); rhs.register3(8, A.id); break;
+  case 0x2b: name = "ldcf";  lhs.size(8); rhs.register3(8, A.id); break;
+  case 0x2c: name = "stcf";  lhs.size(8); rhs.register3(8, A.id); break;
   case 0x2d: case 0x2e: case 0x2f: break;
   case 0x30: case 0x31: case 0x32: case 0x33: case 0x34: case 0x35: case 0x36: case 0x37:
     name = "lda"; lhs.size(32); rhs = lhs; lhs.register3(rhs.size(), fetch); break;
@@ -521,10 +535,10 @@ auto TLCS900H::disassemble() -> string {
     name = "bit"; lhs.size(8); rhs.immediate(3, (uint3)fetch); break;
   case 0xd0: case 0xd1: case 0xd2: case 0xd3: case 0xd4: case 0xd5: case 0xd6: case 0xd7:
   case 0xd8: case 0xd9: case 0xda: case 0xdb: case 0xdc: case 0xdd: case 0xde: case 0xdf:
-    name = "jp"; rhs = lhs; lhs.condition(fetch); break;
+    name = "jp"; lhs.size(32); rhs = lhs; lhs.condition(fetch); break;
   case 0xe0: case 0xe1: case 0xe2: case 0xe3: case 0xe4: case 0xe5: case 0xe6: case 0xe7:
   case 0xe8: case 0xe9: case 0xea: case 0xeb: case 0xec: case 0xed: case 0xee: case 0xef:
-    name = "call"; rhs = lhs; lhs.condition(fetch); break;
+    name = "call"; lhs.size(32); rhs = lhs; lhs.condition(fetch); break;
   case 0xf0: case 0xf1: case 0xf2: case 0xf3: case 0xf4: case 0xf5: case 0xf6: case 0xf7:
   case 0xf8: case 0xf9: case 0xfa: case 0xfb: case 0xfc: case 0xfd: case 0xfe: case 0xff:
     name = "ret"; lhs.condition(fetch); break;
@@ -537,7 +551,7 @@ auto TLCS900H::disassemble() -> string {
       "ra2", "rw2", "qa2", "qw2", "rc2", "rb2", "qc2", "qb2", "re2", "rd2", "qe2", "qd2", "rl2", "rh2", "ql2", "qh2",   //20-2f
       "ra3", "rw3", "qa3", "qw3", "rc3", "rb3", "qc3", "qb3", "re3", "rd3", "qe3", "qd3", "rl3", "rh3", "ql3", "qh3",   //30-3f
        "a'",  "w'", "qa'", "qw'",  "c'",  "b'", "qc'", "qb'",  "e'",  "d'", "qe'", "qd'",  "l'",  "h'", "ql'", "qh'",   //d0-df
-       "a",   "w",  "qa",  "qw",   "c",   "b",  "qc",  "qb",   "e",   "d",  "eq",  "qd",   "l",   "h",  "ql",  "qh",    //e0-ef
+       "a",   "w",  "qa",  "qw",   "c",   "b",  "qc",  "qb",   "e",   "d",  "qe",  "qd",   "l",   "h",  "ql",  "qh",    //e0-ef
       "ixl", "ixh", "qixl","qixh","iyl", "iyh", "qiyl","qiyh","izl", "izh", "qizl","qizh","spl", "sph", "qspl","qsph",  //f0-ff
     };
     auto register8 = [&](uint8 register) -> string {
