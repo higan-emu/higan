@@ -33,14 +33,6 @@ auto Stream::setFrequency(double inputFrequency, maybe<double> outputFrequency) 
   }
 }
 
-auto Stream::addDCRemovalFilter() -> void {
-  return;  //todo: test to ensure this is desirable before enabling
-  for(auto& channel : channels) {
-    Filter filter{Filter::Mode::DCRemoval, Filter::Type::None, Filter::Order::None};
-    channel.filters.append(filter);
-  }
-}
-
 auto Stream::addLowPassFilter(double cutoffFrequency, Filter::Order order, uint passes) -> void {
   for(auto& channel : channels) {
     for(uint pass : range(passes)) {
@@ -91,7 +83,6 @@ auto Stream::write(const double samples[]) -> void {
     double sample = samples[c] + 1e-25;  //constant offset used to suppress denormals
     for(auto& filter : channels[c].filters) {
       switch(filter.mode) {
-      case Filter::Mode::DCRemoval: sample = filter.dcRemoval.process(sample); break;
       case Filter::Mode::OnePole: sample = filter.onePole.process(sample); break;
       case Filter::Mode::Biquad: sample = filter.biquad.process(sample); break;
       }

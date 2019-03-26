@@ -65,7 +65,7 @@ auto APU::disable() -> void {
 }
 
 auto APU::load() -> void {
-  ram.allocate(4_KiB);
+  ram.allocate(4_KiB, 0x00);
   if(auto fp = platform->open(system.node, "apu.ram", File::Read)) {
     ram.load(fp);
   }

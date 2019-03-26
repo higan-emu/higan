@@ -24,7 +24,6 @@ auto PSG::power(bool reset) -> void {
   stream = audio.createStream(1, frequency() / 16.0);
   stream->addHighPassFilter(  20.0, Filter::Order::First);
   stream->addLowPassFilter (2840.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 }
 
 }

@@ -157,7 +157,6 @@ auto YM2612::power(bool reset) -> void {
   stream = audio.createStream(2, frequency() / 144.0);
   stream->addHighPassFilter(  20.0, Filter::Order::First);
   stream->addLowPassFilter (2840.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 
   io = {};
   lfo = {};

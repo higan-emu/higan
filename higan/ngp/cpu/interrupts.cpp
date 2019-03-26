@@ -22,7 +22,7 @@ auto CPU::Interrupts::poll() -> void {
   cpu.int5  .poll(vector, priority);
   cpu.int4  .poll(vector, priority);
   cpu.int0  .poll(vector, priority);
-//cpu.intwd .poll(vector, priority);
+  cpu.intwd .poll(vector, priority);
   cpu.nmi   .poll(vector, priority);
 }
 

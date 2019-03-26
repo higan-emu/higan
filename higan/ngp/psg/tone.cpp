@@ -1,6 +1,7 @@
-auto PSG::Tone::run() -> void {
-  if(counter--) return;
-
-  counter = pitch;
-  output ^= 1;
+auto PSG::Tone::run() -> uint1 {
+  if(!counter--) {
+    counter = pitch;
+    output ^= 1;
+  }
+  return output;
 }

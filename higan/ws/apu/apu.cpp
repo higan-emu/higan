@@ -67,7 +67,6 @@ auto APU::power() -> void {
   });
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 
   bus.map(this, 0x004a, 0x004c);
   bus.map(this, 0x004e, 0x0050);

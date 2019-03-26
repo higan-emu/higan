@@ -75,7 +75,6 @@ auto APU::power(bool reset) -> void {
   stream->addHighPassFilter(   90.0, Filter::Order::First);
   stream->addHighPassFilter(  440.0, Filter::Order::First);
   stream->addLowPassFilter (14000.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 
   pulse[0].power();
   pulse[1].power();

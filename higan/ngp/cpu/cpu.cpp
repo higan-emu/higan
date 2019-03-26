@@ -2,10 +2,6 @@
 
 namespace higan::NeoGeoPocket {
 
-bool tracing = 0;
-uint counter = 0;
-vector<boolean> masking;
-
 CPU cpu;
 #include "memory.cpp"
 #include "io.cpp"
@@ -19,19 +15,6 @@ CPU cpu;
 
 auto CPU::main() -> void {
   if(interrupts.fire()) r.halted = false;
-
-//auto pc=r.pc.l.l0;
-//if(pc==0x2d8000){
-//static bool once=false;
-//if(!once){once=true;
-//instructionSoftwareInterrupt(1);
-//r.xwa[3].b.b1=0x02;
-//r.xhl[3].l.l0=0x5000;
-//r.xbc[3].b.b1=0x04;
-//r.xbc[3].b.b0=0x00;
-//tracing=true;
-//}}
-
   if(r.halted) return step(16);
   instruction();
 }
@@ -64,6 +47,9 @@ auto CPU::pollPowerButton() -> void {
 
 auto CPU::power() -> void {
   TLCS900H::power();
+
+  //the CPU runs at 6144000hz, but each TLCS900/H state takes two clock cycles.
+  //halve the thread frequency instead of doubling the cycles for every instruction.
   Thread::create(system.frequency() / 2.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
@@ -72,15 +58,10 @@ auto CPU::power() -> void {
   address.byte(0) = system.bios.read(0xff00);
   address.byte(1) = system.bios.read(0xff01);
   address.byte(2) = system.bios.read(0xff02);
-
   //hack: real hardware boots once batteries are connected, and goes into a halt state.
   //higan implements power as a switch rather than a button, so the PC is jumped past
   //this to a hardware reset point, bypassing the need to press controls.power first.
   address = 0xff1800;
-  //the reset vector sets (0x2e95)=0x4e50, which is needed to prevent entering setup on reboot.
-  ram[0x2e96] = 'N';  //'N'eo Geo
-  ram[0x2e95] = 'P';  //'P'ocket
-
   store(PC, address);
 
   mar = 0;
@@ -310,7 +291,7 @@ auto CPU::power() -> void {
 }
 
 auto CPU::load() -> void {
-  ram.allocate(12_KiB);
+  ram.allocate(12_KiB, 0x00);
   if(auto fp = platform->open(system.node, "cpu.ram", File::Read)) {
     ram.load(fp);
 
@@ -326,6 +307,10 @@ auto CPU::load() -> void {
     }
     ram[0x2c14] = data.byte(0);
     ram[0x2c15] = data.byte(1);
+
+    //signature check
+    ram[0x2e96] = 'N';  //'N'eo Geo
+    ram[0x2e95] = 'P';  //'P'ocket
 
     //this byte seems to indicate system state (0x00 = BIOS UI, 0x10 = setup, 0x40 = game playing)
     //for unknown reasons, sometimes d4 gets set, which re-enters the BIOS setup again.

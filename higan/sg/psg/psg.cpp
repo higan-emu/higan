@@ -23,7 +23,6 @@ auto PSG::power() -> void {
   });
   stream = audio.createStream(1, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 }
 
 }

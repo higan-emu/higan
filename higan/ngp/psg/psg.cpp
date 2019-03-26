@@ -9,24 +9,29 @@ PSG psg;
 #include "serialization.cpp"
 
 auto PSG::main() -> void {
-  uint15 left  = dac.left  << 6;
-  uint15 right = dac.right << 6;
+  uint15 left;
+  uint15 right;
 
   if(psg.enable) {
-    tone0.run();
-    tone1.run();
-    tone2.run();
-    noise.run();
-
-    left  += amplitude[tone0.volume.left ] * tone0.output;
-    left  += amplitude[tone1.volume.left ] * tone1.output;
-    left  += amplitude[tone2.volume.left ] * tone2.output;
-    left  += amplitude[noise.volume.left ] * noise.output;
-
-    right += amplitude[tone0.volume.right] * tone0.output;
-    right += amplitude[tone1.volume.right] * tone1.output;
-    right += amplitude[tone2.volume.right] * tone2.output;
-    right += amplitude[noise.volume.right] * noise.output;
+    if(tone0.run()) {
+      left  += amplitude[tone0.volume.left ];
+      right += amplitude[tone0.volume.right];
+    }
+    if(tone1.run()) {
+      left  += amplitude[tone1.volume.left ];
+      right += amplitude[tone1.volume.right];
+    }
+    if(tone2.run()) {
+      left  += amplitude[tone2.volume.left ];
+      right += amplitude[tone2.volume.right];
+    }
+    if(noise.run()) {
+      left  += amplitude[noise.volume.left ];
+      right += amplitude[noise.volume.right];
+    }
+  } else {
+    left  += dac.left  << 7;
+    right += dac.right << 7;
   }
 
   stream->sample(left / 32767.0, right / 32767.0);
@@ -55,7 +60,7 @@ auto PSG::power() -> void {
   dac = {};
   select = 0;
   for(uint n : range(15)) {
-    amplitude[n] = 0xfff * pow(2, n * -2.0 / 6.0) + 0.5;
+    amplitude[n] = 0x1fff * pow(2, n * -2.0 / 6.0) + 0.5;
   }
   amplitude[15] = 0;
 }

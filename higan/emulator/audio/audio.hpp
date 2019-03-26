@@ -1,6 +1,5 @@
 #pragma once
 
-#include <nall/dsp/iir/dc-removal.hpp>
 #include <nall/dsp/iir/one-pole.hpp>
 #include <nall/dsp/iir/biquad.hpp>
 #include <nall/dsp/resampler/cubic.hpp>
@@ -37,11 +36,10 @@ private:
 };
 
 struct Filter {
-  enum class Mode : uint { DCRemoval, OnePole, Biquad } mode;
+  enum class Mode : uint { OnePole, Biquad } mode;
   enum class Type : uint { None, LowPass, HighPass } type;
   enum class Order : uint { None, First, Second } order;
 
-  DSP::IIR::DCRemoval dcRemoval;
   DSP::IIR::OnePole onePole;
   DSP::IIR::Biquad biquad;
 };
@@ -51,7 +49,6 @@ struct Stream {
 
   auto setFrequency(double inputFrequency, maybe<double> outputFrequency = {}) -> void;
 
-  auto addDCRemovalFilter() -> void;
   auto addLowPassFilter(double cutoffFrequency, Filter::Order order, uint passes = 1) -> void;
   auto addHighPassFilter(double cutoffFrequency, Filter::Order order, uint passes = 1) -> void;
 

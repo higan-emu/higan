@@ -54,7 +54,6 @@ auto APU::power() -> void {
   if(!Model::SuperGameBoy()) {
     stream = audio.createStream(2, frequency());
     stream->addHighPassFilter(20.0, Filter::Order::First);
-    stream->addDCRemovalFilter();
   }
   for(uint n = 0xff10; n <= 0xff3f; n++) bus.mmio[n] = this;
 

@@ -76,7 +76,6 @@ auto APU::power() -> void {
   });
   stream = audio.createStream(2, frequency() / 64.0);
   stream->addHighPassFilter(20.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 
   clock = 0;
   square1.power();

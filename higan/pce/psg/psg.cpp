@@ -51,7 +51,6 @@ auto PSG::power() -> void {
   });
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 
   io = {};
   for(auto C : range(6)) channel[C].power(C);

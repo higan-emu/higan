@@ -62,7 +62,6 @@ auto ICD::power() -> void {
   cpu.coprocessors.append(this);
   stream = higan::audio.createStream(2, frequency() / 2.0);
   stream->addHighPassFilter(20.0, Filter::Order::First);
-  stream->addDCRemovalFilter();
 
   r6003 = 0x00;
   r6004 = 0xff;

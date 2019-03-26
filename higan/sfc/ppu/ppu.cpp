@@ -84,7 +84,7 @@ auto PPU::main() -> void {
       step(2);
     }
 
-    step(14);
+    step(14 + 34 * 2);
     obj.tilefetch();
   }
 

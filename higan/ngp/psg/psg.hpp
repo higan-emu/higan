@@ -22,7 +22,7 @@ struct PSG : Thread {
 
   struct Tone {
     //tone.cpp
-    auto run() -> void;
+    auto run() -> uint1;
 
     uint10 counter;
     uint10 pitch;
@@ -35,7 +35,7 @@ struct PSG : Thread {
 
   struct Noise {
     //noise.cpp
-    auto run() -> void;
+    auto run() -> uint1;
 
     uint10 counter;
     uint10 pitch;
