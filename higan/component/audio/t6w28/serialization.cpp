@@ -1,4 +1,4 @@
-auto SN76489::serialize(serializer& s) -> void {
+auto T6W28::serialize(serializer& s) -> void {
   tone0.serialize(s);
   tone1.serialize(s);
   tone2.serialize(s);
@@ -6,15 +6,15 @@ auto SN76489::serialize(serializer& s) -> void {
   s.integer(io.register);
 }
 
-auto SN76489::Tone::serialize(serializer& s) -> void {
-  s.integer(volume);
+auto T6W28::Tone::serialize(serializer& s) -> void {
   s.integer(counter);
   s.integer(pitch);
   s.integer(output);
+  s.integer(volume.left);
+  s.integer(volume.right);
 }
 
-auto SN76489::Noise::serialize(serializer& s) -> void {
-  s.integer(volume);
+auto T6W28::Noise::serialize(serializer& s) -> void {
   s.integer(counter);
   s.integer(pitch);
   s.integer(enable);
@@ -22,4 +22,6 @@ auto SN76489::Noise::serialize(serializer& s) -> void {
   s.integer(lfsr);
   s.integer(flip);
   s.integer(output);
+  s.integer(volume.left);
+  s.integer(volume.right);
 }

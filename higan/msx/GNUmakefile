@@ -1,4 +1,4 @@
-components += z80 tms9918
+components += z80 tms9918 ay38910
 
 objects += msx-interface msx-system msx-cartridge
 objects += msx-cpu msx-vdp msx-psg

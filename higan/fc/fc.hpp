@@ -9,6 +9,7 @@
 #include <emulator/cheat.hpp>
 
 #include <component/processor/mos6502/mos6502.hpp>
+#include <component/audio/ym2149/ym2149.hpp>
 
 namespace higan::Famicom {
   extern Scheduler scheduler;

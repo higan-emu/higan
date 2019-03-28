@@ -10,6 +10,7 @@
 
 #include <component/processor/z80/z80.hpp>
 #include <component/video/tms9918/tms9918.hpp>
+#include <component/audio/ay38910/ay38910.hpp>
 
 namespace higan::MSX {
   extern Scheduler scheduler;

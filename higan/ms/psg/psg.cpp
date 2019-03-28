@@ -6,8 +6,34 @@ PSG psg;
 #include "serialization.cpp"
 
 auto PSG::main() -> void {
-  auto samples = SN76489::clock();
-  stream->sample(samples[0], samples[1]);
+  auto channels = SN76489::clock();
+
+  if(Model::MasterSystem()) {
+    double output = 0.0;
+    output += volume[channels[0]];
+    output += volume[channels[1]];
+    output += volume[channels[2]];
+    output += volume[channels[3]];
+
+    stream->sample(output / 4.0);
+  }
+
+  if(Model::GameGear()) {
+    double left = 0.0;
+    if(io.enable.bit(4)) left  += volume[channels[0]];
+    if(io.enable.bit(5)) left  += volume[channels[1]];
+    if(io.enable.bit(6)) left  += volume[channels[2]];
+    if(io.enable.bit(7)) left  += volume[channels[3]];
+
+    double right = 0.0;
+    if(io.enable.bit(0)) right += volume[channels[0]];
+    if(io.enable.bit(1)) right += volume[channels[1]];
+    if(io.enable.bit(2)) right += volume[channels[2]];
+    if(io.enable.bit(3)) right += volume[channels[3]];
+
+    stream->sample(left / 4.0, right / 4.0);
+  }
+
   step(1);
 }
 
@@ -17,16 +43,24 @@ auto PSG::step(uint clocks) -> void {
 }
 
 auto PSG::balance(uint8 data) -> void {
-  SN76489::enable = data;
+  if(Model::GameGear()) {
+    io.enable;
+  }
 }
 
 auto PSG::power() -> void {
-  SN76489::power(0x2000);
+  SN76489::power();
   Thread::create(system.colorburst() / 16.0, [&] {
     while(true) scheduler.synchronize(), psg.main();
   });
-  stream = audio.createStream(2, frequency());
+  stream = audio.createStream(Model::MasterSystem() ? 1 : 2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
+
+  io = {};
+  for(uint level : range(15)) {
+    volume[level] = pow(2, level * -2.0 / 6.0);
+  }
+  volume[15] = 0;
 }
 
 }

@@ -10,7 +10,7 @@
 
 #include <component/processor/tlcs900h/tlcs900h.hpp>
 #include <component/processor/z80/z80.hpp>
-#include <component/audio/sn76489/sn76489.hpp>
+#include <component/audio/t6w28/t6w28.hpp>
 
 namespace higan::NeoGeoPocket {
   extern Scheduler scheduler;

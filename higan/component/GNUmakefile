@@ -14,7 +14,10 @@ objects += $(if $(findstring v30mz,$(components)),processor-v30mz)
 objects += $(if $(findstring wdc65816,$(components)),processor-wdc65816)
 objects += $(if $(findstring z80,$(components)),processor-z80)
 
+objects += $(if $(findstring ay38910,$(components)),audio-ay38910)
 objects += $(if $(findstring sn76489,$(components)),audio-sn76489)
+objects += $(if $(findstring t6w28,$(components)),audio-t6w28)
+objects += $(if $(findstring ym2149,$(components)),audio-ym2149)
 
 objects += $(if $(findstring tms9918,$(components)),video-tms9918)
 
@@ -32,6 +35,9 @@ obj/processor-v30mz.o:    component/processor/v30mz/v30mz.cpp
 obj/processor-wdc65816.o: component/processor/wdc65816/wdc65816.cpp
 obj/processor-z80.o:      component/processor/z80/z80.cpp
 
+obj/audio-ay38910.o:      component/audio/ay38910/ay38910.cpp
 obj/audio-sn76489.o:      component/audio/sn76489/sn76489.cpp
+obj/audio-t6w28.o:        component/audio/t6w28/t6w28.cpp
+obj/audio-ym2149.o:       component/audio/ym2149/ym2149.cpp
 
 obj/video-tms9918.o:      component/video/tms9918/tms9918.cpp

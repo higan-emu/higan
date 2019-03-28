@@ -3,44 +3,73 @@
 
 namespace higan {
 
-#include "io.cpp"
-#include "tone.cpp"
-#include "noise.cpp"
 #include "serialization.cpp"
 
-auto SN76489::clock() -> array<double[2]> {
-  tone0.run();
-  tone1.run();
-  tone2.run();
-  noise.run();
+auto SN76489::clock() -> array<uint4[4]> {
+  tone0.clock();
+  tone1.clock();
+  tone2.clock();
+  noise.clock();
 
-  int left = 0;
-  left  += amplitude[tone0.volume] * tone0.output * enable.bit(4);
-  left  += amplitude[tone1.volume] * tone1.output * enable.bit(5);
-  left  += amplitude[tone2.volume] * tone2.output * enable.bit(6);
-  left  += amplitude[noise.volume] * noise.output * enable.bit(7);
-
-  int right = 0;
-  right += amplitude[tone0.volume] * tone0.output * enable.bit(0);
-  right += amplitude[tone1.volume] * tone1.output * enable.bit(1);
-  right += amplitude[tone2.volume] * tone2.output * enable.bit(2);
-  right += amplitude[noise.volume] * noise.output * enable.bit(3);
-
-  return {sclamp<16>(left) / 32767.0, sclamp<16>(right) / 32767.0};
+  array<uint4[4]> output{15, 15, 15, 15};
+  if(tone0.output) output[0] = tone0.volume;
+  if(tone1.output) output[1] = tone1.volume;
+  if(tone2.output) output[2] = tone2.volume;
+  if(noise.output) output[3] = noise.volume;
+  return output;
 }
 
-auto SN76489::power(uint scale) -> void {
-  select = 0;
-  enable = ~0;
-  for(uint n : range(15)) {
-    amplitude[n] = scale * pow(2, n * -2.0 / 6.0) + 0.5;
+auto SN76489::Tone::clock() -> void {
+  if(!counter--) {
+    counter = pitch;
+    output ^= 1;
   }
-  amplitude[15] = 0;
+}
 
-  tone0.power();
-  tone1.power();
-  tone2.power();
-  noise.power();
+auto SN76489::Noise::clock() -> void {
+  if(!counter--) {
+    counter = array<uint10[4]>{0x10, 0x20, 0x40, pitch}[rate];
+    if(flip ^= 1) {  //0->1 transition
+      output = !lfsr.bit(0);
+      lfsr = (lfsr.bit(0) ^ lfsr.bit(3) & enable) << 15 | lfsr >> 1;
+    }
+  }
+}
+
+auto SN76489::write(uint8 data) -> void {
+  if(data.bit(7)) io.register = data.bits(4,6);
+
+  if(io.register.bit(0)) switch(io.register.bits(1,2)) {
+  case 0: tone0.volume = data.bits(0,3); break;
+  case 1: tone1.volume = data.bits(0,3); break;
+  case 2: tone2.volume = data.bits(0,3); break;
+  case 3: noise.volume = data.bits(0,3); break;
+  }
+
+  else if(data.bit(7)) switch(io.register.bits(1,2)) {
+  case 0: tone0.pitch.bits(0,3) = data.bits(0,3); break;
+  case 1: tone1.pitch.bits(0,3) = data.bits(0,3); break;
+  case 2: tone2.pitch.bits(0,3) = data.bits(0,3); noise.pitch = tone2.pitch; break;
+  case 3: noise.rate   = data.bits(0,1);
+          noise.enable = data.bit (2);
+          noise.lfsr   = 0x8000;
+          break;
+  }
+
+  else switch(io.register.bits(1,2)) {
+  case 0: tone0.pitch.bits(4,9) = data.bits(0,5); break;
+  case 1: tone1.pitch.bits(4,9) = data.bits(0,5); break;
+  case 2: tone2.pitch.bits(4,9) = data.bits(0,5); noise.pitch = tone2.pitch; break;
+  case 3: noise.volume = data.bits(0,3); break;
+  }
+}
+
+auto SN76489::power() -> void {
+  tone0 = {};
+  tone1 = {};
+  tone2 = {};
+  noise = {};
+  io = {};
 }
 
 }

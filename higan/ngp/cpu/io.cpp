@@ -1176,8 +1176,8 @@ auto CPU::writeIO(uint8 address, uint8 data) -> void {
     return;
 
   case 0xb8:
-    if(data == 0x55) psg.enable();
-    if(data == 0xaa) psg.disable();
+    if(data == 0x55) psg.enablePSG();
+    if(data == 0xaa) psg.enableDAC();
     return;
 
   case 0xb9:

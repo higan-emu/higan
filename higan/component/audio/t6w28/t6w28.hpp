@@ -2,12 +2,13 @@
 
 namespace higan {
 
-//Texas Instruments SN76489
+//T6W28 (SN76489 variant)
 
-struct SN76489 {
-  //sn76489.cpp
-  auto clock() -> array<uint4[4]>;
-  auto write(uint8 data) -> void;
+struct T6W28 {
+  //t6w28.cpp
+  auto clock() -> array<uint4[8]>;
+  auto writeLeft(uint8 data) -> void;
+  auto writeRight(uint8 data) -> void;
   auto power() -> void;
 
   //serialization.cpp
@@ -15,33 +16,39 @@ struct SN76489 {
 
 protected:
   struct Tone {
-    //sn76489.cpp
+    //t6w28.cpp
     auto clock() -> void;
 
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    uint4  volume = 15;
     uint10 counter;
     uint10 pitch;
     uint1  output;
+    struct Volume {
+      uint4 left  = 15;
+      uint4 right = 15;
+    } volume;
   };
 
   struct Noise {
-    //sn76489.cpp
+    //t6w28.cpp
     auto clock() -> void;
 
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    uint4  volume = 15;
     uint10 counter;
     uint10 pitch;
     uint1  enable;
     uint2  rate;
-    uint16 lfsr = 0x8000;
+    uint15 lfsr = 0x4000;
     uint1  flip;
     uint1  output;
+    struct Volume {
+      uint4 left  = 15;
+      uint4 right = 15;
+    } volume;
   };
 
   struct IO {

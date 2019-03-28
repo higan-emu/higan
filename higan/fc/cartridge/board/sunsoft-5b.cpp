@@ -1,47 +1,8 @@
 //SUNSOFT-5B
 
-struct Sunsoft5B : Board {
+struct Sunsoft5B : YM2149, Board {
   Sunsoft5B(Markup::Node& document) : Board(document) {
   }
-
-  struct Pulse {
-    auto clock() -> void {
-      if(--counter == 0) {
-        counter = frequency << 4;
-        duty ^= 1;
-      }
-      output = duty ? volume : (uint4)0;
-      if(disable) output = 0;
-    }
-
-    auto power() -> void {
-      disable = 1;
-      frequency = 1;
-      volume = 0;
-
-      counter = 0;
-      duty = 0;
-      output = 0;
-    }
-
-    auto serialize(serializer& s) -> void {
-      s.integer(disable);
-      s.integer(frequency);
-      s.integer(volume);
-
-      s.integer(counter);
-      s.integer(duty);
-      s.integer(output);
-    }
-
-    bool disable;
-    uint12 frequency;
-    uint4 volume;
-
-    uint16 counter;  //12-bit countdown + 4-bit phase
-    uint1 duty;
-    uint4 output;
-  } pulse[3];
 
   auto main() -> void {
     if(irqCounterEnable) {
@@ -50,11 +11,14 @@ struct Sunsoft5B : Board {
       }
     }
 
-    pulse[0].clock();
-    pulse[1].clock();
-    pulse[2].clock();
-    int16 output = dac[pulse[0].output] + dac[pulse[1].output] + dac[pulse[2].output];
-    apu.setSample(-output);
+    if(!++divider) {
+      auto channels = YM2149::clock();
+      double output = 0.0;
+      output += volume[channels[0]];
+      output += volume[channels[1]];
+      output += volume[channels[2]];
+      apu.setSample(output * 32767.0);
+    }
 
     tick();
   }
@@ -87,11 +51,11 @@ struct Sunsoft5B : Board {
     }
 
     if(addr == 0x8000) {
-      mmuPort = data & 0x0f;
+      port = data & 0x0f;
     }
 
     if(addr == 0xa000) {
-      switch(mmuPort) {
+      switch(port) {
       case  0: chrBank[0] = data; break;
       case  1: chrBank[1] = data; break;
       case  2: chrBank[2] = data; break;
@@ -116,26 +80,11 @@ struct Sunsoft5B : Board {
     }
 
     if(addr == 0xc000) {
-      apuPort = data & 0x0f;
+      YM2149::select(data);
     }
 
     if(addr == 0xe000) {
-      switch(apuPort) {
-      case  0: pulse[0].frequency = (pulse[0].frequency & 0xff00) | (data << 0); break;
-      case  1: pulse[0].frequency = (pulse[0].frequency & 0x00ff) | (data << 8); break;
-      case  2: pulse[1].frequency = (pulse[1].frequency & 0xff00) | (data << 0); break;
-      case  3: pulse[1].frequency = (pulse[1].frequency & 0x00ff) | (data << 8); break;
-      case  4: pulse[2].frequency = (pulse[2].frequency & 0xff00) | (data << 0); break;
-      case  5: pulse[2].frequency = (pulse[2].frequency & 0x00ff) | (data << 8); break;
-      case  7:
-        pulse[0].disable = data & 0x01;
-        pulse[1].disable = data & 0x02;
-        pulse[2].disable = data & 0x04;
-        break;
-      case  8: pulse[0].volume = data & 0x0f; break;
-      case  9: pulse[1].volume = data & 0x0f; break;
-      case 10: pulse[2].volume = data & 0x0f; break;
-      }
+      YM2149::write(data);
     }
   }
 
@@ -165,14 +114,9 @@ struct Sunsoft5B : Board {
   }
 
   auto power() -> void {
-    for(int n : range(16)) {
-      double volume = 1.0 / pow(2, 1.0 / 2 * (15 - n));
-      dac[n] = volume * 8192.0;
-    }
+    YM2149::power();
 
-    mmuPort = 0;
-    apuPort = 0;
-
+    port = 0;
     for(auto& n : prgBank) n = 0;
     for(auto& n : chrBank) n = 0;
     mirror = 0;
@@ -180,17 +124,17 @@ struct Sunsoft5B : Board {
     irqCounterEnable = 0;
     irqCounter = 0;
 
-    pulse[0].power();
-    pulse[1].power();
-    pulse[2].power();
+    divider = 0;
+    for(uint level : range(32)) {
+      volume[level] = 1.0 / pow(2, 1.0 / 2 * (31 - level));
+    }
   }
 
   auto serialize(serializer& s) -> void {
+    YM2149::serialize(s);
     Board::serialize(s);
 
-    s.integer(mmuPort);
-    s.integer(apuPort);
-
+    s.integer(port);
     s.array(prgBank);
     s.array(chrBank);
     s.integer(mirror);
@@ -198,14 +142,10 @@ struct Sunsoft5B : Board {
     s.integer(irqCounterEnable);
     s.integer(irqCounter);
 
-    pulse[0].serialize(s);
-    pulse[1].serialize(s);
-    pulse[2].serialize(s);
+    s.integer(divider);
   }
 
-  uint4 mmuPort;
-  uint4 apuPort;
-
+  uint4 port;
   uint8 prgBank[4];
   uint8 chrBank[8];
   uint2 mirror;
@@ -213,5 +153,6 @@ struct Sunsoft5B : Board {
   bool irqCounterEnable;
   uint16 irqCounter;
 
-  int16 dac[16];
+  uint4 divider;
+  double volume[32];
 };

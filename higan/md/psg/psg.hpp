@@ -8,6 +8,9 @@ struct PSG : SN76489, Thread {
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
+
+private:
+  double volume[16];
 };
 
 extern PSG psg;
