@@ -44,6 +44,8 @@ auto Z80::disassemble(uint16 pc) -> string {
   s.append(" IX:", hex(r.ix.word, 4L));
   s.append(" IY:", hex(r.iy.word, 4L));
   s.append(" SP:", hex(r.sp, 4L));
+  s.append(" IFF:", (uint1)r.iff1, (uint1)r.iff2);
+  s.append(" IM:", r.im);
 
   return s;
 }
@@ -999,8 +1001,8 @@ auto Z80::disassembleED(uint16 pc, uint8 prefix, uint8 code) -> string {
   op(0x6d, "reti")
   op(0x6e, "im  ", "0")
   op(0x6f, "rld ")
-  op(0x70, "in  ", F, IC)
-  op(0x71, "out ", IC, F)
+  op(0x70, "in  ", IC)
+  op(0x71, "out ", IC)
   op(0x72, "sbc ", HL, SP)
   op(0x73, "ld  ", INN, SP)
   op(0x74, "neg ")

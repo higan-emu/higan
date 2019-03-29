@@ -43,7 +43,8 @@ auto Z80::displace(uint16& x) -> uint16 {
   if(&x != &r.ix.word && &x != &r.iy.word) return x;
   auto d = operand();
   wait(5);
-  return x + (int8)d;
+  WZ = x + (int8)d;
+  return WZ;
 }
 
 auto Z80::read(uint16 addr) -> uint8 {

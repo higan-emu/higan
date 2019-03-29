@@ -1,4 +1,16 @@
 auto Z80::instruction() -> void {
+  P = 0;
+
+  if(EI) {
+    EI = 0;
+    IFF1 = 1;
+    IFF2 = 1;
+  }
+
+  if(HALT) {
+    return wait(1);
+  }
+
   uint8 code;
   while(true) {
     R.bits(0,6)++;
@@ -8,17 +20,11 @@ auto Z80::instruction() -> void {
     break;
   }
 
-  if(r.ei) {
-    r.ei = 0;
-    r.iff1 = 1;
-    r.iff2 = 1;
-  }
-
   if(code == 0xcb && prefix != Prefix::hl) {
-    uint16 addr = HL + (int8)operand();
+    WZ = HL + (int8)operand();
     wait(1);
   //R is not incremented here
-    instructionCBd(addr, opcode());
+    instructionCBd(WZ, opcode());
   } else if(code == 0xcb) {
     R.bits(0,6)++;
     instructionCB(opcode());
@@ -247,7 +253,7 @@ auto Z80::instruction(uint8 code) -> void {
   op(0xd0, RET_c, CF == 0)
   op(0xd1, POP_rr, DE)
   op(0xd2, JP_c_nn, CF == 0)
-  op(0xd3, OUT_n_a)
+  op(0xd3, OUT_in_a)
   op(0xd4, CALL_c_nn, CF == 0)
   op(0xd5, PUSH_rr, DE)
   op(0xd6, SUB_a_n)
@@ -869,8 +875,8 @@ auto Z80::instructionED(uint8 code) -> void {
   op(0x6d, RETI)
   op(0x6e, IM_o, 0)
   op(0x6f, RLD)
-  op(0x70, IN_r_ic, F)
-  op(0x71, OUT_ic_r, F)
+  op(0x70, IN_ic)
+  op(0x71, OUT_ic)
   op(0x72, SBC_hl_rr, SP)
   op(0x73, LD_inn_rr, SP)
   op(0x74, NEG)
@@ -904,6 +910,7 @@ auto Z80::instructionED(uint8 code) -> void {
   }
 
   //undefined instructions are NOP
+  return instructionNOP();
 }
 
 #undef op

@@ -11,7 +11,7 @@ auto VDP::step(uint clocks) -> void {
 }
 
 auto VDP::irq(bool line) -> void {
-  cpu.setIRQ(line);
+  cpu.setNMI(line);
 }
 
 auto VDP::frame() -> void {

@@ -36,6 +36,9 @@
 #define IX r.ix.word
 #define IY r.iy.word
 #define IR r.ir.word
+#define WZ r.wz.word
+#define WZH r.wz.byte.hi
+#define WZL r.wz.byte.lo
 
 #define I r.ir.byte.hi
 #define R r.ir.byte.lo
@@ -51,6 +54,9 @@
 #define SF r.af.byte.lo.bit(7)
 
 #define EI r.ei
+#define P r.p
+#define Q r.q
+#define QL r.ql
 #define HALT r.halt
 #define IFF1 r.iff1
 #define IFF2 r.iff2

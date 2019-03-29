@@ -29,8 +29,13 @@ struct Z80 {
   virtual auto step(uint clocks) -> void = 0;
   virtual auto synchronizing() const -> bool = 0;
 
+  //CMOS: out (c) writes 0x00
+  //NMOS: out (c) writes 0xff;
+  //      if an interrupt fires during "ld a,i" or "ld a,r", PF is cleared
+  enum class MOSFET : uint { CMOS, NMOS };
+
   //z80.cpp
-  auto power() -> void;
+  auto power(MOSFET = MOSFET::NMOS) -> void;
 
   auto irq(bool maskable, uint16 vector = 0x0000, uint8 extbus = 0xff) -> bool;
   auto parity(uint8) const -> bool;
@@ -60,7 +65,9 @@ struct Z80 {
   auto ADD(uint8, uint8, bool = false) -> uint8;
   auto AND(uint8, uint8) -> uint8;
   auto BIT(uint3, uint8) -> uint8;
+  auto CP (uint8, uint8) -> void;
   auto DEC(uint8) -> uint8;
+  auto IN (uint8) -> uint8;
   auto INC(uint8) -> uint8;
   auto OR (uint8, uint8) -> uint8;
   auto RES(uint3, uint8) -> uint8;
@@ -116,6 +123,7 @@ struct Z80 {
   auto instructionIM_o(uint2) -> void;
   auto instructionIN_a_in() -> void;
   auto instructionIN_r_ic(uint8&) -> void;
+  auto instructionIN_ic() -> void;
   auto instructionINC_irr(uint16&) -> void;
   auto instructionINC_r(uint8&) -> void;
   auto instructionINC_rr(uint16&) -> void;
@@ -153,7 +161,8 @@ struct Z80 {
   auto instructionOTDR() -> void;
   auto instructionOTIR() -> void;
   auto instructionOUT_ic_r(uint8&) -> void;
-  auto instructionOUT_n_a() -> void;
+  auto instructionOUT_ic() -> void;
+  auto instructionOUT_in_a() -> void;
   auto instructionOUTD() -> void;
   auto instructionOUTI() -> void;
   auto instructionPOP_rr(uint16&) -> void;
@@ -221,6 +230,9 @@ struct Z80 {
   auto disassembleCBd(uint16 pc, uint8 prefix, int8 d, uint8 code) -> string;
   auto disassembleED(uint16 pc, uint8 prefix, uint8 code) -> string;
 
+  MOSFET mosfet = MOSFET::NMOS;
+  enum class Prefix : uint { hl, ix, iy } prefix = Prefix::hl;
+
   struct Registers {
     union Pair {
       Pair() : word(0) {}
@@ -235,17 +247,18 @@ struct Z80 {
     Pair ix;
     Pair iy;
     Pair ir;
+    Pair wz;
     uint16 sp;
     uint16 pc;
 
-    bool ei;    //EI instruction executed
-    bool halt;  //HALT instruction executed
-    bool iff1;  //interrupt flip-flop 1
-    bool iff2;  //interrupt flip-flop 2
-    uint2 im;   //interrupt mode (0-2)
+    boolean ei;    //"ei" executed last
+    boolean p;     //"ld a,i" or "ld a,r" executed last
+    boolean q;     //opcode that updated flag registers executed last
+    boolean halt;  //HALT instruction executed
+    boolean iff1;  //interrupt flip-flop 1
+    boolean iff2;  //interrupt flip-flop 2
+    uint2   im;    //interrupt mode (0-2)
   } r;
-
-  enum class Prefix : uint { hl, ix, iy } prefix = Prefix::hl;
 
   Bus* bus = nullptr;
 };

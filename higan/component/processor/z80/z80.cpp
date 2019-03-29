@@ -11,9 +11,16 @@ namespace higan {
 #include "instructions.cpp"
 #include "serialization.cpp"
 
-auto Z80::power() -> void {
-  r = {};
+auto Z80::power(MOSFET mosfet) -> void {
+  this->mosfet = mosfet;
+
   prefix = Prefix::hl;
+  r = {};
+  AF = 0xffff;
+  SP = 0xffff;
+  IFF1 = 0;
+  IFF2 = 0;
+  IM = 1;
 }
 
 auto Z80::irq(bool maskable, uint16 pc, uint8 extbus) -> bool {
@@ -26,28 +33,33 @@ auto Z80::irq(bool maskable, uint16 pc, uint8 extbus) -> bool {
 
   case 0: {
     //external data bus ($ff = RST $38)
-    PC = extbus;
+    WZ = extbus;
     break;
   }
 
   case 1: {
     //constant address
-    PC = pc;
+    WZ = pc;
     break;
   }
 
   case 2: {
     //vector table with external data bus
     uint16 addr = I << 8 | extbus;
-    PC  = read(addr + 0) << 0;
-    PC |= read(addr + 1) << 8;
+    WZL = read(addr + 0);
+    WZH = read(addr + 1);
     break;
   }
 
   }
 
+  PC = WZ;
   IFF1 = 0;
   if(maskable) IFF2 = 0;
+  HALT = 0;
+  if(P) PF = 0;
+  P = 0;
+  Q = 0;
   return true;
 }
 

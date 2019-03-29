@@ -33,13 +33,26 @@ auto Z80::BIT(uint3 bit, uint8 x) -> uint8 {
 
   NF = 0;
   PF = parity(z);
-  XF = z.bit(3);
+  XF = x.bit(3);
   HF = 1;
-  YF = z.bit(5);
+  YF = x.bit(5);
   ZF = z == 0;
   SF = z.bit(7);
 
   return x;
+}
+
+auto Z80::CP(uint8 x, uint8 y) -> void {
+  uint9 z = x - y;
+
+  CF = z.bit(8);
+  NF = 1;
+  VF = uint8((x ^ y) & (x ^ z)).bit(7);
+  XF = y.bit(3);
+  HF = uint8(x ^ y ^ z).bit(4);
+  YF = y.bit(5);
+  ZF = uint8(z) == 0;
+  SF = z.bit(7);
 }
 
 auto Z80::DEC(uint8 x) -> uint8 {
@@ -54,6 +67,18 @@ auto Z80::DEC(uint8 x) -> uint8 {
   SF = z.bit(7);
 
   return z;
+}
+
+auto Z80::IN(uint8 x) -> uint8 {
+  NF = 0;
+  PF = parity(x);
+  XF = x.bit(3);
+  HF = 0;
+  YF = x.bit(5);
+  ZF = x == 0;
+  SF = x.bit(7);
+
+  return x;
 }
 
 auto Z80::INC(uint8 x) -> uint8 {
