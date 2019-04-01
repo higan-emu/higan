@@ -3,116 +3,123 @@
 struct DSP : Thread {
   shared_pointer<Stream> stream;
   uint8 apuram[64 * 1024];
+  uint8 registers[128];
 
-  DSP();
-
+  alwaysinline auto mute() const -> bool { return master.mute; }
   alwaysinline auto step(uint clocks) -> void;
-
-  auto mute() const -> bool;
-  auto read(uint8 addr) -> uint8;
-  auto write(uint8 addr, uint8 data) -> void;
 
   auto main() -> void;
   auto power(bool reset) -> void;
+
+  //memory.cpp
+  auto read(uint7 address) -> uint8;
+  auto write(uint7 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
 private:
-  enum GlobalRegister : uint {
-    MVOLL = 0x0c, MVOLR = 0x1c,
-    EVOLL = 0x2c, EVOLR = 0x3c,
-    KON   = 0x4c, KOFF  = 0x5c,
-    FLG   = 0x6c, ENDX  = 0x7c,
-    EFB   = 0x0d, PMON  = 0x2d,
-    NON   = 0x3d, EON   = 0x4d,
-    DIR   = 0x5d, ESA   = 0x6d,
-    EDL   = 0x7d, FIR   = 0x0f,  //8 coefficients at 0x0f, 0x1f, ... 0x7f
-  };
+  struct Envelope { enum : uint {
+    Release,
+    Attack,
+    Decay,
+    Sustain,
+  };};
 
-  enum VoiceRegister : uint {
-    VOLL   = 0x00, VOLR   = 0x01,
-    PITCHL = 0x02, PITCHH = 0x03,
-    SRCN   = 0x04, ADSR0  = 0x05,
-    ADSR1  = 0x06, GAIN   = 0x07,
-    ENVX   = 0x08, OUTX   = 0x09,
-  };
+  struct Clock {
+    uint15 counter;
+     uint1 sample = 1;
+  } clock;
 
-  enum EnvelopeMode : uint {
-    EnvelopeRelease,
-    EnvelopeAttack,
-    EnvelopeDecay,
-    EnvelopeSustain,
-  };
+  struct Master {
+    uint1 reset;
+    uint1 mute;
+     int8 volume[2];
+    int17 output[2];
+  } master;
 
-  enum : uint {
-    BrrBlockSize = 9,
-    CounterRange = 2048 * 5 * 3,  //30720 (0x7800)
-  };
+  struct Echo {
+     int8 feedback;
+     int8 volume[2];
+     int8 fir[8];
+    int16 history[2][8];
+    uint8 bank;
+    uint4 delay;
+    uint1 readonly;
+    int17 input[2];
+    int17 output[2];
 
-  struct State {
-    uint8 regs[128];
+     uint8 _bank;
+     uint1 _readonly;
+    uint16 _address;
+    uint16 _offset;  //offset from ESA into echo buffer
+    uint16 _length;  //number of bytes that echo offset will stop at
+     uint3 _historyOffset;
+  } echo;
 
-    int echoHistory[2][8] = {};  //echo history keeps most recent 8 stereo samples
-    uint3 echoHistoryOffset;
+  struct Noise {
+     uint5 frequency;
+    uint15 lfsr = 0x4000;
+  } noise;
 
-    bool everyOtherSample = 1;  //toggles every sample
-    int kon = 0;                //KON value when last checked
-    int noise = 0x4000;
-    int counter = 0;
-    int echoOffset = 0;         //offset from ESA in echo buffer
-    int echoLength = 0;         //number of bytes that echo_offset will stop at
+  struct BRR {
+     uint8  bank;
 
-    //hidden registers also written to when main register is written to
-    int konBuffer = 0;
-    int endxBuffer = 0;
-    int envxBuffer = 0;
-    int outxBuffer = 0;
+     uint8 _bank;
+     uint8 _source;
+    uint16 _address;
+    uint16 _nextAddress;
+     uint8 _header;
+     uint8 _byte;
+  } brr;
 
-    //temporary state between clocks (prefixed with _)
-
-    //read once per sample
-    int _pmon = 0;
-    int _non = 0;
-    int _eon = 0;
-    int _dir = 0;
-    int _koff = 0;
-
-    //read a few clocks ahead before used
-    int _brrNextAddress = 0;
-    int _adsr0 = 0;
-    int _brrHeader = 0;
-    int _brrByte = 0;
-    int _srcn = 0;
-    int _esa = 0;
-    int _echoDisabled = 0;
-
-    //internal state that is recalculated every sample
-    int _dirAddress = 0;
-    int _pitch = 0;
-    int _output = 0;
-    int _looped = 0;
-    int _echoPointer = 0;
-
-    //left/right sums
-    int _mainOut[2] = {};
-    int _echoOut[2] = {};
-    int _echoIn [2] = {};
-  } state;
+  struct Latch {
+     uint8 adsr0;
+     uint8 envx;
+     uint8 outx;
+    uint15 pitch;
+     int16 output;
+  } latch;
 
   struct Voice {
-    int buffer[12 * 3] = {};  //12 decoded samples (mirrored for wrapping)
-    int bufferOffset = 0;    //place in buffer where next samples will be decoded
-    int gaussianOffset = 0;  //relative fractional position in sample (0x1000 = 1.0)
-    int brrAddress = 0;      //address of current BRR block
-    int brrOffset = 1;       //current decoding offset in BRR block
-    int vbit = 0;            //bitmask for voice: 0x01 for voice 0, 0x02 for voice 1, etc
-    int vidx = 0;            //voice channel register index: 0x00 for voice 0, 0x10 for voice 1, etc
-    int konDelay = 0;        //KON delay/current setup phase
-    int envelopeMode = 0;
-    int envelope = 0;        //current envelope level
-    int hiddenEnvelope = 0;  //used by GAIN mode 7, very obscure quirk
-    int _envxOut = 0;
+    //serialization.cpp
+    auto serialize(serializer&) -> void;
+
+     uint7 index;  //voice channel register index: 0x00 for voice 0, 0x10 for voice 1, etc
+
+      int8 volume[2];
+    uint14 pitch;
+     uint8 source;
+     uint8 adsr0;
+     uint8 adsr1;
+     uint8 gain;
+     uint8 envx;
+     uint1 keyon;
+     uint1 keyoff;
+     uint1 modulate;  //0 = normal, 1 = modulate by previous voice pitch
+     uint1 noise;     //0 = BRR, 1 = noise
+     uint1 echo;      //0 = direct, 1 = echo
+     uint1 end;       //0 = keyed on, 1 = BRR end bit encountered
+
+     int16 buffer[12];      //12 decoded samples (mirrored for wrapping)
+     uint4 bufferOffset;    //place in buffer where next samples will be decoded
+    uint16 gaussianOffset;  //relative fractional position in sample (0x1000 = 1.0)
+    uint16 brrAddress;      //address of current BRR block
+     uint4 brrOffset = 1;   //current decoding offset in BRR block (1-8)
+     uint3 keyonDelay;      //KON delay/current setup phase
+     uint2 envelopeMode;
+    uint11 envelope;        //current envelope level (0-2047)
+     int32 _envelope;       //used by GAIN mode 7, very obscure quirk
+
+    //internal latches
+    uint1 _keylatch;
+    uint1 _keyon;
+    uint1 _keyoff;
+    uint1 _modulate;
+    uint1 _noise;
+    uint1 _echo;
+    uint1 _end;
+    uint1 _looped;
   } voice[8];
 
   //gaussian.cpp
@@ -138,7 +145,7 @@ private:
   auto misc30() -> void;
 
   //voice.cpp
-  auto voiceOutput(Voice& v, bool channel) -> void;
+  auto voiceOutput(Voice& v, uint1 channel) -> void;
   auto voice1 (Voice& v) -> void;
   auto voice2 (Voice& v) -> void;
   auto voice3 (Voice& v) -> void;
@@ -153,10 +160,10 @@ private:
   auto voice9 (Voice& v) -> void;
 
   //echo.cpp
-  auto calculateFIR(bool channel, int index) -> int;
-  auto echoOutput(bool channel) -> int;
-  auto echoRead(bool channel) -> void;
-  auto echoWrite(bool channel) -> void;
+  auto calculateFIR(uint1 channel, int index) -> int;
+  auto echoOutput(uint1 channel) const -> int16;
+  auto echoRead(uint1 channel) -> void;
+  auto echoWrite(uint1 channel) -> void;
   auto echo22() -> void;
   auto echo23() -> void;
   auto echo24() -> void;

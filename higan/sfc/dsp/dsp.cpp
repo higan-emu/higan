@@ -4,9 +4,7 @@ namespace higan::SuperFamicom {
 
 DSP dsp;
 
-#define REG(n) state.regs[n]
-#define VREG(n) state.regs[v.vidx + n]
-
+#include "memory.cpp"
 #include "gaussian.cpp"
 #include "counter.cpp"
 #include "envelope.cpp"
@@ -15,20 +13,6 @@ DSP dsp;
 #include "voice.cpp"
 #include "echo.cpp"
 #include "serialization.cpp"
-
-DSP::DSP() {
-  static_assert(sizeof(int) >= 32 / 8,      "int >= 32-bits");
-  static_assert((int8_t)0x80 == -0x80,      "8-bit sign extension");
-  static_assert((int16_t)0x8000 == -0x8000, "16-bit sign extension");
-  static_assert((uint16_t)0xffff0000 == 0,  "16-bit unsigned clip");
-  static_assert((-1 >> 1) == -1,            "arithmetic shift right");
-
-  //-0x8000 <= n <= +0x7fff
-  assert(sclamp<16>(+0x8000) == +0x7fff);
-  assert(sclamp<16>(-0x8001) == -0x8000);
-}
-
-/* timing */
 
 auto DSP::step(uint clocks) -> void {
   Thread::step(clocks);
@@ -202,53 +186,28 @@ auto DSP::sample(int16 left, int16 right) -> void {
   }
 }
 
-/* register interface for S-SMP $00f2,$00f3 */
-
-auto DSP::mute() const -> bool {
-  return REG(FLG) & 0x40;
-}
-
-auto DSP::read(uint8 addr) -> uint8 {
-  return REG(addr);
-}
-
-auto DSP::write(uint8 addr, uint8 data) -> void {
-  REG(addr) = data;
-
-  if((addr & 0x0f) == ENVX) {
-    state.envxBuffer = data;
-  } else if((addr & 0x0f) == OUTX) {
-    state.outxBuffer = data;
-  } else if(addr == KON) {
-    state.konBuffer = data;
-  } else if(addr == ENDX) {
-    //always cleared, regardless of data written
-    state.endxBuffer = 0;
-    REG(ENDX) = 0;
-  }
-}
-
-/* initialization */
-
 auto DSP::power(bool reset) -> void {
   create(system.apuFrequency(), [&] {
     while(true) scheduler.synchronize(), main();
   });
   stream = audio.createStream(2, frequency() / 768.0);
 
-  if(!reset) random.array(apuram, sizeof(apuram));
-
-  state = {};
-  for(auto n : range(8)) {
-    voice[n] = {};
-    voice[n].vbit = 1 << n;
-    voice[n].vidx = n * 0x10;
+  if(!reset) {
+    random.array(apuram, sizeof(apuram));
+    random.array(registers, sizeof(registers));
   }
 
-  //note: memory is pseudo-random at startup; but internal state is less so
-  //exact differences are unknown. need to separate memory from internal state
-  for(auto r : range(0x80)) REG(r) = 0x00;
-  REG(FLG) = 0xe0;
+  master = {};
+  echo = {};
+  noise = {};
+  brr = {};
+  latch = {};
+  for(auto n : range(8)) {
+    voice[n] = {};
+    voice[n].index = n * 0x10;
+  }
+
+  write(0x6c, 0xe0);
 }
 
 #undef REG

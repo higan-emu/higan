@@ -59,11 +59,6 @@ auto AY38910::Envelope::clock() -> void {
       holding = 1;
     } else if(alternate) {
       attacking ^= 1;
-      if(!attacking) {
-        output--;
-      } else {
-        output++;
-      }
     } else {
       output = !attacking ? 15 : 0;
     }

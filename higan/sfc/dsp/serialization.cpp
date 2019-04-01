@@ -1,61 +1,87 @@
-void DSP::serialize(serializer& s) {
+auto DSP::serialize(serializer& s) -> void {
   Thread::serialize(s);
 
   s.array(apuram);
+  s.array(registers);
 
-  s.array(state.regs, 128);
-  s.array(state.echoHistory[0]);
-  s.array(state.echoHistory[1]);
-  s.integer(state.echoHistoryOffset);
+  s.integer(clock.counter);
+  s.integer(clock.sample);
 
-  s.integer(state.everyOtherSample);
-  s.integer(state.kon);
-  s.integer(state.noise);
-  s.integer(state.counter);
-  s.integer(state.echoOffset);
-  s.integer(state.echoLength);
+  s.integer(master.reset);
+  s.integer(master.mute);
+  s.array(master.volume);
+  s.array(master.output);
 
-  s.integer(state.konBuffer);
-  s.integer(state.endxBuffer);
-  s.integer(state.envxBuffer);
-  s.integer(state.outxBuffer);
+  s.integer(echo.feedback);
+  s.array(echo.volume);
+  s.array(echo.fir);
+  s.array(echo.history[0]);
+  s.array(echo.history[1]);
+  s.integer(echo.bank);
+  s.integer(echo.delay);
+  s.integer(echo.readonly);
+  s.array(echo.input);
+  s.array(echo.output);
+  s.integer(echo._bank);
+  s.integer(echo._readonly);
+  s.integer(echo._address);
+  s.integer(echo._offset);
+  s.integer(echo._length);
+  s.integer(echo._historyOffset);
 
-  s.integer(state._pmon);
-  s.integer(state._non);
-  s.integer(state._eon);
-  s.integer(state._dir);
-  s.integer(state._koff);
+  s.integer(noise.frequency);
+  s.integer(noise.lfsr);
 
-  s.integer(state._brrNextAddress);
-  s.integer(state._adsr0);
-  s.integer(state._brrHeader);
-  s.integer(state._brrByte);
-  s.integer(state._srcn);
-  s.integer(state._esa);
-  s.integer(state._echoDisabled);
+  s.integer(brr.bank);
+  s.integer(brr._bank);
+  s.integer(brr._source);
+  s.integer(brr._address);
+  s.integer(brr._nextAddress);
+  s.integer(brr._header);
+  s.integer(brr._byte);
 
-  s.integer(state._dirAddress);
-  s.integer(state._pitch);
-  s.integer(state._output);
-  s.integer(state._looped);
-  s.integer(state._echoPointer);
+  s.integer(latch.adsr0);
+  s.integer(latch.envx);
+  s.integer(latch.outx);
+  s.integer(latch.pitch);
+  s.integer(latch.output);
 
-  s.array(state._mainOut, 2);
-  s.array(state._echoOut, 2);
-  s.array(state._echoIn, 2);
+  for(auto& v : voice) v.serialize(s);
+}
 
-  for(auto n : range(8)) {
-    s.array(voice[n].buffer);
-    s.integer(voice[n].bufferOffset);
-    s.integer(voice[n].gaussianOffset);
-    s.integer(voice[n].brrAddress);
-    s.integer(voice[n].brrOffset);
-    s.integer(voice[n].vbit);
-    s.integer(voice[n].vidx);
-    s.integer(voice[n].konDelay);
-    s.integer(voice[n].envelopeMode);
-    s.integer(voice[n].envelope);
-    s.integer(voice[n].hiddenEnvelope);
-    s.integer(voice[n]._envxOut);
-  }
+auto DSP::Voice::serialize(serializer& s) -> void {
+  s.integer(index);
+
+  s.array(volume);
+  s.integer(pitch);
+  s.integer(source);
+  s.integer(adsr0);
+  s.integer(adsr1);
+  s.integer(gain);
+  s.integer(envx);
+  s.integer(keyon);
+  s.integer(keyoff);
+  s.integer(modulate);
+  s.integer(noise);
+  s.integer(echo);
+  s.integer(end);
+
+  s.array(buffer);
+  s.integer(bufferOffset);
+  s.integer(gaussianOffset);
+  s.integer(brrAddress);
+  s.integer(brrOffset);
+  s.integer(keyonDelay);
+  s.integer(envelopeMode);
+  s.integer(envelope);
+
+  s.integer(_keylatch);
+  s.integer(_keyon);
+  s.integer(_keyoff);
+  s.integer(_modulate);
+  s.integer(_noise);
+  s.integer(_echo);
+  s.integer(_end);
+  s.integer(_looped);
+  s.integer(_envelope);
 }

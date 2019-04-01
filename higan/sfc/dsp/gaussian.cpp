@@ -39,12 +39,12 @@ auto DSP::gaussianInterpolate(const Voice& v) -> int {
   const int16* forward = GaussianTable + 255 - offset;
   const int16* reverse = GaussianTable       + offset;  //mirror left half of gaussian table
 
-  offset = 12 + v.bufferOffset + (v.gaussianOffset >> 12);
+  offset = (v.bufferOffset + (v.gaussianOffset >> 12)) % 12;
   int output;
-  output  = (forward[  0] * v.buffer[offset + 0]) >> 11;
-  output += (forward[256] * v.buffer[offset + 1]) >> 11;
-  output += (reverse[256] * v.buffer[offset + 2]) >> 11;
+  output  = (forward[  0] * v.buffer[offset]) >> 11; if(++offset >= 12) offset = 0;
+  output += (forward[256] * v.buffer[offset]) >> 11; if(++offset >= 12) offset = 0;
+  output += (reverse[256] * v.buffer[offset]) >> 11; if(++offset >= 12) offset = 0;
   output  = (int16)output;
-  output += (reverse[  0] * v.buffer[offset + 3]) >> 11;
+  output += (reverse[  0] * v.buffer[offset]) >> 11;
   return sclamp<16>(output) & ~1;
 }

@@ -1,9 +1,9 @@
 auto DSP::brrDecode(Voice& v) -> void {
   //state.t_brr_byte = ram[v.brr_addr + v.brr_offset] cached from previous clock cycle
-  int nybbles = (state._brrByte << 8) + apuram[(uint16)(v.brrAddress + v.brrOffset + 1)];
+  int nybbles = (brr._byte << 8) + apuram[(uint16)(v.brrAddress + v.brrOffset + 1)];
 
-  const int filter = (state._brrHeader >> 2) & 3;
-  const int scale  = (state._brrHeader >> 4);
+  const int filter = brr._header.bits(2,3);
+  const int scale  = brr._header.bits(4,7);
 
   //decode four samples
   for(auto n : range(4)) {
@@ -20,8 +20,9 @@ auto DSP::brrDecode(Voice& v) -> void {
     }
 
     //apply IIR filter (2 is the most commonly used)
-    const int p1 = v.buffer[12 + v.bufferOffset - 1];
-    const int p2 = v.buffer[12 + v.bufferOffset - 2] >> 1;
+    int offset = v.bufferOffset;
+    if(--offset < 0) offset = 11; const int p1 = v.buffer[offset];
+    if(--offset < 0) offset = 11; const int p2 = v.buffer[offset] >> 1;
 
     switch(filter) {
     case 0:
@@ -53,9 +54,7 @@ auto DSP::brrDecode(Voice& v) -> void {
     //adjust and write sample (mirror the written sample for wrapping)
     s = sclamp<16>(s);
     s = (int16)(s << 1);
-    v.buffer[v.bufferOffset +  0] = s;
-    v.buffer[v.bufferOffset + 12] = s;
-    v.buffer[v.bufferOffset + 24] = s;
+    v.buffer[v.bufferOffset] = s;
     if(++v.bufferOffset >= 12) v.bufferOffset = 0;
   }
 }

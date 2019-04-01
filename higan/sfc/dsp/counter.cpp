@@ -1,4 +1,4 @@
-//counter_rate = number of samples per counter event
+//number of samples per counter event
 //all rates are evenly divisible by counter_range (0x7800, 30720, or 2048 * 5 * 3)
 //note that rate[0] is a special case, which never triggers
 
@@ -17,7 +17,7 @@ const uint16 DSP::CounterRate[32] = {
            1,
 };
 
-//counter_offset = counter offset from zero
+//counter offset from zero
 //counters do not appear to be aligned at zero for all rates
 
 const uint16 DSP::CounterOffset[32] = {
@@ -36,13 +36,13 @@ const uint16 DSP::CounterOffset[32] = {
 };
 
 inline auto DSP::counterTick() -> void {
-  state.counter--;
-  if(state.counter < 0) state.counter = CounterRange - 1;
+  if(!clock.counter) clock.counter = 2048 * 5 * 3;  //30720 (0x7800)
+  clock.counter--;
 }
 
 //return true if counter event should trigger
 
 inline auto DSP::counterPoll(uint rate) -> bool {
   if(rate == 0) return false;
-  return (((uint)state.counter + CounterOffset[rate]) % CounterRate[rate]) == 0;
+  return (clock.counter + CounterOffset[rate]) % CounterRate[rate] == 0;
 }

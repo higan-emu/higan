@@ -1,31 +1,29 @@
 auto DSP::misc27() -> void {
-  state._pmon = REG(PMON) & ~1;  //voice 0 doesn't support PMON
+  for(auto& v : voice) v._modulate = v.modulate;
 }
 
 auto DSP::misc28() -> void {
-  state._non = REG(NON);
-  state._eon = REG(EON);
-  state._dir = REG(DIR);
+  for(auto& v : voice) v._noise = v.noise, v._echo  = v.echo;
+  brr._bank = brr.bank;
 }
 
 auto DSP::misc29() -> void {
-  state.everyOtherSample ^= 1;
-  if(state.everyOtherSample) {
-    state.konBuffer &= ~state.kon;  //clears KON 63 clocks after it was last read
+  clock.sample = !clock.sample;
+  if(clock.sample) {  //clears KON 63 clocks after it was last read
+    for(auto& v : voice) v._keylatch &= !v._keyon;
   }
 }
 
 auto DSP::misc30() -> void {
-  if(state.everyOtherSample) {
-    state.kon = state.konBuffer;
-    state._koff = REG(KOFF);
+  if(clock.sample) {
+    for(auto& v : voice) v._keyon = v._keylatch, v._keyoff = v.keyoff;
   }
 
   counterTick();
 
   //noise
-  if(counterPoll(REG(FLG) & 0x1f)) {
-    int feedback = (state.noise << 13) ^ (state.noise << 14);
-    state.noise = (feedback & 0x4000) ^ (state.noise >> 1);
+  if(counterPoll(noise.frequency)) {
+    int feedback = noise.lfsr << 13 ^ noise.lfsr << 14;
+    noise.lfsr = feedback & 0x4000 ^ noise.lfsr >> 1;
   }
 }
