@@ -48,10 +48,13 @@ auto System::unserialize(serializer& s) -> bool {
 
 auto System::serializeAll(serializer& s) -> void {
   system.serialize(s);
-  cartridge.serialize(s);
   cpu.serialize(s);
   vdp.serialize(s);
   psg.serialize(s);
+  cartridge.serialize(s);
+  expansion.serialize(s);
+  controllerPort1.serialize(s);
+  controllerPort2.serialize(s);
 }
 
 auto System::serialize(serializer& s) -> void {

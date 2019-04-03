@@ -18,6 +18,7 @@ objects += $(if $(findstring ay38910,$(components)),audio-ay38910)
 objects += $(if $(findstring sn76489,$(components)),audio-sn76489)
 objects += $(if $(findstring t6w28,$(components)),audio-t6w28)
 objects += $(if $(findstring ym2149,$(components)),audio-ym2149)
+objects += $(if $(findstring ym2413,$(components)),audio-ym2413)
 
 objects += $(if $(findstring tms9918,$(components)),video-tms9918)
 
@@ -39,5 +40,6 @@ obj/audio-ay38910.o:      component/audio/ay38910/ay38910.cpp
 obj/audio-sn76489.o:      component/audio/sn76489/sn76489.cpp
 obj/audio-t6w28.o:        component/audio/t6w28/t6w28.cpp
 obj/audio-ym2149.o:       component/audio/ym2149/ym2149.cpp
+obj/audio-ym2413.o:       component/audio/ym2413/ym2413.cpp
 
 obj/video-tms9918.o:      component/video/tms9918/tms9918.cpp

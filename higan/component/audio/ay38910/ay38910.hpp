@@ -5,6 +5,9 @@ namespace higan {
 //General Instrument AY-3-8910
 
 struct AY38910 {
+  virtual auto readIO(uint1 port) -> uint8 { return 0xff; }
+  virtual auto writeIO(uint1 port, uint8 data) -> void {}
+
   //ay38910.cpp
   auto clock() -> array<uint4[3]>;
   auto read() -> uint8;

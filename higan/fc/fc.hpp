@@ -10,6 +10,7 @@
 
 #include <component/processor/mos6502/mos6502.hpp>
 #include <component/audio/ym2149/ym2149.hpp>
+#include <component/audio/ym2413/ym2413.hpp>
 
 namespace higan::Famicom {
   extern Scheduler scheduler;

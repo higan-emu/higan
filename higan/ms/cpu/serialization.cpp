@@ -7,4 +7,5 @@ auto CPU::serialize(serializer& s) -> void {
 
   s.integer(state.nmiLine);
   s.integer(state.irqLine);
+  s.integer(state.enableFM);
 }

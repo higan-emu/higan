@@ -32,8 +32,8 @@ private:
   } clock;
 
   struct Master {
-    uint1 reset;
-    uint1 mute;
+    uint1 reset = 1;
+    uint1 mute = 1;
      int8 volume[2];
     int17 output[2];
   } master;

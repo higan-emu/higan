@@ -17,6 +17,8 @@ struct CPU : Z80, Z80::Bus, Thread {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
+  vector<Thread*> peripherals;
+
 private:
   Memory::Writable<uint8> ram;
 

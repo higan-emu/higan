@@ -24,6 +24,7 @@ auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(vdp);
   synchronize(psg);
+  synchronize(opll);
   for(auto peripheral : peripherals) synchronize(*peripheral);
 }
 

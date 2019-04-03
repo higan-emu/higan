@@ -10,6 +10,7 @@
 
 #include <component/processor/z80/z80.hpp>
 #include <component/audio/sn76489/sn76489.hpp>
+#include <component/audio/ym2413/ym2413.hpp>
 
 namespace higan::MasterSystem {
   extern Scheduler scheduler;
@@ -46,6 +47,7 @@ namespace higan::MasterSystem {
   #include <ms/cpu/cpu.hpp>
   #include <ms/vdp/vdp.hpp>
   #include <ms/psg/psg.hpp>
+  #include <ms/opll/opll.hpp>
 
   #include <ms/system/system.hpp>
   #include <ms/cartridge/cartridge.hpp>

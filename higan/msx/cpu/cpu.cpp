@@ -15,6 +15,7 @@ auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(vdp);
   synchronize(psg);
+  for(auto peripheral : peripherals) synchronize(*peripheral);
 }
 
 auto CPU::synchronizing() const -> bool {

@@ -52,6 +52,7 @@ auto System::serializeAll(serializer& s) -> void {
   cpu.serialize(s);
   vdp.serialize(s);
   psg.serialize(s);
+  opll.serialize(s);
   if(!MasterSystem::Model::GameGear()) {
     controllerPort1.serialize(s);
     controllerPort2.serialize(s);

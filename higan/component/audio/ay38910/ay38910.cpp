@@ -125,10 +125,10 @@ auto AY38910::read() -> uint8 {
     data.bit(3) = envelope.repeat;
     break;
   case 14:
-    data.bits(0,7) = 0xff;  //portA.data
+    data.bits(0,7) = readIO(0);
     break;
   case 15:
-    data.bits(0,7) = 0xff;  //portB.data
+    data.bits(0,7) = readIO(1);
     break;
   }
 
@@ -196,10 +196,10 @@ auto AY38910::write(uint8 data) -> void {
     envelope.output    = !envelope.attacking ? 15 : 0;
     break;
   case 14:
-    portA.data = data;
+    writeIO(0, data);
     break;
   case 15:
-    portB.data = data;
+    writeIO(1, data);
     break;
   }
 }

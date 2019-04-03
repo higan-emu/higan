@@ -206,11 +206,6 @@ auto DSP::power(bool reset) -> void {
     voice[n] = {};
     voice[n].index = n * 0x10;
   }
-
-  write(0x6c, 0xe0);
 }
-
-#undef REG
-#undef VREG
 
 }

@@ -20,6 +20,7 @@ auto System::runToSave() -> void {
   scheduler.synchronize(cpu);
   scheduler.synchronize(vdp);
   scheduler.synchronize(psg);
+  scheduler.synchronize(opll);
 }
 
 auto System::load(Node::Object from) -> void {
@@ -84,6 +85,7 @@ auto System::power() -> void {
   cpu.power();
   vdp.power();
   psg.power();
+  opll.power();
   scheduler.primary(cpu);
 
   serializeInit();

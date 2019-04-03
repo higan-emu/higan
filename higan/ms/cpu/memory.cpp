@@ -38,6 +38,8 @@ auto CPU::in(uint16 address) -> uint8 {
   }
 
   case 3: {
+    if(address == 0xf2) return state.enableFM;
+
     if(Model::MasterSystem()) {
       platform->input(controls.reset);
       bool reset = !controls.reset->value;
@@ -86,6 +88,12 @@ auto CPU::out(uint16 address, uint8 data) -> void {
 
   case 2: {
     return !address.bit(0) ? vdp.data(data) : vdp.control(data);
+  }
+
+  case 3: {
+    if(address == 0xf0 && state.enableFM) opll.address(data);
+    if(address == 0xf1 && state.enableFM) opll.write(data);
+    if(address == 0xf2) state.enableFM = data.bit(0);
   }
 
   }

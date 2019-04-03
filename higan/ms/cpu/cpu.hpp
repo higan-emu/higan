@@ -27,6 +27,7 @@ private:
   struct State {
     bool nmiLine = 0;
     bool irqLine = 0;
+    bool enableFM = 0;
   } state;
 };
 

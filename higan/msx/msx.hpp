@@ -11,6 +11,7 @@
 #include <component/processor/z80/z80.hpp>
 #include <component/video/tms9918/tms9918.hpp>
 #include <component/audio/ay38910/ay38910.hpp>
+#include <component/audio/ym2413/ym2413.hpp>
 
 namespace higan::MSX {
   extern Scheduler scheduler;
@@ -46,6 +47,7 @@ namespace higan::MSX {
 
   #include <msx/system/system.hpp>
   #include <msx/cartridge/cartridge.hpp>
+  #include <msx/controller/controller.hpp>
 
   #include <msx/cpu/cpu.hpp>
   #include <msx/vdp/vdp.hpp>

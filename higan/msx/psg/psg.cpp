@@ -33,4 +33,15 @@ auto PSG::power() -> void {
   }
 }
 
+auto PSG::readIO(uint1 port) -> uint8 {
+  if(port == 0) return controllerPort1.read() | 0x40;
+  if(port == 1) return controllerPort2.read() | 0xc0;
+  unreachable;
+}
+
+auto PSG::writeIO(uint1 port, uint8 data) -> void {
+  if(port == 0) return controllerPort1.write(data);
+  if(port == 1) return controllerPort2.write(data);
+}
+
 }

@@ -1,7 +1,6 @@
 //Konami VRC7
-//Yamaha YM2413 OPLL audio - not emulated
 
-struct VRC7 : Chip {
+struct VRC7 : YM2413, Chip {
   VRC7(Board& board) : Chip(board) {
   }
 
@@ -31,6 +30,12 @@ struct VRC7 : Chip {
     }
     cpu.irqLine(irqLine);
 
+    if(!++divider) {
+      double sample = 0.0;
+      if(!disableFM) sample = YM2413::clock();
+      apu.setSample(sample * 32767.0);
+    }
+
     tick();
   }
 
@@ -39,8 +44,8 @@ struct VRC7 : Chip {
     case 0x8000: prgBank[0] = data; break;
     case 0x8010: prgBank[1] = data; break;
     case 0x9000: prgBank[2] = data; break;
-    case 0x9010: break;  //APU addr port
-    case 0x9030: break;  //APU data port
+    case 0x9010: YM2413::address(data); break;
+    case 0x9030: YM2413::write(data); break;
     case 0xa000: chrBank[0] = data; break;
     case 0xa010: chrBank[1] = data; break;
     case 0xb000: chrBank[2] = data; break;
@@ -49,7 +54,12 @@ struct VRC7 : Chip {
     case 0xc010: chrBank[5] = data; break;
     case 0xd000: chrBank[6] = data; break;
     case 0xd010: chrBank[7] = data; break;
-    case 0xe000: mirror = data & 0x03; break;
+    case 0xe000:
+      mirror = data.bits(0,1);
+      disableFM = data.bit(6);
+      ramWritable = data.bit(7);
+      if(disableFM) YM2413::power(1);
+      break;
 
     case 0xe010:
       irqLatch = data;
@@ -100,6 +110,8 @@ struct VRC7 : Chip {
   }
 
   auto power() -> void {
+    YM2413::power(1);
+
     for(auto& n : prgBank) n = 0;
     for(auto& n : chrBank) n = 0;
     mirror = 0;
@@ -115,9 +127,13 @@ struct VRC7 : Chip {
   }
 
   auto serialize(serializer& s) -> void {
+    YM2413::serialize(s);
+
     s.array(prgBank);
     s.array(chrBank);
     s.integer(mirror);
+    s.integer(disableFM);
+    s.integer(ramWritable);
 
     s.integer(irqLatch);
     s.integer(irqMode);
@@ -127,11 +143,15 @@ struct VRC7 : Chip {
     s.integer(irqCounter);
     s.integer(irqScalar);
     s.integer(irqLine);
+
+    s.integer(divider);
   }
 
   uint8 prgBank[3];
   uint8 chrBank[8];
   uint2 mirror;
+  uint1 disableFM;
+  uint1 ramWritable;
 
   uint8 irqLatch;
   bool irqMode;
@@ -141,4 +161,6 @@ struct VRC7 : Chip {
   uint8 irqCounter;
   int irqScalar;
   bool irqLine;
+
+  uint5 divider;
 };

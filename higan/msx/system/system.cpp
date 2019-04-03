@@ -32,6 +32,8 @@ auto System::load(Node::Object from) -> void {
   display.load(node, from);
   cartridge.load(node, from);
   expansion.load(node, from);
+  controllerPort1.load(node, from);
+  controllerPort2.load(node, from);
 }
 
 auto System::unload() -> void {
@@ -39,6 +41,9 @@ auto System::unload() -> void {
   save();
   cartridge.port = {};
   expansion.port = {};
+  controllerPort1.port = {};
+  controllerPort2.port = {};
+  node = {};
 }
 
 auto System::save() -> void {
