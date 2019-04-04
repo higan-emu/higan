@@ -40,6 +40,7 @@ auto System::serializeAll(serializer& s) -> void {
   cpu.serialize(s);
   apu.serialize(s);
   ppu.serialize(s);
+  if(fds.present) fds.serialize(s);
   controllerPort1.serialize(s);
   controllerPort2.serialize(s);
 }

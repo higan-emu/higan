@@ -13,6 +13,7 @@ Controller::Controller() {
 }
 
 Controller::~Controller() {
+  cpu.peripherals.removeWhere() == this;
   Thread::destroy();
 }
 

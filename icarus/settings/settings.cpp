@@ -10,6 +10,7 @@ auto Settings::serialize() -> string {
   write(bsMemory);
   write(colecoVision);
   write(famicom);
+  write(famicomDisk);
   write(gameBoy);
   write(gameBoyAdvance);
   write(gameBoyColor);
@@ -43,6 +44,7 @@ auto Settings::unserialize(const string& markup) -> void {
   read(bsMemory, string);
   read(colecoVision, string);
   read(famicom, string);
+  read(famicomDisk, string);
   read(gameBoy, string);
   read(gameBoyAdvance, string);
   read(gameBoyColor, string);

@@ -4,6 +4,7 @@ SystemSelection::SystemSelection(View* view) : Panel(view, Size{140_sx, ~0}) {
   systemList.append(ListViewItem().setText("BS Memory"));
   systemList.append(ListViewItem().setText("ColecoVision"));
   systemList.append(ListViewItem().setText("Famicom"));
+  systemList.append(ListViewItem().setText("Famicom Disk"));
   systemList.append(ListViewItem().setText("Game Boy"));
   systemList.append(ListViewItem().setText("Game Boy Advance"));
   systemList.append(ListViewItem().setText("Game Boy Color"));

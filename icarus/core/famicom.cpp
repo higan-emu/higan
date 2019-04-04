@@ -38,7 +38,7 @@ auto Icarus::famicomImport(vector<uint8_t>& buffer, string location) -> string {
   if(settings.createManifests) write({target, "manifest.bml"}, manifest);
   auto document = BML::unserialize(manifest);
   uint offset = 0;
-  if(true) {
+  if(document["game/board"].text() != "HVC-FMR") {
     //todo: support images without iNES headers (via database lookup)
     uint size = 16;
     write({target, "ines.rom"}, &buffer[offset], size);

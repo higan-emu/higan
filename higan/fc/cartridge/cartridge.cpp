@@ -18,6 +18,14 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   parent->append(port);
 }
 
+auto Cartridge::unload() -> void {
+  if(fds.present) {
+    fds.unload();
+    fds.present = 0;
+  }
+  port = {};
+}
+
 auto Cartridge::connect(Node::Peripheral with) -> void {
   node = Node::Peripheral::create(interface->name());
   node->load(with);
@@ -29,6 +37,9 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
   Board::load(information.metadata);  //this call will set Cartridge::board if successful
   power();
+  if(fds.present) {
+    fds.load(node, with);
+  }
   port->prepend(node);
 }
 

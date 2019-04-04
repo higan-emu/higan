@@ -32,6 +32,7 @@ auto GameManager::select(string system) -> void {
   if(system == "BS Memory"           ) path = settings.bsMemory;
   if(system == "ColecoVision"        ) path = settings.colecoVision;
   if(system == "Famicom"             ) path = settings.famicom;
+  if(system == "Famicom Disk"        ) path = settings.famicomDisk;
   if(system == "Game Boy"            ) path = settings.gameBoy;
   if(system == "Game Boy Advance"    ) path = settings.gameBoyAdvance;
   if(system == "Game Boy Color"      ) path = settings.gameBoyColor;

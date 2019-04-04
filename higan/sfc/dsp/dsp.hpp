@@ -45,7 +45,7 @@ private:
     int16 history[2][8];
     uint8 bank;
     uint4 delay;
-    uint1 readonly;
+    uint1 readonly = 1;
     int17 input[2];
     int17 output[2];
 

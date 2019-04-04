@@ -2,6 +2,7 @@ namespace Heuristics {
 
 struct Famicom {
   Famicom(vector<uint8_t>& data, string location);
+  auto isFamicomDiskSystemBIOS() const -> bool;
   explicit operator bool() const;
   auto manifest() const -> string;
 
@@ -13,7 +14,17 @@ private:
 Famicom::Famicom(vector<uint8_t>& data, string location) : data(data), location(location) {
 }
 
+auto Famicom::isFamicomDiskSystemBIOS() const -> bool {
+  if(data.size() != 8192) return false;
+  //Nintendo Famicom Disk System (Japan)
+  if(Hash::SHA256(data).digest() == "99c18490ed9002d9c6d999b9d8d15be5c051bdfa7cc7e73318053c9a994b0178") return true;
+  //Sharp Twin Famicom (Japan)
+  if(Hash::SHA256(data).digest() == "a0a9d57cbace21bf9c85c2b85e86656317f0768d7772acc90c7411ab1dbff2bf") return true;
+  return false;
+}
+
 Famicom::operator bool() const {
+  if(isFamicomDiskSystemBIOS()) return true;
   if(data.size() < 16) return false;
   if(data[0] != 'N') return false;
   if(data[1] != 'E') return false;
@@ -24,6 +35,17 @@ Famicom::operator bool() const {
 
 auto Famicom::manifest() const -> string {
   if(!operator bool()) return {};
+
+  if(isFamicomDiskSystemBIOS()) {
+    string output;
+    output.append("game\n");
+    output.append("  sha256: ", Hash::SHA256(data).digest(), "\n");
+    output.append("  board: HVC-FMR\n");
+    output.append(Memory{}.type("ROM").size(0x2000).content("Program").text());
+    output.append(Memory{}.type("RAM").size(0x8000).content("Program").isVolatile().text());
+    output.append(Memory{}.type("RAM").size(0x2000).content("Character").isVolatile().text());
+    return output;
+  }
 
   uint mapper = ((data[7] >> 4) << 4) | (data[6] >> 4);
   uint mirror = ((data[6] & 0x08) >> 2) | (data[6] & 0x01);

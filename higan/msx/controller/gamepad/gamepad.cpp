@@ -5,8 +5,8 @@ Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
   down = Node::append<Node::Button>(node, with, "Down");
   left = Node::append<Node::Button>(node, with, "Left");
   right = Node::append<Node::Button>(node, with, "Right");
-  b = Node::append<Node::Button>(node, with, "B");
   a = Node::append<Node::Button>(node, with, "A");
+  b = Node::append<Node::Button>(node, with, "B");
   parent->prepend(node);
 }
 
@@ -15,8 +15,8 @@ auto Gamepad::read() -> uint6 {
   platform->input(down);
   platform->input(left);
   platform->input(right);
-  platform->input(b);
   platform->input(a);
+  platform->input(b);
 
   if(!(up->value & down->value)) {
     yHold = 0, upLatch = up->value, downLatch = down->value;
@@ -35,7 +35,7 @@ auto Gamepad::read() -> uint6 {
   data.bit(1) = !downLatch;
   data.bit(2) = !leftLatch;
   data.bit(3) = !rightLatch;
-  data.bit(4) = !b->value;
-  data.bit(5) = !a->value;
+  data.bit(4) = !a->value;
+  data.bit(5) = !b->value;
   return data;
 }

@@ -2,6 +2,7 @@ Icarus::Icarus() {
   Database::BSMemory          = BML::unserialize(string::read(locate("Database/BS Memory.bml")));
   Database::ColecoVision      = BML::unserialize(string::read(locate("Database/ColecoVision.bml")));
   Database::Famicom           = BML::unserialize(string::read(locate("Database/Famicom.bml")));
+  Database::FamicomDisk       = BML::unserialize(string::read(locate("Database/Famicom Disk.bml")));
   Database::GameBoy           = BML::unserialize(string::read(locate("Database/Game Boy.bml")));
   Database::GameBoyAdvance    = BML::unserialize(string::read(locate("Database/Game Boy Advance.bml")));
   Database::GameBoyColor      = BML::unserialize(string::read(locate("Database/Game Boy Color.bml")));
@@ -47,6 +48,7 @@ auto Icarus::manifest(string system, string location) -> string {
   if(system == "BS Memory"           ) return bsMemoryManifest(location);
   if(system == "ColecoVision"        ) return colecoVisionManifest(location);
   if(system == "Famicom"             ) return famicomManifest(location);
+  if(system == "Famicom Disk"        ) return famicomDiskManifest(location);
   if(system == "Game Boy"            ) return gameBoyManifest(location);
   if(system == "Game Boy Advance"    ) return gameBoyAdvanceManifest(location);
   if(system == "Game Boy Color"      ) return gameBoyColorManifest(location);
@@ -97,6 +99,7 @@ auto Icarus::import(string system, string location) -> string {
   if(system == "BS Memory"           ) return bsMemoryImport(buffer, location);
   if(system == "ColecoVision"        ) return colecoVisionImport(buffer, location);
   if(system == "Famicom"             ) return famicomImport(buffer, location);
+  if(system == "Famicom Disk"        ) return famicomDiskImport(buffer, location);
   if(system == "Game Boy"            ) return gameBoyImport(buffer, location);
   if(system == "Game Boy Advance"    ) return gameBoyAdvanceImport(buffer, location);
   if(system == "Game Boy Color"      ) return gameBoyColorImport(buffer, location);

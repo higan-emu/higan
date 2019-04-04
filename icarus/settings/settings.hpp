@@ -9,6 +9,7 @@ struct Settings {
   string bsMemory          = {Path::user(), "Emulation/BS Memory/"};
   string colecoVision      = {Path::user(), "Emulation/ColecoVision/"};
   string famicom           = {Path::user(), "Emulation/Famicom/"};
+  string famicomDisk       = {Path::user(), "Emulation/Famicom Disk/"};
   string gameBoy           = {Path::user(), "Emulation/Game Boy/"};
   string gameBoyAdvance    = {Path::user(), "Emulation/Game Boy Advance/"};
   string gameBoyColor      = {Path::user(), "Emulation/Game Boy Color/"};

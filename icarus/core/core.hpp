@@ -51,6 +51,11 @@ struct Icarus {
   auto famicomManifest(vector<uint8_t>& buffer, string location) -> string;
   auto famicomImport(vector<uint8_t>& buffer, string location) -> string;
 
+  //famicom-disk.cpp
+  auto famicomDiskManifest(string location) -> string;
+  auto famicomDiskManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto famicomDiskImport(vector<uint8_t>& buffer, string location) -> string;
+
   //game-boy.cpp
   auto gameBoyManifest(string location) -> string;
   auto gameBoyManifest(vector<uint8_t>& buffer, string location) -> string;
@@ -150,6 +155,7 @@ namespace Database {
   Markup::Node BSMemory;
   Markup::Node ColecoVision;
   Markup::Node Famicom;
+  Markup::Node FamicomDisk;
   Markup::Node GameBoy;
   Markup::Node GameBoyAdvance;
   Markup::Node GameBoyColor;

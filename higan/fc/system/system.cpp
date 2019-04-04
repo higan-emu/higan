@@ -62,7 +62,7 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.port = {};
+  cartridge.unload();
   controllerPort1.port = {};
   controllerPort2.port = {};
   node = {};
@@ -85,6 +85,7 @@ auto System::power(bool reset) -> void {
   cpu.power(reset);
   apu.power(reset);
   ppu.power(reset);
+  for(auto peripheral : cpu.peripherals) scheduler.append(*peripheral);
   scheduler.primary(cpu);
 
   serializeInit();

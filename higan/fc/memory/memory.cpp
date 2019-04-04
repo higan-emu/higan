@@ -9,6 +9,7 @@ Bus bus;
 //$2000-2007 = PPU
 //$2008-3fff = PPU (mirror)
 //$4000-4017 = APU + I/O
+//$4020-403f = FDS
 //$4018-ffff = Cartridge
 
 auto Bus::read(uint16 addr) -> uint8 {
@@ -16,6 +17,7 @@ auto Bus::read(uint16 addr) -> uint8 {
        if(addr <= 0x1fff) data = cpu.readRAM(addr);
   else if(addr <= 0x3fff) data = ppu.readIO(addr);
   else if(addr <= 0x4017) data = cpu.readIO(addr);
+  else if(fds.present && (addr & 0xfff0) == 0x4030) return fds.read(addr);
 
   if(cheat) {
     if(auto result = cheat.find(addr, data)) return result();
@@ -29,6 +31,7 @@ auto Bus::write(uint16 addr, uint8 data) -> void {
   if(addr <= 0x1fff) return cpu.writeRAM(addr, data);
   if(addr <= 0x3fff) return ppu.writeIO(addr, data);
   if(addr <= 0x4017) return cpu.writeIO(addr, data);
+  if(fds.present && (addr & 0xfff0) == 0x4020) return fds.write(addr, data);
 }
 
 }

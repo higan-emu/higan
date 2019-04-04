@@ -1,6 +1,8 @@
 //Konami VRC7
 
 struct VRC7 : YM2413, Chip {
+  DSP::IIR::OnePole onePole;
+
   VRC7(Board& board) : Chip(board) {
   }
 
@@ -30,9 +32,11 @@ struct VRC7 : YM2413, Chip {
     }
     cpu.irqLine(irqLine);
 
-    if(!++divider) {
+    if(++divider == 36) {
+      divider = 0;
       double sample = 0.0;
       if(!disableFM) sample = YM2413::clock();
+      sample = onePole.process(sample);
       apu.setSample(sample * 32767.0);
     }
 
@@ -55,10 +59,14 @@ struct VRC7 : YM2413, Chip {
     case 0xd000: chrBank[6] = data; break;
     case 0xd010: chrBank[7] = data; break;
     case 0xe000:
+      if(disableFM && !data.bit(6)) {
+        YM2413::power(1);
+        double inputFrequency = system.frequency() / apu.rate() / 36.0;
+        onePole.reset(DSP::IIR::OnePole::Type::LowPass, 2280.0, inputFrequency);
+      }
       mirror = data.bits(0,1);
       disableFM = data.bit(6);
       ramWritable = data.bit(7);
-      if(disableFM) YM2413::power(1);
       break;
 
     case 0xe010:
@@ -110,11 +118,11 @@ struct VRC7 : YM2413, Chip {
   }
 
   auto power() -> void {
-    YM2413::power(1);
-
     for(auto& n : prgBank) n = 0;
     for(auto& n : chrBank) n = 0;
     mirror = 0;
+    disableFM = 1;
+    ramWritable = 1;
 
     irqLatch = 0;
     irqMode = 0;
@@ -124,6 +132,8 @@ struct VRC7 : YM2413, Chip {
     irqCounter = 0;
     irqScalar = 0;
     irqLine = 0;
+
+    divider = 0;
   }
 
   auto serialize(serializer& s) -> void {
@@ -162,5 +172,5 @@ struct VRC7 : YM2413, Chip {
   int irqScalar;
   bool irqLine;
 
-  uint5 divider;
+  uint6 divider;
 };

@@ -11,6 +11,7 @@ struct Cartridge : Thread {
 
   //cartridge.cpp
   auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
 

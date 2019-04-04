@@ -45,6 +45,7 @@ namespace higan::Famicom {
   #include <fc/cpu/cpu.hpp>
   #include <fc/apu/apu.hpp>
   #include <fc/ppu/ppu.hpp>
+  #include <fc/fds/fds.hpp>
 }
 
 #include <fc/interface/interface.hpp>

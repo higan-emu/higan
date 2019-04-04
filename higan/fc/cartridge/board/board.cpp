@@ -1,4 +1,5 @@
 #include "bandai-fcg.cpp"
+#include "hvc-fmr.cpp"
 #include "konami-vrc1.cpp"
 #include "konami-vrc2.cpp"
 #include "konami-vrc3.cpp"
@@ -136,6 +137,8 @@ auto Board::load(string metadata) -> Board* {
   string type = document["game/board"].text();
 
   if(type == "BANDAI-FCG"  ) return new BandaiFCG(document);
+
+  if(type == "HVC-FMR"     ) return new HVC_FMR(document);
 
   if(type == "KONAMI-VRC-1") return new KonamiVRC1(document);
   if(type == "KONAMI-VRC-2") return new KonamiVRC2(document);

@@ -3,8 +3,8 @@ struct Gamepad : Controller {
   Node::Button down;
   Node::Button left;
   Node::Button right;
-  Node::Button b;
   Node::Button a;
+  Node::Button b;
 
   Gamepad(Node::Port, Node::Peripheral);
 
