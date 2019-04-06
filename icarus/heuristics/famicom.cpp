@@ -42,7 +42,7 @@ auto Famicom::manifest() const -> string {
     output.append("  sha256: ", Hash::SHA256(data).digest(), "\n");
     output.append("  board: HVC-FMR\n");
     output.append(Memory{}.type("ROM").size(0x2000).content("Program").text());
-    output.append(Memory{}.type("RAM").size(0x8000).content("Program").isVolatile().text());
+    output.append(Memory{}.type("RAM").size(0x8000).content("Save").isVolatile().text());
     output.append(Memory{}.type("RAM").size(0x2000).content("Character").isVolatile().text());
     return output;
   }

@@ -1,28 +1,39 @@
 //Famicom Disk System
 
+#include "drive.hpp"
+#include "timer.hpp"
+#include "audio.hpp"
+
 struct FDS : Thread {
   Node::Port port;
   Node::Peripheral node;
+  Node::String state;
   uint1 present;
 
-  Memory::Writable<uint8> sideA;
-  Memory::Writable<uint8> sideB;
-
-  inline auto mirroring() const -> bool { return io.mirroring; }
+  struct Disk {
+    Memory::Writable<uint8> sideA;
+    Memory::Writable<uint8> sideB;
+  };
+  Disk disk1;
+  Disk disk2;
+  maybe<Memory::Writable<uint8>&> inserting;
+  maybe<Memory::Writable<uint8>&> inserted;
+  uint1 changed;
 
   //fds.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto unload() -> void;
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
-  auto save() -> void;
+  auto change(string value) -> void;
+  auto change() -> void;
 
+  auto poll() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto power() -> void;
 
-  //io.cpp
-  auto read(uint16 address) -> uint8;
+  auto read(uint16 address, uint8 data) -> uint8;
   auto write(uint16 address, uint8 data) -> void;
 
   //serialization.cpp
@@ -33,23 +44,9 @@ private:
     string metadata;
   } information;
 
-  struct IRQ {
-    uint16 counter;
-    uint16 period;
-     uint1 repeat;
-     uint1 onTimer;
-     uint1 onTransfer;
-     uint1 triggered;
-  } irq;
-
-  struct IO {
-    uint1 enableDisk;
-    uint1 enableAudio;
-    uint1 enableMotor;
-    uint1 accessMode;     //0 = write, 1 = read
-    uint1 mirroring = 1;  //0 = vertical, 1 = horizontal
-    uint1 crcControl;
-  } io;
+  FDSDrive drive;
+  FDSTimer timer;
+  FDSAudio audio;
 };
 
 extern FDS fds;

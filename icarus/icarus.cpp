@@ -31,7 +31,6 @@ auto locate(string name) -> string {
 #include "heuristics/supergrafx.cpp"
 #include "heuristics/wonderswan.cpp"
 
-#include "core/core.cpp"
 #include "core/bs-memory.cpp"
 #include "core/colecovision.cpp"
 #include "core/famicom.cpp"
@@ -54,6 +53,7 @@ auto locate(string name) -> string {
 #include "core/supergrafx.cpp"
 #include "core/wonderswan.cpp"
 #include "core/wonderswan-color.cpp"
+#include "core/core.cpp"
 Icarus context;
 
 #include "program/program.cpp"
