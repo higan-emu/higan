@@ -4,7 +4,7 @@
 #include "timer.hpp"
 #include "audio.hpp"
 
-struct FDS : Thread {
+struct FDS {
   Node::Port port;
   Node::Peripheral node;
   Node::String state;
@@ -30,7 +30,6 @@ struct FDS : Thread {
 
   auto poll() -> void;
   auto main() -> void;
-  auto step(uint clocks) -> void;
   auto power() -> void;
 
   auto read(uint16 address, uint8 data) -> uint8;

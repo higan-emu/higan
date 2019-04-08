@@ -18,17 +18,11 @@ auto FDS::load(Node::Object parent, Node::Object from) -> void {
     if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
   }
   parent->append(port);
-  Thread::create(system.frequency(), [&] {
-    while(true) scheduler.synchronize(), main();
-  });
-  cpu.peripherals.append(this);
   power();
 }
 
 auto FDS::unload() -> void {
   disconnect();
-  cpu.peripherals.removeWhere() == this;
-  Thread::destroy();
   port = {};
   disk1.sideA.reset();
   disk1.sideB.reset();
@@ -142,12 +136,6 @@ auto FDS::main() -> void {
   drive.clock();
   audio.clock();
   timer.clock();
-  step(1);
-}
-
-auto FDS::step(uint clocks) -> void {
-  Thread::step(clocks);
-  synchronize(cpu);
 }
 
 auto FDS::power() -> void {

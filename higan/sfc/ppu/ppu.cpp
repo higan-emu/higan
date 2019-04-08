@@ -84,6 +84,7 @@ auto PPU::main() -> void {
       step(2);
     }
 
+    obj.scanline();
     step(14 + 34 * 2);
     obj.tilefetch();
   }
@@ -213,35 +214,29 @@ auto PPU::power(bool reset) -> void {
   screen.power();
 
   updateVideoMode();
-  frame();
 }
 
 auto PPU::scanline() -> void {
   if(vcounter() == 0) {
-    frame();
+    self.interlace = io.interlace;
+    self.overscan = io.overscan;
     bg1.frame();
     bg2.frame();
     bg3.frame();
     bg4.frame();
+    obj.frame();
   }
 
   bg1.scanline();
   bg2.scanline();
   bg3.scanline();
   bg4.scanline();
-  obj.scanline();
   window.scanline();
   screen.scanline();
 
   if(vcounter() == 240) {
     scheduler.exit(Scheduler::Event::Frame);
   }
-}
-
-auto PPU::frame() -> void {
-  obj.frame();
-  self.interlace = io.interlace;
-  self.overscan = io.overscan;
 }
 
 auto PPU::refresh() -> void {

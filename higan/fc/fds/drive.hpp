@@ -23,7 +23,6 @@ struct FDSDrive {
    uint1 reading;  //0 = writing
    uint1 writeCRC;
    uint1 clearCRC;
-   uint1 invalidCRC;  //todo: this isn't emulated
    uint1 irq;
    uint1 pending;
    uint1 available;

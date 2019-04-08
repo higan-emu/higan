@@ -6,6 +6,11 @@ struct HVC_FMR : Board {
     fds.present = 1;
   }
 
+  auto main() -> void override {
+    fds.main();
+    tick();
+  }
+
   auto readPRG(uint address) -> uint8 {
     if(address >= 0x4020 && address <= 0x409f) return fds.read(address, cpu.mdr());
     if(address >= 0x6000 && address <= 0xdfff) return prgram.read(address - 0x6000);

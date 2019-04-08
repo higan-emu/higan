@@ -1,5 +1,4 @@
 auto FDS::serialize(serializer& s) -> void {
-  Thread::serialize(s);
   drive.serialize(s);
   timer.serialize(s);
   audio.serialize(s);
@@ -16,7 +15,6 @@ auto FDSDrive::serialize(serializer& s) -> void {
   s.integer(reading);
   s.integer(writeCRC);
   s.integer(clearCRC);
-  s.integer(invalidCRC);
   s.integer(irq);
   s.integer(pending);
   s.integer(available);
@@ -39,7 +37,6 @@ auto FDSTimer::serialize(serializer& s) -> void {
 
 auto FDSAudio::serialize(serializer& s) -> void {
   s.integer(enable);
-  s.integer(divider);
   s.integer(envelopes);
   s.integer(masterVolume);
 

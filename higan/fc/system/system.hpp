@@ -1,9 +1,9 @@
+#include "controls.hpp"
 #include "display.hpp"
 
 struct System {
   Node::Object node;
   Node::String regionNode;
-  Node::Button resetButton;
   enum class Region : uint { NTSCJ, NTSCU, PAL };
 
   inline auto region() const -> Region { return information.region; }

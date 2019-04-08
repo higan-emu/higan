@@ -47,7 +47,6 @@ struct FDSAudio {
   };
 
   uint1 enable;
-  uint8 divider;
   uint1 envelopes;  //0 = disable, 1 = enable
   uint2 masterVolume;
   Operator carrier;

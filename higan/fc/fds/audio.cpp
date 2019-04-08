@@ -66,9 +66,6 @@ auto FDSAudio::Modulator::updateCounter(int8 value) -> void {
 auto FDSAudio::clock() -> void {
   if(!enable) return apu.setSample(0);
 
-  if(++divider < cpu.rate()) return;
-  divider = 0;
-
   int frequency = carrier.frequency;
   if(envelopes && !waveform.halt) {
     carrier.clockEnvelope();

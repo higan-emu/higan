@@ -54,7 +54,6 @@ private:
   } self;
 
   auto scanline() -> void;
-  auto frame() -> void;
   auto refresh() -> void;
 
   struct {

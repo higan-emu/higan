@@ -6,6 +6,7 @@
 #include <emulator/emulator.hpp>
 #include <emulator/thread.hpp>
 #include <emulator/scheduler.hpp>
+#include <emulator/random.hpp>
 #include <emulator/cheat.hpp>
 
 #include <component/processor/mos6502/mos6502.hpp>
@@ -14,6 +15,7 @@
 
 namespace higan::Famicom {
   extern Scheduler scheduler;
+  extern Random random;
   extern Cheat cheat;
 
   struct Thread : higan::Thread {

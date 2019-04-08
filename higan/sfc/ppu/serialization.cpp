@@ -157,20 +157,17 @@ auto PPU::Object::serialize(serializer& s) -> void {
   s.integer(t.itemCount);
   s.integer(t.tileCount);
 
-  s.integer(t.active);
-  for(auto p : range(2)) {
-    for(auto n : range(32)) {
-      s.integer(t.item[p][n].valid);
-      s.integer(t.item[p][n].index);
-    }
-    for(auto n : range(34)) {
-      s.integer(t.tile[p][n].valid);
-      s.integer(t.tile[p][n].x);
-      s.integer(t.tile[p][n].priority);
-      s.integer(t.tile[p][n].palette);
-      s.integer(t.tile[p][n].hflip);
-      s.integer(t.tile[p][n].data);
-    }
+  for(auto n : range(32)) {
+    s.integer(t.item[n].valid);
+    s.integer(t.item[n].index);
+  }
+  for(auto n : range(34)) {
+    s.integer(t.tile[n].valid);
+    s.integer(t.tile[n].x);
+    s.integer(t.tile[n].priority);
+    s.integer(t.tile[n].palette);
+    s.integer(t.tile[n].hflip);
+    s.integer(t.tile[n].data);
   }
 
   s.integer(output.above.priority);

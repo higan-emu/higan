@@ -6,9 +6,9 @@ auto FDSDrive::clock() -> void {
   if(scanning) return advance();
 }
 
-//presume it takes half a second to eject a disk and insert the other side
+//presume it takes roughly half a second to eject a disk and insert the other side
 auto FDSDrive::change() -> void {
-  if(++counter >= fds.frequency() / 2) {
+  if(++counter >= 960000) {
     counter = 0;
     changing = 0;
   }
@@ -16,7 +16,7 @@ auto FDSDrive::change() -> void {
 
 //presume that it takes time for the drive motor to power up after being turned on
 auto FDSDrive::powerup() -> void {
-  if(++counter >= 17500) {
+  if(++counter >= 1600) {
     counter = 0;
     ready = 1;
     rewinding = 1;
@@ -27,7 +27,7 @@ auto FDSDrive::powerup() -> void {
 //presume it takes time to move the drive head back to the beginning of the disk
 //the further into the disk the head is, the longer it should take to reach the beginning again
 auto FDSDrive::rewind() -> void {
-  if(offset && ++counter >= 175) {
+  if(offset && ++counter >= 16) {
     counter = 0;
     offset--;
   }
@@ -40,7 +40,7 @@ auto FDSDrive::rewind() -> void {
 
 //move the disk head periodically
 auto FDSDrive::advance() -> void {
-  if(++counter >= 1750) {
+  if(++counter >= 160) {
     counter = 0;
     if(reading) {
       read();
@@ -105,7 +105,7 @@ auto FDSDrive::read(uint16 address, uint8 data) -> uint8 {
 
   case 0x4030:
     data.bit(1) = pending;
-    data.bit(4) = invalidCRC;
+    data.bit(4) = (bool)crc16;  //invalidCRC;
     data.bit(6) = completed;
     data.bit(7) = available;
     pending = 0;

@@ -7,16 +7,29 @@ auto CPU::writeRAM(uint11 addr, uint8 data) -> void {
 }
 
 auto CPU::readIO(uint16 addr) -> uint8 {
+  uint8 data = mdr();
+
   switch(addr) {
 
   case 0x4016: {
-    auto data = controllerPort1.data();
-    return (mdr() & 0xc0) | data.bit(2) << 4 | data.bit(1) << 3 | data.bit(0) << 0;
+    auto poll = controllerPort1.data();
+    platform->input(controls.microphone);
+    data.bit(0) = poll.bit(0);
+    data.bit(1) = 0;
+    data.bit(2) = controls.microphone->value ? random().bit(0) : 0;
+    data.bit(3) = poll.bit(1);
+    data.bit(4) = poll.bit(2);
+    return data;
   }
 
   case 0x4017: {
-    auto data = controllerPort2.data();
-    return (mdr() & 0xc0) | data.bit(2) << 4 | data.bit(1) << 3 | data.bit(0) << 0;
+    auto poll = controllerPort2.data();
+    data.bit(0) = poll.bit(0);
+    data.bit(1) = 0;
+    data.bit(2) = 0;
+    data.bit(3) = poll.bit(1);
+    data.bit(4) = poll.bit(2);
+    return data;
   }
 
   }

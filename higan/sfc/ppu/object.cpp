@@ -21,25 +21,21 @@ auto PPU::Object::scanline() -> void {
   t.itemCount = 0;
   t.tileCount = 0;
 
-  t.active = !t.active;
-  auto oamItem = t.item[t.active];
-  auto oamTile = t.tile[t.active];
-
   if(t.y == ppu.vdisp() && !ppu.io.displayDisable) addressReset();
-  if(t.y >= ppu.vdisp() - 1) return;
+  if(t.y >= ppu.vdisp() - 1 || ppu.io.displayDisable) return;
 
-  for(auto n : range(32)) oamItem[n].valid = false;
-  for(auto n : range(34)) oamTile[n].valid = false;
+  for(auto n : range(32)) t.item[n].valid = false;
+  for(auto n : range(34)) t.tile[n].valid = false;
 
   for(auto n : range(128)) {
     uint7 sprite = io.firstSprite + n;
     if(!onScanline(oam.object[sprite])) continue;
     if(t.itemCount++ >= 32) break;
-    oamItem[t.itemCount - 1] = {true, sprite};
+    t.item[t.itemCount - 1] = {true, sprite};
   }
 
-  if(t.itemCount > 0 && oamItem[t.itemCount - 1].valid) {
-    ppu.latch.oamAddress = 0x0200 + (oamItem[t.itemCount - 1].index >> 2);
+  if(t.itemCount > 0 && t.item[t.itemCount - 1].valid) {
+    ppu.latch.oamAddress = 0x0200 + (t.item[t.itemCount - 1].index >> 2);
   }
 }
 
@@ -55,11 +51,10 @@ auto PPU::Object::run() -> void {
   output.above.priority = 0;
   output.below.priority = 0;
 
-  auto oamTile = t.tile[!t.active];
   uint x = t.x++;
 
   for(auto n : range(34)) {
-    const auto& tile = oamTile[n];
+    const auto& tile = t.tile[n];
     if(!tile.valid) break;
 
     int px = x - (int9)tile.x;
@@ -86,12 +81,9 @@ auto PPU::Object::run() -> void {
 }
 
 auto PPU::Object::tilefetch() -> void {
-  auto oamItem = t.item[t.active];
-  auto oamTile = t.tile[t.active];
-
   for(int i = 31; i >= 0; i--) {
-    if(!oamItem[i].valid) continue;
-    const auto& sprite = oam.object[oamItem[i].index];
+    if(!t.item[i].valid) continue;
+    const auto& sprite = oam.object[t.item[i].index];
 
     uint tileWidth = sprite.width() >> 3;
     int x = sprite.x;
@@ -126,18 +118,18 @@ auto PPU::Object::tilefetch() -> void {
       if(t.tileCount++ >= 34) break;
 
       uint n = t.tileCount - 1;
-      oamTile[n].valid = true;
-      oamTile[n].x = sx;
-      oamTile[n].priority = sprite.priority;
-      oamTile[n].palette = 128 + (sprite.palette << 4);
-      oamTile[n].hflip = sprite.hflip;
+      t.tile[n].valid = true;
+      t.tile[n].x = sx;
+      t.tile[n].priority = sprite.priority;
+      t.tile[n].palette = 128 + (sprite.palette << 4);
+      t.tile[n].hflip = sprite.hflip;
 
       uint mx = !sprite.hflip ? tx : tileWidth - 1 - tx;
       uint pos = tiledataAddress + ((chry + (chrx + mx & 15)) << 4);
       uint16 addr = (pos & 0xfff0) + (y & 7);
 
-      oamTile[n].data.bits( 0,15) = ppu.vram[addr + 0];
-      oamTile[n].data.bits(16,31) = ppu.vram[addr + 8];
+      t.tile[n].data.bits( 0,15) = ppu.vram[addr + 0];
+      t.tile[n].data.bits(16,31) = ppu.vram[addr + 8];
       ppu.step(2);
     }
   }
@@ -166,20 +158,17 @@ auto PPU::Object::power() -> void {
   t.itemCount = 0;
   t.tileCount = 0;
 
-  t.active = 0;
-  for(auto p : range(2)) {
-    for(auto n : range(32)) {
-      t.item[p][n].valid = false;
-      t.item[p][n].index = 0;
-    }
-    for(auto n : range(34)) {
-      t.tile[p][n].valid = false;
-      t.tile[p][n].x = 0;
-      t.tile[p][n].priority = 0;
-      t.tile[p][n].palette = 0;
-      t.tile[p][n].hflip = 0;
-      t.tile[p][n].data = 0;
-    }
+  for(auto n : range(32)) {
+    t.item[n].valid = false;
+    t.item[n].index = 0;
+  }
+  for(auto n : range(34)) {
+    t.tile[n].valid = false;
+    t.tile[n].x = 0;
+    t.tile[n].priority = 0;
+    t.tile[n].palette = 0;
+    t.tile[n].hflip = 0;
+    t.tile[n].data = 0;
   }
 
   io.aboveEnable = random();

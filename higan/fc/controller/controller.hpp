@@ -1,4 +1,4 @@
-//Famicom controller port pinout:
+// NES controller port pinout:
 //  ____
 // |    \
 // |(7)  \
@@ -15,6 +15,9 @@
 //  5:  data3  $4016.d3 read   $4017.d3 read
 //  6:  data4  $4016.d4 read   $4017.d4 read
 //  7:  gnd
+
+// The Famicom contained two hardwired controllers.
+// Controller Port 2 contained a microphone, but no Select or Start buttons.
 
 struct Controller : Thread {
   Node::Peripheral node;

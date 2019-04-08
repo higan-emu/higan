@@ -4,16 +4,18 @@ namespace higan::Famicom {
 
 System system;
 Scheduler scheduler;
+Random random;
 Cheat cheat;
+#include "controls.cpp"
 #include "display.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
 
-  auto reset = resetButton->value;
-  platform->input(resetButton);
-  if(!reset && resetButton->value) power(true);
+  auto reset = controls.reset->value;
+  platform->input(controls.reset);
+  if(!reset && controls.reset->value) power(true);
 }
 
 auto System::runToSave() -> void {
@@ -35,10 +37,6 @@ auto System::load(Node::Object from) -> void {
   Node::load(regionNode, from);
   node->append(regionNode);
 
-  resetButton = Node::Button::create("Reset");
-  Node::load(resetButton, from);
-  node->append(resetButton);
-
   information = {};
   if(regionNode->value() == "NTSC-J") {
     information.region = Region::NTSCJ;
@@ -57,6 +55,7 @@ auto System::load(Node::Object from) -> void {
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   display.load(node, from);
+  controls.load(node, from);
 }
 
 auto System::unload() -> void {
@@ -79,6 +78,7 @@ auto System::power(bool reset) -> void {
   video.reset(interface);
   display.screen = video.createScreen(display.node, 256, 240);
   audio.reset(interface);
+  random.entropy(Random::Entropy::Low);
 
   scheduler.reset();
   cartridge.power();
