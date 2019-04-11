@@ -23,7 +23,6 @@ struct SettingsMenu : Menu {
   MenuCheckItem muteAudio{this};
   MenuSeparator showSeparator{this};
   MenuCheckItem showComponents{this};
-  MenuCheckItem showHacks{this};
 };
 
 struct ToolsMenu : Menu {

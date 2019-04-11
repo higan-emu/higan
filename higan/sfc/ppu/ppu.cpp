@@ -11,24 +11,6 @@ PPU ppu;
 #include "serialization.cpp"
 #include "counter/serialization.cpp"
 
-PPU::PPU() :
-bg1(Background::ID::BG1),
-bg2(Background::ID::BG2),
-bg3(Background::ID::BG3),
-bg4(Background::ID::BG4) {
-  output = new uint32[512 * 512];
-  output += 16 * 512;  //overscan offset
-}
-
-PPU::~PPU() {
-  if(hacks.ppu.fast && hacks.ppu.fast->latch()) {
-    setHandle(nullptr);
-  }
-
-  output -= 16 * 512;
-  delete[] output;
-}
-
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
   parent->append(node = Node::Component::create("PPU"));
   from = Node::load(node, from);
@@ -44,13 +26,17 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   node->append(vramSize = Node::Natural::create("VRAM", 64_KiB));
   vramSize->allowedValues = {64_KiB, 128_KiB};
   Node::load(vramSize, from);
+
+  output = new uint32[512 * 512];
+  output += 16 * 512;  //overscan offset
+}
+
+auto PPU::unload() -> void {
+  output -= 16 * 512;
+  delete[] output;
 }
 
 auto PPU::map() -> void {
-  if(hacks.ppu.fast->latch()) {
-    return ppufast.map();
-  }
-
   function<auto (uint24, uint8) -> uint8> reader{&PPU::readIO, this};
   function<auto (uint24, uint8) -> void> writer{&PPU::writeIO, this};
   bus.map(reader, writer, "00-3f,80-bf:2100-213f");
@@ -64,7 +50,7 @@ auto PPU::main() -> void {
   bg3.begin();
   bg4.begin();
 
-  if(vcounter() <= 239) {
+  if(vcounter() < vdisp()) {
     for(int pixel = -7; pixel <= 255; pixel++) {
       bg1.run(1);
       bg2.run(1);
@@ -102,11 +88,6 @@ auto PPU::step(uint clocks) -> void {
 }
 
 auto PPU::power(bool reset) -> void {
-  if(hacks.ppu.fast->latch()) {
-    ppufast.power(reset);
-    return setHandle(ppufast.handle());
-  }
-
   create(system.cpuFrequency(), [&] {
     while(true) scheduler.synchronize(), main();
   });
@@ -240,10 +221,6 @@ auto PPU::scanline() -> void {
 }
 
 auto PPU::refresh() -> void {
-  if(hacks.ppu.fast->latch()) {
-    return ppufast.refresh();
-  }
-
   auto output = this->output;
   if(!overscan()) output -= 14 * 512;
   auto pitch = 512;

@@ -16,10 +16,13 @@ auto Cartridge::saveCartridge(Markup::Node node) -> void {
 //
 
 auto Cartridge::saveMemory(Memory& ram, Markup::Node node) -> void {
-  if(auto memory = game.memory(node)) {
-    if(memory->type == "RAM" && !memory->nonVolatile) return;
-    if(memory->type == "RTC" && !memory->nonVolatile) return;
-    if(auto fp = platform->open(Cartridge::node, memory->name(), File::Write)) {
+  if(auto memory = lookupMemory(node)) {
+    if(memory["type"].text() == "RAM" && memory["volatile"]) return;
+    if(memory["type"].text() == "RTC" && memory["volatile"]) return;
+    string name{memory["content"].text(), ".", memory["type"].text()};
+    if(auto architecture = memory["architecture"].text()) name.prepend(architecture, ".");
+    name.downcase();
+    if(auto fp = platform->open(Cartridge::node, name, File::Write)) {
       fp->write(ram.data(), ram.size());
     }
   }
@@ -60,11 +63,9 @@ auto Cartridge::saveSuperFX(Markup::Node node) -> void {
 //processor(architecture=ARM6)
 auto Cartridge::saveARMDSP(Markup::Node node) -> void {
   if(auto memory = node["memory(type=RAM,content=Data,architecture=ARM6)"]) {
-    if(auto file = game.memory(memory)) {
-      if(file->nonVolatile) {
-        if(auto fp = platform->open(Cartridge::node, file->name(), File::Write)) {
-          for(auto n : range(16 * 1024)) fp->write(armdsp.programRAM[n]);
-        }
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(Cartridge::node, "arm6.data.ram", File::Write)) {
+        for(uint n : range(16 * 1024)) fp->write(armdsp.programRAM[n]);
       }
     }
   }
@@ -79,11 +80,9 @@ auto Cartridge::saveHitachiDSP(Markup::Node node) -> void {
   }
 
   if(auto memory = node["memory(type=RAM,content=Data,architecture=HG51BS169)"]) {
-    if(auto file = game.memory(memory)) {
-      if(file->nonVolatile) {
-        if(auto fp = platform->open(Cartridge::node, file->name(), File::Write)) {
-          for(auto n : range(3 * 1024)) fp->write(hitachidsp.dataRAM[n]);
-        }
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(Cartridge::node, "hg51bs169.data.ram", File::Write)) {
+        for(uint n : range(3 * 1024)) fp->write(hitachidsp.dataRAM[n]);
       }
     }
   }
@@ -92,11 +91,9 @@ auto Cartridge::saveHitachiDSP(Markup::Node node) -> void {
 //processor(architecture=uPD7725)
 auto Cartridge::saveuPD7725(Markup::Node node) -> void {
   if(auto memory = node["memory(type=RAM,content=Data,architecture=uPD7725)"]) {
-    if(auto file = game.memory(memory)) {
-      if(file->nonVolatile) {
-        if(auto fp = platform->open(Cartridge::node, file->name(), File::Write)) {
-          for(auto n : range(256)) fp->writel(necdsp.dataRAM[n], 2);
-        }
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(Cartridge::node, "upd7725.data.ram", File::Write)) {
+        for(uint n : range(256)) fp->writel(necdsp.dataRAM[n], 2);
       }
     }
   }
@@ -105,11 +102,9 @@ auto Cartridge::saveuPD7725(Markup::Node node) -> void {
 //processor(architecture=uPD96050)
 auto Cartridge::saveuPD96050(Markup::Node node) -> void {
   if(auto memory = node["memory(type=RAM,content=Data,architecture=uPD96050)"]) {
-    if(auto file = game.memory(memory)) {
-      if(file->nonVolatile) {
-        if(auto fp = platform->open(Cartridge::node, file->name(), File::Write)) {
-          for(auto n : range(2 * 1024)) fp->writel(necdsp.dataRAM[n], 2);
-        }
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(Cartridge::node, "upd96050.data.ram", File::Write)) {
+        for(uint n : range(2 * 1024)) fp->writel(necdsp.dataRAM[n], 2);
       }
     }
   }
@@ -118,13 +113,11 @@ auto Cartridge::saveuPD96050(Markup::Node node) -> void {
 //rtc(manufacturer=Epson)
 auto Cartridge::saveEpsonRTC(Markup::Node node) -> void {
   if(auto memory = node["memory(type=RTC,content=Time,manufacturer=Epson)"]) {
-    if(auto file = game.memory(memory)) {
-      if(file->nonVolatile) {
-        if(auto fp = platform->open(Cartridge::node, file->name(), File::Write)) {
-          uint8 data[16] = {0};
-          epsonrtc.save(data);
-          fp->write(data, 16);
-        }
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(Cartridge::node, "epson.time.rtc", File::Write)) {
+        uint8 data[16] = {0};
+        epsonrtc.save(data);
+        fp->write(data, 16);
       }
     }
   }
@@ -133,13 +126,11 @@ auto Cartridge::saveEpsonRTC(Markup::Node node) -> void {
 //rtc(manufacturer=Sharp)
 auto Cartridge::saveSharpRTC(Markup::Node node) -> void {
   if(auto memory = node["memory(type=RTC,content=Time,manufacturer=Sharp)"]) {
-    if(auto file = game.memory(memory)) {
-      if(file->nonVolatile) {
-        if(auto fp = platform->open(Cartridge::node, file->name(), File::Write)) {
-          uint8 data[16] = {0};
-          sharprtc.save(data);
-          fp->write(data, 16);
-        }
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(Cartridge::node, "sharp.time.rtc", File::Write)) {
+        uint8 data[16] = {0};
+        sharprtc.save(data);
+        fp->write(data, 16);
       }
     }
   }

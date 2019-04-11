@@ -19,10 +19,6 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto Cartridge::unload() -> void {
-  if(fds.present) {
-    fds.unload();
-    fds.present = 0;
-  }
   port = {};
 }
 
@@ -45,6 +41,10 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
 auto Cartridge::disconnect() -> void {
   if(!node) return;
+  if(fds.present) {
+    fds.unload();
+    fds.present = 0;
+  }
   delete board;
   board = nullptr;
   node = {};

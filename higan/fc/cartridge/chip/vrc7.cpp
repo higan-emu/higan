@@ -1,7 +1,7 @@
 //Konami VRC7
 
 struct VRC7 : YM2413, Chip {
-  DSP::IIR::OnePole onePole;
+  shared_pointer<Stream> stream;
 
   VRC7(Board& board) : Chip(board) {
   }
@@ -36,8 +36,7 @@ struct VRC7 : YM2413, Chip {
       divider = 0;
       double sample = 0.0;
       if(!disableFM) sample = YM2413::clock();
-      sample = onePole.process(sample);
-      apu.setSample(sample * 32767.0);
+      stream->sample(sample);
     }
 
     tick();
@@ -59,11 +58,7 @@ struct VRC7 : YM2413, Chip {
     case 0xd000: chrBank[6] = data; break;
     case 0xd010: chrBank[7] = data; break;
     case 0xe000:
-      if(disableFM && !data.bit(6)) {
-        YM2413::power(1);
-        double inputFrequency = system.frequency() / apu.rate() / 36.0;
-        onePole.reset(DSP::IIR::OnePole::Type::LowPass, 2280.0, inputFrequency);
-      }
+      if(disableFM && !data.bit(6)) YM2413::power(1);
       mirror = data.bits(0,1);
       disableFM = data.bit(6);
       ramWritable = data.bit(7);
@@ -118,6 +113,9 @@ struct VRC7 : YM2413, Chip {
   }
 
   auto power() -> void {
+    stream = audio.createStream(1, system.frequency() / cartridge.rate() / 36.0);
+    stream->addLowPassFilter(2280.0, Filter::Order::First);
+
     for(auto& n : prgBank) n = 0;
     for(auto& n : chrBank) n = 0;
     mirror = 0;

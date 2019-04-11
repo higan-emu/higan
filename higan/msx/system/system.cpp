@@ -29,7 +29,9 @@ auto System::load(Node::Object from) -> void {
   Node::load(regionNode, from);
   node->append(regionNode);
 
+  scheduler.reset();
   display.load(node, from);
+  keyboard.load(node, from);
   cartridge.load(node, from);
   expansion.load(node, from);
   controllerPort1.load(node, from);
@@ -56,6 +58,10 @@ auto System::power() -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
   information = {};
+  if(interface->name() == "MSX"  ) information.model = Model::MSX;
+  if(interface->name() == "MSX2" ) information.model = Model::MSX2;
+  if(interface->name() == "MSX2+") information.model = Model::MSX2Plus;
+
   if(regionNode->latch() == "NTSC") {
     information.region = Region::NTSC;
     information.colorburst = Constants::Colorburst::NTSC;
@@ -74,7 +80,7 @@ auto System::power() -> void {
   display.screen = video.createScreen(display.node, 256, 192);
   audio.reset(interface);
 
-  scheduler.reset();
+  keyboard.power();
   cartridge.power();
   expansion.power();
   cpu.power();

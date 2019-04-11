@@ -18,6 +18,8 @@ auto Settings::serialize() -> string {
   write(masterSystem);
   write(megaDrive);
   write(msx);
+  write(msx2);
+  write(msx2plus);
   write(neoGeoPocket);
   write(neoGeoPocketColor);
   write(pcEngine);
@@ -52,6 +54,8 @@ auto Settings::unserialize(const string& markup) -> void {
   read(masterSystem, string);
   read(megaDrive, string);
   read(msx, string);
+  read(msx2, string);
+  read(msx2plus, string);
   read(neoGeoPocket, string);
   read(neoGeoPocketColor, string);
   read(pcEngine, string);

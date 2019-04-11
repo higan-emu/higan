@@ -14,17 +14,15 @@ auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
 
   information = {};
   has = {};
-  game = {};
-  slotGameBoy = {};
-  slotBSMemory = {};
-  slotSufamiTurboA = {};
-  slotSufamiTurboB = {};
 
   if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
-    game.load(information.metadata = fp->reads());
+    information.metadata = fp->reads();
+    information.document = BML::unserialize(information.metadata);
+    information.region   = information.document["game/region"].text();
+    information.board    = information.document["game/board"].text();
   } else return;
 
-  loadCartridge(game.document);
+  loadCartridge(information.document);
   if(has.GameBoySlot) icd.load(node, with);
   if(has.BSMemorySlot) bsmemory.load(node, with);
   if(has.SufamiTurboSlotA) sufamiturboA.load(node, with);
@@ -88,11 +86,34 @@ auto Cartridge::power(bool reset) -> void {
 auto Cartridge::save() -> void {
   if(!node) return;
 
-  saveCartridge(game.document);
+  saveCartridge(information.document);
   if(has.GameBoySlot);  //todo
   if(has.BSMemorySlot) bsmemory.save();
   if(has.SufamiTurboSlotA) sufamiturboA.save();
   if(has.SufamiTurboSlotB) sufamiturboB.save();
+}
+
+auto Cartridge::lookupMemory(Markup::Node memory) -> Markup::Node {
+  for(auto node : information.document.find("game/board/memory")) {
+    if(memory["type"        ] && memory["type"        ].text()    != node["type"        ].text()   ) continue;
+    if(memory["size"        ] && memory["size"        ].natural() != node["size"        ].natural()) continue;
+    if(memory["content"     ] && memory["content"     ].text()    != node["content"     ].text()   ) continue;
+    if(memory["manufacturer"] && memory["manufacturer"].text()    != node["manufacturer"].text()   ) continue;
+    if(memory["architecture"] && memory["architecture"].text()    != node["architecture"].text()   ) continue;
+    if(memory["identifier"  ] && memory["identifier"  ].text()    != node["identifier"  ].text()   ) continue;
+    return node;
+  }
+  return {};
+}
+
+//note: there are currently no oscillator identifiers:
+//it's presumed that there is never more than one oscillator on the same board,
+//and so the first oscillator is returned instead for now.
+auto Cartridge::lookupOscillator() -> Markup::Node {
+  for(auto node : information.document.find("game/board/oscillator")) {
+    return node;
+  }
+  return {};
 }
 
 }

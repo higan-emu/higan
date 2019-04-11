@@ -19,13 +19,13 @@ struct Screen {
   uint15 cgram[256];
 
   struct IO {
-    bool blendMode;
-    bool directColor;
+    uint1 blendMode;
+    uint1 directColor;
 
-    bool colorMode;
-    bool colorHalve;
+    uint1 colorMode;
+    uint1 colorHalve;
     struct Layer {
-      bool colorEnable;
+      uint1 colorEnable;
     } bg1, bg2, bg3, bg4, obj, back;
 
     uint5 colorBlue;
@@ -36,11 +36,11 @@ struct Screen {
   struct Math {
     struct Screen {
       uint15 color;
-      bool colorEnable;
+       uint1 colorEnable;
     } above, below;
-    bool transparent;
-    bool blendMode;
-    bool colorHalve;
+    uint1 transparent;
+    uint1 blendMode;
+    uint1 colorHalve;
   } math;
 
   friend class PPU;

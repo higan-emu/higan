@@ -34,6 +34,7 @@ auto System::load(Node::Object from) -> void {
   node = Node::System::create(interface->name());
   node->load(from);
 
+  scheduler.reset();
   controls.load(node, from);
   display.load(node, from);
   cartridge.load(node, from);
@@ -72,7 +73,6 @@ auto System::power() -> void {
   display.screen = video.createScreen(display.node, 224, 144);
   audio.reset(interface);
 
-  scheduler.reset();
   bus.power();
   iram.power();
   eeprom.power();

@@ -9,10 +9,8 @@ struct PPU : Thread, PPUcounter {
   alwaysinline auto vdisp() const -> uint { return self.vdisp; }
 
   //ppu.cpp
-  PPU();
-  ~PPU();
-
   auto load(Node::Object parent, Node::Object from) -> void;
+  auto unload() -> void;
   auto map() -> void;
   auto main() -> void;
   auto power(bool reset) -> void;
@@ -39,57 +37,57 @@ private:
   auto writeIO(uint24 addr, uint8 data) -> void;
   auto updateVideoMode() -> void;
 
+  uint32* output = nullptr;
+
   struct VRAM {
     auto& operator[](uint addr) { return data[addr & mask]; }
     uint16 data[64 * 1024];
-    uint mask = 0x7fff;
+    uint16 mask = 0x7fff;
   } vram;
 
-  uint32* output = nullptr;
-
   struct {
-    bool interlace;
-    bool overscan;
-    uint vdisp;
+    uint1 interlace;
+    uint1 overscan;
+    uint9 vdisp;
   } self;
 
   auto scanline() -> void;
   auto refresh() -> void;
 
   struct {
-    uint version;
+    uint4 version;
     uint8 mdr;
   } ppu1, ppu2;
 
   struct Latches {
     uint16 vram;
-    uint8 oam;
-    uint8 cgram;
-    uint8 bgofsPPU1;
-    uint3 bgofsPPU2;
-    uint8 mode7;
-    uint1 counters;
-    uint1 hcounter;
-    uint1 vcounter;
+     uint8 oam;
+     uint8 cgram;
+     uint8 bgofsPPU1;
+     uint3 bgofsPPU2;
+     uint8 mode7;
+     uint1 counters;
+     uint1 hcounter;
+     uint1 vcounter;
 
     uint10 oamAddress;
-    uint8 cgramAddress;
+     uint8 cgramAddress;
   } latch;
 
   struct IO {
     //$2100  INIDISP
-    bool displayDisable;
-    uint4 displayBrightness;
+     uint1 displayDisable;
+     uint4 displayBrightness;
 
     //$2102  OAMADDL
     //$2103  OAMADDH
     uint10 oamBaseAddress;
     uint10 oamAddress;
-    bool oamPriority;
+     uint1 oamPriority;
 
     //$2105  BGMODE
-    bool bgPriority;
-    uint8 bgMode;
+     uint3 bgMode;
+     uint1 bgPriority;
 
     //$210d  BG1HOFS
     uint16 hoffsetMode7;
@@ -98,18 +96,18 @@ private:
     uint16 voffsetMode7;
 
     //$2115  VMAIN
-    bool vramIncrementMode;
-    uint2 vramMapping;
-    uint8 vramIncrementSize;
+     uint1 vramIncrementMode;
+     uint2 vramMapping;
+     uint8 vramIncrementSize;
 
     //$2116  VMADDL
     //$2117  VMADDH
     uint16 vramAddress;
 
     //$211a  M7SEL
-    uint2 repeatMode7;
-    bool vflipMode7;
-    bool hflipMode7;
+     uint2 repeatMode7;
+     uint1 vflipMode7;
+     uint1 hflipMode7;
 
     //$211b  M7A
     uint16 m7a;
@@ -130,14 +128,14 @@ private:
     uint16 m7y;
 
     //$2121  CGADD
-    uint8 cgramAddress;
-    uint1 cgramAddressLatch;
+     uint8 cgramAddress;
+     uint1 cgramAddressLatch;
 
     //$2133  SETINI
-    bool extbg;
-    bool pseudoHires;
-    bool overscan;
-    bool interlace;
+     uint1 extbg;
+     uint1 pseudoHires;
+     uint1 overscan;
+     uint1 interlace;
 
     //$213c  OPHCT
     uint16 hcounter;
@@ -151,10 +149,10 @@ private:
   #include "window.hpp"
   #include "screen.hpp"
 
-  Background bg1;
-  Background bg2;
-  Background bg3;
-  Background bg4;
+  Background bg1{Background::ID::BG1};
+  Background bg2{Background::ID::BG2};
+  Background bg3{Background::ID::BG3};
+  Background bg4{Background::ID::BG4};
   Object obj;
   Window window;
   Screen screen;

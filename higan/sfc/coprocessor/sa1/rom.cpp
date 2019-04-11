@@ -1,6 +1,4 @@
 auto SA1::ROM::conflict() const -> bool {
-  if(hacks.coprocessors.fast->latch()) return false;
-
   if((cpu.r.mar & 0x408000) == 0x008000) return true;  //00-3f,80-bf:8000-ffff
   if((cpu.r.mar & 0xc00000) == 0xc00000) return true;  //c0-ff:0000-ffff
   return false;

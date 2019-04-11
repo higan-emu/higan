@@ -13,6 +13,9 @@ struct Cartridge {
   auto power(bool reset) -> void;
   auto save() -> void;
 
+  auto lookupMemory(Markup::Node) -> Markup::Node;
+  auto lookupOscillator() -> Markup::Node;
+
   auto serialize(serializer&) -> void;
 
   ReadableMemory rom;
@@ -20,7 +23,9 @@ struct Cartridge {
 
   struct Information {
     string metadata;
+    Markup::Node document;
     string region;
+    string board;
   } information;
 
   struct Has {
@@ -47,11 +52,6 @@ struct Cartridge {
   } has;
 
 private:
-  Game game;
-  Game slotGameBoy;
-  Game slotBSMemory;
-  Game slotSufamiTurboA;
-  Game slotSufamiTurboB;
   Markup::Node board;
 
   //load.cpp

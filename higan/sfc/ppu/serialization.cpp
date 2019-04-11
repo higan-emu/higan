@@ -1,14 +1,10 @@
 auto PPU::serialize(serializer& s) -> void {
+  Thread::serialize(s);
+  PPUcounter::serialize(s);
+
   s.integer(self.interlace);
   s.integer(self.overscan);
   s.integer(self.vdisp);
-
-  if(hacks.ppu.fast->latch()) {
-    return ppufast.serialize(s);
-  }
-
-  Thread::serialize(s);
-  PPUcounter::serialize(s);
 
   s.integer(vram.mask);
   s.array(vram.data, vram.mask + 1);
@@ -39,8 +35,8 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(io.oamAddress);
   s.integer(io.oamPriority);
 
-  s.integer(io.bgPriority);
   s.integer(io.bgMode);
+  s.integer(io.bgPriority);
 
   s.integer(io.hoffsetMode7);
   s.integer(io.voffsetMode7);

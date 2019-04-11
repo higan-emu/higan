@@ -30,6 +30,7 @@ auto System::load(Node::Object from) -> void {
   node = Node::System::create(interface->name());
   node->load(from);
 
+  scheduler.reset();
   controls.load(node, from);
   display.load(node, from);
   cartridge.load(node, from);
@@ -63,7 +64,6 @@ auto System::power() -> void {
     audio.reset(interface);
   }
 
-  scheduler.reset();
   bus.power();
   cartridge.power();
   cpu.power();

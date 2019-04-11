@@ -17,6 +17,8 @@ struct Settings {
   string masterSystem      = {Path::user(), "Emulation/Master System/"};
   string megaDrive         = {Path::user(), "Emulation/Mega Drive/"};
   string msx               = {Path::user(), "Emulation/MSX/"};
+  string msx2              = {Path::user(), "Emulation/MSX2/"};
+  string msx2plus          = {Path::user(), "Emulation/MSX2+/"};
   string neoGeoPocket      = {Path::user(), "Emulation/Neo Geo Pocket/"};
   string neoGeoPocketColor = {Path::user(), "Emulation/Neo Geo Pocket Color/"};
   string pcEngine          = {Path::user(), "Emulation/PC Engine/"};

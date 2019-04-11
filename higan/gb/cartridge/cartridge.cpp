@@ -65,29 +65,29 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   accelerometer = (bool)document["game/board/accelerometer"];
   rumble = (bool)document["game/board/rumble"];
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
-    rom.size = max(0x4000, (uint)memory.size);
+  if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
+    rom.size = max(0x4000, memory["size"].natural());
     rom.data = memory::allocate<uint8>(rom.size, 0xff);
-    if(auto fp = platform->open(node, memory.name(), File::Read, File::Required)) {
+    if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
       fp->read(rom.data, min(rom.size, fp->size()));
     }
   }
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
-    ram.size = memory.size;
+  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
+    ram.size = memory["size"].natural();
     ram.data = memory::allocate<uint8>(ram.size, 0xff);
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(node, memory.name(), File::Read, File::Optional)) {
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(node, "save.ram", File::Read, File::Optional)) {
         fp->read(ram.data, min(ram.size, fp->size()));
       }
     }
   }
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
-    rtc.size = memory.size;
+  if(auto memory = document["game/board/memory(type=RTC,content=Time)"]) {
+    rtc.size = memory["size"].natural();
     rtc.data = memory::allocate<uint8>(rtc.size, 0xff);
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(node, memory.name(), File::Read, File::Optional)) {
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(node, "time.rtc", File::Read, File::Optional)) {
         fp->read(rtc.data, min(rtc.size, fp->size()));
       }
     }
@@ -114,17 +114,17 @@ auto Cartridge::save() -> void {
   if(!node) return;
   auto document = BML::unserialize(information.metadata);
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(node, memory.name(), File::Write)) {
+  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(node, "save.ram", File::Write)) {
         fp->write(ram.data, ram.size);
       }
     }
   }
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RTC,content=Time)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(node, memory.name(), File::Write)) {
+  if(auto memory = document["game/board/memory(type=RTC,content=Time)"]) {
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(node, "time.rtc", File::Write)) {
         fp->write(rtc.data, rtc.size);
       }
     }

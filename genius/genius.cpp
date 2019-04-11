@@ -5,20 +5,24 @@ using namespace nall;
 using namespace hiro;
 
 #include "genius.hpp"
-unique_pointer<ListWindow> listWindow;
-unique_pointer<GameWindow> gameWindow;
-unique_pointer<MemoryWindow> memoryWindow;
-unique_pointer<OscillatorWindow> oscillatorWindow;
+namespace Instances {
+  Instance<ListWindow> listWindow;
+  Instance<GameWindow> gameWindow;
+  Instance<MemoryWindow> memoryWindow;
+  Instance<OscillatorWindow> oscillatorWindow;
+}
+ListWindow& listWindow = Instances::listWindow();
+GameWindow& gameWindow = Instances::gameWindow();
+MemoryWindow& memoryWindow = Instances::memoryWindow();
+OscillatorWindow& oscillatorWindow = Instances::oscillatorWindow();
 
 //
 
 ListWindow::ListWindow() {
-  listWindow = this;
-
   fileMenu.setText("File");
   newAction.setText("New").onActivate([&] { newDatabase(); });
   openAction.setText("Open ...").onActivate([&] {
-    if(auto location = BrowserDialog().setParent(*this).setFilters({"*.bml"}).openFile()) {
+    if(auto location = BrowserDialog().setAlignment(*this).setFilters({"*.bml"}).openFile()) {
       loadDatabase(location);
     }
   });
@@ -27,7 +31,7 @@ ListWindow::ListWindow() {
     saveDatabase(location);
   });
   saveAsAction.setText("Save As ...").onActivate([&] {
-    if(auto location = BrowserDialog().setParent(*this).setFilters({"*.bml"}).saveFile()) {
+    if(auto location = BrowserDialog().setAlignment(*this).setFilters({"*.bml"}).saveFile()) {
       saveDatabase(location);
     }
   });
@@ -35,11 +39,14 @@ ListWindow::ListWindow() {
 
   helpMenu.setText("Help");
   aboutAction.setText("About ...").onActivate([&] {
-    MessageDialog().setParent(*this).setTitle("About").setText({
-      "genius\n",
-      "Author: byuu\n",
-      "Website: https://byuu.org/"
-    }).information();
+    AboutDialog()
+    .setName("genius")
+    .setVersion("1")
+    .setAuthor("byuu")
+    .setLicense("GPLv3")
+    .setWebsite("https://byuu.org/")
+    .setAlignment(*this)
+    .show();
   });
 
   layout.setPadding(5);
@@ -48,12 +55,12 @@ ListWindow::ListWindow() {
   gameList.onChange([&] { updateWindow(); });
   appendButton.setText("Append").onActivate([&] {
     setEnabled(false);
-    gameWindow->show();
+    gameWindow.show();
   });
   modifyButton.setText("Modify").onActivate([&] {
     if(auto item = gameList.selected()) {
       setEnabled(false);
-      gameWindow->show(games[item.offset()]);
+      gameWindow.show(games[item.offset()]);
     }
   });
   removeButton.setText("Remove").onActivate([&] { removeGame(); });
@@ -63,11 +70,11 @@ ListWindow::ListWindow() {
   setSize({820, 600});
   reloadList();
   updateWindow();
-  setCentered();
+  setAlignment(Alignment::Center);
 }
 
 auto ListWindow::quit() -> void {
-  if(!modified || MessageDialog().setParent(*this).setText({
+  if(!modified || MessageDialog().setAlignment(*this).setText({
     "Are you sure you want to quit without saving your changes?"
   }).question() == "Yes") {
     Application::quit();
@@ -149,7 +156,7 @@ auto ListWindow::loadDatabase(string location) -> void {
 
 auto ListWindow::saveDatabase(string location) -> void {
   auto fp = file::open(location, file::mode::write);
-  if(!fp) return MessageDialog().setParent(*this).setText({
+  if(!fp) return MessageDialog().setAlignment(*this).setText({
     "Error: failed to write file.\n\n",
     "Name: ", location
   }).error(), void();
@@ -230,7 +237,7 @@ auto ListWindow::modifyGame(Game game) -> void {
 
 auto ListWindow::removeGame() -> void {
   if(auto item = gameList.selected()) {
-    if(MessageDialog().setParent(*this).setText({
+    if(MessageDialog().setAlignment(*this).setText({
       "Are you sure you want to permanently remove this game?\n\n",
       "Name: ", item.cell(0).text()
     }).question() == "Yes") {
@@ -245,8 +252,6 @@ auto ListWindow::removeGame() -> void {
 //
 
 GameWindow::GameWindow() {
-  gameWindow = this;
-
   layout.setPadding(5);
   hashLabel.setText("SHA256:").setAlignment(1.0);
   hashEdit.setFont(Font().setFamily(Font::Mono)).onChange([&] { modified = true, updateWindow(); });
@@ -267,11 +272,11 @@ GameWindow::GameWindow() {
   componentTree.onChange([&] { updateWindow(); });
   appendMemoryButton.setText("Memory").onActivate([&] {
     setEnabled(false);
-    memoryWindow->show();
+    memoryWindow.show();
   });
   appendOscillatorButton.setText("Oscillator").onActivate([&] {
     setEnabled(false);
-    oscillatorWindow->show();
+    oscillatorWindow.show();
   });
   modifyComponentButton.setText("Modify").onActivate([&] {
     if(auto item = componentTree.selected()) {
@@ -280,10 +285,10 @@ GameWindow::GameWindow() {
       auto offset = path(0).natural();
       Component component = game.components[offset];
       if(component.type == Component::Type::Memory) {
-        memoryWindow->show(component.memory);
+        memoryWindow.show(component.memory);
       }
       if(component.type == Component::Type::Oscillator) {
-        oscillatorWindow->show(component.oscillator);
+        oscillatorWindow.show(component.oscillator);
       }
     }
   });
@@ -313,7 +318,7 @@ auto GameWindow::show(Game game) -> void {
 
   reloadList();
   updateWindow();
-  setCentered(*listWindow);
+  setAlignment(*listWindow);
   setVisible();
 
   if(create) {
@@ -333,19 +338,19 @@ auto GameWindow::accept() -> void {
   game.note = noteEdit.text().strip();
 
   if(create) {
-    listWindow->appendGame(game);
+    listWindow.appendGame(game);
   } else {
-    listWindow->modifyGame(game);
+    listWindow.modifyGame(game);
   }
 
-  memoryWindow->setVisible(false);
+  memoryWindow.setVisible(false);
   setVisible(false);
-  listWindow->setEnabled();
-  listWindow->setFocused();
+  listWindow.setEnabled();
+  listWindow.setFocused();
 }
 
 auto GameWindow::cancel() -> void {
-  if(!modified || MessageDialog().setParent(*this).setText({
+  if(!modified || MessageDialog().setAlignment(*this).setText({
     "Are you sure you want to discard your changes to this game?"
   }).question() == "Yes") {
     memoryWindow->setVisible(false);
@@ -431,7 +436,7 @@ auto GameWindow::modifyComponent(Component component) -> void {
 
 auto GameWindow::removeComponent() -> void {
   if(auto item = componentTree.selected()) {
-    if(MessageDialog().setParent(*this).setText({
+    if(MessageDialog().setAlignment(*this).setText({
       "Are you sure you want to permanently remove this component?"
     }).question() == "Yes") {
       modified = true;
@@ -447,8 +452,6 @@ auto GameWindow::removeComponent() -> void {
 //
 
 MemoryWindow::MemoryWindow() {
-  memoryWindow = this;
-
   layout.setPadding(5);
   typeLabel.setText("Type:").setAlignment(1.0);
   typeEdit.append(ComboEditItem().setText("ROM"));
@@ -496,7 +499,7 @@ auto MemoryWindow::show(Memory memory) -> void {
   volatileOption.setChecked(memory.Volatile);
 
   updateWindow();
-  setCentered(*gameWindow);
+  setAlignment(*gameWindow);
   setVisible();
 
   typeEdit.setFocused();
@@ -514,23 +517,23 @@ auto MemoryWindow::accept() -> void {
   Component component{Component::Type::Memory};
   component.memory = memory;
   if(create) {
-    gameWindow->appendComponent(component);
+    gameWindow.appendComponent(component);
   } else {
-    gameWindow->modifyComponent(component);
+    gameWindow.modifyComponent(component);
   }
 
   setVisible(false);
-  gameWindow->setEnabled();
-  gameWindow->setFocused();
+  gameWindow.setEnabled();
+  gameWindow.setFocused();
 }
 
 auto MemoryWindow::cancel() -> void {
-  if(!modified || MessageDialog().setParent(*this).setText({
+  if(!modified || MessageDialog().setAlignment(*this).setText({
     "Are you sure you want to discard your changes to this memory?"
   }).question() == "Yes") {
     setVisible(false);
-    gameWindow->setEnabled();
-    gameWindow->setFocused();
+    gameWindow.setEnabled();
+    gameWindow.setFocused();
   }
 }
 
@@ -550,8 +553,6 @@ auto MemoryWindow::updateWindow() -> void {
 //
 
 OscillatorWindow::OscillatorWindow() {
-  oscillatorWindow = this;
-
   layout.setPadding(5);
   frequencyLabel.setText("Frequency:").setAlignment(1.0);
   frequencyEdit.onChange([&] { modified = true, updateWindow(); });
@@ -572,7 +573,7 @@ auto OscillatorWindow::show(Oscillator oscillator) -> void {
   frequencyEdit.setText(oscillator.frequency);
 
   updateWindow();
-  setCentered(*gameWindow);
+  setAlignment(*gameWindow);
   setVisible();
 
   frequencyEdit.setFocused();
@@ -584,9 +585,9 @@ auto OscillatorWindow::accept() -> void {
   Component component{Component::Type::Oscillator};
   component.oscillator = oscillator;
   if(create) {
-    gameWindow->appendComponent(component);
+    gameWindow.appendComponent(component);
   } else {
-    gameWindow->modifyComponent(component);
+    gameWindow.modifyComponent(component);
   }
 
   setVisible(false);
@@ -595,7 +596,7 @@ auto OscillatorWindow::accept() -> void {
 }
 
 auto OscillatorWindow::cancel() -> void {
-  if(!modified || MessageDialog().setParent(*this).setText({
+  if(!modified || MessageDialog().setAlignment(*this).setText({
     "Are you sure you want to discard your changes to this property?"
   }).question() == "Yes") {
     setVisible(false);
@@ -613,17 +614,15 @@ auto OscillatorWindow::updateWindow() -> void {
 
 //
 
-auto hiro::initialize() -> void {
-  Application::setName("genius");
-}
-
 #include <nall/main.hpp>
 auto nall::main(Arguments) -> void {
-  new ListWindow;
-  new GameWindow;
-  new MemoryWindow;
-  new OscillatorWindow;
+  Application::setName("genius");
 
-  listWindow->setVisible();
+  Instances::listWindow.construct();
+  Instances::gameWindow.construct();
+  Instances::memoryWindow.construct();
+  Instances::oscillatorWindow.construct();
+
+  listWindow.setVisible();
   Application::run();
 }

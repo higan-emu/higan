@@ -12,6 +12,8 @@ SystemSelection::SystemSelection(View* view) : Panel(view, Size{140_sx, ~0}) {
   systemList.append(ListViewItem().setText("Master System"));
   systemList.append(ListViewItem().setText("Mega Drive"));
   systemList.append(ListViewItem().setText("MSX"));
+  systemList.append(ListViewItem().setText("MSX2"));
+  systemList.append(ListViewItem().setText("MSX2+"));
   systemList.append(ListViewItem().setText("Neo Geo Pocket"));
   systemList.append(ListViewItem().setText("Neo Geo Pocket Color"));
   systemList.append(ListViewItem().setText("PC Engine"));

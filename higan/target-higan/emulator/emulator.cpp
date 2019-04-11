@@ -23,6 +23,11 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
     configuration = higan::Node::serialize(system);
   }
 
+  //peripherals may have been renamed or deleted since last run; remove them from the configuration now
+  auto document = BML::unserialize(configuration);
+  for(auto node : document) validateConfiguration(node, document);
+  configuration = BML::serialize(document);
+
   interface->load(configuration);
   root = interface->root();
 
@@ -122,4 +127,14 @@ auto Emulator::connected(string location) -> higan::Node::Port {
     if(location == peripheral->property("location")) return peripheral->parent.acquire();
   }
   return {};
+}
+
+auto Emulator::validateConfiguration(Markup::Node node, Markup::Node parent) -> void {
+  for(auto property : node.find("property")) {
+    if(property["name"].text() != "location") continue;
+    auto location = property["value"].text();
+    //if the peripheral is missing, remove it from the tree
+    if(!directory::exists(location)) parent.remove(node);
+  }
+  for(auto branch : node) validateConfiguration(branch, node);
 }

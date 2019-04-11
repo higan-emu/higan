@@ -27,10 +27,10 @@ auto Cartridge::loadBoard(string board) -> Markup::Node {
 
 auto Cartridge::loadCartridge(Markup::Node node) -> void {
   board = node["board"];
-  if(!board) board = loadBoard(game.board);
+  if(!board) board = loadBoard(information.board);
 
   if(region() == "Auto") {
-    auto region = game.region;
+    auto region = information.region;
     if(region.endsWith("BRA")
     || region.endsWith("CAN")
     || region.endsWith("HKG")
@@ -40,7 +40,8 @@ auto Cartridge::loadCartridge(Markup::Node node) -> void {
     || region.endsWith("ROC")
     || region.endsWith("USA")
     || region.beginsWith("SHVC-")
-    || region == "NTSC") {
+    || region == "NTSC"
+    ) {
       information.region = "NTSC";
     } else {
       information.region = "PAL";
@@ -60,7 +61,7 @@ auto Cartridge::loadCartridge(Markup::Node node) -> void {
   if(auto node = board["processor(architecture=W65C816S)"]) loadSA1(node);
   if(auto node = board["processor(architecture=GSU)"]) loadSuperFX(node);
   if(auto node = board["processor(architecture=ARM6)"]) loadARMDSP(node);
-  if(auto node = board["processor(architecture=HG51BS169)"]) loadHitachiDSP(node, game.board.match("2DC*") ? 2 : 1);
+  if(auto node = board["processor(architecture=HG51BS169)"]) loadHitachiDSP(node, information.board.match("2DC*") ? 2 : 1);
   if(auto node = board["processor(architecture=uPD7725)"]) loaduPD7725(node);
   if(auto node = board["processor(architecture=uPD96050)"]) loaduPD96050(node);
   if(auto node = board["rtc(manufacturer=Epson)"]) loadEpsonRTC(node);
@@ -75,11 +76,14 @@ auto Cartridge::loadCartridge(Markup::Node node) -> void {
 //
 
 auto Cartridge::loadMemory(Memory& ram, Markup::Node node, bool required) -> void {
-  if(auto memory = game.memory(node)) {
-    ram.allocate(memory->size);
-    if(memory->type == "RAM" && !memory->nonVolatile) return;
-    if(memory->type == "RTC" && !memory->nonVolatile) return;
-    if(auto fp = platform->open(Cartridge::node, memory->name(), File::Read, required)) {
+  if(auto memory = lookupMemory(node)) {
+    ram.allocate(memory["size"].natural());
+    if(memory["type"].text() == "RAM" && memory["volatile"]) return;
+    if(memory["type"].text() == "RTC" && memory["volatile"]) return;
+    string name{memory["content"].text(), ".", memory["type"].text()};
+    if(auto architecture = memory["architecture"].text()) name.prepend(architecture, ".");
+    name.downcase();
+    if(auto fp = platform->open(Cartridge::node, name, File::Read, required)) {
       fp->read(ram.data(), min(fp->size(), ram.size()));
     }
   }
@@ -126,8 +130,8 @@ auto Cartridge::loadICD(Markup::Node node) -> void {
   has.ICD = true;
 
   icd.Revision = node["revision"].natural();
-  if(auto oscillator = game.oscillator()) {
-    icd.Frequency = oscillator->frequency;
+  if(auto oscillator = lookupOscillator()) {
+    icd.Frequency = oscillator["frequency"].natural();
   } else {
     icd.Frequency = 0;
   }
@@ -276,8 +280,8 @@ auto Cartridge::loadSA1(Markup::Node node) -> void {
 auto Cartridge::loadSuperFX(Markup::Node node) -> void {
   has.SuperFX = true;
 
-  if(auto oscillator = game.oscillator()) {
-    superfx.Frequency = oscillator->frequency;  //GSU-1, GSU-2
+  if(auto oscillator = lookupOscillator()) {
+    superfx.Frequency = oscillator["frequency"].natural();  //GSU-1, GSU-2
   } else {
     superfx.Frequency = system.cpuFrequency();  //MARIO CHIP 1
   }
@@ -309,8 +313,8 @@ auto Cartridge::loadARMDSP(Markup::Node node) -> void {
   for(auto& word : armdsp.dataROM) word = 0x00;
   for(auto& word : armdsp.programRAM) word = 0x00;
 
-  if(auto oscillator = game.oscillator()) {
-    armdsp.Frequency = oscillator->frequency;
+  if(auto oscillator = lookupOscillator()) {
+    armdsp.Frequency = oscillator["frequency"].natural();
   } else {
     armdsp.Frequency = 21'440'000;
   }
@@ -320,26 +324,20 @@ auto Cartridge::loadARMDSP(Markup::Node node) -> void {
   }
 
   if(auto memory = node["memory(type=ROM,content=Program,architecture=ARM6)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read, File::Required)) {
-        for(auto n : range(128 * 1024)) armdsp.programROM[n] = fp->read();
-      }
+    if(auto fp = platform->open(Cartridge::node, "arm6.program.rom", File::Read, File::Required)) {
+      for(uint n : range(128 * 1024)) armdsp.programROM[n] = fp->read();
     }
   }
 
   if(auto memory = node["memory(type=ROM,content=Data,architecture=ARM6)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read, File::Required)) {
-        for(auto n : range(32 * 1024)) armdsp.dataROM[n] = fp->read();
-      }
+    if(auto fp = platform->open(Cartridge::node, "arm6.data.rom", File::Read, File::Required)) {
+      for(uint n : range(32 * 1024)) armdsp.dataROM[n] = fp->read();
     }
   }
 
   if(auto memory = node["memory(type=RAM,content=Data,architecture=ARM6)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read)) {
-        for(auto n : range(16 * 1024)) armdsp.programRAM[n] = fp->read();
-      }
+    if(auto fp = platform->open(Cartridge::node, "arm6.data.ram", File::Read)) {
+      for(uint n : range(16 * 1024)) armdsp.programRAM[n] = fp->read();
     }
   }
 }
@@ -351,8 +349,8 @@ auto Cartridge::loadHitachiDSP(Markup::Node node, uint roms) -> void {
   for(auto& word : hitachidsp.dataROM) word = 0x000000;
   for(auto& word : hitachidsp.dataRAM) word = 0x00;
 
-  if(auto oscillator = game.oscillator()) {
-    hitachidsp.Frequency = oscillator->frequency;
+  if(auto oscillator = lookupOscillator()) {
+    hitachidsp.Frequency = oscillator["frequency"].natural();
   } else {
     hitachidsp.Frequency = 20'000'000;
   }
@@ -378,18 +376,14 @@ auto Cartridge::loadHitachiDSP(Markup::Node node, uint roms) -> void {
   }
 
   if(auto memory = node["memory(type=ROM,content=Data,architecture=HG51BS169)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read, File::Required)) {
-        for(auto n : range(1 * 1024)) hitachidsp.dataROM[n] = fp->readl(3);
-      }
+    if(auto fp = platform->open(Cartridge::node, "hg51bs169.data.rom", File::Read, File::Required)) {
+      for(uint n : range(1 * 1024)) hitachidsp.dataROM[n] = fp->readl(3);
     }
   }
 
   if(auto memory = node["memory(type=RAM,content=Data,architecture=HG51BS169)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read)) {
-        for(auto n : range(3 * 1024)) hitachidsp.dataRAM[n] = fp->readl(1);
-      }
+    if(auto fp = platform->open(Cartridge::node, "hg51bs169.data.ram", File::Read)) {
+      for(uint n : range(3 * 1024)) hitachidsp.dataRAM[n] = fp->readl(1);
     }
     for(auto map : memory.find("map")) {
       loadMap(map, {&HitachiDSP::readDRAM, &hitachidsp}, {&HitachiDSP::writeDRAM, &hitachidsp});
@@ -406,8 +400,8 @@ auto Cartridge::loaduPD7725(Markup::Node node) -> void {
   for(auto& word : necdsp.dataROM) word = 0x0000;
   for(auto& word : necdsp.dataRAM) word = 0x0000;
 
-  if(auto oscillator = game.oscillator()) {
-    necdsp.Frequency = oscillator->frequency;
+  if(auto oscillator = lookupOscillator()) {
+    necdsp.Frequency = oscillator["frequency"].natural();
   } else {
     necdsp.Frequency = 7'600'000;
   }
@@ -417,26 +411,20 @@ auto Cartridge::loaduPD7725(Markup::Node node) -> void {
   }
 
   if(auto memory = node["memory(type=ROM,content=Program,architecture=uPD7725)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read, File::Required)) {
-        for(auto n : range(2048)) necdsp.programROM[n] = fp->readl(3);
-      }
+    if(auto fp = platform->open(Cartridge::node, "upd7725.program.rom", File::Read, File::Required)) {
+      for(uint n : range(2048)) necdsp.programROM[n] = fp->readl(3);
     }
   }
 
   if(auto memory = node["memory(type=ROM,content=Data,architecture=uPD7725)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read, File::Required)) {
-        for(auto n : range(1024)) necdsp.dataROM[n] = fp->readl(2);
-      }
+    if(auto fp = platform->open(Cartridge::node, "upd7725.data.rom", File::Read, File::Required)) {
+      for(uint n : range(1024)) necdsp.dataROM[n] = fp->readl(2);
     }
   }
 
   if(auto memory = node["memory(type=RAM,content=Data,architecture=uPD7725)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read)) {
-        for(auto n : range(256)) necdsp.dataRAM[n] = fp->readl(2);
-      }
+    if(auto fp = platform->open(Cartridge::node, "upd7725.data.ram", File::Read)) {
+      for(uint n : range(256)) necdsp.dataRAM[n] = fp->readl(2);
     }
     for(auto map : memory.find("map")) {
       loadMap(map, {&NECDSP::readRAM, &necdsp}, {&NECDSP::writeRAM, &necdsp});
@@ -453,8 +441,8 @@ auto Cartridge::loaduPD96050(Markup::Node node) -> void {
   for(auto& word : necdsp.dataROM) word = 0x0000;
   for(auto& word : necdsp.dataRAM) word = 0x0000;
 
-  if(auto oscillator = game.oscillator()) {
-    necdsp.Frequency = oscillator->frequency;
+  if(auto oscillator = lookupOscillator()) {
+    necdsp.Frequency = oscillator["frequency"].natural();
   } else {
     necdsp.Frequency = 11'000'000;
   }
@@ -464,26 +452,20 @@ auto Cartridge::loaduPD96050(Markup::Node node) -> void {
   }
 
   if(auto memory = node["memory(type=ROM,content=Program,architecture=uPD96050)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read, File::Required)) {
-        for(auto n : range(16384)) necdsp.programROM[n] = fp->readl(3);
-      }
+    if(auto fp = platform->open(Cartridge::node, "upd96050.program.rom", File::Read, File::Required)) {
+      for(uint n : range(16384)) necdsp.programROM[n] = fp->readl(3);
     }
   }
 
   if(auto memory = node["memory(type=ROM,content=Data,architecture=uPD96050)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read, File::Required)) {
-        for(auto n : range(2048)) necdsp.dataROM[n] = fp->readl(2);
-      }
+    if(auto fp = platform->open(Cartridge::node, "upd96050.data.rom", File::Read, File::Required)) {
+      for(uint n : range(2048)) necdsp.dataROM[n] = fp->readl(2);
     }
   }
 
   if(auto memory = node["memory(type=RAM,content=Data,architecture=uPD96050)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read)) {
-        for(auto n : range(2048)) necdsp.dataRAM[n] = fp->readl(2);
-      }
+    if(auto fp = platform->open(Cartridge::node, "upd96050.data.ram", File::Read)) {
+      for(uint n : range(2048)) necdsp.dataRAM[n] = fp->readl(2);
     }
     for(auto map : memory.find("map")) {
       loadMap(map, {&NECDSP::readRAM, &necdsp}, {&NECDSP::writeRAM, &necdsp});
@@ -502,12 +484,10 @@ auto Cartridge::loadEpsonRTC(Markup::Node node) -> void {
   }
 
   if(auto memory = node["memory(type=RTC,content=Time,manufacturer=Epson)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read)) {
-        uint8 data[16] = {0};
-        for(auto& byte : data) byte = fp->read();
-        epsonrtc.load(data);
-      }
+    if(auto fp = platform->open(Cartridge::node, "epson.time.rtc", File::Read)) {
+      uint8 data[16] = {0};
+      for(auto& byte : data) byte = fp->read();
+      epsonrtc.load(data);
     }
   }
 }
@@ -523,12 +503,10 @@ auto Cartridge::loadSharpRTC(Markup::Node node) -> void {
   }
 
   if(auto memory = node["memory(type=RTC,content=Time,manufacturer=Sharp)"]) {
-    if(auto file = game.memory(memory)) {
-      if(auto fp = platform->open(Cartridge::node, file->name(), File::Read)) {
-        uint8 data[16] = {0};
-        for(auto& byte : data) byte = fp->read();
-        sharprtc.load(data);
-      }
+    if(auto fp = platform->open(Cartridge::node, "sharp.time.rtc", File::Read)) {
+      uint8 data[16] = {0};
+      for(auto& byte : data) byte = fp->read();
+      sharprtc.load(data);
     }
   }
 }

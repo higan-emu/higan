@@ -38,6 +38,7 @@ auto System::load(Node::Object from) -> void {
   Node::load(regionNode, from);
   node->append(regionNode);
 
+  scheduler.reset();
   controls.load(node, from);
   display.load(node, from);
   cartridge.load(node, from);
@@ -80,7 +81,6 @@ auto System::power() -> void {
   display.screen = video.createScreen(display.node, display.node->width, display.node->height);
   audio.reset(interface);
 
-  scheduler.reset();
   cartridge.power();
   cpu.power();
   vdp.power();

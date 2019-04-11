@@ -49,6 +49,7 @@ auto CPU::in(uint16 address) -> uint8 {
                   | io.slot[1] << 2
                   | io.slot[2] << 4
                   | io.slot[3] << 6;
+  case 0xa9: return keyboard.read();
   }
   return 0xff;
 }
@@ -64,5 +65,6 @@ auto CPU::out(uint16 address, uint8 data) -> void {
              io.slot[2] = data.bits(4,5);
              io.slot[3] = data.bits(6,7);
              break;
+  case 0xaa: return keyboard.write(data.bits(0,3));
   }
 }

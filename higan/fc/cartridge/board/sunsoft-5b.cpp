@@ -1,6 +1,8 @@
 //SUNSOFT-5B
 
 struct Sunsoft5B : YM2149, Board {
+  shared_pointer<Stream> stream;
+
   Sunsoft5B(Markup::Node& document) : Board(document) {
   }
 
@@ -17,7 +19,7 @@ struct Sunsoft5B : YM2149, Board {
       output += volume[channels[0]];
       output += volume[channels[1]];
       output += volume[channels[2]];
-      apu.setSample(output * 32767.0);
+      stream->sample(output);
     }
 
     tick();
@@ -115,6 +117,7 @@ struct Sunsoft5B : YM2149, Board {
 
   auto power() -> void {
     YM2149::power();
+    stream = audio.createStream(1, system.frequency() / cartridge.rate() / 16.0);
 
     port = 0;
     for(auto& n : prgBank) n = 0;

@@ -172,18 +172,12 @@ auto DSP::main() -> void {
 }
 
 auto DSP::tick() -> void {
-  if(!hacks.dsp.fast->latch()) {
-    step(3 * 8);
-    synchronize(smp);
-  }
+  step(3 * 8);
+  synchronize(smp);
 }
 
 auto DSP::sample(int16 left, int16 right) -> void {
   stream->sample(left / 32767.0, right / 32767.0);
-  if(hacks.dsp.fast->latch()) {
-    step(32 * 3 * 8);
-    synchronize(smp);
-  }
 }
 
 auto DSP::power(bool reset) -> void {

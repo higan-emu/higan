@@ -31,6 +31,7 @@ auto System::load(Node::Object from) -> void {
   node = Node::System::create(interface->name());
   node->load(from);
 
+  scheduler.reset();
   controls.load(node, from);
   display.load(node, from);
   cartridge.load(node, from);
@@ -61,7 +62,6 @@ auto System::power() -> void {
   display.screen = video.createScreen(display.node, 240, 160);
   audio.reset(interface);
 
-  scheduler.reset();
   bus.power();
   player.power();
   cpu.power();

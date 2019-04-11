@@ -37,7 +37,6 @@ namespace higan::MSX {
     inline static auto MSX() -> bool;
     inline static auto MSX2() -> bool;
     inline static auto MSX2Plus() -> bool;
-    inline static auto MSXTurboR() -> bool;
   };
 
   struct Region {
@@ -46,6 +45,7 @@ namespace higan::MSX {
   };
 
   #include <msx/system/system.hpp>
+  #include <msx/keyboard/keyboard.hpp>
   #include <msx/cartridge/cartridge.hpp>
   #include <msx/controller/controller.hpp>
 

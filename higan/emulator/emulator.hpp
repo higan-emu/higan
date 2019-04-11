@@ -28,7 +28,6 @@ using namespace nall;
 #include <emulator/node/node.hpp>
 #include <emulator/platform.hpp>
 #include <emulator/interface.hpp>
-#include <emulator/game.hpp>
 #include <emulator/memory/readable.hpp>
 #include <emulator/memory/writable.hpp>
 #include <emulator/audio/audio.hpp>
@@ -37,7 +36,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.131";
+  static const string Version = "106.132";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org/";
@@ -54,7 +53,7 @@ namespace higan {
 
   //nall/vfs shorthand constants for open(), load()
   namespace File {
-    static const auto Read = vfs::file::mode::read;
+    static const auto Read  = vfs::file::mode::read;
     static const auto Write = vfs::file::mode::write;
     static const auto Optional = false;
     static const auto Required = true;

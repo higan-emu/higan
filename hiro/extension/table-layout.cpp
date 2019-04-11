@@ -161,7 +161,7 @@ auto mTableLayout::setFont(const Font& font) -> type& {
 }
 
 auto mTableLayout::setGeometry(Geometry requestedGeometry) -> type& {
-  if(!visible(true)) return mSizable::setGeometry(requestedGeometry), *this;
+//if(!visible(true)) return mSizable::setGeometry(requestedGeometry), *this;
 
   auto geometry = requestedGeometry;
   geometry.setX(geometry.x() + padding().x());

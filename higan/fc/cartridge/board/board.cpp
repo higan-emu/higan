@@ -24,33 +24,33 @@ Board::Board(Markup::Node& document) {
   cartridge.board = this;
   information.type = document["game/board"].text();
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Program)"]}) {
-    if(prgrom.size = memory.size) prgrom.data = new uint8_t[prgrom.size]();
-    if(auto fp = platform->open(cartridge.node, memory.name(), File::Read, File::Required)) {
+  if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
+    if(prgrom.size = memory["size"].natural()) prgrom.data = new uint8_t[prgrom.size]();
+    if(auto fp = platform->open(cartridge.node, "program.rom", File::Read, File::Required)) {
       fp->read(prgrom.data, min(prgrom.size, fp->size()));
     }
   }
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
-    if(prgram.size = memory.size) prgram.data = new uint8_t[prgram.size](), prgram.writable = true;
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.node, memory.name(), File::Read)) {
+  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
+    if(prgram.size = memory["size"].natural()) prgram.data = new uint8_t[prgram.size](), prgram.writable = true;
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(cartridge.node, "save.ram", File::Read)) {
         fp->read(prgram.data, min(prgram.size, fp->size()));
       }
     }
   }
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=ROM,content=Character)"]}) {
-    if(chrrom.size = memory.size) chrrom.data = new uint8_t[chrrom.size]();
-    if(auto fp = platform->open(cartridge.node, memory.name(), File::Read, File::Required)) {
+  if(auto memory = document["game/board/memory(type=ROM,content=Character)"]) {
+    if(chrrom.size = memory["size"].natural()) chrrom.data = new uint8_t[chrrom.size]();
+    if(auto fp = platform->open(cartridge.node, "character.rom", File::Read, File::Required)) {
       fp->read(chrrom.data, min(chrrom.size, fp->size()));
     }
   }
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
-    if(chrram.size = memory.size) chrram.data = new uint8_t[chrram.size](), chrram.writable = true;
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.node, memory.name(), File::Read)) {
+  if(auto memory = document["game/board/memory(type=RAM,content=Character)"]) {
+    if(chrram.size = memory["size"].natural()) chrram.data = new uint8_t[chrram.size](), chrram.writable = true;
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(cartridge.node, "character.ram", File::Read)) {
         fp->read(chrram.data, min(chrram.size, fp->size()));
       }
     }
@@ -60,17 +60,17 @@ Board::Board(Markup::Node& document) {
 auto Board::save() -> void {
   auto document = BML::unserialize(cartridge.metadata());
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Save)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.node, memory.name(), File::Write)) {
+  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(cartridge.node, "save.ram", File::Write)) {
         fp->write(prgram.data, prgram.size);
       }
     }
   }
 
-  if(auto memory = Game::Memory{document["game/board/memory(type=RAM,content=Character)"]}) {
-    if(memory.nonVolatile) {
-      if(auto fp = platform->open(cartridge.node, memory.name(), File::Write)) {
+  if(auto memory = document["game/board/memory(type=RAM,content=Character)"]) {
+    if(!memory["volatile"]) {
+      if(auto fp = platform->open(cartridge.node, "character.ram", File::Write)) {
         fp->write(chrram.data, chrram.size);
       }
     }

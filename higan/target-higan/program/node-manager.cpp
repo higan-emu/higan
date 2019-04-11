@@ -46,7 +46,6 @@ auto NodeManager::refresh() -> void {
 auto NodeManager::refresh(higan::Node::Object node, uint depth) -> void {
   if(node->is<higan::Node::Input>()) return;
   if(node->is<higan::Node::Component>() && !settingsMenu.showComponents.checked()) return;
-  if(node->is<higan::Node::Settings>() && node->name == "Hacks" && !settingsMenu.showHacks.checked()) return;
 
   ListViewItem item{&nodeList};
   item.setProperty<higan::Node::Object>("node", node);

@@ -8,7 +8,6 @@ auto APU::serialize(serializer& s) -> void {
   frame.serialize(s);
 
   s.integer(enabledChannels);
-  s.integer(cartridgeSample);
 }
 
 auto APU::Envelope::serialize(serializer& s) -> void {

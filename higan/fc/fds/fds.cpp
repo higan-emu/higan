@@ -143,6 +143,7 @@ auto FDS::power() -> void {
   drive = {};  //clears drive.changing; no need to wait after power-on
   timer = {};
   audio = {};
+  audio.power();
 }
 
 auto FDS::read(uint16 address, uint8 data) -> uint8 {

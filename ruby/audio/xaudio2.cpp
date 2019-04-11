@@ -55,9 +55,9 @@ struct AudioXAudio2 : AudioDriver, public IXAudio2VoiceCallback {
   auto level() -> double override {
     XAUDIO2_VOICE_STATE state{};
     self.sourceVoice->GetState(&state);
-    uint level = state.BuffersQueued * self.period - state.SamplesPlayed % self.period;
+    uint level = state.BuffersQueued * self.period + buffers[self.index].size() - state.SamplesPlayed % self.period;
     uint limit = Buffers * self.period;
-    return (double)(limit - level) / limit;
+    return (double)level / limit;
   }
 
   auto output(const double samples[]) -> void override {

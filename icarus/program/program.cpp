@@ -54,7 +54,7 @@ ProgramWindow::ProgramWindow() {
 
   onClose(&Application::quit);
   setTitle({"icarus v", icarus::Version});
-  setSize({720_sx, 430_sy});
+  setSize({720_sx, 470_sy});
   setAlignment(Alignment::Center);
   setVisible();
 

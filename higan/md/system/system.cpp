@@ -44,6 +44,7 @@ auto System::load(Node::Object from) -> void {
   Node::load(resetButton, from);
   node->append(resetButton);
 
+  scheduler.reset();
   display.load(node, from);
   cartridge.load(node, from);
   controllerPort1.load(node, from);
@@ -88,7 +89,6 @@ auto System::power(bool reset) -> void {
   audio.reset(interface);
   random.entropy(Random::Entropy::Low);
 
-  scheduler.reset();
   cartridge.power();
   cpu.power(reset);
   apu.power(reset);

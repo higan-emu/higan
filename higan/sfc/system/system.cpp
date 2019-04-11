@@ -8,7 +8,6 @@ Random random;
 Cheat cheat;
 #include "display.cpp"
 #include "speakers.cpp"
-#include "hacks.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -55,7 +54,7 @@ auto System::load(Node::Object from) -> void {
     information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
   }
 
-  hacks.load(node, from);
+  scheduler.reset();
   bus.reset();
   cartridgePort.load(node, from);
   controllerPort1.load(node, from);
@@ -74,6 +73,7 @@ auto System::unload() -> void {
   controllerPort1.port.reset();
   controllerPort2.port.reset();
   expansionPort.port.reset();
+  ppu.unload();
   node.reset();
 }
 
@@ -90,7 +90,6 @@ auto System::power(bool reset) -> void {
   audio.reset(interface);
   random.entropy(Random::Entropy::Low);
 
-  scheduler.reset();
   cpu.power(reset);
   smp.power(reset);
   dsp.power(reset);

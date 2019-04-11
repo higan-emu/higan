@@ -1,8 +1,11 @@
 struct FDSAudio {
+  shared_pointer<Stream> stream;
+
   auto clock() -> void;
   auto updateOutput() -> void;
   auto read(uint16 address, uint8 data) -> uint8;
   auto write(uint16 address, uint8 data) -> void;
+  auto power() -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

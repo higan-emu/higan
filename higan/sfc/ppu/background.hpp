@@ -31,14 +31,14 @@ struct Background {
   struct IO {
     uint16 tiledataAddress;
     uint16 screenAddress;
-    uint2 screenSize;
-    uint1 tileSize;
+     uint2 screenSize;
+     uint1 tileSize;
 
-    uint8 mode;
-    uint8 priority[2];
+     uint8 mode;
+     uint8 priority[2];
 
-    uint1 aboveEnable;
-    uint1 belowEnable;
+     uint1 aboveEnable;
+     uint1 belowEnable;
 
     uint16 hoffset;
     uint16 voffset;
@@ -50,8 +50,8 @@ struct Background {
   } latch;
 
   struct Pixel {
-    uint8 priority;  //0 = none (transparent)
-    uint8 palette;
+     uint8 priority;  //0 = none (transparent)
+     uint8 palette;
     uint16 tile;
   } above, below;
 
@@ -62,7 +62,7 @@ struct Background {
 
   struct Mosaic {
     static uint4 size;
-    uint1 enable;
+     uint1 enable;
 
     uint16 vcounter;
     uint16 hcounter;
@@ -70,17 +70,17 @@ struct Background {
     uint16 voffset;
     uint16 hoffset;
 
-    Pixel pixel;
+    Pixel  pixel;
   } mosaic;
 
   int x;
   int y;
 
-  uint3 tileCounter;
+   uint3 tileCounter;
   uint16 tile;
-  uint8 priority;
-  uint3 paletteNumber;
-  uint8 paletteIndex;
+   uint8 priority;
+   uint3 paletteNumber;
+   uint8 paletteIndex;
   uint32 data[2];
 
   friend class PPU;

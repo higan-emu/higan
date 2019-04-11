@@ -46,10 +46,6 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
     if(systemOverview.visible()) systemOverview.refresh();
     if(nodeManager.visible()) nodeManager.refresh();
   });
-  showHacks.setText("Show Hacks").onToggle([&] {
-    if(systemOverview.visible()) systemOverview.refresh();
-    if(nodeManager.visible()) nodeManager.refresh();
-  });
 }
 
 //
@@ -84,6 +80,7 @@ HelpMenu::HelpMenu(MenuBar* parent) : Menu(parent) {
     .setAuthor(higan::Author)
     .setLicense(higan::License)
     .setWebsite(higan::Website)
-    .setAlignment(programWindow).show();
+    .setAlignment(programWindow)
+    .show();
   });
 }

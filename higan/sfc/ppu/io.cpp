@@ -1,8 +1,4 @@
 auto PPU::latchCounters() -> void {
-  if(hacks.ppu.fast->latch()) {
-    return ppufast.latchCounters();
-  }
-
   cpu.synchronize(ppu);
   io.hcounter = hdot();
   io.vcounter = vcounter();

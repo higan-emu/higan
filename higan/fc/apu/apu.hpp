@@ -9,7 +9,6 @@ struct APU : Thread {
   auto main() -> void;
   auto tick() -> void;
   auto setIRQ() -> void;
-  auto setSample(int16 sample) -> void;
 
   auto power(bool reset) -> void;
 

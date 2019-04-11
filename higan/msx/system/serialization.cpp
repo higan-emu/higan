@@ -48,6 +48,7 @@ auto System::unserialize(serializer& s) -> bool {
 
 auto System::serializeAll(serializer& s) -> void {
   system.serialize(s);
+  keyboard.serialize(s);
   cpu.serialize(s);
   vdp.serialize(s);
   psg.serialize(s);

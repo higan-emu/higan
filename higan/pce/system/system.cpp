@@ -30,6 +30,7 @@ auto System::load(Node::Object from) -> void {
   node = Node::System::create(interface->name());
   node->load(from);
 
+  scheduler.reset();
   display.load(node, from);
   cartridge.load(node, from);
   controllerPort.load(node, from);
@@ -55,7 +56,6 @@ auto System::power() -> void {
   display.screen = video.createScreen(display.node, 1120, 240);
   audio.reset(interface);
 
-  scheduler.reset();
   cartridge.power();
   cpu.power();
   vce.power();

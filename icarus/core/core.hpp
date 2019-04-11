@@ -91,6 +91,16 @@ struct Icarus {
   auto msxManifest(vector<uint8_t>& buffer, string location) -> string;
   auto msxImport(vector<uint8_t>& buffer, string location) -> string;
 
+  //msx2.cpp
+  auto msx2Manifest(string location) -> string;
+  auto msx2Manifest(vector<uint8_t>& buffer, string location) -> string;
+  auto msx2Import(vector<uint8_t>& buffer, string location) -> string;
+
+  //msx2+.cpp
+  auto msx2PlusManifest(string location) -> string;
+  auto msx2PlusManifest(vector<uint8_t>& buffer, string location) -> string;
+  auto msx2PlusImport(vector<uint8_t>& buffer, string location) -> string;
+
   //pocket-challenge-v2.cpp
   auto pocketChallengeV2Manifest(string location) -> string;
   auto pocketChallengeV2Manifest(vector<uint8_t>& buffer, string location) -> string;
@@ -163,6 +173,8 @@ namespace Database {
   Markup::Node MasterSystem;
   Markup::Node MegaDrive;
   Markup::Node MSX;
+  Markup::Node MSX2;
+  Markup::Node MSX2Plus;
   Markup::Node NeoGeoPocket;
   Markup::Node NeoGeoPocketColor;
   Markup::Node PCEngine;

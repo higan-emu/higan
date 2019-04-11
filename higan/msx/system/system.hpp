@@ -3,7 +3,7 @@
 struct System {
   Node::Object node;
   Node::String regionNode;
-  enum class Model : uint { MSX, MSX2, MSX2Plus, MSXTurboR };
+  enum class Model : uint { MSX, MSX2, MSX2Plus };
   enum class Region : uint { NTSC, PAL };
 
   auto model() const -> Model { return information.model; }
@@ -42,7 +42,6 @@ extern System system;
 auto Model::MSX() -> bool { return system.model() == System::Model::MSX; }
 auto Model::MSX2() -> bool { return system.model() == System::Model::MSX2; }
 auto Model::MSX2Plus() -> bool { return system.model() == System::Model::MSX2Plus; }
-auto Model::MSXTurboR() -> bool { return system.model() == System::Model::MSXTurboR; }
 
 auto Region::NTSC() -> bool { return system.region() == System::Region::NTSC; }
 auto Region::PAL() -> bool { return system.region() == System::Region::PAL; }

@@ -48,7 +48,6 @@ auto APU::main() -> void {
   int output = 0;
   output += pulseDAC[pulse_output];
   output += dmcTriangleNoiseDAC[dmc_output][triangle_output][noise_output];
-  output += cartridgeSample;
   stream->sample(sclamp<16>(output) / 32768.0);
 
   tick();
@@ -61,10 +60,6 @@ auto APU::tick() -> void {
 
 auto APU::setIRQ() -> void {
   cpu.apuLine(frame.irqPending || dmc.irqPending);
-}
-
-auto APU::setSample(int16 sample) -> void {
-  cartridgeSample = sample;
 }
 
 auto APU::power(bool reset) -> void {
@@ -89,7 +84,6 @@ auto APU::power(bool reset) -> void {
   frame.divider = 1;
 
   enabledChannels = 0;
-  cartridgeSample = 0;
 
   setIRQ();
 }

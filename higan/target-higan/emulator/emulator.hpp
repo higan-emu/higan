@@ -7,6 +7,7 @@ struct Emulator : higan::Platform {
   auto main() -> void;
   auto quit() -> void;
   auto power(bool on) -> void;
+  auto validateConfiguration(Markup::Node, Markup::Node) -> void;
 
   auto connected(string location) -> higan::Node::Port;
 

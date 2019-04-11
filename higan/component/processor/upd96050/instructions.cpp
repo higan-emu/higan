@@ -102,16 +102,11 @@ auto uPD96050::execOP(uint24 opcode) -> void {
     case  7:    //ADC
     case  8:    //DEC
     case  9: {  //INC
-      if(alu & 1) {
-        //addition
-        flag.ov0 = (q ^ r) & ~(q ^ p) & 0x8000;
-        flag.c = r < q;
-      } else {
-        //subtraction
-        flag.ov0 = (q ^ r) &  (q ^ p) & 0x8000;
-        flag.c = r > q;
-      }
+      uint16 carries = q ^ p ^ r;
+      uint16 overflow = (q ^ r) & (p ^ (alu & 1 ? r : q));
+      flag.ov0 = overflow & 0x8000;
       flag.ov1 = flag.ov0 & flag.ov1 ? flag.s0 == flag.s1 : flag.ov0 | flag.ov1;
+      flag.c = (carries ^ overflow) & 0x8000;
       break;
     }
 

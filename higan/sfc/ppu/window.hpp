@@ -8,20 +8,20 @@ struct Window {
 
   struct IO {
     struct Layer {
-      bool oneEnable;
-      bool oneInvert;
-      bool twoEnable;
-      bool twoInvert;
+      uint1 oneEnable;
+      uint1 oneInvert;
+      uint1 twoEnable;
+      uint1 twoInvert;
       uint2 mask;
-      bool aboveEnable;
-      bool belowEnable;
+      uint1 aboveEnable;
+      uint1 belowEnable;
     } bg1, bg2, bg3, bg4, obj;
 
     struct Color {
-      bool oneEnable;
-      bool oneInvert;
-      bool twoEnable;
-      bool twoInvert;
+      uint1 oneEnable;
+      uint1 oneInvert;
+      uint1 twoEnable;
+      uint1 twoInvert;
       uint2 mask;
       uint2 aboveMask;
       uint2 belowMask;
@@ -35,7 +35,7 @@ struct Window {
 
   struct Output {
     struct Pixel {
-      bool colorEnable;
+      uint1 colorEnable;
     } above, below;
   } output;
 

@@ -4,37 +4,37 @@ namespace higan::MSX {
 
 Interface* interface = nullptr;
 
-auto MSXInterface::root() -> Node::Object {
+auto AbstractInterface::root() -> Node::Object {
   return system.node;
 }
 
-auto MSXInterface::load(string tree) -> void {
+auto AbstractInterface::load(string tree) -> void {
   interface = this;
   system.load(Node::unserialize(tree));
 }
 
-auto MSXInterface::unload() -> void {
+auto AbstractInterface::unload() -> void {
   system.unload();
 }
 
-auto MSXInterface::save() -> void {
+auto AbstractInterface::save() -> void {
   system.save();
 }
 
-auto MSXInterface::power() -> void {
+auto AbstractInterface::power() -> void {
   system.power();
 }
 
-auto MSXInterface::run() -> void {
+auto AbstractInterface::run() -> void {
   system.run();
 }
 
-auto MSXInterface::serialize() -> serializer {
+auto AbstractInterface::serialize() -> serializer {
   system.runToSave();
   return system.serialize();
 }
 
-auto MSXInterface::unserialize(serializer& s) -> bool {
+auto AbstractInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 

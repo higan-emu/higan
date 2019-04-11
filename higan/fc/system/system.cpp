@@ -51,6 +51,7 @@ auto System::load(Node::Object from) -> void {
     information.frequency = Constants::Colorburst::PAL * 6.0;
   }
 
+  scheduler.reset();
   cartridge.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
@@ -80,12 +81,10 @@ auto System::power(bool reset) -> void {
   audio.reset(interface);
   random.entropy(Random::Entropy::Low);
 
-  scheduler.reset();
   cartridge.power();
   cpu.power(reset);
   apu.power(reset);
   ppu.power(reset);
-  for(auto peripheral : cpu.peripherals) scheduler.append(*peripheral);
   scheduler.primary(cpu);
 
   serializeInit();

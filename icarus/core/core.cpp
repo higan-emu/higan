@@ -10,6 +10,8 @@ Icarus::Icarus() {
   Database::MasterSystem      = BML::unserialize(string::read(locate("Database/Master System.bml")));
   Database::MegaDrive         = BML::unserialize(string::read(locate("Database/Mega Drive.bml")));
   Database::MSX               = BML::unserialize(string::read(locate("Database/MSX.bml")));
+  Database::MSX2              = BML::unserialize(string::read(locate("Database/MSX2.bml")));
+  Database::MSX2Plus          = BML::unserialize(string::read(locate("Database/MSX2+.bml")));
   Database::NeoGeoPocket      = BML::unserialize(string::read(locate("Database/Neo Geo Pocket.bml")));
   Database::NeoGeoPocketColor = BML::unserialize(string::read(locate("Database/Neo Geo Pocket Color.bml")));
   Database::PCEngine          = BML::unserialize(string::read(locate("Database/PC Engine.bml")));
@@ -56,6 +58,8 @@ auto Icarus::manifest(string system, string location) -> string {
   if(system == "Master System"       ) return masterSystemManifest(location);
   if(system == "Mega Drive"          ) return megaDriveManifest(location);
   if(system == "MSX"                 ) return msxManifest(location);
+  if(system == "MSX2"                ) return msx2Manifest(location);
+  if(system == "MSX2+"               ) return msx2PlusManifest(location);
   if(system == "Neo Geo Pocket"      ) return neoGeoPocketManifest(location);
   if(system == "Neo Geo Pocket Color") return neoGeoPocketColorManifest(location);
   if(system == "PC Engine"           ) return pcEngineManifest(location);
@@ -107,6 +111,8 @@ auto Icarus::import(string system, string location) -> string {
   if(system == "Master System"       ) return masterSystemImport(buffer, location);
   if(system == "Mega Drive"          ) return megaDriveImport(buffer, location);
   if(system == "MSX"                 ) return msxImport(buffer, location);
+  if(system == "MSX2"                ) return msx2Import(buffer, location);
+  if(system == "MSX2+"               ) return msx2PlusImport(buffer, location);
   if(system == "Neo Geo Pocket"      ) return neoGeoPocketImport(buffer, location);
   if(system == "Neo Geo Pocket Color") return neoGeoPocketColorImport(buffer, location);
   if(system == "PC Engine"           ) return pcEngineImport(buffer, location);

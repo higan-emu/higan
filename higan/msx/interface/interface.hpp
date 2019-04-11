@@ -4,9 +4,7 @@ namespace higan::MSX {
 
 extern Interface* interface;
 
-struct MSXInterface : Interface {
-  auto name() -> string override { return "MSX"; }
-
+struct AbstractInterface : Interface {
   auto root() -> Node::Object override;
   auto load(string tree = {}) -> void override;
   auto unload() -> void override;
@@ -16,6 +14,18 @@ struct MSXInterface : Interface {
 
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
+};
+
+struct MSXInterface : AbstractInterface {
+  auto name() -> string override { return "MSX"; }
+};
+
+struct MSX2Interface : AbstractInterface {
+  auto name() -> string override { return "MSX2"; }
+};
+
+struct MSX2PlusInterface : AbstractInterface {
+  auto name() -> string override { return "MSX2+"; }
 };
 
 }

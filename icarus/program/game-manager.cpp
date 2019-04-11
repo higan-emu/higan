@@ -40,6 +40,8 @@ auto GameManager::select(string system) -> void {
   if(system == "Master System"       ) path = settings.masterSystem;
   if(system == "Mega Drive"          ) path = settings.megaDrive;
   if(system == "MSX"                 ) path = settings.msx;
+  if(system == "MSX2"                ) path = settings.msx2;
+  if(system == "MSX2+"               ) path = settings.msx2plus;
   if(system == "Neo Geo Pocket"      ) path = settings.neoGeoPocket;
   if(system == "Neo Geo Pocket Color") path = settings.neoGeoPocketColor;
   if(system == "PC Engine"           ) path = settings.pcEngine;

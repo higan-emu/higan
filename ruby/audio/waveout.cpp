@@ -29,15 +29,21 @@ struct AudioWaveOut : AudioDriver {
   }
 
   auto hasBlocking() -> bool override { return true; }
+  auto hasDynamic() -> bool override { return true; }
   auto hasFrequencies() -> vector<uint> override { return {44100}; }
   auto hasLatencies() -> vector<uint> override { return {0}; }
 
   auto setBlocking(bool blocking) -> bool override { return true; }
+  auto setDynamic(bool dynamic) -> bool override { return initialize(); }
 
   auto clear() -> void override {
     for(auto& header : headers) {
       memory::fill(header.lpData, frameCount * 4);
     }
+  }
+
+  auto level() -> double override {
+    return (double)((blockQueue * frameCount) + frameIndex) / (blockCount * frameCount);
   }
 
   auto output(const double samples[]) -> void override {
@@ -49,7 +55,10 @@ struct AudioWaveOut : AudioDriver {
 
     if(++frameIndex >= frameCount) {
       frameIndex = 0;
-      while(true) {
+      if(self.dynamic) {
+        while(waveOutWrite(handle, &headers[blockIndex], sizeof(WAVEHDR)) == WAVERR_STILLPLAYING);
+        InterlockedIncrement(&blockQueue);
+      } else while(true) {
         auto result = waveOutWrite(handle, &headers[blockIndex], sizeof(WAVEHDR));
         if(!self.blocking || result != WAVERR_STILLPLAYING) break;
         InterlockedIncrement(&blockQueue);
@@ -88,6 +97,7 @@ private:
 
     frameIndex = 0;
     blockIndex = 0;
+    blockQueue = 0;
 
     waveOutSetVolume(handle, 0xffff'ffff);  //100% volume (65535 left, 65535 right)
     waveOutRestart(handle);
@@ -109,8 +119,8 @@ private:
 
   HWAVEOUT handle = nullptr;
   vector<WAVEHDR> headers;
-  const uint frameCount = 256;
-  const uint blockCount = 8;
+  const uint frameCount = 512;
+  const uint blockCount =  32;
   uint frameIndex = 0;
   uint blockIndex = 0;
 
@@ -120,5 +130,5 @@ public:
 
 auto CALLBACK waveOutCallback(HWAVEOUT handle, UINT message, DWORD_PTR userData, DWORD_PTR, DWORD_PTR) -> void {
   auto instance = (AudioWaveOut*)userData;
-  InterlockedDecrement(&instance->blockQueue);
+  if(instance->blockQueue > 0) InterlockedDecrement(&instance->blockQueue);
 }
