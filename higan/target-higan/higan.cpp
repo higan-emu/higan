@@ -57,6 +57,10 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::ColecoVision::ColecoVisionInterface);
   #endif
 
+  #ifdef CORE_CV
+  //interfaces.append(new higan::ColecoVision::ColecoAdamInterface);
+  #endif
+
   #ifdef CORE_FC
   interfaces.append(new higan::Famicom::FamicomInterface);
   #endif

@@ -72,11 +72,47 @@ auto Cartridge::save() -> void {
 auto Cartridge::power() -> void {
 }
 
+uint2 RB;  //Cross Blaim
+uint8 B8K[4]={0,1,0,0};  //Konami 8K (non-SCC)
+
 auto Cartridge::read(uint16 address) -> uint8 {
+  if(!rom) return 0xff;
+
+/*
+if(RB==0||RB==1){
+  if(address>>14==0)return rom.read((uint14)address+16_KiB);
+  if(address>>14==1)return rom.read((uint14)address);
+  if(address>>14==2)return rom.read((uint14)address+16_KiB);
+  if(address>>14==3)return rom.read((uint14)address+16_KiB);
+}
+if(RB==2){
+  if(address>>14==0)return 0xff;
+  if(address>>14==1)return rom.read((uint14)address);
+  if(address>>14==2)return rom.read((uint14)address+32_KiB);
+  if(address>>14==3)return 0xff;
+}
+if(RB==3){
+  if(address>>14==0)return 0xff;
+  if(address>>14==1)return rom.read((uint14)address);
+  if(address>>14==2)return rom.read((uint14)address+48_KiB);
+  if(address>>14==3)return 0xff;
+}
+*/
+
+if(address>>13==2)return rom.read(B8K[0]<<13|(uint13)address);
+if(address>>13==3)return rom.read(B8K[1]<<13|(uint13)address);
+if(address>>13==4)return rom.read(B8K[2]<<13|(uint13)address);
+if(address>>13==5)return rom.read(B8K[3]<<13|(uint13)address);
+
   return rom.read(address);
 }
 
 auto Cartridge::write(uint16 address, uint8 data) -> void {
+  RB = data;
+if(address>>13==2)B8K[0]=0;
+if(address>>13==3)B8K[1]=data;
+if(address>>13==4)B8K[2]=data;
+if(address>>13==5)B8K[3]=data;
 }
 
 }

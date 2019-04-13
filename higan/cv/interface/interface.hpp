@@ -22,10 +22,10 @@ struct ColecoVisionInterface : AbstractInterface {
   auto name() -> string override { return "ColecoVision"; }
 };
 
-//note: not emulated at all yet ...
-//struct ColecoAdamInterface : AbstractInterface {
-//  auto name() -> string override { return "ColecoAdam"; }
-//};
+//not emulated
+struct ColecoAdamInterface : AbstractInterface {
+  auto name() -> string override { return "ColecoAdam"; }
+};
 
 }
 

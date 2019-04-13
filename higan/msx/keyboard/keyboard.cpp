@@ -14,7 +14,7 @@ auto Keyboard::power() -> void {
 
 auto Keyboard::read() -> uint8 {
   uint8 index = io.select << 3;
-  uint8 data;
+  uint8 data = 0xff;
   return data;
 }
 

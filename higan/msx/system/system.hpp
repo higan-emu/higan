@@ -27,6 +27,7 @@ struct System {
   auto serialize(serializer&) -> void;
 
   Memory::Readable<uint8> bios;
+  Memory::Readable<uint8> sub;
 
 private:
   struct Information {

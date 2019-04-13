@@ -14,6 +14,12 @@ struct CPU : Z80, Z80::Bus, Thread {
   auto in(uint16 address) -> uint8 override;
   auto out(uint16 address, uint8 data) -> void override;
 
+  auto readPrimarySlot() -> uint8;
+  auto writePrimarySlot(uint8 data) -> void;
+
+  auto readSecondarySlot() -> uint8;
+  auto writeSecondarySlot(uint8 data) -> void;
+
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
@@ -22,9 +28,14 @@ struct CPU : Z80, Z80::Bus, Thread {
 private:
   Memory::Writable<uint8> ram;
 
+  struct Slot {
+    uint8 memory;
+    uint2 primary;
+    uint2 secondary[4];
+  } slot[4];
+
   struct IO {
     uint1 irqLine;
-    uint2 slot[4];
   } io;
 };
 

@@ -46,6 +46,8 @@ auto System::unload() -> void {
   controllerPort1.port = {};
   controllerPort2.port = {};
   node = {};
+  bios.reset();
+  sub.reset();
 }
 
 auto System::save() -> void {
@@ -74,6 +76,13 @@ auto System::power() -> void {
   bios.allocate(32_KiB);
   if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
     bios.load(fp);
+  }
+
+  if(model() != Model::MSX) {
+    sub.allocate(16_KiB);
+    if(auto fp = platform->open(node, "sub.rom", File::Read, File::Required)) {
+      sub.load(fp);
+    }
   }
 
   video.reset(interface);
