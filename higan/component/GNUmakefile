@@ -21,6 +21,7 @@ objects += $(if $(findstring ym2149,$(components)),audio-ym2149)
 objects += $(if $(findstring ym2413,$(components)),audio-ym2413)
 
 objects += $(if $(findstring tms9918,$(components)),video-tms9918)
+objects += $(if $(findstring v9938,$(components)),video-v9938)
 
 obj/processor-arm7tdmi.o: component/processor/arm7tdmi/arm7tdmi.cpp
 obj/processor-gsu.o:      component/processor/gsu/gsu.cpp
@@ -43,3 +44,4 @@ obj/audio-ym2149.o:       component/audio/ym2149/ym2149.cpp
 obj/audio-ym2413.o:       component/audio/ym2413/ym2413.cpp
 
 obj/video-tms9918.o:      component/video/tms9918/tms9918.cpp
+obj/video-v9938.o:        component/video/v9938/v9938.cpp

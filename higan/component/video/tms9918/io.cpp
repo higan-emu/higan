@@ -11,8 +11,8 @@ auto TMS9918::status() -> uint8 {
 
 auto TMS9918::data() -> uint8 {
   io.controlLatch = 0;
-  uint8 data = io.vramLatch;
   uint14 address = io.controlValue.bits(0,13)++;
+  uint8 data = io.vramLatch;
   io.vramLatch = vram.read(address);
   return data;
 }
@@ -24,33 +24,24 @@ auto TMS9918::data(uint8 data) -> void {
 }
 
 auto TMS9918::control(uint8 data) -> void {
-  if(io.controlLatch == 0) {
-    io.controlLatch = 1;
-    io.controlValue.byte(0) = data;
-    return;
-  } else {
-    io.controlLatch = 0;
-    io.controlValue.byte(1) = data;
+  io.controlValue.byte(io.controlLatch++) = data;
+  if(io.controlLatch) return;
+  if(io.controlValue.bit(15)) {
+    return register(io.controlValue.bits(8,10), io.controlValue.bits(0,7));
   }
+  if(!io.controlValue.bit(14)) TMS9918::data();  //read-ahead
+}
 
-  if(!io.controlValue.bit(15)) {
-    if(!io.controlValue.bit(14)) {
-      uint14 address = io.controlValue.bits(0,13)++;
-      io.vramLatch = vram.read(address);
-    }
-    return;
-  }
-
-  data = io.controlValue.bits(0,7);
-  switch(io.controlValue.bits(8,10)) {
+auto TMS9918::register(uint3 register, uint8 data) -> void {
+  switch(register) {
   case 0:
     io.externalInput = data.bit(0);
-    io.videoMode.bit(1) = data.bit(1);
+    io.videoMode.bit(2) = data.bit(1);
     break;
   case 1:
     io.spriteZoom = data.bit(0);
     io.spriteSize = data.bit(1);
-    io.videoMode.bit(2) = data.bit(3);
+    io.videoMode.bit(1) = data.bit(3);
     io.videoMode.bit(0) = data.bit(4);
     io.irqEnable = data.bit(5);
     io.displayEnable = data.bit(6);

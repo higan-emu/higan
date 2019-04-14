@@ -10,6 +10,7 @@
 
 #include <component/processor/z80/z80.hpp>
 #include <component/video/tms9918/tms9918.hpp>
+#include <component/video/v9938/v9938.hpp>
 #include <component/audio/ay38910/ay38910.hpp>
 #include <component/audio/ym2413/ym2413.hpp>
 

@@ -61,8 +61,10 @@ auto CPU::write(uint16 address, uint8 data) -> void {
 
 auto CPU::in(uint16 address) -> uint8 {
   switch((uint8)address) {
-  case 0x98: return vdp.data();
-  case 0x99: return vdp.status();
+  case 0x98: return vdp.read(0);
+  case 0x99: return vdp.read(1);
+  case 0x9a: return vdp.read(2);
+  case 0x9b: return vdp.read(3);
   case 0xa2: return psg.read();
   case 0xa8: return readPrimarySlot();
   case 0xa9: return keyboard.read();
@@ -77,8 +79,10 @@ auto CPU::in(uint16 address) -> uint8 {
 
 auto CPU::out(uint16 address, uint8 data) -> void {
   switch((uint8)address) {
-  case 0x98: return vdp.data(data);
-  case 0x99: return vdp.control(data);
+  case 0x98: return vdp.write(0, data);
+  case 0x99: return vdp.write(1, data);
+  case 0x9a: return vdp.write(2, data);
+  case 0x9b: return vdp.write(3, data);
   case 0xa0: return psg.select(data);
   case 0xa1: return psg.write(data);
   case 0xa8: return writePrimarySlot(data);

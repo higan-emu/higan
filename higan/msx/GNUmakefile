@@ -1,4 +1,4 @@
-components += z80 tms9918 ay38910 ym2413
+components += z80 tms9918 v9938 ay38910 ym2413
 
 objects += msx-interface msx-system msx-keyboard
 objects += msx-cartridge msx-controller

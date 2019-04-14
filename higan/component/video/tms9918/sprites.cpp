@@ -1,4 +1,8 @@
 auto TMS9918::sprite(uint8 voffset) -> void {
+  io.spriteCollision = false;
+  io.spriteOverflow = false;
+  io.spriteOverflowIndex = 0;
+
   uint valid = 0;
   uint limit = io.spriteSize ? 15 : 7;
   for(uint index : range(4)) sprites[index].y = 0xd0;

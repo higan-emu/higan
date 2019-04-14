@@ -21,6 +21,11 @@ auto System::runToSave() -> void {
 auto System::load(Node::Object from) -> void {
   if(node) unload();
 
+  information = {};
+  if(interface->name() == "MSX"  ) information.model = Model::MSX;
+  if(interface->name() == "MSX2" ) information.model = Model::MSX2;
+  if(interface->name() == "MSX2+") information.model = Model::MSX2Plus;
+
   node = Node::System::create(interface->name());
   node->load(from);
 
@@ -59,11 +64,6 @@ auto System::save() -> void {
 auto System::power() -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
-  information = {};
-  if(interface->name() == "MSX"  ) information.model = Model::MSX;
-  if(interface->name() == "MSX2" ) information.model = Model::MSX2;
-  if(interface->name() == "MSX2+") information.model = Model::MSX2Plus;
-
   if(regionNode->latch() == "NTSC") {
     information.region = Region::NTSC;
     information.colorburst = Constants::Colorburst::NTSC;
@@ -86,7 +86,7 @@ auto System::power() -> void {
   }
 
   video.reset(interface);
-  display.screen = video.createScreen(display.node, 256, 192);
+  display.screen = video.createScreen(display.node, display.node->width, display.node->height);
   audio.reset(interface);
 
   keyboard.power();

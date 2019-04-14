@@ -19,6 +19,7 @@ struct TMS9918 {
 
   auto data(uint8) -> void;
   auto control(uint8) -> void;
+  auto register(uint3, uint8) -> void;
 
   //background.cpp
   auto background(uint8 hoffset, uint8 voffset) -> void;

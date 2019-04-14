@@ -7,8 +7,8 @@ auto TMS9918::background(uint8 hoffset, uint8 voffset) -> void {
   switch(io.videoMode) {
   case 0: return graphics1(hoffset, voffset);
 //case 1: return text1(hoffset, voffset);
-  case 2: return graphics2(hoffset, voffset);
-//case 3: return multicolor(hoffset, voffset);
+//case 2: return multicolor(hoffset, voffset);
+  case 4: return graphics2(hoffset, voffset);
   default: output.color = 8; return;  //medium red color to identify unimplemented modes
   }
 }
