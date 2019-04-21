@@ -1,11 +1,14 @@
 auto CPU::readByte(uint24 addr) -> uint16 {
   if(addr >= 0x000000 && addr <= 0x3fffff) {
     if(!io.romEnable) return tmss[addr & 0x7ff];
-    return cartridge.read(addr & ~1).byte(!addr.bit(0));
+    if(expansion.node) return expansion.read(addr & ~1).byte(!addr.bit(0));
+    if(cartridge.node) return cartridge.read(addr & ~1).byte(!addr.bit(0));
+    return 0x0000;
   }
   if(addr >= 0xa00000 && addr <= 0xa0ffff) return apu.granted() ? apu.read(addr) : (uint8)0x00;
   if(addr >= 0xa10000 && addr <= 0xa10fff) return readIO(addr & ~0xff00);
   if(addr >= 0xa11000 && addr <= 0xa11fff) return readIO(addr & ~0x00ff);
+  if(addr >= 0xa12000 && addr <= 0xa120ff) return expansion.readIO(addr);
   if(addr >= 0xa13000 && addr <= 0xa130ff) return cartridge.readIO(addr);
   if(addr >= 0xc00000 && addr <= 0xdfffff) return vdp.read(addr & ~1).byte(!addr.bit(0));
   if(addr >= 0xe00000 && addr <= 0xffffff) {
@@ -17,11 +20,14 @@ auto CPU::readByte(uint24 addr) -> uint16 {
 auto CPU::readWord(uint24 addr) -> uint16 {
   if(addr >= 0x000000 && addr <= 0x3fffff) {
     if(!io.romEnable) return tmss[addr & 0x7fe | 0] << 8 | tmss[addr & 0x7fe | 1] << 0;
-    return cartridge.read(addr);
+    if(expansion.node) return expansion.read(addr);
+    if(cartridge.node) return cartridge.read(addr);
+    return 0x0000;
   }
   if(addr >= 0xa00000 && addr <= 0xa0ffff) return apu.granted() ? apu.read(addr) : (uint8)0x00;
   if(addr >= 0xa10000 && addr <= 0xa10fff) return readIO(addr & ~0xff00) << 0;
   if(addr >= 0xa11000 && addr <= 0xa11fff) return readIO(addr & ~0x00ff) << 8;
+  if(addr >= 0xa12000 && addr <= 0xa120ff) return expansion.readIO(addr);
   if(addr >= 0xa13000 && addr <= 0xa130ff) return cartridge.readIO(addr);
   if(addr >= 0xc00000 && addr <= 0xdfffff) return vdp.read(addr);
   if(addr >= 0xe00000 && addr <= 0xffffff) {
@@ -32,10 +38,15 @@ auto CPU::readWord(uint24 addr) -> uint16 {
 }
 
 auto CPU::writeByte(uint24 addr, uint16 data) -> void {
-  if(addr >= 0x000000 && addr <= 0x3fffff) return cartridge.write(addr & ~1, data << 8 | data << 0);
+  if(addr >= 0x000000 && addr <= 0x3fffff) {
+    if(expansion.node) return expansion.write(addr & ~1, data << 8 | data << 0);
+    if(cartridge.node) return cartridge.write(addr & ~1, data << 8 | data << 0);
+    return;
+  }
   if(addr >= 0xa00000 && addr <= 0xa0ffff) return apu.granted() ? apu.write(addr, data) : (void)0;
   if(addr >= 0xa10000 && addr <= 0xa10fff) return writeIO(addr & ~0xff00, data);
   if(addr >= 0xa11000 && addr <= 0xa11fff) return writeIO(addr & ~0x00ff, data);
+  if(addr >= 0xa12000 && addr <= 0xa120ff) return expansion.writeIO(addr, data);
   if(addr >= 0xa13000 && addr <= 0xa130ff) return cartridge.writeIO(addr, data);
   if(addr >= 0xa14000 && addr <= 0xa140ff) return writeIO(addr & ~0xff00, data);
   if(addr >= 0xa14100 && addr <= 0xa141ff) return writeIO(addr & ~0x00ff, data);
@@ -48,10 +59,15 @@ auto CPU::writeByte(uint24 addr, uint16 data) -> void {
 }
 
 auto CPU::writeWord(uint24 addr, uint16 data) -> void {
-  if(addr >= 0x000000 && addr <= 0x3fffff) return cartridge.write(addr, data);
+  if(addr >= 0x000000 && addr <= 0x3fffff) {
+    if(expansion.node) return expansion.write(addr, data);
+    if(cartridge.node) return cartridge.write(addr, data);
+    return;
+  }
   if(addr >= 0xa00000 && addr <= 0xa0ffff) return apu.granted() ? apu.write(addr, data) : (void)0;
   if(addr >= 0xa10000 && addr <= 0xa10fff) return writeIO(addr & ~0xff00, data >> 0);
   if(addr >= 0xa11000 && addr <= 0xa11fff) return writeIO(addr & ~0x00ff, data >> 8);
+  if(addr >= 0xa12000 && addr <= 0xa120ff) return expansion.writeIO(addr, data);
   if(addr >= 0xa13000 && addr <= 0xa130ff) return cartridge.writeIO(addr, data);
   if(addr >= 0xa14000 && addr <= 0xa140ff) return writeIO(addr & ~0xff00, data >> 0);
   if(addr >= 0xa14100 && addr <= 0xa141ff) return writeIO(addr & ~0x00ff, data >> 8);
@@ -69,7 +85,7 @@ auto CPU::readIO(uint24 addr) -> uint16 {
   case 0xa10000: return (
     !Region::NTSCJ() << 7  //0 = domestic (Japan); 1 = export
   | Region::PAL() << 6     //0 = NTSC; 1 = PAL
-  | 1 << 5                 //0 = Mega CD connected; 1 = no expansion connected
+  | !expansion.node << 5   //0 = expansion unit connected; 1 = no expansion unit connected
   | io.version << 0        //0 = Model 1; 1 = Model 2+
   );
 

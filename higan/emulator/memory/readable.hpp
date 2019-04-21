@@ -43,6 +43,7 @@ struct Readable {
   inline auto operator[](uint address) const -> T { return self.data[address & self.mask]; }
   inline auto read(uint address) const -> T { return self.data[address & self.mask]; }
   inline auto write(uint address, T data) const -> void {}
+  inline auto program(uint address, T data) const -> void { self.data[address & self.mask] = data; }
 
   auto serialize(serializer& s) -> void {
     const uint size = self.size;

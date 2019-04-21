@@ -31,9 +31,8 @@ auto CPU::power() -> void {
 
   r.pc = 0x0000;  //reset vector address
 
-  if(Model::MSX()     ) ram.allocate (64_KiB);
-  if(Model::MSX2()    ) ram.allocate(256_KiB);
-  if(Model::MSX2Plus()) ram.allocate(256_KiB);
+  if(Model::MSX() ) ram.allocate (64_KiB);
+  if(Model::MSX2()) ram.allocate(256_KiB);
 
   slot[0] = {3, 0, {0, 0, 0, 0}};
   slot[1] = {2, 1, {0, 0, 0, 0}};

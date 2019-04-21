@@ -29,6 +29,8 @@ auto CPU::main() -> void {
     }
   }
 
+//print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
+
   instruction();
 }
 

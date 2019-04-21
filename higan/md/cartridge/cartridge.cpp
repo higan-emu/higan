@@ -24,12 +24,12 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
   if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
     information.metadata = fp->reads();
-  } else return;
+  }
 
   auto document = BML::unserialize(information.metadata);
 
   if(!loadROM(rom, document["game/board/memory(type=ROM,content=Program)"])) {
-    return;
+    rom.reset();
   }
 
   if(!loadROM(patch, document["game/board/memory(type=ROM,content=Patch)"])) {
@@ -50,7 +50,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
     write = {&Cartridge::writeBanked, this};
   }
 
-  if(document["game/board/slot(type=MegaDrive)"]) {
+  if(document["game/board/slot(type=Mega Drive)"]) {
     slot = new Cartridge{depth + 1};
     slot->load(node, with);
 

@@ -101,10 +101,6 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::MSX::MSX2Interface);
   #endif
 
-  #ifdef CORE_MSX
-  interfaces.append(new higan::MSX::MSX2PlusInterface);
-  #endif
-
   #ifdef CORE_NGP
   interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
   #endif

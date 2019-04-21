@@ -22,6 +22,7 @@ auto SA1::IRAM::readCPU(uint24 address, uint8 data) -> uint8 {
 
 auto SA1::IRAM::writeCPU(uint24 address, uint8 data) -> void {
   cpu.synchronize(sa1);
+  if(!sa1.mmio.siwp.bit(address.bits(8,10))) return;
   return write(address, data);
 }
 
@@ -30,5 +31,6 @@ auto SA1::IRAM::readSA1(uint24 address, uint8 data) -> uint8 {
 }
 
 auto SA1::IRAM::writeSA1(uint24 address, uint8 data) -> void {
+  if(!sa1.mmio.ciwp.bit(address.bits(8,10))) return;
   return write(address, data);
 }

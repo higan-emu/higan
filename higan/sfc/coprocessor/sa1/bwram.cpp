@@ -37,6 +37,7 @@ auto SA1::BWRAM::writeCPU(uint24 address, uint8 data) -> void {
     address = sa1.mmio.sbm * 0x2000 + (address & 0x1fff);
   }
 
+  if(!sa1.mmio.swen && (uint18)address < 0x100 << sa1.mmio.bwp) return;
   return write(address, data);
 }
 
@@ -51,6 +52,11 @@ auto SA1::BWRAM::readSA1(uint24 address, uint8 data) -> uint8 {
     return readBitmap(address, data);
   }
 }
+
+//note: CWEN is not emulated, as it breaks Kirby's Dream Land 3:
+//* BWPA = 02 (protect 400000-4003ff)
+//* CWEN = 00 (writes disabled)
+//KDL3 proceeds to write to 4001ax and 40032x which must succeed.
 
 auto SA1::BWRAM::writeSA1(uint24 address, uint8 data) -> void {
   if(sa1.mmio.sw46 == 0) {

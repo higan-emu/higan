@@ -37,7 +37,6 @@ namespace higan::MSX {
   struct Model {
     inline static auto MSX() -> bool;
     inline static auto MSX2() -> bool;
-    inline static auto MSX2Plus() -> bool;
   };
 
   struct Region {

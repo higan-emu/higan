@@ -1,4 +1,5 @@
 #include "icarus.hpp"
+vector<shared_pointer<Media>> media;
 
 auto locate(string name) -> string {
   string location = {Path::program(), name};
@@ -9,62 +10,38 @@ auto locate(string name) -> string {
 }
 
 #include "settings/settings.cpp"
-
-#include "heuristics/heuristics.cpp"
-#include "heuristics/bs-memory.cpp"
-#include "heuristics/colecovision.cpp"
-#include "heuristics/famicom.cpp"
-#include "heuristics/famicom-disk.cpp"
-#include "heuristics/game-boy.cpp"
-#include "heuristics/game-boy-advance.cpp"
-#include "heuristics/game-gear.cpp"
-#include "heuristics/master-system.cpp"
-#include "heuristics/mega-drive.cpp"
-#include "heuristics/msx.cpp"
-#include "heuristics/msx2.cpp"
-#include "heuristics/msx2+.cpp"
-#include "heuristics/neo-geo-pocket.cpp"
-#include "heuristics/neo-geo-pocket-color.cpp"
-#include "heuristics/pc-engine.cpp"
-#include "heuristics/sc-3000.cpp"
-#include "heuristics/sg-1000.cpp"
-#include "heuristics/sufami-turbo.cpp"
-#include "heuristics/super-famicom.cpp"
-#include "heuristics/supergrafx.cpp"
-#include "heuristics/wonderswan.cpp"
-
-#include "core/bs-memory.cpp"
-#include "core/colecovision.cpp"
-#include "core/famicom.cpp"
-#include "core/famicom-disk.cpp"
-#include "core/game-boy.cpp"
-#include "core/game-boy-advance.cpp"
-#include "core/game-boy-color.cpp"
-#include "core/game-gear.cpp"
-#include "core/master-system.cpp"
-#include "core/mega-drive.cpp"
-#include "core/msx.cpp"
-#include "core/msx2.cpp"
-#include "core/msx2+.cpp"
-#include "core/pc-engine.cpp"
-#include "core/neo-geo-pocket.cpp"
-#include "core/neo-geo-pocket-color.cpp"
-#include "core/pocket-challenge-v2.cpp"
-#include "core/sc-3000.cpp"
-#include "core/sg-1000.cpp"
-#include "core/sufami-turbo.cpp"
-#include "core/super-famicom.cpp"
-#include "core/supergrafx.cpp"
-#include "core/wonderswan.cpp"
-#include "core/wonderswan-color.cpp"
-#include "core/core.cpp"
-Icarus context;
-
+#include "media/media.cpp"
+#include "cartridge/cartridge.cpp"
+#include "floppy-disk/floppy-disk.cpp"
 #include "program/program.cpp"
 
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
   Application::setName("icarus");
+  media.append(new BSMemory);
+  media.append(new ColecoVision);
+  media.append(new Famicom);
+  media.append(new FamicomDisk);
+  media.append(new GameBoy);
+  media.append(new GameBoyAdvance);
+  media.append(new GameBoyColor);
+  media.append(new GameGear);
+  media.append(new MasterSystem);
+  media.append(new MegaDrive);
+  media.append(new MSX);
+  media.append(new MSX2);
+  media.append(new NeoGeoPocket);
+  media.append(new NeoGeoPocketColor);
+  media.append(new PCEngine);
+  media.append(new PocketChallengeV2);
+  media.append(new SC3000);
+  media.append(new SG1000);
+  media.append(new SufamiTurbo);
+  media.append(new SuperFamicom);
+  media.append(new SuperGrafx);
+  media.append(new WonderSwan);
+  media.append(new WonderSwanColor);
+  for(auto& medium : media) medium->construct();
 
   if(auto document = file::read({Path::userSettings(), "icarus/settings.bml"})) {
     settings.unserialize(document);
@@ -75,38 +52,33 @@ auto nall::main(Arguments arguments) -> void {
   }
 
   if(string system; arguments.take("--system", system)) {
-    if(string metadata; arguments.take("--metadata", metadata)) {
-      return print(context.manifest(system, metadata));
-    }
+    for(auto& medium : media) {
+      if(medium->name() != system) continue;
 
-    if(string import; arguments.take("--import", import)) {
-      if(string output = context.import(system, import)) {
-        return print(output, "\n");
+      if(string metadata; arguments.take("--metadata", metadata)) {
+        return print(medium->metadata(metadata));
       }
-      return;
-    }
 
-    if(arguments.take("--import")) {
-      if(auto file = BrowserDialog()
-      .setTitle({"Import ", system, " Game"})
-      .setPath(settings.recent)
-      .setAlignment(Alignment::Center)
-      .openFile()
-      ) {
-        if(string output = context.import(system, file)) {
-          settings.recent = Location::path(file);
-          directory::create({Path::userSettings(), "icarus/"});
-          file::write({Path::userSettings(), "icarus/settings.bml"}, settings.serialize());
-          return print(output, "\n");
-        } else {
-          MessageDialog()
-          .setTitle("Error")
-          .setAlignment(Alignment::Center)
-          .setText({"Failed to import: ", Location::file(file), "\n\n", context.error(), "."})
-          .error();
+      if(string import; arguments.take("--import", import)) {
+        return (void)medium->import(import);
+      }
+
+      if(arguments.take("--import")) {
+        if(auto import = BrowserDialog()
+        .setTitle({"Import ", system, " Game"})
+        .setPath(settings.recent)
+        .setAlignment(Alignment::Center)
+        .openFile()
+        ) {
+          if(auto error = medium->import(import)) {
+            MessageDialog()
+            .setTitle("Error")
+            .setAlignment(Alignment::Center)
+            .setText({"Failed to import: ", Location::file(import), "\n\nError: ", error, "."})
+            .error();
+          }
         }
       }
-      return;
     }
   }
 

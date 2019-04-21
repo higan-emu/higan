@@ -22,6 +22,7 @@ auto VDP::refresh() -> void {
   if(Model::MSX()) {
     display.screen->refresh(TMS9918::buffer, 256 * sizeof(uint32), 256, 192);
   }
+
   if(Model::MSX2()) {
     display.screen->refresh(V9938::buffer, 512 * sizeof(uint32), 512, 424);
   }
@@ -35,6 +36,7 @@ auto VDP::power() -> void {
       while(true) scheduler.synchronize(), TMS9918::main();
     });
   }
+
   if(Model::MSX2()) {
     V9938::videoRAM.allocate(128_KiB);
     V9938::expansionRAM.allocate(64_KiB);

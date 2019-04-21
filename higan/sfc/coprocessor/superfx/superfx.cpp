@@ -26,6 +26,7 @@ auto SuperFX::main() -> void {
 auto SuperFX::unload() -> void {
   rom.reset();
   ram.reset();
+  bram.reset();
   Thread::destroy();
 }
 
@@ -38,6 +39,7 @@ auto SuperFX::power() -> void {
 
   romMask = rom.size() - 1;
   ramMask = ram.size() - 1;
+  bramMask = bram.size() - 1;
 
   for(uint n : range(512)) cache.buffer[n] = 0x00;
   for(uint n : range(32)) cache.valid[n] = false;

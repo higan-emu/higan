@@ -303,6 +303,13 @@ auto Cartridge::loadSuperFX(Markup::Node node) -> void {
       loadMap(map, superfx.cpuram);
     }
   }
+
+  if(auto memory = node["memory(type=RAM,content=Backup)"]) {
+    loadMemory(superfx.bram, memory, File::Optional);
+    for(auto map : memory.find("map")) {
+      loadMap(map, superfx.cpubram);
+    }
+  }
 }
 
 //processor(architecture=ARM6)

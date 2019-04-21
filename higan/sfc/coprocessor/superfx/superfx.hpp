@@ -1,6 +1,7 @@
 struct SuperFX : GSU, Thread {
   ReadableMemory rom;
   WritableMemory ram;
+  WritableMemory bram;
 
   //superfx.cpp
   auto main() -> void;
@@ -16,6 +17,13 @@ struct SuperFX : GSU, Thread {
   };
 
   struct CPURAM : Memory {
+    auto data() -> uint8* override;
+    auto size() const -> uint override;
+    auto read(uint24, uint8) -> uint8 override;
+    auto write(uint24, uint8) -> void override;
+  };
+
+  struct CPUBRAM : Memory {
     auto data() -> uint8* override;
     auto size() const -> uint override;
     auto read(uint24, uint8) -> uint8 override;
@@ -64,10 +72,12 @@ struct SuperFX : GSU, Thread {
 
   CPUROM cpurom;
   CPURAM cpuram;
+  CPUBRAM cpubram;
 
 private:
   uint romMask;
   uint ramMask;
+  uint bramMask;
 };
 
 extern SuperFX superfx;

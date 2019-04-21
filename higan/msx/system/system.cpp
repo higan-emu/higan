@@ -2,6 +2,7 @@
 
 namespace higan::MSX {
 
+ROM rom;
 System system;
 Scheduler scheduler;
 Cheat cheat;
@@ -22,9 +23,8 @@ auto System::load(Node::Object from) -> void {
   if(node) unload();
 
   information = {};
-  if(interface->name() == "MSX"  ) information.model = Model::MSX;
-  if(interface->name() == "MSX2" ) information.model = Model::MSX2;
-  if(interface->name() == "MSX2+") information.model = Model::MSX2Plus;
+  if(interface->name() == "MSX" ) information.model = Model::MSX;
+  if(interface->name() == "MSX2") information.model = Model::MSX2;
 
   node = Node::System::create(interface->name());
   node->load(from);
@@ -51,8 +51,8 @@ auto System::unload() -> void {
   controllerPort1.port = {};
   controllerPort2.port = {};
   node = {};
-  bios.reset();
-  sub.reset();
+  rom.bios.reset();
+  rom.sub.reset();
 }
 
 auto System::save() -> void {
@@ -73,15 +73,15 @@ auto System::power() -> void {
     information.colorburst = Constants::Colorburst::PAL;
   }
 
-  bios.allocate(32_KiB);
+  rom.bios.allocate(32_KiB);
   if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
-    bios.load(fp);
+    rom.bios.load(fp);
   }
 
-  if(model() != Model::MSX) {
-    sub.allocate(16_KiB);
+  if(model() == Model::MSX2) {
+    rom.sub.allocate(16_KiB);
     if(auto fp = platform->open(node, "sub.rom", File::Read, File::Required)) {
-      sub.load(fp);
+      rom.sub.load(fp);
     }
   }
 

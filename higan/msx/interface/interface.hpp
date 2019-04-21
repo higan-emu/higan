@@ -20,14 +20,8 @@ struct MSXInterface : AbstractInterface {
   auto name() -> string override { return "MSX"; }
 };
 
-//not emulated
 struct MSX2Interface : AbstractInterface {
   auto name() -> string override { return "MSX2"; }
-};
-
-//not emulated
-struct MSX2PlusInterface : AbstractInterface {
-  auto name() -> string override { return "MSX2+"; }
 };
 
 }

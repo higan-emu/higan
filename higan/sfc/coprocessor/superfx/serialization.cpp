@@ -3,4 +3,5 @@ auto SuperFX::serialize(serializer& s) -> void {
   Thread::serialize(s);
 
   s.array(ram.data(), ram.size());
+  s.array(bram.data(), bram.size());
 }

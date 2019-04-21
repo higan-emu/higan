@@ -17,7 +17,7 @@ auto SuperFX::read(uint24 addr, uint8 data) -> uint8 {
     return rom.read(addr & romMask);
   }
 
-  if((addr & 0xe00000) == 0x600000) {  //$60-7f:0000-ffff
+  if((addr & 0xfe0000) == 0x700000) {  //$70-71:0000-ffff
     while(!regs.scmr.ran) {
       step(6);
       synchronize(cpu);
@@ -30,7 +30,7 @@ auto SuperFX::read(uint24 addr, uint8 data) -> uint8 {
 }
 
 auto SuperFX::write(uint24 addr, uint8 data) -> void {
-  if((addr & 0xe00000) == 0x600000) {  //$60-7f:0000-ffff
+  if((addr & 0xfe0000) == 0x700000) {  //$70-71:0000-ffff
     while(!regs.scmr.ran) {
       step(6);
       synchronize(cpu);

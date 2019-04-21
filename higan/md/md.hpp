@@ -59,6 +59,7 @@ namespace higan::MegaDrive {
 
   #include <md/system/system.hpp>
   #include <md/cartridge/cartridge.hpp>
+  #include <md/expansion/expansion.hpp>
 }
 
 #include <md/interface/interface.hpp>

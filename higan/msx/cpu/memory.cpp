@@ -6,7 +6,7 @@ auto CPU::read(uint16 address) -> uint8 {
   uint2 secondary = slot[primary].secondary[page];
 
   if(primary == 0) {
-    return system.bios.read(address);
+    return rom.bios.read(address);
   }
 
   if(primary == 1) {
@@ -23,8 +23,8 @@ auto CPU::read(uint16 address) -> uint8 {
       uint22 logical = slot[page].memory << 14 | (uint14)address;
       return ram.read(logical);
     }
-    if(secondary == 1 && system.sub) {
-      return system.sub.read(address);
+    if(secondary == 1 && rom.sub) {
+      return rom.sub.read(address);
     }
   }
 

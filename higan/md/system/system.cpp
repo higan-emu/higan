@@ -47,6 +47,7 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   display.load(node, from);
   cartridge.load(node, from);
+  expansion.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   extensionPort.load(node, from);
@@ -56,6 +57,7 @@ auto System::unload() -> void {
   if(!node) return;
   save();
   cartridge.port = {};
+  expansion.port = {};
   controllerPort1.port = {};
   controllerPort2.port = {};
   extensionPort.port = {};
@@ -65,6 +67,7 @@ auto System::unload() -> void {
 auto System::save() -> void {
   if(!node) return;
   cartridge.save();
+  expansion.save();
 }
 
 auto System::power(bool reset) -> void {
@@ -90,6 +93,7 @@ auto System::power(bool reset) -> void {
   random.entropy(Random::Entropy::Low);
 
   cartridge.power();
+  expansion.power();
   cpu.power(reset);
   apu.power(reset);
   vdp.power(reset);

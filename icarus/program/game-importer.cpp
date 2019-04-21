@@ -19,17 +19,21 @@ auto GameImporter::import(string system, const vector<string>& files) -> void {
     if(!processing) break;
     messageLabel.setText({"[", index++, "/", files.size(), "] Importing ", Location::file(file), " ..."});
     Application::processEvents();
-    auto path = context.import(system, file);
-    ListViewItem item{&importList};
-    if(path) {
-      item.setIcon(Icon::Action::Add);
-    } else {
-      item.setIcon(Icon::Action::Close);
-      item.setForegroundColor({192, 0, 0});
-      item.setProperty("error", context.error());
+
+    for(auto& medium : media) {
+      if(medium->name() != system) continue;
+      auto error = medium->import(file);
+      ListViewItem item{&importList};
+      if(!error) {
+        item.setIcon(Icon::Action::Add);
+      } else {
+        item.setIcon(Icon::Action::Close);
+        item.setForegroundColor({192, 0, 0});
+        item.setProperty("error", error);
+      }
+      item.setText(Location::file(file));
+      importList.resize();
     }
-    item.setText(Location::file(file));
-    importList.resize();
   }
   processing = false;
   messageLabel.setText("Completed.");

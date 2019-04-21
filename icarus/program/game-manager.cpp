@@ -29,31 +29,12 @@ GameManager::GameManager(View* parent) : Panel(parent, Size{~0, ~0}) {
 
 auto GameManager::select(string system) -> void {
   path.reset();
-  if(system == "BS Memory"           ) path = settings.bsMemory;
-  if(system == "ColecoVision"        ) path = settings.colecoVision;
-  if(system == "Famicom"             ) path = settings.famicom;
-  if(system == "Famicom Disk"        ) path = settings.famicomDisk;
-  if(system == "Game Boy"            ) path = settings.gameBoy;
-  if(system == "Game Boy Advance"    ) path = settings.gameBoyAdvance;
-  if(system == "Game Boy Color"      ) path = settings.gameBoyColor;
-  if(system == "Game Gear"           ) path = settings.gameGear;
-  if(system == "Master System"       ) path = settings.masterSystem;
-  if(system == "Mega Drive"          ) path = settings.megaDrive;
-  if(system == "MSX"                 ) path = settings.msx;
-  if(system == "MSX2"                ) path = settings.msx2;
-  if(system == "MSX2+"               ) path = settings.msx2plus;
-  if(system == "Neo Geo Pocket"      ) path = settings.neoGeoPocket;
-  if(system == "Neo Geo Pocket Color") path = settings.neoGeoPocketColor;
-  if(system == "PC Engine"           ) path = settings.pcEngine;
-  if(system == "Pocket Challenge V2" ) path = settings.pocketChallengeV2;
-  if(system == "SC-3000"             ) path = settings.sc3000;
-  if(system == "SG-1000"             ) path = settings.sg1000;
-  if(system == "Sufami Turbo"        ) path = settings.sufamiTurbo;
-  if(system == "Super Famicom"       ) path = settings.superFamicom;
-  if(system == "SuperGrafx"          ) path = settings.superGrafx;
-  if(system == "WonderSwan"          ) path = settings.wonderSwan;
-  if(system == "WonderSwan Color"    ) path = settings.wonderSwanColor;
+  for(auto& medium : media) {
+    if(medium->name() != system) continue;
+    path = medium->pathname;
+  }
   if(!path) return;
+
   pathLabel.setText(*path);
   this->system = system;
   refresh();
@@ -62,6 +43,7 @@ auto GameManager::select(string system) -> void {
 auto GameManager::refresh() -> void {
   gameList.reset();
   if(!path) return;
+
   for(auto& name : directory::folders(*path)) {
     ListViewItem item{&gameList};
     item.setIcon(Icon::Emblem::Folder);

@@ -23,6 +23,8 @@ auto SuperFX::CPUROM::write(uint24 addr, uint8 data) -> void {
   superfx.rom.write(addr, data);
 }
 
+//
+
 auto SuperFX::CPURAM::data() -> uint8* {
   return superfx.ram.data();
 }
@@ -38,4 +40,23 @@ auto SuperFX::CPURAM::read(uint24 addr, uint8 data) -> uint8 {
 
 auto SuperFX::CPURAM::write(uint24 addr, uint8 data) -> void {
   superfx.ram.write(addr, data);
+}
+
+//
+
+auto SuperFX::CPUBRAM::data() -> uint8* {
+  return superfx.bram.data();
+}
+
+auto SuperFX::CPUBRAM::size() const -> uint {
+  return superfx.bram.size();
+}
+
+auto SuperFX::CPUBRAM::read(uint24 addr, uint8 data) -> uint8 {
+  return superfx.bram.read(addr, data);
+}
+
+auto SuperFX::CPUBRAM::write(uint24 addr, uint8 data) -> void {
+  if(!superfx.regs.bramr) return;
+  superfx.bram.write(addr, data);
 }

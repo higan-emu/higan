@@ -53,7 +53,7 @@ auto System::power() -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
   bootROM.allocate(!GameBoy::Model::GameBoyColor() ? 256 : 2048);
-  string name = !GameBoy::Model::SuperGameBoy() ? "boot.rom" : "lr35902.boot.rom";
+  string name = !GameBoy::Model::SuperGameBoy() ? "boot.rom" : "sm83.boot.rom";
   if(auto fp = platform->open(node, name, File::Read, File::Required)) {
     bootROM.load(fp);
   } else return;
