@@ -49,6 +49,8 @@ namespace higan::MegaDrive {
     inline static auto PAL() -> bool;
   };
 
+  inline static auto MegaCD() -> bool;
+
   #include <md/controller/controller.hpp>
 
   #include <md/cpu/cpu.hpp>
@@ -56,6 +58,8 @@ namespace higan::MegaDrive {
   #include <md/vdp/vdp.hpp>
   #include <md/psg/psg.hpp>
   #include <md/ym2612/ym2612.hpp>
+
+  #include <md/cdpu/cdpu.hpp>
 
   #include <md/system/system.hpp>
   #include <md/cartridge/cartridge.hpp>

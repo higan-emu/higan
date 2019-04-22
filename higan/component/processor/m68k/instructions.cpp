@@ -525,7 +525,7 @@ auto M68K::instructionILLEGAL(uint16 code) -> void {
   r.pc -= 2;
   if(code.bits(12,15) == 0xa) return exception(Exception::Illegal, Vector::IllegalLineA);
   if(code.bits(12,15) == 0xf) return exception(Exception::Illegal, Vector::IllegalLineF);
-  return exception(Exception::Illegal, Vector::Illegal);
+  return exception(Exception::Illegal, Vector::IllegalInstruction);
 }
 
 auto M68K::instructionJMP(EffectiveAddress target) -> void {

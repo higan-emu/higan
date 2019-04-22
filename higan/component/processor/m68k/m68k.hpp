@@ -45,21 +45,31 @@ struct M68K {
   };};
 
   struct Vector { enum : uint {
-    Illegal         =  4,
-    DivisionByZero  =  5,
-    BoundsCheck     =  6,
-    Overflow        =  7,
-    Unprivileged    =  8,
-    IllegalLineA    = 10,
-    IllegalLineF    = 11,
-    HorizontalBlank = 28,
-    VerticalBlank   = 30,
+    Reset              =  1,
+    BusError           =  2,
+    AddressError       =  3,
+    IllegalInstruction =  4,
+    DivisionByZero     =  5,
+    BoundsCheck        =  6,
+    Overflow           =  7,
+    Unprivileged       =  8,
+    Trace              =  9,
+    IllegalLineA       = 10,
+    IllegalLineF       = 11,
+    Level1             = 25,
+    Level2             = 26,
+    Level3             = 27,
+    Level4             = 28,
+    Level5             = 29,
+    Level6             = 30,
+    Level7             = 31,
   };};
 
   M68K();
   auto power() -> void;
   auto supervisor() -> bool;
   auto exception(uint exception, uint vector, uint priority = 7) -> void;
+  auto interrupt(uint vector, uint priority = 7) -> void;
 
   //registers.cpp
   struct DataRegister {

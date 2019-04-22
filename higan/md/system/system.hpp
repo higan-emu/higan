@@ -8,6 +8,7 @@ struct System {
   enum class Region : uint { NTSCJ, NTSCU, PAL };
 
   inline auto region() const -> Region { return information.region; }
+  inline auto megaCD() const -> bool { return information.megaCD; }
   inline auto frequency() const -> double { return information.frequency; }
 
   auto run() -> void;
@@ -28,6 +29,7 @@ struct System {
 private:
   struct Information {
     Region region = Region::NTSCJ;
+    bool megaCD = false;
     double frequency = Constants::Colorburst::NTSC * 15.0;
     uint serializeSize = 0;
   } information;
@@ -38,3 +40,5 @@ extern System system;
 auto Region::NTSCJ() -> bool { return system.region() == System::Region::NTSCJ; }
 auto Region::NTSCU() -> bool { return system.region() == System::Region::NTSCU; }
 auto Region::PAL() -> bool { return system.region() == System::Region::PAL; }
+
+auto MegaCD() -> bool { return system.megaCD(); }

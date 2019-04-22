@@ -60,16 +60,14 @@ struct Thread {
   }
 
   auto create(double frequency, function<void ()> entryPoint) -> void {
-    destroy();
-    _handle = co_create(64 * 1024 * sizeof(void*), &Thread::Enter);
+    if(!_handle) {
+      _handle = co_create(64 * 1024 * sizeof(void*), &Thread::Enter);
+    } else {
+      co_derive(_handle, 64 * 1024 * sizeof(void*), &Thread::Enter);
+    }
     EntryPoints().append({_handle, entryPoint});
     setFrequency(frequency);
     setClock(0);
-  }
-
-  __attribute__((deprecated))
-  auto create(auto (*entryPoint)() -> void, double frequency) -> void {
-    create(frequency, entryPoint);
   }
 
   auto destroy() -> void {

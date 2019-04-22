@@ -58,4 +58,8 @@ auto M68K::exception(uint exception, uint vector, uint priority) -> void {
   r.pc = read<Long>(vector << 2);
 }
 
+auto M68K::interrupt(uint vector, uint priority) -> void {
+  return exception(Exception::Interrupt, vector, priority);
+}
+
 }

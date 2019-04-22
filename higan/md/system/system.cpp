@@ -23,6 +23,9 @@ auto System::runToSave() -> void {
   scheduler.synchronize(vdp);
   scheduler.synchronize(psg);
   scheduler.synchronize(ym2612);
+  if(MegaCD()) {
+    scheduler.synchronize(cdpu);
+  }
 }
 
 auto System::load(Node::Object from) -> void {
@@ -51,6 +54,7 @@ auto System::load(Node::Object from) -> void {
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   extensionPort.load(node, from);
+  cdpu.load();
 }
 
 auto System::unload() -> void {
@@ -61,6 +65,7 @@ auto System::unload() -> void {
   controllerPort1.port = {};
   controllerPort2.port = {};
   extensionPort.port = {};
+  cdpu.unload();
   node = {};
 }
 
@@ -86,6 +91,7 @@ auto System::power(bool reset) -> void {
     information.region = Region::PAL;
     information.frequency = Constants::Colorburst::PAL * 12.0;
   }
+  information.megaCD = (bool)expansion.node;
 
   video.reset(interface);
   display.screen = video.createScreen(display.node, 1280, 480);
@@ -99,6 +105,9 @@ auto System::power(bool reset) -> void {
   vdp.power(reset);
   psg.power(reset);
   ym2612.power(reset);
+  if(MegaCD()) {
+    cdpu.power(reset);
+  }
   scheduler.primary(cpu);
 
   serializeInit();

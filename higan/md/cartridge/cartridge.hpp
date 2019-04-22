@@ -21,8 +21,8 @@ struct Cartridge {
   auto loadRAM(Memory& ram, Markup::Node memory) -> bool;
   auto saveRAM(Memory& ram, Markup::Node memory) -> bool;
 
-  auto readIO(uint24 address) -> uint16;
-  auto writeIO(uint24 address, uint16 data) -> void;
+  auto readIO(uint24 address) -> uint8;
+  auto writeIO(uint24 address, uint8 data) -> void;
 
   auto readLinear(uint22 address) -> uint16;
   auto writeLinear(uint22 address, uint16 data) -> void;

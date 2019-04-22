@@ -1,8 +1,10 @@
+//Mega CD interface:
+//the only actual peripheral released for the expansion port was the Mega CD.
+//this class is used to connect a peripheral folder and the BIOS to the emulator.
+
 struct Expansion {
   Node::Port port;
   Node::Peripheral node;
-
-  Memory::Readable<uint16> rom;
 
   auto load(Node::Object, Node::Object) -> void;
   auto connect(Node::Peripheral) -> void;
@@ -11,11 +13,11 @@ struct Expansion {
   auto save() -> void;
   auto power() -> void;
 
-  auto read(uint22 address) -> uint16;
-  auto write(uint22 address, uint16 data) -> void;
+  auto read(uint22 address) -> uint8;
+  auto write(uint22 address, uint8 data) -> void;
 
-  auto readIO(uint24 address) -> uint16;
-  auto writeIO(uint24 address, uint16 data) -> void;
+  auto readIO(uint24 address) -> uint8;
+  auto writeIO(uint24 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

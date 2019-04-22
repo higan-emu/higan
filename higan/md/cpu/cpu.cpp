@@ -17,19 +17,19 @@ auto CPU::main() -> void {
     if(state.interruptPending.bit((uint)Interrupt::HorizontalBlank)) {
       if(4 > r.i) {
         state.interruptPending.bit((uint)Interrupt::HorizontalBlank) = 0;
-        return exception(Exception::Interrupt, Vector::HorizontalBlank, 4);
+        return interrupt(Vector::Level4, 4);
       }
     }
 
     if(state.interruptPending.bit((uint)Interrupt::VerticalBlank)) {
       if(6 > r.i) {
         state.interruptPending.bit((uint)Interrupt::VerticalBlank) = 0;
-        return exception(Exception::Interrupt, Vector::VerticalBlank, 6);
+        return interrupt(Vector::Level6, 6);
       }
     }
   }
 
-//print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
+//static uint ctr=0;if(++ctr>5000000)print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
 
   instruction();
 }
@@ -49,7 +49,12 @@ auto CPU::synchronize() -> void {
   synchronize(vdp);
   synchronize(psg);
   synchronize(ym2612);
-  for(auto peripheral : peripherals) synchronize(*peripheral);
+  if(MegaCD()) {
+    synchronize(cdpu);
+  }
+  for(auto peripheral : peripherals) {
+    synchronize(*peripheral);
+  }
 }
 
 auto CPU::raise(Interrupt interrupt) -> void {
@@ -71,15 +76,18 @@ auto CPU::power(bool reset) -> void {
     while(true) scheduler.synchronize(), main();
   });
 
+  ram.allocate(64_KiB);
+
   tmssEnable = false;
   if(system.tmss->value()) {
+    tmss.allocate(2_KiB);
     if(auto fp = platform->open(system.node, "tmss.rom", File::Read, File::Required)) {
-      fp->read(tmss, 2 * 1024);
+      tmss.load(fp);
       tmssEnable = true;
     }
   }
 
-  if(!reset) memory::fill(ram, sizeof(ram));
+  if(!reset) memory::fill(ram.data(), sizeof(ram));
 
   io = {};
   io.version = tmssEnable;

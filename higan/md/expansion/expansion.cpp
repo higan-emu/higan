@@ -29,20 +29,12 @@ auto Expansion::connect(Node::Peripheral with) -> void {
   auto document = BML::unserialize(information.metadata);
   information.region = document["game/region"].text();
 
-  if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
-    rom.allocate(memory["size"].natural() >> 1);
-    if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
-      for(uint address : range(rom.size())) rom.program(address, fp->readm(2));
-    }
-  }
-
   power();
   port->prepend(node);
 }
 
 auto Expansion::disconnect() -> void {
   if(!node) return;
-  rom.reset();
   node = {};
 }
 
@@ -53,22 +45,20 @@ auto Expansion::save() -> void {
 auto Expansion::power() -> void {
 }
 
-auto Expansion::read(uint22 address) -> uint16 {
-  if(!rom) return 0x0000;
-  return rom.read(address >> 1);
+auto Expansion::read(uint22 address) -> uint8 {
+  return cdpu.external_read(address);
 }
 
-auto Expansion::write(uint22 address, uint16 data) -> void {
-  if(!rom) return;
+auto Expansion::write(uint22 address, uint8 data) -> void {
+  return cdpu.external_write(address, data);
 }
 
-auto Expansion::readIO(uint24 address) -> uint16 {
-  static uint16 data;
-  data = ~data;
-  return data;
+auto Expansion::readIO(uint24 address) -> uint8 {
+  return cdpu.external_readIO(address);
 }
 
-auto Expansion::writeIO(uint24 address, uint16 data) -> void {
+auto Expansion::writeIO(uint24 address, uint8 data) -> void {
+  return cdpu.external_writeIO(address, data);
 }
 
 }

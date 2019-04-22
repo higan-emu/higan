@@ -168,12 +168,12 @@ auto Cartridge::saveRAM(Memory& ram, Markup::Node memory) -> bool {
 
 //
 
-auto Cartridge::readIO(uint24 address) -> uint16 {
+auto Cartridge::readIO(uint24 address) -> uint8 {
   if(slot) slot->readIO(address);
-  return 0x0000;
+  return 0x00;
 }
 
-auto Cartridge::writeIO(uint24 address, uint16 data) -> void {
+auto Cartridge::writeIO(uint24 address, uint8 data) -> void {
   if(address == 0xa130f1) ramEnable = data.bit(0), ramWritable = data.bit(1);
   if(address == 0xa130f3) romBank[1] = data;
   if(address == 0xa130f5) romBank[2] = data;

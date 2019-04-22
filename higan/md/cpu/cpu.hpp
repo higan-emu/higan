@@ -33,8 +33,8 @@ struct CPU : M68K, M68K::Bus, Thread {
   vector<Thread*> peripherals;
 
 private:
-  uint8 ram[64 * 1024];
-  uint8 tmss[2 * 1024];
+  Memory::Writable<uint8> ram;
+  Memory::Readable<uint8> tmss;
   uint1 tmssEnable;
 
   struct IO {
