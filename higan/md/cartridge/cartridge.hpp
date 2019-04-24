@@ -2,6 +2,10 @@ struct Cartridge {
   Node::Port port;
   Node::Peripheral node;
 
+  Memory::Readable<uint8> rom;
+  Memory::Readable<uint8> patch;
+  Memory::Writable<uint8> ram;
+
   inline auto metadata() const -> string { return information.metadata; }
   inline auto region() const -> string { return information.region; }
 
@@ -16,25 +20,26 @@ struct Cartridge {
   auto save() -> void;
   auto power() -> void;
 
-  struct Memory;
-  auto loadROM(Memory& rom, Markup::Node memory) -> bool;
-  auto loadRAM(Memory& ram, Markup::Node memory) -> bool;
-  auto saveRAM(Memory& ram, Markup::Node memory) -> bool;
+  auto loadROM(Memory::Readable<uint8>& rom, Markup::Node memory) -> bool;
+  auto loadRAM(Memory::Writable<uint8>& ram, Markup::Node memory) -> bool;
+  auto saveRAM(Memory::Writable<uint8>& ram, Markup::Node memory) -> bool;
 
-  auto readIO(uint24 address) -> uint8;
+  enum : uint { zero = 0 };
+  auto readIO(uint1 size, uint24 address, uint16 data) -> uint16;
+  auto writeIO(uint1 size, uint24 address, uint16 data) -> void;
   auto writeIO(uint24 address, uint8 data) -> void;
 
-  auto readLinear(uint22 address) -> uint16;
-  auto writeLinear(uint22 address, uint16 data) -> void;
+  auto readLinear(uint1 size, uint22 address, uint16 data) -> uint16;
+  auto writeLinear(uint1 size, uint22 address, uint16 data) -> void;
 
-  auto readBanked(uint22 address) -> uint16;
-  auto writeBanked(uint22 address, uint16 data) -> void;
+  auto readBanked(uint1 size, uint22 address, uint16 data) -> uint16;
+  auto writeBanked(uint1 size, uint22 address, uint16 data) -> void;
 
-  auto readLockOn(uint22 address) -> uint16;
-  auto writeLockOn(uint22 address, uint16 data) -> void;
+  auto readLockOn(uint1 size, uint22 address, uint16 data) -> uint16;
+  auto writeLockOn(uint1 size, uint22 address, uint16 data) -> void;
 
-  auto readGameGenie(uint22 address) -> uint16;
-  auto writeGameGenie(uint22 address, uint16 data) -> void;
+  auto readGameGenie(uint1 size, uint22 address, uint16 data) -> uint16;
+  auto writeGameGenie(uint1 size, uint22 address, uint16 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -42,29 +47,12 @@ struct Cartridge {
   struct Information {
     string metadata;
     string region;
-  };
+  } information;
 
-  struct Memory {
-    explicit operator bool() const;
-    auto reset() -> void;
-    auto read(uint24 address) -> uint16;
-    auto write(uint24 address, uint16 word) -> void;
-
-    uint16* data = nullptr;
-    uint size = 0;  //16-bit word size
-    uint mask = 0;
-    uint bits = 0;
-  };
-
-  Information information;
-
-  Memory rom;
-  Memory patch;
-  Memory ram;
-
-  uint1 ramEnable;
-  uint1 ramWritable;
-  uint6 romBank[8];
+  uint16 ramBits;
+   uint1 ramEnable;
+   uint1 ramWritable;
+   uint6 romBank[8];
 
   struct GameGenie {
     boolean enable;
@@ -75,8 +63,8 @@ struct Cartridge {
     } codes[5];
   } gameGenie;
 
-  function<uint16 (uint22 address)> read;
-  function<void (uint22 address, uint16 data)> write;
+  function<uint16 (uint1 size, uint22 address, uint16 data)> read;
+  function<void (uint1 size, uint22 address, uint16 data)> write;
 
   unique_pointer<Cartridge> slot;
   const uint depth = 0;

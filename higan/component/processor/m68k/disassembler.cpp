@@ -1,14 +1,14 @@
-template<> auto M68K::_read<Byte>(uint32 addr) -> uint32 {
-  return bus->readByte(addr);
+template<> auto M68K::_read<Byte>(uint32 address) -> uint32 {
+  return (uint8)read(Byte, address);
 }
 
-template<> auto M68K::_read<Word>(uint32 addr) -> uint32 {
-  return bus->readWord(addr);
+template<> auto M68K::_read<Word>(uint32 address) -> uint32 {
+  return read(Word, address);
 }
 
-template<> auto M68K::_read<Long>(uint32 addr) -> uint32 {
-  uint32 data = _read<Word>(addr + 0) << 16;
-  return data | _read<Word>(addr + 2) <<  0;
+template<> auto M68K::_read<Long>(uint32 address) -> uint32 {
+  uint32 data = _read<Word>(address + 0) << 16;
+  return data | _read<Word>(address + 2) <<  0;
 }
 
 template<uint Size> auto M68K::_readPC() -> uint32 {

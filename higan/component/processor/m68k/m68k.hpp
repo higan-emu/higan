@@ -5,14 +5,9 @@
 namespace higan {
 
 struct M68K {
-  struct Bus {
-    virtual auto readByte(uint24 addr) -> uint16 = 0;
-    virtual auto readWord(uint24 addr) -> uint16 = 0;
-    virtual auto writeByte(uint24 addr, uint16 data) -> void = 0;
-    virtual auto writeWord(uint24 addr, uint16 data) -> void = 0;
-  };
-
   virtual auto step(uint clocks) -> void = 0;
+  virtual auto read(uint1 size, uint24 address, uint16 data = 0) -> uint16 = 0;
+  virtual auto write(uint1 size, uint24 address, uint16 data) -> void = 0;
 
   enum : bool { User, Supervisor };
   enum : uint { Byte, Word, Long };
@@ -287,7 +282,6 @@ struct M68K {
   uint16 opcode = 0;
 
   function<void ()> instructionTable[65536];
-  Bus* bus = nullptr;
 
 private:
   //disassembler.cpp

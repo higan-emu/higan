@@ -23,9 +23,7 @@ auto System::runToSave() -> void {
   scheduler.synchronize(vdp);
   scheduler.synchronize(psg);
   scheduler.synchronize(ym2612);
-  if(MegaCD()) {
-    scheduler.synchronize(cdpu);
-  }
+  if(MegaCD()) scheduler.synchronize(mcd);
 }
 
 auto System::load(Node::Object from) -> void {
@@ -54,7 +52,7 @@ auto System::load(Node::Object from) -> void {
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   extensionPort.load(node, from);
-  cdpu.load();
+  mcd.load();
 }
 
 auto System::unload() -> void {
@@ -65,7 +63,7 @@ auto System::unload() -> void {
   controllerPort1.port = {};
   controllerPort2.port = {};
   extensionPort.port = {};
-  cdpu.unload();
+  mcd.unload();
   node = {};
 }
 
@@ -105,9 +103,7 @@ auto System::power(bool reset) -> void {
   vdp.power(reset);
   psg.power(reset);
   ym2612.power(reset);
-  if(MegaCD()) {
-    cdpu.power(reset);
-  }
+  if(MegaCD()) mcd.power(reset);
   scheduler.primary(cpu);
 
   serializeInit();

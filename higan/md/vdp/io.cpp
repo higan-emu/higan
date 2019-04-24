@@ -1,5 +1,5 @@
-auto VDP::read(uint24 addr) -> uint16 {
-  switch(addr & 0xc0001e) {
+auto VDP::read(uint24 address, uint16) -> uint16 {
+  switch(address & 0xc0001e) {
 
   //data port
   case 0xc00000: case 0xc00002: {
@@ -26,8 +26,8 @@ auto VDP::read(uint24 addr) -> uint16 {
   return 0x0000;
 }
 
-auto VDP::write(uint24 addr, uint16 data) -> void {
-  switch(addr & 0xc0001e) {
+auto VDP::write(uint24 address, uint16 data) -> void {
+  switch(address & 0xc0001e) {
 
   //data port
   case 0xc00000: case 0xc00002: {

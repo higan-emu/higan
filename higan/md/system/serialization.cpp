@@ -55,9 +55,7 @@ auto System::serializeAll(serializer& s) -> void {
   vdp.serialize(s);
   psg.serialize(s);
   ym2612.serialize(s);
-  if(MegaCD()) {
-    cdpu.serialize(s);
-  }
+  if(MegaCD()) mcd.serialize(s);
   controllerPort1.serialize(s);
   controllerPort2.serialize(s);
   extensionPort.serialize(s);

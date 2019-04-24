@@ -18,6 +18,11 @@ namespace higan::MegaDrive {
   extern Random random;
   extern Cheat cheat;
 
+  enum : uint {
+    Byte = 0,
+    Word = 1,
+  };
+
   struct Wait {
     enum : uint {
       VDP_DMA = 1 << 0,
@@ -59,7 +64,7 @@ namespace higan::MegaDrive {
   #include <md/psg/psg.hpp>
   #include <md/ym2612/ym2612.hpp>
 
-  #include <md/cdpu/cdpu.hpp>
+  #include <md/mcd/mcd.hpp>
 
   #include <md/system/system.hpp>
   #include <md/cartridge/cartridge.hpp>

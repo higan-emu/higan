@@ -1,6 +1,6 @@
 //Motorola 68000
 
-struct CPU : M68K, M68K::Bus, Thread {
+struct CPU : M68K, Thread {
   enum class Interrupt : uint {
     Reset,
     HorizontalBlank,
@@ -20,10 +20,11 @@ struct CPU : M68K, M68K::Bus, Thread {
   auto power(bool reset) -> void;
 
   //bus.cpp
-  auto readByte(uint24 address) -> uint16 override;
-  auto readWord(uint24 address) -> uint16 override;
-  auto writeByte(uint24 address, uint16 data) -> void override;
-  auto writeWord(uint24 address, uint16 data) -> void override;
+  enum : uint { zero = 0 };
+
+  auto read(uint1 size, uint24 address, uint16 data = 0) -> uint16 override;
+  auto write(uint1 size, uint24 address, uint16 data) -> void override;
+
   auto readIO(uint24 address) -> uint16;
   auto writeIO(uint24 address, uint16 data) -> void;
 

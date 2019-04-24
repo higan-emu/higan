@@ -27,9 +27,7 @@ auto APU::main() -> void {
 auto APU::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(cpu);
-  if(MegaCD()) {
-    synchronize(cdpu);
-  }
+  if(MegaCD()) synchronize(mcd);
 }
 
 auto APU::synchronizing() const -> bool {

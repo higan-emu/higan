@@ -10,8 +10,8 @@ auto CPU::main() -> void {
   if(state.interruptPending) {
     if(state.interruptPending.bit((uint)Interrupt::Reset)) {
       state.interruptPending.bit((uint)Interrupt::Reset) = 0;
-      r.a[7] = bus->readWord(0) << 16 | bus->readWord(2) << 0;
-      r.pc   = bus->readWord(4) << 16 | bus->readWord(6) << 0;
+      r.a[7] = read(Word, 0) << 16 | read(Word, 2) << 0;
+      r.pc   = read(Word, 4) << 16 | read(Word, 6) << 0;
     }
 
     if(state.interruptPending.bit((uint)Interrupt::HorizontalBlank)) {
@@ -49,12 +49,8 @@ auto CPU::synchronize() -> void {
   synchronize(vdp);
   synchronize(psg);
   synchronize(ym2612);
-  if(MegaCD()) {
-    synchronize(cdpu);
-  }
-  for(auto peripheral : peripherals) {
-    synchronize(*peripheral);
-  }
+  if(MegaCD()) synchronize(mcd);
+  for(auto peripheral : peripherals) synchronize(*peripheral);
 }
 
 auto CPU::raise(Interrupt interrupt) -> void {
@@ -70,7 +66,6 @@ auto CPU::lower(Interrupt interrupt) -> void {
 }
 
 auto CPU::power(bool reset) -> void {
-  M68K::bus = this;
   M68K::power();
   Thread::create(system.frequency() / 7.0, [&] {
     while(true) scheduler.synchronize(), main();

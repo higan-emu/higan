@@ -45,20 +45,22 @@ auto Expansion::save() -> void {
 auto Expansion::power() -> void {
 }
 
-auto Expansion::read(uint22 address) -> uint8 {
-  return cdpu.external_read(address);
+auto Expansion::read(uint1 size, uint22 address, uint16 data) -> uint16 {
+  return mcd.external_read(size, address, data);
 }
 
-auto Expansion::write(uint22 address, uint8 data) -> void {
-  return cdpu.external_write(address, data);
+auto Expansion::write(uint1 size, uint22 address, uint16 data) -> void {
+  return mcd.external_write(size, address, data);
 }
 
-auto Expansion::readIO(uint24 address) -> uint8 {
-  return cdpu.external_readIO(address);
+auto Expansion::readIO(uint1 size, uint24 address, uint16 data) -> uint16 {
+  if(!node) return 0x0000;
+  return mcd.external_readIO(size, address, data);
 }
 
-auto Expansion::writeIO(uint24 address, uint8 data) -> void {
-  return cdpu.external_writeIO(address, data);
+auto Expansion::writeIO(uint1 size, uint24 address, uint16 data) -> void {
+  if(!node) return;
+  return mcd.external_writeIO(size, address, data);
 }
 
 }
