@@ -7,7 +7,7 @@ auto MCD::CDD::clock() -> void {
   irq.raise();
 }
 
-auto MCD::CDD::write() -> void {
+auto MCD::CDD::process() -> void {
 //print("CDD ", command[0], "\n");
   for(auto& byte : status) byte = 0;
 

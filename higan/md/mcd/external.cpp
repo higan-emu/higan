@@ -11,7 +11,15 @@ auto MCD::external_read(uint1 size, uint22 address, uint16 data) -> uint16 {
     return data;
   }
 
-  if(address >= 0x200000 && address <= 0x23ffff) {
+  if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 0) {
+  //if(io.wramSwitch == 1) return data;
+    data.byte(1) = wram[(uint18)address ^ zero];
+    data.byte(0) = wram[(uint18)address ^ size];
+    return data;
+  }
+
+  if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 1) {
+    address = !io.wramSelect << 17 | (uint17)address;
     data.byte(1) = wram[(uint18)address ^ zero];
     data.byte(0) = wram[(uint18)address ^ size];
     return data;
@@ -27,7 +35,15 @@ auto MCD::external_write(uint1 size, uint22 address, uint16 data) -> void {
     return;
   }
 
-  if(address >= 0x200000 && address <= 0x23ffff) {
+  if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 0) {
+  //if(io.wramSwitch == 1) return;
+    wram[(uint18)address ^ zero] = data.byte(1);
+    wram[(uint18)address ^ size] = data.byte(0);
+    return;
+  }
+
+  if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 1) {
+    address = !io.wramSelect << 17 | (uint17)address;
     wram[(uint18)address ^ zero] = data.byte(1);
     wram[(uint18)address ^ size] = data.byte(0);
     return;
@@ -67,8 +83,8 @@ auto MCD::external_readIO(uint24 address) -> uint8 {
     break;
 
   case 0xa12003:
-    data.bit(0) = rand()&1;
-    data.bit(1) = rand()&1;
+    data.bit(0) =!io.wramMode ? !io.wramSwitch : +io.wramSelect;
+    data.bit(1) = io.wramSwitch;
     data.bit(2) = io.wramMode;
     data.bits(6,7) = io.pramBank;
     break;
@@ -154,6 +170,7 @@ auto MCD::external_writeIO(uint24 address, uint8 data) -> void {
     break;
 
   case 0xa12003:
+    if(data.bit(1)) io.wramSwitch = 1;
     io.pramBank = data.bits(6,7);
     break;
 

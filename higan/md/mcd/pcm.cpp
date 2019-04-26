@@ -3,6 +3,7 @@
 auto MCD::PCM::clock() -> void {
   int left  = 0;
   int right = 0;
+
   if(io.enable)
   for(auto& channel : channels) {
     if(!channel.enable) continue;
@@ -35,9 +36,9 @@ auto MCD::PCM::read(uint13 address, uint8 data) -> uint8 {
   }
 
   if(address >= 0x0010 && address <= 0x001f) {
-    auto& channel = channels[address.bits(1,3)];
-    uint shift = 11 + (!address.bit(0) ? 0 : 8);
-    data = channel.address >> shift;
+    auto& channel = channels[address >> 1 & 7];
+    uint16 offset = channel.address >> 11;
+    data = offset.byte(address & 1);
     return data;
   }
 

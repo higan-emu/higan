@@ -14,7 +14,7 @@ auto MCD::writeIO(uint1 size, uint24 address, uint16 data) -> void {
 auto MCD::readIO(uint24 address) -> uint8 {
   uint8 data;
 
-  switch(address) {
+  switch(0xff8000 | (uint9)address) {
   case 0xff8000:
     data.bit(0) = led.red;
     data.bit(1) = led.green;
@@ -30,8 +30,8 @@ auto MCD::readIO(uint24 address) -> uint8 {
     break;
 
   case 0xff8003:
-    data.bit(0) = rand()&1;
-    data.bit(1) = rand()&1;
+    data.bit(0) =!io.wramMode ? !io.wramSwitch : +io.wramSelect;
+    data.bit(1) = io.wramSwitch;
     data.bit(2) = io.wramMode;
     break;
 
@@ -154,14 +154,16 @@ auto MCD::readIO(uint24 address) -> uint8 {
 }
 
 auto MCD::writeIO(uint24 address, uint8 data) -> void {
-  switch(address) {
+  switch(0xff8000 | (uint9)address) {
   case 0xff8000:
     led.red   = data.bit(0);
     led.green = data.bit(1);
     break;
 
   case 0xff8003:
-    io.wramMode = data.bit(2);
+    io.wramSelect = data.bit(0);
+    io.wramMode   = data.bit(2);
+    io.wramSwitch = 0;
     break;
 
   case 0xff8004:
@@ -261,7 +263,7 @@ auto MCD::writeIO(uint24 address, uint8 data) -> void {
   case 0xff8048: cdd.command[6] = data.bits(0,3); break;
   case 0xff8049: cdd.command[7] = data.bits(0,3); break;
   case 0xff804a: cdd.command[8] = data.bits(0,3); break;
-  case 0xff804b: cdd.command[9] = data.bits(0,3); cdd.write(); break;
+  case 0xff804b: cdd.command[9] = data.bits(0,3); cdd.process(); break;
   }
 
 //print("* w", hex(address, 6), " = ", hex(data, 2), "\n");

@@ -5,7 +5,15 @@ auto MCD::read(uint1 size, uint24 address, uint16 data) -> uint16 {
     return data;
   }
 
-  if(address >= 0x080000 && address <= 0x0dffff) {
+  if(address >= 0x080000 && address <= 0x0bffff && io.wramMode == 0) {
+  //if(io.wramSwitch == 0) return data;
+    data.byte(1) = wram[address ^ zero];
+    data.byte(0) = wram[address ^ size];
+    return data;
+  }
+
+  if(address >= 0x080000 && address <= 0x0dffff && io.wramMode == 1) {
+    address = io.wramSelect << 17 | (uint17)address;
     data.byte(1) = wram[address ^ zero];
     data.byte(0) = wram[address ^ size];
     return data;
@@ -25,7 +33,7 @@ auto MCD::read(uint1 size, uint24 address, uint16 data) -> uint16 {
     return data = readIO(size, address, data);
   }
 
-  print("* ur", hex(address), "\n");
+//print("* ur", hex(address), "\n");
   return data;
 }
 
@@ -36,7 +44,15 @@ auto MCD::write(uint1 size, uint24 address, uint16 data) -> void {
     return;
   }
 
-  if(address >= 0x080000 && address <= 0x0dffff) {
+  if(address >= 0x080000 && address <= 0x0bffff && io.wramMode == 0) {
+  //if(io.wramSwitch == 0) return;
+    wram[address ^ zero] = data.byte(1);
+    wram[address ^ size] = data.byte(0);
+    return;
+  }
+
+  if(address >= 0x080000 && address <= 0x0dffff && io.wramMode == 1) {
+    address = io.wramSelect << 17 | (uint17)address;
     wram[address ^ zero] = data.byte(1);
     wram[address ^ size] = data.byte(0);
     return;
@@ -56,5 +72,5 @@ auto MCD::write(uint1 size, uint24 address, uint16 data) -> void {
     return writeIO(size, address, data);
   }
 
-  print("* uw", hex(address), "=", hex(data), "\n");
+//print("* uw", hex(address), "=", hex(data), "\n");
 }

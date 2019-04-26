@@ -39,13 +39,13 @@ auto MCD::main() -> void {
   if(io.halt) return step(16);
 
   if(irq.pending) {
-    if(1 > r.i && irq.graphics.acknowledge()) return interrupt(Vector::Level1, 1);
-    if(2 > r.i && irq.external.acknowledge()) return interrupt(Vector::Level2, 2);
-    if(3 > r.i && timer.irq.acknowledge())    return interrupt(Vector::Level3, 3);
-    if(4 > r.i && cdd.irq.acknowledge())      return interrupt(Vector::Level4, 4);
-    if(5 > r.i && cdc.irq.acknowledge())      return interrupt(Vector::Level5, 5);
-    if(6 > r.i && irq.subcode.acknowledge())  return interrupt(Vector::Level6, 6);
-    if(irq.reset.acknowledge()) {
+    if(1 > r.i && irq.graphics.lower()) return interrupt(Vector::Level1, 1);
+    if(2 > r.i && irq.external.lower()) return interrupt(Vector::Level2, 2);
+    if(3 > r.i && timer.irq.lower())    return interrupt(Vector::Level3, 3);
+    if(4 > r.i && cdd.irq.lower())      return interrupt(Vector::Level4, 4);
+    if(5 > r.i && cdc.irq.lower())      return interrupt(Vector::Level5, 5);
+    if(6 > r.i && irq.subcode.lower())  return interrupt(Vector::Level6, 6);
+    if(irq.reset.lower()) {
       r.a[7] = pram[0] << 24 | pram[1] << 16 | pram[2] << 8 | pram[3] << 0;
       r.pc   = pram[4] << 24 | pram[5] << 16 | pram[6] << 8 | pram[7] << 0;
       return;

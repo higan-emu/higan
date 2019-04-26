@@ -1,170 +1,226 @@
-//Sanyo LC89510
+//Sanyo LC89510 (CD controller)
+//note: this class emulates a theoretically perfect CDC that never encounters read errors
+
+//called whenever IRQ line state may change
+auto MCD::CDC::poll() -> void {
+  bool pending = false;
+  pending |= irq.decoder.enable  && irq.decoder.pending;
+  pending |= irq.transfer.enable && irq.transfer.pending;
+  pending |= irq.command.enable  && irq.command.pending;
+  pending ? irq.raise() : irq.lower();
+}
 
 auto MCD::CDC::clock() -> void {
   if(stopwatch) stopwatch--;
 }
 
 auto MCD::CDC::read() -> uint8 {
-//print("CDC ", hex(address), "\n");
+print("CDC ", hex(address), "\n");
 
   uint8 data;
 
-  switch(address++) {
+  switch(address) {
 
-  case 0x0: {  //COMIN
-    data = comin;
+  //COMIN: command input
+  case 0x0: {
+    if(command.empty) { data = 0xff; break; }
+    data = command.fifo[command.read++];
+    if(command.read == command.write) {
+      command.empty = true;
+      irq.command.pending = false;
+      poll();
+    }
   } break;
 
-  case 0x1: {  //IFSTAT
-    data.bit(0) = ifstat.sten;
-    data.bit(1) = ifstat.dten;
-    data.bit(2) = ifstat.stbsy;
-    data.bit(3) = ifstat.dtbsy;
+  //IFSTAT: interface status
+  case 0x1: {
+    data.bit(0) =!status.active;
+    data.bit(1) =!transfer.active;
+    data.bit(2) =!status.busy;
+    data.bit(3) =!transfer.busy;
     data.bit(4) = 1;
-    data.bit(5) = ifstat.deci;
-    data.bit(6) = ifstat.dtei;
-    data.bit(7) = ifstat.cmdi;
+    data.bit(5) =!irq.decoder.pending;
+    data.bit(6) =!irq.transfer.pending;
+    data.bit(7) =!irq.command.pending;
   } break;
 
-  case 0x2: {  //DBCL
-    data = dbc.byte(0);
+  //DBCL: data byte counter low
+  case 0x2: {
+    data.bits(0,7) = transfer.length.bits(0,7);
   } break;
 
-  case 0x3: {  //DBCH
-    data = dbc.byte(1);
+  //DBCH: data byte counter high
+  case 0x3: {
+    data.bits(0,3) = transfer.length.bits(8,11);
   } break;
 
-  case 0x4: {  //HEAD0
-    data = head[ctrl1.shdren][0];
+  //HEAD0: header or subheader data
+  case 0x4: {
+    if(control.head == 0) {
+      data = header.minutes;
+    } else {
+      data = subheader.file;
+    }
   } break;
 
-  case 0x5: {  //HEAD1
-    data = head[ctrl1.shdren][1];
+  //HEAD1: header or subheader data
+  case 0x5: {
+    if(control.head == 0) {
+      data = header.seconds;
+    } else {
+      data = subheader.channel;
+    }
   } break;
 
-  case 0x6: {  //HEAD2
-    data = head[ctrl1.shdren][2];
+  //HEAD2: header or subheader data
+  case 0x6: {
+    if(control.head == 0) {
+      data = header.blocks;
+    } else {
+      data = subheader.submode;
+    }
   } break;
 
-  case 0x7: {  //HEAD3
-    data = head[ctrl1.shdren][3];
+  //HEAD3: header or subheader data
+  case 0x7: {
+    if(control.head == 0) {
+      data = header.mode;
+    } else {
+      data = subheader.coding;
+    }
   } break;
 
-  case 0x8: {  //PTL
-    data = pt.byte(0);
+  //PTL: block pointer low
+  case 0x8: {
+    data.bits(0,7) = transfer.pointer.bits(0,7);
   } break;
 
-  case 0x9: {  //PTH
-    data = pt.byte(1);
+  //PTH: block pointer high
+  case 0x9: {
+    data.bits(0,7) = transfer.pointer.bits(8,15);
   } break;
 
-  case 0xa: {  //WAL
-    data = wa.byte(0);
+  //WAL: write address low
+  case 0xa: {
+    data.bits(0,7) = transfer.target.bits(0,7);
   } break;
 
-  case 0xb: {  //WAH
-    data = wa.byte(1);
+  //WAH: write address high
+  case 0xb: {
+    data.bits(0,7) = transfer.target.bits(8,15);
   } break;
 
-  case 0xc: {  //STAT0
-    data.bit(0) = stat0.uceblk;
-    data.bit(1) = stat0.erablk;
-    data.bit(2) = stat0.sblk;
-    data.bit(3) = stat0.wshort;
-    data.bit(4) = stat0.lblk;
-    data.bit(5) = stat0.nosync;
-    data.bit(6) = stat0.ilsync;
-    data.bit(7) = stat0.crcok;
+  //STAT0: status 0
+  case 0xc: {
+    data.bit(0) = 0;  //UCEBLK: uncorrected errors in block
+    data.bit(1) = 0;  //ERABLK: erasures in block
+    data.bit(2) = 0;  //SBLK:   short block
+    data.bit(3) = 0;  //WSHORT: word short
+    data.bit(4) = 0;  //LBLK:   long block
+    data.bit(5) = 0;  //NOSYNC: no sync pattern detected
+    data.bit(6) = 0;  //ILSYNC: illegal sync
+    data.bit(7) = decoder.enable;  //CRCOK: CRC check OK (set only when decoder is enabled)
   } break;
 
-  case 0xd: {  //STAT1
-    data.bit(0) = stat1.sh3era;
-    data.bit(1) = stat1.sh2era;
-    data.bit(2) = stat1.sh1era;
-    data.bit(3) = stat1.sh0era;
-    data.bit(4) = stat1.modera;
-    data.bit(5) = stat1.blkera;
-    data.bit(6) = stat1.secera;
-    data.bit(7) = stat1.menera;
+  //STAT1: status 1
+  //reports error when reading header or subheader data from blocks
+  case 0xd: {
+    data.bit(0) = 0;  //SH3ERA: subheader coding read error
+    data.bit(1) = 0;  //SH2ERA: subheader submode read error
+    data.bit(2) = 0;  //SH1ERA: subheader channel read error
+    data.bit(3) = 0;  //SH0ERA: subheader file read error
+    data.bit(4) = 0;  //MODERA: header mode read error
+    data.bit(5) = 0;  //BLKERA: header block read error
+    data.bit(6) = 0;  //SECERA: header second read error
+    data.bit(7) = 0;  //MINERA: header minute read error
   } break;
 
+  //STAT2: status 2
+  //RFORMx and RMODx are undocumented even across other ICs that emulate the Sanyo interface
   case 0xe: {  //STAT2
-    data.bit(0) = stat2.rform0;
-    data.bit(1) = stat2.rform1;
-    data.bit(2) = stat2.nocor;
-    data.bit(3) = stat2.mode;
-    data.bit(4) = stat2.rmod0;
-    data.bit(5) = stat2.rmod1;
-    data.bit(6) = stat2.rmod2;
-    data.bit(7) = stat2.rmod3;
+    data.bit(0) = 0;             //RFORM0
+    data.bit(1) = 0;             //RFORM1
+    data.bit(2) = decoder.form;  //FORM (also referred to as NOCOR)
+    data.bit(3) = decoder.mode;  //MODE
+    data.bit(4) = 0;             //RMOD0
+    data.bit(5) = 0;             //RMOD1
+    data.bit(6) = 0;             //RMOD2
+    data.bit(7) = 0;             //RMOD3
   } break;
 
-  case 0xf: {  //STAT3
-    data.bit(5) = stat3.cblk;
-    data.bit(6) = stat3.wlong;
-    data.bit(7) = stat3.valst | 1;  //hack: always mark /VALST as clear
-    ifstat.deci |= 1;  //clear pending decoder interrupt
+  //STAT3: status 3
+  case 0xf: {
+    data.bit(5) = 0;  //CBLK:  corrected block flag
+    data.bit(6) = 0;  //WLONG: word long
+    data.bit(7) = 1;  //VALST: valid status
+    irq.decoder.pending = 0;
   } break;
 
   }
+
+  //COMIN reads do not increment the address; STAT3 reads wrap the address to 0x0
+  if(address) address++;
 
   return data;
 }
 
 auto MCD::CDC::write(uint8 data) -> void {
-//print("CDC ", hex(address), "=", hex(data), "\n");
-  switch(address++) {
+print("CDC ", hex(address), "=", hex(data), "\n");
+  switch(address) {
 
-  case 0x0: {  //SBOUT
-    sbout = data;
+  //SBOUT: status byte output
+  case 0x0: {
+    if(status.wait && transfer.busy) break;
+    if(status.read == status.write && !status.empty) status.read++;  //unverified: discard oldest byte?
+    status.fifo[status.write++] = data;
+    status.empty  = false;
+    status.active = true;
+    status.busy   = true;
   } break;
 
   case 0x1: {  //IFCTRL
-    ifctrl.souten = data.bit(0);
-    ifctrl.douten = data.bit(1);
-    ifctrl.stwai  = data.bit(2);
-    ifctrl.dtwai  = data.bit(3);
-    ifctrl.cmdbk  = data.bit(4);
-    ifctrl.decien = data.bit(5);
-    ifctrl.dteien = data.bit(6);
-    ifctrl.cmdien = data.bit(7);
-
-    if((ifctrl.dteien && !ifstat.dtei)
-    || (ifctrl.decien && !ifstat.deci)
-    ) {
-      irq.raise();
-    } else if(irq.pending) {
-      irq.lower();
-    }
+    status.enable        = data.bit(0);
+    transfer.enable      = data.bit(1);
+    status.wait          =!data.bit(2);
+    transfer.wait        =!data.bit(3);
+    control.commandBreak =!data.bit(4);
+    irq.decoder.enable   = data.bit(5);
+    irq.transfer.enable  = data.bit(6);
+    irq.command.enable   = data.bit(7);
+    poll();
 
     //abort data transfer if data output is disabled
-    if(!ifctrl.douten) {
-      ifstat.dten = 1;
-      ifstat.dtbsy = 1;
+    if(!transfer.enable) {
+      transfer.active = 0;
+      transfer.busy = 0;
     }
   } break;
 
-  case 0x2: {  //DBCL
-    dbc.byte(0) = data;
+  //DBCL: data byte counter low
+  case 0x2: {
+    transfer.length.bits(0,7) = data.bits(0,7);
   } break;
 
-  case 0x3: {  //DBCH
-    dbc.byte(1) = data;
+  //DBCH: data byte counter high
+  case 0x3: {
+    transfer.length.bits(8,11) = data.bits(0,3);
   } break;
 
-  case 0x4: {  //DACL
-    dac.byte(0) = data;
+  //DACL: data address counter low
+  case 0x4: {
+    transfer.source.bits(0,7) = data.bits(0,7);
   } break;
 
-  case 0x5: {  //DACH
-    dac.byte(1) = data;
+  //DACH: data address counter high
+  case 0x5: {
+    transfer.source.bits(8,15) = data.bits(0,7);
   } break;
 
-  case 0x6: {  //DTRG
-    if(!ifctrl.douten) break;
-    ifstat.dten = 0;
-    ifstat.dtbsy = 0;
-    dbc = (uint12)dbc;  //clear d12-d15 of DBC
+  //DTRG: data trigger
+  case 0x6: {
+    if(!transfer.enable) break;
+    transfer.active = 1;
+    transfer.busy = 1;
     dsr = 0;
     edt = 0;
     switch(destination) {
@@ -176,81 +232,81 @@ auto MCD::CDC::write(uint8 data) -> void {
   } break;
 
   case 0x7: {  //DTACK
-    ifstat.dtei |= 1;  //clear end data transfer interrupt flag
-    dbc = (uint12)dbc;  //clear d12-d15 of DBC
+    irq.transfer.pending = 0;
   } break;
 
-  case 0x8: {  //WAL
-    wa.byte(0) = data;
+  //WAL: write address low
+  case 0x8: {
+    transfer.target.bits(0,7) = data.bits(0,7);
   } break;
 
-  case 0x9: {  //WAH
-    wa.byte(1) = data;
+  //WAH: write address high
+  case 0x9: {
+    transfer.target.bits(8,15) = data.bits(0,7);
   } break;
 
-  case 0xa: {  //CTRL0
-    ctrl0.prq    = data.bit(0);
-    ctrl0.orq    = data.bit(1);
-    ctrl0.wrrq   = data.bit(2);
-    ctrl0.eramrq = data.bit(3);
-    ctrl0.autorq = data.bit(4);
-    ctrl0.e01rq  = data.bit(5);
-    ctrl0.decen  = data.bit(7);
+  //CTRL0: control 0
+  case 0xa: {
+    control.pCodeCorrection = data.bit(0);
+    control.qCodeCorrection = data.bit(1);
+    control.writeRequest    = data.bit(2);
+    control.erasureRequest  = data.bit(3);
+    control.autoCorrection  = data.bit(4);
+    control.errorCorrection = data.bit(5);
+    control.edcCorrection   = data.bit(6);
+    decoder.enable          = data.bit(7);
 
-    stat0.crcok = ctrl0.decen;  //set CRC OK bit only when decoder is enabled
-
-    //update decoding mode
-    stat2.mode = ctrl1.modrq;
-    if(!ctrl0.autorq) stat2.nocor = ctrl1.formrq;
+    decoder.mode = control.mode;
+    decoder.form = control.form & control.autoCorrection;
   } break;
 
-  case 0xb: {  //CTRL1
-    ctrl1.shdren = data.bit(0);
-    ctrl1.mbckrq = data.bit(1);
-    ctrl1.formrq = data.bit(2);
-    ctrl1.modrq  = data.bit(3);
-    ctrl1.cowren = data.bit(4);
-    ctrl1.dscren = data.bit(5);
-    ctrl1.syden  = data.bit(6);
-    ctrl1.syen   = data.bit(7);
+  //CTRL1: control 1
+  case 0xb: {
+    control.head            = data.bit(0);
+    control.modeByteCheck   = data.bit(1);
+    control.form            = data.bit(2);
+    control.mode            = data.bit(3);
+    control.correctionWrite = data.bit(4);
+    control.descramble      = data.bit(5);
+    control.syncDetection   = data.bit(6);
+    control.syncInterrupt   = data.bit(7);
 
-    //update decoding mode
-    stat2.mode = ctrl1.modrq;
-    if(!ctrl0.autorq) stat2.nocor = ctrl1.formrq;
+    decoder.mode = control.mode;
+    decoder.form = control.form & control.autoCorrection;
   } break;
 
-  case 0xc: {  //PTL
-    pt.byte(0) = data;
+  //PTL: block pointer low
+  case 0xc: {
+    transfer.pointer.bits(0,7) = data.bits(0,7);
   } break;
 
-  case 0xd: {  //PTH
-    pt.byte(1) = data;
+  //PTH: block pointer high
+  case 0xd: {
+    transfer.pointer.bits(8,15) = data.bits(0,7);
   } break;
 
-  case 0xe: {  //CTRL2
-    ctrl2.stentrg = data.bit(0);
-    ctrl2.stenctl = data.bit(1);
-    ctrl2.eramsl  = data.bit(2);
+  //CTRL2: control 2
+  case 0xe: {
+    control.statusTrigger     = data.bit(0);
+    control.statusControl     = data.bit(1);
+    control.erasureCorrection = data.bit(2);
   } break;
 
-  case 0xf: {  //RESET
+  //RESET: software reset
+  case 0xf: {
     irq.lower();
 
-    comin = 0xff;
-    sbout = 0xff;
-    head[0][0] = 0;
-    head[0][1] = 0;
-    head[0][2] = 0;
-    head[0][3] = 1;
-    head[1][0] = 0;
-    head[1][1] = 0;
-    head[1][2] = 0;
-    head[1][3] = 0;
-    ifstat = {};
-    ifctrl = {};
+    command = {};
+    status = {};
+    transfer = {};
+    header = {};
+    subheader = {};
   } break;
 
   }
+
+  //SBOUT writes do not increment the address; RESET reads wrap the address to 0x0
+  if(address) address++;
 }
 
 auto MCD::CDC::power(bool reset) -> void {
@@ -259,28 +315,10 @@ auto MCD::CDC::power(bool reset) -> void {
   address = 0;
   destination = 0;
 
-  comin = 0xff;
-  sbout = 0xff;
-  dbc = 0;
-  dac = 0;
-  wa = 0;
-  pt = 0;
-  head[0][0] = 0;
-  head[0][1] = 0;
-  head[0][2] = 0;
-  head[0][3] = 1;
-  head[1][0] = 0;
-  head[1][1] = 0;
-  head[1][2] = 0;
-  head[1][3] = 0;
-
-  ifstat = {};
-  stat0 = {};
-  stat1 = {};
-  stat2 = {};
-  stat3 = {};
-  ifctrl = {};
-  ctrl0 = {};
-  ctrl1 = {};
-  ctrl2 = {};
+  command = {};
+  status = {};
+  transfer = {};
+  decoder = {};
+  header = {};
+  subheader = {};
 }

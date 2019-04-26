@@ -6,11 +6,7 @@ auto APU::read(uint16 address) -> uint8 {
   if(address == 0x4002) return ym2612.readStatus();
   if(address == 0x4003) return ym2612.readStatus();
 
-  if((address & 0x8000) == 0x8000) {
-    if(cartridge.node) return cartridge.read(Byte, io.bank << 15 | (uint15)address, 0x00);
-    if(expansion.node) return expansion.read(Byte, io.bank << 15 | (uint15)address, 0x00);
-    return 0x00;
-  }
+  if((address & 0x8000) == 0x8000) return cpu.read(Byte, io.bank << 15 | (uint15)address, 0x00);
 
   return 0x00;
 }
@@ -35,10 +31,7 @@ auto APU::write(uint16 address, uint8 data) -> void {
   if(address == 0x7f17) return psg.write(data);
 
   if((address & 0x8000) == 0x8000) {
-    //todo: do 8-bit writes mirror to 16-bits?
-    if(cartridge.node) return cartridge.write(Byte, io.bank << 15 | (uint15)address, data);
-    if(expansion.node) return expansion.write(Byte, io.bank << 15 | (uint15)address, data);
-    return;
+    return cpu.write(Byte, io.bank << 15 | (uint15)address, data);
   }
 }
 

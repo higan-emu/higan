@@ -1,16 +1,15 @@
-auto MCD::IRQ::raise() -> void {
+auto MCD::IRQ::raise() -> bool {
+  if(pending) return false;
   pending = enable;
   synchronize();
+  return true;
 }
 
-auto MCD::IRQ::lower() -> void {
+auto MCD::IRQ::lower() -> bool {
+  if(!pending) return false;
   pending = 0;
   synchronize();
-}
-
-auto MCD::IRQ::acknowledge() -> bool {
-  if(!pending) return false;
-  return lower(), true;
+  return true;
 }
 
 auto MCD::IRQ::synchronize() -> void {

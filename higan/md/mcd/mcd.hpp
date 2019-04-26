@@ -44,7 +44,9 @@ struct MCD : M68K, Thread {
     uint1 request;
     uint1 halt = 1;
 
-    uint1 wramMode;  //0 = 2mbit mode, 1 = 1mbit mode
+    uint1 wramMode;     //MODE: 0 = 2mbit mode, 1 = 1mbit mode
+    uint1 wramSwitch;
+    uint1 wramSelect;
     uint2 pramBank;
     uint8 pramProtect;
 
@@ -59,9 +61,8 @@ struct MCD : M68K, Thread {
 
   struct IRQ {
     //irq.cpp
-    auto raise() -> void;
-    auto lower() -> void;
-    auto acknowledge() -> bool;
+    auto raise() -> bool;
+    auto lower() -> bool;
     static auto synchronize() -> void;
 
     //serialization.cpp
@@ -89,6 +90,7 @@ struct MCD : M68K, Thread {
 
   struct CDC {
     //cdc.cpp
+    auto poll() -> void;
     auto clock() -> void;
     auto read() -> uint8;
     auto write(uint8 data) -> void;
@@ -97,7 +99,6 @@ struct MCD : M68K, Thread {
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    IRQ irq;
     uint12 stopwatch;
 
      uint1 dsr;
@@ -105,106 +106,91 @@ struct MCD : M68K, Thread {
      uint4 address;
      uint3 destination;
 
-     uint8 comin = 0xff;
-     uint8 sbout = 0xff;
-    uint16 dbc;
-    uint16 dac;
-    uint16 wa;
-    uint16 pt;
-     uint8 head[2][4];
+    struct IRQ : MCD::IRQ {
+      MCD::IRQ decoder;   //DECEIN + DECI
+      MCD::IRQ transfer;  //DTEIEN + DTEI
+      MCD::IRQ command;   //CMDIEN + CMDI
+    } irq;
 
-    struct IFSTAT {
-      uint1 sten = 1;
-      uint1 dten = 1;
-      uint1 stbsy = 1;
-      uint1 dtbsy = 1;
-      uint1 deci = 1;
-      uint1 dtei = 1;
-      uint1 cmdi = 1;
-    } ifstat;
+    struct Command {
+      uint8 fifo[8];  //COMIN
+      uint3 read;
+      uint3 write;
+      uint1 empty = 1;
+    } command;
 
-    struct STAT0 {
-      uint1 uceblk;
-      uint1 erablk;
-      uint1 sblk;
-      uint1 wshort;
-      uint1 lblk;
-      uint1 nosync;
-      uint1 ilsync;
-      uint1 crcok;
-    } stat0;
+    struct Status {
+      uint8 fifo[8];    //SBOUT
+      uint3 read;
+      uint3 write;
+      uint1 empty = 1;
+      uint1 enable;     //SOUTEN
+      uint1 active;     //STEN
+      uint1 busy;       //STBSY
+      uint1 wait;       //STWAI
+    } status;
 
-    struct STAT1 {
-      uint1 sh3era;
-      uint1 sh2era;
-      uint1 sh1era;
-      uint1 sh0era;
-      uint1 modera;
-      uint1 blkera;
-      uint1 secera;
-      uint1 menera;
-    } stat1;
+    struct Tranfer {
+      uint16 source;
+      uint16 target;
+      uint16 pointer;
+      uint12 length;
 
-    struct STAT2 {
-      uint1 rform0;
-      uint1 rform1;
-      uint1 nocor;
-      uint1 mode;
-      uint1 rmod0;
-      uint1 rmod1;
-      uint1 rmod2;
-      uint1 rmod3;
-    } stat2;
+       uint1 enable;  //DOUTEN
+       uint1 active;  //DTEN
+       uint1 busy;    //DTBSY
+       uint1 wait;    //DTWAI
+    } transfer;
 
-    struct STAT3 {
-      uint1 cblk;
-      uint1 wlong;
-      uint1 valst = 1;
-    } stat3;
+    enum : uint { Mode1 = 0, Mode2 = 1 };
+    enum : uint { Form1 = 0, Form2 = 1 };
+    struct Decoder {
+      uint1 enable;  //DECEN
+      uint1 mode;    //MODE
+      uint1 form;    //FORM
+    } decoder;
 
-    struct IFCTRL {
-      uint1 souten;
-      uint1 douten;  //data output enable
-      uint1 stwai;
-      uint1 dtwai;
-      uint1 cmdbk;
-      uint1 decien;
-      uint1 dteien;
-      uint1 cmdien;
-    } ifctrl;
+    struct Header {
+      uint8 minutes;
+      uint8 seconds;
+      uint8 blocks;
+      uint8 mode = 1;
+    } header;
 
-    struct CTRL0 {
-      uint1 prq;
-      uint1 orq;
-      uint1 wrrq;
-      uint1 eramrq;
-      uint1 autorq;
-      uint1 e01rq;
-      uint1 decen;
-    } ctrl0;
+    struct Subheader {
+      uint8 file;
+      uint8 channel;
+      uint8 submode;
+      uint8 coding;
+    } subheader;
 
-    struct CTRL1 {
-      uint1 shdren;
-      uint1 mbckrq;
-      uint1 formrq;
-      uint1 modrq;
-      uint1 cowren;
-      uint1 dscren;
-      uint1 syden;
-      uint1 syen;
-    } ctrl1;
-
-    struct CTRL2 {
-      uint1 stentrg;
-      uint1 stenctl;
-      uint1 eramsl;
-    } ctrl2;
+    struct Control {
+      uint1 head;               //SHDREN: 0 = read header, 1 = read subheader
+      uint1 mode;               //MODE
+      uint1 form;               //FORM
+      uint1 commandBreak;       //CMDBK
+      uint1 modeByteCheck;      //MBCKRQ
+      uint1 erasureRequest;     //ERAMRQ
+      uint1 writeRequest;       //WRRQ
+      uint1 pCodeCorrection;    //PRQ
+      uint1 qCodeCorrection;    //QRQ
+      uint1 autoCorrection;     //AUTOQ
+      uint1 errorCorrection;    //E01RQ
+      uint1 edcCorrection;      //EDCRQ
+      uint1 correctionWrite;    //COWREN
+      uint1 descramble;         //DSCREN
+      uint1 syncDetection;      //SYDEN
+      uint1 syncInterrupt;      //SYIEN
+      uint1 erasureCorrection;  //ERAMSL
+      uint1 statusTrigger;      //STENTRG
+      uint1 statusControl;      //STENCTL
+    } control;
   } cdc;
 
   struct CDD {
     //cdd.cpp
     auto clock() -> void;
-    auto write() -> void;
+    auto process() -> void;
     auto checksum() -> void;
     auto power(bool reset) -> void;
 
@@ -264,7 +250,7 @@ struct MCD : M68K, Thread {
       uint16 step;
       uint16 loop;
        uint8 start;
-      uint32 address;
+      uint27 address;
     } channels[8];
   } pcm;
 };
