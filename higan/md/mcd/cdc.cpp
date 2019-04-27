@@ -11,7 +11,7 @@ auto MCD::CDC::poll() -> void {
 }
 
 auto MCD::CDC::clock() -> void {
-  if(stopwatch) stopwatch--;
+  stopwatch++;
 }
 
 auto MCD::CDC::read() -> uint8 {

@@ -1,6 +1,8 @@
 auto Cartridge::serialize(serializer& s) -> void {
-  s.array(ram.data(), ram.size());
-  s.integer(ramBits);
+  wram.serialize(s);
+  bram.serialize(s);
+  s.integer(ramUpper);
+  s.integer(ramLower);
   s.integer(ramEnable);
   s.integer(ramWritable);
   s.array(romBank);

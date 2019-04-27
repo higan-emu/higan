@@ -20,13 +20,11 @@ struct CPU : M68K, Thread {
   auto power(bool reset) -> void;
 
   //bus.cpp
-  enum : uint { zero = 0 };
+  auto read(uint1 upper, uint1 lower, uint24 address, uint16 data = 0) -> uint16 override;
+  auto write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void override;
 
-  auto read(uint1 size, uint24 address, uint16 data = 0) -> uint16 override;
-  auto write(uint1 size, uint24 address, uint16 data) -> void override;
-
-  auto readIO(uint24 address) -> uint16;
-  auto writeIO(uint24 address, uint16 data) -> void;
+  auto readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16;
+  auto writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -34,8 +32,8 @@ struct CPU : M68K, Thread {
   vector<Thread*> peripherals;
 
 private:
-  Memory::Writable<uint8> ram;
-  Memory::Readable<uint8> tmss;
+  Memory::Writable<uint16> ram;
+  Memory::Readable<uint16> tmss;
   uint1 tmssEnable;
 
   struct IO {

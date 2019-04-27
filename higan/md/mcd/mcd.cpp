@@ -14,15 +14,15 @@ MCD mcd;
 #include "serialization.cpp"
 
 auto MCD::load() -> void {
-  bios.allocate  (128_KiB);
-  pram.allocate  (512_KiB);
-  wram.allocate  (256_KiB);
+  bios.allocate  (128_KiB >> 1);
+  pram.allocate  (512_KiB >> 1);
+  wram.allocate  (256_KiB >> 1);
   bram.allocate  (  8_KiB);
   pcm.ram.allocate(64_KiB);
 
   if(expansion.node) {
     if(auto fp = platform->open(expansion.node, "program.rom", File::Read, File::Required)) {
-      bios.load(fp);
+      for(uint address : range(bios.size())) bios.program(address, fp->readm(2));
     }
   }
 }
@@ -46,11 +46,13 @@ auto MCD::main() -> void {
     if(5 > r.i && cdc.irq.lower())      return interrupt(Vector::Level5, 5);
     if(6 > r.i && irq.subcode.lower())  return interrupt(Vector::Level6, 6);
     if(irq.reset.lower()) {
-      r.a[7] = pram[0] << 24 | pram[1] << 16 | pram[2] << 8 | pram[3] << 0;
-      r.pc   = pram[4] << 24 | pram[5] << 16 | pram[6] << 8 | pram[7] << 0;
+      r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
+      r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
       return;
     }
   }
+
+//static uint ctr=0;if(++ctr>2000000)print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
 
   instruction();
 }
@@ -86,6 +88,7 @@ auto MCD::power(bool reset) -> void {
   }
   irq.reset.enable = 1;
   irq.reset.raise();
+  bios.program(0x72 >> 1, 0xffff);
 }
 
 }

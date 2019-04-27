@@ -2,7 +2,7 @@ auto CPU::serialize(serializer& s) -> void {
   M68K::serialize(s);
   Thread::serialize(s);
 
-  s.array(ram.data(), ram.size());
+  ram.serialize(s);
 
   s.boolean(io.version);
   s.boolean(io.romEnable);

@@ -10,8 +10,8 @@ auto CPU::main() -> void {
   if(state.interruptPending) {
     if(state.interruptPending.bit((uint)Interrupt::Reset)) {
       state.interruptPending.bit((uint)Interrupt::Reset) = 0;
-      r.a[7] = read(Word, 0) << 16 | read(Word, 2) << 0;
-      r.pc   = read(Word, 4) << 16 | read(Word, 6) << 0;
+      r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
+      r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
     }
 
     if(state.interruptPending.bit((uint)Interrupt::HorizontalBlank)) {
@@ -29,7 +29,9 @@ auto CPU::main() -> void {
     }
   }
 
-//static uint ctr=0;if(++ctr>5000000)print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
+//static vector<bool> mask;
+//if(!mask)mask.resize(16_MiB);
+//static uint ctr=0;if(++ctr>2000000&&!mask[r.pc&0xffffff])mask[r.pc&0xffffff]=1,print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
 
   instruction();
 }
@@ -71,13 +73,13 @@ auto CPU::power(bool reset) -> void {
     while(true) scheduler.synchronize(), main();
   });
 
-  ram.allocate(64_KiB);
+  ram.allocate(64_KiB >> 1);
 
   tmssEnable = false;
   if(system.tmss->value()) {
-    tmss.allocate(2_KiB);
+    tmss.allocate(2_KiB >> 1);
     if(auto fp = platform->open(system.node, "tmss.rom", File::Read, File::Required)) {
-      tmss.load(fp);
+      for(uint address : range(tmss.size())) tmss.program(address, fp->readm(2));
       tmssEnable = true;
     }
   }

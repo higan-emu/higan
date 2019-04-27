@@ -13,11 +13,11 @@ struct Expansion {
   auto save() -> void;
   auto power() -> void;
 
-  auto read(uint1 size, uint22 address, uint16 data) -> uint16;
-  auto write(uint1 size, uint22 address, uint16 data) -> void;
+  auto read(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16;
+  auto write(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void;
 
-  auto readIO(uint1 size, uint24 address, uint16 data = 0) -> uint16;
-  auto writeIO(uint1 size, uint24 address, uint16 data) -> void;
+  auto readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16;
+  auto writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

@@ -1,10 +1,10 @@
 //Mega CD
 
 struct MCD : M68K, Thread {
-  Memory::Readable<uint8> bios;  //BIOS ROM
-  Memory::Writable<uint8> pram;  //program RAM
-  Memory::Writable<uint8> wram;  //work RAM
-  Memory::Writable<uint8> bram;  //backup RAM
+  Memory::Readable<uint16> bios;  //BIOS ROM
+  Memory::Writable<uint16> pram;  //program RAM
+  Memory::Writable<uint16> wram;  //work RAM
+  Memory::Writable< uint8> bram;  //backup RAM
 
   //mcd.cpp
   auto load() -> void;
@@ -15,25 +15,24 @@ struct MCD : M68K, Thread {
   auto power(bool reset) -> void;
 
   //bus.cpp
-  enum : uint { zero = 0 };
-  auto read(uint1 size, uint24 address, uint16 data = 0) -> uint16 override;
-  auto write(uint1 size, uint24 address, uint16 data) -> void override;
+  auto read(uint1 upper, uint1 lower, uint24 address, uint16 data = 0) -> uint16 override;
+  auto write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void override;
 
   //io.cpp
-  auto readIO(uint1 size, uint24 address, uint16 data = 0) -> uint16;
-  auto writeIO(uint1 size, uint24 address, uint16 data) -> void;
+  auto readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16;
+  auto writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void;
 
   auto readIO(uint24 address) -> uint8;
   auto writeIO(uint24 address, uint8 data) -> void;
 
   //external.cpp
-  auto external_read(uint1 size, uint22 address, uint16 data = 0) -> uint16;
-  auto external_write(uint1 size, uint22 address, uint16 data) -> void;
+  auto external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16;
+  auto external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void;
 
-  auto external_readIO(uint1 size, uint24 address, uint16 data = 0) -> uint16;
-  auto external_writeIO(uint1 size, uint24 address, uint16 data) -> void;
+  auto external_readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16;
+  auto external_writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void;
 
-  auto external_readIO(uint24 address) -> uint8;
+  auto external_readIO(uint24 address, uint8 data) -> uint8;
   auto external_writeIO(uint24 address, uint8 data) -> void;
 
   //serialization.cpp
@@ -99,12 +98,11 @@ struct MCD : M68K, Thread {
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    uint12 stopwatch;
-
      uint1 dsr;
      uint1 edt;
      uint4 address;
      uint3 destination;
+    uint12 stopwatch;
 
     struct IRQ : MCD::IRQ {
       MCD::IRQ decoder;   //DECEIN + DECI

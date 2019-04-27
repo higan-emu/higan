@@ -25,7 +25,7 @@ struct APU : Z80, Z80::Bus, Thread {
   auto serialize(serializer&) -> void;
 
 private:
-  uint8 ram[8 * 1024];
+  Memory::Writable<uint8> ram;
 
   struct IO {
     uint9 bank;

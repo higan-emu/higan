@@ -27,6 +27,8 @@ auto APU::main() -> void {
 auto APU::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(cpu);
+  synchronize(psg);
+  synchronize(ym2612);
   if(MegaCD()) synchronize(mcd);
 }
 
@@ -56,7 +58,7 @@ auto APU::power(bool reset) -> void {
   Thread::create(system.frequency() / 15.0, [&] {
     while(true) scheduler.synchronize(), main();
   });
-  if(!reset) memory::fill(ram, sizeof(ram));
+  if(!reset) ram.allocate(8_KiB);
   state = {};
 }
 

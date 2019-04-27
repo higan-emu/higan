@@ -3,7 +3,7 @@ auto APU::serialize(serializer& s) -> void {
   Z80::Bus::serialize(s);
   Thread::serialize(s);
 
-  s.array(ram);
+  ram.serialize(s);
 
   s.integer(io.bank);
 

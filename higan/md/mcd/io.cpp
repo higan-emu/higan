@@ -1,12 +1,12 @@
-auto MCD::readIO(uint1 size, uint24 address, uint16 data) -> uint16 {
-  data = readIO(address);
-  if(size == Word) data = data << 8 | readIO(address ^ 1);
+auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 {
+  if(upper) data.byte(1) = readIO(address | 0);
+  if(lower) data.byte(0) = readIO(address | 1);
   return data;
 }
 
-auto MCD::writeIO(uint1 size, uint24 address, uint16 data) -> void {
-  writeIO(address, data.byte(size));
-  if(size == Word) writeIO(address ^ 1, data.byte(zero));
+auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
+  if(upper) writeIO(address | 0, data.byte(1));
+  if(lower) writeIO(address | 1, data.byte(0));
 }
 
 //

@@ -1,73 +1,65 @@
-auto MCD::external_read(uint1 size, uint22 address, uint16 data) -> uint16 {
+auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16 {
   if(address >= 0x000000 && address <= 0x01ffff) {
-    data.byte(1) = bios[(uint17)address ^ zero];
-    data.byte(0) = bios[(uint17)address ^ size];
-    return data;
+    return bios[address >> 1];
   }
 
   if(address >= 0x020000 && address <= 0x03ffff) {
-    data.byte(1) = pram[io.pramBank << 17 | (uint17)address ^ zero];
-    data.byte(0) = pram[io.pramBank << 17 | (uint17)address ^ size];
-    return data;
+    address = io.pramBank << 17 | (uint17)address;
+    return pram[address >> 1];
   }
 
   if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 0) {
-  //if(io.wramSwitch == 1) return data;
-    data.byte(1) = wram[(uint18)address ^ zero];
-    data.byte(0) = wram[(uint18)address ^ size];
-    return data;
+    if(io.wramSwitch == 1) return data;
+    return wram[address >> 1];
   }
 
   if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 1) {
     address = !io.wramSelect << 17 | (uint17)address;
-    data.byte(1) = wram[(uint18)address ^ zero];
-    data.byte(0) = wram[(uint18)address ^ size];
-    return data;
+    return wram[address >> 1];
   }
 
   return data;
 }
 
-auto MCD::external_write(uint1 size, uint22 address, uint16 data) -> void {
+auto MCD::external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void {
   if(address >= 0x020000 && address <= 0x03ffff) {
-    pram[io.pramBank << 17 | (uint17)address ^ zero] = data.byte(1);
-    pram[io.pramBank << 17 | (uint17)address ^ size] = data.byte(0);
+    address = io.pramBank << 17 | (uint17)address;
+    if(upper) pram[address >> 1].byte(1) = data.byte(1);
+    if(lower) pram[address >> 1].byte(0) = data.byte(0);
     return;
   }
 
   if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 0) {
-  //if(io.wramSwitch == 1) return;
-    wram[(uint18)address ^ zero] = data.byte(1);
-    wram[(uint18)address ^ size] = data.byte(0);
+    if(io.wramSwitch == 1) return;
+    if(upper) wram[address >> 1].byte(1) = data.byte(1);
+    if(lower) wram[address >> 1].byte(0) = data.byte(0);
     return;
   }
 
   if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 1) {
     address = !io.wramSelect << 17 | (uint17)address;
-    wram[(uint18)address ^ zero] = data.byte(1);
-    wram[(uint18)address ^ size] = data.byte(0);
+    if(upper) wram[address >> 1].byte(1) = data.byte(1);
+    if(lower) wram[address >> 1].byte(0) = data.byte(0);
     return;
   }
 }
 
 //
 
-auto MCD::external_readIO(uint1 size, uint24 address, uint16 data) -> uint16 {
-  data = external_readIO(address);
-  if(size == Word) data = data << 8 | external_readIO(address ^ 1);
+auto MCD::external_readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 {
+  if(upper) data.byte(1) = external_readIO(address | 0, data.byte(1));
+  if(lower) data.byte(0) = external_readIO(address | 1, data.byte(0));
   return data;
 }
 
-auto MCD::external_writeIO(uint1 size, uint24 address, uint16 data) -> void {
-  external_writeIO(address, data.byte(size));
-  if(size == Word) external_writeIO(address ^ 1, data.byte(zero));
+auto MCD::external_writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
+  if(upper) external_writeIO(address | 0, data.byte(1));
+  if(lower) external_writeIO(address | 1, data.byte(0));
 }
 
 //
 
-auto MCD::external_readIO(uint24 address) -> uint8 {
-  uint8 data;
-
+auto MCD::external_readIO(uint24 address, uint8 data) -> uint8 {
   switch(address) {
   case 0xa12000:
     data.bit(0) = irq.external.pending;
@@ -174,13 +166,17 @@ auto MCD::external_writeIO(uint24 address, uint8 data) -> void {
     io.pramBank = data.bits(6,7);
     break;
 
-  case 0xa12006:
-    bios.program(0x72, data);
-    break;
+  case 0xa12006: {
+    uint16 vector = bios.read(0x72 >> 1);
+    vector.byte(1) = data;
+    bios.program(0x72 >> 1, vector);
+  } break;
 
-  case 0xa12007:
-    bios.program(0x73, data);
-    break;
+  case 0xa12007: {
+    uint16 vector = bios.read(0x72 >> 1);
+    vector.byte(0) = data;
+    bios.program(0x72 >> 1, vector);
+  } break;
 
   case 0xa1200e:
     communication.cfm = data;

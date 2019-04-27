@@ -1,9 +1,13 @@
 template<> auto M68K::_read<Byte>(uint32 address) -> uint32 {
-  return (uint8)read(Byte, address);
+  if(address & 1) {
+    return read(0, 1, address & ~1).byte(0);
+  } else {
+    return read(1, 0, address & ~1).byte(1);
+  }
 }
 
 template<> auto M68K::_read<Word>(uint32 address) -> uint32 {
-  return read(Word, address);
+  return read(1, 1, address & ~1);
 }
 
 template<> auto M68K::_read<Long>(uint32 address) -> uint32 {
