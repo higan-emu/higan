@@ -10,6 +10,7 @@ MCD mcd;
 #include "cdc.cpp"
 #include "cdd.cpp"
 #include "timer.cpp"
+#include "gpu.cpp"
 #include "pcm.cpp"
 #include "serialization.cpp"
 
@@ -39,7 +40,7 @@ auto MCD::main() -> void {
   if(io.halt) return step(16);
 
   if(irq.pending) {
-    if(1 > r.i && irq.graphics.lower()) return interrupt(Vector::Level1, 1);
+    if(1 > r.i && gpu.irq.lower())      return interrupt(Vector::Level1, 1), print("io\n");
     if(2 > r.i && irq.external.lower()) return interrupt(Vector::Level2, 2);
     if(3 > r.i && timer.irq.lower())    return interrupt(Vector::Level3, 3);
     if(4 > r.i && cdd.irq.lower())      return interrupt(Vector::Level4, 4);
@@ -58,6 +59,7 @@ auto MCD::main() -> void {
 }
 
 auto MCD::step(uint clocks) -> void {
+  gpu.step(clocks);
   io.counter += clocks;
   while(io.counter >= 384) {
     io.counter -= 384;
@@ -84,6 +86,7 @@ auto MCD::power(bool reset) -> void {
     cdc.power(reset);
     cdd.power(reset);
     timer.power(reset);
+    gpu.power(reset);
     pcm.power(reset);
   }
   irq.reset.enable = 1;

@@ -5,6 +5,7 @@ auto MCD::serialize(serializer& s) -> void {
   cdc.serialize(s);
   cdd.serialize(s);
   timer.serialize(s);
+  gpu.serialize(s);
   pcm.serialize(s);
 }
 
@@ -18,6 +19,9 @@ auto MCD::CDD::serialize(serializer& s) -> void {
 }
 
 auto MCD::Timer::serialize(serializer& s) -> void {
+}
+
+auto MCD::GPU::serialize(serializer& s) -> void {
 }
 
 auto MCD::PCM::serialize(serializer& s) -> void {

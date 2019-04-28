@@ -104,7 +104,7 @@ auto MCD::readIO(uint24 address) -> uint8 {
     break;
 
   case 0xff8033:
-    data.bit(1) = irq.graphics.enable;
+    data.bit(1) = gpu.irq.enable;
     data.bit(2) = irq.external.enable;
     data.bit(3) = timer.irq.enable;
     data.bit(4) = cdd.irq.enable;
@@ -147,6 +147,114 @@ auto MCD::readIO(uint24 address) -> uint8 {
   case 0xff8049: data.bits(0,3) = cdd.command[7]; break;
   case 0xff804a: data.bits(0,3) = cdd.command[8]; break;
   case 0xff804b: data.bits(0,3) = cdd.command[9]; break;
+
+  case 0xff804d:
+    data.bits(0,3) = gpu.font.color.background;
+    data.bits(4,7) = gpu.font.color.foreground;
+    break;
+
+  case 0xff804e:
+    data.bits(0,7) = gpu.font.data.bits(8,15);
+    break;
+
+  case 0xff804f:
+    data.bits(0,7) = gpu.font.data.bits(0, 7);
+    break;
+
+  case 0xff8050:
+    data.bits(0,3) = gpu.font.data.bit(14) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit(15) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8051:
+    data.bits(0,3) = gpu.font.data.bit(12) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit(13) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8052:
+    data.bits(0,3) = gpu.font.data.bit(10) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit(11) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8053:
+    data.bits(0,3) = gpu.font.data.bit( 8) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit( 9) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8054:
+    data.bits(0,3) = gpu.font.data.bit( 6) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit( 7) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8055:
+    data.bits(0,3) = gpu.font.data.bit( 4) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit( 5) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8056:
+    data.bits(0,3) = gpu.font.data.bit( 2) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit( 3) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8057:
+    data.bits(0,3) = gpu.font.data.bit( 0) ? gpu.font.color.foreground : gpu.font.color.background;
+    data.bits(4,7) = gpu.font.data.bit( 1) ? gpu.font.color.foreground : gpu.font.color.background;
+    break;
+
+  case 0xff8058:
+    data.bit(7) = gpu.active;  //unconfirmed
+    break;
+
+  case 0xff8059:
+    data.bit(0) = gpu.stamp.repeat;
+    data.bit(1) = gpu.stamp.tile.size;
+    data.bit(2) = gpu.stamp.map.size;
+    break;
+
+  case 0xff805a:
+    data.bits(0,7) = gpu.stamp.map.base.bits(10,17);
+    break;
+
+  case 0xff805b:
+    data.bits(5,7) = gpu.stamp.map.base.bits(7,9);
+    break;
+
+  case 0xff805d:
+    data.bits(0,4) = gpu.image.vcells;
+    break;
+
+  case 0xff805e:
+    data.bits(0,7) = gpu.image.base.bits(10,17);
+    break;
+
+  case 0xff805f:
+    data.bits(3,7) = gpu.image.base.bits(5,9);
+    break;
+
+  case 0xff8061:
+    data.bits(0,5) = gpu.image.offset;
+    break;
+
+  case 0xff8062:
+    data.bit(0) = gpu.image.hdots.bit(8);
+    break;
+
+  case 0xff8063:
+    data.bits(0,7) = gpu.image.hdots.bits(0,7);
+    break;
+
+  case 0xff8065:
+    data.bits(0,7) = gpu.image.vdots.bits(0,7);
+    break;
+
+  case 0xff8066:
+    data.bits(0,7) = gpu.vector.base.bits(10,17);
+    break;
+
+  case 0xff8067:
+    data.bits(1,7) = gpu.vector.base.bits(3,9);
+    gpu.start();
+    break;
   }
 
 //print("* r", hex(address, 6), " = ", hex(data, 2), "\n");
@@ -212,7 +320,7 @@ auto MCD::writeIO(uint24 address, uint8 data) -> void {
     break;
 
   case 0xff8033:
-    irq.graphics.enable = data.bit(1);
+    gpu.irq.enable      = data.bit(1);
     irq.external.enable = data.bit(2);
     timer.irq.enable    = data.bit(3);
     cdd.irq.enable      = data.bit(4);
@@ -264,6 +372,69 @@ auto MCD::writeIO(uint24 address, uint8 data) -> void {
   case 0xff8049: cdd.command[7] = data.bits(0,3); break;
   case 0xff804a: cdd.command[8] = data.bits(0,3); break;
   case 0xff804b: cdd.command[9] = data.bits(0,3); cdd.process(); break;
+
+  case 0xff804d:
+    gpu.font.color.background = data.bits(0,3);
+    gpu.font.color.foreground = data.bits(4,7);
+    break;
+
+  case 0xff804e:
+    gpu.font.data.bits(8,15) = data.bits(0,7);
+    break;
+
+  case 0xff804f:
+    gpu.font.data.bits(0, 7) = data.bits(0,7);
+    break;
+
+  case 0xff8059:
+    gpu.stamp.repeat    = data.bit(0);
+    gpu.stamp.tile.size = data.bit(1);
+    gpu.stamp.map.size  = data.bit(2);
+    break;
+
+  case 0xff805a:
+    gpu.stamp.map.base.bits(10,17) = data.bits(0,7);
+    break;
+
+  case 0xff805b:
+    gpu.stamp.map.base.bits(7,9) = data.bits(5,7);
+    break;
+
+  case 0xff805d:
+    gpu.image.vcells = data.bits(0,4);
+    break;
+
+  case 0xff805e:
+    gpu.image.base.bits(10,17) = data.bits(0,7);
+    break;
+
+  case 0xff805f:
+    gpu.image.base.bits(5,9) = data.bits(3,7);
+    break;
+
+  case 0xff8061:
+    gpu.image.offset = data.bits(0,5);
+    break;
+
+  case 0xff8062:
+    gpu.image.hdots.bit(8) = data.bit(0);
+    break;
+
+  case 0xff8063:
+    gpu.image.hdots.bits(0,7) = data.bits(0,7);
+    break;
+
+  case 0xff8065:
+    gpu.image.vdots.bits(0,7) = data.bits(0,7);
+    break;
+
+  case 0xff8066:
+    gpu.vector.base.bits(10,17) = data.bits(0,7);
+    break;
+
+  case 0xff8067:
+    gpu.vector.base.bits(3,9) = data.bits(1,7);
+    break;
   }
 
 //print("* w", hex(address, 6), " = ", hex(data, 2), "\n");

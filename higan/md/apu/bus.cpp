@@ -6,7 +6,8 @@
  */
 
 auto APU::read(uint16 address) -> uint8 {
-  if(address >= 0x0000 && address <= 0x1fff) return ram[address];
+  //$2000-3fff mirrors $0000-1fff
+  if(address >= 0x0000 && address <= 0x3fff) return ram.read(address);
   if(address >= 0x4000 && address <= 0x4003) return ym2612.readStatus();
   if(address >= 0x8000 && address <= 0xffff) {
     uint24 location = io.bank << 15 | (uint15)address;
@@ -21,7 +22,8 @@ auto APU::read(uint16 address) -> uint8 {
 }
 
 auto APU::write(uint16 address, uint8 data) -> void {
-  if(address >= 0x0000 && address <= 0x1fff) return (void)(ram[address] = data);
+  //$2000-3fff mirrors $0000-1fff
+  if(address >= 0x0000 && address <= 0x3fff) return ram.write(address, data);
   if(address == 0x4000) return ym2612.writeAddress(0 << 8 | data);
   if(address == 0x4001) return ym2612.writeData(data);
   if(address == 0x4002) return ym2612.writeAddress(1 << 8 | data);

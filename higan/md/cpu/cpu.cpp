@@ -4,6 +4,7 @@ namespace higan::MegaDrive {
 
 CPU cpu;
 #include "bus.cpp"
+#include "io.cpp"
 #include "serialization.cpp"
 
 auto CPU::main() -> void {

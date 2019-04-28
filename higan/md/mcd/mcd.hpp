@@ -75,7 +75,6 @@ struct MCD : M68K, Thread {
     uint1 pending;
 
     IRQ reset;
-    IRQ graphics;
     IRQ external;
     IRQ subcode;
   } irq;
@@ -221,6 +220,54 @@ struct MCD : M68K, Thread {
     IRQ irq;
     uint8 counter;
   } timer;
+
+  struct GPU {
+    //gpu.cpp
+    auto step(uint clocks) -> void;
+    auto render() -> void;
+    auto start() -> void;
+    auto power(bool reset) -> void;
+
+    //serialization.cpp
+    auto serialize(serializer&) -> void;
+
+    IRQ irq;
+
+    struct Font {
+      struct Color {
+        uint4 background;
+        uint4 foreground;
+      } color;
+      uint16 data;
+    } font;
+
+    struct Stamp {
+      uint1 repeat;
+      struct Tile {
+        uint1 size;  //0 = 16x16, 1 = 32x32
+      } tile;
+      struct Map {
+         uint1 size;  //0 = 256x256, 1 = 4096x4096
+        uint17 base;
+      } map;
+    } stamp;
+
+    struct Image {
+      uint17 base;
+       uint6 offset;
+       uint5 vcells;
+       uint8 vdots;
+       uint9 hdots;
+    } image;
+
+    struct Vector {
+      uint17 base;
+    } vector;
+
+     uint1 active;
+    uint32 counter;
+    uint32 period;
+  } gpu;
 
   struct PCM {
     shared_pointer<Stream> stream;

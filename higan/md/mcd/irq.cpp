@@ -14,7 +14,7 @@ auto MCD::IRQ::lower() -> bool {
 
 auto MCD::IRQ::synchronize() -> void {
   mcd.irq.pending |= mcd.irq.reset.pending;
-  mcd.irq.pending |= mcd.irq.graphics.pending;
+  mcd.irq.pending |= mcd.gpu.irq.pending;
   mcd.irq.pending |= mcd.irq.external.pending;
   mcd.irq.pending |= mcd.timer.irq.pending;
   mcd.irq.pending |= mcd.cdd.irq.pending;

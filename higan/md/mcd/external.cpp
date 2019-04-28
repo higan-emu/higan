@@ -1,4 +1,6 @@
 auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16 {
+  address.bits(18,20) = 0;  //mirrors
+
   if(address >= 0x000000 && address <= 0x01ffff) {
     return bios[address >> 1];
   }
@@ -22,6 +24,8 @@ auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -
 }
 
 auto MCD::external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void {
+  address.bits(18,20) = 0;  //mirrors
+
   if(address >= 0x020000 && address <= 0x03ffff) {
     address = io.pramBank << 17 | (uint17)address;
     if(upper) pram[address >> 1].byte(1) = data.byte(1);
@@ -60,6 +64,8 @@ auto MCD::external_writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data
 //
 
 auto MCD::external_readIO(uint24 address, uint8 data) -> uint8 {
+  address.bits(6,7) = 0;  //a12040-a120ff mirrors a12000-a1203f
+
   switch(address) {
   case 0xa12000:
     data.bit(0) = irq.external.pending;
@@ -140,11 +146,12 @@ auto MCD::external_readIO(uint24 address, uint8 data) -> uint8 {
   case 0xa1202f: data = communication.status[15]; break;
   }
 
-//print("! r", hex(address, 6), " = ", hex(data, 2), "\n");
   return data;
 }
 
 auto MCD::external_writeIO(uint24 address, uint8 data) -> void {
+  address.bits(6,7) = 0;  //a12040-a120ff mirrors a12000-a1203f
+
   switch(address) {
   case 0xa12000:
     if(data.bit(0)) irq.external.raise();
@@ -199,6 +206,4 @@ auto MCD::external_writeIO(uint24 address, uint8 data) -> void {
   case 0xa1201e: communication.command[14] = data; break;
   case 0xa1201f: communication.command[15] = data; break;
   }
-
-//print("! w", hex(address, 6), " = ", hex(data, 2), "\n");
 }

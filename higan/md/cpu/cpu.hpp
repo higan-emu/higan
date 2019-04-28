@@ -23,6 +23,7 @@ struct CPU : M68K, Thread {
   auto read(uint1 upper, uint1 lower, uint24 address, uint16 data = 0) -> uint16 override;
   auto write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void override;
 
+  //io.cpp
   auto readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16;
   auto writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void;
 
