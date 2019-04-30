@@ -15,7 +15,7 @@ auto MCD::CDC::clock() -> void {
 }
 
 auto MCD::CDC::read() -> uint8 {
-print("CDC ", hex(address), "\n");
+print("CDC ", hex(address), " ", "\n");
 
   uint8 data;
 

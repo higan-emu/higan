@@ -2,10 +2,13 @@
 
 namespace higan::MegaDrive {
 
+static uint16 Unmapped = 0;
+
 MCD mcd;
 #include "bus.cpp"
+#include "bus-external.cpp"
 #include "io.cpp"
-#include "external.cpp"
+#include "io-external.cpp"
 #include "irq.cpp"
 #include "cdc.cpp"
 #include "cdd.cpp"
@@ -40,8 +43,8 @@ auto MCD::main() -> void {
   if(io.halt) return step(16);
 
   if(irq.pending) {
-    if(1 > r.i && gpu.irq.lower())      return interrupt(Vector::Level1, 1), print("io\n");
-    if(2 > r.i && irq.external.lower()) return interrupt(Vector::Level2, 2);
+    if(1 > r.i && gpu.irq.lower())      return interrupt(Vector::Level1, 1);
+    if(2 > r.i && external.irq.lower()) return interrupt(Vector::Level2, 2);
     if(3 > r.i && timer.irq.lower())    return interrupt(Vector::Level3, 3);
     if(4 > r.i && cdd.irq.lower())      return interrupt(Vector::Level4, 4);
     if(5 > r.i && cdc.irq.lower())      return interrupt(Vector::Level5, 5);

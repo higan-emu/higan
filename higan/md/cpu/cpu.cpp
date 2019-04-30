@@ -30,9 +30,7 @@ auto CPU::main() -> void {
     }
   }
 
-//static vector<bool> mask;
-//if(!mask)mask.resize(16_MiB);
-//static uint ctr=0;if(++ctr>2000000&&!mask[r.pc&0xffffff])mask[r.pc&0xffffff]=1,print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
+//static uint ctr=0;if(++ctr>2000000)print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
 
   instruction();
 }

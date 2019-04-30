@@ -18,22 +18,17 @@ struct MCD : M68K, Thread {
   auto read(uint1 upper, uint1 lower, uint24 address, uint16 data = 0) -> uint16 override;
   auto write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void override;
 
+  //bus-external.cpp
+  auto external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16;
+  auto external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void;
+
   //io.cpp
   auto readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16;
   auto writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void;
 
-  auto readIO(uint24 address) -> uint8;
-  auto writeIO(uint24 address, uint8 data) -> void;
-
-  //external.cpp
-  auto external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16;
-  auto external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void;
-
+  //io-external.cpp
   auto external_readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16;
   auto external_writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void;
-
-  auto external_readIO(uint24 address, uint8 data) -> uint8;
-  auto external_writeIO(uint24 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -46,6 +41,7 @@ struct MCD : M68K, Thread {
     uint1 wramMode;     //MODE: 0 = 2mbit mode, 1 = 1mbit mode
     uint1 wramSwitch;
     uint1 wramSelect;
+    uint2 wramPriority;
     uint2 pramBank;
     uint8 pramProtect;
 
@@ -75,15 +71,18 @@ struct MCD : M68K, Thread {
     uint1 pending;
 
     IRQ reset;
-    IRQ external;
     IRQ subcode;
   } irq;
 
+  struct External {
+    IRQ irq;
+  } external;
+
   struct Communcation {
-    uint8 cfm;
-    uint8 cfs;
-    uint8 command[16];
-    uint8 status [16];
+     uint8 cfm;
+     uint8 cfs;
+    uint16 command[8];
+    uint16 status [8];
   } communication;
 
   struct CDC {
@@ -185,9 +184,28 @@ struct MCD : M68K, Thread {
   } cdc;
 
   struct CDD {
+    struct DriveStatus { enum : uint {
+      Stop,             //disc spinning stopped
+      Play,             //playing data or music
+      Seek,             //move to specified time
+      Scan,             //searching with a scan command
+      Pause,            //paused at a specific time
+      Open,             //tray is open
+      ChecksumError,    //invalid communication checksum
+      CommandError,     //missing command
+      FunctionError,    //unknown error
+      TableOfContents,  //reading TOC
+      TrackMove,        //accessing in high-speed mode
+      NoDisc,           //no disc in tray or cannot focus
+      DiscEnd,          //pickup is in the lead-out area
+      Tray,             //door is moving via open/close commands
+      Test,             //in test mode
+    };};
+
     //cdd.cpp
     auto clock() -> void;
     auto process() -> void;
+    auto valid() -> bool;
     auto checksum() -> void;
     auto power(bool reset) -> void;
 
@@ -203,10 +221,25 @@ struct MCD : M68K, Thread {
       uint11 volume;
     } fader;
 
-    uint1 hock;
+    struct IO {
+      uint4 status = DriveStatus::Stop;
+    } io;
 
-    uint4 status [10];
-    uint4 command[10];
+    uint1 hostClockEnable;
+
+    struct Status {
+      inline auto operator[](uint index) -> uint4& { return data[index]; }
+
+      uint1 receiving;
+      uint4 data[10];
+    } status;
+
+    struct Command {
+      inline auto operator[](uint index) -> uint4& { return data[index]; }
+
+      uint1 sending;
+      uint4 data[10];
+    } command;
   } cdd;
 
   struct Timer {
