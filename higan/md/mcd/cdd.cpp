@@ -1,14 +1,15 @@
+//NEC uPD75006 (G-631)
+//4-bit MCU HLE
+
 auto MCD::CDD::clock() -> void {
   if(!hostClockEnable || ++counter < 434) return;
   counter = 0;
 
   //75hz
-  if(command.sending) {
-    command.sending = 0;
-    process();
+  if(statusPending) {
+    statusPending = 0;
+    irq.raise();
   }
-
-  irq.raise();
 }
 
 auto MCD::CDD::process() -> void {
@@ -76,7 +77,7 @@ auto MCD::CDD::process() -> void {
   }
 
   checksum();
-  irq.raise();
+  statusPending = 1;
 }
 
 auto MCD::CDD::valid() -> bool {
@@ -97,7 +98,7 @@ auto MCD::CDD::power(bool reset) -> void {
   fader = {};
   io = {};
   io.status = DriveStatus::NoDisc;
-  for(uint index : range(10)) status[index] = 0x0;
+  for(uint index : range(10)) status [index] = 0x0;
   for(uint index : range(10)) command[index] = 0x0;
   checksum();
 }

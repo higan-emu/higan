@@ -11,7 +11,7 @@ auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -
   }
 
   if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 0) {
-    if(io.wramSwitch == 1) return data;
+  //if(io.wramSwitch == 1) return data;
     return wram[address >> 1];
   }
 
@@ -34,7 +34,7 @@ auto MCD::external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) 
   }
 
   if(address >= 0x200000 && address <= 0x23ffff && io.wramMode == 0) {
-    if(io.wramSwitch == 1) return;
+  //if(io.wramSwitch == 1) return;
     if(upper) wram[address >> 1].byte(1) = data.byte(1);
     if(lower) wram[address >> 1].byte(0) = data.byte(0);
     return;

@@ -87,8 +87,8 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
   }
 
   if(address == 0xff8036) {
-    data.bit (0)    = cdd.command.sending;
-    data.bit (1)    = cdd.status.receiving;
+    data.bit (0)    = 0;  //1 = sending command to CDD
+    data.bit (1)    = 0;  //1 = sending status from CDD
     data.bit (2)    = cdd.hostClockEnable;
     data.bits(3, 7) = Unmapped;
     data.bit (8)    = 1;  //0 = music, 1 = data
@@ -173,6 +173,10 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
   if(address == 0xff8066) {
     data.bit (0)    = Unmapped;
     data.bits(1,15) = gpu.vector.base.bits(3,17);
+  }
+
+  if(address >= 0xff8100 && address <= 0xff81ff) {
+    print("* read ", hex(address, 6L), "\n");
   }
 
   return data;
@@ -269,16 +273,15 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
 
   if(address == 0xff8036) {
     if(lower) {
+      if(!cdd.hostClockEnable && data.bit(2)) cdd.irq.raise();
       cdd.hostClockEnable = data.bit(2);
       cdd.counter = 0;
     }
   }
 
   if(address >= 0xff8038 && address <= 0xff8041) {
-    //todo: is this writable? if so, will writing status[7] (or status[9]) trigger a CDD IRQ?
-    uint index = address - 0xff8038;
-    if(lower) cdd.status[index | 1] = data.bits(0, 3);
-    if(upper) cdd.status[index | 0] = data.bits(8,11);
+    //read-only
+    print("* write ", hex(address, 6L), "\n");
   }
 
   if(address >= 0xff8042 && address <= 0xff804b) {
@@ -286,8 +289,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
     if(lower) cdd.command[index | 1] = data.bits(0, 3);
     if(upper) cdd.command[index | 0] = data.bits(8,11);
     if(lower && (index | 1) == 9) {  //unconfirmed
-      cdd.command.sending = 1;
-    //cdd.process();
+      cdd.process();
     }
   }
 
@@ -320,9 +322,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
   }
 
   if(address == 0xff805c) {
-    if(lower) {
-      gpu.image.vcells = data.bits(0,4);
-    }
+    gpu.image.vcells = data.bits(0,4);
   }
 
   if(address == 0xff805e) {
@@ -330,9 +330,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
   }
 
   if(address == 0xff8060) {
-    if(lower) {
-      gpu.image.offset = data.bits(0,5);
-    }
+    gpu.image.offset = data.bits(0,5);
   }
 
   if(address == 0xff8062) {
@@ -345,5 +343,10 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
 
   if(address == 0xff8066) {
     gpu.vector.base.bits(3,17) = data.bits(1,15);
+    gpu.start();
+  }
+
+  if(address >= 0xff8100 && address <= 0xff81ff) {
+    print("* write ", hex(address, 6L), "=", hex(data, 4L), "\n");
   }
 }

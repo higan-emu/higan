@@ -198,6 +198,7 @@ struct MCD : M68K, Thread {
       TrackMove,        //accessing in high-speed mode
       NoDisc,           //no disc in tray or cannot focus
       DiscEnd,          //pickup is in the lead-out area
+      Unknown,          //undocumented
       Tray,             //door is moving via open/close commands
       Test,             //in test mode
     };};
@@ -226,20 +227,9 @@ struct MCD : M68K, Thread {
     } io;
 
     uint1 hostClockEnable;
-
-    struct Status {
-      inline auto operator[](uint index) -> uint4& { return data[index]; }
-
-      uint1 receiving;
-      uint4 data[10];
-    } status;
-
-    struct Command {
-      inline auto operator[](uint index) -> uint4& { return data[index]; }
-
-      uint1 sending;
-      uint4 data[10];
-    } command;
+    uint1 statusPending;
+    uint4 status [10];
+    uint4 command[10];
   } cdd;
 
   struct Timer {
@@ -257,7 +247,9 @@ struct MCD : M68K, Thread {
   struct GPU {
     //gpu.cpp
     auto step(uint clocks) -> void;
-    auto render() -> void;
+    auto read(uint19 address) -> uint4;
+    auto write(uint19 address, uint4 data) -> void;
+    auto render(uint19 address, uint9 width) -> void;
     auto start() -> void;
     auto power(bool reset) -> void;
 
@@ -280,26 +272,32 @@ struct MCD : M68K, Thread {
         uint1 size;  //0 = 16x16, 1 = 32x32
       } tile;
       struct Map {
-         uint1 size;  //0 = 256x256, 1 = 4096x4096
-        uint17 base;
+         uint1 size;  //0 = 1x1, 1 = 16x16
+        uint18 base;
+        uint19 address;
       } map;
     } stamp;
 
     struct Image {
-      uint17 base;
+      uint18 base;
        uint6 offset;
        uint5 vcells;
        uint8 vdots;
        uint9 hdots;
+      uint19 address;
     } image;
 
     struct Vector {
-      uint17 base;
+      uint18 base;
+      uint17 address;
     } vector;
 
      uint1 active;
     uint32 counter;
     uint32 period;
+
+     uint8 lutCell[0x100];
+     uint8 lutPixel[0x200];
   } gpu;
 
   struct PCM {

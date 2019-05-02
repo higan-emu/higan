@@ -6,7 +6,7 @@ auto MCD::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 
   }
 
   if(address >= 0x080000 && address <= 0x0dffff && io.wramMode == 0) {
-    if(io.wramSwitch == 0) return data;
+  //if(io.wramSwitch == 0) return data;
     address = (uint18)address;
     return wram[address >> 1];
   }
@@ -43,7 +43,7 @@ auto MCD::write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   }
 
   if(address >= 0x080000 && address <= 0x0dffff && io.wramMode == 0) {
-    if(io.wramSwitch == 0) return;
+  //if(io.wramSwitch == 0) return;
     address = (uint18)address;
     if(upper) wram[address >> 1].byte(1) = data.byte(1);
     if(lower) wram[address >> 1].byte(0) = data.byte(0);

@@ -1,4 +1,4 @@
-//Sanyo LC89510 (CD controller)
+//Sanyo LC8951x (CD controller)
 //note: this class emulates a theoretically perfect CDC that never encounters read errors
 
 //called whenever IRQ line state may change
