@@ -16,21 +16,21 @@ auto MCD::GPU::step(uint clocks) -> void {
 }
 
 auto MCD::GPU::read(uint19 address) -> uint4 {
-  static const uint table[] = {0, 4, 8, 12};
-  uint lo = table[address & 3], hi = lo + 3;
+  uint lo = 12 - ((address & 3) << 2), hi = lo + 3;
   return mcd.wram[address >> 2].bits(lo, hi);
 }
 
 auto MCD::GPU::write(uint19 address, uint4 data) -> void {
-  static const uint table[] = {0, 4, 8, 12};
-  uint lo = table[address & 3], hi = lo + 3;
+  uint lo = 12 - ((address & 3) << 2), hi = lo + 3;
   mcd.wram[address >> 2].bits(lo, hi) = data;
 }
 
 auto MCD::GPU::render(uint19 address, uint9 width) -> void {
    uint8 stampShift = 11 + 4 + stamp.tile.size;
-   uint8 mapShift = (4 << stamp.map.size) - stamp.tile.size;
-  uint23 dotMask = !stamp.map.size ? 0x07ffff : 0x7fffff;
+   uint8 mapShift   = (4 << stamp.map.size) - stamp.tile.size;
+
+   uint2 stampMask  = !stamp.tile.size ? 1 : 3;
+  uint23 mapMask    = !stamp.map.size ? 0x07ffff : 0x7fffff;
 
   uint24 x = mcd.wram[vector.address++] << 8;  //13.3 -> 13.11
   uint24 y = mcd.wram[vector.address++] << 8;  //13.3 -> 13.11
@@ -40,18 +40,34 @@ auto MCD::GPU::render(uint19 address, uint9 width) -> void {
 
   while(width--) {
     if(stamp.repeat) {
-      x &= dotMask;
-      y &= dotMask;
+      x &= mapMask;
+      y &= mapMask;
     }
 
     uint4 output;
-    if(!((x | y) & ~dotMask)) {
-      uint16 stampData = mcd.wram[stamp.map.address + (x >> stampShift) + (y >> stampShift << mapShift)];
-      if(uint19 stampIndex = stampData << 8) {
-        stampData >>= 13;
-        stampIndex |= lutCell[stampData | stamp.tile.size << 3 | x >> 10 & 0x30 | y >> 8 & 0xc0] << 6;
-        stampIndex |= lutPixel[stampData | x >> 8 & 0x38 | y >> 5 & 0x1c0];
-        output = read(stampIndex);
+    if(bool outside = (x | y) & ~mapMask; !outside) {
+      auto xstamp = x >> stampShift;
+      auto ystamp = y >> stampShift << mapShift;
+
+      auto data  = mcd.wram[stamp.map.address + xstamp + ystamp];
+      auto index = uint10(data >>  0);
+      auto lroll =  uint1(data >> 13);  //0 = 0 degrees; 1 =  90 degrees
+      auto hroll =  uint1(data >> 14);  //0 = 0 degrees; 1 = 180 degrees
+      auto hflip =  uint1(data >> 15);
+
+      if(index) {  //stamp index 0 is not rendered
+        auto xpixel = uint6(x >> 11);
+        auto ypixel = uint6(y >> 11);
+
+        if(hflip) { xpixel = ~xpixel; }
+        if(hroll) { xpixel = ~xpixel; ypixel = ~ypixel; }
+        if(lroll) { auto tpixel = xpixel; xpixel = ~ypixel; ypixel = tpixel; }
+
+        uint6 pixel = uint3(xpixel) + uint3(ypixel) * 8;
+        xpixel = xpixel >> 3 & stampMask;
+        ypixel = ypixel >> 3 & stampMask;
+        uint4 cell = ypixel + xpixel * (1 + stampMask);
+        output = read(index << 8 | cell << 6 | pixel);
       }
     }
 
@@ -87,24 +103,4 @@ auto MCD::GPU::start() -> void {
 }
 
 auto MCD::GPU::power(bool reset) -> void {
-  for(uint n : range(0x100)) {
-    auto mask = (n & 8) ? 3 : 1;
-    auto row = n >> 6 & mask;
-    auto col = n >> 4 & mask;
-    auto tmp = col;
-    if(n & 4) { col = col ^ mask; }
-    if(n & 2) { col = col ^ mask; row = row ^ mask; }
-    if(n & 1) { col = row ^ mask; row = tmp; }
-    lutCell[n] = row + col * (mask + 1);
-  }
-
-  for(uint n : range(0x200)) {
-    auto row = n >> 6 & 7;
-    auto col = n >> 3 & 7;
-    auto tmp = col;
-    if(n & 4) { col = col ^ 7; }
-    if(n & 2) { col = col ^ 7; row = row ^ 7; }
-    if(n & 1) { col = row ^ 7; row = tmp; }
-    lutPixel[n] = col + row * 8;
-  }
 }

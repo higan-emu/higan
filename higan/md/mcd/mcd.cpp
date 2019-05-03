@@ -17,18 +17,32 @@ MCD mcd;
 #include "pcm.cpp"
 #include "serialization.cpp"
 
-auto MCD::load() -> void {
-  bios.allocate  (128_KiB >> 1);
-  pram.allocate  (512_KiB >> 1);
-  wram.allocate  (256_KiB >> 1);
-  bram.allocate  (  8_KiB);
-  pcm.ram.allocate(64_KiB);
-
-  if(expansion.node) {
-    if(auto fp = platform->open(expansion.node, "program.rom", File::Read, File::Required)) {
-      for(uint address : range(bios.size())) bios.program(address, fp->readm(2));
-    }
+auto MCD::load(Node::Object parent, Node::Object from) -> void {
+  tray = Node::Port::create("Disc Tray", "Mega CD");
+  tray->hotSwappable = true;
+  tray->allocate = [&] { return Node::Peripheral::create("Mega CD"); };
+  tray->attach = [&](auto node) { connect(node); };
+  tray->detach = [&](auto node) { disconnect(); };
+  if(from = Node::load(tray, from)) {
+    if(auto node = from->find<Node::Peripheral>(0)) tray->connect(node);
   }
+  parent->append(tray);
+}
+
+auto MCD::connect(Node::Peripheral with) -> void {
+  disconnect();
+  if(with) {
+    disc = Node::Peripheral::create("Mega CD");
+    disc->load(with);
+    tray->prepend(disc);
+    cdd.io.status = CDD::Status::Stopped;
+  }
+}
+
+auto MCD::disconnect() -> void {
+  if(!disc) return;
+  disc = {};
+  cdd.io.status = CDD::Status::NoDisc;
 }
 
 auto MCD::unload() -> void {
@@ -78,6 +92,16 @@ auto MCD::step(uint clocks) -> void {
 }
 
 auto MCD::power(bool reset) -> void {
+  bios.allocate  (128_KiB >> 1);
+  pram.allocate  (512_KiB >> 1);
+  wram.allocate  (256_KiB >> 1);
+  bram.allocate  (  8_KiB);
+  pcm.ram.allocate(64_KiB);
+
+  if(auto fp = platform->open(expansion.node, "program.rom", File::Read, File::Required)) {
+    for(uint address : range(bios.size())) bios.program(address, fp->readm(2));
+  }
+
   M68K::power();
   Thread::create(12'500'000, [&] {
     while(true) scheduler.synchronize(), main();

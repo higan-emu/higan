@@ -11,8 +11,10 @@ auto VDP::DMA::run() -> void {
 auto VDP::DMA::load() -> void {
   cpu.wait |= Wait::VDP_DMA;
 
+  io.active = 1;
   auto data = cpu.read(1, 1, io.mode.bit(0) << 23 | io.source << 1);
   vdp.writeDataPort(data);
+  io.active = 0;
 
   io.source.bits(0,15)++;
   if(--io.length == 0) {

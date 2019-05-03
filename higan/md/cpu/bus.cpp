@@ -6,13 +6,20 @@
 auto CPU::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 {
   if(address >= 0x000000 && address <= 0x3fffff) {
     if(!io.romEnable) return tmss[address >> 1];
-    if(cartridge.node) return cartridge.read(upper, lower, address, data);
-    if(expansion.node) return expansion.read(upper, lower, address, data);
+    if(cartridge.bootable()) {
+      if(cartridge.node) return cartridge.read(upper, lower, address, data);
+    } else {
+      if(expansion.node) return expansion.read(upper, lower, address, data);
+    }
     return data;
   }
 
   if(address >= 0x400000 && address <= 0x7fffff) {
-    if(expansion.node) return expansion.read(upper, lower, address, data);
+    if(!cartridge.bootable()) {
+      if(cartridge.node) return cartridge.read(upper, lower, address, data);
+    } else {
+      if(expansion.node) return expansion.read(upper, lower, address, data);
+    }
     return data;
   }
 
@@ -48,13 +55,20 @@ auto CPU::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 
 
 auto CPU::write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   if(address >= 0x000000 && address <= 0x3fffff) {
-    if(cartridge.node) return cartridge.write(upper, lower, address, data);
-    if(expansion.node) return expansion.write(upper, lower, address, data);
+    if(cartridge.bootable()) {
+      if(cartridge.node) return cartridge.write(upper, lower, address, data);
+    } else {
+      if(expansion.node) return expansion.write(upper, lower, address, data);
+    }
     return;
   }
 
   if(address >= 0x400000 && address <= 0x7fffff) {
-    if(expansion.node) return expansion.write(upper, lower, address, data);
+    if(!cartridge.bootable()) {
+      if(cartridge.node) return cartridge.write(upper, lower, address, data);
+    } else {
+      if(expansion.node) return expansion.write(upper, lower, address, data);
+    }
     return;
   }
 

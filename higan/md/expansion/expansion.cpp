@@ -29,6 +29,8 @@ auto Expansion::connect(Node::Peripheral with) -> void {
   auto document = BML::unserialize(information.metadata);
   information.region = document["game/region"].text();
 
+  mcd.load(node, with);
+
   power();
   port->prepend(node);
 }

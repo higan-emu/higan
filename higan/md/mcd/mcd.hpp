@@ -1,13 +1,18 @@
 //Mega CD
 
 struct MCD : M68K, Thread {
+  Node::Port tray;
+  Node::Peripheral disc;
+
   Memory::Readable<uint16> bios;  //BIOS ROM
   Memory::Writable<uint16> pram;  //program RAM
   Memory::Writable<uint16> wram;  //work RAM
   Memory::Writable< uint8> bram;  //backup RAM
 
   //mcd.cpp
-  auto load() -> void;
+  auto load(Node::Object, Node::Object) -> void;
+  auto connect(Node::Peripheral) -> void;
+  auto disconnect() -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -34,16 +39,17 @@ struct MCD : M68K, Thread {
   auto serialize(serializer&) -> void;
 
   struct IO {
-    uint1 run;
-    uint1 request;
-    uint1 halt = 1;
+     uint1 run;
+     uint1 request;
+     uint1 halt = 1;
 
-    uint1 wramMode;     //MODE: 0 = 2mbit mode, 1 = 1mbit mode
-    uint1 wramSwitch;
-    uint1 wramSelect;
-    uint2 wramPriority;
-    uint2 pramBank;
-    uint8 pramProtect;
+    uint16 wramLatch;
+     uint1 wramMode;     //MODE: 0 = 2mbit mode, 1 = 1mbit mode
+     uint1 wramSwitch;
+     uint1 wramSelect;
+     uint2 wramPriority;
+     uint2 pramBank;
+     uint8 pramProtect;
 
     uint16 counter;
     uint16 decoder;
@@ -184,23 +190,51 @@ struct MCD : M68K, Thread {
   } cdc;
 
   struct CDD {
-    struct DriveStatus { enum : uint {
-      Stop,             //disc spinning stopped
-      Play,             //playing data or music
-      Seek,             //move to specified time
-      Scan,             //searching with a scan command
-      Pause,            //paused at a specific time
-      Open,             //tray is open
-      ChecksumError,    //invalid communication checksum
-      CommandError,     //missing command
-      FunctionError,    //unknown error
-      TableOfContents,  //reading TOC
-      TrackMove,        //accessing in high-speed mode
-      NoDisc,           //no disc in tray or cannot focus
-      DiscEnd,          //pickup is in the lead-out area
-      Unknown,          //undocumented
-      Tray,             //door is moving via open/close commands
-      Test,             //in test mode
+    struct Status { enum : uint {
+      Stopped       = 0x0,  //motor disabled
+      Playing       = 0x1,  //data or audio playback in progress
+      Seeking       = 0x2,  //move to specified time
+      Scanning      = 0x3,  //skipping to a specified track
+      Paused        = 0x4,  //paused at a specific time
+      DoorOpened    = 0x5,  //drive tray is open
+      ChecksumError = 0x6,  //invalid communication checksum
+      CommandError  = 0x7,  //missing command
+      FunctionError = 0x8,  //error during command execution
+      ReadingTOC    = 0x9,  //reading table of contents
+      Tracking      = 0xa,  //currently skipping tracks
+      NoDisc        = 0xb,  //no disc in tray or cannot focus
+      LeadOut       = 0xc,  //paused in the lead-out area of the disc
+      LeadIn        = 0xd,  //paused in the lead-in area of the disc
+      TrayMoving    = 0xe,  //drive tray is moving in response to open/close commands
+      Test          = 0xf,  //in test mode
+    };};
+
+    struct Command { enum : uint {
+      Idle      = 0x0,  //no operation
+      Stop      = 0x1,  //stop motor
+      Request   = 0x2,  //change report type
+      Read      = 0x3,  //read ROM data
+      Seek      = 0x4,  //seek to a specified location
+      Pause     = 0x6,  //pause the drive
+      Play      = 0x7,  //start playing from the current location
+      Forward   = 0x8,  //forward skip and playback
+      Reverse   = 0x9,  //reverse skip and playback
+      TrackSkip = 0xa,  //start track skipping
+      TrackCue  = 0xb,  //start track cueing
+      DoorClose = 0xc,  //close the door
+      DoorOpen  = 0xd,  //open the door
+    };};
+
+    struct Request { enum : uint {
+      AbsoluteTime       = 0x0,
+      RelativeTime       = 0x1,
+      TrackInformation   = 0x2,
+      DiscCompletionTime = 0x3,
+      DiscTracks         = 0x4,  //start/end track numbers
+      TrackStartTime     = 0x5,  //start time of specific track
+      ErrorInformation   = 0x6,
+      SubcodeError       = 0xe,
+      NotReady           = 0xf,  //not ready to comply with the current command
     };};
 
     //cdd.cpp
@@ -223,7 +257,7 @@ struct MCD : M68K, Thread {
     } fader;
 
     struct IO {
-      uint4 status = DriveStatus::Stop;
+      uint4 status = Status::Stopped;
     } io;
 
     uint1 hostClockEnable;
@@ -295,9 +329,6 @@ struct MCD : M68K, Thread {
      uint1 active;
     uint32 counter;
     uint32 period;
-
-     uint8 lutCell[0x100];
-     uint8 lutPixel[0x200];
   } gpu;
 
   struct PCM {

@@ -52,7 +52,6 @@ auto System::load(Node::Object from) -> void {
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   extensionPort.load(node, from);
-  mcd.load();
 }
 
 auto System::unload() -> void {

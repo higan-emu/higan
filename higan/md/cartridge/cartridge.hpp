@@ -9,6 +9,7 @@ struct Cartridge {
 
   inline auto metadata() const -> string { return information.metadata; }
   inline auto region() const -> string { return information.region; }
+  inline auto bootable() const -> boolean { return information.bootable; }  //CART_IN line
 
   //cartridge.cpp
   Cartridge() = default;
@@ -49,6 +50,7 @@ struct Cartridge {
   struct Information {
     string metadata;
     string region;
+    boolean bootable;
   } information;
 
   uint1 ramUpper;

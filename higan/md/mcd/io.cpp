@@ -136,7 +136,7 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
     data.bit ( 1)    = gpu.stamp.tile.size;
     data.bit ( 2)    = gpu.stamp.map.size;
     data.bits( 3,14) = Unmapped;
-    data.bit (15)    = gpu.active;  //unconfirmed
+    data.bit (15)    = gpu.active;
   }
 
   if(address == 0xff805a) {

@@ -34,6 +34,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(!loadRAM(bram, document["game/board/memory(type=RAM,content=Save)"])) bram.reset();
 
   information.region = document["game/region"].text();
+  information.bootable = (bool)document["game/bootable"];
 
   read = {&Cartridge::readLinear, this};
   write = {&Cartridge::writeLinear, this};
@@ -89,6 +90,7 @@ auto Cartridge::disconnect() -> void {
   if(slot) slot->disconnect();
   slot.reset();
   node = {};
+  information = {};
 }
 
 auto Cartridge::save() -> void {

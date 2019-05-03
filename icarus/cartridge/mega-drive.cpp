@@ -115,5 +115,7 @@ auto MegaDrive::heuristics(vector<uint8_t>& data, string location) -> string {
     s +={"      offset: 0x", hex(ramFrom), "\n"};
   }
 
+  s += "  bootable\n";
+
   return s;
 }
