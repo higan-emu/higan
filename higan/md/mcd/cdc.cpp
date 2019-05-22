@@ -173,9 +173,9 @@ print("CDC ", hex(address), "=", hex(data), "\n");
     if(status.wait && transfer.busy) break;
     if(status.read == status.write && !status.empty) status.read++;  //unverified: discard oldest byte?
     status.fifo[status.write++] = data;
-    status.empty  = false;
-    status.active = true;
-    status.busy   = true;
+    status.empty  = 0;
+    status.active = 1;
+    status.busy   = 1;
   } break;
 
   case 0x1: {  //IFCTRL

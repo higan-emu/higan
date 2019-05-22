@@ -35,14 +35,14 @@ auto MCD::connect(Node::Peripheral with) -> void {
     disc = Node::Peripheral::create("Mega CD");
     disc->load(with);
     tray->prepend(disc);
-    cdd.io.status = CDD::Status::Stopped;
+    cdd.insert();
   }
 }
 
 auto MCD::disconnect() -> void {
   if(!disc) return;
   disc = {};
-  cdd.io.status = CDD::Status::NoDisc;
+  cdd.eject();
 }
 
 auto MCD::unload() -> void {

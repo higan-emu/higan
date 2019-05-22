@@ -242,6 +242,8 @@ struct MCD : M68K, Thread {
     auto process() -> void;
     auto valid() -> bool;
     auto checksum() -> void;
+    auto insert() -> void;
+    auto eject() -> void;
     auto power(bool reset) -> void;
 
     //serialization.cpp
@@ -250,6 +252,23 @@ struct MCD : M68K, Thread {
     IRQ irq;
     uint16 counter;
 
+    struct Track {
+       uint1 valid;
+      uint24 start;
+
+      //Q-channel control headers
+       uint1 channels;  //0 = 2-channels, 1 = 4-channels
+       uint1 type;      //0 = audio, 1 = data
+       uint1 copyable;  //0 = uncopyable, 1 = copyable
+       uint1 emphasis;  //0 = no emphasis, 1 = pre-emphasis
+    };
+
+    struct TOC {
+      Track tracks[100];
+      uint7 first;  //0-99
+      uint7 last;   //0-99
+    } toc;
+
     struct Fader {
        uint1 spindleSpeed;  //0 = normal-speed, 1 = double-speed
        uint2 deemphasis;    //0 = off, 1 = 44.1khz, 2 = 32khz, 3 = 48khz
@@ -257,7 +276,9 @@ struct MCD : M68K, Thread {
     } fader;
 
     struct IO {
-      uint4 status = Status::Stopped;
+       uint4 status = Status::NoDisc;
+      uint24 sector;  //current chhannel frame#
+       uint7 track;   //current track#
     } io;
 
     uint1 hostClockEnable;
