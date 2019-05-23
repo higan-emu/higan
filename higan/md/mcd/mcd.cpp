@@ -35,14 +35,16 @@ auto MCD::connect(Node::Peripheral with) -> void {
     disc = Node::Peripheral::create("Mega CD");
     disc->load(with);
     tray->prepend(disc);
+    fd = platform->open(disc, "disc.bin", File::Read, File::Required);
     cdd.insert();
   }
 }
 
 auto MCD::disconnect() -> void {
   if(!disc) return;
-  disc = {};
   cdd.eject();
+  disc = {};
+  fd = {};
 }
 
 auto MCD::unload() -> void {

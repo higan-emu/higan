@@ -7,11 +7,64 @@ auto MCD::CDC::poll() -> void {
   pending |= irq.decoder.enable  && irq.decoder.pending;
   pending |= irq.transfer.enable && irq.transfer.pending;
   pending |= irq.command.enable  && irq.command.pending;
+if(irq.decoder.enable)irq.decoder.pending=0;
   pending ? irq.raise() : irq.lower();
 }
 
 auto MCD::CDC::clock() -> void {
   stopwatch++;
+}
+
+auto MCD::CDC::decode(uint sector) -> void {
+  if(!decoder.enable || !mcd.fd) return;
+
+  uint minute = sector / 75 / 60 % 60;
+  uint second = sector / 75 % 60;
+  uint frame  = sector % 75;
+
+  header.minute = minute / 10 << 4 | minute % 10;
+  header.second = second / 10 << 4 | second % 10;
+  header.frame  = frame  / 10 << 4 | frame  % 10;
+  header.mode   = 0x01;
+
+  decoder.valid = 1;
+  irq.decoder.pending = 1;
+  poll();
+
+  if(control.writeRequest) {
+    transfer.pointer += 2352;
+    transfer.target  += 2352;
+
+    if(sector >= 150) {
+      //the datasheet states that the sync header is written at the tail instead of head.
+      //but it seems much more likely what's actually happening is the *next* sector's sync header is written instead,
+      //so that is what is being done here.
+      mcd.fd->seek((sector - 150) * 2352 + 12);
+      for(uint index : range(2352)) {
+        ram[(uint14)(transfer.pointer + index)] = mcd.fd->read();
+      }
+    } else {
+      for(uint index : range(2352)) {
+        ram[(uint14)(transfer.pointer + index)] = 0x00;
+      }
+    }
+  }
+}
+
+auto MCD::CDC::data() -> uint8 {
+  if(!transfer.ready) return 0xff;
+
+  uint8 data = ram[(uint14)(transfer.source++)];
+  if(!transfer.length--) {  //halt on underflow (-1)
+    transfer.active = 0;
+    transfer.busy = 0;
+    transfer.ready = 0;
+    transfer.completed = 1;
+    irq.transfer.pending = 1;
+    poll();
+  }
+
+  return data;
 }
 
 auto MCD::CDC::read() -> uint8 {
@@ -26,8 +79,8 @@ print("CDC ", hex(address), " ", "\n");
     if(command.empty) { data = 0xff; break; }
     data = command.fifo[command.read++];
     if(command.read == command.write) {
-      command.empty = true;
-      irq.command.pending = false;
+      command.empty = 1;
+      irq.command.pending = 0;
       poll();
     }
   } break;
@@ -52,12 +105,16 @@ print("CDC ", hex(address), " ", "\n");
   //DBCH: data byte counter high
   case 0x3: {
     data.bits(0,3) = transfer.length.bits(8,11);
+    data.bit (4)   =!irq.transfer.pending;
+    data.bit (5)   =!irq.transfer.pending;
+    data.bit (6)   =!irq.transfer.pending;
+    data.bit (7)   =!irq.transfer.pending;
   } break;
 
   //HEAD0: header or subheader data
   case 0x4: {
     if(control.head == 0) {
-      data = header.minutes;
+      data = header.minute;
     } else {
       data = subheader.file;
     }
@@ -66,7 +123,7 @@ print("CDC ", hex(address), " ", "\n");
   //HEAD1: header or subheader data
   case 0x5: {
     if(control.head == 0) {
-      data = header.seconds;
+      data = header.second;
     } else {
       data = subheader.channel;
     }
@@ -75,7 +132,7 @@ print("CDC ", hex(address), " ", "\n");
   //HEAD2: header or subheader data
   case 0x6: {
     if(control.head == 0) {
-      data = header.blocks;
+      data = header.frame;
     } else {
       data = subheader.submode;
     }
@@ -150,10 +207,12 @@ print("CDC ", hex(address), " ", "\n");
 
   //STAT3: status 3
   case 0xf: {
-    data.bit(5) = 0;  //CBLK:  corrected block flag
-    data.bit(6) = 0;  //WLONG: word long
-    data.bit(7) = 1;  //VALST: valid status
+    data.bit(5) = 0;              //CBLK:  corrected block flag
+    data.bit(6) = 0;              //WLONG: word long
+    data.bit(7) =!decoder.valid;  //!VALST: valid status
+    decoder.valid = 0;            //note: not accurate, supposedly
     irq.decoder.pending = 0;
+    poll();
   } break;
 
   }
@@ -221,18 +280,19 @@ print("CDC ", hex(address), "=", hex(data), "\n");
     if(!transfer.enable) break;
     transfer.active = 1;
     transfer.busy = 1;
-    dsr = 0;
-    edt = 0;
+    transfer.ready = 0;
+    transfer.completed = 0;
     switch(destination) {
     case 2:  //main CPU read
     case 3:  //sub CPU read
-      dsr = 1;
+      transfer.ready = 1;
       break;
     }
   } break;
 
   case 0x7: {  //DTACK
     irq.transfer.pending = 0;
+    poll();
   } break;
 
   //WAL: write address low
@@ -310,8 +370,8 @@ print("CDC ", hex(address), "=", hex(data), "\n");
 }
 
 auto MCD::CDC::power(bool reset) -> void {
-  dsr = 0;
-  edt = 0;
+  for(auto& byte : ram) byte = 0x00;
+
   address = 0;
   destination = 0;
 

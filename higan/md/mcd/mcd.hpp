@@ -3,6 +3,7 @@
 struct MCD : M68K, Thread {
   Node::Port tray;
   Node::Peripheral disc;
+  vfs::shared::file fd;
 
   Memory::Readable<uint16> bios;  //BIOS ROM
   Memory::Writable<uint16> pram;  //program RAM
@@ -95,6 +96,8 @@ struct MCD : M68K, Thread {
     //cdc.cpp
     auto poll() -> void;
     auto clock() -> void;
+    auto decode(uint sector) -> void;
+    auto data() -> uint8;
     auto read() -> uint8;
     auto write(uint8 data) -> void;
     auto power(bool reset) -> void;
@@ -102,8 +105,8 @@ struct MCD : M68K, Thread {
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-     uint1 dsr;
-     uint1 edt;
+     uint8 ram[0x4000];
+
      uint4 address;
      uint3 destination;
     uint12 stopwatch;
@@ -138,10 +141,12 @@ struct MCD : M68K, Thread {
       uint16 pointer;
       uint12 length;
 
-       uint1 enable;  //DOUTEN
-       uint1 active;  //DTEN
-       uint1 busy;    //DTBSY
-       uint1 wait;    //DTWAI
+       uint1 enable;     //DOUTEN
+       uint1 active;     //DTEN
+       uint1 busy;       //DTBSY
+       uint1 wait;       //DTWAI
+       uint1 ready;      //DSR
+       uint1 completed;  //EDT
     } transfer;
 
     enum : uint { Mode1 = 0, Mode2 = 1 };
@@ -150,13 +155,14 @@ struct MCD : M68K, Thread {
       uint1 enable;  //DECEN
       uint1 mode;    //MODE
       uint1 form;    //FORM
+      uint1 valid;   //!VALST
     } decoder;
 
     struct Header {
-      uint8 minutes;
-      uint8 seconds;
-      uint8 blocks;
-      uint8 mode = 1;
+      uint8 minute;
+      uint8 second;
+      uint8 frame;
+      uint8 mode;
     } header;
 
     struct Subheader {

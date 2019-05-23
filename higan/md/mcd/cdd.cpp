@@ -28,9 +28,9 @@ auto MCD::CDD::clock() -> void {
   } break;
 
   case Status::Playing: {
+    mcd.cdc.decode(io.sector);
     io.sector++;
-    if(io.sector >= 150) io.status = Status::Paused;
-    if(io.sector >= 150) io.track = 1;
+    io.track = 1;
   } break;
 
   }
@@ -154,9 +154,10 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     uint second = command[4] * 10 + command[5];
     uint frame  = command[6] * 10 + command[7];
 
+    counter   = 0;
     io.status = Status::Paused;
     io.sector = minute * 60 * 75 + second * 75 + frame;
-    io.track  = 0;
+    io.track  = 1;
 
     status[1] = 0xf;
     status[2] = 0x0; status[3] = 0x0;

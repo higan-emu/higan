@@ -24,8 +24,8 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
     data.bits(4,7)   = Unmapped;
     data.bits( 8,10) = cdc.destination;
     data.bits(11,13) = Unmapped;
-    data.bit (14)    = cdc.dsr;
-    data.bit (15)    = cdc.edt;
+    data.bit (14)    = cdc.transfer.ready;
+    data.bit (15)    = cdc.transfer.completed;
   }
 
   if(address == 0xff8006) {
@@ -38,7 +38,10 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
   }
 
   if(address == 0xff8008) {
-    print("* read ff8008\n");
+    if(!upper || !lower) print("* read ff8008 (byte)\n");
+    data.byte(1) = cdc.data();
+    data.byte(0) = cdc.data();
+    return data;
   }
 
   if(address == 0xff800a) {
