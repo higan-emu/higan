@@ -140,8 +140,16 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     }
   } break;
 
-  case Command::Read: {
+  case Command::SeekPlay: {
+    uint minute = command[2] * 10 + command[3];
+    uint second = command[4] * 10 + command[5];
+    uint frame  = command[6] * 10 + command[7];
+
+    counter   = 0;
     io.status = Status::Playing;
+    io.sector = minute * 60 * 75 + second * 75 + frame - 3;
+    io.track  = 1;
+
     status[1] = 0xf;
     status[2] = 0x0; status[3] = 0x0;
     status[4] = 0x0; status[5] = 0x0;
@@ -149,7 +157,7 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     status[8] = 0x0;
   } break;
 
-  case Command::Seek: {
+  case Command::SeekPause: {
     uint minute = command[2] * 10 + command[3];
     uint second = command[4] * 10 + command[5];
     uint frame  = command[6] * 10 + command[7];
@@ -168,6 +176,10 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
 
   case Command::Pause: {
     io.status = Status::Paused;
+  } break;
+
+  case Command::Play: {
+    io.status = Status::Playing;
   } break;
 
   }

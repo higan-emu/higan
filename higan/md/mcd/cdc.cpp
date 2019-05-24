@@ -7,7 +7,6 @@ auto MCD::CDC::poll() -> void {
   pending |= irq.decoder.enable  && irq.decoder.pending;
   pending |= irq.transfer.enable && irq.transfer.pending;
   pending |= irq.command.enable  && irq.command.pending;
-if(irq.decoder.enable)irq.decoder.pending=0;
   pending ? irq.raise() : irq.lower();
 }
 

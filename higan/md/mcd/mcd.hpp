@@ -219,8 +219,8 @@ struct MCD : M68K, Thread {
       Idle      = 0x0,  //no operation
       Stop      = 0x1,  //stop motor
       Request   = 0x2,  //change report type
-      Read      = 0x3,  //read ROM data
-      Seek      = 0x4,  //seek to a specified location
+      SeekPlay  = 0x3,  //read ROM data
+      SeekPause = 0x4,  //seek to a specified location
       Pause     = 0x6,  //pause the drive
       Play      = 0x7,  //start playing from the current location
       Forward   = 0x8,  //forward skip and playback
