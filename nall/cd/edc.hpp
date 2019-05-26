@@ -5,7 +5,7 @@
 namespace nall::CD::EDC {
 
 //polynomial(x) = (x^16 + x^15 + x^2 + 1) * (x^16 + x^2 + x + 1)
-auto polynomial(uint8_t x) -> uint32_t {
+inline auto polynomial(uint8_t x) -> uint32_t {
   static uint32_t lookup[256]{};
   static bool once = false;
   if(!once) { once = true;
@@ -20,13 +20,13 @@ auto polynomial(uint8_t x) -> uint32_t {
 
 //
 
-auto create(array_view<uint8_t> input) -> uint32_t {
+inline auto create(array_view<uint8_t> input) -> uint32_t {
   uint32_t sum = 0;
   for(auto& byte : input) sum = sum >> 8 ^ polynomial(sum ^ byte);
   return sum;
 }
 
-auto create(array_view<uint8_t> input, array_span<uint8_t> output) -> bool {
+inline auto create(array_view<uint8_t> input, array_span<uint8_t> output) -> bool {
   if(output.size() != 4) return false;
   auto sum = create(input);
   output[0] = sum >>  0;
@@ -36,18 +36,18 @@ auto create(array_view<uint8_t> input, array_span<uint8_t> output) -> bool {
   return true;
 }
 
-auto createMode1(array_span<uint8_t> sector) -> bool {
+inline auto createMode1(array_span<uint8_t> sector) -> bool {
   if(sector.size() != 2352) return false;
   return create({sector, 2064}, {sector + 2064, 4});
 }
 
 //
 
-auto verify(array_view<uint8_t> input, uint32_t edc) -> bool {
+inline auto verify(array_view<uint8_t> input, uint32_t edc) -> bool {
   return edc == create(input);
 }
 
-auto verify(array_view<uint8_t> input, array_view<uint8_t> compare) -> bool {
+inline auto verify(array_view<uint8_t> input, array_view<uint8_t> compare) -> bool {
   if(compare.size() != 4) return false;
   auto sum = create(input);
   if(compare[0] != uint8_t(sum >>  0)) return false;
@@ -57,7 +57,7 @@ auto verify(array_view<uint8_t> input, array_view<uint8_t> compare) -> bool {
   return true;
 }
 
-auto verifyMode1(array_view<uint8_t> sector) -> bool {
+inline auto verifyMode1(array_view<uint8_t> sector) -> bool {
   if(sector.size() != 2352) return false;
   return verify({sector, 2064}, {sector + 2064, 4});
 }

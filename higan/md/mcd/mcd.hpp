@@ -54,6 +54,7 @@ struct MCD : M68K, Thread {
 
     uint16 counter;
     uint16 decoder;
+    double cdda = 0.0;
   } io;
 
   struct LED {
@@ -245,6 +246,7 @@ struct MCD : M68K, Thread {
 
     //cdd.cpp
     auto clock() -> void;
+    auto sample() -> void;
     auto process() -> void;
     auto valid() -> bool;
     auto checksum() -> void;
@@ -255,25 +257,10 @@ struct MCD : M68K, Thread {
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
+    shared_pointer<Stream> stream;
+    CD::Session session;
     IRQ irq;
     uint16 counter;
-
-    struct Track {
-       uint1 valid;
-      uint24 start;
-
-      //Q-channel control headers
-       uint1 channels;  //0 = 2-channels, 1 = 4-channels
-       uint1 type;      //0 = audio, 1 = data
-       uint1 copyable;  //0 = uncopyable, 1 = copyable
-       uint1 emphasis;  //0 = no emphasis, 1 = pre-emphasis
-    };
-
-    struct TOC {
-      Track tracks[100];
-      uint7 first;  //0-99
-      uint7 last;   //0-99
-    } toc;
 
     struct Fader {
        uint1 spindleSpeed;  //0 = normal-speed, 1 = double-speed
@@ -283,7 +270,9 @@ struct MCD : M68K, Thread {
 
     struct IO {
        uint4 status = Status::NoDisc;
-      uint24 sector;  //current chhannel frame#
+      uint16 latency;
+      uint24 sector;  //current frame#
+      uint16 sample;  //current audio sample# within current frame
        uint7 track;   //current track#
     } io;
 

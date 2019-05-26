@@ -20,5 +20,6 @@ auto operator+=(string& lhs, const string& rhs) -> string& {
 #include "settings/settings.hpp"
 #include "media/media.hpp"
 #include "cartridge/cartridge.hpp"
+#include "compact-disc/compact-disc.hpp"
 #include "floppy-disk/floppy-disk.hpp"
 #include "program/program.hpp"

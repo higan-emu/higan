@@ -3,12 +3,16 @@ auto Media::construct() -> void {
   pathname = {Path::user(), "Emulation/", name(), "/"};
 }
 
-auto Media::read(string location) -> vector<uint8_t> {
+auto Media::read(string location, string suffix) -> vector<uint8_t> {
   if(location.iendsWith(".zip")) {
     Decode::ZIP archive;
-    if(archive.open(location) && archive.file.size() >= 1) {
-      return archive.extract(archive.file.first());
+    if(archive.open(location)) {
+      for(auto& file : archive.file) {
+        if(suffix && !file.name.iendsWith(suffix)) continue;
+        return archive.extract(file);
+      }
     }
   }
+  if(suffix) location = {Location::notsuffix(location), suffix};
   return file::read(location);
 }

@@ -4,7 +4,7 @@
 
 namespace nall::CD::RSPC {
 
-auto encodeP(array_view<uint8_t> input, array_span<uint8_t> parity) -> bool {
+inline auto encodeP(array_view<uint8_t> input, array_span<uint8_t> parity) -> bool {
   ReedSolomon<26,24> s;
   uint lo = 0, hi = 43 * 2;
   for(uint x : range(43)) {
@@ -21,7 +21,7 @@ auto encodeP(array_view<uint8_t> input, array_span<uint8_t> parity) -> bool {
   return true;
 }
 
-auto encodeQ(array_view<uint8_t> input, array_span<uint8_t> parity) -> bool {
+inline auto encodeQ(array_view<uint8_t> input, array_span<uint8_t> parity) -> bool {
   ReedSolomon<45,43> s;
   uint lo = 0, hi = 26 * 2;
   for(uint y : range(26)) {
@@ -38,7 +38,7 @@ auto encodeQ(array_view<uint8_t> input, array_span<uint8_t> parity) -> bool {
   return true;
 }
 
-auto encodeMode1(array_span<uint8_t> sector) -> bool {
+inline auto encodeMode1(array_span<uint8_t> sector) -> bool {
   if(sector.size() != 2352) return false;
   if(!encodeP({sector + 12, 2064}, {sector + 2076, 172})) return false;
   if(!encodeQ({sector + 12, 2236}, {sector + 2248, 104})) return false;
@@ -47,7 +47,7 @@ auto encodeMode1(array_span<uint8_t> sector) -> bool {
 
 //
 
-auto decodeP(array_span<uint8_t> input, array_span<uint8_t> parity) -> int {
+inline auto decodeP(array_span<uint8_t> input, array_span<uint8_t> parity) -> int {
   bool success = false;
   bool failure = false;
   ReedSolomon<26,24> s;
@@ -79,7 +79,7 @@ auto decodeP(array_span<uint8_t> input, array_span<uint8_t> parity) -> int {
   return success ? 1 : -1;  //return success even if there are some failures
 }
 
-auto decodeQ(array_span<uint8_t> input, array_span<uint8_t> parity) -> int {
+inline auto decodeQ(array_span<uint8_t> input, array_span<uint8_t> parity) -> int {
   bool success = false;
   bool failure = false;
   ReedSolomon<45,43> s;
@@ -111,7 +111,7 @@ auto decodeQ(array_span<uint8_t> input, array_span<uint8_t> parity) -> int {
   return success ? 1 : -1;
 }
 
-auto decodeMode1(array_span<uint8_t> sector) -> bool {
+inline auto decodeMode1(array_span<uint8_t> sector) -> bool {
   if(sector.size() != 2352) return false;
   //P corrections can allow Q corrections that previously failed to succeed, and vice versa.
   //the more iterations, the more chances to correct errors, but the more computationally expensive it is.

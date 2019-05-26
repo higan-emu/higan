@@ -19,9 +19,12 @@
  */
 
 #include <nall/galois-field.hpp>
+#include <nall/matrix.hpp>
+#include <nall/reed-solomon.hpp>
 
 #include <nall/cd/efm.hpp>
 #include <nall/cd/sync.hpp>
 #include <nall/cd/edc.hpp>
 #include <nall/cd/rspc.hpp>
 #include <nall/cd/scrambler.hpp>
+#include <nall/cd/session.hpp>

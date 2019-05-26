@@ -35,7 +35,11 @@ auto MCD::connect(Node::Peripheral with) -> void {
     disc = Node::Peripheral::create("Mega CD");
     disc->load(with);
     tray->prepend(disc);
-    fd = platform->open(disc, "disc.bin", File::Read, File::Required);
+    if(auto fp = platform->open(disc, "disc.bml", File::Read, File::Required)) {
+      auto document = BML::unserialize(fp->reads());
+      cdd.session.load(document["session"]);
+    }
+    fd = platform->open(disc, "program.rom", File::Read, File::Required);
     cdd.insert();
   }
 }
@@ -86,6 +90,11 @@ auto MCD::step(uint clocks) -> void {
     cdd.clock();
     timer.clock();
     pcm.clock();
+  }
+  io.cdda += clocks;
+  while(io.cdda >= frequency() / 44100.0) {
+    io.cdda -= frequency() / 44100.0;
+    cdd.sample();
   }
 
   Thread::step(clocks);

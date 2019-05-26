@@ -3,7 +3,7 @@
 namespace nall::CD::Scrambler {
 
 //polynomial(x) = x^15 + x + 1
-auto polynomial(uint x) -> uint8_t {
+inline auto polynomial(uint x) -> uint8_t {
   static uint8_t lookup[4096]{};
   static bool once = false;
   if(!once) { once = true;
@@ -21,7 +21,7 @@ auto polynomial(uint x) -> uint8_t {
 
 //
 
-auto transform(array_span<uint8_t> sector) -> bool {
+inline auto transform(array_span<uint8_t> sector) -> bool {
   if(sector.size() == 2352) sector += 12;  //header is not scrambled
   if(sector.size() != 2340) return false;  //F1 frames only
 

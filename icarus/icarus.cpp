@@ -12,6 +12,7 @@ auto locate(string name) -> string {
 #include "settings/settings.cpp"
 #include "media/media.cpp"
 #include "cartridge/cartridge.cpp"
+#include "compact-disc/compact-disc.cpp"
 #include "floppy-disk/floppy-disk.cpp"
 #include "program/program.cpp"
 
@@ -27,6 +28,7 @@ auto nall::main(Arguments arguments) -> void {
   media.append(new GameBoyColor);
   media.append(new GameGear);
   media.append(new MasterSystem);
+  media.append(new MegaCD);
   media.append(new MegaDrive);
   media.append(new MSX);
   media.append(new MSX2);

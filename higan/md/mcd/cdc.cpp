@@ -17,7 +17,7 @@ auto MCD::CDC::clock() -> void {
 auto MCD::CDC::decode(uint sector) -> void {
   if(!decoder.enable || !mcd.fd) return;
 
-  uint minute = sector / 75 / 60 % 60;
+  uint minute = sector / 75 / 60 % 100;
   uint second = sector / 75 % 60;
   uint frame  = sector % 75;
 
@@ -34,18 +34,12 @@ auto MCD::CDC::decode(uint sector) -> void {
     transfer.pointer += 2352;
     transfer.target  += 2352;
 
-    if(sector >= 150) {
-      //the datasheet states that the sync header is written at the tail instead of head.
-      //but it seems much more likely what's actually happening is the *next* sector's sync header is written instead,
-      //so that is what is being done here.
-      mcd.fd->seek((sector - 150) * 2352 + 12);
-      for(uint index : range(2352)) {
-        ram[(uint14)(transfer.pointer + index)] = mcd.fd->read();
-      }
-    } else {
-      for(uint index : range(2352)) {
-        ram[(uint14)(transfer.pointer + index)] = 0x00;
-      }
+    //the datasheet states that the sync header is written at the tail instead of head.
+    //but it seems much more likely what's actually happening is the *next* sector's sync header is written instead,
+    //so that is what is being done here.
+    mcd.fd->seek(sector * 2352 + 12);
+    for(uint index : range(2352)) {
+      ram[(uint14)(transfer.pointer + index)] = mcd.fd->read();
     }
   }
 }

@@ -2,7 +2,7 @@
 
 namespace nall::CD::Sync {
 
-auto create(array_span<uint8_t> sector) -> bool {
+inline auto create(array_span<uint8_t> sector) -> bool {
   if(sector.size() != 12 && sector.size() != 2352) return false;
 
   for(uint n : range(12)) {
@@ -14,7 +14,7 @@ auto create(array_span<uint8_t> sector) -> bool {
 
 //
 
-auto verify(array_view<uint8_t> sector) -> bool {
+inline auto verify(array_view<uint8_t> sector) -> bool {
   if(sector.size() != 12 && sector.size() != 2352) return false;
 
   for(uint n : range(12)) {

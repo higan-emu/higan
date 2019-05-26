@@ -19,6 +19,7 @@
 #include <nall/variant.hpp>
 #include <nall/vector.hpp>
 #include <nall/vfs.hpp>
+#include <nall/cd.hpp>
 #include <nall/hash/crc32.hpp>
 #include <nall/hash/sha256.hpp>
 using namespace nall;
@@ -36,7 +37,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.146";
+  static const string Version = "106.147";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org/";

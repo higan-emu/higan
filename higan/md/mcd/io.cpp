@@ -94,7 +94,7 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
     data.bit (1)    = 0;  //1 = sending status from CDD
     data.bit (2)    = cdd.hostClockEnable;
     data.bits(3, 7) = Unmapped;
-    data.bit (8)    = 1;  //0 = music, 1 = data
+    data.bit (8)    = cdd.session.tracks[cdd.io.track].isData();
     data.bits(9,15) = Unmapped;
   }
 
