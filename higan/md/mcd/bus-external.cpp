@@ -22,7 +22,7 @@ auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -
     //games manually correct the first word transferred after VDP DMAs from word RAM
     data = io.wramLatch;
     io.wramLatch = wram[address >> 1];
-    if(vdp.dma.active()) return data;
+  //if(vdp.dma.active()) return data;
     return io.wramLatch;  //non-DMA accesses respond with the requested data correctly
   }
 

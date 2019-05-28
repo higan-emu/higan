@@ -97,7 +97,7 @@ struct MCD : M68K, Thread {
     //cdc.cpp
     auto poll() -> void;
     auto clock() -> void;
-    auto decode(uint sector) -> void;
+    auto decode(int sector) -> void;
     auto data() -> uint8;
     auto read() -> uint8;
     auto write(uint8 data) -> void;
@@ -106,7 +106,7 @@ struct MCD : M68K, Thread {
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-     uint8 ram[0x4000];
+    Memory::Writable<uint8> ram;
 
      uint4 address;
      uint3 destination;
@@ -271,7 +271,7 @@ struct MCD : M68K, Thread {
     struct IO {
        uint4 status = Status::NoDisc;
       uint16 latency;
-      uint24 sector;  //current frame#
+       int   sector;  //current frame#
       uint16 sample;  //current audio sample# within current frame
        uint7 track;   //current track#
     } io;
@@ -367,6 +367,9 @@ struct MCD : M68K, Thread {
     } io;
 
     struct Channel {
+      //serialization.cpp
+      auto serialize(serializer&) -> void;
+
        uint1 enable;
        uint8 envelope;
        uint8 pan = 0xff;

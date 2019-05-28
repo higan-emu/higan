@@ -14,13 +14,10 @@ auto MCD::CDC::clock() -> void {
   stopwatch++;
 }
 
-auto MCD::CDC::decode(uint sector) -> void {
+auto MCD::CDC::decode(int sector) -> void {
   if(!decoder.enable || !mcd.fd) return;
 
-  uint minute = sector / 75 / 60 % 100;
-  uint second = sector / 75 % 60;
-  uint frame  = sector % 75;
-
+  auto [minute, second, frame] = CD::MSF(sector);
   header.minute = minute / 10 << 4 | minute % 10;
   header.second = second / 10 << 4 | second % 10;
   header.frame  = frame  / 10 << 4 | frame  % 10;
@@ -34,11 +31,12 @@ auto MCD::CDC::decode(uint sector) -> void {
     transfer.pointer += 2352;
     transfer.target  += 2352;
 
-    //the datasheet states that the sync header is written at the tail instead of head.
-    //but it seems much more likely what's actually happening is the *next* sector's sync header is written instead,
-    //so that is what is being done here.
-    mcd.fd->seek(sector * 2352 + 12);
-    for(uint index : range(2352)) {
+    //the sync header is written at the tail instead of head.
+    mcd.fd->seek((mcd.cdd.session.leadIn.len() + sector) * 2448);
+    for(uint index : range(12)) {
+      ram[(uint14)(transfer.pointer + index + 2340)] = mcd.fd->read();
+    }
+    for(uint index : range(2340)) {
       ram[(uint14)(transfer.pointer + index)] = mcd.fd->read();
     }
   }
@@ -61,7 +59,7 @@ auto MCD::CDC::data() -> uint8 {
 }
 
 auto MCD::CDC::read() -> uint8 {
-print("CDC ", hex(address), " ", "\n");
+//print("CDC ", hex(address), " ", "\n");
 
   uint8 data;
 
@@ -217,7 +215,7 @@ print("CDC ", hex(address), " ", "\n");
 }
 
 auto MCD::CDC::write(uint8 data) -> void {
-print("CDC ", hex(address), "=", hex(data), "\n");
+//print("CDC ", hex(address), "=", hex(data), "\n");
   switch(address) {
 
   //SBOUT: status byte output
@@ -281,6 +279,7 @@ print("CDC ", hex(address), "=", hex(data), "\n");
       transfer.ready = 1;
       break;
     }
+    if(destination != 3) print("CDC DMA ", destination, "\n");
   } break;
 
   case 0x7: {  //DTACK
@@ -363,7 +362,7 @@ print("CDC ", hex(address), "=", hex(data), "\n");
 }
 
 auto MCD::CDC::power(bool reset) -> void {
-  for(auto& byte : ram) byte = 0x00;
+  for(uint index : range(ram.size())) ram[index] = 0x00;
 
   address = 0;
   destination = 0;

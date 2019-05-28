@@ -4,5 +4,5 @@ struct CompactDisc : Media {
   auto metadata(string location) -> string override;
   auto import(string filename) -> string override;
 
-  auto importCUE(string filename) -> string;
+  auto importCUE(CD::Session&, string) -> string;
 };

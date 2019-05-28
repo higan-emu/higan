@@ -145,6 +145,15 @@ auto VDP::writeControlPort(uint16 data) -> void {
   if(io.commandPending) {
     io.commandPending = false;
 
+    //temporary hack
+    if(MegaCD() && io.command.bit(5)) {
+      uint24 address = dma.io.mode.bit(0) << 23 | dma.io.source << 1;
+      if(address >= 0x200000 && address <= 0x3fffff) {
+        dma.io.source--;
+        dma.io.length--;
+      }
+    }
+
     io.command.bits(2,5) = data.bits(4,7);
     io.address.bits(14,15) = data.bits(0,1);
     if(!dma.io.enable) io.command.bit(5) = 0;

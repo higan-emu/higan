@@ -35,11 +35,10 @@ auto MCD::connect(Node::Peripheral with) -> void {
     disc = Node::Peripheral::create("Mega CD");
     disc->load(with);
     tray->prepend(disc);
-    if(auto fp = platform->open(disc, "disc.bml", File::Read, File::Required)) {
-      auto document = BML::unserialize(fp->reads());
-      cdd.session.load(document["session"]);
+    if(auto fp = platform->open(disc, "cd.bml", File::Read, File::Required)) {
+      cdd.session.unserialize(fp->reads());
     }
-    fd = platform->open(disc, "program.rom", File::Read, File::Required);
+    fd = platform->open(disc, "cd.rom", File::Read, File::Required);
     cdd.insert();
   }
 }
@@ -56,6 +55,7 @@ auto MCD::unload() -> void {
   pram.reset();
   wram.reset();
   bram.reset();
+  cdc.ram.reset();
   pcm.ram.reset();
 }
 
@@ -107,6 +107,7 @@ auto MCD::power(bool reset) -> void {
   pram.allocate  (512_KiB >> 1);
   wram.allocate  (256_KiB >> 1);
   bram.allocate  (  8_KiB);
+  cdc.ram.allocate(16_KiB);
   pcm.ram.allocate(64_KiB);
 
   if(auto fp = platform->open(expansion.node, "program.rom", File::Read, File::Required)) {

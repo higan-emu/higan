@@ -49,7 +49,7 @@ auto MCD::CDD::sample() -> void {
   int16 right = 0;
   if(io.status == Status::Playing && !io.latency) {
     if(session.tracks[io.track].isAudio()) {
-      mcd.fd->seek(io.sector * 2352 + io.sample);
+      mcd.fd->seek((session.leadIn.len() + io.sector) * 2448 + io.sample);
       left  = mcd.fd->readl(2);
       right = mcd.fd->readl(2);
       io.sample += 4;
@@ -64,7 +64,7 @@ auto MCD::CDD::sample() -> void {
 }
 
 auto MCD::CDD::process() -> void {
-if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
+//if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
 
   if(!valid()) {
     //unverified
@@ -76,6 +76,11 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
   switch(command[0]) {
 
   case Command::Idle: {
+    //fixes Lunar: The Silver Star
+    if(!io.latency && status[1] == 0xf) {
+      status[1] = 0x2;
+      status[2] = io.track / 10; status[3] = io.track % 10;
+    }
   } break;
 
   case Command::Stop: {
@@ -91,10 +96,7 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     switch(command[3]) {
 
     case Request::AbsoluteTime: {
-      uint sector = io.sector;
-      uint minute = sector / 75 / 60 % 100;
-      uint second = sector / 75 % 60;
-      uint frame  = sector % 75;
+      auto [minute, second, frame] = CD::MSF(io.sector);
       status[1] = command[3];
       status[2] = minute / 10; status[3] = minute % 10;
       status[4] = second / 10; status[5] = second % 10;
@@ -103,10 +105,7 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     } break;
 
     case Request::RelativeTime: {
-      uint sector = io.sector - session.tracks[io.track].indices[1].lba();
-      uint minute = sector / 75 / 60 % 100;
-      uint second = sector / 75 % 60;
-      uint frame  = sector % 75;
+      auto [minute, second, frame] = CD::MSF(io.sector - session.tracks[io.track].indices[1].lba());
       status[1] = command[3];
       status[2] = minute / 10; status[3] = minute % 10;
       status[4] = second / 10; status[5] = second % 10;
@@ -123,8 +122,7 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     } break;
 
     case Request::DiscCompletionTime: {  //time in mm:ss:ff
-      uint8_t minute = 0, second = 0, frame = 0;
-      CD::toMSF(session.end(), minute, second, frame);
+      auto [minute, second, frame] = CD::MSF(session.leadOut.lba());
       status[1] = command[3];
       status[2] = minute / 10; status[3] = minute % 10;
       status[4] = second / 10; status[5] = second % 10;
@@ -133,8 +131,8 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     } break;
 
     case Request::DiscTracks: {  //first and last track numbers
-      auto firstTrack = session.firstTrack();
-      auto lastTrack  = session.lastTrack();
+      auto firstTrack = session.firstTrackID();
+      auto lastTrack  = session.lastTrackID();
       status[1] = command[3];
       status[2] = firstTrack / 10; status[3] = firstTrack % 10;
       status[4] = lastTrack  / 10; status[5] = lastTrack  % 10;
@@ -144,10 +142,7 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
 
     case Request::TrackStartTime: {
       uint track  = command[4] * 10 + command[5];
-      uint sector = session.tracks[track].indices[1].lba();
-      uint minute = sector / 75 / 60 % 100;
-      uint second = sector / 75 % 60;
-      uint frame  = sector % 75;
+      auto [minute, second, frame] = CD::MSF(session.tracks[track].indices[1].lba());
       status[1] = command[3];
       status[2] = minute / 10; status[3] = minute % 10;
       status[4] = second / 10; status[5] = second % 10;
@@ -191,11 +186,11 @@ if(command[0]) print("CDD ", command[0], ":", command[3], "\n");
     uint minute = command[2] * 10 + command[3];
     uint second = command[4] * 10 + command[5];
     uint frame  = command[6] * 10 + command[7];
-    uint lba    = minute * 60 * 75 + second * 75 + frame;
+     int lba    = minute * 60 * 75 + second * 75 + frame - 3;
 
     counter    = 0;
     io.status  = Status::Seeking;
-    io.latency = abs((int)io.sector - (int)lba) * 120 / 270000;
+    io.latency = abs(io.sector - lba) * 120 / 270000;
     io.sector  = lba;
     io.sample  = 0;
     if(auto track = session.toTrack(io.sector)) io.track = track();
