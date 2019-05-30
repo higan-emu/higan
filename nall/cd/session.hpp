@@ -4,7 +4,6 @@
 
 namespace nall::CD {
 
-//always stored in binary format; never in BCD format
 struct MSF {
   uint8_t minute;      //00-99
   uint8_t second;      //00-59
@@ -15,8 +14,19 @@ struct MSF {
   MSF(int lba) { *this = fromLBA(lba); }
   MSF(const string& input) { *this = fromString(input); }
 
+  auto minuteBCD() const -> uint8_t { return (minute / 10) << 4 | (minute % 10); }
+  auto secondBCD() const -> uint8_t { return (second / 10) << 4 | (second % 10); }
+  auto frameBCD()  const -> uint8_t { return (frame  / 10) << 4 | (frame  % 10); }
+
   explicit operator bool() const {
     return minute <= 99 && second <= 59 && frame <= 74;
+  }
+
+  static auto fromBCD(uint8_t minute, uint8_t second, uint8_t frame) -> MSF {
+    minute = (minute >> 4) * 10 + (minute & 15);
+    second = (second >> 4) * 10 + (second & 15);
+    frame  = (frame  >> 4) * 10 + (frame  & 15);
+    return {minute, second, frame};
   }
 
   static auto fromLBA(int lba) -> MSF {
@@ -66,18 +76,13 @@ struct Index {
   }
 };
 
-struct Track {
-  uint8_t control = 0b1111;
-  uint8_t qMode = 0b1111;
-  Index indices[100];
+struct Track : Index {
+  uint8_t control = 0b1111;  //4-bit
+  uint8_t address = 0b1111;  //4-bit
 
   explicit operator bool() const {
     return (control & 0b1100) != 0b1100;
   }
-
-  auto lba() const -> int { return firstIndex().lba(); }
-  auto len() const -> int { return lastIndex().end() - firstIndex().lba() + 1; }
-  auto end() const -> int { return lastIndex().end(); }
 
   auto emphasis() const -> bool {
     return control & 1;
@@ -100,69 +105,27 @@ struct Track {
   auto isData() const -> bool {
     return (control & 0b1100) == 0b0100;
   }
-
-  auto firstIndexID() const -> uint8_t {
-    for(uint8_t index : range(100)) {
-      if(indices[index]) return index;
-    }
-    return 0;
-  }
-  auto firstIndex() -> Index& { return indices[firstIndexID()]; }
-  auto firstIndex() const -> const Index& { return indices[firstIndexID()]; }
-
-  auto lastIndexID() const -> uint8_t {
-    for(uint8_t index : reverse(range(100))) {
-      if(indices[index]) return index;
-    }
-    return 0;
-  }
-
-  auto lastIndex() -> Index& { return indices[lastIndexID()]; }
-  auto lastIndex() const -> const Index& { return indices[lastIndexID()]; }
-
-  auto toIndex(int lba) const -> maybe<uint8_t> {
-    for(uint8_t index : range(100)) {
-      if(indices[index].inRange(lba)) return index;
-    }
-    return {};
-  }
 };
 
 struct Session {
-  Index leadIn;
-  Track tracks[100];
-  Index leadOut;
-
-  auto firstTrackID() const -> uint8_t {
-    for(uint8_t track : range(100)) {
-      if(tracks[track]) return track;
-    }
-    return 0;
-  }
-  auto firstTrack() -> Track& { return tracks[firstTrackID()]; }
-  auto firstTrack() const -> const Track& { return tracks[firstTrackID()]; }
-
-  auto lastTrackID() const -> uint8_t {
-    for(uint8_t track : reverse(range(100))) {
-      if(tracks[track]) return track;
-    }
-    return 0;
-  }
-  auto lastTrack() -> Track& { return tracks[lastTrackID()]; }
-  auto lastTrack() const -> const Track& { return tracks[lastTrackID()]; }
+  Index leadIn;       //00
+  Track tracks[100];  //01-99
+  Index leadOut;      //aa
+  uint8_t firstTrack = 0x00;
+  uint8_t lastTrack  = 0x00;
 
   auto isLeadIn(int lba) const -> bool {
     return leadIn.inRange(lba);
   }
 
-  auto toTrack(int lba) const -> maybe<uint8_t> {
+  auto isTrack(int lba) const -> maybe<uint8_t> {
     for(uint8_t track : range(100)) {
-      if(tracks[track].toIndex(lba)) return track;
+      if(tracks[track].inRange(lba)) return track;
     }
     return {};
   }
 
-  auto inLeadOut(int lba) const -> bool {
+  auto isLeadOut(int lba) const -> bool {
     return leadOut.inRange(lba);
   }
 
@@ -172,68 +135,152 @@ struct Session {
     Index* previous = nullptr;
     for(auto& track : tracks) {
       if(!track) continue;
-      for(auto& index : track.indices) {
-        if(!MSF(index.offset)) continue;
-        if(previous) previous->length = index.offset - previous->offset;
-        previous = &index;
-      }
+      if(!MSF(track.offset)) continue;
+      if(previous) previous->length = track.offset - previous->offset;
+      previous = &track;
     }
     if(previous) previous->length = leadOut.offset - previous->offset;
   }
 
-  auto serialize() const -> string {
-    string s;
-    s.append("session\n");
-    s.append("  leadin\n");
-    s.append("    msf: ", MSF(leadIn.lba()).toString(), "\n");
-    for(uint trackID : range(100)) {
-      auto& track = tracks[trackID];
-      if(!track) continue;
-      s.append("  track: ", pad(trackID, 2, '0'), "\n");
-      if(track.isAudio()) s.append("    audio\n");
-      if(track.isData())  s.append("    data\n");
-      for(uint indexID : range(100)) {
-        auto& index = track.indices[indexID];
-        if(!index) continue;
-        s.append("    index: ", pad(indexID, 2, '0'), "\n");
-        s.append("      msf: ", MSF(index.lba()).toString(), "\n");
+  static auto decodeTOC(array_view<uint8_t> data, uint leadInSectors, uint totalSectors) -> Session {
+    Session session;
+    if(data.size() != leadInSectors * 96) return session;
+    session.leadIn = {-int(leadInSectors), int(leadInSectors)};
+    session.leadOut = {0, int(totalSectors - leadInSectors)};
+    for(uint lba : range(leadInSectors)) {
+      uint index = lba * 96 + 12;
+      auto crc16 = CRC16({&data[index], 10});
+      if(data[index + 10] != uint8_t(crc16 >> 8)) continue;
+      if(data[index + 11] != uint8_t(crc16 >> 0)) continue;
+
+      uint8_t control = data[index + 0] >> 4;
+      uint8_t address = data[index + 0] & 15;
+      uint8_t trackID = (data[index + 2] >> 4) * 10 + (data[index + 2] & 15);
+
+      if(trackID <= 99 && address == 0b0001) {  //0x00-0x99
+        auto& track = session.tracks[trackID];
+        track.control = control;
+        track.address = address;
+        track.offset = MSF::fromBCD(data[index + 7], data[index + 8], data[index + 9]).toLBA();
+      }
+
+      if(trackID == 100) {  //0xa0
+        auto track = data[index + 7];
+        session.firstTrack = (track >> 4) * 10 + (track & 15);
+      }
+
+      if(trackID == 101) {  //0xa1
+        auto track = data[index + 7];
+        session.lastTrack = (track >> 4) * 10 + (track & 15);
+      }
+
+      if(trackID == 102) {  //0xa2
+        auto msf = MSF::fromBCD(data[index + 7], data[index + 8], data[index + 9]);
+        session.leadOut.offset = msf.toLBA();
       }
     }
-    s.append("  leadout\n");
-    s.append("    msf: ", MSF(leadOut.lba()).toString(), "\n");
-    s.append("  end\n");
-    s.append("    msf: ", MSF(leadIn.len() + leadOut.end() + 1).toString(), "\n");
-    return s;
+    session.computeLengths();
+    return session;
   }
 
-  auto unserialize(string markup) -> bool {
-    *this = {};  //reset all member variables
+  auto encodeTOC() const -> vector<uint8_t> {
+    vector<uint8_t> data;
+    data.resize(7500 * 96);
+    uint8_t trackID = 0;
+    int lba = 0;
+    while(lba < leadIn.len()) {
 
-    auto document = BML::unserialize(markup);
-    auto session = document["session"];
-    if(!session["leadin"] || !session["track"] || !session["leadout"] || !session["end"]) return false;
+    //tracks
+    for(uint trackID : range(100)) {
+    for(uint repeat : range(3)) {
+      auto& track = tracks[trackID];
+      if(!track) continue;
+      uint index = lba * 96 + 12;
+      data[index + 0] = track.control << 4 | track.address << 0;
+      data[index + 1] = 0x00;
+      data[index + 2] = trackID / 10 << 4 | trackID % 10;
+      auto msf = MSF(leadIn.lba() + lba);
+      data[index + 3] = msf.minuteBCD();
+      data[index + 4] = msf.secondBCD();
+      data[index + 5] = msf.frameBCD();
+      data[index + 6] = 0x00;
+      msf = MSF(track.lba());
+      data[index + 7] = msf.minuteBCD();
+      data[index + 8] = msf.secondBCD();
+      data[index + 9] = msf.frameBCD();
+      auto crc16 = CRC16({&data[index], 10});
+      data[index + 10] = crc16 >> 8;
+      data[index + 11] = crc16 >> 0;
+      if(++lba >= leadIn.len()) break;
+    }}
+    if(lba >= leadIn.len()) break;
 
-    int leadin = MSF::fromString(session["leadin/msf"].text()).toLBA();
-    leadIn = {leadin, -leadin};
-
-    int leadout = MSF::fromString(session["leadout/msf"].text()).toLBA();
-    int end = MSF::fromString(session["end/msf"].text()).toLBA();
-    leadOut = {leadout, end - leadout + leadin};
-
-    for(auto& track : session.find("track")) {
-      uint trackID = track.natural();
-      if(trackID > 99) return false;
-      if(track["audio"]) tracks[trackID].control = 0b0000;
-      if(track["data" ]) tracks[trackID].control = 0b0100;
-      for(auto& index : track.find("index")) {
-        uint indexID = index.natural();
-        if(indexID > 99) return false;
-        tracks[trackID].indices[indexID].offset = MSF(index["msf"].text()).toLBA();
-      }
+    //first track
+    for(uint repeat : range(3)) {
+      uint index = lba * 96 + 12;
+      data[index + 0] = 0x01;  //control value unverified; address = 1
+      data[index + 1] = 0x00;  //track# = 00 (TOC)
+      data[index + 2] = 0xa0;  //first track
+      auto msf = MSF(leadIn.lba() + lba);
+      data[index + 3] = msf.minuteBCD();
+      data[index + 4] = msf.secondBCD();
+      data[index + 5] = msf.frameBCD();
+      data[index + 6] = 0x00;
+      data[index + 7] = firstTrack / 10 << 4 | firstTrack % 10;
+      data[index + 8] = 0x00;
+      data[index + 9] = 0x00;
+      auto crc16 = CRC16({&data[index], 10});
+      data[index + 10] = crc16 >> 8;
+      data[index + 11] = crc16 >> 0;
+      if(++lba >= leadIn.len()) break;
     }
+    if(lba >= leadIn.len()) break;
 
-    computeLengths();
-    return true;
+    //last track
+    for(uint repeat : range(3)) {
+      uint index = lba * 96 + 12;
+      data[index + 0] = 0x01;
+      data[index + 1] = 0x00;
+      data[index + 2] = 0xa1;  //last track
+      auto msf = MSF(leadIn.lba() + lba);
+      data[index + 3] = msf.minuteBCD();
+      data[index + 4] = msf.secondBCD();
+      data[index + 5] = msf.frameBCD();
+      data[index + 6] = 0x00;
+      data[index + 7] = lastTrack / 10 << 4 | lastTrack % 10;
+      data[index + 8] = 0x00;
+      data[index + 9] = 0x00;
+      auto crc16 = CRC16({&data[index], 10});
+      data[index + 10] = crc16 >> 8;
+      data[index + 11] = crc16 >> 0;
+      if(++lba >= leadIn.len()) break;
+    }
+    if(lba >= leadIn.len()) break;
+
+    //lead-out point
+    for(uint repeat : range(3)) {
+      uint index = lba * 96 + 12;
+      data[index + 0] = 0x01;
+      data[index + 1] = 0x00;
+      data[index + 2] = 0xa2;  //lead-out point
+      auto msf = MSF(leadIn.lba() + lba);
+      data[index + 3] = msf.minuteBCD();
+      data[index + 4] = msf.secondBCD();
+      data[index + 5] = msf.frameBCD();
+      data[index + 6] = 0x00;
+      msf = MSF(leadOut.lba());
+      data[index + 7] = msf.minuteBCD();
+      data[index + 8] = msf.secondBCD();
+      data[index + 9] = msf.frameBCD();
+      auto crc16 = CRC16({&data[index], 10});
+      data[index + 10] = crc16 >> 8;
+      data[index + 11] = crc16 >> 0;
+      if(++lba >= leadIn.len()) break;
+    }
+    if(lba >= leadIn.len()) break;
+
+    }
+    return data;
   }
 };
 

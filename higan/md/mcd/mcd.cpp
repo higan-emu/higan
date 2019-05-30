@@ -35,9 +35,6 @@ auto MCD::connect(Node::Peripheral with) -> void {
     disc = Node::Peripheral::create("Mega CD");
     disc->load(with);
     tray->prepend(disc);
-    if(auto fp = platform->open(disc, "cd.bml", File::Read, File::Required)) {
-      cdd.session.unserialize(fp->reads());
-    }
     fd = platform->open(disc, "cd.rom", File::Read, File::Required);
     cdd.insert();
   }
