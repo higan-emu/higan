@@ -18,8 +18,6 @@ struct VDP : Thread {
   auto writeControlPort(uint16 data) -> void;
 
   struct DMA {
-    inline auto active() const -> bool { return io.active; }
-
     //dma.cpp
     auto run() -> void;
     auto load() -> void;
@@ -32,7 +30,6 @@ struct VDP : Thread {
     auto serialize(serializer&) -> void;
 
     struct IO {
-      uint1  active;  //set during VDP DMA bus reads
       uint2  mode;
       uint22 source;
       uint16 length;

@@ -17,13 +17,14 @@ auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -
     } else {
       address = (uint17)address << 1 | io.wramSelect == 0;
     }
+    if(!vdp.active()) return wram[address >> 1];
+
     //VDP DMA from Mega CD word RAM to VDP VRAM responds with a one-access delay
     //note: it is believed that the first transfer is the CPU prefetch, which isn't emulated here
     //games manually correct the first word transferred after VDP DMAs from word RAM
     data = io.wramLatch;
     io.wramLatch = wram[address >> 1];
-  //if(vdp.dma.active()) return data;
-    return io.wramLatch;  //non-DMA accesses respond with the requested data correctly
+    return data;
   }
 
   return data;
