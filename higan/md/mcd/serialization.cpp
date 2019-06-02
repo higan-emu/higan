@@ -16,9 +16,10 @@ auto MCD::serialize(serializer& s) -> void {
   s.integer(io.wramPriority);
   s.integer(io.pramBank);
   s.integer(io.pramProtect);
-  s.integer(io.counter);
-  s.integer(io.decoder);
-  s.real(io.cdda);
+
+  s.integer(counter.divider);
+  s.integer(counter.dma);
+  s.real(counter.pcm);
 
   s.integer(led.red);
   s.integer(led.green);
@@ -49,7 +50,6 @@ auto MCD::CDC::serialize(serializer& s) -> void {
   ram.serialize(s);
 
   s.integer(address);
-  s.integer(destination);
   s.integer(stopwatch);
 
   irq.decoder.serialize(s);
@@ -70,16 +70,7 @@ auto MCD::CDC::serialize(serializer& s) -> void {
   s.integer(status.busy);
   s.integer(status.wait);
 
-  s.integer(transfer.source);
-  s.integer(transfer.target);
-  s.integer(transfer.pointer);
-  s.integer(transfer.length);
-  s.integer(transfer.enable);
-  s.integer(transfer.active);
-  s.integer(transfer.busy);
-  s.integer(transfer.wait);
-  s.integer(transfer.ready);
-  s.integer(transfer.completed);
+  transfer.serialize(s);
 
   s.integer(decoder.enable);
   s.integer(decoder.mode);
@@ -115,6 +106,21 @@ auto MCD::CDC::serialize(serializer& s) -> void {
   s.integer(control.erasureCorrection);
   s.integer(control.statusTrigger);
   s.integer(control.statusControl);
+}
+
+auto MCD::CDC::Transfer::serialize(serializer& s) -> void {
+  s.integer(destination);
+  s.integer(address);
+  s.integer(source);
+  s.integer(target);
+  s.integer(pointer);
+  s.integer(length);
+  s.integer(enable);
+  s.integer(active);
+  s.integer(busy);
+  s.integer(wait);
+  s.integer(ready);
+  s.integer(completed);
 }
 
 auto MCD::CDD::serialize(serializer& s) -> void {

@@ -24,8 +24,10 @@ auto MCD::CDD::clock() -> void {
 
   case Status::ReadingTOC: {
     io.sector++;
-    if(io.sector >= 150) io.status = Status::Paused;
-    if(io.sector >= 150) io.track  = 1;
+    if(!session.inLeadIn(io.sector)) {
+      io.status = Status::Paused;
+      if(auto track = session.inTrack(io.sector)) io.track = track();
+    }
   } break;
 
   case Status::Playing: {
@@ -33,7 +35,9 @@ auto MCD::CDD::clock() -> void {
     if(session.tracks[io.track].isAudio()) break;
     mcd.cdc.decode(io.sector);
     io.sector++;
-    if(io.sector >= session.tracks[io.track].end()) io.status = Status::Paused;
+    if(!session.tracks[io.track].inRange(io.sector)) {
+      io.status = Status::Paused;
+    }
   } break;
 
   case Status::Seeking: {
@@ -49,14 +53,16 @@ auto MCD::CDD::sample() -> void {
   int16 right = 0;
   if(io.status == Status::Playing && !io.latency) {
     if(session.tracks[io.track].isAudio()) {
-      mcd.fd->seek((session.leadIn.len() + io.sector) * 2448 + io.sample);
+      mcd.fd->seek((abs(session.leadIn.lba) + io.sector) * 2448 + io.sample);
       left  = mcd.fd->readl(2);
       right = mcd.fd->readl(2);
       io.sample += 4;
       if(io.sample >= 2352) {
         io.sample = 0;
         io.sector++;
-        if(io.sector >= session.tracks[io.track].end()) io.status = Status::Paused;
+        if(!session.tracks[io.track].inRange(io.sector)) {
+          io.status = Status::Paused;
+        }
       }
     }
   }
@@ -105,7 +111,7 @@ auto MCD::CDD::process() -> void {
     } break;
 
     case Request::RelativeTime: {
-      auto [minute, second, frame] = CD::MSF(io.sector - session.tracks[io.track].lba());
+      auto [minute, second, frame] = CD::MSF(io.sector - session.tracks[io.track].indices[1].lba);
       status[1] = command[3];
       status[2] = minute / 10; status[3] = minute % 10;
       status[4] = second / 10; status[5] = second % 10;
@@ -119,10 +125,12 @@ auto MCD::CDD::process() -> void {
       status[4] = 0x0; status[5] = 0x0;
       status[6] = 0x0; status[7] = 0x0;
       status[8] = 0x0;
+      if(session.inLeadIn (io.sector)) { status[2] = 0x0; status[3] = 0x0; }
+      if(session.inLeadOut(io.sector)) { status[2] = 0xa; status[3] = 0xa; }
     } break;
 
     case Request::DiscCompletionTime: {  //time in mm:ss:ff
-      auto [minute, second, frame] = CD::MSF(session.leadOut.lba());
+      auto [minute, second, frame] = CD::MSF(session.leadOut.lba);
       status[1] = command[3];
       status[2] = minute / 10; status[3] = minute % 10;
       status[4] = second / 10; status[5] = second % 10;
@@ -141,8 +149,9 @@ auto MCD::CDD::process() -> void {
     } break;
 
     case Request::TrackStartTime: {
+      if(command[4] > 9 || command[5] > 9) break;
       uint track  = command[4] * 10 + command[5];
-      auto [minute, second, frame] = CD::MSF(session.tracks[track].lba());
+      auto [minute, second, frame] = CD::MSF(session.tracks[track].indices[1].lba);
       status[1] = command[3];
       status[2] = minute / 10; status[3] = minute % 10;
       status[4] = second / 10; status[5] = second % 10;
@@ -167,13 +176,14 @@ auto MCD::CDD::process() -> void {
     uint minute = command[2] * 10 + command[3];
     uint second = command[4] * 10 + command[5];
     uint frame  = command[6] * 10 + command[7];
+     int lba    = minute * 60 * 75 + second * 75 + frame;
 
     counter    = 0;
     io.status  = Status::Playing;
     io.latency = 11;
-    io.sector  = minute * 60 * 75 + second * 75 + frame;
+    io.sector  = lba;
     io.sample  = 0;
-    if(auto track = session.isTrack(io.sector)) io.track = track();
+    if(auto track = session.inTrack(io.sector)) io.track = track();
 
     status[1] = 0xf;
     status[2] = 0x0; status[3] = 0x0;
@@ -193,7 +203,7 @@ auto MCD::CDD::process() -> void {
     io.latency = abs(io.sector - lba) * 120 / 270000;
     io.sector  = lba;
     io.sample  = 0;
-    if(auto track = session.isTrack(io.sector)) io.track = track();
+    if(auto track = session.inTrack(io.sector)) io.track = track();
 
     status[1] = 0xf;
     status[2] = 0x0; status[3] = 0x0;
@@ -237,18 +247,19 @@ auto MCD::CDD::insert() -> void {
     return;
   }
 
-  vector<uint8_t> toc;
-  toc.resize(7500 * 96);
-  for(uint sector : range(7500)) {
+  uint sectors = mcd.fd->size() / 2448;
+  vector<uint8_t> sub;
+  sub.resize(sectors * 96);
+  for(uint sector : range(sectors)) {
     mcd.fd->seek(sector * 2448 + 2352);
-    mcd.fd->read(toc.data() + sector * 96, 96);
+    mcd.fd->read(sub.data() + sector * 96, 96);
   }
-  session = CD::Session::decodeTOC(toc, 7500, mcd.fd->size() / 2448);
+  session.decode(sub, 96);
 
   io.status = Status::ReadingTOC;
-  io.sector = 0;
+  io.sector = session.leadIn.lba;
   io.sample = 0;
-  io.track  = 1;
+  io.track  = 0;
 }
 
 auto MCD::CDD::eject() -> void {
@@ -257,7 +268,7 @@ auto MCD::CDD::eject() -> void {
   io.status = Status::NoDisc;
   io.sector = 0;
   io.sample = 0;
-  io.track  = 1;
+  io.track  = 0;
 }
 
 auto MCD::CDD::power(bool reset) -> void {

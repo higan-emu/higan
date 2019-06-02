@@ -23,56 +23,42 @@ auto CompactDisc::import(string filename) -> string {
   if(!img) img = Media::read(filename, ".bin");
   if(!img) return "image file missing";
   if(img.size() % 2352) return "image file size not a multiple of 2352";
-  uint sectors = img.size() / 2352;
 
-  auto sub = Media::read(filename, ".sub");
-  if(sub.size() != sectors * 96) sub = {};  //ignore invalid .sub files
+  session.leadOut.lba = img.size() / 2352 + 150;
+  session.synchronize(6750);
+  auto sub = session.encode(abs(session.leadIn.lba) + session.leadOut.lba + 6750);
 
-  session.leadOut.offset = sectors + 150;
-  session.computeLengths();
-  auto toc = session.encodeTOC();
-
-  if(auto fp = file::open({location, "cd.rom"}, file::mode::write)) {
-    //generate lead-in
-    for(uint sector : range(session.leadIn.len())) {
-      for(uint index : range(2352)) fp.write(0x00);
-      for(uint index : range(96)) fp.write(toc[sector * 96 + index]);
-    }
-
-    //generate track 1 pre-gap
-    for(uint sector : range(150)) {
-      for(uint index : range(2352)) fp.write(0x00);
-      for(uint index : range(96)) fp.write(0x00);
-    }
-
-    array_view<uint8_t> imgData{img};
-    array_view<uint8_t> subData{sub};
-
-    for(uint sector : range(sectors)) {
-      for(uint index : range(2352)) fp.write(*imgData++);
-      if(sub) {
-        for(uint index : range(96)) fp.write(*subData++);
-      } else {
-        for(uint index : range(96)) fp.write(0x00);
-      }
-    }
-
-    //generate lead-out
-    for(uint index : range(session.leadOut.len())) {
-      for(uint index : range(2352)) fp.write(0x00);
-      for(uint index : range(96)) fp.write(0x00);
+  //overlay an existing subchannel data file, if it exists
+  //these files are missing lead-in, track 1 pregap, and lead-out
+  if(auto overlay = Media::read(filename, ".sub")) {
+    if(overlay.size() == img.size() / 2352 * 96) {
+      uint target = (abs(session.leadIn.lba) + 150) * 96;
+      memory::copy(sub.data() + target, overlay.data(), overlay.size());
     }
   }
 
+  if(auto fp = file::open({location, "cd.rom"}, file::mode::write)) {
+    array_view<uint8_t> imgData{img};
+    array_view<uint8_t> subData{sub};
+
+    for(int sector = session.leadIn.lba; sector < session.leadOut.lba + 6750; sector++) {
+      if(sector < 150 || sector >= session.leadOut.lba) {
+        for(uint index : range(2352)) fp.write(0x00);  //generate missing IMG data
+      } else {
+        for(uint index : range(2352)) fp.write(*imgData++);
+      }
+      for(uint index : range(96)) fp.write(*subData++);
+    }
+  }
+
+  file::write({location, "cd.bml"}, session.serialize());  //for debugging purposes
   return {};
 }
 
 auto CompactDisc::importCUE(CD::Session& session, string document) -> string {
   session = {};
-  session.leadIn = {-7500, 7500};
-  session.leadOut = {0, 6750};  //session.leadOut.offset computed later
+  session.leadIn.lba = -7500;
 
-  int offset = 0;
   int track = -1;
   auto lines = document.split("\n").strip();
 
@@ -102,12 +88,14 @@ auto CompactDisc::importCUE(CD::Session& session, string document) -> string {
       auto part = line.split(" ", 1L);
       if(part.size() != 2) return "CUE: misformatted index";
       int index = part[0].natural();
-      if(index != 1) continue;
-      auto msf = CD::MSF(part[1]);
+      if(index > 99) return "CUE: invalid index number";
+      auto time = part[1].split(":");
+      if(time.size() != 3) return "CUE: misformatted index time";
+      auto msf = CD::MSF(time[0].natural(), time[1].natural(), time[2].natural());
       if(!msf) return "CUE: invalid index time";
       msf = CD::MSF::fromLBA(msf.toLBA() + 150);
       if(!msf) return "CUE: invalid index time";
-      session.tracks[track].offset = msf.toLBA();
+      session.tracks[track].indices[index].lba = msf.toLBA();
       continue;
     }
   }
@@ -124,5 +112,6 @@ auto CompactDisc::importCUE(CD::Session& session, string document) -> string {
     break;
   }
 
+  session.tracks[1].indices[0].lba = 0;
   return {};
 }

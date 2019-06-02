@@ -11,6 +11,7 @@ MCD mcd;
 #include "io-external.cpp"
 #include "irq.cpp"
 #include "cdc.cpp"
+#include "cdc-transfer.cpp"
 #include "cdd.cpp"
 #include "timer.cpp"
 #include "gpu.cpp"
@@ -27,6 +28,19 @@ auto MCD::load(Node::Object parent, Node::Object from) -> void {
     if(auto node = from->find<Node::Peripheral>(0)) tray->connect(node);
   }
   parent->append(tray);
+
+  bios.allocate  (128_KiB >> 1);
+  pram.allocate  (512_KiB >> 1);
+  wram.allocate  (256_KiB >> 1);
+  bram.allocate  (  8_KiB);
+  cdc.ram.allocate(16_KiB >> 1);
+  pcm.ram.allocate(64_KiB);
+
+  if(expansion.node) {
+    if(auto fp = platform->open(expansion.node, "backup.ram", File::Read)) {
+      bram.load(fp);
+    }
+  }
 }
 
 auto MCD::connect(Node::Peripheral with) -> void {
@@ -48,6 +62,12 @@ auto MCD::disconnect() -> void {
 }
 
 auto MCD::unload() -> void {
+  if(expansion.node) {
+    if(auto fp = platform->open(expansion.node, "backup.ram", File::Write)) {
+      bram.save(fp);
+    }
+  }
+
   bios.reset();
   pram.reset();
   wram.reset();
@@ -80,17 +100,22 @@ auto MCD::main() -> void {
 
 auto MCD::step(uint clocks) -> void {
   gpu.step(clocks);
-  io.counter += clocks;
-  while(io.counter >= 384) {
-    io.counter -= 384;
+  counter.divider += clocks;
+  while(counter.divider >= 384) {
+    counter.divider -= 384;
     cdc.clock();
     cdd.clock();
     timer.clock();
     pcm.clock();
   }
-  io.cdda += clocks;
-  while(io.cdda >= frequency() / 44100.0) {
-    io.cdda -= frequency() / 44100.0;
+  counter.dma += clocks;
+  while(counter.dma >= 6) {
+    counter.dma -= 6;
+    cdc.transfer.dma();
+  }
+  counter.pcm += clocks;
+  while(counter.pcm >= frequency() / 44100.0) {
+    counter.pcm -= frequency() / 44100.0;
     cdd.sample();
   }
 
@@ -100,13 +125,6 @@ auto MCD::step(uint clocks) -> void {
 }
 
 auto MCD::power(bool reset) -> void {
-  bios.allocate  (128_KiB >> 1);
-  pram.allocate  (512_KiB >> 1);
-  wram.allocate  (256_KiB >> 1);
-  bram.allocate  (  8_KiB);
-  cdc.ram.allocate(16_KiB);
-  pcm.ram.allocate(64_KiB);
-
   if(auto fp = platform->open(expansion.node, "program.rom", File::Read, File::Required)) {
     for(uint address : range(bios.size())) bios.program(address, fp->readm(2));
   }
@@ -115,6 +133,7 @@ auto MCD::power(bool reset) -> void {
   Thread::create(12'500'000, [&] {
     while(true) scheduler.synchronize(), main();
   });
+  counter = {};
   if(!reset) {
     io = {};
     led = {};

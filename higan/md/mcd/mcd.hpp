@@ -51,11 +51,13 @@ struct MCD : M68K, Thread {
      uint2 wramPriority;
      uint2 pramBank;
      uint8 pramProtect;
-
-    uint16 counter;
-    uint16 decoder;
-    double cdda = 0.0;
   } io;
+
+  struct Counter {
+    uint16 divider;
+    uint16 dma;
+    double pcm = 0.0;
+  } counter;
 
   struct LED {
     uint1 red;
@@ -98,7 +100,6 @@ struct MCD : M68K, Thread {
     auto poll() -> void;
     auto clock() -> void;
     auto decode(int sector) -> void;
-    auto data() -> uint8;
     auto read() -> uint8;
     auto write(uint8 data) -> void;
     auto power(bool reset) -> void;
@@ -106,10 +107,9 @@ struct MCD : M68K, Thread {
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    Memory::Writable<uint8> ram;
+    Memory::Writable<uint16> ram;
 
      uint4 address;
-     uint3 destination;
     uint12 stopwatch;
 
     struct IRQ : MCD::IRQ {
@@ -136,7 +136,20 @@ struct MCD : M68K, Thread {
       uint1 wait;       //STWAI
     } status;
 
-    struct Tranfer {
+    struct Transfer {
+      //cdc-transfer.cpp
+      auto dma() -> void;
+      auto read() -> uint16;
+      auto start() -> void;
+      auto complete() -> void;
+      auto stop() -> void;
+
+      //serialization.cpp
+      auto serialize(serializer&) -> void;
+
+       uint3 destination;
+      uint19 address;
+
       uint16 source;
       uint16 target;
       uint16 pointer;

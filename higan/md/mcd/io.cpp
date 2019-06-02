@@ -22,7 +22,7 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
   if(address == 0xff8004) {
     data.bits(0,3)   = cdc.address;
     data.bits(4,7)   = Unmapped;
-    data.bits( 8,10) = cdc.destination;
+    data.bits( 8,10) = cdc.transfer.destination;
     data.bits(11,13) = Unmapped;
     data.bit (14)    = cdc.transfer.ready;
     data.bit (15)    = cdc.transfer.completed;
@@ -39,13 +39,11 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
 
   if(address == 0xff8008) {
     if(!upper || !lower) print("* read ff8008 (byte)\n");
-    data.byte(1) = cdc.data();
-    data.byte(0) = cdc.data();
-    return data;
+    data = cdc.transfer.read();
   }
 
   if(address == 0xff800a) {
-    print("* read ff800a\n");
+    data.bits(0,15) = cdc.transfer.address.bits(3,18);
   }
 
   if(address == 0xff800c) {
@@ -212,7 +210,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
       cdc.address = data.bits(0,3);
     }
     if(upper) {
-      cdc.destination = data.bits(0,2);
+      cdc.transfer.destination = data.bits(0,2);
     }
   }
 
@@ -227,7 +225,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
   }
 
   if(address == 0xff800a) {
-    print("* write ff800a\n");
+    cdc.transfer.address.bits(3,18) = data.bits(0,15);
   }
 
   if(address == 0xff800c) {

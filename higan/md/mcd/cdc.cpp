@@ -32,30 +32,14 @@ auto MCD::CDC::decode(int sector) -> void {
     transfer.target  += 2352;
 
     //the sync header is written at the tail instead of head.
-    mcd.fd->seek((mcd.cdd.session.leadIn.len() + sector) * 2448);
-    for(uint index : range(12)) {
-      ram[(uint14)(transfer.pointer + index + 2340)] = mcd.fd->read();
+    mcd.fd->seek((abs(mcd.cdd.session.leadIn.lba) + sector) * 2448);
+    for(uint index = 0; index <   12; index += 2) {
+      ram[uint13(transfer.pointer + index + 2340 >> 1)] = mcd.fd->readm(2);
     }
-    for(uint index : range(2340)) {
-      ram[(uint14)(transfer.pointer + index)] = mcd.fd->read();
+    for(uint index = 0; index < 2340; index += 2) {
+      ram[uint13(transfer.pointer + index +    0 >> 1)] = mcd.fd->readm(2);
     }
   }
-}
-
-auto MCD::CDC::data() -> uint8 {
-  if(!transfer.ready) return 0xff;
-
-  uint8 data = ram[(uint14)(transfer.source++)];
-  if(!transfer.length--) {  //halt on underflow (-1)
-    transfer.active = 0;
-    transfer.busy = 0;
-    transfer.ready = 0;
-    transfer.completed = 1;
-    irq.transfer.pending = 1;
-    poll();
-  }
-
-  return data;
 }
 
 auto MCD::CDC::read() -> uint8 {
@@ -240,10 +224,7 @@ auto MCD::CDC::write(uint8 data) -> void {
     poll();
 
     //abort data transfer if data output is disabled
-    if(!transfer.enable) {
-      transfer.active = 0;
-      transfer.busy = 0;
-    }
+    if(!transfer.enable) transfer.stop();
   } break;
 
   //DBCL: data byte counter low
@@ -268,18 +249,7 @@ auto MCD::CDC::write(uint8 data) -> void {
 
   //DTRG: data trigger
   case 0x6: {
-    if(!transfer.enable) break;
-    transfer.active = 1;
-    transfer.busy = 1;
-    transfer.ready = 0;
-    transfer.completed = 0;
-    switch(destination) {
-    case 2:  //main CPU read
-    case 3:  //sub CPU read
-      transfer.ready = 1;
-      break;
-    }
-    if(destination != 3) print("CDC DMA ", destination, "\n");
+    transfer.start();
   } break;
 
   case 0x7: {  //DTACK
@@ -346,13 +316,70 @@ auto MCD::CDC::write(uint8 data) -> void {
 
   //RESET: software reset
   case 0xf: {
-    irq.lower();
+    //IFSTAT
+    status.active = 0;
+    transfer.active = 0;
+    status.busy = 0;
+    transfer.busy = 0;
+    irq.decoder.pending = 0;
+    irq.transfer.pending = 0;
+    irq.command.pending = 0;
 
-    command = {};
-    status = {};
-    transfer = {};
-    header = {};
-    subheader = {};
+    //IFCTRL
+    status.enable = 0;
+    transfer.enable = 0;
+    status.wait = 1;
+    transfer.wait = 1;
+    control.commandBreak = 1;
+    irq.decoder.enable = 0;
+    irq.transfer.enable = 0;
+    irq.command.enable = 0;
+
+    //CTRL0
+    control.pCodeCorrection = 0;
+    control.qCodeCorrection = 0;
+    control.writeRequest = 0;
+    control.erasureRequest = 0;
+    control.autoCorrection = 0;
+    control.errorCorrection = 0;
+    control.edcCorrection = 0;
+    decoder.enable = 0;
+
+    //CTRL1
+    control.head = 0;
+    control.modeByteCheck = 0;
+    control.form = 0;
+    control.mode = 0;
+    control.correctionWrite = 0;
+    control.descramble = 0;
+    control.syncDetection = 0;
+    control.syncInterrupt = 0;
+    decoder.form = 0;
+    decoder.mode = 0;
+
+    //CTRL2
+    control.statusTrigger = 0;
+    control.statusControl = 0;
+    control.erasureCorrection = 0;
+
+    //HEAD0
+    header.minute = 0;
+    subheader.file = 0;
+
+    //HEAD1
+    header.second = 0;
+    subheader.channel = 0;
+
+    //HEAD2
+    header.frame = 0;
+    subheader.submode = 0;
+
+    //HEAD3
+    header.mode = 0;
+    subheader.coding = 0;
+
+    transfer.stop();
+    poll();
   } break;
 
   }
@@ -365,7 +392,7 @@ auto MCD::CDC::power(bool reset) -> void {
   for(uint index : range(ram.size())) ram[index] = 0x00;
 
   address = 0;
-  destination = 0;
+  stopwatch = 0;
 
   command = {};
   status = {};
