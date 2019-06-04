@@ -127,11 +127,14 @@ auto MCD::CDD::serialize(serializer& s) -> void {
   irq.serialize(s);
   s.integer(counter);
 
-  s.integer(fader.spindleSpeed);
-  s.integer(fader.deemphasis);
-  s.integer(fader.volume);
+  s.integer(dac.rate);
+  s.integer(dac.deemphasis);
+  s.integer(dac.attenuator);
+  s.integer(dac.attenuated);
+  dac.reconfigure();
 
   s.integer(io.status);
+  s.integer(io.seeking);
   s.integer(io.latency);
   s.integer(io.sector);
   s.integer(io.sample);

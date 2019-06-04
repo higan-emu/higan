@@ -13,6 +13,7 @@ MCD mcd;
 #include "cdc.cpp"
 #include "cdc-transfer.cpp"
 #include "cdd.cpp"
+#include "cdd-dac.cpp"
 #include "timer.cpp"
 #include "gpu.cpp"
 #include "pcm.cpp"

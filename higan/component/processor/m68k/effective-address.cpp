@@ -20,6 +20,7 @@ template<uint Size> auto M68K::fetch(EffectiveAddress& ea) -> uint32 {
   }
 
   case AddressRegisterIndirectWithPreDecrement: {
+    step(2);
     return read(AddressRegister{ea.reg});
   }
 
@@ -28,6 +29,7 @@ template<uint Size> auto M68K::fetch(EffectiveAddress& ea) -> uint32 {
   }
 
   case AddressRegisterIndirectWithIndex: {
+    step(2);
     auto extension = readPC();
     auto index = extension & 0x8000
     ? read(AddressRegister{extension >> 12})
@@ -50,6 +52,7 @@ template<uint Size> auto M68K::fetch(EffectiveAddress& ea) -> uint32 {
   }
 
   case ProgramCounterIndirectWithIndex: {
+    step(2);
     auto base = r.pc;
     auto extension = readPC();
     auto index = extension & 0x8000

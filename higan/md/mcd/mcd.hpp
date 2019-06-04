@@ -259,7 +259,9 @@ struct MCD : M68K, Thread {
 
     //cdd.cpp
     auto clock() -> void;
+    auto advance() -> void;
     auto sample() -> void;
+    auto position(int sector) -> double;
     auto process() -> void;
     auto valid() -> bool;
     auto checksum() -> void;
@@ -270,23 +272,31 @@ struct MCD : M68K, Thread {
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    shared_pointer<Stream> stream;
     CD::Session session;
     IRQ irq;
     uint16 counter;
 
-    struct Fader {
-       uint1 spindleSpeed;  //0 = normal-speed, 1 = double-speed
-       uint2 deemphasis;    //0 = off, 1 = 44.1khz, 2 = 32khz, 3 = 48khz
-      uint11 volume;
-    } fader;
+    struct DAC {
+      shared_pointer<Stream> stream;
+
+      //cdd-dac.cpp
+      auto sample(int16 left, int16 right) -> void;
+      auto reconfigure() -> void;
+      auto power(bool reset) -> void;
+
+       uint1 rate;        //0 = normal, 1 = double
+       uint2 deemphasis;  //0 = off, 1 = 44100hz, 2 = 32000hz, 3 = 48000hz
+      uint16 attenuator;  //only d6-d15 are used for the coefficient
+      uint16 attenuated;  //current coefficent
+    } dac;
 
     struct IO {
        uint4 status = Status::NoDisc;
+       uint4 seeking;  //status after seeking (Playing or Paused)
       uint16 latency;
-       int   sector;  //current frame#
-      uint16 sample;  //current audio sample# within current frame
-       uint7 track;   //current track#
+       int   sector;   //current frame#
+      uint16 sample;   //current audio sample# within current frame
+       uint7 track;    //current track#
     } io;
 
     uint1 hostClockEnable;

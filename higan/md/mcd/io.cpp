@@ -267,9 +267,10 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
   }
 
   if(address == 0xff8034) {
-    cdd.fader.spindleSpeed = data.bit (1);
-    cdd.fader.deemphasis   = data.bits(2, 3);
-    cdd.fader.volume       = data.bits(4,14);
+    cdd.dac.rate = data.bit(1);
+    cdd.dac.deemphasis = data.bits(2,3);
+    cdd.dac.attenuator.bits(6,15) = data.bits(6,15);
+    cdd.dac.reconfigure();
   }
 
   if(address == 0xff8036) {

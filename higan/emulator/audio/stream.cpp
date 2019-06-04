@@ -1,12 +1,14 @@
 auto Stream::reset(uint channelCount, double inputFrequency, double outputFrequency) -> void {
   channels.reset();
   channels.resize(channelCount);
+  resetFilters();
+  setFrequency(inputFrequency, outputFrequency);
+}
 
+auto Stream::resetFilters() -> void {
   for(auto& channel : channels) {
     channel.filters.reset();
   }
-
-  setFrequency(inputFrequency, outputFrequency);
 }
 
 auto Stream::setFrequency(double inputFrequency, maybe<double> outputFrequency) -> void {
@@ -65,6 +67,28 @@ auto Stream::addHighPassFilter(double cutoffFrequency, Filter::Order order, uint
         filter.biquad.reset(DSP::IIR::Biquad::Type::HighPass, cutoffFrequency, inputFrequency, q);
         channel.filters.append(filter);
       }
+    }
+  }
+}
+
+auto Stream::addLowShelfFilter(double cutoffFrequency, Filter::Order order, double gain, double slope) -> void {
+  for(auto& channel : channels) {
+    if(order == Filter::Order::Second) {
+      Filter filter{Filter::Mode::Biquad, Filter::Type::LowShelf, Filter::Order::Second};
+      double q = DSP::IIR::Biquad::shelf(gain, slope);
+      filter.biquad.reset(DSP::IIR::Biquad::Type::LowShelf, cutoffFrequency, inputFrequency, q);
+      channel.filters.append(filter);
+    }
+  }
+}
+
+auto Stream::addHighShelfFilter(double cutoffFrequency, Filter::Order order, double gain, double slope) -> void {
+  for(auto& channel : channels) {
+    if(order == Filter::Order::Second) {
+      Filter filter{Filter::Mode::Biquad, Filter::Type::HighShelf, Filter::Order::Second};
+      double q = DSP::IIR::Biquad::shelf(gain, slope);
+      filter.biquad.reset(DSP::IIR::Biquad::Type::HighShelf, cutoffFrequency, inputFrequency, q);
+      channel.filters.append(filter);
     }
   }
 }

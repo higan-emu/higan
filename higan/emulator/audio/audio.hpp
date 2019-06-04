@@ -37,7 +37,7 @@ private:
 
 struct Filter {
   enum class Mode : uint { OnePole, Biquad } mode;
-  enum class Type : uint { None, LowPass, HighPass } type;
+  enum class Type : uint { None, LowPass, HighPass, LowShelf, HighShelf } type;
   enum class Order : uint { None, First, Second } order;
 
   DSP::IIR::OnePole onePole;
@@ -46,11 +46,14 @@ struct Filter {
 
 struct Stream {
   auto reset(uint channels, double inputFrequency, double outputFrequency) -> void;
+  auto resetFilters() -> void;
 
   auto setFrequency(double inputFrequency, maybe<double> outputFrequency = {}) -> void;
 
-  auto addLowPassFilter(double cutoffFrequency, Filter::Order order, uint passes = 1) -> void;
-  auto addHighPassFilter(double cutoffFrequency, Filter::Order order, uint passes = 1) -> void;
+  auto addLowPassFilter(double cutoffFrequency, Filter::Order, uint passes = 1) -> void;
+  auto addHighPassFilter(double cutoffFrequency, Filter::Order, uint passes = 1) -> void;
+  auto addLowShelfFilter(double cutoffFrequency, Filter::Order, double gain, double slope) -> void;
+  auto addHighShelfFilter(double cutoffFrequency, Filter::Order, double gain, double slope) -> void;
 
   auto pending() const -> bool;
   auto read(double samples[]) -> uint;

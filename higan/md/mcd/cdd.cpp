@@ -19,7 +19,7 @@ auto MCD::CDD::clock() -> void {
     io.status = mcd.disc ? Status::ReadingTOC : Status::NoDisc;
     io.sector = 0;
     io.sample = 0;
-    io.track  = 1;
+    io.track  = 0;
   } break;
 
   case Status::ReadingTOC: {
@@ -31,42 +31,58 @@ auto MCD::CDD::clock() -> void {
   } break;
 
   case Status::Playing: {
-    if(io.latency && --io.latency) break;
     if(session.tracks[io.track].isAudio()) break;
     mcd.cdc.decode(io.sector);
-    io.sector++;
-    if(!session.tracks[io.track].inRange(io.sector)) {
-      io.status = Status::Paused;
-    }
+    advance();
   } break;
 
   case Status::Seeking: {
     if(io.latency && --io.latency) break;
-    io.status = Status::Paused;
+    io.status = io.seeking;
+    if(auto track = session.inTrack(io.sector)) io.track = track();
   } break;
 
   }
 }
 
+auto MCD::CDD::advance() -> void {
+  //is the next sector still within the current track?
+  if(auto track = session.inTrack(io.sector + 1)) {
+    if(track() == io.track) {
+      io.sector++;
+      io.sample = 0;
+      return;
+    }
+  }
+
+  //if not, then the track has been completed
+  io.status = Status::Paused;
+}
+
 auto MCD::CDD::sample() -> void {
   int16 left  = 0;
   int16 right = 0;
-  if(io.status == Status::Playing && !io.latency) {
+  if(io.status == Status::Playing) {
     if(session.tracks[io.track].isAudio()) {
       mcd.fd->seek((abs(session.leadIn.lba) + io.sector) * 2448 + io.sample);
       left  = mcd.fd->readl(2);
       right = mcd.fd->readl(2);
       io.sample += 4;
-      if(io.sample >= 2352) {
-        io.sample = 0;
-        io.sector++;
-        if(!session.tracks[io.track].inRange(io.sector)) {
-          io.status = Status::Paused;
-        }
-      }
+      if(io.sample >= 2352) advance();
     }
   }
-  stream->sample(left / 32768.0, right / 32768.0);
+  dac.sample(left, right);
+}
+
+//convert sector# to normalized sector position on the CD-ROM surface for seek latency calculation
+auto MCD::CDD::position(int sector) -> double {
+  static const double sectors = 7500.0 + 330000.0 + 6750.0;
+  static const double radius = 0.058 - 0.024;
+  static const double innerRadius = 0.024 * 0.024;  //in mm
+  static const double outerRadius = 0.058 * 0.058;  //in mm
+
+  sector += session.leadIn.lba;  //convert to natural
+  return sqrt(sector / sectors * (outerRadius - innerRadius) + innerRadius) / radius;
 }
 
 auto MCD::CDD::process() -> void {
@@ -176,14 +192,14 @@ auto MCD::CDD::process() -> void {
     uint minute = command[2] * 10 + command[3];
     uint second = command[4] * 10 + command[5];
     uint frame  = command[6] * 10 + command[7];
-     int lba    = minute * 60 * 75 + second * 75 + frame;
+     int lba    = minute * 60 * 75 + second * 75 + frame - 3;
 
     counter    = 0;
-    io.status  = Status::Playing;
-    io.latency = 11;
+    io.status  = Status::Seeking;
+    io.seeking = Status::Playing;
+    io.latency = 11 + 112.5 * abs(position(io.sector) - position(lba));
     io.sector  = lba;
     io.sample  = 0;
-    if(auto track = session.inTrack(io.sector)) io.track = track();
 
     status[1] = 0xf;
     status[2] = 0x0; status[3] = 0x0;
@@ -196,14 +212,14 @@ auto MCD::CDD::process() -> void {
     uint minute = command[2] * 10 + command[3];
     uint second = command[4] * 10 + command[5];
     uint frame  = command[6] * 10 + command[7];
-     int lba    = minute * 60 * 75 + second * 75 + frame;
+     int lba    = minute * 60 * 75 + second * 75 + frame - 3;
 
     counter    = 0;
     io.status  = Status::Seeking;
-    io.latency = abs(io.sector - lba) * 120 / 270000;
+    io.seeking = Status::Paused;
+    io.latency = 11 + 112.5 * abs(position(io.sector) - position(lba));
     io.sector  = lba;
     io.sample  = 0;
-    if(auto track = session.inTrack(io.sector)) io.track = track();
 
     status[1] = 0xf;
     status[2] = 0x0; status[3] = 0x0;
@@ -242,7 +258,7 @@ auto MCD::CDD::checksum() -> void {
 }
 
 auto MCD::CDD::insert() -> void {
-  if(!mcd.disc) {
+  if(!mcd.disc || !mcd.fd) {
     io.status = Status::NoDisc;
     return;
   }
@@ -272,8 +288,7 @@ auto MCD::CDD::eject() -> void {
 }
 
 auto MCD::CDD::power(bool reset) -> void {
-  stream = audio.createStream(2, 44100);
-  fader = {};
+  dac.power(reset);
   io = {};
   insert();
   for(uint index : range(10)) status [index] = 0x0;
