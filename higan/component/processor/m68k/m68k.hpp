@@ -1,6 +1,6 @@
 #pragma once
 
-//Motorola M68000
+//Motorola MC68000 (16-bit bus timings)
 
 namespace higan {
 
@@ -96,7 +96,7 @@ struct M68K {
   //effective-address.cpp
   struct EffectiveAddress {
     explicit EffectiveAddress(uint4 mode_, uint3 reg_) : mode(mode_), reg(reg_) {
-      if(mode == 7) mode += reg;  //optimization: convert modes {7; 0-4} to {8-11}
+      if(mode == 7) mode += reg;  //optimization: convert modes {7; 0-4} to {7-11}
     }
 
     uint4 mode;
@@ -164,7 +164,6 @@ struct M68K {
   template<uint Size> auto instructionCMPI(EffectiveAddress ea) -> void;
   template<uint Size> auto instructionCMPM(EffectiveAddress ax, EffectiveAddress ay) -> void;
                       auto instructionDBCC(uint4 condition, DataRegister dr) -> void;
-  template<bool Sign> auto DIV(uint16 divisor, DataRegister with) -> void;
                       auto instructionDIVS(DataRegister with, EffectiveAddress from) -> void;
                       auto instructionDIVU(DataRegister with, EffectiveAddress from) -> void;
   template<uint Size> auto EOR(uint32 source, uint32 target) -> uint32;

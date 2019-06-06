@@ -20,7 +20,6 @@ template<uint Size> auto M68K::fetch(EffectiveAddress& ea) -> uint32 {
   }
 
   case AddressRegisterIndirectWithPreDecrement: {
-    step(2);
     return read(AddressRegister{ea.reg});
   }
 
@@ -96,6 +95,7 @@ template<uint Size, bool hold> auto M68K::read(EffectiveAddress& ea) -> uint32 {
   }
 
   case AddressRegisterIndirectWithPreDecrement: {
+    step(2);
     auto address = ea.address - (ea.reg == 7 && Size == Byte ? bytes<Word>() : bytes<Size>());
     auto data = read<Size>(address);
     if(!hold) write(AddressRegister{ea.reg}, ea.address = address);
