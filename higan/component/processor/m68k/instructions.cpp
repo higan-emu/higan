@@ -191,7 +191,8 @@ template<uint Size> auto M68K::instructionAND(DataRegister from, EffectiveAddres
 
 template<uint Size> auto M68K::instructionANDI(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(2);
+    //note: m68000um.pdf erroneously lists ANDI.L #,Dn as 14(3/0), but is in fact 16(3/0)
+    if(with.mode == DataRegisterDirect) step(4);
   }
   auto source = readPC<Size>();
   auto target = read<Size, Hold>(with);
@@ -202,6 +203,8 @@ template<uint Size> auto M68K::instructionANDI(EffectiveAddress with) -> void {
 auto M68K::instructionANDI_TO_CCR() -> void {
   auto data = readPC<Word>();
   writeCCR(readCCR() & data);
+  step(8);
+  read<Word>(r.pc);
 }
 
 auto M68K::instructionANDI_TO_SR() -> void {
@@ -209,6 +212,8 @@ auto M68K::instructionANDI_TO_SR() -> void {
 
   auto data = readPC<Word>();
   writeSR(readSR() & data);
+  step(8);
+  read<Word>(r.pc);
 }
 
 template<uint Size> auto M68K::ASL(uint32 result, uint shift) -> uint32 {
@@ -295,10 +300,10 @@ auto M68K::instructionBCC(uint4 condition, uint8 displacement) -> void {
 }
 
 template<uint Size> auto M68K::instructionBCHG(DataRegister bit, EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(4);
-  }
   auto index = read<Size>(bit) & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+  }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
   test.bit(index) ^= 1;
@@ -306,10 +311,10 @@ template<uint Size> auto M68K::instructionBCHG(DataRegister bit, EffectiveAddres
 }
 
 template<uint Size> auto M68K::instructionBCHG(EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(4);
-  }
   auto index = readPC<Word>() & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+  }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
   test.bit(index) ^= 1;
@@ -317,10 +322,10 @@ template<uint Size> auto M68K::instructionBCHG(EffectiveAddress with) -> void {
 }
 
 template<uint Size> auto M68K::instructionBCLR(DataRegister bit, EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(6);
-  }
   auto index = read<Size>(bit) & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(index < 16 ? 4 : 6);
+  }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
   test.bit(index) = 0;
@@ -328,10 +333,10 @@ template<uint Size> auto M68K::instructionBCLR(DataRegister bit, EffectiveAddres
 }
 
 template<uint Size> auto M68K::instructionBCLR(EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(6);
-  }
   auto index = readPC<Word>() & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(index < 16 ? 4 : 6);
+  }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
   test.bit(index) = 0;
@@ -339,10 +344,10 @@ template<uint Size> auto M68K::instructionBCLR(EffectiveAddress with) -> void {
 }
 
 template<uint Size> auto M68K::instructionBSET(DataRegister bit, EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(4);
-  }
   auto index = read<Size>(bit) & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+  }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
   test.bit(index) = 1;
@@ -350,10 +355,10 @@ template<uint Size> auto M68K::instructionBSET(DataRegister bit, EffectiveAddres
 }
 
 template<uint Size> auto M68K::instructionBSET(EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(4);
-  }
   auto index = readPC<Word>() & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+  }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
   test.bit(index) = 1;
@@ -361,24 +366,25 @@ template<uint Size> auto M68K::instructionBSET(EffectiveAddress with) -> void {
 }
 
 template<uint Size> auto M68K::instructionBTST(DataRegister bit, EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(2);
-  }
   auto index = read<Size>(bit) & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(2);
+  }
   auto test = read<Size>(with);
   r.z = test.bit(index) == 0;
 }
 
 template<uint Size> auto M68K::instructionBTST(EffectiveAddress with) -> void {
-  if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(2);
-  }
   auto index = readPC<Word>() & bits<Size>() - 1;
+  if constexpr(Size == Long) {
+    if(with.mode == DataRegisterDirect) step(2);
+  }
   auto test = read<Size>(with);
   r.z = test.bit(index) == 0;
 }
 
 auto M68K::instructionCHK(DataRegister compare, EffectiveAddress maximum) -> void {
+  step(6);
   auto source = read<Word>(maximum);
   auto target = read<Word>(compare);
 
@@ -605,6 +611,8 @@ template<uint Size> auto M68K::instructionEORI(EffectiveAddress with) -> void {
 auto M68K::instructionEORI_TO_CCR() -> void {
   auto data = readPC<Word>();
   writeCCR(readCCR() ^ data);
+  step(8);
+  read<Word>(r.pc);
 }
 
 auto M68K::instructionEORI_TO_SR() -> void {
@@ -612,6 +620,8 @@ auto M68K::instructionEORI_TO_SR() -> void {
 
   auto data = readPC<Word>();
   writeSR(readSR() ^ data);
+  step(8);
+  read<Word>(r.pc);
 }
 
 auto M68K::instructionEXG(DataRegister x, DataRegister y) -> void {
@@ -670,6 +680,7 @@ auto M68K::instructionJSR(EffectiveAddress target) -> void {
 }
 
 auto M68K::instructionLEA(AddressRegister ar, EffectiveAddress ea) -> void {
+  if(ea.mode == AddressRegisterIndirectWithIndex) step(2);
   write<Long>(ar, fetch<Long>(ea));
 }
 
@@ -799,6 +810,10 @@ template<uint Size> auto M68K::instructionMOVEM_TO_REG(EffectiveAddress from) ->
     if(from.mode != AddressRegisterIndirectWithPreDecrement) addr += bytes<Size>();
   }
 
+  //spurious extra word read cycle exclusive to MOVEM memory->register
+  if(from.mode == AddressRegisterIndirectWithPreDecrement) addr -= 2;
+  read<Word>(addr);
+
   AddressRegister with{from.reg};
   if(from.mode == AddressRegisterIndirectWithPreDecrement ) write<Long>(with, addr);
   if(from.mode == AddressRegisterIndirectWithPostIncrement) write<Long>(with, addr);
@@ -838,11 +853,15 @@ auto M68K::instructionMOVEQ(DataRegister dr, uint8 immediate) -> void {
 }
 
 auto M68K::instructionMOVE_FROM_SR(EffectiveAddress ea) -> void {
+  if(ea.mode == DataRegisterDirect) step(2);
   auto data = readSR();
   write<Word>(ea, data);
+  if(ea.mode == AddressRegisterIndirectWithPreDecrement) step(2);
+  if(ea.mode != DataRegisterDirect) read<Word>(r.pc);
 }
 
 auto M68K::instructionMOVE_TO_CCR(EffectiveAddress ea) -> void {
+  step(8);
   auto data = read<Word>(ea);
   writeCCR(data);
 }
@@ -850,6 +869,7 @@ auto M68K::instructionMOVE_TO_CCR(EffectiveAddress ea) -> void {
 auto M68K::instructionMOVE_TO_SR(EffectiveAddress ea) -> void {
   if(!supervisor()) return;
 
+  step(8);
   auto data = read<Word>(ea);
   writeSR(data);
 }
@@ -1001,6 +1021,8 @@ template<uint Size> auto M68K::instructionORI(EffectiveAddress with) -> void {
 auto M68K::instructionORI_TO_CCR() -> void {
   auto data = readPC<Word>();
   writeCCR(readCCR() | data);
+  step(8);
+  read<Word>(r.pc);
 }
 
 auto M68K::instructionORI_TO_SR() -> void {
@@ -1008,9 +1030,12 @@ auto M68K::instructionORI_TO_SR() -> void {
 
   auto data = readPC<Word>();
   writeSR(readSR() | data);
+  step(8);
+  read<Word>(r.pc);
 }
 
 auto M68K::instructionPEA(EffectiveAddress from) -> void {
+  if(from.mode == AddressRegisterIndirectWithIndex) step(2);
   auto data = fetch<Long>(from);
   push<Long>(data);
 }
