@@ -1,56 +1,4 @@
-auto M68K::testCondition(uint4 condition) -> bool {
-  switch(condition) {
-  case  0: return true;   //T
-  case  1: return false;  //F
-  case  2: return !r.c && !r.z;  //HI
-  case  3: return  r.c ||  r.z;  //LS
-  case  4: return !r.c;  //CC,HS
-  case  5: return  r.c;  //CS,LO
-  case  6: return !r.z;  //NE
-  case  7: return  r.z;  //EQ
-  case  8: return !r.v;  //VC
-  case  9: return  r.v;  //VS
-  case 10: return !r.n;  //PL
-  case 11: return  r.n;  //MI
-  case 12: return  r.n ==  r.v;  //GE
-  case 13: return  r.n !=  r.v;  //LT
-  case 14: return  r.n ==  r.v && !r.z;  //GT
-  case 15: return  r.n !=  r.v ||  r.z;  //LE
-  }
-  unreachable;
-}
-
-//
-
-template<> auto M68K::bytes<Byte>() -> uint { return 1; }
-template<> auto M68K::bytes<Word>() -> uint { return 2; }
-template<> auto M68K::bytes<Long>() -> uint { return 4; }
-
-template<> auto M68K::bits<Byte>() -> uint { return 8; }
-template<> auto M68K::bits<Word>() -> uint { return 16; }
-template<> auto M68K::bits<Long>() -> uint { return 32; }
-
-template<uint Size> auto M68K::lsb() -> uint32 { return 1; }
-
-template<> auto M68K::msb<Byte>() -> uint32 { return 0x80; }
-template<> auto M68K::msb<Word>() -> uint32 { return 0x8000; }
-template<> auto M68K::msb<Long>() -> uint32 { return 0x80000000; }
-
-template<> auto M68K::mask<Byte>() -> uint32 { return 0xff; }
-template<> auto M68K::mask<Word>() -> uint32 { return 0xffff; }
-template<> auto M68K::mask<Long>() -> uint32 { return 0xffffffff; }
-
-template<> auto M68K::clip<Byte>(uint32 data) -> uint32 { return data & 0xff; }
-template<> auto M68K::clip<Word>(uint32 data) -> uint32 { return data & 0xffff; }
-template<> auto M68K::clip<Long>(uint32 data) -> uint32 { return data & 0xffffffff; }
-
-template<> auto M68K::sign<Byte>(uint32 data) -> int32 { return  (int8)data; }
-template<> auto M68K::sign<Word>(uint32 data) -> int32 { return (int16)data; }
-template<> auto M68K::sign<Long>(uint32 data) -> int32 { return (int32)data; }
-
-//
-
-auto M68K::instructionABCD(EffectiveAddress with, EffectiveAddress from) -> void {
+auto M68K::instructionABCD(EffectiveAddress from, EffectiveAddress with) -> void {
   auto source = read<Byte>(from);
   auto target = read<Byte, Hold>(with);
   auto result = source + target + r.x;
@@ -79,25 +27,12 @@ auto M68K::instructionABCD(EffectiveAddress with, EffectiveAddress from) -> void
   r.x = r.c;
 }
 
-template<uint Size, bool extend> auto M68K::ADD(uint32 source, uint32 target) -> uint32 {
-  auto result = (uint64)source + target;
-  if(extend) result += r.x;
-
-  r.c = sign<Size>(result >> 1) < 0;
-  r.v = sign<Size>(~(target ^ source) & (target ^ result)) < 0;
-  r.z = clip<Size>(result) ? 0 : (extend ? r.z : 1);
-  r.n = sign<Size>(result) < 0;
-  r.x = r.c;
-
-  return clip<Size>(result);
-}
-
 template<uint Size> auto M68K::instructionADD(EffectiveAddress from, DataRegister with) -> void {
   if constexpr(Size == Long) {
     if(from.mode == DataRegisterDirect || from.mode == AddressRegisterDirect || from.mode == Immediate) {
-      step(4);
+      idle(4);
     } else {
-      step(2);
+      idle(2);
     }
   }
   auto source = read<Size>(from);
@@ -113,30 +48,30 @@ template<uint Size> auto M68K::instructionADD(DataRegister from, EffectiveAddres
   write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionADDA(AddressRegister ar, EffectiveAddress ea) -> void {
-  if(ea.mode == DataRegisterDirect || ea.mode == AddressRegisterDirect || ea.mode == Immediate) {
-    step(4);
+template<uint Size> auto M68K::instructionADDA(EffectiveAddress from, AddressRegister with) -> void {
+  if(from.mode == DataRegisterDirect || from.mode == AddressRegisterDirect || from.mode == Immediate) {
+    idle(4);
   } else {
-    step(2);
+    idle(2);
   }
-  auto source = sign<Size>(read<Size>(ea));
-  auto target = read<Long>(ar);
-  write<Long>(ar, source + target);
+  auto source = sign<Size>(read<Size>(from));
+  auto target = read<Long>(with);
+  write<Long>(with, source + target);
 }
 
-template<uint Size> auto M68K::instructionADDI(EffectiveAddress modify) -> void {
+template<uint Size> auto M68K::instructionADDI(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(modify.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
-  auto source = readPC<Size>();
-  auto target = read<Size, Hold>(modify);
+  auto source = prefetch<Size>();
+  auto target = read<Size, Hold>(with);
   auto result = ADD<Size>(source, target);
-  write<Size>(modify, result);
+  write<Size>(with, result);
 }
 
 template<uint Size> auto M68K::instructionADDQ(uint4 immediate, EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
   auto source = immediate;
   auto target = read<Size, Hold>(with);
@@ -146,34 +81,24 @@ template<uint Size> auto M68K::instructionADDQ(uint4 immediate, EffectiveAddress
 
 //Size is ignored: always uses Long
 template<uint Size> auto M68K::instructionADDQ(uint4 immediate, AddressRegister with) -> void {
+  idle(4);
   auto result = read<Long>(with) + immediate;
   write<Long>(with, result);
 }
 
-template<uint Size> auto M68K::instructionADDX(EffectiveAddress with, EffectiveAddress from) -> void {
+template<uint Size> auto M68K::instructionADDX(EffectiveAddress from, EffectiveAddress with) -> void {
   auto source = read<Size>(from);
   auto target = read<Size, Hold>(with);
   auto result = ADD<Size, Extend>(source, target);
   write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::AND(uint32 source, uint32 target) -> uint32 {
-  uint32 result = target & source;
-
-  r.c = 0;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-
-  return clip<Size>(result);
-}
-
 template<uint Size> auto M68K::instructionAND(EffectiveAddress from, DataRegister with) -> void {
   if constexpr(Size == Long) {
     if(from.mode == DataRegisterDirect || from.mode == AddressRegisterDirect || from.mode == Immediate) {
-      step(4);
+      idle(4);
     } else {
-      step(2);
+      idle(2);
     }
   }
   auto source = read<Size>(from);
@@ -192,117 +117,80 @@ template<uint Size> auto M68K::instructionAND(DataRegister from, EffectiveAddres
 template<uint Size> auto M68K::instructionANDI(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
     //note: m68000um.pdf erroneously lists ANDI.L #,Dn as 14(3/0), but is in fact 16(3/0)
-    if(with.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
-  auto source = readPC<Size>();
+  auto source = prefetch<Size>();
   auto target = read<Size, Hold>(with);
   auto result = AND<Size>(source, target);
   write<Size>(with, result);
 }
 
 auto M68K::instructionANDI_TO_CCR() -> void {
-  auto data = readPC<Word>();
+  auto data = prefetch<Word>();
   writeCCR(readCCR() & data);
-  step(8);
+  idle(8);
   read<Word>(r.pc);
 }
 
 auto M68K::instructionANDI_TO_SR() -> void {
   if(!supervisor()) return;
 
-  auto data = readPC<Word>();
+  auto data = prefetch<Word>();
   writeSR(readSR() & data);
-  step(8);
+  idle(8);
   read<Word>(r.pc);
 }
 
-template<uint Size> auto M68K::ASL(uint32 result, uint shift) -> uint32 {
-  bool carry = false;
-  uint32 overflow = 0;
-  for(auto _ : range(shift)) {
-    carry = result & msb<Size>();
-    uint32 before = result;
-    result <<= 1;
-    overflow |= before ^ result;
-  }
-
-  r.c = carry;
-  r.v = sign<Size>(overflow) < 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-  if(shift) r.x = r.c;
-
-  return clip<Size>(result);
+template<uint Size> auto M68K::instructionASL(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ASL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionASL(uint4 shift, DataRegister modify) -> void {
-  step((Size != Long ? 2 : 4) + shift * 2);
-  auto result = ASL<Size>(read<Size>(modify), shift);
-  write<Size>(modify, result);
+template<uint Size> auto M68K::instructionASL(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ASL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionASL(DataRegister shift, DataRegister modify) -> void {
-  auto count = read<Long>(shift) & 63;
-  step((Size != Long ? 2 : 4) + count * 2);
-  auto result = ASL<Size>(read<Size>(modify), count);
-  write<Size>(modify, result);
+auto M68K::instructionASL(EffectiveAddress with) -> void {
+  auto result = ASL<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
-auto M68K::instructionASL(EffectiveAddress modify) -> void {
-  auto result = ASL<Word>(read<Word, Hold>(modify), 1);
-  write<Word>(modify, result);
+template<uint Size> auto M68K::instructionASR(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ASR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::ASR(uint32 result, uint shift) -> uint32 {
-  bool carry = false;
-  uint32 overflow = 0;
-  for(auto _ : range(shift)) {
-    carry = result & lsb<Size>();
-    uint32 before = result;
-    result = sign<Size>(result) >> 1;
-    overflow |= before ^ result;
-  }
-
-  r.c = carry;
-  r.v = sign<Size>(overflow) < 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-  if(shift) r.x = r.c;
-
-  return clip<Size>(result);
+template<uint Size> auto M68K::instructionASR(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ASR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionASR(uint4 shift, DataRegister modify) -> void {
-  step((Size != Long ? 2 : 4) + shift * 2);
-  auto result = ASR<Size>(read<Size>(modify), shift);
-  write<Size>(modify, result);
+auto M68K::instructionASR(EffectiveAddress with) -> void {
+  auto result = ASR<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
-template<uint Size> auto M68K::instructionASR(DataRegister shift, DataRegister modify) -> void {
-  auto count = read<Long>(shift) & 63;
-  step((Size != Long ? 2 : 4) + count * 2);
-  auto result = ASR<Size>(read<Size>(modify), count);
-  write<Size>(modify, result);
-}
-
-auto M68K::instructionASR(EffectiveAddress modify) -> void {
-  auto result = ASR<Word>(read<Word, Hold>(modify), 1);
-  write<Word>(modify, result);
-}
-
-auto M68K::instructionBCC(uint4 condition, uint8 displacement) -> void {
-  auto extension = readPC<Word>();
-  if(displacement) r.pc -= 2;
-  if(condition >= 2 && !testCondition(condition)) return;
-  step(2);
-  if(condition == 1) push<Long>(r.pc);
-  r.pc += displacement ? (int8_t)displacement : (int16_t)extension - 2;
+auto M68K::instructionBCC(uint4 test, uint8 displacement) -> void {
+  auto offset = displacement ? (int8_t)displacement : (int16_t)prefetch<Word>() - 2;
+  if(test >= 2 && !condition(test)) return;
+  idle(2);
+  r.pc -= 2;
+  if(test == 1) push<Long>(r.pc);
+  r.pc += offset;
+  prefetch<Word>();
 }
 
 template<uint Size> auto M68K::instructionBCHG(DataRegister bit, EffectiveAddress with) -> void {
   auto index = read<Size>(bit) & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+    if(with.mode == DataRegisterDirect) idle(index < 16 ? 2 : 4);
   }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
@@ -311,9 +199,9 @@ template<uint Size> auto M68K::instructionBCHG(DataRegister bit, EffectiveAddres
 }
 
 template<uint Size> auto M68K::instructionBCHG(EffectiveAddress with) -> void {
-  auto index = readPC<Word>() & bits<Size>() - 1;
+  auto index = prefetch<Word>() & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+    if(with.mode == DataRegisterDirect) idle(index < 16 ? 2 : 4);
   }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
@@ -324,7 +212,7 @@ template<uint Size> auto M68K::instructionBCHG(EffectiveAddress with) -> void {
 template<uint Size> auto M68K::instructionBCLR(DataRegister bit, EffectiveAddress with) -> void {
   auto index = read<Size>(bit) & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(index < 16 ? 4 : 6);
+    if(with.mode == DataRegisterDirect) idle(index < 16 ? 4 : 6);
   }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
@@ -333,9 +221,9 @@ template<uint Size> auto M68K::instructionBCLR(DataRegister bit, EffectiveAddres
 }
 
 template<uint Size> auto M68K::instructionBCLR(EffectiveAddress with) -> void {
-  auto index = readPC<Word>() & bits<Size>() - 1;
+  auto index = prefetch<Word>() & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(index < 16 ? 4 : 6);
+    if(with.mode == DataRegisterDirect) idle(index < 16 ? 4 : 6);
   }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
@@ -346,7 +234,7 @@ template<uint Size> auto M68K::instructionBCLR(EffectiveAddress with) -> void {
 template<uint Size> auto M68K::instructionBSET(DataRegister bit, EffectiveAddress with) -> void {
   auto index = read<Size>(bit) & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+    if(with.mode == DataRegisterDirect) idle(index < 16 ? 2 : 4);
   }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
@@ -355,9 +243,9 @@ template<uint Size> auto M68K::instructionBSET(DataRegister bit, EffectiveAddres
 }
 
 template<uint Size> auto M68K::instructionBSET(EffectiveAddress with) -> void {
-  auto index = readPC<Word>() & bits<Size>() - 1;
+  auto index = prefetch<Word>() & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(index < 16 ? 2 : 4);
+    if(with.mode == DataRegisterDirect) idle(index < 16 ? 2 : 4);
   }
   auto test = read<Size, Hold>(with);
   r.z = test.bit(index) == 0;
@@ -368,23 +256,23 @@ template<uint Size> auto M68K::instructionBSET(EffectiveAddress with) -> void {
 template<uint Size> auto M68K::instructionBTST(DataRegister bit, EffectiveAddress with) -> void {
   auto index = read<Size>(bit) & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(2);
+    if(with.mode == DataRegisterDirect) idle(2);
   }
   auto test = read<Size>(with);
   r.z = test.bit(index) == 0;
 }
 
 template<uint Size> auto M68K::instructionBTST(EffectiveAddress with) -> void {
-  auto index = readPC<Word>() & bits<Size>() - 1;
+  auto index = prefetch<Word>() & bits<Size>() - 1;
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(2);
+    if(with.mode == DataRegisterDirect) idle(2);
   }
   auto test = read<Size>(with);
   r.z = test.bit(index) == 0;
 }
 
 auto M68K::instructionCHK(DataRegister compare, EffectiveAddress maximum) -> void {
-  step(6);
+  idle(6);
   auto source = read<Word>(maximum);
   auto target = read<Word>(compare);
 
@@ -400,12 +288,12 @@ auto M68K::instructionCHK(DataRegister compare, EffectiveAddress maximum) -> voi
   if(r.n == r.v && !r.z) return exception(Exception::BoundsCheck, Vector::BoundsCheck);
 }
 
-template<uint Size> auto M68K::instructionCLR(EffectiveAddress ea) -> void {
+template<uint Size> auto M68K::instructionCLR(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(ea.mode == DataRegisterDirect || ea.mode == AddressRegisterDirect) step(2);
+    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) idle(2);
   }
-  read<Size, Hold>(ea);
-  write<Size>(ea, 0);
+  read<Size, Hold>(with);
+  write<Size>(with, 0);
 
   r.c = 0;
   r.v = 0;
@@ -413,64 +301,54 @@ template<uint Size> auto M68K::instructionCLR(EffectiveAddress ea) -> void {
   r.n = 0;
 }
 
-template<uint Size> auto M68K::CMP(uint32 source, uint32 target) -> uint32 {
-  auto result = (uint64)target - source;
-
-  r.c = sign<Size>(result >> 1) < 0;
-  r.v = sign<Size>((target ^ source) & (target ^ result)) < 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-
-  return clip<Size>(result);
-}
-
-template<uint Size> auto M68K::instructionCMP(DataRegister dr, EffectiveAddress ea) -> void {
-  if constexpr(Size == Long) step(2);
-  auto source = read<Size>(ea);
-  auto target = read<Size>(dr);
+template<uint Size> auto M68K::instructionCMP(EffectiveAddress from, DataRegister with) -> void {
+  if constexpr(Size == Long) idle(2);
+  auto source = read<Size>(from);
+  auto target = read<Size>(with);
   CMP<Size>(source, target);
 }
 
-template<uint Size> auto M68K::instructionCMPA(AddressRegister ar, EffectiveAddress ea) -> void {
-  step(2);
-  auto source = sign<Size>(read<Size>(ea));
-  auto target = read<Long>(ar);
+template<uint Size> auto M68K::instructionCMPA(EffectiveAddress from, AddressRegister with) -> void {
+  idle(2);
+  auto source = sign<Size>(read<Size>(from));
+  auto target = read<Long>(with);
   CMP<Long>(source, target);
 }
 
-template<uint Size> auto M68K::instructionCMPI(EffectiveAddress ea) -> void {
+template<uint Size> auto M68K::instructionCMPI(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(ea.mode == DataRegisterDirect) step(2);
+    if(with.mode == DataRegisterDirect) idle(2);
   }
-  auto source = readPC<Size>();
-  auto target = read<Size>(ea);
+  auto source = prefetch<Size>();
+  auto target = read<Size>(with);
   CMP<Size>(source, target);
 }
 
-template<uint Size> auto M68K::instructionCMPM(EffectiveAddress ax, EffectiveAddress ay) -> void {
-  auto source = read<Size>(ay);
-  auto target = read<Size>(ax);
+template<uint Size> auto M68K::instructionCMPM(EffectiveAddress from, EffectiveAddress with) -> void {
+  auto source = read<Size>(from);
+  auto target = read<Size>(with);
   CMP<Size>(source, target);
 }
 
-auto M68K::instructionDBCC(uint4 condition, DataRegister dr) -> void {
-  auto displacement = readPC<Word>();
-  if(testCondition(condition)) {
-    step(4);
+auto M68K::instructionDBCC(uint4 test, DataRegister with) -> void {
+  auto displacement = prefetch<Word>();
+  if(condition(test)) {
+    idle(4);
   } else {
-    uint16 result = read<Word>(dr);
-    write<Word>(dr, result - 1);
+    uint16 result = read<Word>(with);
+    write<Word>(with, result - 1);
     if(result) {
-      step(6);
-      r.pc -= 2;
+      idle(2);
+      r.pc -= 4;
       r.pc += sign<Word>(displacement);
+      prefetch<Word>();
     } else {
-      step(2);
+      idle(2);
     }
   }
 }
 
-auto M68K::instructionDIVS(DataRegister with, EffectiveAddress from) -> void {
+auto M68K::instructionDIVS(EffectiveAddress from, DataRegister with) -> void {
   uint32 dividend = read<Long>(with), odividend = dividend;
   uint32 divisor  = read<Word>(from) << 16, odivisor = divisor;
 
@@ -484,14 +362,14 @@ auto M68K::instructionDIVS(DataRegister with, EffectiveAddress from) -> void {
 
   if(dividend >> 31) {
     dividend = -dividend;
-    step(2);
+    idle(2);
   }
 
   r.c = 0;
   if(r.v = dividend >= divisor) {
     r.z = 0;
     r.n = 1;
-    return step(14);
+    return idle(14);
   }
 
   uint16 quotient = 0;
@@ -531,17 +409,17 @@ auto M68K::instructionDIVS(DataRegister with, EffectiveAddress from) -> void {
   if(r.v) {
     r.z = 0;
     r.n = 1;
-    return step(ticks);
+    return idle(ticks);
   }
 
   r.z = quotient == 0;
   r.n = quotient < 0;
 
-  step(ticks);
+  idle(ticks);
   write<Long>(with, dividend | quotient);
 }
 
-auto M68K::instructionDIVU(DataRegister with, EffectiveAddress from) -> void {
+auto M68K::instructionDIVU(EffectiveAddress from, DataRegister with) -> void {
   uint32 dividend = read<Long>(with);
   uint32 divisor  = read<Word>(from) << 16;
 
@@ -553,7 +431,7 @@ auto M68K::instructionDIVU(DataRegister with, EffectiveAddress from) -> void {
   if(r.v = dividend >= divisor) {
     r.z = 0;
     r.n = 1;
-    return step(10);
+    return idle(10);
   }
 
   uint16 quotient = 0;
@@ -573,24 +451,13 @@ auto M68K::instructionDIVU(DataRegister with, EffectiveAddress from) -> void {
   r.z = quotient == 0;
   r.n = quotient < 0;
 
-  step(ticks);
+  idle(ticks);
   write<Long>(with, dividend | quotient);
-}
-
-template<uint Size> auto M68K::EOR(uint32 source, uint32 target) -> uint32 {
-  uint32 result = target ^ source;
-
-  r.c = 0;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-
-  return clip<Size>(result);
 }
 
 template<uint Size> auto M68K::instructionEOR(DataRegister from, EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
   auto source = read<Size>(from);
   auto target = read<Size, Hold>(with);
@@ -600,27 +467,27 @@ template<uint Size> auto M68K::instructionEOR(DataRegister from, EffectiveAddres
 
 template<uint Size> auto M68K::instructionEORI(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
-  auto source = readPC<Size>();
+  auto source = prefetch<Size>();
   auto target = read<Size, Hold>(with);
   auto result = EOR<Size>(source, target);
   write<Size>(with, result);
 }
 
 auto M68K::instructionEORI_TO_CCR() -> void {
-  auto data = readPC<Word>();
+  auto data = prefetch<Word>();
   writeCCR(readCCR() ^ data);
-  step(8);
+  idle(8);
   read<Word>(r.pc);
 }
 
 auto M68K::instructionEORI_TO_SR() -> void {
   if(!supervisor()) return;
 
-  auto data = readPC<Word>();
+  auto data = prefetch<Word>();
   writeSR(readSR() ^ data);
-  step(8);
+  idle(8);
   read<Word>(r.pc);
 }
 
@@ -663,104 +530,75 @@ template<> auto M68K::instructionEXT<Long>(DataRegister with) -> void {
 }
 
 auto M68K::instructionILLEGAL(uint16 code) -> void {
+  idle(6);
   r.pc -= 2;
   if(code.bits(12,15) == 0xa) return exception(Exception::Illegal, Vector::IllegalLineA);
   if(code.bits(12,15) == 0xf) return exception(Exception::Illegal, Vector::IllegalLineF);
   return exception(Exception::Illegal, Vector::IllegalInstruction);
 }
 
-auto M68K::instructionJMP(EffectiveAddress target) -> void {
-  r.pc = fetch<Long>(target);
+auto M68K::instructionJMP(EffectiveAddress from) -> void {
+  r.pc = fetch<Long>(from);
+  prefetch<Word>();
 }
 
-auto M68K::instructionJSR(EffectiveAddress target) -> void {
-  auto pc = fetch<Long>(target);
-  push<Long>(r.pc);
+auto M68K::instructionJSR(EffectiveAddress from) -> void {
+  auto pc = fetch<Long>(from);
+  push<Long>(r.pc - 2);
   r.pc = pc;
+  prefetch<Word>();
 }
 
-auto M68K::instructionLEA(AddressRegister ar, EffectiveAddress ea) -> void {
-  if(ea.mode == AddressRegisterIndirectWithIndex) step(2);
-  write<Long>(ar, fetch<Long>(ea));
+auto M68K::instructionLEA(EffectiveAddress from, AddressRegister to) -> void {
+  if(from.mode == AddressRegisterIndirectWithIndex) idle(2);
+  write<Long>(to, fetch<Long>(from));
 }
 
 auto M68K::instructionLINK(AddressRegister with) -> void {
-  auto displacement = (int16)readPC<Word>();
+  auto displacement = (int16)prefetch<Word>();
   auto sp = AddressRegister{7};
   push<Long>(read<Long>(with));
   write<Long>(with, read<Long>(sp));
   write<Long>(sp, read<Long>(sp) + displacement);
 }
 
-template<uint Size> auto M68K::LSL(uint32 result, uint shift) -> uint32 {
-  bool carry = false;
-  for(auto _ : range(shift)) {
-    carry = result & msb<Size>();
-    result <<= 1;
-  }
-
-  r.c = carry;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-  if(shift) r.x = r.c;
-
-  return clip<Size>(result);
+template<uint Size> auto M68K::instructionLSL(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = LSL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionLSL(uint4 immediate, DataRegister dr) -> void {
-  step((Size != Long ? 2 : 4) + immediate * 2);
-  auto result = LSL<Size>(read<Size>(dr), immediate);
-  write<Size>(dr, result);
+template<uint Size> auto M68K::instructionLSL(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = LSL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionLSL(DataRegister sr, DataRegister dr) -> void {
-  auto shift = read<Long>(sr) & 63;
-  step((Size != Long ? 2 : 4) + shift * 2);
-  auto result = LSL<Size>(read<Size>(dr), shift);
-  write<Size>(dr, result);
+auto M68K::instructionLSL(EffectiveAddress with) -> void {
+  auto result = LSL<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
-auto M68K::instructionLSL(EffectiveAddress ea) -> void {
-  auto result = LSL<Word>(read<Word, Hold>(ea), 1);
-  write<Word>(ea, result);
+template<uint Size> auto M68K::instructionLSR(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = LSR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::LSR(uint32 result, uint shift) -> uint32 {
-  bool carry = false;
-  for(auto _ : range(shift)) {
-    carry = result & lsb<Size>();
-    result >>= 1;
-  }
-
-  r.c = carry;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-  if(shift) r.x = r.c;
-
-  return clip<Size>(result);
+template<uint Size> auto M68K::instructionLSR(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = LSR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionLSR(uint4 immediate, DataRegister dr) -> void {
-  step((Size != Long ? 2 : 4) + immediate * 2);
-  auto result = LSR<Size>(read<Size>(dr), immediate);
-  write<Size>(dr, result);
+auto M68K::instructionLSR(EffectiveAddress with) -> void {
+  auto result = LSR<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
-template<uint Size> auto M68K::instructionLSR(DataRegister shift, DataRegister dr) -> void {
-  auto count = read<Long>(shift) & 63;
-  step((Size != Long ? 2 : 4) + count * 2);
-  auto result = LSR<Size>(read<Size>(dr), count);
-  write<Size>(dr, result);
-}
-
-auto M68K::instructionLSR(EffectiveAddress ea) -> void {
-  auto result = LSR<Word>(read<Word, Hold>(ea), 1);
-  write<Word>(ea, result);
-}
-
-template<uint Size> auto M68K::instructionMOVE(EffectiveAddress to, EffectiveAddress from) -> void {
+template<uint Size> auto M68K::instructionMOVE(EffectiveAddress from, EffectiveAddress to) -> void {
   auto data = read<Size>(from);
   write<Size>(to, data);
 
@@ -770,13 +608,13 @@ template<uint Size> auto M68K::instructionMOVE(EffectiveAddress to, EffectiveAdd
   r.n = sign<Size>(data) < 0;
 }
 
-template<uint Size> auto M68K::instructionMOVEA(AddressRegister ar, EffectiveAddress ea) -> void {
-  auto data = sign<Size>(read<Size>(ea));
-  write<Long>(ar, data);
+template<uint Size> auto M68K::instructionMOVEA(EffectiveAddress from, AddressRegister to) -> void {
+  auto data = sign<Size>(read<Size>(from));
+  write<Long>(to, data);
 }
 
 template<uint Size> auto M68K::instructionMOVEM_TO_MEM(EffectiveAddress to) -> void {
-  auto list = readPC<Word>();
+  auto list = prefetch<Word>();
   auto addr = fetch<Long>(to);
 
   for(uint n : range(16)) {
@@ -796,7 +634,7 @@ template<uint Size> auto M68K::instructionMOVEM_TO_MEM(EffectiveAddress to) -> v
 }
 
 template<uint Size> auto M68K::instructionMOVEM_TO_REG(EffectiveAddress from) -> void {
-  auto list = readPC<Word>();
+  auto list = prefetch<Word>();
   auto addr = fetch<Long>(from);
 
   for(uint n : range(16)) {
@@ -843,8 +681,8 @@ template<uint Size> auto M68K::instructionMOVEP(EffectiveAddress from, DataRegis
   write<Long>(to, data);
 }
 
-auto M68K::instructionMOVEQ(DataRegister dr, uint8 immediate) -> void {
-  write<Long>(dr, sign<Byte>(immediate));
+auto M68K::instructionMOVEQ(uint8 immediate, DataRegister to) -> void {
+  write<Long>(to, sign<Byte>(immediate));
 
   r.c = 0;
   r.v = 0;
@@ -852,25 +690,25 @@ auto M68K::instructionMOVEQ(DataRegister dr, uint8 immediate) -> void {
   r.n = sign<Byte>(immediate) < 0;
 }
 
-auto M68K::instructionMOVE_FROM_SR(EffectiveAddress ea) -> void {
-  if(ea.mode == DataRegisterDirect) step(2);
+auto M68K::instructionMOVE_FROM_SR(EffectiveAddress to) -> void {
+  if(to.mode == DataRegisterDirect) idle(2);
   auto data = readSR();
-  write<Word>(ea, data);
-  if(ea.mode == AddressRegisterIndirectWithPreDecrement) step(2);
-  if(ea.mode != DataRegisterDirect) read<Word>(r.pc);
+  write<Word>(to, data);
+  if(to.mode == AddressRegisterIndirectWithPreDecrement) idle(2);
+  if(to.mode != DataRegisterDirect) read<Word>(r.pc);
 }
 
-auto M68K::instructionMOVE_TO_CCR(EffectiveAddress ea) -> void {
-  step(8);
-  auto data = read<Word>(ea);
+auto M68K::instructionMOVE_TO_CCR(EffectiveAddress from) -> void {
+  idle(8);
+  auto data = read<Word>(from);
   writeCCR(data);
 }
 
-auto M68K::instructionMOVE_TO_SR(EffectiveAddress ea) -> void {
+auto M68K::instructionMOVE_TO_SR(EffectiveAddress from) -> void {
   if(!supervisor()) return;
 
-  step(8);
-  auto data = read<Word>(ea);
+  idle(8);
+  auto data = read<Word>(from);
   writeSR(data);
 }
 
@@ -886,13 +724,13 @@ auto M68K::instructionMOVE_TO_USP(AddressRegister from) -> void {
   r.sp = read<Long>(from);
 }
 
-auto M68K::instructionMULS(DataRegister with, EffectiveAddress from) -> void {
+auto M68K::instructionMULS(EffectiveAddress from, DataRegister with) -> void {
   auto source = read<Word>(from);
   auto target = read<Word>(with);
   auto result = (int16)source * (int16)target;
   //+2 cycles per 0<>1 bit transition
   auto cycles = bit::count(uint16(source << 1) ^ source);
-  step(34 + cycles * 2);
+  idle(34 + cycles * 2);
   write<Long>(with, result);
 
   r.c = 0;
@@ -901,13 +739,13 @@ auto M68K::instructionMULS(DataRegister with, EffectiveAddress from) -> void {
   r.n = sign<Long>(result) < 0;
 }
 
-auto M68K::instructionMULU(DataRegister with, EffectiveAddress from) -> void {
+auto M68K::instructionMULU(EffectiveAddress from, DataRegister with) -> void {
   auto source = read<Word>(from);
   auto target = read<Word>(with);
   auto result = source * target;
   //+2 cycles per bit set
   auto cycles = bit::count(source);
-  step(34 + cycles * 2);
+  idle(34 + cycles * 2);
   write<Long>(with, result);
 
   r.c = 0;
@@ -917,7 +755,7 @@ auto M68K::instructionMULU(DataRegister with, EffectiveAddress from) -> void {
 }
 
 auto M68K::instructionNBCD(EffectiveAddress with) -> void {
-  if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(2);
+  if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) idle(2);
   auto source = read<Byte, Hold>(with);
   auto target = 0u;
   auto result = target - source - r.x;
@@ -952,7 +790,7 @@ auto M68K::instructionNBCD(EffectiveAddress with) -> void {
 
 template<uint Size> auto M68K::instructionNEG(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(2);
+    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) idle(2);
   }
   auto result = SUB<Size>(read<Size, Hold>(with), 0);
   write<Size>(with, result);
@@ -960,7 +798,7 @@ template<uint Size> auto M68K::instructionNEG(EffectiveAddress with) -> void {
 
 template<uint Size> auto M68K::instructionNEGX(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(2);
+    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) idle(2);
   }
   auto result = SUB<Size, Extend>(read<Size, Hold>(with), 0);
   write<Size>(with, result);
@@ -971,7 +809,7 @@ auto M68K::instructionNOP() -> void {
 
 template<uint Size> auto M68K::instructionNOT(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) step(2);
+    if(with.mode == DataRegisterDirect || with.mode == AddressRegisterDirect) idle(2);
   }
   auto result = ~read<Size, Hold>(with);
   write<Size>(with, result);
@@ -982,19 +820,8 @@ template<uint Size> auto M68K::instructionNOT(EffectiveAddress with) -> void {
   r.n = sign<Size>(result) < 0;
 }
 
-template<uint Size> auto M68K::OR(uint32 source, uint32 target) -> uint32 {
-  auto result = target | source;
-
-  r.c = 0;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-
-  return clip<Size>(result);
-}
-
 template<uint Size> auto M68K::instructionOR(EffectiveAddress from, DataRegister with) -> void {
-  if constexpr(Size == Long) step(4);
+  if constexpr(Size == Long) idle(4);
   auto source = read<Size>(from);
   auto target = read<Size>(with);
   auto result = OR<Size>(source, target);
@@ -1010,32 +837,32 @@ template<uint Size> auto M68K::instructionOR(DataRegister from, EffectiveAddress
 
 template<uint Size> auto M68K::instructionORI(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
-  auto source = readPC<Size>();
+  auto source = prefetch<Size>();
   auto target = read<Size, Hold>(with);
   auto result = OR<Size>(source, target);
   write<Size>(with, result);
 }
 
 auto M68K::instructionORI_TO_CCR() -> void {
-  auto data = readPC<Word>();
+  auto data = prefetch<Word>();
   writeCCR(readCCR() | data);
-  step(8);
+  idle(8);
   read<Word>(r.pc);
 }
 
 auto M68K::instructionORI_TO_SR() -> void {
   if(!supervisor()) return;
 
-  auto data = readPC<Word>();
+  auto data = prefetch<Word>();
   writeSR(readSR() | data);
-  step(8);
+  idle(8);
   read<Word>(r.pc);
 }
 
 auto M68K::instructionPEA(EffectiveAddress from) -> void {
-  if(from.mode == AddressRegisterIndirectWithIndex) step(2);
+  if(from.mode == AddressRegisterIndirectWithIndex) idle(2);
   auto data = fetch<Long>(from);
   push<Long>(data);
 }
@@ -1043,145 +870,81 @@ auto M68K::instructionPEA(EffectiveAddress from) -> void {
 auto M68K::instructionRESET() -> void {
   if(!supervisor()) return;
 
-  r.reset = true;
+  r.reset = 1;
+  idle(128);
+  r.reset = 0;
 }
 
-template<uint Size> auto M68K::ROL(uint32 result, uint shift) -> uint32 {
-  bool carry = false;
-  for(auto _ : range(shift)) {
-    carry = result & msb<Size>();
-    result = result << 1 | carry;
-  }
-
-  r.c = carry;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-
-  return clip<Size>(result);
+template<uint Size> auto M68K::instructionROL(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionROL(uint4 shift, DataRegister modify) -> void {
-  step((Size != Long ? 2 : 4) + shift * 2);
-  auto result = ROL<Size>(read<Size>(modify), shift);
-  write<Size>(modify, result);
+template<uint Size> auto M68K::instructionROL(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionROL(DataRegister shift, DataRegister modify) -> void {
-  auto count = read<Long>(shift) & 63;
-  step((Size != Long ? 2 : 4) + count * 2);
-  auto result = ROL<Size>(read<Size>(modify), count);
-  write<Size>(modify, result);
+auto M68K::instructionROL(EffectiveAddress with) -> void {
+  auto result = ROL<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
-auto M68K::instructionROL(EffectiveAddress modify) -> void {
-  auto result = ROL<Word>(read<Word, Hold>(modify), 1);
-  write<Word>(modify, result);
+template<uint Size> auto M68K::instructionROR(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::ROR(uint32 result, uint shift) -> uint32 {
-  bool carry = false;
-  for(auto _ : range(shift)) {
-    carry = result & lsb<Size>();
-    result >>= 1;
-    if(carry) result |= msb<Size>();
-  }
-
-  r.c = carry;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-
-  return clip<Size>(result);
+template<uint Size> auto M68K::instructionROR(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionROR(uint4 shift, DataRegister modify) -> void {
-  step((Size != Long ? 2 : 4) + shift * 2);
-  auto result = ROR<Size>(read<Size>(modify), shift);
-  write<Size>(modify, result);
+auto M68K::instructionROR(EffectiveAddress with) -> void {
+  auto result = ROR<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
-template<uint Size> auto M68K::instructionROR(DataRegister shift, DataRegister modify) -> void {
-  auto count = read<Long>(shift) & 63;
-  step((Size != Long ? 2 : 4) + count * 2);
-  auto result = ROR<Size>(read<Size>(modify), count);
-  write<Size>(modify, result);
+template<uint Size> auto M68K::instructionROXL(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROXL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-auto M68K::instructionROR(EffectiveAddress modify) -> void {
-  auto result = ROR<Word>(read<Word, Hold>(modify), 1);
-  write<Word>(modify, result);
+template<uint Size> auto M68K::instructionROXL(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROXL<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::ROXL(uint32 result, uint shift) -> uint32 {
-  bool carry = r.x;
-  for(auto _ : range(shift)) {
-    bool extend = carry;
-    carry = result & msb<Size>();
-    result = result << 1 | extend;
-  }
-
-  r.c = carry;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-  r.x = r.c;
-
-  return clip<Size>(result);
+auto M68K::instructionROXL(EffectiveAddress with) -> void {
+  auto result = ROXL<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
-template<uint Size> auto M68K::instructionROXL(uint4 shift, DataRegister modify) -> void {
-  step((Size != Long ? 2 : 4) + shift * 2);
-  auto result = ROXL<Size>(read<Size>(modify), shift);
-  write<Size>(modify, result);
+template<uint Size> auto M68K::instructionROXR(uint4 count, DataRegister with) -> void {
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROXR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionROXL(DataRegister shift, DataRegister modify) -> void {
-  auto count = read<Long>(shift) & 63;
-  step((Size != Long ? 2 : 4) + count * 2);
-  auto result = ROXL<Size>(read<Size>(modify), count);
-  write<Size>(modify, result);
+template<uint Size> auto M68K::instructionROXR(DataRegister from, DataRegister with) -> void {
+  auto count = read<Long>(from) & 63;
+  idle((Size != Long ? 2 : 4) + count * 2);
+  auto result = ROXR<Size>(read<Size>(with), count);
+  write<Size>(with, result);
 }
 
-auto M68K::instructionROXL(EffectiveAddress modify) -> void {
-  auto result = ROXL<Word>(read<Word, Hold>(modify), 1);
-  write<Word>(modify, result);
-}
-
-template<uint Size> auto M68K::ROXR(uint32 result, uint shift) -> uint32 {
-  bool carry = r.x;
-  for(auto _ : range(shift)) {
-    bool extend = carry;
-    carry = result & lsb<Size>();
-    result >>= 1;
-    if(extend) result |= msb<Size>();
-  }
-
-  r.c = carry;
-  r.v = 0;
-  r.z = clip<Size>(result) == 0;
-  r.n = sign<Size>(result) < 0;
-  r.x = r.c;
-
-  return clip<Size>(result);
-}
-
-template<uint Size> auto M68K::instructionROXR(uint4 shift, DataRegister modify) -> void {
-  step((Size != Long ? 2 : 4) + shift * 2);
-  auto result = ROXR<Size>(read<Size>(modify), shift);
-  write<Size>(modify, result);
-}
-
-template<uint Size> auto M68K::instructionROXR(DataRegister shift, DataRegister modify) -> void {
-  auto count = read<Long>(shift) & 63;
-  step((Size != Long ? 2 : 4) + count * 2);
-  auto result = ROXR<Size>(read<Size>(modify), count);
-  write<Size>(modify, result);
-}
-
-auto M68K::instructionROXR(EffectiveAddress modify) -> void {
-  auto result = ROXR<Word>(read<Word, Hold>(modify), 1);
-  write<Word>(modify, result);
+auto M68K::instructionROXR(EffectiveAddress with) -> void {
+  auto result = ROXR<Word>(read<Word, Hold>(with), 1);
+  write<Word>(with, result);
 }
 
 auto M68K::instructionRTE() -> void {
@@ -1190,18 +953,21 @@ auto M68K::instructionRTE() -> void {
   auto sr = pop<Word>();
   r.pc = pop<Long>();
   writeSR(sr);
+  prefetch<Word>();
 }
 
 auto M68K::instructionRTR() -> void {
   writeCCR(pop<Word>());
   r.pc = pop<Long>();
+  prefetch<Word>();
 }
 
 auto M68K::instructionRTS() -> void {
   r.pc = pop<Long>();
+  prefetch<Word>();
 }
 
-auto M68K::instructionSBCD(EffectiveAddress with, EffectiveAddress from) -> void {
+auto M68K::instructionSBCD(EffectiveAddress from, EffectiveAddress with) -> void {
   auto source = read<Byte>(from);
   auto target = read<Byte, Hold>(with);
   auto result = target - source - r.x;
@@ -1234,11 +1000,11 @@ auto M68K::instructionSBCD(EffectiveAddress with, EffectiveAddress from) -> void
   r.x = r.c;
 }
 
-auto M68K::instructionSCC(uint4 condition, EffectiveAddress to) -> void {
-  if(!testCondition(condition)) {
+auto M68K::instructionSCC(uint4 test, EffectiveAddress to) -> void {
+  if(!condition(test)) {
     write<Byte>(to, 0);
   } else {
-    if(to.mode == DataRegisterDirect || to.mode == AddressRegisterDirect) step(2);
+    if(to.mode == DataRegisterDirect) idle(2);
     write<Byte>(to, ~0);
   }
 }
@@ -1246,50 +1012,37 @@ auto M68K::instructionSCC(uint4 condition, EffectiveAddress to) -> void {
 auto M68K::instructionSTOP() -> void {
   if(!supervisor()) return;
 
-  auto sr = readPC<Word>();
+  auto sr = prefetch<Word>();
   writeSR(sr);
   r.stop = true;
 }
 
-template<uint Size, bool extend> auto M68K::SUB(uint32 source, uint32 target) -> uint32 {
-  auto result = (uint64)target - source;
-  if(extend) result -= r.x;
-
-  r.c = sign<Size>(result >> 1) < 0;
-  r.v = sign<Size>((target ^ source) & (target ^ result)) < 0;
-  r.z = clip<Size>(result) ? 0 : (extend ? r.z : 1);
-  r.n = sign<Size>(result) < 0;
-  r.x = r.c;
-
-  return result;
-}
-
-template<uint Size> auto M68K::instructionSUB(EffectiveAddress source_, DataRegister target_) -> void {
+template<uint Size> auto M68K::instructionSUB(EffectiveAddress from, DataRegister with) -> void {
   if constexpr(Size == Long) {
-    if(source_.mode == DataRegisterDirect || source_.mode == AddressRegisterDirect || source_.mode == Immediate) {
-      step(4);
+    if(from.mode == DataRegisterDirect || from.mode == AddressRegisterDirect || from.mode == Immediate) {
+      idle(4);
     } else {
-      step(2);
+      idle(2);
     }
   }
-  auto source = read<Size>(source_);
-  auto target = read<Size>(target_);
+  auto source = read<Size>(from);
+  auto target = read<Size>(with);
   auto result = SUB<Size>(source, target);
-  write<Size>(target_, result);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionSUB(DataRegister source_, EffectiveAddress target_) -> void {
-  auto source = read<Size>(source_);
-  auto target = read<Size, Hold>(target_);
+template<uint Size> auto M68K::instructionSUB(DataRegister from, EffectiveAddress with) -> void {
+  auto source = read<Size>(from);
+  auto target = read<Size, Hold>(with);
   auto result = SUB<Size>(source, target);
-  write<Size>(target_, result);
+  write<Size>(with, result);
 }
 
-template<uint Size> auto M68K::instructionSUBA(AddressRegister to, EffectiveAddress from) -> void {
+template<uint Size> auto M68K::instructionSUBA(EffectiveAddress from, AddressRegister to) -> void {
   if(from.mode == DataRegisterDirect || from.mode == AddressRegisterDirect || from.mode == Immediate) {
-    step(4);
+    idle(4);
   } else {
-    step(2);
+    idle(2);
   }
   auto source = sign<Size>(read<Size>(from));
   auto target = read<Long>(to);
@@ -1298,9 +1051,9 @@ template<uint Size> auto M68K::instructionSUBA(AddressRegister to, EffectiveAddr
 
 template<uint Size> auto M68K::instructionSUBI(EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
-  auto source = readPC<Size>();
+  auto source = prefetch<Size>();
   auto target = read<Size, Hold>(with);
   auto result = SUB<Size>(source, target);
   write<Size>(with, result);
@@ -1308,7 +1061,7 @@ template<uint Size> auto M68K::instructionSUBI(EffectiveAddress with) -> void {
 
 template<uint Size> auto M68K::instructionSUBQ(uint4 immediate, EffectiveAddress with) -> void {
   if constexpr(Size == Long) {
-    if(with.mode == DataRegisterDirect) step(4);
+    if(with.mode == DataRegisterDirect) idle(4);
   }
   auto source = immediate;
   auto target = read<Size, Hold>(with);
@@ -1318,11 +1071,12 @@ template<uint Size> auto M68K::instructionSUBQ(uint4 immediate, EffectiveAddress
 
 //Size is ignored: always uses Long
 template<uint Size> auto M68K::instructionSUBQ(uint4 immediate, AddressRegister with) -> void {
+  idle(4);
   auto result = read<Long>(with) - immediate;
   write<Long>(with, result);
 }
 
-template<uint Size> auto M68K::instructionSUBX(EffectiveAddress with, EffectiveAddress from) -> void {
+template<uint Size> auto M68K::instructionSUBX(EffectiveAddress from, EffectiveAddress with) -> void {
   auto source = read<Size>(from);
   auto target = read<Size, Hold>(with);
   auto result = SUB<Size, Extend>(source, target);
@@ -1350,7 +1104,7 @@ auto M68K::instructionTAS(EffectiveAddress with) -> void {
     //Mega Drive models 1&2 have a bug that prevents TAS write from taking effect
     //this bugged behavior is required for certain software to function correctly
     data = read<Byte>(with);
-    step(6);
+    idle(6);
   }
 
   r.c = 0;
@@ -1360,15 +1114,19 @@ auto M68K::instructionTAS(EffectiveAddress with) -> void {
 }
 
 auto M68K::instructionTRAP(uint4 vector) -> void {
+  idle(6);
   exception(Exception::Trap, 32 + vector, r.i);
 }
 
 auto M68K::instructionTRAPV() -> void {
-  if(r.v) exception(Exception::Overflow, Vector::Overflow);
+  if(r.v) {
+    idle(6);
+    exception(Exception::Overflow, Vector::Overflow);
+  }
 }
 
-template<uint Size> auto M68K::instructionTST(EffectiveAddress ea) -> void {
-  auto data = read<Size>(ea);
+template<uint Size> auto M68K::instructionTST(EffectiveAddress from) -> void {
+  auto data = read<Size>(from);
 
   r.c = 0;
   r.v = 0;

@@ -13,6 +13,8 @@ auto CPU::main() -> void {
       state.interruptPending.bit((uint)Interrupt::Reset) = 0;
       r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
+      r.irc  = read(1, 1, r.pc & ~1);
+      r.pc  += 2;
     }
 
     if(state.interruptPending.bit((uint)Interrupt::HorizontalBlank)) {
@@ -30,22 +32,20 @@ auto CPU::main() -> void {
     }
   }
 
-//static uint ctr=0;if(++ctr>2000000)print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
-
   instruction();
 }
 
-auto CPU::step(uint clocks) -> void {
-  while(wait) {
-    Thread::step(1);
-    synchronize();
+auto CPU::idle(uint clocks) -> void {
+  Thread::step(clocks);
+}
+
+auto CPU::wait(uint clocks) -> void {
+  while(Thread::wait) {
+    Thread::step(2);
+    synchronize(vdp);
   }
 
   Thread::step(clocks);
-  synchronize();
-}
-
-auto CPU::synchronize() -> void {
   synchronize(apu);
   synchronize(vdp);
   synchronize(psg);

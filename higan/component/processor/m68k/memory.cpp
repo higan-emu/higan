@@ -8,7 +8,7 @@
 //* /LDS is where A0=1 and maps to D0-D7
 
 template<> auto M68K::read<Byte>(uint32 address) -> uint32 {
-  step(4);
+  wait(4);
   if(address & 1) {
     return read(0, 1, address & ~1).byte(0);  /* /LDS */
   } else {
@@ -17,21 +17,21 @@ template<> auto M68K::read<Byte>(uint32 address) -> uint32 {
 }
 
 template<> auto M68K::read<Word>(uint32 address) -> uint32 {
-  step(4);
+  wait(4);
   return read(1, 1, address & ~1);
 }
 
 template<> auto M68K::read<Long>(uint32 address) -> uint32 {
-  step(4);
+  wait(4);
   uint32 data = read(1, 1, address + 0 & ~1) << 16;
-  step(4);
+  wait(4);
   return data | read(1, 1, address + 2 & ~1) <<  0;
 }
 
 //
 
 template<> auto M68K::write<Byte>(uint32 address, uint32 data) -> void {
-  step(4);
+  wait(4);
   if(address & 1) {
     return write(0, 1, address & ~1, data << 8 | (uint8)data << 0);  /* /LDS */
   } else {
@@ -40,21 +40,21 @@ template<> auto M68K::write<Byte>(uint32 address, uint32 data) -> void {
 }
 
 template<> auto M68K::write<Word>(uint32 address, uint32 data) -> void {
-  step(4);
+  wait(4);
   return write(1, 1, address & ~1, data);
 }
 
 template<> auto M68K::write<Long>(uint32 address, uint32 data) -> void {
-  step(4);
+  wait(4);
   write(1, 1, address + 0 & ~1, data >> 16);
-  step(4);
+  wait(4);
   write(1, 1, address + 2 & ~1, data >>  0);
 }
 
 //
 
 template<> auto M68K::write<Byte, Reverse>(uint32 address, uint32 data) -> void {
-  step(4);
+  wait(4);
   if(address & 1) {
     return write(0, 1, address & ~1, data << 8 | (uint8)data << 0);  /* /LDS */
   } else {
@@ -63,40 +63,38 @@ template<> auto M68K::write<Byte, Reverse>(uint32 address, uint32 data) -> void 
 }
 
 template<> auto M68K::write<Word, Reverse>(uint32 address, uint32 data) -> void {
-  step(4);
+  wait(4);
   return write(1, 1, address & ~1, data);
 }
 
 template<> auto M68K::write<Long, Reverse>(uint32 address, uint32 data) -> void {
-  step(4);
+  wait(4);
   write(1, 1, address + 2 & ~1, data >>  0);
-  step(4);
+  wait(4);
   write(1, 1, address + 0 & ~1, data >> 16);
 }
 
 //
 
-template<> auto M68K::readPC<Byte>() -> uint32 {
-  step(4);
-  auto data = read(1, 1, r.pc & ~1);
+template<> auto M68K::prefetch<Byte>() -> uint32 {
+  wait(4);
+  r.ir  = r.irc;
+  r.irc = read(1, 1, r.pc & ~1);
   r.pc += 2;
-  return (uint8)data;
+  return (uint8)r.ir;
 }
 
-template<> auto M68K::readPC<Word>() -> uint32 {
-  step(4);
-  auto data = read(1, 1, r.pc & ~1);
+template<> auto M68K::prefetch<Word>() -> uint32 {
+  wait(4);
+  r.ir  = r.irc;
+  r.irc = read(1, 1, r.pc & ~1);
   r.pc += 2;
-  return data;
+  return r.ir;
 }
 
-template<> auto M68K::readPC<Long>() -> uint32 {
-  step(4);
-  auto hi = read(1, 1, r.pc & ~1);
-  r.pc += 2;
-  step(4);
-  auto lo = read(1, 1, r.pc & ~1);
-  r.pc += 2;
+template<> auto M68K::prefetch<Long>() -> uint32 {
+  auto hi = prefetch<Word>();
+  auto lo = prefetch<Word>();
   return hi << 16 | lo << 0;
 }
 
@@ -107,6 +105,8 @@ template<uint Size> auto M68K::pop() -> uint32 {
   r.a[7] += bytes<Size>();
   return data;
 }
+
+//
 
 template<uint Size> auto M68K::push(uint32 data) -> void {
   r.a[7] -= bytes<Size>();

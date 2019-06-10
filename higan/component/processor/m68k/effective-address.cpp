@@ -24,12 +24,12 @@ template<uint Size> auto M68K::fetch(EffectiveAddress& ea) -> uint32 {
   }
 
   case AddressRegisterIndirectWithDisplacement: {
-    return read(AddressRegister{ea.reg}) + (int16)readPC();
+    return read(AddressRegister{ea.reg}) + (int16)prefetch<Word>();
   }
 
   case AddressRegisterIndirectWithIndex: {
-    step(2);
-    auto extension = readPC();
+    idle(2);
+    auto extension = prefetch<Word>();
     auto index = extension & 0x8000
     ? read(AddressRegister{extension >> 12})
     : read(DataRegister{extension >> 12});
@@ -38,22 +38,22 @@ template<uint Size> auto M68K::fetch(EffectiveAddress& ea) -> uint32 {
   }
 
   case AbsoluteShortIndirect: {
-    return (int16)readPC();
+    return (int16)prefetch<Word>();
   }
 
   case AbsoluteLongIndirect: {
-    return readPC<Long>();
+    return prefetch<Long>();
   }
 
   case ProgramCounterIndirectWithDisplacement: {
-    auto base = r.pc;
-    return base + (int16)readPC();
+    auto base = r.pc - 2;
+    return base + (int16)prefetch<Word>();
   }
 
   case ProgramCounterIndirectWithIndex: {
-    step(2);
-    auto base = r.pc;
-    auto extension = readPC();
+    idle(2);
+    auto base = r.pc - 2;
+    auto extension = prefetch<Word>();
     auto index = extension & 0x8000
     ? read(AddressRegister{extension >> 12})
     : read(DataRegister{extension >> 12});
@@ -62,7 +62,7 @@ template<uint Size> auto M68K::fetch(EffectiveAddress& ea) -> uint32 {
   }
 
   case Immediate: {
-    return readPC<Size>();
+    return prefetch<Size>();
   }
 
   }
@@ -95,7 +95,7 @@ template<uint Size, bool hold> auto M68K::read(EffectiveAddress& ea) -> uint32 {
   }
 
   case AddressRegisterIndirectWithPreDecrement: {
-    step(2);
+    idle(2);
     auto address = ea.address - (ea.reg == 7 && Size == Byte ? bytes<Word>() : bytes<Size>());
     auto data = read<Size>(address);
     if(!hold) write(AddressRegister{ea.reg}, ea.address = address);

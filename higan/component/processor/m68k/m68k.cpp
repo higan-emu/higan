@@ -9,6 +9,9 @@ enum : bool { Reverse = 1 };
 #include "registers.cpp"
 #include "memory.cpp"
 #include "effective-address.cpp"
+#include "traits.cpp"
+#include "conditions.cpp"
+#include "algorithms.cpp"
 #include "instructions.cpp"
 #include "disassembler.cpp"
 #include "instruction.cpp"
@@ -29,14 +32,18 @@ auto M68K::power() -> void {
   r.s = 1;
   r.t = 0;
 
-  r.stop = false;
+  r.irc = 0;
+  r.ir  = 0;
+//r.ird = 0;
+
+  r.stop  = false;
   r.reset = false;
 }
 
 auto M68K::supervisor() -> bool {
   if(r.s) return true;
 
-  r.pc -= 2;
+  r.pc -= 4;
   exception(Exception::Unprivileged, Vector::Unprivileged);
   return false;
 }
@@ -52,10 +59,11 @@ auto M68K::exception(uint exception, uint vector, uint priority) -> void {
     r.t = 0;
   }
 
-  push<Long>(pc);
+  push<Long>(pc - 2);
   push<Word>(sr);
 
   r.pc = read<Long>(vector << 2);
+  prefetch<Word>();
 }
 
 auto M68K::interrupt(uint vector, uint priority) -> void {

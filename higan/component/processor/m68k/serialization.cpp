@@ -13,8 +13,10 @@ auto M68K::serialize(serializer& s) -> void {
   s.integer(r.s);
   s.integer(r.t);
 
+  s.integer(r.irc);
+  s.integer(r.ir);
+//s.integer(r.ird);
+
   s.integer(r.stop);
   s.integer(r.reset);
-
-  s.integer(opcode);
 }

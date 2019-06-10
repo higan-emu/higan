@@ -11,8 +11,8 @@ struct CPU : M68K, Thread {
 
   //cpu.cpp
   auto main() -> void;
-  auto step(uint clocks) -> void override;
-  auto synchronize() -> void;
+  auto idle(uint clocks) -> void override;
+  auto wait(uint clocks) -> void override;
 
   auto raise(Interrupt) -> void;
   auto lower(Interrupt) -> void;

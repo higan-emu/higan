@@ -17,7 +17,9 @@ struct MCD : M68K, Thread {
   auto unload() -> void;
 
   auto main() -> void;
-  auto step(uint clocks) -> void override;
+  auto step(uint clocks) -> void;
+  auto idle(uint clocks) -> void override;
+  auto wait(uint clocks) -> void override;
   auto power(bool reset) -> void;
 
   //bus.cpp

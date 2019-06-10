@@ -1,6 +1,6 @@
 auto M68K::instruction() -> void {
-  opcode = readPC();
-  return instructionTable[opcode]();
+  prefetch<Word>();
+  return instructionTable[r.ir]();
 }
 
 M68K::M68K() {
@@ -25,11 +25,11 @@ M68K::M68K() {
 
     EffectiveAddress dataWith{DataRegisterDirect, xreg};
     EffectiveAddress dataFrom{DataRegisterDirect, yreg};
-    bind(opcode | 0 << 3, ABCD, dataWith, dataFrom);
+    bind(opcode | 0 << 3, ABCD, dataFrom, dataWith);
 
     EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, xreg};
     EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, yreg};
-    bind(opcode | 1 << 3, ABCD, addressWith, addressFrom);
+    bind(opcode | 1 << 3, ABCD, addressFrom, addressWith);
   }
 
   //ADD
@@ -69,10 +69,10 @@ M68K::M68K() {
     auto opcode = pattern("1101 ---+ 11-- ----") | areg << 9 | mode << 3 | reg << 0;
     if(mode == 7 && reg >= 5) continue;
 
-    AddressRegister ar{areg};
-    EffectiveAddress ea{mode, reg};
-    bind(opcode | 0 << 8, ADDA<Word>, ar, ea);
-    bind(opcode | 1 << 8, ADDA<Long>, ar, ea);
+    AddressRegister with{areg};
+    EffectiveAddress from{mode, reg};
+    bind(opcode | 0 << 8, ADDA<Word>, from, with);
+    bind(opcode | 1 << 8, ADDA<Long>, from, with);
   }
 
   //ADDI
@@ -81,10 +81,10 @@ M68K::M68K() {
     auto opcode = pattern("0000 0110 ++-- ----") | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress modify{mode, reg};
-    bind(opcode | 0 << 6, ADDI<Byte>, modify);
-    bind(opcode | 1 << 6, ADDI<Word>, modify);
-    bind(opcode | 2 << 6, ADDI<Long>, modify);
+    EffectiveAddress with{mode, reg};
+    bind(opcode | 0 << 6, ADDI<Byte>, with);
+    bind(opcode | 1 << 6, ADDI<Word>, with);
+    bind(opcode | 2 << 6, ADDI<Long>, with);
   }
 
   //ADDQ
@@ -114,15 +114,15 @@ M68K::M68K() {
 
     EffectiveAddress dataWith{DataRegisterDirect, xreg};
     EffectiveAddress dataFrom{DataRegisterDirect, yreg};
-    bind(opcode | 0 << 6 | 0 << 3, ADDX<Byte>, dataWith, dataFrom);
-    bind(opcode | 1 << 6 | 0 << 3, ADDX<Word>, dataWith, dataFrom);
-    bind(opcode | 2 << 6 | 0 << 3, ADDX<Long>, dataWith, dataFrom);
+    bind(opcode | 0 << 6 | 0 << 3, ADDX<Byte>, dataFrom, dataWith);
+    bind(opcode | 1 << 6 | 0 << 3, ADDX<Word>, dataFrom, dataWith);
+    bind(opcode | 2 << 6 | 0 << 3, ADDX<Long>, dataFrom, dataWith);
 
     EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, xreg};
     EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, yreg};
-    bind(opcode | 0 << 6 | 1 << 3, ADDX<Byte>, addressWith, addressFrom);
-    bind(opcode | 1 << 6 | 1 << 3, ADDX<Word>, addressWith, addressFrom);
-    bind(opcode | 2 << 6 | 1 << 3, ADDX<Long>, addressWith, addressFrom);
+    bind(opcode | 0 << 6 | 1 << 3, ADDX<Byte>, addressFrom, addressWith);
+    bind(opcode | 1 << 6 | 1 << 3, ADDX<Word>, addressFrom, addressWith);
+    bind(opcode | 2 << 6 | 1 << 3, ADDX<Long>, addressFrom, addressWith);
   }
 
   //AND
@@ -178,15 +178,15 @@ M68K::M68K() {
   }
 
   //ASL (immediate)
-  for(uint3 count : range(8))
-  for(uint3 dreg  : range(8)) {
-    auto opcode = pattern("1110 ---1 ++00 0---") | count << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---1 ++00 0---") | immediate << 9 | dreg << 0;
 
-    auto shift = count ? (uint4)count : (uint4)8;
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ASL<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ASL<Word>, shift, modify);
-    bind(opcode | 2 << 6, ASL<Long>, shift, modify);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ASL<Byte>, count, with);
+    bind(opcode | 1 << 6, ASL<Word>, count, with);
+    bind(opcode | 2 << 6, ASL<Long>, count, with);
   }
 
   //ASL (register)
@@ -194,11 +194,11 @@ M68K::M68K() {
   for(uint3 dreg : range(8)) {
     auto opcode = pattern("1110 ---1 ++10 0---") | sreg << 9 | dreg << 0;
 
-    DataRegister shift{sreg};
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ASL<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ASL<Word>, shift, modify);
-    bind(opcode | 2 << 6, ASL<Long>, shift, modify);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ASL<Byte>, from, with);
+    bind(opcode | 1 << 6, ASL<Word>, from, with);
+    bind(opcode | 2 << 6, ASL<Long>, from, with);
   }
 
   //ASL (effective address)
@@ -207,20 +207,20 @@ M68K::M68K() {
     auto opcode = pattern("1110 0001 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress modify{mode, reg};
-    bind(opcode, ASL, modify);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, ASL, with);
   }
 
   //ASR (immediate)
-  for(uint3 count : range(8))
-  for(uint3 dreg  : range(8)) {
-    auto opcode = pattern("1110 ---0 ++00 0---") | count << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---0 ++00 0---") | immediate << 9 | dreg << 0;
 
-    auto shift = count ? (uint4)count : (uint4)8;
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ASR<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ASR<Word>, shift, modify);
-    bind(opcode | 2 << 6, ASR<Long>, shift, modify);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ASR<Byte>, count, with);
+    bind(opcode | 1 << 6, ASR<Word>, count, with);
+    bind(opcode | 2 << 6, ASR<Long>, count, with);
   }
 
   //ASR (register)
@@ -228,11 +228,11 @@ M68K::M68K() {
   for(uint3 dreg : range(8)) {
     auto opcode = pattern("1110 ---0 ++10 0---") | sreg << 9 | dreg << 0;
 
-    DataRegister shift{sreg};
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ASR<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ASR<Word>, shift, modify);
-    bind(opcode | 2 << 6, ASR<Long>, shift, modify);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ASR<Byte>, from, with);
+    bind(opcode | 1 << 6, ASR<Word>, from, with);
+    bind(opcode | 2 << 6, ASR<Long>, from, with);
   }
 
   //ASR (effective address)
@@ -241,16 +241,16 @@ M68K::M68K() {
     auto opcode = pattern("1110 0000 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress modify{mode, reg};
-    bind(opcode, ASR, modify);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, ASR, with);
   }
 
   //BCC
-  for(uint4 condition    : range( 16))
+  for(uint4 test         : range( 16))
   for(uint8 displacement : range(256)) {
-    auto opcode = pattern("0110 ---- ---- ----") | condition << 8 | displacement << 0;
+    auto opcode = pattern("0110 ---- ---- ----") | test << 8 | displacement << 0;
 
-    bind(opcode, BCC, condition, displacement);
+    bind(opcode, BCC, test, displacement);
   }
 
   //BCHG (register)
@@ -332,10 +332,10 @@ M68K::M68K() {
     auto opcode = pattern("0000 ---1 00-- ----") | dreg << 9 | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 5)) continue;
 
-    DataRegister dr{dreg};
-    EffectiveAddress ea{mode, reg};
-    if(mode == 0) bind(opcode, BTST<Long>, dr, ea);
-    if(mode != 0) bind(opcode, BTST<Byte>, dr, ea);
+    DataRegister bit{dreg};
+    EffectiveAddress with{mode, reg};
+    if(mode == 0) bind(opcode, BTST<Long>, bit, with);
+    if(mode != 0) bind(opcode, BTST<Byte>, bit, with);
   }
 
   //BTST (immediate)
@@ -344,9 +344,9 @@ M68K::M68K() {
     auto opcode = pattern("0000 1000 00-- ----") | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 4)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    if(mode == 0) bind(opcode, BTST<Long>, ea);
-    if(mode != 0) bind(opcode, BTST<Byte>, ea);
+    EffectiveAddress with{mode, reg};
+    if(mode == 0) bind(opcode, BTST<Long>, with);
+    if(mode != 0) bind(opcode, BTST<Byte>, with);
   }
 
   //CHK
@@ -367,10 +367,10 @@ M68K::M68K() {
     auto opcode = pattern("0100 0010 ++-- ----") | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode | 0 << 6, CLR<Byte>, ea);
-    bind(opcode | 1 << 6, CLR<Word>, ea);
-    bind(opcode | 2 << 6, CLR<Long>, ea);
+    EffectiveAddress with{mode, reg};
+    bind(opcode | 0 << 6, CLR<Byte>, with);
+    bind(opcode | 1 << 6, CLR<Word>, with);
+    bind(opcode | 2 << 6, CLR<Long>, with);
   }
 
   //CMP
@@ -380,11 +380,11 @@ M68K::M68K() {
     auto opcode = pattern("1011 ---0 ++-- ----") | dreg << 9 | mode << 3 | reg << 0;
     if(mode == 7 && reg >= 5) continue;
 
-    DataRegister dr{dreg};
-    EffectiveAddress ea{mode, reg};
-    bind(opcode | 0 << 6, CMP<Byte>, dr, ea);
-    bind(opcode | 1 << 6, CMP<Word>, dr, ea);
-    bind(opcode | 2 << 6, CMP<Long>, dr, ea);
+    DataRegister with{dreg};
+    EffectiveAddress from{mode, reg};
+    bind(opcode | 0 << 6, CMP<Byte>, from, with);
+    bind(opcode | 1 << 6, CMP<Word>, from, with);
+    bind(opcode | 2 << 6, CMP<Long>, from, with);
 
     if(mode == 1) unbind(opcode | 0 << 6);
   }
@@ -395,10 +395,10 @@ M68K::M68K() {
   for(uint3 reg  : range(8)) {
     auto opcode = pattern("1011 ---+ 11-- ----") | areg << 9 | mode << 3 | reg << 0;
 
-    AddressRegister ar{areg};
-    EffectiveAddress ea{mode, reg};
-    bind(opcode | 0 << 8, CMPA<Word>, ar, ea);
-    bind(opcode | 1 << 8, CMPA<Long>, ar, ea);
+    AddressRegister with{areg};
+    EffectiveAddress from{mode, reg};
+    bind(opcode | 0 << 8, CMPA<Word>, from, with);
+    bind(opcode | 1 << 8, CMPA<Long>, from, with);
   }
 
   //CMPI
@@ -407,10 +407,10 @@ M68K::M68K() {
     auto opcode = pattern("0000 1100 ++-- ----") | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode | 0 << 6, CMPI<Byte>, ea);
-    bind(opcode | 1 << 6, CMPI<Word>, ea);
-    bind(opcode | 2 << 6, CMPI<Long>, ea);
+    EffectiveAddress with{mode, reg};
+    bind(opcode | 0 << 6, CMPI<Byte>, with);
+    bind(opcode | 1 << 6, CMPI<Word>, with);
+    bind(opcode | 2 << 6, CMPI<Long>, with);
   }
 
   //CMPM
@@ -418,11 +418,11 @@ M68K::M68K() {
   for(uint3 yreg : range(8)) {
     auto opcode = pattern("1011 ---1 ++00 1---") | xreg << 9 | yreg << 0;
 
-    EffectiveAddress ax{AddressRegisterIndirectWithPostIncrement, xreg};
-    EffectiveAddress ay{AddressRegisterIndirectWithPostIncrement, yreg};
-    bind(opcode | 0 << 6, CMPM<Byte>, ax, ay);
-    bind(opcode | 1 << 6, CMPM<Word>, ax, ay);
-    bind(opcode | 2 << 6, CMPM<Long>, ax, ay);
+    EffectiveAddress with{AddressRegisterIndirectWithPostIncrement, xreg};
+    EffectiveAddress from{AddressRegisterIndirectWithPostIncrement, yreg};
+    bind(opcode | 0 << 6, CMPM<Byte>, from, with);
+    bind(opcode | 1 << 6, CMPM<Word>, from, with);
+    bind(opcode | 2 << 6, CMPM<Long>, from, with);
   }
 
   //DBCC
@@ -430,8 +430,8 @@ M68K::M68K() {
   for(uint3 dreg      : range( 8)) {
     auto opcode = pattern("0101 ---- 1100 1---") | condition << 8 | dreg << 0;
 
-    DataRegister dr{dreg};
-    bind(opcode, DBCC, condition, dr);
+    DataRegister with{dreg};
+    bind(opcode, DBCC, condition, with);
   }
 
   //DIVS
@@ -443,7 +443,7 @@ M68K::M68K() {
 
     DataRegister with{dreg};
     EffectiveAddress from{mode, reg};
-    bind(opcode, DIVS, with, from);
+    bind(opcode, DIVS, from, with);
   }
 
   //DIVU
@@ -455,7 +455,7 @@ M68K::M68K() {
 
     DataRegister with{dreg};
     EffectiveAddress from{mode, reg};
-    bind(opcode, DIVU, with, from);
+    bind(opcode, DIVU, from, with);
   }
 
   //EOR
@@ -547,8 +547,8 @@ M68K::M68K() {
     auto opcode = pattern("0100 1110 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || mode == 3 || mode == 4 || (mode == 7 && reg >= 4)) continue;
 
-    EffectiveAddress target{mode, reg};
-    bind(opcode, JMP, target);
+    EffectiveAddress from{mode, reg};
+    bind(opcode, JMP, from);
   }
 
   //JSR
@@ -557,8 +557,8 @@ M68K::M68K() {
     auto opcode = pattern("0100 1110 10-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || mode == 3 || mode == 4 || (mode == 7 && reg >= 4)) continue;
 
-    EffectiveAddress target{mode, reg};
-    bind(opcode, JSR, target);
+    EffectiveAddress from{mode, reg};
+    bind(opcode, JSR, from);
   }
 
   //LEA
@@ -568,9 +568,9 @@ M68K::M68K() {
     auto opcode = pattern("0100 ---1 11-- ----") | areg << 9 | mode << 3 | reg << 0;
     if(mode <= 1 || mode == 3 || mode == 4 || (mode == 7 && reg >= 4)) continue;
 
-    AddressRegister ar{areg};
-    EffectiveAddress ea{mode, reg};
-    bind(opcode, LEA, ar, ea);
+    AddressRegister to{areg};
+    EffectiveAddress from{mode, reg};
+    bind(opcode, LEA, from, to);
   }
 
   //LINK
@@ -582,15 +582,15 @@ M68K::M68K() {
   }
 
   //LSL (immediate)
-  for(uint3 data : range(8))
-  for(uint3 dreg : range(8)) {
-    auto opcode = pattern("1110 ---1 ++00 1---") | data << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---1 ++00 1---") | immediate << 9 | dreg << 0;
 
-    auto immediate = data ? (uint4)data : (uint4)8;
-    DataRegister dr{dreg};
-    bind(opcode | 0 << 6, LSL<Byte>, immediate, dr);
-    bind(opcode | 1 << 6, LSL<Word>, immediate, dr);
-    bind(opcode | 2 << 6, LSL<Long>, immediate, dr);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, LSL<Byte>, count, with);
+    bind(opcode | 1 << 6, LSL<Word>, count, with);
+    bind(opcode | 2 << 6, LSL<Long>, count, with);
   }
 
   //LSL (register)
@@ -598,11 +598,11 @@ M68K::M68K() {
   for(uint3 dreg : range(8)) {
     auto opcode = pattern("1110 ---1 ++10 1---") | sreg << 9 | dreg << 0;
 
-    DataRegister sr{sreg};
-    DataRegister dr{dreg};
-    bind(opcode | 0 << 6, LSL<Byte>, sr, dr);
-    bind(opcode | 1 << 6, LSL<Word>, sr, dr);
-    bind(opcode | 2 << 6, LSL<Long>, sr, dr);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, LSL<Byte>, from, with);
+    bind(opcode | 1 << 6, LSL<Word>, from, with);
+    bind(opcode | 2 << 6, LSL<Long>, from, with);
   }
 
   //LSL (effective address)
@@ -611,32 +611,32 @@ M68K::M68K() {
     auto opcode = pattern("1110 0011 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode, LSL, ea);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, LSL, with);
   }
 
   //LSR (immediate)
-  for(uint3 data : range(8))
-  for(uint3 dreg : range(8)) {
-    auto opcode = pattern("1110 ---0 ++00 1---") | data << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---0 ++00 1---") | immediate << 9 | dreg << 0;
 
-    auto immediate = data ? (uint4)data : (uint4)8;
-    DataRegister dr{dreg};
-    bind(opcode | 0 << 6, LSR<Byte>, immediate, dr);
-    bind(opcode | 1 << 6, LSR<Word>, immediate, dr);
-    bind(opcode | 2 << 6, LSR<Long>, immediate, dr);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, LSR<Byte>, count, with);
+    bind(opcode | 1 << 6, LSR<Word>, count, with);
+    bind(opcode | 2 << 6, LSR<Long>, count, with);
   }
 
   //LSR (register)
-  for(uint3 count : range(8))
-  for(uint3 dreg  : range(8)) {
-    auto opcode = pattern("1110 ---0 ++10 1---") | count << 9 | dreg << 0;
+  for(uint3 sreg : range(8))
+  for(uint3 dreg : range(8)) {
+    auto opcode = pattern("1110 ---0 ++10 1---") | sreg << 9 | dreg << 0;
 
-    DataRegister shift{count};
-    DataRegister dr{dreg};
-    bind(opcode | 0 << 6, LSR<Byte>, shift, dr);
-    bind(opcode | 1 << 6, LSR<Word>, shift, dr);
-    bind(opcode | 2 << 6, LSR<Long>, shift, dr);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, LSR<Byte>, from, with);
+    bind(opcode | 1 << 6, LSR<Word>, from, with);
+    bind(opcode | 2 << 6, LSR<Long>, from, with);
   }
 
   //LSR (effective address)
@@ -645,8 +645,8 @@ M68K::M68K() {
     auto opcode = pattern("1110 0010 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode, LSR, ea);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, LSR, with);
   }
 
   //MOVE
@@ -660,9 +660,9 @@ M68K::M68K() {
 
     EffectiveAddress to{toMode, toReg};
     EffectiveAddress from{fromMode, fromReg};
-    bind(opcode | 1 << 12, MOVE<Byte>, to, from);
-    bind(opcode | 3 << 12, MOVE<Word>, to, from);
-    bind(opcode | 2 << 12, MOVE<Long>, to, from);
+    bind(opcode | 1 << 12, MOVE<Byte>, from, to);
+    bind(opcode | 3 << 12, MOVE<Word>, from, to);
+    bind(opcode | 2 << 12, MOVE<Long>, from, to);
 
     if(fromMode == 1) unbind(opcode | 1 << 12);
   }
@@ -674,10 +674,10 @@ M68K::M68K() {
     auto opcode = pattern("00++ ---0 01-- ----") | areg << 9 | mode << 3 | reg << 0;
     if(mode == 7 && reg >= 5) continue;
 
-    AddressRegister ar{areg};
-    EffectiveAddress ea{mode, reg};
-    bind(opcode | 3 << 12, MOVEA<Word>, ar, ea);
-    bind(opcode | 2 << 12, MOVEA<Long>, ar, ea);
+    AddressRegister to{areg};
+    EffectiveAddress from{mode, reg};
+    bind(opcode | 3 << 12, MOVEA<Word>, from, to);
+    bind(opcode | 2 << 12, MOVEA<Long>, from, to);
   }
 
   //MOVEM
@@ -729,8 +729,8 @@ M68K::M68K() {
   for(uint8 immediate : range(256)) {
     auto opcode = pattern("0111 ---0 ---- ----") | dreg << 9 | immediate << 0;
 
-    DataRegister dr{dreg};
-    bind(opcode, MOVEQ, dr, immediate);
+    DataRegister to{dreg};
+    bind(opcode, MOVEQ, immediate, to);
   }
 
   //MOVE_FROM_SR
@@ -739,8 +739,8 @@ M68K::M68K() {
     auto opcode = pattern("0100 0000 11-- ----") | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode, MOVE_FROM_SR, ea);
+    EffectiveAddress to{mode, reg};
+    bind(opcode, MOVE_FROM_SR, to);
   }
 
   //MOVE_TO_CCR
@@ -749,8 +749,8 @@ M68K::M68K() {
     auto opcode = pattern("0100 0100 11-- ----") | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 5)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode, MOVE_TO_CCR, ea);
+    EffectiveAddress from{mode, reg};
+    bind(opcode, MOVE_TO_CCR, from);
   }
 
   //MOVE_TO_SR
@@ -759,8 +759,8 @@ M68K::M68K() {
     auto opcode = pattern("0100 0110 11-- ----") | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 5)) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode, MOVE_TO_SR, ea);
+    EffectiveAddress from{mode, reg};
+    bind(opcode, MOVE_TO_SR, from);
   }
 
   //MOVE_FROM_USP
@@ -788,7 +788,7 @@ M68K::M68K() {
 
     DataRegister with{dreg};
     EffectiveAddress from{mode, reg};
-    bind(opcode, MULS, with, from);
+    bind(opcode, MULS, from, with);
   }
 
   //MULU
@@ -800,7 +800,7 @@ M68K::M68K() {
 
     DataRegister with{dreg};
     EffectiveAddress from{mode, reg};
-    bind(opcode, MULU, with, from);
+    bind(opcode, MULU, from, with);
   }
 
   //NBCD
@@ -924,15 +924,15 @@ M68K::M68K() {
   }
 
   //ROL (immediate)
-  for(uint3 count : range(8))
-  for(uint3 dreg  : range(8)) {
-    auto opcode = pattern("1110 ---1 ++01 1---") | count << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---1 ++01 1---") | immediate << 9 | dreg << 0;
 
-    auto shift = count ? (uint4)count : (uint4)8;
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROL<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROL<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROL<Long>, shift, modify);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROL<Byte>, count, with);
+    bind(opcode | 1 << 6, ROL<Word>, count, with);
+    bind(opcode | 2 << 6, ROL<Long>, count, with);
   }
 
   //ROL (register)
@@ -940,11 +940,11 @@ M68K::M68K() {
   for(uint3 dreg : range(8)) {
     auto opcode = pattern("1110 ---1 ++11 1---") | sreg << 9 | dreg << 0;
 
-    DataRegister shift{sreg};
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROL<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROL<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROL<Long>, shift, modify);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROL<Byte>, from, with);
+    bind(opcode | 1 << 6, ROL<Word>, from, with);
+    bind(opcode | 2 << 6, ROL<Long>, from, with);
   }
 
   //ROL (effective address)
@@ -953,20 +953,20 @@ M68K::M68K() {
     auto opcode = pattern("1110 0111 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress modify{mode, reg};
-    bind(opcode, ROL, modify);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, ROL, with);
   }
 
   //ROR (immediate)
-  for(uint3 count : range(8))
-  for(uint3 dreg  : range(8)) {
-    auto opcode = pattern("1110 ---0 ++01 1---") | count << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---0 ++01 1---") | immediate << 9 | dreg << 0;
 
-    auto shift = count ? (uint4)count : (uint4)8;
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROR<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROR<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROR<Long>, shift, modify);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROR<Byte>, count, with);
+    bind(opcode | 1 << 6, ROR<Word>, count, with);
+    bind(opcode | 2 << 6, ROR<Long>, count, with);
   }
 
   //ROR (register)
@@ -974,11 +974,11 @@ M68K::M68K() {
   for(uint3 dreg : range(8)) {
     auto opcode = pattern("1110 ---0 ++11 1---") | sreg << 9 | dreg << 0;
 
-    DataRegister shift{sreg};
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROR<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROR<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROR<Long>, shift, modify);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROR<Byte>, from, with);
+    bind(opcode | 1 << 6, ROR<Word>, from, with);
+    bind(opcode | 2 << 6, ROR<Long>, from, with);
   }
 
   //ROR (effective address)
@@ -987,20 +987,20 @@ M68K::M68K() {
     auto opcode = pattern("1110 0110 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress modify{mode, reg};
-    bind(opcode, ROR, modify);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, ROR, with);
   }
 
   //ROXL (immediate)
-  for(uint3 count : range(8))
-  for(uint3 dreg  : range(8)) {
-    auto opcode = pattern("1110 ---1 ++01 0---") | count << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---1 ++01 0---") | immediate << 9 | dreg << 0;
 
-    auto shift = count ? (uint4)count : (uint4)8;
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROXL<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROXL<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROXL<Long>, shift, modify);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROXL<Byte>, count, with);
+    bind(opcode | 1 << 6, ROXL<Word>, count, with);
+    bind(opcode | 2 << 6, ROXL<Long>, count, with);
   }
 
   //ROXL (register)
@@ -1008,11 +1008,11 @@ M68K::M68K() {
   for(uint3 dreg : range(8)) {
     auto opcode = pattern("1110 ---1 ++11 0---") | sreg << 9 | dreg << 0;
 
-    DataRegister shift{sreg};
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROXL<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROXL<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROXL<Long>, shift, modify);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROXL<Byte>, from, with);
+    bind(opcode | 1 << 6, ROXL<Word>, from, with);
+    bind(opcode | 2 << 6, ROXL<Long>, from, with);
   }
 
   //ROXL (effective address)
@@ -1021,20 +1021,20 @@ M68K::M68K() {
     auto opcode = pattern("1110 0101 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress modify{mode, reg};
-    bind(opcode, ROXL, modify);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, ROXL, with);
   }
 
   //ROXR (immediate)
-  for(uint3 count : range(8))
-  for(uint3 dreg  : range(8)) {
-    auto opcode = pattern("1110 ---0 ++01 0---") | count << 9 | dreg << 0;
+  for(uint3 immediate : range(8))
+  for(uint3 dreg      : range(8)) {
+    auto opcode = pattern("1110 ---0 ++01 0---") | immediate << 9 | dreg << 0;
 
-    auto shift = count ? (uint4)count : (uint4)8;
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROXR<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROXR<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROXR<Long>, shift, modify);
+    auto count = immediate ? (uint4)immediate : (uint4)8;
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROXR<Byte>, count, with);
+    bind(opcode | 1 << 6, ROXR<Word>, count, with);
+    bind(opcode | 2 << 6, ROXR<Long>, count, with);
   }
 
   //ROXR (register)
@@ -1042,11 +1042,11 @@ M68K::M68K() {
   for(uint3 dreg : range(8)) {
     auto opcode = pattern("1110 ---0 ++11 0---") | sreg << 9 | dreg << 0;
 
-    DataRegister shift{sreg};
-    DataRegister modify{dreg};
-    bind(opcode | 0 << 6, ROXR<Byte>, shift, modify);
-    bind(opcode | 1 << 6, ROXR<Word>, shift, modify);
-    bind(opcode | 2 << 6, ROXR<Long>, shift, modify);
+    DataRegister from{sreg};
+    DataRegister with{dreg};
+    bind(opcode | 0 << 6, ROXR<Byte>, from, with);
+    bind(opcode | 1 << 6, ROXR<Word>, from, with);
+    bind(opcode | 2 << 6, ROXR<Long>, from, with);
   }
 
   //ROXR (effective address)
@@ -1055,8 +1055,8 @@ M68K::M68K() {
     auto opcode = pattern("1110 0100 11-- ----") | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    EffectiveAddress modify{mode, reg};
-    bind(opcode, ROXR, modify);
+    EffectiveAddress with{mode, reg};
+    bind(opcode, ROXR, with);
   }
 
   //RTE
@@ -1088,18 +1088,18 @@ M68K::M68K() {
 
     EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, xreg};
     EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, yreg};
-    bind(opcode | 1 << 3, SBCD, addressWith, addressFrom);
+    bind(opcode | 1 << 3, SBCD, addressFrom, addressWith);
   }
 
   //SCC
-  for(uint4 condition : range(16))
-  for(uint3 mode      : range( 8))
-  for(uint3 reg       : range( 8)) {
-    auto opcode = pattern("0101 ---- 11-- ----") | condition << 8 | mode << 3 | reg << 0;
+  for(uint4 test : range(16))
+  for(uint3 mode : range( 8))
+  for(uint3 reg  : range( 8)) {
+    auto opcode = pattern("0101 ---- 11-- ----") | test << 8 | mode << 3 | reg << 0;
     if(mode == 1 || (mode == 7 && reg >= 2)) continue;
 
     EffectiveAddress to{mode, reg};
-    bind(opcode, SCC, condition, to);
+    bind(opcode, SCC, test, to);
   }
 
   //STOP
@@ -1115,11 +1115,11 @@ M68K::M68K() {
     auto opcode = pattern("1001 ---0 ++-- ----") | dreg << 9 | mode << 3 | reg << 0;
     if(mode == 7 && reg >= 5) continue;
 
-    EffectiveAddress source{mode, reg};
-    DataRegister target{dreg};
-    bind(opcode | 0 << 6, SUB<Byte>, source, target);
-    bind(opcode | 1 << 6, SUB<Word>, source, target);
-    bind(opcode | 2 << 6, SUB<Long>, source, target);
+    EffectiveAddress from{mode, reg};
+    DataRegister to{dreg};
+    bind(opcode | 0 << 6, SUB<Byte>, from, to);
+    bind(opcode | 1 << 6, SUB<Word>, from, to);
+    bind(opcode | 2 << 6, SUB<Long>, from, to);
 
     if(mode == 1) unbind(opcode | 0 << 6);
   }
@@ -1131,11 +1131,11 @@ M68K::M68K() {
     auto opcode = pattern("1001 ---1 ++-- ----") | dreg << 9 | mode << 3 | reg << 0;
     if(mode <= 1 || (mode == 7 && reg >= 2)) continue;
 
-    DataRegister source{dreg};
-    EffectiveAddress target{mode, reg};
-    bind(opcode | 0 << 6, SUB<Byte>, source, target);
-    bind(opcode | 1 << 6, SUB<Word>, source, target);
-    bind(opcode | 2 << 6, SUB<Long>, source, target);
+    DataRegister from{dreg};
+    EffectiveAddress to{mode, reg};
+    bind(opcode | 0 << 6, SUB<Byte>, from, to);
+    bind(opcode | 1 << 6, SUB<Word>, from, to);
+    bind(opcode | 2 << 6, SUB<Long>, from, to);
   }
 
   //SUBA
@@ -1147,8 +1147,8 @@ M68K::M68K() {
 
     AddressRegister to{areg};
     EffectiveAddress from{mode, reg};
-    bind(opcode | 0 << 8, SUBA<Word>, to, from);
-    bind(opcode | 1 << 8, SUBA<Long>, to, from);
+    bind(opcode | 0 << 8, SUBA<Word>, from, to);
+    bind(opcode | 1 << 8, SUBA<Long>, from, to);
   }
 
   //SUBI
@@ -1188,17 +1188,17 @@ M68K::M68K() {
   for(uint3 sreg : range(8)) {
     auto opcode = pattern("1001 ---1 ++00 ----") | treg << 9 | sreg << 0;
 
-    EffectiveAddress dataTarget{DataRegisterDirect, treg};
-    EffectiveAddress dataSource{DataRegisterDirect, sreg};
-    bind(opcode | 0 << 6 | 0 << 3, SUBX<Byte>, dataTarget, dataSource);
-    bind(opcode | 1 << 6 | 0 << 3, SUBX<Word>, dataTarget, dataSource);
-    bind(opcode | 2 << 6 | 0 << 3, SUBX<Long>, dataTarget, dataSource);
+    EffectiveAddress dataWith{DataRegisterDirect, treg};
+    EffectiveAddress dataFrom{DataRegisterDirect, sreg};
+    bind(opcode | 0 << 6 | 0 << 3, SUBX<Byte>, dataFrom, dataWith);
+    bind(opcode | 1 << 6 | 0 << 3, SUBX<Word>, dataFrom, dataWith);
+    bind(opcode | 2 << 6 | 0 << 3, SUBX<Long>, dataFrom, dataWith);
 
-    EffectiveAddress addressTarget{AddressRegisterIndirectWithPreDecrement, treg};
-    EffectiveAddress addressSource{AddressRegisterIndirectWithPreDecrement, sreg};
-    bind(opcode | 0 << 6 | 1 << 3, SUBX<Byte>, addressTarget, addressSource);
-    bind(opcode | 1 << 6 | 1 << 3, SUBX<Word>, addressTarget, addressSource);
-    bind(opcode | 2 << 6 | 1 << 3, SUBX<Long>, addressTarget, addressSource);
+    EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, treg};
+    EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, sreg};
+    bind(opcode | 0 << 6 | 1 << 3, SUBX<Byte>, addressFrom, addressWith);
+    bind(opcode | 1 << 6 | 1 << 3, SUBX<Word>, addressFrom, addressWith);
+    bind(opcode | 2 << 6 | 1 << 3, SUBX<Long>, addressFrom, addressWith);
   }
 
   //SWAP
@@ -1238,10 +1238,10 @@ M68K::M68K() {
     auto opcode = pattern("0100 1010 ++-- ----") | mode << 3 | reg << 0;
     if(mode == 7 && reg >= 2) continue;
 
-    EffectiveAddress ea{mode, reg};
-    bind(opcode | 0 << 6, TST<Byte>, ea);
-    bind(opcode | 1 << 6, TST<Word>, ea);
-    bind(opcode | 2 << 6, TST<Long>, ea);
+    EffectiveAddress from{mode, reg};
+    bind(opcode | 0 << 6, TST<Byte>, from);
+    bind(opcode | 1 << 6, TST<Word>, from);
+    bind(opcode | 2 << 6, TST<Long>, from);
 
     if(mode == 1) unbind(opcode | 0 << 6);
   }

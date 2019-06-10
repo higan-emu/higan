@@ -96,18 +96,21 @@ auto CPU::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
   }
 
   if(address == 0xa14000) {
+    if(!tmss) return;
     if(!upper || !lower) return;  //unconfirmed
     io.vdpEnable[0] = data == 0x5345;
     return;
   }
 
   if(address == 0xa14002) {
+    if(!tmss) return;
     if(!upper || !lower) return;  //unconfirmed
     io.vdpEnable[1] = data == 0x4741;
     return;
   }
 
   if(address == 0xa14100) {
+    if(!tmss) return;
     if(!lower) return;
     io.romEnable = data.bit(0);
     return;

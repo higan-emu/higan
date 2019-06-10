@@ -78,7 +78,7 @@ auto MCD::unload() -> void {
 }
 
 auto MCD::main() -> void {
-  if(io.halt) return step(16);
+  if(io.halt) return wait(16);
 
   if(irq.pending) {
     if(1 > r.i && gpu.irq.lower())      return interrupt(Vector::Level1, 1);
@@ -90,6 +90,8 @@ auto MCD::main() -> void {
     if(irq.reset.lower()) {
       r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
+      r.irc  = read(1, 1, r.pc & ~1);
+      r.pc  += 2;
       return;
     }
   }
@@ -121,6 +123,14 @@ auto MCD::step(uint clocks) -> void {
   }
 
   Thread::step(clocks);
+}
+
+auto MCD::idle(uint clocks) -> void {
+  step(clocks);
+}
+
+auto MCD::wait(uint clocks) -> void {
+  step(clocks);
   synchronize(cpu);
   synchronize(apu);
 }
