@@ -190,8 +190,6 @@ auto M68K::disassembleASR(EffectiveAddress with) -> string {
 
 auto M68K::disassembleBCC(uint4 test, uint8 displacement) -> string {
   auto cc = _condition(test);
-  if(test == 0) cc = "ra";
-  if(test == 1) cc = "sr";
   return {"b", cc, "     ", _branch(displacement)};
 }
 
@@ -211,12 +209,20 @@ template<uint Size> auto M68K::disassembleBCLR(EffectiveAddress with) -> string 
   return {"bclr", _suffix<Size>(), "  ", _immediate<Byte>(), ",", _effectiveAddress<Size>(with)};
 }
 
+auto M68K::disassembleBRA(uint8 displacement) -> string {
+  return {"bra     ", _branch(displacement)};
+}
+
 template<uint Size> auto M68K::disassembleBSET(DataRegister bit, EffectiveAddress with) -> string {
   return {"bset", _suffix<Size>(), "  ", _dataRegister(bit), ",", _effectiveAddress<Size>(with)};
 }
 
 template<uint Size> auto M68K::disassembleBSET(EffectiveAddress with) -> string {
   return {"bset", _suffix<Size>(), "  ", _immediate<Byte>(), ",", _effectiveAddress<Size>(with)};
+}
+
+auto M68K::disassembleBSR(uint8 displacement) -> string {
+  return {"bsr     ", _branch(displacement)};
 }
 
 template<uint Size> auto M68K::disassembleBTST(DataRegister bit, EffectiveAddress with) -> string {

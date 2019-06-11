@@ -40,7 +40,7 @@ auto CPU::idle(uint clocks) -> void {
 }
 
 auto CPU::wait(uint clocks) -> void {
-  while(Thread::wait) {
+  while(vdp.dma.active) {
     Thread::step(2);
     synchronize(vdp);
   }

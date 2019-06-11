@@ -23,17 +23,10 @@ namespace higan::MegaDrive {
     Word = 1,
   };
 
-  struct Wait {
-    enum : uint {
-      VDP_DMA = 1 << 0,
-    };
-  };
-
   struct Thread : higan::Thread {
     auto create(double frequency, function<void ()> entryPoint) -> void {
       higan::Thread::create(frequency, entryPoint);
       scheduler.append(*this);
-      wait = 0;
     }
 
     auto destroy() -> void {
@@ -44,8 +37,6 @@ namespace higan::MegaDrive {
     inline auto synchronize(Thread& thread) -> void {
       if(clock() >= thread.clock()) scheduler.resume(thread);
     }
-
-    uint wait = 0;
   };
 
   struct Region {

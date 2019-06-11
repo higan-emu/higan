@@ -49,6 +49,8 @@ auto M68K::supervisor() -> bool {
 }
 
 auto M68K::exception(uint exception, uint vector, uint priority) -> void {
+  idle(10);  //todo: not accurate
+
   auto pc = r.pc;
   auto sr = readSR();
 

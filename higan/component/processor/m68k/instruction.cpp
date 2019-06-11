@@ -248,6 +248,8 @@ M68K::M68K() {
   //BCC
   for(uint4 test         : range( 16))
   for(uint8 displacement : range(256)) {
+    if(test <= 1) continue;
+
     auto opcode = pattern("0110 ---- ---- ----") | test << 8 | displacement << 0;
 
     bind(opcode, BCC, test, displacement);
@@ -301,6 +303,13 @@ M68K::M68K() {
     if(mode != 0) bind(opcode, BCLR<Byte>, with);
   }
 
+  //BRA
+  for(uint8 displacement : range(256)) {
+    auto opcode = pattern("0110 0000 ---- ----") | displacement << 0;
+
+    bind(opcode, BRA, displacement);
+  }
+
   //BSET (register)
   for(uint3 dreg : range(8))
   for(uint3 mode : range(8))
@@ -323,6 +332,13 @@ M68K::M68K() {
     EffectiveAddress with{mode, reg};
     if(mode == 0) bind(opcode, BSET<Long>, with);
     if(mode != 0) bind(opcode, BSET<Byte>, with);
+  }
+
+  //BSR
+  for(uint8 displacement : range(256)) {
+    auto opcode = pattern("0110 0001 ---- ----") | displacement << 0;
+
+    bind(opcode, BSR, displacement);
   }
 
   //BTST (register)

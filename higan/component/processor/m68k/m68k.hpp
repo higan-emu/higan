@@ -1,6 +1,6 @@
 #pragma once
 
-//Motorola MC68000 (16-bit bus timings)
+//Motorola MC68000
 
 namespace higan {
 
@@ -12,7 +12,7 @@ struct M68K {
 
   enum : bool { User, Supervisor };
   enum : uint { Byte, Word, Long };
-  enum : bool { Reverse = 1, Extend = 1, Hold = 1 };
+  enum : bool { Reverse = 1, Extend = 1, Hold = 1, Fast = 1 };
 
   enum : uint {
     /* 0,n */ DataRegisterDirect,
@@ -91,6 +91,7 @@ struct M68K {
   template<uint Size> auto read(uint32 addr) -> uint32;
   template<uint Size, bool Order = 0> auto write(uint32 addr, uint32 data) -> void;
   template<uint Size> auto prefetch() -> uint32;
+  template<uint Size> auto predrain() -> uint32;
   template<uint Size> auto pop() -> uint32;
   template<uint Size> auto push(uint32 data) -> void;
 
@@ -107,9 +108,10 @@ struct M68K {
     uint32 address;
   };
 
+  auto drain(EffectiveAddress& ea) -> uint32;
   template<uint Size> auto fetch(EffectiveAddress& ea) -> uint32;
-  template<uint Size, bool hold = 0> auto read(EffectiveAddress& ea) -> uint32;
-  template<uint Size, bool hold = 0> auto write(EffectiveAddress& ea, uint32 data) -> void;
+  template<uint Size, bool Hold = 0, bool Fast = 0> auto read(EffectiveAddress& ea) -> uint32;
+  template<uint Size, bool Hold = 0> auto write(EffectiveAddress& ea, uint32 data) -> void;
 
   //instruction.cpp
   auto instruction() -> void;
@@ -167,8 +169,10 @@ struct M68K {
   template<uint Size> auto instructionBCHG(EffectiveAddress with) -> void;
   template<uint Size> auto instructionBCLR(DataRegister bit, EffectiveAddress with) -> void;
   template<uint Size> auto instructionBCLR(EffectiveAddress with) -> void;
+                      auto instructionBRA(uint8 displacement) -> void;
   template<uint Size> auto instructionBSET(DataRegister bit, EffectiveAddress with) -> void;
   template<uint Size> auto instructionBSET(EffectiveAddress with) -> void;
+                      auto instructionBSR(uint8 displacement) -> void;
   template<uint Size> auto instructionBTST(DataRegister bit, EffectiveAddress with) -> void;
   template<uint Size> auto instructionBTST(EffectiveAddress with) -> void;
                       auto instructionCHK(DataRegister compare, EffectiveAddress maximum) -> void;
@@ -315,8 +319,10 @@ private:
   template<uint Size> auto disassembleBCHG(EffectiveAddress with) -> string;
   template<uint Size> auto disassembleBCLR(DataRegister bit, EffectiveAddress with) -> string;
   template<uint Size> auto disassembleBCLR(EffectiveAddress with) -> string;
+                      auto disassembleBRA(uint8 displacement) -> string;
   template<uint Size> auto disassembleBSET(DataRegister bit, EffectiveAddress with) -> string;
   template<uint Size> auto disassembleBSET(EffectiveAddress with) -> string;
+                      auto disassembleBSR(uint8 displacement) -> string;
   template<uint Size> auto disassembleBTST(DataRegister bit, EffectiveAddress with) -> string;
   template<uint Size> auto disassembleBTST(EffectiveAddress with) -> string;
                       auto disassembleCHK(DataRegister compare, EffectiveAddress maximum) -> string;

@@ -23,7 +23,6 @@ auto VDP::serialize(serializer& s) -> void {
   s.integer(io.overscan);
   s.integer(io.verticalBlankInterruptEnable);
   s.integer(io.displayEnable);
-  s.integer(io.externalVRAM);
   s.integer(io.backgroundColor);
   s.integer(io.horizontalInterruptCounter);
   s.integer(io.externalInterruptEnable);
@@ -48,6 +47,7 @@ auto VDP::serialize(serializer& s) -> void {
 }
 
 auto VDP::DMA::serialize(serializer& s) -> void {
+  s.integer(active);
   s.integer(io.mode);
   s.integer(io.source);
   s.integer(io.length);
@@ -101,6 +101,7 @@ auto VDP::Sprite::serialize(serializer& s) -> void {
 
 auto VDP::VRAM::serialize(serializer& s) -> void {
   s.array(memory);
+  s.integer(mode);
 }
 
 auto VDP::VSRAM::serialize(serializer& s) -> void {

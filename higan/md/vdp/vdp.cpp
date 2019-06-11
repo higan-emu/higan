@@ -90,6 +90,7 @@ auto VDP::power(bool reset) -> void {
     for(auto& data : cram.memory) data = 0;
   }
 
+  vram.mode = 0;
   io = {};
   latch = {};
   state = {};

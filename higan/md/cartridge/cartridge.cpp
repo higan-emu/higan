@@ -190,14 +190,14 @@ auto Cartridge::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) ->
 auto Cartridge::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   if(slot) slot->writeIO(upper, lower, address, data);
   if(!lower) return;  //todo: unconfirmed
-  if(address == 0xa130f1) ramEnable = data.bit(0), ramWritable = data.bit(1);
-  if(address == 0xa130f3) romBank[1] = data;
-  if(address == 0xa130f5) romBank[2] = data;
-  if(address == 0xa130f7) romBank[3] = data;
-  if(address == 0xa130f9) romBank[4] = data;
-  if(address == 0xa130fb) romBank[5] = data;
-  if(address == 0xa130fd) romBank[6] = data;
-  if(address == 0xa130ff) romBank[7] = data;
+  if(address == 0xa130f0) ramEnable = data.bit(0), ramWritable = data.bit(1);
+  if(address == 0xa130f2) romBank[1] = data;
+  if(address == 0xa130f4) romBank[2] = data;
+  if(address == 0xa130f6) romBank[3] = data;
+  if(address == 0xa130f8) romBank[4] = data;
+  if(address == 0xa130fa) romBank[5] = data;
+  if(address == 0xa130fc) romBank[6] = data;
+  if(address == 0xa130fe) romBank[7] = data;
 }
 
 //

@@ -28,7 +28,7 @@ auto APU::step(uint clocks) -> void {
   Thread::step(clocks);
   synchronize(cpu);
   synchronize(psg);
-  synchronize(ym2612);
+//synchronize(ym2612);
   if(MegaCD()) synchronize(mcd);
 }
 

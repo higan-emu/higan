@@ -49,7 +49,7 @@ auto VDP::readDataPort() -> uint16 {
 
   //VRAM read
   if(io.command.bits(0,3) == 0) {
-    auto address = io.address.bits(1,15);
+    auto address = io.address.bits(1,16);
     auto data = vram.read(address);
     io.address += io.dataIncrement;
     return data;
@@ -87,7 +87,7 @@ auto VDP::writeDataPort(uint16 data) -> void {
 
   //VRAM write
   if(io.command.bits(0,3) == 1) {
-    auto address = io.address.bits(1,15);
+    auto address = io.address.bits(1,16);
     if(io.address.bit(0)) data = data >> 8 | data << 8;
     vram.write(address, data);
     io.address += io.dataIncrement;
@@ -146,7 +146,7 @@ auto VDP::writeControlPort(uint16 data) -> void {
     io.commandPending = false;
 
     io.command.bits(2,5) = data.bits(4,7);
-    io.address.bits(14,15) = data.bits(0,1);
+    io.address.bits(14,16) = data.bits(0,2);
 
     if(!dma.io.enable) io.command.bit(5) = 0;
     if(dma.io.mode == 3) dma.io.wait = false;
@@ -182,7 +182,7 @@ auto VDP::writeControlPort(uint16 data) -> void {
     dma.io.enable = data.bit(4);
     io.verticalBlankInterruptEnable = data.bit(5);
     io.displayEnable = data.bit(6);
-    io.externalVRAM = data.bit(7);
+    vram.mode = data.bit(7);
 
     if(!dma.io.enable) io.command.bit(5) = 0;
 
@@ -262,7 +262,7 @@ auto VDP::writeControlPort(uint16 data) -> void {
   //nametable pattern base address
   case 0x0e: {
     io.nametableBasePatternA = data.bit(0);
-    io.nametableBasePatternB = data.bit(1);
+    io.nametableBasePatternB = data.bit(4);
     return;
   }
 

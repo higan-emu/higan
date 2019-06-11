@@ -98,6 +98,23 @@ template<> auto M68K::prefetch<Long>() -> uint32 {
   return hi << 16 | lo << 0;
 }
 
+//take the prefetched value without reloading the prefetch.
+//this is used by instructions such as JMP and JSR.
+
+template<> auto M68K::predrain<Byte>() -> uint32 {
+  r.ir  = r.irc;
+  r.irc = 0x0000;
+  r.pc += 2;
+  return (uint8)r.ir;
+}
+
+template<> auto M68K::predrain<Word>() -> uint32 {
+  r.ir  = r.irc;
+  r.irc = 0x0000;
+  r.pc += 2;
+  return r.ir;
+}
+
 //
 
 template<uint Size> auto M68K::pop() -> uint32 {
