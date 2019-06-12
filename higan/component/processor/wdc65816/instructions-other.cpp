@@ -66,14 +66,14 @@ L hi(PC) = read(vector++);
 
 auto WDC65816::instructionStop() -> void {
   r.stp = true;
-  while(r.stp && !synchronizing()) {
+  while(r.stp && !serializing()) {
 L   idle();
   }
 }
 
 auto WDC65816::instructionWait() -> void {
   r.wai = true;
-  while(r.wai && !synchronizing()) {
+  while(r.wai && !serializing()) {
 L   idle();
   }
   idle();

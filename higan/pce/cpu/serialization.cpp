@@ -2,8 +2,8 @@ auto CPU::serialize(serializer& s) -> void {
   HuC6280::serialize(s);
   Thread::serialize(s);
 
-  s.array(ram, Model::PCEngine() ? 0x2000 : 0x8000);
-  s.array(bram);
+  ram.serialize(s);
+  bram.serialize(s);
 
   s.integer(irq.disableExternal);
   s.integer(irq.disableVDC);

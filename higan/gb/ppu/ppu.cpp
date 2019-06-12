@@ -105,9 +105,7 @@ auto PPU::hflip(uint data) const -> uint {
 }
 
 auto PPU::power() -> void {
-  Thread::create(4 * 1024 * 1024, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(4 * 1024 * 1024, {&PPU::main, this});
 
   if(Model::GameBoyColor()) {
     scanline = {&PPU::scanlineCGB, this};

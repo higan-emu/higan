@@ -4,8 +4,6 @@
 //started: 2011-09-05
 
 #include <emulator/emulator.hpp>
-#include <emulator/thread.hpp>
-#include <emulator/scheduler.hpp>
 #include <emulator/random.hpp>
 #include <emulator/cheat.hpp>
 
@@ -14,25 +12,9 @@
 #include <component/audio/ym2413/ym2413.hpp>
 
 namespace higan::Famicom {
-  extern Scheduler scheduler;
+  #include <emulator/inline.hpp>
   extern Random random;
   extern Cheat cheat;
-
-  struct Thread : higan::Thread {
-    auto create(double frequency, function<void ()> entryPoint) -> void {
-      higan::Thread::create(frequency, entryPoint);
-      scheduler.append(*this);
-    }
-
-    auto destroy() -> void {
-      scheduler.remove(*this);
-      higan::Thread::destroy();
-    }
-
-    inline auto synchronize(Thread& thread) -> void {
-      if(clock() >= thread.clock()) scheduler.resume(thread);
-    }
-  };
 
   struct Region {
     static inline auto NTSCJ() -> bool;

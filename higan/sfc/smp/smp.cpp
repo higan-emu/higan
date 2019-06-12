@@ -20,9 +20,7 @@ auto SMP::power(bool reset) -> void {
   }
 
   SPC700::power();
-  create(system.apuFrequency() / 12.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  create(system.apuFrequency() / 12.0, {&SMP::main, this});
 
   r.pc.byte.l = iplrom[62];
   r.pc.byte.h = iplrom[63];

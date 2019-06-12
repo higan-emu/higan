@@ -50,9 +50,7 @@ auto CPU::power() -> void {
 
   //the CPU runs at 6144000hz, but each TLCS900/H state takes two clock cycles.
   //halve the thread frequency instead of doubling the cycles for every instruction.
-  Thread::create(system.frequency() / 2.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency() / 2.0, {&CPU::main, this});
 
   uint24 address;
   address.byte(0) = system.bios.read(0xff00);

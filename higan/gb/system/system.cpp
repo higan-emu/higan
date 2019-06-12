@@ -14,10 +14,7 @@ auto System::run() -> void {
 }
 
 auto System::runToSave() -> void {
-  scheduler.synchronize(cpu);
-  scheduler.synchronize(ppu);
-  scheduler.synchronize(apu);
-  scheduler.synchronize(cartridge);
+  scheduler.enter(Scheduler::Mode::Serialize);
 }
 
 auto System::load(Node::Object from) -> void {
@@ -69,7 +66,7 @@ auto System::power() -> void {
   cpu.power();
   ppu.power();
   apu.power();
-  scheduler.primary(cpu);
+  scheduler.setPrimary(cpu);
 
   serializeInit();
 }

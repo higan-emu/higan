@@ -30,9 +30,7 @@ auto Event::unload() -> void {
 }
 
 auto Event::power() -> void {
-  Thread::create(1, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(1, {&Event::main, this});
   cpu.coprocessors.append(this);
 
   //DIP switches 0-3 control the time: 3 minutes + 0-15 extra minutes

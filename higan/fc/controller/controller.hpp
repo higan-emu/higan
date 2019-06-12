@@ -22,10 +22,8 @@
 struct Controller : Thread {
   Node::Peripheral node;
 
-  Controller();
-  virtual ~Controller();
+  virtual ~Controller() = default;
 
-  virtual auto main() -> void;
   virtual auto data() -> uint3 { return 0b000; }
   virtual auto latch(uint1 data) -> void {}
 };

@@ -32,18 +32,14 @@ auto VDP::power() -> void {
   if(Model::MSX()) {
     TMS9918::vram.allocate(16_KiB);
     TMS9918::power();
-    Thread::create(system.colorburst() * 2, [&] {
-      while(true) scheduler.resume(), TMS9918::main();
-    });
+    Thread::create(system.colorburst() * 2, [&] { TMS9918::main(); });
   }
 
   if(Model::MSX2()) {
     V9938::videoRAM.allocate(128_KiB);
     V9938::expansionRAM.allocate(64_KiB);
     V9938::power();
-    Thread::create(system.colorburst() * 2, [&] {
-      while(true) scheduler.resume(), V9938::main();
-    });
+    Thread::create(system.colorburst() * 2, [&] { V9938::main(); });
   }
 }
 

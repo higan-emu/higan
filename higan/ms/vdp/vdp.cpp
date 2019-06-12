@@ -95,9 +95,7 @@ auto VDP::vblank() -> bool {
 }
 
 auto VDP::power() -> void {
-  Thread::create(system.colorburst() * 15.0 / 5.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.colorburst() * 15.0 / 5.0, {&VDP::main, this});
 
   memory::fill<uint32>(buffer, 256 * 264);
   for(auto& byte : vram) byte = 0x00;

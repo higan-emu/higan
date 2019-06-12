@@ -13,9 +13,7 @@ namespace higan::SuperFamicom {
 #include "twin-tap/twin-tap.cpp"
 
 Controller::Controller() {
-  if(!handle()) Thread::create(1, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  if(!handle()) Thread::create(1, {&Controller::main, this});
   cpu.peripherals.append(this);
 }
 

@@ -36,7 +36,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   }
 
   if(auto fp = platform->open(node, "save.ram", File::Read)) {
-    fp->read(cpu.bram, 0x800);
+    cpu.bram.load(fp);
   }
 
   power();
@@ -60,7 +60,7 @@ auto Cartridge::save() -> void {
   auto document = BML::unserialize(information.metadata);
 
   if(auto fp = platform->open(node, "save.ram", File::Write)) {
-    fp->write(cpu.bram, 0x800);
+    cpu.bram.save(fp);
   }
 }
 

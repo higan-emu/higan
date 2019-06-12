@@ -18,14 +18,12 @@ auto PSG::main() -> void {
 
 auto PSG::step(uint clocks) -> void {
   Thread::step(clocks);
-  scheduler.synchronize();
+  Thread::synchronize(cpu, apu);
 }
 
 auto PSG::power(bool reset) -> void {
   SN76489::power();
-  Thread::create(system.frequency() / 15.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency() / 15.0, {&PSG::main, this});
   stream = audio.createStream(1, frequency() / 16.0);
   stream->addHighPassFilter(  20.0, Filter::Order::First);
   stream->addLowPassFilter (2840.0, Filter::Order::First);

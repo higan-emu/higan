@@ -51,9 +51,7 @@ auto PPU::refresh() -> void {
 }
 
 auto PPU::power(bool reset) -> void {
-  Thread::create(system.frequency(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency(), {&PPU::main, this});
 
   io = {};
   latch = {};

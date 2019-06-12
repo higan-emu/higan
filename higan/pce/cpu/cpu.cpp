@@ -8,6 +8,10 @@ CPU cpu;
 #include "timer.cpp"
 #include "serialization.cpp"
 
+CPU::CPU() {
+  bram.allocate(2_KiB);
+}
+
 auto CPU::main() -> void {
   if(irq.pending()) return interrupt(irq.vector());
   instruction();
@@ -20,19 +24,19 @@ auto CPU::step(uint clocks) -> void {
   synchronize(vdc1);
   synchronize(vce);
   synchronize(psg);
-  for(auto peripheral : peripherals) synchronize(*peripheral);
+//for(auto peripheral : peripherals) synchronize(*peripheral);
 }
 
 auto CPU::power() -> void {
   HuC6280::power();
-  Thread::create(system.colorburst() * 2.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.colorburst() * 2.0, {&CPU::main, this});
+
+  if(Model::PCEngine())   ram.allocate( 8_KiB, 0x00);
+  if(Model::SuperGrafx()) ram.allocate(32_KiB, 0x00);
 
   r.pc.byte(0) = read(0x00, 0x1ffe);
   r.pc.byte(1) = read(0x00, 0x1fff);
 
-  for(auto& byte : ram) byte = 0x00;
   irq = {};
   timer = {};
   io = {};

@@ -7,8 +7,6 @@ struct CPU : M68K, Thread {
     VerticalBlank,
   };
 
-//using Thread::synchronize;
-
   //cpu.cpp
   auto main() -> void;
   auto idle(uint clocks) -> void override;
@@ -29,8 +27,6 @@ struct CPU : M68K, Thread {
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
-
-  vector<Thread*> peripherals;
 
 private:
   Memory::Writable<uint16> ram;

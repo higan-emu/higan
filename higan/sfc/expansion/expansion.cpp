@@ -7,9 +7,7 @@ namespace higan::SuperFamicom {
 #include <sfc/expansion/satellaview/satellaview.cpp>
 
 Expansion::Expansion() {
-  if(!handle()) Thread::create(1, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  if(!handle()) Thread::create(1, {&Expansion::main, this});
   cpu.peripherals.append(this);
 }
 

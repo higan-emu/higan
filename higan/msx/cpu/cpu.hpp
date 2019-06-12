@@ -1,8 +1,9 @@
 struct CPU : Z80, Z80::Bus, Thread {
+  inline auto serializing() const -> bool override { return scheduler.serializing(); }
+
   //cpu.cpp
   auto main() -> void;
   auto step(uint clocks) -> void override;
-  auto synchronizing() const -> bool override;
 
   auto power() -> void;
   auto setIRQ(bool) -> void;
@@ -22,8 +23,6 @@ struct CPU : Z80, Z80::Bus, Thread {
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
-
-  vector<Thread*> peripherals;
 
 private:
   Memory::Writable<uint8> ram;

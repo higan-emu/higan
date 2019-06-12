@@ -28,17 +28,11 @@ auto APU::step(uint clocks) -> void {
   synchronize(psg);
 }
 
-auto APU::synchronizing() const -> bool {
-  return scheduler.synchronizing();
-}
-
 auto APU::power() -> void {
   Z80::bus = this;
   Z80::power();
   bus->grant(false);
-  Thread::create(system.frequency() / 2.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency() / 2.0, {&APU::main, this});
 
   nmi = {};
   irq = {};
@@ -50,9 +44,7 @@ auto APU::enable() -> void {
   Thread::destroy();
   Z80::power();
   bus->grant(false);
-  Thread::create(system.frequency() / 2.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency() / 2.0, {&APU::main, this});
 
   nmi = {};
   irq = {};

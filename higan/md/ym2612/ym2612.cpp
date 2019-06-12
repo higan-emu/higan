@@ -146,13 +146,11 @@ auto YM2612::sample() -> void {
 
 auto YM2612::step(uint clocks) -> void {
   Thread::step(clocks);
-  scheduler.synchronize();
+  Thread::synchronize(cpu, apu);
 }
 
 auto YM2612::power(bool reset) -> void {
-  Thread::create(system.frequency() / 7.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency() / 7.0, {&YM2612::main, this});
   stream = audio.createStream(2, frequency() / 144.0);
   stream->addHighPassFilter(  20.0, Filter::Order::First);
   stream->addLowPassFilter (2840.0, Filter::Order::First);

@@ -41,8 +41,6 @@ auto NECDSP::unload() -> void {
 
 auto NECDSP::power() -> void {
   uPD96050::power();
-  Thread::create(Frequency, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(Frequency, {&NECDSP::main, this});
   cpu.coprocessors.append(this);
 }

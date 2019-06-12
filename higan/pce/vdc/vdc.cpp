@@ -88,9 +88,7 @@ auto VDC::step(uint clocks) -> void {
 }
 
 auto VDC::power() -> void {
-  Thread::create(system.colorburst() * 6.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.colorburst() * 6.0, {&VDC::main, this});
 
   memory::fill(&vram, sizeof(VRAM));
   satb = {};

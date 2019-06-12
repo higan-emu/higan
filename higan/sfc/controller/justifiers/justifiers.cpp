@@ -17,9 +17,7 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
   sprite2 = display.screen->createSprite(32, 32);
   sprite2->setPixels(Resource::Sprite::CrosshairRed);
 
-  Thread::create(system.cpuFrequency(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.cpuFrequency(), {&Justifiers::main, this});
 }
 
 Justifiers::~Justifiers() {

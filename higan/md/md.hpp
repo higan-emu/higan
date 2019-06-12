@@ -4,8 +4,6 @@
 //started: 2016-07-08
 
 #include <emulator/emulator.hpp>
-#include <emulator/thread.hpp>
-#include <emulator/scheduler.hpp>
 #include <emulator/random.hpp>
 #include <emulator/cheat.hpp>
 
@@ -14,25 +12,13 @@
 #include <component/audio/sn76489/sn76489.hpp>
 
 namespace higan::MegaDrive {
-  extern Scheduler scheduler;
+  #include <emulator/inline.hpp>
   extern Random random;
   extern Cheat cheat;
 
   enum : uint {
     Byte = 0,
     Word = 1,
-  };
-
-  struct Thread : higan::Thread {
-    auto create(double frequency, function<void ()> entryPoint) -> void {
-      higan::Thread::create(frequency, entryPoint);
-      scheduler.append(*this);
-    }
-
-    auto destroy() -> void {
-      scheduler.remove(*this);
-      higan::Thread::destroy();
-    }
   };
 
   struct Region {

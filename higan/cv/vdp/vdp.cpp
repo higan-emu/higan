@@ -24,9 +24,7 @@ auto VDP::refresh() -> void {
 
 auto VDP::power() -> void {
   TMS9918::power();
-  Thread::create(system.colorburst() * 2, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.colorburst() * 2, [&] { main(); });
   vram.allocate(0x4000);
 }
 

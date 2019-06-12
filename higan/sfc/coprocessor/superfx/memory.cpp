@@ -3,7 +3,7 @@ auto SuperFX::read(uint24 addr, uint8 data) -> uint8 {
     while(!regs.scmr.ron) {
       step(6);
       synchronize(cpu);
-      if(scheduler.synchronizing()) break;
+      if(scheduler.serializing()) break;
     }
     return rom.read((((addr & 0x3f0000) >> 1) | (addr & 0x7fff)) & romMask);
   }
@@ -12,7 +12,7 @@ auto SuperFX::read(uint24 addr, uint8 data) -> uint8 {
     while(!regs.scmr.ron) {
       step(6);
       synchronize(cpu);
-      if(scheduler.synchronizing()) break;
+      if(scheduler.serializing()) break;
     }
     return rom.read(addr & romMask);
   }
@@ -21,7 +21,7 @@ auto SuperFX::read(uint24 addr, uint8 data) -> uint8 {
     while(!regs.scmr.ran) {
       step(6);
       synchronize(cpu);
-      if(scheduler.synchronizing()) break;
+      if(scheduler.serializing()) break;
     }
     return ram.read(addr & ramMask);
   }
@@ -34,7 +34,7 @@ auto SuperFX::write(uint24 addr, uint8 data) -> void {
     while(!regs.scmr.ran) {
       step(6);
       synchronize(cpu);
-      if(scheduler.synchronizing()) break;
+      if(scheduler.serializing()) break;
     }
     return ram.write(addr & ramMask, data);
   }

@@ -1,11 +1,4 @@
-#pragma once
-
-namespace higan {
-
-struct ThreadEntryPoint {
-  cothread_t handle;
-  function<void ()> entryPoint;
-};
+struct Scheduler;
 
 struct Thread {
   enum : uintmax { Second = (uintmax)-1 >> 1 };
@@ -15,75 +8,32 @@ struct Thread {
     function<void ()> entryPoint;
   };
 
-  static auto EntryPoints() -> vector<EntryPoint>& {
-    static vector<EntryPoint> entryPoints;
-    return entryPoints;
-  }
+  static inline auto EntryPoints() -> vector<EntryPoint>&;
+  static inline auto Enter() -> void;
 
-  static auto Enter() -> void {
-    for(uint64_t index : range(EntryPoints().size())) {
-      if(co_active() == EntryPoints()[index].handle) {
-        auto entryPoint = EntryPoints()[index].entryPoint;
-        EntryPoints().remove(index);
-        while(true) entryPoint();
-      }
-    }
-    struct thread_not_found_exception{};
-    throw thread_not_found_exception{};
-  }
+  inline virtual ~Thread();
 
-  virtual ~Thread() {
-    destroy();
-  }
+  inline auto active() const -> bool;
+  inline auto handle() const -> cothread_t;
+  inline auto frequency() const -> uintmax;
+  inline auto scalar() const -> uintmax;
+  inline auto clock() const -> uintmax;
 
-  inline auto active() const { return co_active() == _handle; }
-  inline auto handle() const { return _handle; }
-  inline auto frequency() const { return _frequency; }
-  inline auto scalar() const { return _scalar; }
-  inline auto clock() const { return _clock; }
+  inline auto setHandle(cothread_t handle) -> void;
+  inline auto setFrequency(double frequency) -> void;
+  inline auto setScalar(uintmax scalar) -> void;
+  inline auto setClock(uintmax clock) -> void;
 
-  auto setHandle(cothread_t handle) -> void {
-    _handle = handle;
-  }
+  inline auto create(double frequency, function<void ()> entryPoint) -> void;
+  inline auto destroy() -> void;
 
-  auto setFrequency(double frequency) -> void {
-    _frequency = frequency + 0.5;
-    _scalar = Second / _frequency;
-  }
+  inline auto step(uint clocks) -> void;
+  inline auto synchronize() -> bool;
+  inline auto synchronize(Thread&) -> void;
+  inline auto synchronize(Thread&, Thread&) -> void;
+  inline auto synchronize(Thread&, Thread&, Thread&) -> void;
 
-  auto setScalar(uintmax scalar) -> void {
-    _scalar = scalar;
-  }
-
-  auto setClock(uintmax clock) -> void {
-    _clock = clock;
-  }
-
-  auto create(double frequency, function<void ()> entryPoint) -> void {
-    if(!_handle) {
-      _handle = co_create(64 * 1024 * sizeof(void*), &Thread::Enter);
-    } else {
-      co_derive(_handle, 64 * 1024 * sizeof(void*), &Thread::Enter);
-    }
-    EntryPoints().append({_handle, entryPoint});
-    setFrequency(frequency);
-    setClock(0);
-  }
-
-  auto destroy() -> void {
-    if(_handle) co_delete(_handle);
-    _handle = nullptr;
-  }
-
-  inline auto step(uint clocks) -> void {
-    _clock += _scalar * clocks;
-  }
-
-  auto serialize(serializer& s) -> void {
-    s.integer(_frequency);
-    s.integer(_scalar);
-    s.integer(_clock);
-  }
+  inline auto serialize(serializer& s) -> void;
 
 protected:
   cothread_t _handle = nullptr;
@@ -93,5 +43,3 @@ protected:
 
   friend class Scheduler;
 };
-
-}

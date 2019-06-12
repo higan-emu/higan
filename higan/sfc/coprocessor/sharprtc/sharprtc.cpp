@@ -31,9 +31,7 @@ auto SharpRTC::unload() -> void {
 }
 
 auto SharpRTC::power() -> void {
-  Thread::create(1, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(1, {&SharpRTC::main, this});
   cpu.coprocessors.append(this);
 
   state = State::Read;

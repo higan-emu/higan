@@ -142,9 +142,7 @@ auto Cartridge::save() -> void {
 }
 
 auto Cartridge::power() -> void {
-  Thread::create(3'072'000, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(3'072'000, {&Cartridge::main, this});
   eeprom.power();
 
   bus.map(this, 0x00c0, 0x00c8);

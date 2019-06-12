@@ -5,7 +5,7 @@ struct APU : Z80, Z80::Bus, Thread {
   static auto Enter() -> void;
   auto main() -> void;
   auto step(uint clocks) -> void override;
-  auto synchronizing() const -> bool override;
+  auto serializing() const -> bool override;
 
   auto enable(bool) -> void;
   auto power(bool reset) -> void;

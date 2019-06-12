@@ -21,8 +21,6 @@ auto HitachiDSP::unload() -> void {
 
 auto HitachiDSP::power() -> void {
   HG51B::power();
-  Thread::create(Frequency, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(Frequency, [&] { main(); });
   cpu.coprocessors.append(this);
 }

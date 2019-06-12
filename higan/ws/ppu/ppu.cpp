@@ -84,9 +84,7 @@ auto PPU::step(uint clocks) -> void {
 }
 
 auto PPU::power() -> void {
-  Thread::create(3'072'000, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(3'072'000, {&PPU::main, this});
 
   bus.map(this, 0x0000, 0x0017);
   bus.map(this, 0x001c, 0x003f);

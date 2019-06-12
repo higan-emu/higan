@@ -21,12 +21,7 @@ auto System::run() -> void {
 }
 
 auto System::runToSave() -> void {
-  scheduler.synchronize(cpu);
-  scheduler.synchronize(smp);
-  scheduler.synchronize(ppu);
-  scheduler.synchronize(dsp);
-  for(auto coprocessor : cpu.coprocessors) scheduler.synchronize(*coprocessor);
-  for(auto peripheral : cpu.peripherals) scheduler.synchronize(*peripheral);
+  scheduler.enter(Scheduler::Mode::Serialize);
 }
 
 auto System::load(Node::Object from) -> void {
@@ -95,7 +90,7 @@ auto System::power(bool reset) -> void {
   dsp.power(reset);
   ppu.power(reset);
   cartridge.power(reset);
-  scheduler.primary(cpu);
+  scheduler.setPrimary(cpu);
 
   serializeInit();
 }

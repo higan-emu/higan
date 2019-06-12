@@ -14,18 +14,13 @@ auto CPU::main() -> void {
 
 auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(apu);
-  synchronize(ppu);
-  synchronize(cartridge);
-  for(auto peripheral : peripherals) synchronize(*peripheral);
+  while(!Thread::synchronize());
 }
 
 auto CPU::power(bool reset) -> void {
   MOS6502::BCD = 0;
   MOS6502::power();
-  Thread::create(system.frequency(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency(), {&CPU::main, this});
 
   if(!reset) for(auto& data : ram) data = 0xff;
   ram[0x008] = 0xf7;  //todo: what is this about?

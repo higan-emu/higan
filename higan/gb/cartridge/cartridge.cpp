@@ -134,9 +134,7 @@ auto Cartridge::save() -> void {
 }
 
 auto Cartridge::power() -> void {
-  Thread::create(4 * 1024 * 1024, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(4 * 1024 * 1024, {&Cartridge::main, this});
 
   for(uint n = 0x0000; n <= 0x7fff; n++) bus.mmio[n] = this;
   for(uint n = 0xa000; n <= 0xbfff; n++) bus.mmio[n] = this;

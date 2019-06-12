@@ -66,7 +66,7 @@ auto VDP::step(uint clocks) -> void {
   while(clocks--) {
     dma.run();
     Thread::step(1);
-    scheduler.synchronize();
+    Thread::synchronize(cpu);
   }
 }
 
@@ -77,9 +77,7 @@ auto VDP::refresh() -> void {
 }
 
 auto VDP::power(bool reset) -> void {
-  Thread::create(system.frequency() / 2.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency() / 2.0, {&VDP::main, this});
 
   output = buffer + 16 * 1280;  //overscan offset
 

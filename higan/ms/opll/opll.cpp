@@ -18,9 +18,7 @@ auto OPLL::step(uint clocks) -> void {
 
 auto OPLL::power() -> void {
   YM2413::power();
-  Thread::create(system.colorburst() / 72.0, [&] {
-    while(true) scheduler.resume(), opll.main();
-  });
+  Thread::create(system.colorburst() / 72.0, {&OPLL::main, this});
   stream = audio.createStream(1, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);
 }

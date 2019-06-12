@@ -53,9 +53,7 @@ auto PSG::writeRightDAC(uint8 data) -> void {
 }
 
 auto PSG::power() -> void {
-  Thread::create(system.frequency() / 32.0, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency() / 32.0, {&PSG::main, this});
 
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);

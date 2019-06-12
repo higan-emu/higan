@@ -15,9 +15,7 @@ FightingPad::FightingPad(Node::Port parent, Node::Peripheral with) {
   start = Node::append<Node::Button>(node, with, "Start");
   parent->prepend(node);
 
-  Thread::create(1'000'000, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(1'000'000, {&FightingPad::main, this});
 }
 
 auto FightingPad::main() -> void {
@@ -26,8 +24,8 @@ auto FightingPad::main() -> void {
   } else {
     counter = 0;
   }
-  step(1);
-  scheduler.synchronize();
+  Thread::step(1);
+  Thread::synchronize(cpu);
 }
 
 auto FightingPad::readData() -> uint8 {

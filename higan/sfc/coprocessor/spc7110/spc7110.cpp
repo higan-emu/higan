@@ -32,9 +32,7 @@ auto SPC7110::unload() -> void {
 }
 
 auto SPC7110::power() -> void {
-  Thread::create(21'477'272, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(21'477'272, {&SPC7110::main, this});
   cpu.coprocessors.append(this);
 
   r4801 = 0x00;

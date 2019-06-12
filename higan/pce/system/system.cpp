@@ -13,11 +13,7 @@ auto System::run() -> void {
 }
 
 auto System::runToSave() -> void {
-  scheduler.synchronize(cpu);
-  scheduler.synchronize(vce);
-  scheduler.synchronize(vdc0);
-  scheduler.synchronize(vdc1);
-  scheduler.synchronize(psg);
+  scheduler.enter(Scheduler::Mode::Serialize);
 }
 
 auto System::load(Node::Object from) -> void {
@@ -63,7 +59,7 @@ auto System::power() -> void {
   vdc0.power();
   vdc1.power();
   psg.power();
-  scheduler.primary(cpu);
+  scheduler.setPrimary(cpu);
 
   serializeInit();
 }

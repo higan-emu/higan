@@ -18,12 +18,7 @@ auto System::run() -> void {
 }
 
 auto System::runToSave() -> void {
-  scheduler.synchronize(cpu);
-  scheduler.synchronize(apu);
-  scheduler.synchronize(vdp);
-  scheduler.synchronize(psg);
-  scheduler.synchronize(ym2612);
-  if(MegaCD()) scheduler.synchronize(mcd);
+  scheduler.enter(Scheduler::Mode::Serialize);
 }
 
 auto System::load(Node::Object from) -> void {
@@ -103,7 +98,7 @@ auto System::power(bool reset) -> void {
   psg.power(reset);
   ym2612.power(reset);
   if(MegaCD()) mcd.power(reset);
-  scheduler.primary(cpu);
+  scheduler.setPrimary(cpu);
 
   serializeInit();
 }

@@ -71,8 +71,8 @@ auto SA1::interruptPending() const -> bool {
   return status.interruptPending;
 }
 
-auto SA1::synchronizing() const -> bool {
-  return scheduler.synchronizing();
+auto SA1::serializing() const -> bool {
+  return scheduler.serializing();
 }
 
 auto SA1::step() -> void {
@@ -122,9 +122,7 @@ auto SA1::unload() -> void {
 
 auto SA1::power() -> void {
   WDC65816::power();
-  Thread::create(system.cpuFrequency(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.cpuFrequency(), {&SA1::main, this});
   cpu.coprocessors.append(this);
 
   bwram.dma = false;

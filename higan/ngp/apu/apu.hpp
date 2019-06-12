@@ -1,10 +1,11 @@
 struct APU : Z80, Z80::Bus, Thread {
   Memory::Writable<uint8> ram;
 
+  inline auto serializing() const -> bool override { return scheduler.serializing(); }
+
   //apu.cpp
   auto main() -> void;
   auto step(uint clocks) -> void override;
-  auto synchronizing() const -> bool override;
   auto power() -> void;
   auto enable() -> void;
   auto disable() -> void;

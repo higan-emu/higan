@@ -1,7 +1,7 @@
 //Sony CXP1100Q-1
 
 struct SMP : SPC700, Thread {
-  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
+  inline auto serializing() const -> bool override { return scheduler.serializing(); }
 
   //io.cpp
   auto portRead(uint2 port) const -> uint8;

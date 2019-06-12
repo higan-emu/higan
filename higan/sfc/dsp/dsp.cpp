@@ -181,9 +181,7 @@ auto DSP::sample(int16 left, int16 right) -> void {
 }
 
 auto DSP::power(bool reset) -> void {
-  create(system.apuFrequency(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  create(system.apuFrequency(), {&DSP::main, this});
   stream = audio.createStream(2, frequency() / 768.0);
 
   if(!reset) {

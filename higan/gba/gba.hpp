@@ -4,13 +4,11 @@
 //started: 2012-03-19
 
 #include <emulator/emulator.hpp>
-#include <emulator/thread.hpp>
-#include <emulator/scheduler.hpp>
 
 #include <component/processor/arm7tdmi/arm7tdmi.hpp>
 
 namespace higan::GameBoyAdvance {
-  extern Scheduler scheduler;
+  #include <emulator/inline.hpp>
 
   enum : uint {           //mode flags for bus read, write:
     Nonsequential =   1,  //N cycle
@@ -22,22 +20,6 @@ namespace higan::GameBoyAdvance {
     Load          =  64,  //load operation
     Store         = 128,  //store operation
     Signed        = 256,  //sign extended
-  };
-
-  struct Thread : higan::Thread {
-    auto create(double frequency, function<void ()> entryPoint) -> void {
-      higan::Thread::create(frequency, entryPoint);
-      scheduler.append(*this);
-    }
-
-    auto destroy() -> void {
-      scheduler.remove(*this);
-      higan::Thread::destroy();
-    }
-
-    inline auto synchronize(Thread& thread) -> void {
-      if(clock() >= thread.clock()) scheduler.resume(thread);
-    }
   };
 
   struct Model {

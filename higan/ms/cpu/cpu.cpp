@@ -22,14 +22,7 @@ auto CPU::main() -> void {
 
 auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(vdp);
-  synchronize(psg);
-  synchronize(opll);
-  for(auto peripheral : peripherals) synchronize(*peripheral);
-}
-
-auto CPU::synchronizing() const -> bool {
-  return scheduler.synchronizing();
+  while(!Thread::synchronize());
 }
 
 auto CPU::setNMI(bool value) -> void {
@@ -43,9 +36,7 @@ auto CPU::setIRQ(bool value) -> void {
 auto CPU::power() -> void {
   Z80::bus = this;
   Z80::power();
-  Thread::create(system.colorburst(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.colorburst(), {&CPU::main, this});
   ram.allocate(0x2000);
   r.pc = 0x0000;  //reset vector address
   state = {};

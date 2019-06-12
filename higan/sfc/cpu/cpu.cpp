@@ -81,9 +81,7 @@ auto CPU::map() -> void {
 
 auto CPU::power(bool reset) -> void {
   WDC65816::power();
-  create(system.cpuFrequency(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  create(system.cpuFrequency(), {&CPU::main, this});
   coprocessors.reset();
   PPUcounter::reset();
   PPUcounter::scanline = {&CPU::scanline, this};

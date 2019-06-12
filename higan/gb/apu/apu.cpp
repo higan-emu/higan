@@ -48,9 +48,7 @@ auto APU::main() -> void {
 }
 
 auto APU::power() -> void {
-  Thread::create(2 * 1024 * 1024, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(2 * 1024 * 1024, {&APU::main, this});
   if(!Model::SuperGameBoy()) {
     stream = audio.createStream(2, frequency());
     stream->addHighPassFilter(20.0, Filter::Order::First);

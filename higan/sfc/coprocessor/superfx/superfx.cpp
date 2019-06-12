@@ -32,9 +32,7 @@ auto SuperFX::unload() -> void {
 
 auto SuperFX::power() -> void {
   GSU::power();
-  Thread::create(Frequency, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(Frequency, {&SuperFX::main, this});
   cpu.coprocessors.append(this);
 
   romMask = rom.size() - 1;

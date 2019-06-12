@@ -4,8 +4,6 @@
 //started: 2016-08-17
 
 #include <emulator/emulator.hpp>
-#include <emulator/thread.hpp>
-#include <emulator/scheduler.hpp>
 #include <emulator/cheat.hpp>
 
 #include <component/processor/z80/z80.hpp>
@@ -13,24 +11,8 @@
 #include <component/audio/ym2413/ym2413.hpp>
 
 namespace higan::MasterSystem {
-  extern Scheduler scheduler;
+  #include <emulator/inline.hpp>
   extern Cheat cheat;
-
-  struct Thread : higan::Thread {
-    auto create(double frequency, function<void ()> entryPoint) -> void {
-      higan::Thread::create(frequency, entryPoint);
-      scheduler.append(*this);
-    }
-
-    auto destroy() -> void {
-      scheduler.remove(*this);
-      higan::Thread::destroy();
-    }
-
-    inline auto synchronize(Thread& thread) -> void {
-      if(clock() >= thread.clock()) scheduler.resume(thread);
-    }
-  };
 
   struct Model {
     inline static auto MasterSystem() -> bool;

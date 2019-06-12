@@ -81,9 +81,7 @@ auto CPU::stop() -> bool {
 }
 
 auto CPU::power() -> void {
-  Thread::create(4 * 1024 * 1024, [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(4 * 1024 * 1024, {&CPU::main, this});
   SM83::power();
 
   for(uint n = 0xc000; n <= 0xdfff; n++) bus.mmio[n] = this;  //WRAM

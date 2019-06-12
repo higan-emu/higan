@@ -54,8 +54,8 @@ auto ICD::power() -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
   Thread::create((Frequency ? Frequency : system.cpuFrequency()) / 5.0, [&] {
     while(true) {
-      if(scheduler.synchronizing()) GameBoy::system.runToSave();
-      scheduler.synchronize();
+      if(scheduler.serializing()) GameBoy::system.runToSave();
+      scheduler.serialize();
       icd.main();
     }
   });
@@ -89,8 +89,8 @@ auto ICD::power() -> void {
 auto ICD::reset() -> void {
   Thread::create(Frequency ? Frequency : system.cpuFrequency() / 5.0, [&] {
     while(true) {
-      if(scheduler.synchronizing()) GameBoy::system.runToSave();
-      scheduler.synchronize();
+      if(scheduler.serializing()) GameBoy::system.runToSave();
+      scheduler.serialize();
       main();
     }
   });

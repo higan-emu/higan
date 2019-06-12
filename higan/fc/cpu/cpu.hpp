@@ -34,8 +34,6 @@ struct CPU : MOS6502, Thread {
   auto rdyAddr(bool valid, uint16 value = 0) -> void;
 
 //protected:
-  vector<Thread*> peripherals;
-
   uint8 ram[0x800];
 
   struct IO {

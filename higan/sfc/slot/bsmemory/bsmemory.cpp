@@ -130,9 +130,7 @@ auto BSMemory::disconnect() -> void {
 }
 
 auto BSMemory::power() -> void {
-  Thread::create(1'000'000, [&] {  //microseconds
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(1'000'000, {&BSMemory::main, this});  //microseconds
   cpu.coprocessors.append(this);
 
   for(auto& block : blocks) {

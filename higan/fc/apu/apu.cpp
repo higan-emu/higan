@@ -63,9 +63,7 @@ auto APU::setIRQ() -> void {
 }
 
 auto APU::power(bool reset) -> void {
-  Thread::create(system.frequency(), [&] {
-    while(true) scheduler.resume(), main();
-  });
+  Thread::create(system.frequency(), {&APU::main, this});
   stream = audio.createStream(1, frequency() / rate());
   stream->addHighPassFilter(   90.0, Filter::Order::First);
   stream->addHighPassFilter(  440.0, Filter::Order::First);
