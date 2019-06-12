@@ -75,7 +75,7 @@ auto EpsonRTC::unload() -> void {
 
 auto EpsonRTC::power() -> void {
   Thread::create(32'768 * 64, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

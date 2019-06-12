@@ -89,7 +89,7 @@ auto PPU::step(uint clocks) -> void {
 
 auto PPU::power(bool reset) -> void {
   create(system.cpuFrequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   PPUcounter::reset();
   memory::fill<uint32>(output, 512 * 480);

@@ -123,7 +123,7 @@ auto SA1::unload() -> void {
 auto SA1::power() -> void {
   WDC65816::power();
   Thread::create(system.cpuFrequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

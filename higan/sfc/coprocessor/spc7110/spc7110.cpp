@@ -33,7 +33,7 @@ auto SPC7110::unload() -> void {
 
 auto SPC7110::power() -> void {
   Thread::create(21'477'272, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

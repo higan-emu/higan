@@ -191,7 +191,7 @@ auto VDP::writeControlPort(uint16 data) -> void {
 
   //plane A name table location
   case 0x02: {
-    planeA.io.nametableAddress = data.bits(3,6) << 12;
+    planeA.io.nametableAddress.bits(12,15) = data.bits(3,6);
     return;
   }
 
@@ -203,19 +203,19 @@ auto VDP::writeControlPort(uint16 data) -> void {
 
   //plane B name table location
   case 0x04: {
-    planeB.io.nametableAddress = data.bits(0,3) << 12;
+    planeB.io.nametableAddress.bits(12,15) = data.bits(0,3);
     return;
   }
 
   //sprite attribute table location
   case 0x05: {
-    sprite.io.attributeAddress = data.bits(0,7) << 8;
+    sprite.io.nametableAddress.bits(8,15) = data.bits(0,7);
     return;
   }
 
   //sprite pattern base address
   case 0x06: {
-    sprite.io.nametableAddressBase = data.bit(5);
+    sprite.io.generatorAddress.bit(15) = data.bit(5);
     return;
   }
 
@@ -261,8 +261,10 @@ auto VDP::writeControlPort(uint16 data) -> void {
 
   //nametable pattern base address
   case 0x0e: {
-    io.nametableBasePatternA = data.bit(0);
-    io.nametableBasePatternB = data.bit(4);
+    //bit(0) relocates plane A to the extended VRAM region.
+    //bit(4) relocates plane B, but only when bit(0) is also set.
+    planeA.io.generatorAddress.bit(15) = data.bit(0);
+    planeB.io.generatorAddress.bit(15) = data.bit(4) && data.bit(0);
     return;
   }
 

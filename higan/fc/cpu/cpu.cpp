@@ -24,7 +24,7 @@ auto CPU::power(bool reset) -> void {
   MOS6502::BCD = 0;
   MOS6502::power();
   Thread::create(system.frequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   if(!reset) for(auto& data : ram) data = 0xff;

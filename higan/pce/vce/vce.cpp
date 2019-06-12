@@ -55,7 +55,7 @@ auto VCE::refresh() -> void {
 
 auto VCE::power() -> void {
   Thread::create(system.colorburst() * 6.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   for(auto& pixel : buffer) pixel = 0;

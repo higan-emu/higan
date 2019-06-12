@@ -8,7 +8,7 @@ namespace higan::MegaDrive {
 
 Controller::Controller() {
   if(!handle()) Thread::create(1, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.peripherals.append(this);
 }
@@ -20,7 +20,7 @@ Controller::~Controller() {
 
 auto Controller::main() -> void {
   step(1);
-  synchronize(cpu);
+  scheduler.synchronize();
 }
 
 }

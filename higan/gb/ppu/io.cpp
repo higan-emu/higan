@@ -121,7 +121,7 @@ auto PPU::writeIO(uint16 addr, uint8 data) -> void {
       //restart cothread to begin new frame
       auto clock = Thread::clock();
       Thread::create(4 * 1024 * 1024, [&] {
-        while(true) scheduler.synchronize(), main();
+        while(true) scheduler.resume(), main();
       });
       Thread::setClock(clock);
     }

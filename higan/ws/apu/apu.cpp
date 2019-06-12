@@ -63,7 +63,7 @@ auto APU::step(uint clocks) -> void {
 
 auto APU::power() -> void {
   Thread::create(3'072'000, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);

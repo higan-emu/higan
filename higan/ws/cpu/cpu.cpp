@@ -44,7 +44,7 @@ auto CPU::out(uint16 port, uint8 data) -> void {
 auto CPU::power() -> void {
   V30MZ::power();
   Thread::create(3'072'000, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   bus.map(this, 0x00a0);

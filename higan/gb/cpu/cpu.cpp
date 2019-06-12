@@ -82,7 +82,7 @@ auto CPU::stop() -> bool {
 
 auto CPU::power() -> void {
   Thread::create(4 * 1024 * 1024, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   SM83::power();
 

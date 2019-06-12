@@ -43,7 +43,7 @@ auto CPU::power() -> void {
   Z80::bus = this;
   Z80::power();
   Thread::create(system.colorburst(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   if(Model::ColecoVision()) ram.allocate(0x0400), expansion.allocate(0x1000);

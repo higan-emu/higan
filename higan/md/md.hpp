@@ -33,10 +33,6 @@ namespace higan::MegaDrive {
       scheduler.remove(*this);
       higan::Thread::destroy();
     }
-
-    inline auto synchronize(Thread& thread) -> void {
-      if(clock() >= thread.clock()) scheduler.resume(thread);
-    }
   };
 
   struct Region {

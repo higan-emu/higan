@@ -15,9 +15,9 @@ auto VDP::VRAM::write(uint16 address, uint16 data) -> void {
     uint15 offset = address >> 1 & 0x7e00 | address & 0x01fe | address >> 9 & 1;
     memory[offset].byte(!address.bit(0)) = data.byte(0);
   }
-  if(address < vdp.sprite.io.attributeAddress) return;
-  if(address > vdp.sprite.io.attributeAddress + 319) return;
-  vdp.sprite.write(address - vdp.sprite.io.attributeAddress, data);
+  if(address < vdp.sprite.io.nametableAddress) return;
+  if(address > vdp.sprite.io.nametableAddress + 319) return;
+  vdp.sprite.write(address - vdp.sprite.io.nametableAddress, data);
 }
 
 auto VDP::VRAM::readByte(uint17 address) const -> uint8 {

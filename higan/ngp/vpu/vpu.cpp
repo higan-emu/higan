@@ -88,7 +88,7 @@ auto VPU::refresh() -> void {
 
 auto VPU::power() -> void {
   Thread::create(system.frequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   for(auto& p : colors) p = {};

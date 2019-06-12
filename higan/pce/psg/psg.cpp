@@ -47,7 +47,7 @@ auto PSG::step(uint clocks) -> void {
 
 auto PSG::power() -> void {
   Thread::create(system.colorburst(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   stream = audio.createStream(2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);

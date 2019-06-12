@@ -23,7 +23,7 @@ auto PSG::step(uint clocks) -> void {
 auto PSG::power() -> void {
   AY38910::power();
   Thread::create(system.colorburst() / 16.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   stream = audio.createStream(1, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);

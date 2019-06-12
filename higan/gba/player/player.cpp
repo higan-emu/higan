@@ -19,7 +19,7 @@ auto Player::step(uint clocks) -> void {
 
 auto Player::power() -> void {
   create(1000, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   status.enable = false;

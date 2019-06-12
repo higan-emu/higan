@@ -68,7 +68,7 @@ auto VDP::Background::run(uint x, uint y) -> void {
   if(tileAttributes.bit(12)) pixelY ^= 7 + interlace * 8;
   tileAddress += pixelY << 1 | pixelX >> 2;
 
-  uint16 tileData = vdp.vram.read(tileAddress);
+  uint16 tileData = vdp.vram.read(io.generatorAddress | tileAddress);
   uint4 color = tileData >> (((pixelX & 3) ^ 3) << 2);
   output.color = color ? tileAttributes.bits(13,14) << 4 | color : 0;
   output.priority = tileAttributes.bit(15);

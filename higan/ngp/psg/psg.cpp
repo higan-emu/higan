@@ -54,7 +54,7 @@ auto PSG::writeRightDAC(uint8 data) -> void {
 
 auto PSG::power() -> void {
   Thread::create(system.frequency() / 32.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   stream = audio.createStream(2, frequency());

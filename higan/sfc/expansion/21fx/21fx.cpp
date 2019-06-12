@@ -4,7 +4,7 @@ S21FX::S21FX(Node::Port parent, Node::Peripheral with) {
   parent->append(node);
 
   Thread::create(10'000'000, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   resetVector.byte(0) = bus.read(0xfffc, 0x00);
@@ -76,7 +76,7 @@ auto S21FX::main() -> void {
     {&S21FX::write, this}
   );
   if(linkMain) linkMain({});
-  while(true) scheduler.synchronize(), step(10'000'000);
+  while(true) scheduler.resume(), step(10'000'000);
 }
 
 auto S21FX::read(uint24 addr, uint8 data) -> uint8 {

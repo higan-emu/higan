@@ -32,8 +32,6 @@ auto VDP::serialize(serializer& s) -> void {
   s.integer(io.externalColorEnable);
   s.integer(io.horizontalSync);
   s.integer(io.verticalSync);
-  s.integer(io.nametableBasePatternA);
-  s.integer(io.nametableBasePatternB);
   s.integer(io.dataIncrement);
 
   s.integer(latch.overscan);
@@ -57,6 +55,7 @@ auto VDP::DMA::serialize(serializer& s) -> void {
 }
 
 auto VDP::Background::serialize(serializer& s) -> void {
+  s.integer(io.generatorAddress);
   s.integer(io.nametableAddress);
   s.integer(io.nametableWidth);
   s.integer(io.nametableHeight);
@@ -89,8 +88,8 @@ auto VDP::Object::serialize(serializer& s) -> void {
 }
 
 auto VDP::Sprite::serialize(serializer& s) -> void {
-  s.integer(io.attributeAddress);
-  s.integer(io.nametableAddressBase);
+  s.integer(io.generatorAddress);
+  s.integer(io.nametableAddress);
 
   s.integer(output.color);
   s.integer(output.priority);

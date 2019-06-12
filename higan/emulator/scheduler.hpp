@@ -5,8 +5,8 @@ namespace higan {
 struct Scheduler {
   enum class Mode : uint {
     Run,
-    SynchronizeMaster,
-    SynchronizeSlave,
+    SynchronizePrimary,
+    SynchronizeAuxiliary,
   };
 
   enum class Event : uint {
@@ -15,7 +15,7 @@ struct Scheduler {
     Synchronize,
   };
 
-  inline auto synchronizing() const -> bool { return _mode == Mode::SynchronizeSlave; }
+  inline auto synchronizing() const -> bool { return _mode == Mode::SynchronizeAuxiliary; }
 
   auto reset() -> void {
     _host = co_active();
@@ -23,7 +23,7 @@ struct Scheduler {
   }
 
   auto primary(Thread& thread) -> void {
-    _master = _resume = thread.handle();
+    _primary = _resume = thread.handle();
   }
 
   auto append(Thread& thread) -> bool {
@@ -43,8 +43,18 @@ struct Scheduler {
     return _event;
   }
 
+  //marks a safe point (typically the beginning of the entry point) of a thread.
+  //the scheduler may exit at these points for the purpose of serialization.
+  inline auto resume() -> void {
+    if(co_active() == _primary) {
+      if(_mode == Mode::SynchronizePrimary) return exit(Event::Synchronize);
+    } else {
+      if(_mode == Mode::SynchronizeAuxiliary) return exit(Event::Synchronize);
+    }
+  }
+
   inline auto resume(Thread& thread) -> void {
-    if(_mode != Mode::SynchronizeSlave) co_switch(thread.handle());
+    if(_mode != Mode::SynchronizeAuxiliary) co_switch(thread.handle());
   }
 
   auto exit(Event event) -> void {
@@ -61,27 +71,35 @@ struct Scheduler {
     co_switch(_host);
   }
 
-  inline auto synchronize(Thread& thread) -> void {
-    if(thread.handle() == _master) {
-      while(enter(Mode::SynchronizeMaster) != Event::Synchronize);
-    } else {
-      _resume = thread.handle();
-      while(enter(Mode::SynchronizeSlave) != Event::Synchronize);
+  //switches to the thread that is currently the furthest behind in time.
+  //if that is still the active thread, then do nothing.
+  inline auto synchronize() -> void {
+    uintmax minimum = -1;
+    Thread* context = nullptr;
+    for(auto thread : _threads) {
+      if(thread->_clock < minimum) {
+        minimum = thread->_clock;
+        context = thread;
+      }
+    }
+    if(!context->active()) {
+      resume(*context);
     }
   }
 
-  inline auto synchronize() -> void {
-    if(co_active() == _master) {
-      if(_mode == Mode::SynchronizeMaster) return exit(Event::Synchronize);
+  inline auto synchronize(Thread& thread) -> void {
+    if(thread.handle() == _primary) {
+      while(enter(Mode::SynchronizePrimary) != Event::Synchronize);
     } else {
-      if(_mode == Mode::SynchronizeSlave) return exit(Event::Synchronize);
+      _resume = thread.handle();
+      while(enter(Mode::SynchronizeAuxiliary) != Event::Synchronize);
     }
   }
 
 private:
-  cothread_t _host = nullptr;    //program thread (used to exit scheduler)
-  cothread_t _resume = nullptr;  //resume thread (used to enter scheduler)
-  cothread_t _master = nullptr;  //primary thread (used to synchronize components)
+  cothread_t _host = nullptr;     //program thread (used to exit scheduler)
+  cothread_t _resume = nullptr;   //resume thread (used to enter scheduler)
+  cothread_t _primary = nullptr;  //primary thread (used to synchronize components)
   Mode _mode = Mode::Run;
   Event _event = Event::Step;
   vector<Thread*> _threads;

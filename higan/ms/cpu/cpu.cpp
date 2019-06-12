@@ -44,7 +44,7 @@ auto CPU::power() -> void {
   Z80::bus = this;
   Z80::power();
   Thread::create(system.colorburst(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   ram.allocate(0x2000);
   r.pc = 0x0000;  //reset vector address

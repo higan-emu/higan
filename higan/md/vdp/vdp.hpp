@@ -76,7 +76,8 @@ struct VDP : Thread {
     auto serialize(serializer&) -> void;
 
     struct IO {
-      uint15 nametableAddress;
+      uint16 generatorAddress;
+      uint16 nametableAddress;
 
       //PlaneA, PlaneB
        uint2 nametableWidth;
@@ -135,8 +136,8 @@ struct VDP : Thread {
     auto serialize(serializer&) -> void;
 
     struct IO {
-      uint15 attributeAddress;
-       uint1 nametableAddressBase;
+      uint16 generatorAddress;
+      uint16 nametableAddress;
     } io;
 
     Pixel output;
@@ -167,7 +168,10 @@ private:
     //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    uint16 memory[32768];
+    //Mega Drive: 65536x4-bit (x2) =  64KB VRAM
+    //Tera Drive: 65536x4-bit (x4) = 128KB VRAM
+    uint16 memory[65536];  //stored in 16-bit words
+    uint32 size = 32768;
      uint1 mode;  //0 = 64KB, 1 = 128KB
   } vram;
 
@@ -232,10 +236,6 @@ private:
     uint1 externalColorEnable;
     uint1 horizontalSync;
     uint1 verticalSync;
-
-    //$0e  nametable pattern base address
-    uint1 nametableBasePatternA;
-    uint1 nametableBasePatternB;
 
     //$0f  data port auto-increment value
     uint8 dataIncrement;

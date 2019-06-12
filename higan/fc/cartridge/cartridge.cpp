@@ -57,7 +57,7 @@ auto Cartridge::save() -> void {
 
 auto Cartridge::power() -> void {
   Thread::create(system.frequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   board->power();
 }

@@ -33,7 +33,7 @@ auto SuperFX::unload() -> void {
 auto SuperFX::power() -> void {
   GSU::power();
   Thread::create(Frequency, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

@@ -106,7 +106,7 @@ auto PPU::hflip(uint data) const -> uint {
 
 auto PPU::power() -> void {
   Thread::create(4 * 1024 * 1024, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   if(Model::GameBoyColor()) {

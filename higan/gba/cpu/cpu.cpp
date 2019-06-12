@@ -64,7 +64,7 @@ auto CPU::step(uint clocks) -> void {
 auto CPU::power() -> void {
   ARM7TDMI::power();
   Thread::create(system.frequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   for(auto& byte : iwram) byte = 0x00;

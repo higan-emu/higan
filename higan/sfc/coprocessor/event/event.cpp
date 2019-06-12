@@ -31,7 +31,7 @@ auto Event::unload() -> void {
 
 auto Event::power() -> void {
   Thread::create(1, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

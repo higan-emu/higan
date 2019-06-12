@@ -52,7 +52,7 @@ auto PPU::refresh() -> void {
 
 auto PPU::power(bool reset) -> void {
   Thread::create(system.frequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   io = {};

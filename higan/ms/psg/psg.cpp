@@ -51,7 +51,7 @@ auto PSG::balance(uint8 data) -> void {
 auto PSG::power() -> void {
   SN76489::power();
   Thread::create(system.colorburst() / 16.0, [&] {
-    while(true) scheduler.synchronize(), psg.main();
+    while(true) scheduler.resume(), psg.main();
   });
   stream = audio.createStream(Model::MasterSystem() ? 1 : 2, frequency());
   stream->addHighPassFilter(20.0, Filter::Order::First);

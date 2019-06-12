@@ -32,7 +32,7 @@ auto SharpRTC::unload() -> void {
 
 auto SharpRTC::power() -> void {
   Thread::create(1, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

@@ -7,7 +7,7 @@ namespace higan::PCEngine {
 
 Controller::Controller() {
   if(!handle()) Thread::create(1, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.peripherals.append(this);
 }

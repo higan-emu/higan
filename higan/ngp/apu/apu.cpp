@@ -37,7 +37,7 @@ auto APU::power() -> void {
   Z80::power();
   bus->grant(false);
   Thread::create(system.frequency() / 2.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   nmi = {};
@@ -51,7 +51,7 @@ auto APU::enable() -> void {
   Z80::power();
   bus->grant(false);
   Thread::create(system.frequency() / 2.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   nmi = {};

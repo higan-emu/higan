@@ -86,7 +86,7 @@ auto ArmDSP::reset() -> void {
   ARM7TDMI::power();
   Thread::create(Frequency, [&] {
     boot();
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

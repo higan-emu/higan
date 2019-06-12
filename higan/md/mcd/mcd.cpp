@@ -131,8 +131,7 @@ auto MCD::idle(uint clocks) -> void {
 
 auto MCD::wait(uint clocks) -> void {
   step(clocks);
-  synchronize(cpu);
-  synchronize(apu);
+  scheduler.synchronize();
 }
 
 auto MCD::power(bool reset) -> void {
@@ -142,7 +141,7 @@ auto MCD::power(bool reset) -> void {
 
   M68K::power();
   Thread::create(12'500'000, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   counter = {};
   if(!reset) {

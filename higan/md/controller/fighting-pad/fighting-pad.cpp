@@ -16,7 +16,7 @@ FightingPad::FightingPad(Node::Port parent, Node::Peripheral with) {
   parent->prepend(node);
 
   Thread::create(1'000'000, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 }
 
@@ -27,7 +27,7 @@ auto FightingPad::main() -> void {
     counter = 0;
   }
   step(1);
-  synchronize(cpu);
+  scheduler.synchronize();
 }
 
 auto FightingPad::readData() -> uint8 {

@@ -49,7 +49,7 @@ auto APU::main() -> void {
 
 auto APU::power() -> void {
   Thread::create(2 * 1024 * 1024, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   if(!Model::SuperGameBoy()) {
     stream = audio.createStream(2, frequency());

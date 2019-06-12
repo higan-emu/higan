@@ -7,7 +7,7 @@ struct CPU : M68K, Thread {
     VerticalBlank,
   };
 
-  using Thread::synchronize;
+//using Thread::synchronize;
 
   //cpu.cpp
   auto main() -> void;

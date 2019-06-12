@@ -42,16 +42,11 @@ auto CPU::idle(uint clocks) -> void {
 auto CPU::wait(uint clocks) -> void {
   while(vdp.dma.active) {
     Thread::step(2);
-    synchronize(vdp);
+    scheduler.synchronize();
   }
 
   Thread::step(clocks);
-  synchronize(apu);
-  synchronize(vdp);
-  synchronize(psg);
-  synchronize(ym2612);
-  if(MegaCD()) synchronize(mcd);
-  for(auto peripheral : peripherals) synchronize(*peripheral);
+  scheduler.synchronize();
 }
 
 auto CPU::raise(Interrupt interrupt) -> void {
@@ -69,7 +64,7 @@ auto CPU::lower(Interrupt interrupt) -> void {
 auto CPU::power(bool reset) -> void {
   M68K::power();
   Thread::create(system.frequency() / 7.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   ram.allocate(64_KiB >> 1);

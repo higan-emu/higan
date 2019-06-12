@@ -131,7 +131,7 @@ auto BSMemory::disconnect() -> void {
 
 auto BSMemory::power() -> void {
   Thread::create(1'000'000, [&] {  //microseconds
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
 

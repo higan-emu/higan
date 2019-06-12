@@ -177,12 +177,12 @@ auto DSP::tick() -> void {
 }
 
 auto DSP::sample(int16 left, int16 right) -> void {
-  stream->sample(left / 32767.0, right / 32767.0);
+  stream->sample(left / 32768.0, right / 32768.0);
 }
 
 auto DSP::power(bool reset) -> void {
   create(system.apuFrequency(), [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   stream = audio.createStream(2, frequency() / 768.0);
 

@@ -38,7 +38,7 @@ auto MSU1::unload() -> void {
 
 auto MSU1::power() -> void {
   Thread::create(44100, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
   cpu.coprocessors.append(this);
   stream = audio.createStream(2, frequency());

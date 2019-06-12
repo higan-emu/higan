@@ -33,7 +33,7 @@ auto VDP::power() -> void {
     TMS9918::vram.allocate(16_KiB);
     TMS9918::power();
     Thread::create(system.colorburst() * 2, [&] {
-      while(true) scheduler.synchronize(), TMS9918::main();
+      while(true) scheduler.resume(), TMS9918::main();
     });
   }
 
@@ -42,7 +42,7 @@ auto VDP::power() -> void {
     V9938::expansionRAM.allocate(64_KiB);
     V9938::power();
     Thread::create(system.colorburst() * 2, [&] {
-      while(true) scheduler.synchronize(), V9938::main();
+      while(true) scheduler.resume(), V9938::main();
     });
   }
 }

@@ -89,7 +89,7 @@ auto VDC::step(uint clocks) -> void {
 
 auto VDC::power() -> void {
   Thread::create(system.colorburst() * 6.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   memory::fill(&vram, sizeof(VRAM));

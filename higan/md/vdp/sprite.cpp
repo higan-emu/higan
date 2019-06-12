@@ -90,7 +90,7 @@ auto VDP::Sprite::run(uint x, uint y) -> void {
     uint pixelY = objectY & 7 + interlace * 8;
     tileAddress += pixelY << 1 | pixelX >> 2;
 
-    uint16 tileData = vdp.vram.read(tileAddress);
+    uint16 tileData = vdp.vram.read(io.generatorAddress | tileAddress);
     uint4 color = tileData >> (((pixelX & 3) ^ 3) << 2);
     if(!color) continue;
 

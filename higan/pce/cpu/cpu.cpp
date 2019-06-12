@@ -26,7 +26,7 @@ auto CPU::step(uint clocks) -> void {
 auto CPU::power() -> void {
   HuC6280::power();
   Thread::create(system.colorburst() * 2.0, [&] {
-    while(true) scheduler.synchronize(), main();
+    while(true) scheduler.resume(), main();
   });
 
   r.pc.byte(0) = read(0x00, 0x1ffe);
