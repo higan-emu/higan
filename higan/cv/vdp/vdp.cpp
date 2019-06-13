@@ -7,7 +7,7 @@ VDP vdp;
 
 auto VDP::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto VDP::irq(bool line) -> void {

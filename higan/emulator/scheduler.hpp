@@ -14,6 +14,10 @@ struct Scheduler {
     Serialize,
   };
 
+  Scheduler() = default;
+  Scheduler(const Scheduler&) = delete;
+  auto operator=(const Scheduler&) = delete;
+
   inline auto serializing() const -> bool;
 
   inline auto reset() -> void;
@@ -26,9 +30,6 @@ struct Scheduler {
 
   inline auto enter(Mode mode = Mode::Run) -> Event;
   inline auto exit(Event event) -> void;
-
-  inline auto oldest() const -> Thread&;
-  inline auto resume(Thread& thread) -> void;
 
   inline auto serialize() -> void;
   inline auto serialize(Thread& thread) -> void;

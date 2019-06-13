@@ -80,7 +80,7 @@ auto PPU::refresh() -> void {
 
 auto PPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto PPU::power() -> void {

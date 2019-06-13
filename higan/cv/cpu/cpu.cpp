@@ -22,7 +22,7 @@ auto CPU::main() -> void {
 
 auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  while(!Thread::synchronize());
+  Thread::synchronize();
 }
 
 auto CPU::setNMI(bool value) -> void {

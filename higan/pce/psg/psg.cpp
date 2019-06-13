@@ -36,7 +36,7 @@ auto PSG::main() -> void {
     }
   }
 
-  stream->sample(sclamp<16>(outputLeft) / 32767.0, sclamp<16>(outputRight) / 32767.0);
+  stream->sample(sclamp<16>(outputLeft) / 32768.0, sclamp<16>(outputRight) / 32768.0);
   step(1);
 }
 
@@ -53,7 +53,7 @@ auto PSG::power() -> void {
   io = {};
   for(auto C : range(6)) channel[C].power(C);
 
-  double level = 32767.0 / 6.0 / 32.0;  //max volume / channels / steps
+  double level = 32768.0 / 6.0 / 32.0;  //max volume / channels / steps
   double step = 48.0 / 32.0;            //48dB volume range spread over 32 steps
   for(uint n : range(31)) {
     volumeScalar[n] = level;

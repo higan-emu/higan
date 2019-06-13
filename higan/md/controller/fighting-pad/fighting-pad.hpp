@@ -1,4 +1,4 @@
-struct FightingPad : Controller {
+struct FightingPad : Controller, Thread {
   Node::Button up;
   Node::Button down;
   Node::Button left;

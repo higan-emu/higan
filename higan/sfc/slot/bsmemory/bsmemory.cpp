@@ -29,12 +29,12 @@ auto BSMemory::main() -> void {
 
   compatible.status.ready = 1;
   global.status.ready = 1;
-  step(10'000);  //10 milliseconds
+  Thread::step(10'000);  //10 milliseconds
 }
 
 auto BSMemory::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto BSMemory::connect(Node::Peripheral with) -> void {
@@ -126,6 +126,8 @@ auto BSMemory::disconnect() -> void {
   }
 
   memory.reset();
+
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

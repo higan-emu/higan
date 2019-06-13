@@ -12,8 +12,8 @@ auto SharpRTC::load(Node::Object parent, Node::Object from) -> void {
 auto SharpRTC::main() -> void {
   tickSecond();
 
-  step(1);
-  synchronize(cpu);
+  Thread::step(1);
+  Thread::synchronize(cpu);
 }
 
 auto SharpRTC::initialize() -> void {
@@ -27,6 +27,7 @@ auto SharpRTC::initialize() -> void {
 }
 
 auto SharpRTC::unload() -> void {
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

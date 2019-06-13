@@ -1,4 +1,4 @@
-struct Controller : Thread {
+struct Controller {
   Node::Peripheral node;
 
   virtual ~Controller() = default;

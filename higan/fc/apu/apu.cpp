@@ -55,7 +55,7 @@ auto APU::main() -> void {
 
 auto APU::tick() -> void {
   Thread::step(rate());
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto APU::setIRQ() -> void {

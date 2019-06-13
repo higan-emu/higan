@@ -44,7 +44,7 @@ auto APU::main() -> void {
   cycle++;
 
   Thread::step(1);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto APU::power() -> void {

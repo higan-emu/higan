@@ -17,9 +17,7 @@ auto CPU::step(uint clocks) -> void {
     if((status.div & 1023) == 0)   timer4096hz();
 
     Thread::step(1);
-    synchronize(ppu);
-    synchronize(apu);
-    synchronize(cartridge);
+    Thread::synchronize();
   }
 
   if(Model::SuperGameBoy()) {

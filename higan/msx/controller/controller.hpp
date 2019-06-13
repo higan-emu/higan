@@ -1,4 +1,4 @@
-struct Controller : Thread {
+struct Controller {
   virtual ~Controller() = default;
 
   virtual auto read() -> uint6 { return 0x3f; }

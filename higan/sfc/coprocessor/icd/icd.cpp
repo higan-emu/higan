@@ -10,13 +10,13 @@ ICD icd;
 auto ICD::main() -> void {
   if(r6003 & 0x80) {
     GameBoy::system.run();
-    step(GameBoy::system.information.clocksExecuted);
+    Thread::step(GameBoy::system.information.clocksExecuted);
     GameBoy::system.information.clocksExecuted = 0;
   } else {  //DMG halted
     stream->sample(0.0, 0.0);
-    step(2);  //two clocks per audio sample
+    Thread::step(2);  //two clocks per audio sample
   }
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
@@ -45,6 +45,7 @@ auto ICD::connect(Node::Peripheral with) -> void {
 
 auto ICD::disconnect() -> void {
   GameBoy::cartridge.disconnect();
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
   node = {};
   port = {};
@@ -60,6 +61,7 @@ auto ICD::power() -> void {
     }
   });
   cpu.coprocessors.append(this);
+
   stream = higan::audio.createStream(2, frequency() / 2.0);
   stream->addHighPassFilter(20.0, Filter::Order::First);
 

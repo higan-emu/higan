@@ -14,7 +14,7 @@ auto Player::main() -> void {
 
 auto Player::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto Player::power() -> void {

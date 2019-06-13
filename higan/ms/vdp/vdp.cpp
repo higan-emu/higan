@@ -63,7 +63,7 @@ auto VDP::step(uint clocks) -> void {
 
     cpu.setIRQ((io.lineInterrupts && io.intLine) || (io.frameInterrupts && io.intFrame));
     Thread::step(1);
-    synchronize(cpu);
+    Thread::synchronize(cpu);
   }
 }
 

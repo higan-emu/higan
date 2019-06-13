@@ -18,9 +18,7 @@ auto CPU::main() -> void {
   if(stopped()) {
     if(!(irq.enable & irq.flag & Interrupt::Keypad)) {
       Thread::step(16);
-      synchronize(ppu);
-      synchronize(apu);
-      synchronize(player);
+      Thread::synchronize();
     }
     context.stopped = false;
   }
@@ -56,9 +54,7 @@ auto CPU::step(uint clocks) -> void {
   }
 
   Thread::step(clocks);
-  synchronize(ppu);
-  synchronize(apu);
-  synchronize(player);
+  Thread::synchronize();
 }
 
 auto CPU::power() -> void {

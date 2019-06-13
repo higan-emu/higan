@@ -19,7 +19,7 @@
 // The Famicom contained two hardwired controllers.
 // Controller Port 2 contained a microphone, but no Select or Start buttons.
 
-struct Controller : Thread {
+struct Controller {
   Node::Peripheral node;
 
   virtual ~Controller() = default;

@@ -17,8 +17,8 @@ auto Event::main() -> void {
     }
   }
 
-  step(1);
-  synchronize(cpu);
+  Thread::step(1);
+  Thread::synchronize(cpu);
 }
 
 auto Event::unload() -> void {
@@ -26,6 +26,7 @@ auto Event::unload() -> void {
   rom[1].reset();
   rom[2].reset();
   rom[3].reset();
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

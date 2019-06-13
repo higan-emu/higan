@@ -24,6 +24,8 @@ auto System::runToSave() -> void {
 auto System::load(Node::Object from) -> void {
   if(node) unload();
 
+  information = {};
+
   node = Node::System::create(interface->name());
   node->load(from);
 
@@ -31,8 +33,16 @@ auto System::load(Node::Object from) -> void {
   Node::load(tmss, from);
   node->append(tmss);
 
-  regionNode = Node::String::create("Region", "NTSC-J");
-  regionNode->allowedValues = {"NTSC-J", "NTSC-U", "PAL"};
+  regionNode = Node::String::create("Region", "NTSC-J → NTSC-U → PAL");
+  regionNode->allowedValues = {
+    "NTSC-J → NTSC-U → PAL",
+    "NTSC-U → NTSC-J → PAL",
+    "PAL → NTSC-J → NTSC-U",
+    "PAL → NTSC-U → NTSC-J",
+    "NTSC-J",
+    "NTSC-U",
+    "PAL"
+  };
   Node::load(regionNode, from);
   node->append(regionNode);
 
@@ -70,18 +80,26 @@ auto System::save() -> void {
 auto System::power(bool reset) -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
-  information = {};
-  if(regionNode->latch() == "NTSC-J") {
-    information.region = Region::NTSCJ;
-    information.frequency = Constants::Colorburst::NTSC * 15.0;
-  }
-  if(regionNode->latch() == "NTSC-U") {
-    information.region = Region::NTSCU;
-    information.frequency = Constants::Colorburst::NTSC * 15.0;
-  }
-  if(regionNode->latch() == "PAL") {
-    information.region = Region::PAL;
-    information.frequency = Constants::Colorburst::PAL * 12.0;
+  auto setRegion = [&](string region) {
+    if(region == "NTSC-J") {
+      information.region = Region::NTSCJ;
+      information.frequency = Constants::Colorburst::NTSC * 15.0;
+    }
+    if(region == "NTSC-U") {
+      information.region = Region::NTSCU;
+      information.frequency = Constants::Colorburst::NTSC * 15.0;
+    }
+    if(region == "PAL") {
+      information.region = Region::PAL;
+      information.frequency = Constants::Colorburst::PAL * 12.0;
+    }
+  };
+  auto regions = regionNode->latch().split("→").strip();
+  setRegion(regions.first());
+  for(auto& requested : reverse(regions)) {
+    for(auto& available : reverse(cartridge.regions())) {
+      if(requested == available) setRegion(requested);
+    }
   }
   information.megaCD = (bool)expansion.node;
 

@@ -21,23 +21,21 @@ auto CPU::main() -> void {
 
 auto CPU::step(uint clocks) -> void {
   clocks <<= clock.rate;
-  Thread::step(clocks);
   prescaler.step(clocks);
   adc.step(clocks);
   rtc.step(clocks);
   watchdog.step(clocks);
-  synchronize(vpu);
-  synchronize(apu);
-  synchronize(psg);
+  Thread::step(clocks);
+  Thread::synchronize();
 }
 
 auto CPU::idle(uint clocks) -> void {
   clocks <<= clock.rate;
-  Thread::step(clocks);
   prescaler.step(clocks);
   adc.step(clocks);
   rtc.step(clocks);
   watchdog.step(clocks);
+  Thread::step(clocks);
 }
 
 auto CPU::pollPowerButton() -> void {

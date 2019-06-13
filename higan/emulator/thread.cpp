@@ -67,63 +67,25 @@ auto Thread::step(uint clocks) -> void {
   _clock += _scalar * clocks;
 }
 
-//switches to the thread that is currently the furthest behind in time.
-//if that is still the active thread, then do nothing.
-auto Thread::synchronize() -> bool {
-  Thread& oldest = scheduler.oldest();
-  if(oldest.active()) return true;
-  scheduler.resume(oldest);
-  return false;
+//ensure all threads are caught up to the current thread before proceeding.
+auto Thread::synchronize() -> void {
+  //note: this will call Thread::synchronize(*this) at some point, but this is safe:
+  //the comparison will always fail as the current thread can never be behind itself.
+  for(auto thread : scheduler._threads) synchronize(*thread);
 }
 
-//synchronize to one thread.
-auto Thread::synchronize(Thread& a) -> void {
-  if(a.clock() < clock()) {
-    scheduler.resume(a);
+//ensure the specified thread(s) are caught up the current thread before proceeding.
+template<typename... P>
+auto Thread::synchronize(Thread& thread, P&&... p) -> void {
+  //switching to another thread does not guarantee it will catch up before switching back.
+  while(thread.clock() < clock()) {
+    //disable synchronization for auxiliary threads during serialization.
+    //serialization can begin inside of this while loop.
+    if(scheduler.serializing()) break;
+    co_switch(thread.handle());
   }
-}
-
-//synchronize to two threads.
-auto Thread::synchronize(Thread& a, Thread& b) -> void {
-  if(a.clock() < clock()) {
-    if(b.clock() < clock()) {
-      scheduler.resume(a.clock() < b.clock() ? a : b);
-    } else {
-      scheduler.resume(a);
-    }
-  } else if(b.clock() < clock()) {
-    scheduler.resume(b);
-  }
-}
-
-//synchronize to three threads.
-//beyond three does not scale; use synchronize() for four or more threads.
-auto Thread::synchronize(Thread& a, Thread& b, Thread& c) -> void {
-  if(a.clock() < clock()) {
-    if(b.clock() < clock()) {
-      if(c.clock() < clock()) {
-        if(a.clock() < b.clock()) {
-          scheduler.resume(a.clock() < c.clock() ? a : c);
-        } else {
-          scheduler.resume(b.clock() < c.clock() ? b : c);
-        }
-      } else {
-        scheduler.resume(a.clock() < b.clock() ? a : b);
-      }
-    } else if(c.clock() < clock()) {
-      scheduler.resume(a.clock() < c.clock() ? a : c);
-    } else {
-      scheduler.resume(a);
-    }
-  } else if(b.clock() < clock()) {
-    if(c.clock() < clock()) {
-      scheduler.resume(b.clock() < c.clock() ? b : c);
-    } else {
-      scheduler.resume(b);
-    }
-  } else if(c.clock() < clock()) {
-    scheduler.resume(c);
-  }
+  //convenience: allow synchronizing multiple threads with one function call.
+  if constexpr(sizeof...(p)) synchronize(forward<P>(p)...);
 }
 
 auto Thread::serialize(serializer& s) -> void {

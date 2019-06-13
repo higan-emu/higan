@@ -25,27 +25,23 @@ auto System::runToSave() -> void {
 auto System::load(Node::Object from) -> void {
   if(node) unload();
 
+  information = {};
+
   node = Node::System::create(interface->name());
   node->load(from);
 
-  regionNode = Node::String::create("Region", "NTSC-J");
-  regionNode->allowedValues = {"NTSC-J", "NTSC-U", "PAL"};
+  regionNode = Node::String::create("Region", "NTSC-J → NTSC-U → PAL");
+  regionNode->allowedValues = {
+    "NTSC-J → NTSC-U → PAL",
+    "NTSC-U → NTSC-J → PAL",
+    "PAL → NTSC-J → NTSC-U",
+    "PAL → NTSC-U → NTSC-J",
+    "NTSC-J",
+    "NTSC-U",
+    "PAL"
+  };
   Node::load(regionNode, from);
   node->append(regionNode);
-
-  information = {};
-  if(regionNode->value() == "NTSC-J") {
-    information.region = Region::NTSCJ;
-    information.frequency = Constants::Colorburst::NTSC * 6.0;
-  }
-  if(regionNode->value() == "NTSC-U") {
-    information.region = Region::NTSCU;
-    information.frequency = Constants::Colorburst::NTSC * 6.0;
-  }
-  if(regionNode->value() == "PAL") {
-    information.region = Region::PAL;
-    information.frequency = Constants::Colorburst::PAL * 6.0;
-  }
 
   scheduler.reset();
   cartridge.load(node, from);
@@ -71,6 +67,26 @@ auto System::save() -> void {
 
 auto System::power(bool reset) -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+
+  auto setRegion = [&](string region) {
+    if(region == "NTSC-J") {
+      information.region = Region::NTSCJ;
+      information.frequency = Constants::Colorburst::NTSC * 6.0;
+    }
+    if(region == "NTSC-U") {
+      information.region = Region::NTSCU;
+      information.frequency = Constants::Colorburst::NTSC * 6.0;
+    }
+    if(region == "PAL") {
+      information.region = Region::PAL;
+      information.frequency = Constants::Colorburst::PAL * 6.0;
+    }
+  };
+  auto regions = regionNode->latch().split("→").strip();
+  setRegion(regions.first());
+  for(auto& requested : reverse(regions)) {
+    if(requested == cartridge.region()) setRegion(requested);
+  }
 
   video.reset(interface);
   display.screen = video.createScreen(display.node, 256, 240);

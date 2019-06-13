@@ -20,14 +20,16 @@ auto SPC7110::main() -> void {
 }
 
 auto SPC7110::addClocks(uint clocks) -> void {
-  step(clocks);
-  synchronize(cpu);
+  Thread::step(clocks);
+  Thread::synchronize(cpu);
 }
 
 auto SPC7110::unload() -> void {
   prom.reset();
   drom.reset();
   ram.reset();
+
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

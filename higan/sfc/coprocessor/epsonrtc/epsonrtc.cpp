@@ -24,8 +24,8 @@ auto EpsonRTC::main() -> void {
     tick();
   }
 
-  step(1);
-  synchronize(cpu);
+  Thread::step(1);
+  Thread::synchronize(cpu);
 }
 
 auto EpsonRTC::initialize() -> void {
@@ -70,6 +70,7 @@ auto EpsonRTC::initialize() -> void {
 }
 
 auto EpsonRTC::unload() -> void {
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

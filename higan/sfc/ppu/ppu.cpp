@@ -83,7 +83,7 @@ auto PPU::step(uint clocks) -> void {
   while(clocks--) {
     tick(2);
     Thread::step(2);
-    synchronize(cpu);
+    Thread::synchronize(cpu);
   }
 }
 

@@ -13,7 +13,7 @@ auto OPLL::main() -> void {
 
 auto OPLL::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto OPLL::power() -> void {

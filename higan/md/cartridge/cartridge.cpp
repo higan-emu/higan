@@ -33,7 +33,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(!loadRAM(wram, document["game/board/memory(type=RAM,content=Save)"])) wram.reset();
   if(!loadRAM(bram, document["game/board/memory(type=RAM,content=Save)"])) bram.reset();
 
-  information.region = document["game/region"].text();
+  information.regions = document["game/region"].text().split(",").strip();
   information.bootable = (bool)document["game/bootable"];
 
   read = {&Cartridge::readLinear, this};

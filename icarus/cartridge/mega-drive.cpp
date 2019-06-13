@@ -78,7 +78,7 @@ auto MegaDrive::heuristics(vector<uint8_t>& data, string location) -> string {
   string s;
   s += "game\n";
   s +={"  title:  ", domesticName, "\n"};
-  s +={"  region: ", regions.first(), "\n"};
+  s +={"  region: ", regions.merge(", "), "\n"};
   s += "  board\n";
 
   if(domesticName == "Game Genie") {

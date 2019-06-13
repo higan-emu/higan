@@ -5,7 +5,7 @@ HitachiDSP hitachidsp;
 auto HitachiDSP::step(uint clocks) -> void {
   HG51B::step(clocks);
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto HitachiDSP::halt() -> void {
@@ -16,6 +16,7 @@ auto HitachiDSP::halt() -> void {
 auto HitachiDSP::unload() -> void {
   rom.reset();
   ram.reset();
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

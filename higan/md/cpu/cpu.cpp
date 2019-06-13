@@ -42,11 +42,11 @@ auto CPU::idle(uint clocks) -> void {
 auto CPU::wait(uint clocks) -> void {
   while(vdp.dma.active) {
     Thread::step(2);
-    while(!Thread::synchronize());
+    Thread::synchronize(vdp);
   }
 
   Thread::step(clocks);
-  while(!Thread::synchronize());
+  Thread::synchronize();
 }
 
 auto CPU::raise(Interrupt interrupt) -> void {

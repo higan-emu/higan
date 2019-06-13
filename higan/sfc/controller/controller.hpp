@@ -11,13 +11,11 @@
 //  6:    iobit    $4201.d6 write; $4213.d6 read    $4201.d7 write; $4213.d7 read
 //  7:    gnd
 
-struct Controller : Thread {
+struct Controller {
   Node::Peripheral node;
 
-  Controller();
-  virtual ~Controller();
+  virtual ~Controller() = default;
 
-  virtual auto main() -> void;
   auto iobit() -> bool;
   auto iobit(bool data) -> void;
   virtual auto data() -> uint2 { return 0; }

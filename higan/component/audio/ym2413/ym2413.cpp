@@ -48,7 +48,6 @@ auto YM2413::clock() -> double {
   io.noise = io.noise >> 1 ^ io.noise.bit(0) * (1 << 22 | 1 << 8 | 1 << 7 | 1 << 0);
   if(++io.clock == 210 << 12) io.clock -= 210 << 12;
   return mix / 32768.0 * 4.0;
-//return max(-1.0, min(+1.0, mix / 32767.0 * 4.0));
 }
 
 auto YM2413::reload(uint4 index) -> void {

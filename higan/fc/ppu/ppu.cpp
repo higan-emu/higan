@@ -26,7 +26,7 @@ auto PPU::step(uint clocks) -> void {
     if(io.ly == L-1 && io.lx ==   2) cpu.nmiLine(io.nmiEnable && io.nmiFlag);
 
     Thread::step(rate());
-    synchronize(cpu);
+    Thread::synchronize(cpu);
 
     io.lx++;
   }

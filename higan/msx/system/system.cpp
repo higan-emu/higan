@@ -27,8 +27,13 @@ auto System::load(Node::Object from) -> void {
   node = Node::System::create(interface->name());
   node->load(from);
 
-  regionNode = Node::String::create("Region", "NTSC");
-  regionNode->allowedValues = {"NTSC", "PAL"};
+  regionNode = Node::String::create("Region", "NTSC → PAL");
+  regionNode->allowedValues = {
+    "NTSC → PAL",
+    "PAL → NTSC",
+    "NTSC",
+    "PAL"
+  };
   Node::load(regionNode, from);
   node->append(regionNode);
 
@@ -62,13 +67,20 @@ auto System::save() -> void {
 auto System::power() -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
-  if(regionNode->latch() == "NTSC") {
-    information.region = Region::NTSC;
-    information.colorburst = Constants::Colorburst::NTSC;
-  }
-  if(regionNode->latch() == "PAL") {
-    information.region = Region::PAL;
-    information.colorburst = Constants::Colorburst::PAL;
+  auto setRegion = [&](string region) {
+    if(region == "NTSC") {
+      information.region = Region::NTSC;
+      information.colorburst = Constants::Colorburst::NTSC;
+    }
+    if(region == "PAL") {
+      information.region = Region::PAL;
+      information.colorburst = Constants::Colorburst::PAL;
+    }
+  };
+  auto regions = regionNode->latch().split("→").strip();
+  setRegion(regions.first());
+  for(auto& requested : reverse(regions)) {
+    if(requested == cartridge.region()) setRegion(requested);
   }
 
   rom.bios.allocate(32_KiB);

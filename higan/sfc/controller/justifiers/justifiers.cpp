@@ -18,9 +18,11 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
   sprite2->setPixels(Resource::Sprite::CrosshairRed);
 
   Thread::create(system.cpuFrequency(), {&Justifiers::main, this});
+  cpu.peripherals.append(this);
 }
 
 Justifiers::~Justifiers() {
+  cpu.peripherals.removeWhere() == this;
   display.screen->removeSprite(sprite1);
   display.screen->removeSprite(sprite2);
 }

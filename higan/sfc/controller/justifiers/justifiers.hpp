@@ -1,4 +1,4 @@
-struct Justifiers : Controller {
+struct Justifiers : Controller, Thread {
   Node::Axis x1;
   Node::Axis y1;
   Node::Button trigger1;

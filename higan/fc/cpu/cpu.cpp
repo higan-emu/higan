@@ -14,7 +14,7 @@ auto CPU::main() -> void {
 
 auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  while(!Thread::synchronize());
+  Thread::synchronize();
 }
 
 auto CPU::power(bool reset) -> void {

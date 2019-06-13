@@ -27,11 +27,14 @@ auto SuperFX::unload() -> void {
   rom.reset();
   ram.reset();
   bram.reset();
+
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 
 auto SuperFX::power() -> void {
   GSU::power();
+
   Thread::create(Frequency, {&SuperFX::main, this});
   cpu.coprocessors.append(this);
 

@@ -93,7 +93,7 @@ auto PPU::step(uint clocks) -> void {
 
     status.lx++;
     Thread::step(1);
-    synchronize(cpu);
+    Thread::synchronize(cpu);
   }
 }
 

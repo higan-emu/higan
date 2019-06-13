@@ -24,7 +24,7 @@ auto ArmDSP::main() -> void {
 auto ArmDSP::step(uint clocks) -> void {
   if(bridge.timer && --bridge.timer == 0);
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 //MMIO: 00-3f,80-bf:3800-38ff
@@ -73,6 +73,7 @@ auto ArmDSP::write(uint24 addr, uint8 data) -> void {
 }
 
 auto ArmDSP::unload() -> void {
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

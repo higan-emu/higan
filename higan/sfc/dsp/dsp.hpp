@@ -6,8 +6,8 @@ struct DSP : Thread {
   uint8 registers[128];
 
   alwaysinline auto mute() const -> bool { return master.mute; }
-  alwaysinline auto step(uint clocks) -> void;
 
+  //dsp.cpp
   auto main() -> void;
   auto power(bool reset) -> void;
 

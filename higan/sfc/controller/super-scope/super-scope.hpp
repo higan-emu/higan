@@ -1,4 +1,4 @@
-struct SuperScope : Controller {
+struct SuperScope : Controller, Thread {
   Node::Axis x;
   Node::Axis y;
   Node::Button trigger;

@@ -24,8 +24,7 @@ auto APU::main() -> void {
 
 auto APU::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
-  synchronize(psg);
+  Thread::synchronize(cpu, psg);
 }
 
 auto APU::power() -> void {

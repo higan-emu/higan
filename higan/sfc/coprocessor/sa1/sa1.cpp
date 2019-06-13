@@ -77,7 +77,7 @@ auto SA1::serializing() const -> bool {
 
 auto SA1::step() -> void {
   Thread::step(2);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 
   //adjust counters:
   //note that internally, status counters are in clocks;
@@ -117,11 +117,14 @@ auto SA1::unload() -> void {
   rom.reset();
   iram.reset();
   bwram.reset();
+
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 
 auto SA1::power() -> void {
   WDC65816::power();
+
   Thread::create(system.cpuFrequency(), {&SA1::main, this});
   cpu.coprocessors.append(this);
 

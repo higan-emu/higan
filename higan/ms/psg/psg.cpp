@@ -39,7 +39,7 @@ auto PSG::main() -> void {
 
 auto PSG::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto PSG::balance(uint8 data) -> void {

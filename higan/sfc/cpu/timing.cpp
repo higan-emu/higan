@@ -27,9 +27,6 @@ auto CPU::step(uint clocks) -> void {
     if(joypadCounter() == 0) joypadEdge();
   }
 
-  Thread::step(clocks);
-  for(auto peripheral : peripherals) synchronize(*peripheral);
-
   if(!status.dramRefresh && hcounter() >= status.dramRefreshPosition) {
     //note: pattern should technically be 5-3, 5-3, 5-3, 5-3, 5-3 per logic analyzer
     //result averages out the same as no coprocessor polls refresh() at > frequency()/2
@@ -40,7 +37,9 @@ auto CPU::step(uint clocks) -> void {
     status.dramRefresh = 1; step(6); status.dramRefresh = 2; step(2); aluEdge();
   }
 
-  for(auto coprocessor : coprocessors) synchronize(*coprocessor);
+  Thread::step(clocks);
+  for(auto peripheral : peripherals) Thread::synchronize(*peripheral);
+  for(auto coprocessor : coprocessors) Thread::synchronize(*coprocessor);
 }
 
 //called by ppu.tick() when Hcounter=0
@@ -48,9 +47,8 @@ auto CPU::scanline() -> void {
   status.lineClocks = lineclocks();
 
   //forcefully sync S-CPU to other processors, in case chips are not communicating
-  synchronize(smp);
-  synchronize(ppu);
-  for(auto coprocessor : coprocessors) synchronize(*coprocessor);
+  Thread::synchronize(smp, ppu);
+  for(auto coprocessor : coprocessors) Thread::synchronize(*coprocessor);
 
   if(vcounter() == 0) {
     //HDMA setup triggers once every frame

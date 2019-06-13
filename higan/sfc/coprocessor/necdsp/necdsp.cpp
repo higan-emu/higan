@@ -3,8 +3,8 @@ NECDSP necdsp;
 
 auto NECDSP::main() -> void {
   exec();
-  step(1);
-  synchronize(cpu);
+  Thread::step(1);
+  Thread::synchronize(cpu);
 }
 
 auto NECDSP::read(uint24 addr, uint8) -> uint8 {
@@ -36,6 +36,7 @@ auto NECDSP::writeRAM(uint24 addr, uint8 data) -> void {
 }
 
 auto NECDSP::unload() -> void {
+  cpu.coprocessors.removeWhere() == this;
   Thread::destroy();
 }
 

@@ -11,8 +11,12 @@ struct Thread {
   static inline auto EntryPoints() -> vector<EntryPoint>&;
   static inline auto Enter() -> void;
 
+  Thread() = default;
+  Thread(const Thread&) = delete;
+  auto operator=(const Thread&) = delete;
   inline virtual ~Thread();
 
+  inline explicit operator bool() const { return _handle; }
   inline auto active() const -> bool;
   inline auto handle() const -> cothread_t;
   inline auto frequency() const -> uintmax;
@@ -28,10 +32,8 @@ struct Thread {
   inline auto destroy() -> void;
 
   inline auto step(uint clocks) -> void;
-  inline auto synchronize() -> bool;
-  inline auto synchronize(Thread&) -> void;
-  inline auto synchronize(Thread&, Thread&) -> void;
-  inline auto synchronize(Thread&, Thread&, Thread&) -> void;
+  inline auto synchronize() -> void;
+  template<typename... P> inline auto synchronize(Thread&, P&&...) -> void;
 
   inline auto serialize(serializer& s) -> void;
 

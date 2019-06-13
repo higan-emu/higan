@@ -3,7 +3,6 @@
 namespace higan::SuperFamicom {
 
 DSP dsp;
-
 #include "memory.cpp"
 #include "gaussian.cpp"
 #include "counter.cpp"
@@ -13,10 +12,6 @@ DSP dsp;
 #include "voice.cpp"
 #include "echo.cpp"
 #include "serialization.cpp"
-
-auto DSP::step(uint clocks) -> void {
-  Thread::step(clocks);
-}
 
 auto DSP::main() -> void {
   voice5(voice[0]);
@@ -172,8 +167,8 @@ auto DSP::main() -> void {
 }
 
 auto DSP::tick() -> void {
-  step(3 * 8);
-  synchronize(smp);
+  Thread::step(3 * 8);
+  Thread::synchronize(smp);
 }
 
 auto DSP::sample(int16 left, int16 right) -> void {

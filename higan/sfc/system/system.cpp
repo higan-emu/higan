@@ -27,27 +27,24 @@ auto System::runToSave() -> void {
 auto System::load(Node::Object from) -> void {
   if(node) unload();
 
+  information = {};
+
   node = Node::System::create(interface->name());
   node->load(from);
 
-  regionNode = Node::String::create("Region", "NTSC");
-  regionNode->allowedValues = {"NTSC", "PAL"};
+  regionNode = Node::String::create("Region", "NTSC → PAL");
+  regionNode->allowedValues = {
+    "NTSC → PAL",
+    "PAL → NTSC",
+    "NTSC",
+    "PAL"
+  };
   Node::load(regionNode, from);
   node->append(regionNode);
 
   resetButton = Node::Button::create("Reset");
   Node::load(resetButton, from);
   node->append(resetButton);
-
-  information = {};
-  if(regionNode->latch() == "NTSC") {
-    information.region = Region::NTSC;
-    information.cpuFrequency = Constants::Colorburst::NTSC * 6.0;
-  }
-  if(regionNode->latch() == "PAL") {
-    information.region = Region::PAL;
-    information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
-  }
 
   scheduler.reset();
   bus.reset();
@@ -79,6 +76,22 @@ auto System::save() -> void {
 
 auto System::power(bool reset) -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
+
+  auto setRegion = [&](string region) {
+    if(region == "NTSC") {
+      information.region = Region::NTSC;
+      information.cpuFrequency = Constants::Colorburst::NTSC * 6.0;
+    }
+    if(region == "PAL") {
+      information.region = Region::PAL;
+      information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
+    }
+  };
+  auto regions = regionNode->latch().split("→").strip();
+  setRegion(regions.first());
+  for(auto& requested : reverse(regions)) {
+    if(requested == cartridge.region()) setRegion(requested);
+  }
 
   video.reset(interface);
   display.screen = video.createScreen(display.node, 512, 480);

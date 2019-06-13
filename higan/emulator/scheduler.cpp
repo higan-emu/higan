@@ -44,25 +44,20 @@ auto Scheduler::enter(Mode mode) -> Event {
 }
 
 auto Scheduler::exit(Event event) -> void {
-  auto clocks = oldest().clock();
-  for(auto thread : _threads) {
-    thread->setClock(thread->clock() - clocks);
-  }
-  _event = event;
-  _resume = co_active();
-  co_switch(_host);
-}
-
-auto Scheduler::oldest() const -> Thread& {
+  //find the thread that is the furthest behind in time.
   Thread* oldest = _threads[0];
   for(auto thread : _threads) {
     if(thread->clock() < oldest->clock()) oldest = thread;
   }
-  return *oldest;
-}
-
-auto Scheduler::resume(Thread& thread) -> void {
-  if(_mode != Mode::SerializeAuxiliary) co_switch(thread.handle());
+  //subtract its timestamp from all threads to prevent the clock counters from overflowing.
+  auto clocks = oldest->clock();
+  for(auto thread : _threads) {
+    thread->setClock(thread->clock() - clocks);
+  }
+  //return to the thread that entered the scheduler originally.
+  _event = event;
+  _resume = co_active();
+  co_switch(_host);
 }
 
 //marks a safe point (typically the beginning of the entry point) of a thread.

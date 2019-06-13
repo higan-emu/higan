@@ -35,7 +35,7 @@ PPU::~PPU() {
 
 auto PPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(cpu);
+  Thread::synchronize(cpu);
 }
 
 auto PPU::main() -> void {

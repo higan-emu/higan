@@ -16,9 +16,7 @@ auto CPU::main() -> void {
 
 auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
-  synchronize(ppu);
-  synchronize(apu);
-  synchronize(cartridge);
+  Thread::synchronize();
 }
 
 auto CPU::wait(uint clocks) -> void {

@@ -21,14 +21,21 @@ SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
   pause   = Node::append<Node::Button>(node, with, "Pause");
   parent->prepend(node);
 
-  sprite = display.screen->createSprite(32, 32);
-  sprite->setPixels(Resource::Sprite::CrosshairGreen);
+  if(display.screen) {
+    sprite = display.screen->createSprite(32, 32);
+    sprite->setPixels(Resource::Sprite::CrosshairGreen);
+  }
 
   Thread::create(system.cpuFrequency(), {&SuperScope::main, this});
+  cpu.peripherals.append(this);
 }
 
 SuperScope::~SuperScope() {
-  display.screen->removeSprite(sprite);
+  cpu.peripherals.removeWhere() == this;
+
+  if(display.screen) {
+    display.screen->removeSprite(sprite);
+  }
 }
 
 auto SuperScope::main() -> void {
