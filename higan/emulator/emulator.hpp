@@ -37,7 +37,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.161";
+  static const string Version = "106.162";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org/";
@@ -58,5 +58,5 @@ namespace higan {
     static const auto Write = vfs::file::mode::write;
     static const auto Optional = false;
     static const auto Required = true;
-  };
+  }
 }

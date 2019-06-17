@@ -13,10 +13,11 @@ auto VPU::main() -> void {
   if(io.vcounter < 152) {
     uint8 y = io.vcounter;
     auto output = buffer + y * 160;
+    cacheSprites(y);
     for(uint8 x : range(160)) {
       bool validPlane1 = renderPlane(x, y, plane1);
       bool validPlane2 = renderPlane(x, y, plane2);
-      bool validSprite = renderSprite(x, y);
+      bool validSprite = renderSprite(x);
       bool validWindow = renderWindow(x, y);
 
       uint12 color;

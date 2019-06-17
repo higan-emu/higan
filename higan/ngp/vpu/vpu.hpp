@@ -30,7 +30,8 @@ struct VPU : Thread {
   auto renderPlane(uint8 x, uint8 y, Plane&) -> bool;
 
   //sprite.cpp
-  auto renderSprite(uint8 x, uint8 y) -> bool;
+  auto cacheSprites(uint8 y) -> void;
+  auto renderSprite(uint8 x) -> bool;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -103,6 +104,19 @@ struct VPU : Thread {
     uint8 x;
     uint8 y;
   } sprites[64];
+
+  struct Tile {
+    uint9 character;
+    uint2 priority;
+    uint1 palette;
+    uint1 hflip;
+    uint4 code;  //K2GE
+
+    uint8 x;
+    uint8 y;
+  } tiles[64];
+
+  uint8 tileCount;
 
   struct LED {
     uint8 control = 0x07;
