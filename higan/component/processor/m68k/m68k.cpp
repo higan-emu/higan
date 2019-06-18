@@ -32,9 +32,9 @@ auto M68K::power() -> void {
   r.s = 1;
   r.t = 0;
 
-  r.irc = 0;
-  r.ir  = 0;
-//r.ird = 0;
+  r.irc = 0x4e71;  //nop
+  r.ir  = 0x4e71;  //nop
+  r.ird = 0x4e71;  //nop
 
   r.stop  = false;
   r.reset = false;
@@ -61,11 +61,12 @@ auto M68K::exception(uint exception, uint vector, uint priority) -> void {
     r.t = 0;
   }
 
-  push<Long>(pc - 2);
+  push<Long>(pc - 4);
   push<Word>(sr);
 
   r.pc = read<Long>(vector << 2);
-  prefetch<Word>();
+  prefetch();
+  prefetch();
 }
 
 auto M68K::interrupt(uint vector, uint priority) -> void {

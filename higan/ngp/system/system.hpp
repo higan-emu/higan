@@ -3,6 +3,7 @@
 
 struct System {
   Node::Object node;
+  Node::Boolean fastBoot;
 
   enum class Model : uint { NeoGeoPocket, NeoGeoPocketColor };
   Memory::Readable<uint8> bios;

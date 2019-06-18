@@ -23,6 +23,7 @@ struct CPU : TLCS900H, Thread {
   auto idle(uint clocks) -> void override;
   auto pollPowerButton() -> void;
   auto power() -> void;
+  auto fastBoot() -> void;
 
   auto load() -> void;
   auto save() -> void;

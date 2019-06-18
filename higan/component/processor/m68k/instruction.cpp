@@ -1,6 +1,6 @@
 auto M68K::instruction() -> void {
-  prefetch<Word>();
-  return instructionTable[r.ir]();
+  r.ird = r.ir;
+  return instructionTable[r.ird]();
 }
 
 M68K::M68K() {

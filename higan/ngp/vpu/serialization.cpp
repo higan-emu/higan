@@ -70,18 +70,16 @@ auto VPU::serialize(serializer& s) -> void {
     s.integer(o.hoffset);
     s.integer(o.voffset);
     s.integer(o.code);
-    s.integer(o.x);
-    s.integer(o.y);
   }
 
   for(auto& o : tiles) {
+    s.integer(o.x);
+    s.integer(o.y);
     s.integer(o.character);
     s.integer(o.priority);
     s.integer(o.palette);
     s.integer(o.hflip);
     s.integer(o.code);
-    s.integer(o.x);
-    s.integer(o.y);
   }
 
   s.integer(tileCount);

@@ -27,6 +27,8 @@ auto System::load(Node::Object from) -> void {
   node = Node::System::create(interface->name());
   node->load(from);
 
+  fastBoot = Node::append<Node::Boolean>(node, from, "Fast Boot", false);
+
   scheduler.reset();
   controls.load(node, from);
   display.load(node, from);
@@ -69,6 +71,8 @@ auto System::power() -> void {
   vpu.power();
   psg.power();
   scheduler.setPrimary(cpu);
+
+  if(fastBoot->latch() && cartridge.flash[0]) cpu.fastBoot();
 
   serializeInit();
 }

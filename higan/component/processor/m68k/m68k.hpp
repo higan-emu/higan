@@ -10,6 +10,8 @@ struct M68K {
   virtual auto read(uint1 upper, uint1 lower, uint24 address, uint16 data = 0) -> uint16 = 0;
   virtual auto write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void = 0;
 
+  inline auto ird() const -> uint16 { return r.ird; }
+
   enum : bool { User, Supervisor };
   enum : uint { Byte, Word, Long };
   enum : bool { Reverse = 1, Extend = 1, Hold = 1, Fast = 1 };
@@ -90,8 +92,9 @@ struct M68K {
   //memory.cpp
   template<uint Size> auto read(uint32 addr) -> uint32;
   template<uint Size, bool Order = 0> auto write(uint32 addr, uint32 data) -> void;
-  template<uint Size> auto prefetch() -> uint32;
-  template<uint Size> auto predrain() -> uint32;
+  template<uint Size> auto extension() -> uint32;
+  auto prefetch() -> uint16;
+  auto prefetched() -> uint16;
   template<uint Size> auto pop() -> uint32;
   template<uint Size> auto push(uint32 data) -> void;
 
@@ -108,7 +111,7 @@ struct M68K {
     uint32 address;
   };
 
-  auto drain(EffectiveAddress& ea) -> uint32;
+  auto prefetched(EffectiveAddress& ea) -> uint32;
   template<uint Size> auto fetch(EffectiveAddress& ea) -> uint32;
   template<uint Size, bool Hold = 0, bool Fast = 0> auto read(EffectiveAddress& ea) -> uint32;
   template<uint Size, bool Hold = 0> auto write(EffectiveAddress& ea, uint32 data) -> void;
@@ -285,7 +288,7 @@ struct M68K {
 
     uint16 irc;  //instruction prefetched from external memory
     uint16 ir;   //instruction currently being decoded
-  //uint16 ird;  //instruction currently being executed
+    uint16 ird;  //instruction currently being executed
 
     bool stop;
     bool reset;

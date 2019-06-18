@@ -87,8 +87,8 @@ namespace higan::Node {
     return {};
   }
 
-  template<typename T> static inline auto append(Object parent, Object from, string name) -> T {
-    auto node = T::create(name);
+  template<typename T, typename... P> static inline auto append(Object parent, Object from, string name, P&&... p) -> T {
+    auto node = T::create(name, forward<P>(p)...);
     if(from) {
       if(auto object = from->find<T>(name)) node->load(object);
     }

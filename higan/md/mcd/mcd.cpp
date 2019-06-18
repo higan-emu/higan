@@ -90,13 +90,21 @@ auto MCD::main() -> void {
     if(irq.reset.lower()) {
       r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
-      r.irc  = read(1, 1, r.pc & ~1);
-      r.pc  += 2;
+      prefetch();
+      prefetch();
       return;
     }
   }
 
-//static uint ctr=0;if(++ctr>2000000)print(disassembleRegisters(), "\n", disassemble(r.pc), "\n\n");
+#if 0
+static uint ctr=0;
+static vector<bool> mask;
+if(!mask) mask.resize(1<<24);
+if(!mask[(uint24)r.pc]) {
+  mask[(uint24)r.pc]=1;
+  print("MCD ", pad(ctr++, 8), "  ", disassemble(r.pc - 4), "\n");
+}
+#endif
 
   instruction();
 }

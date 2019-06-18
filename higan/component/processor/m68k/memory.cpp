@@ -76,7 +76,7 @@ template<> auto M68K::write<Long, Reverse>(uint32 address, uint32 data) -> void 
 
 //
 
-template<> auto M68K::prefetch<Byte>() -> uint32 {
+template<> auto M68K::extension<Byte>() -> uint32 {
   wait(4);
   r.ir  = r.irc;
   r.irc = read(1, 1, r.pc & ~1);
@@ -84,7 +84,7 @@ template<> auto M68K::prefetch<Byte>() -> uint32 {
   return (uint8)r.ir;
 }
 
-template<> auto M68K::prefetch<Word>() -> uint32 {
+template<> auto M68K::extension<Word>() -> uint32 {
   wait(4);
   r.ir  = r.irc;
   r.irc = read(1, 1, r.pc & ~1);
@@ -92,23 +92,26 @@ template<> auto M68K::prefetch<Word>() -> uint32 {
   return r.ir;
 }
 
-template<> auto M68K::prefetch<Long>() -> uint32 {
-  auto hi = prefetch<Word>();
-  auto lo = prefetch<Word>();
+template<> auto M68K::extension<Long>() -> uint32 {
+  auto hi = extension<Word>();
+  auto lo = extension<Word>();
   return hi << 16 | lo << 0;
+}
+
+//
+
+auto M68K::prefetch() -> uint16 {
+  wait(4);
+  r.ir  = r.irc;
+  r.irc = read(1, 1, r.pc & ~1);
+  r.pc += 2;
+  return r.ir;
 }
 
 //take the prefetched value without reloading the prefetch.
 //this is used by instructions such as JMP and JSR.
 
-template<> auto M68K::predrain<Byte>() -> uint32 {
-  r.ir  = r.irc;
-  r.irc = 0x0000;
-  r.pc += 2;
-  return (uint8)r.ir;
-}
-
-template<> auto M68K::predrain<Word>() -> uint32 {
+auto M68K::prefetched() -> uint16 {
   r.ir  = r.irc;
   r.irc = 0x0000;
   r.pc += 2;

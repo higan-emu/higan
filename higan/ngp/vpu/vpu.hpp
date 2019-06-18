@@ -100,20 +100,16 @@ struct VPU : Thread {
     uint8 hoffset;
     uint8 voffset;
     uint4 code;  //K2GE
-
-    uint8 x;
-    uint8 y;
   } sprites[64];
 
   struct Tile {
+    uint8 x;
+    uint8 y;
     uint9 character;
     uint2 priority;
     uint1 palette;
     uint1 hflip;
     uint4 code;  //K2GE
-
-    uint8 x;
-    uint8 y;
   } tiles[64];
 
   uint8 tileCount;

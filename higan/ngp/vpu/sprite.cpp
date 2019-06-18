@@ -6,22 +6,24 @@
 
 auto VPU::cacheSprites(uint8 ly) -> void {
   tileCount = 0;
-  maybe<Sprite&> p;
+
+  uint8 px = 0;
+  uint8 py = 0;
   for(auto& s : sprites) {
+    uint8 sx = s.hoffset;
+    uint8 sy = s.voffset;
+    if(s.hchain) sx += px;
+    if(s.vchain) sy += py;
+    px = sx;
+    py = sy;
     if(s.priority == 0) continue;
 
-    s.x = s.hoffset;
-    s.y = s.voffset;
-    if(s.hchain && p) s.x += p->x;
-    if(s.vchain && p) s.y += p->y;
-    p = s;
-
-    uint8 x = s.x + sprite.hscroll + 7;
-    uint8 y = s.y + sprite.vscroll + 7 - ly;
+    uint8 x = sx + sprite.hscroll + 7;
+    uint8 y = sy + sprite.vscroll + 7 - ly;
     if(y >= 8) continue;  //out of range?
     if(s.vflip == 0) y ^= 7;
 
-    tiles[tileCount++] = {s.character, s.priority, s.palette, s.hflip, s.code, x, y};
+    tiles[tileCount++] = {x, y, s.character, s.priority, s.palette, s.hflip, s.code};
   }
 }
 

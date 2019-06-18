@@ -286,6 +286,93 @@ auto CPU::power() -> void {
   misc = {};
 }
 
+//code to skip the BIOS boot sequence and load the game immediately.
+//note that this will not configure the language, color mode, or real-time clock.
+auto CPU::fastBoot() -> void {
+  uint32 address;
+  address.byte(0) = cartridge.read(0, 0x1c);
+  address.byte(1) = cartridge.read(0, 0x1d);
+  address.byte(2) = cartridge.read(0, 0x1e);
+  store(PC, address);
+  store(XSP, 0x6c00);
+
+  //configure initial system I/O state to values after the BIOS set has completed.
+  writeIO(0x20, 0x80);
+  writeIO(0x22, 0x01);
+  writeIO(0x23, 0x90);
+  writeIO(0x24, 0x03);
+  writeIO(0x25, 0xfc);
+  writeIO(0x26, 0x90);
+  writeIO(0x27, 0x62);
+  writeIO(0x28, 0x05);
+  writeIO(0x38, 0x30);
+  writeIO(0x3c, 0x20);
+  writeIO(0x3d, 0xff);
+  writeIO(0x3e, 0x80);
+  writeIO(0x3f, 0x7f);
+  writeIO(0x48, 0x30);
+  writeIO(0x51, 0x20);
+  writeIO(0x52, 0x20);
+  writeIO(0x53, 0x15);
+  writeIO(0x5c, 0xff);
+  writeIO(0x5d, 0xff);
+  writeIO(0x5e, 0xff);
+  writeIO(0x5f, 0xff);
+  writeIO(0x68, 0x17);
+  writeIO(0x69, 0x17);
+  writeIO(0x6a, 0x03);
+  writeIO(0x6b, 0x03);
+  writeIO(0x6c, 0x02);
+  writeIO(0x6d, 0x04);
+  writeIO(0x6e, 0xf0);
+  writeIO(0x6f, 0x4e);
+  writeIO(0x70, 0x0a);
+  writeIO(0x71, 0xdc);
+  writeIO(0x72, 0x00);
+  writeIO(0x73, 0x00);
+  writeIO(0x74, 0x00);
+  writeIO(0x77, 0x00);
+  writeIO(0x79, 0x00);
+  writeIO(0x7a, 0x00);
+  writeIO(0x7b, 0x04);
+  writeIO(0x80, 0x00);
+  writeIO(0xb2, 0x01);
+  writeIO(0xb3, 0x04);
+  writeIO(0xb4, 0x0a);
+  writeIO(0xb5, 0x00);
+  writeIO(0xb6, 0x05);
+  writeIO(0xb7, 0x00);
+  writeIO(0xb8, 0xaa);
+  writeIO(0xb9, 0xaa);
+  writeIO(0xba, 0xfc);
+  writeIO(0xbc, 0x03);
+
+  vpu.write(0x8000, 0xc0);  //enable Vblank and Hblank interrupts
+
+  //default color palette: Magical Drop relies on the BIOS to initialize this.
+  for(uint address = 0x8380; address < 0x8400; address++) {
+    static uint8 data[16] = {
+      0xff, 0x0f, 0xdd, 0x0d, 0xbb, 0x0b, 0x99, 0x09,
+      0x77, 0x07, 0x44, 0x04, 0x33, 0x03, 0x00, 0x00,
+    };
+    vpu.write(address, data[address & 15]);
+  }
+
+  ram[0x2c55] = 0x01;  //game type (0x01 = game)
+  ram[0x2c58] = cartridge.flash[0] ? 0x03 : 0x00;  //flash type
+  ram[0x2c59] = cartridge.flash[1] ? 0x03 : 0x00;  //flash type
+
+  ram[0x2f80] = 0xff;  //battery level (lo)
+  ram[0x2f81] = 0x03;  //battery level (hi)
+  ram[0x2f84] = 0x40;  //user boot: power on
+  ram[0x2f85] = 0x00;  //user shutdown: no
+  ram[0x2f86] = 0x00;  //user response: none
+  ram[0x2f91] = Model::NeoGeoPocketColor() ? 0x10 : 0x00;  //hardware model
+  ram[0x2f92] = ram[0x2c58];
+  ram[0x2f93] = ram[0x2c59];
+  ram[0x2f95] = ram[0x2f91];
+}
+
 auto CPU::load() -> void {
   ram.allocate(12_KiB, 0x00);
   if(auto fp = platform->open(system.node, "cpu.ram", File::Read)) {
@@ -311,6 +398,10 @@ auto CPU::load() -> void {
     //this byte seems to indicate system state (0x00 = BIOS UI, 0x10 = setup, 0x40 = game playing)
     //for unknown reasons, sometimes d4 gets set, which re-enters the BIOS setup again.
     ram[0x2f83].bit(4) = 0;
+
+    //this setting gets erased sometimes for unknown reasons, preventing games from booting.
+    ram[0x2f91] = Model::NeoGeoPocketColor() ? 0x10 : 0x00;
+    ram[0x2f95] = ram[0x2f91];
   }
 }
 

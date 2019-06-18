@@ -13,8 +13,8 @@ auto CPU::main() -> void {
       state.interruptPending.bit((uint)Interrupt::Reset) = 0;
       r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
-      r.irc  = read(1, 1, r.pc & ~1);
-      r.pc  += 2;
+      prefetch();
+      prefetch();
     }
 
     if(state.interruptPending.bit((uint)Interrupt::HorizontalBlank)) {
@@ -31,6 +31,16 @@ auto CPU::main() -> void {
       }
     }
   }
+
+#if 0
+static uint ctr=0;
+static vector<bool> mask;
+if(!mask) mask.resize(1<<24);
+if(!mask[(uint24)r.pc]) {
+  mask[(uint24)r.pc]=1;
+  print("CPU ", pad(ctr++, 8), "  ", disassemble(r.pc - 4), "\n");
+}
+#endif
 
   instruction();
 }
