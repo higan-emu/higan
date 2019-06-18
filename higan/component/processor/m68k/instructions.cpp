@@ -796,11 +796,12 @@ auto M68K::instructionMOVEQ(uint8 immediate, DataRegister to) -> void {
 
 auto M68K::instructionMOVE_FROM_SR(EffectiveAddress to) -> void {
   if(to.mode == DataRegisterDirect) idle(2);
-  auto data = readSR();
-  prefetch();
-  write<Word>(to, data);
   if(to.mode == AddressRegisterIndirectWithPreDecrement) idle(2);
   if(to.mode != DataRegisterDirect) read<Word>(r.pc);
+  auto data = readSR();
+  fetch<Word>(to);
+  prefetch();
+  write<Word>(to, data);
 }
 
 auto M68K::instructionMOVE_TO_CCR(EffectiveAddress from) -> void {
