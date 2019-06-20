@@ -2,21 +2,21 @@
 
 namespace higan::SuperFamicom {
 
-System system;
-Scheduler scheduler;
 Random random;
 Cheat cheat;
-#include "display.cpp"
-#include "speakers.cpp"
+Scheduler scheduler;
+System system;
+#include "controls.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) {
     ppu.refresh();
 
-    auto reset = resetButton->value;
-    platform->input(resetButton);
-    if(!reset && resetButton->value) power(true);
+    auto reset = controls.reset->value;
+    controls.poll();
+    if(!reset && controls.reset->value) power(true);
   }
 }
 
@@ -29,33 +29,29 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
 
-  regionNode = Node::String::create("Region", "NTSC → PAL");
-  regionNode->allowedValues = {
+  node = Node::append<Node::System>(nullptr, from, interface->name());
+
+  regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
+  regionNode->setAllowedValues({
     "NTSC → PAL",
     "PAL → NTSC",
     "NTSC",
     "PAL"
-  };
-  Node::load(regionNode, from);
-  node->append(regionNode);
-
-  resetButton = Node::Button::create("Reset");
-  Node::load(resetButton, from);
-  node->append(resetButton);
+  });
 
   scheduler.reset();
   bus.reset();
+  controls.load(node, from);
+  video.load(node, from);
+  cpu.load(node, from);
+  ppu.load(node, from);
   cartridgePort.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   expansionPort.load(node, from);
-  display.load(node, from);
-  speakers.load(node, from);
-  cpu.load(node, from);
-  ppu.load(node, from);
 }
 
 auto System::unload() -> void {
@@ -87,15 +83,12 @@ auto System::power(bool reset) -> void {
       information.cpuFrequency = Constants::Colorburst::PAL * 4.8;
     }
   };
-  auto regions = regionNode->latch().split("→").strip();
-  setRegion(regions.first());
-  for(auto& requested : reverse(regions)) {
-    if(requested == cartridge.region()) setRegion(requested);
+  auto regionsHave = regionNode->latch().split("→").strip();
+  setRegion(regionsHave.first());
+  for(auto& have : reverse(regionsHave)) {
+    if(have == cartridge.region()) setRegion(have);
   }
 
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, 512, 480);
-  audio.reset(interface);
   random.entropy(Random::Entropy::Low);
 
   cpu.power(reset);

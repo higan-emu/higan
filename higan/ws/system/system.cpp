@@ -2,11 +2,11 @@
 
 namespace higan::WonderSwan {
 
-System system;
-Scheduler scheduler;
 Cheat cheat;
+Scheduler scheduler;
+System system;
 #include "controls.cpp"
-#include "display.cpp"
+#include "video.cpp"
 #include "io.cpp"
 #include "serialization.cpp"
 
@@ -28,12 +28,15 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "SwanCrystal"        ) information.model = Model::SwanCrystal;
   if(interface->name() == "Pocket Challenge V2") information.model = Model::PocketChallengeV2;
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
+
+  node = Node::append<Node::System>(nullptr, from, interface->name());
 
   scheduler.reset();
   controls.load(node, from);
-  display.load(node, from);
+  video.load(node, from);
+  ppu.load(node, from);
   cartridge.load(node, from);
 }
 
@@ -47,6 +50,7 @@ auto System::unload() -> void {
   save();
   eeprom.setSize(0);
   cartridge.port = {};
+  ppu.unload();
   node = {};
 }
 
@@ -65,10 +69,6 @@ auto System::power() -> void {
   if(auto fp = platform->open(node, "save.eeprom", File::Read)) {
     fp->read(eeprom.data(), eeprom.size());
   }
-
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, 224, 144);
-  audio.reset(interface);
 
   bus.power();
   iram.power();

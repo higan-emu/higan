@@ -1,6 +1,7 @@
-Controls controls;
+auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Object>(parent, from, "Controls");
+  from = Node::scan(parent = node, from);
 
-auto Controls::load(Node::Object parent, Node::Object from) -> void {
   up     = Node::append<Node::Button>(parent, from, "Up");
   down   = Node::append<Node::Button>(parent, from, "Down");
   left   = Node::append<Node::Button>(parent, from, "Left");
@@ -12,12 +13,12 @@ auto Controls::load(Node::Object parent, Node::Object from) -> void {
   select = Node::append<Node::Button>(parent, from, "Select");
   start  = Node::append<Node::Button>(parent, from, "Start");
 
-  if(Model::GameBoyPlayer()) {
-    rumbleNode = Node::append<Node::Rumble>(parent, from, "Rumble");
+  if(GameBoyAdvance::Model::GameBoyPlayer()) {
+    rumbler = Node::append<Node::Rumble>(parent, from, "Rumble");
   }
 }
 
-auto Controls::poll() -> void {
+auto System::Controls::poll() -> void {
   platform->input(up);
   platform->input(down);
   platform->input(left);
@@ -42,9 +43,9 @@ auto Controls::poll() -> void {
   }
 }
 
-auto Controls::rumble(bool enable) -> void {
-  if(Model::GameBoyPlayer()) {
-    rumbleNode->enable = enable;
-    platform->input(rumbleNode);
+auto System::Controls::rumble(bool enable) -> void {
+  if(GameBoyAdvance::Model::GameBoyPlayer()) {
+    rumbler->enable = enable;
+    platform->input(rumbler);
   }
 }

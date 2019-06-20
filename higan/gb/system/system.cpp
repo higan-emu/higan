@@ -2,11 +2,11 @@
 
 namespace higan::GameBoy {
 
-System system;
-Scheduler scheduler;
 Cheat cheat;
+Scheduler scheduler;
+System system;
 #include "controls.cpp"
-#include "display.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -24,12 +24,17 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Game Boy"      ) information.model = Model::GameBoy;
   if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  if(!GameBoy::Model::SuperGameBoy()) {
+    ::higan::video.reset(interface);  //todo: no :: prefix
+    ::higan::audio.reset(interface);  //todo: no :: prefix
+  }
+
+  node = Node::append<Node::System>(nullptr, from, interface->name());
 
   scheduler.reset();
   controls.load(node, from);
-  display.load(node, from);
+  video.load(node, from);
+  ppu.load(node, from);
   cartridge.load(node, from);
 }
 
@@ -42,6 +47,7 @@ auto System::unload() -> void {
   if(!node) return;
   save();
   cartridge.port = {};
+  ppu.unload();
   bootROM.reset();
   node = {};
 }
@@ -54,12 +60,6 @@ auto System::power() -> void {
   if(auto fp = platform->open(node, name, File::Read, File::Required)) {
     bootROM.load(fp);
   } else return;
-
-  if(!GameBoy::Model::SuperGameBoy()) {
-    video.reset(interface);
-    display.screen = video.createScreen(display.node, 160, 144);
-    audio.reset(interface);
-  }
 
   bus.power();
   cartridge.power();

@@ -1,6 +1,11 @@
 //Yamaha YM7101
 
 struct VDP : Thread {
+  shared_pointer<Screen> screen;
+
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto refresh() -> void;

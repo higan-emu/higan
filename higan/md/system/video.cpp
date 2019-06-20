@@ -1,7 +1,6 @@
-Display display;
-
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Video");
+  from = Node::scan(parent = node, from);
   node->type   = "CRT";
   node->width  = 1280;
   node->height =  480;
@@ -9,10 +8,9 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
   node->scaleY = 1.0;
   node->colors = 3 * (1 << 9);
   node->color  = [&](auto index) { return color(index); };
-  parent->append(node);
 }
 
-auto Display::color(uint32 color) -> uint64 {
+auto System::Video::color(uint32 color) -> uint64 {
   uint R = color.bits(0, 2);
   uint G = color.bits(3, 5);
   uint B = color.bits(6, 8);

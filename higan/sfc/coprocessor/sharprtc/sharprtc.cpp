@@ -4,9 +4,7 @@ SharpRTC sharprtc;
 #include "serialization.cpp"
 
 auto SharpRTC::load(Node::Object parent, Node::Object from) -> void {
-  rtc = Node::RealTimeClock::create("RTC");
-  Node::load(rtc, from);
-  parent->append(rtc);
+  rtc = Node::append<Node::RealTimeClock>(parent, from, "RTC");
 }
 
 auto SharpRTC::main() -> void {

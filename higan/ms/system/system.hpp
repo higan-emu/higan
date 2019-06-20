@@ -1,16 +1,52 @@
-#include "controls.hpp"
-#include "display.hpp"
+extern Cheat cheat;
 
 struct System {
   Node::Object node;
   Node::String regionNode;
 
+  struct Controls {
+    Node::Object node;
+
+    //Master System
+    Node::Button pause;
+    Node::Button reset;
+
+    //Game Gear
+    Node::Button up;
+    Node::Button down;
+    Node::Button left;
+    Node::Button right;
+    Node::Button one;
+    Node::Button two;
+    Node::Button start;
+
+    auto load(Node::Object, Node::Object) -> void;
+    auto poll() -> void;
+
+    bool yHold = 0;
+    bool upLatch = 0;
+    bool downLatch = 0;
+    bool xHold = 0;
+    bool leftLatch = 0;
+    bool rightLatch = 0;
+  } controls;
+
+  struct Video {
+    Node::Video node;
+    Node::Boolean interframeBlending;  //Game Gear only
+
+    //video.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto colorMasterSystem(uint32) -> uint64;
+    auto colorGameGear(uint32) -> uint64;
+  } video;
+
   enum class Model : uint { MasterSystem, GameGear };
   enum class Region : uint { NTSC, PAL };
 
-  auto model() const -> Model { return information.model; }
-  auto region() const -> Region { return information.region; }
-  auto colorburst() const -> double { return information.colorburst; }
+  inline auto model() const -> Model { return information.model; }
+  inline auto region() const -> Region { return information.region; }
+  inline auto colorburst() const -> double { return information.colorburst; }
 
   //system.cpp
   auto run() -> void;

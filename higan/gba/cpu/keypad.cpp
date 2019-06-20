@@ -1,18 +1,18 @@
 auto CPU::Keypad::run() -> void {
   if(!enable) return;
-  controls.poll();
+  system.controls.poll();
 
   static const bool lookup[] = {
-    controls.a->value,
-    controls.b->value,
-    controls.select->value,
-    controls.start->value,
-    controls.rightLatch,
-    controls.leftLatch,
-    controls.upLatch,
-    controls.downLatch,
-    controls.r->value,
-    controls.l->value,
+    system.controls.a->value,
+    system.controls.b->value,
+    system.controls.select->value,
+    system.controls.start->value,
+    system.controls.rightLatch,
+    system.controls.leftLatch,
+    system.controls.upLatch,
+    system.controls.downLatch,
+    system.controls.r->value,
+    system.controls.l->value,
   };
 
   bool test = condition;  //0 = OR, 1 = AND

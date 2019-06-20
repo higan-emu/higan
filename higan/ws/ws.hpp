@@ -10,7 +10,6 @@
 
 namespace higan::WonderSwan {
   #include <emulator/inline.hpp>
-  extern Cheat cheat;
 
   enum : uint { Byte = 1, Word = 2, Long = 4 };
 

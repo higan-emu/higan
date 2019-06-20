@@ -5,6 +5,14 @@ namespace higan::SG1000 {
 VDP vdp;
 #include "serialization.cpp"
 
+auto VDP::load(Node::Object parent, Node::Object from) -> void {
+  screen = video.createScreen(system.video.node);
+}
+
+auto VDP::unload() -> void {
+  screen = {};
+}
+
 auto VDP::step(uint clocks) -> void {
   Thread::step(clocks);
   Thread::synchronize(cpu);
@@ -19,7 +27,7 @@ auto VDP::frame() -> void {
 }
 
 auto VDP::refresh() -> void {
-  display.screen->refresh(buffer, 256 * sizeof(uint32), 256, 192);
+  screen->refresh(buffer, 256 * sizeof(uint32), 256, 192);
 }
 
 auto VDP::power() -> void {

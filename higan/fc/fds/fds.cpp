@@ -9,15 +9,12 @@ FDS fds;
 #include "serialization.cpp"
 
 auto FDS::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::Port::create("Disk Slot", "Disk");
+  port = Node::append<Node::Port>(parent, from, "Disk Slot", "Disk");
   port->hotSwappable = true;
   port->allocate = [&] { return Node::Peripheral::create("Famicom Disk"); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
   power();
 }
 
@@ -34,10 +31,9 @@ auto FDS::unload() -> void {
 }
 
 auto FDS::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create("Famicom Disk");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(port, with, "Famicom Disk");
 
-  state = Node::String::create("State", "Ejected");
+  state = Node::append<Node::String>(node, with, "State", "Ejected");
   state->modify = [&](auto value) { change(value); };
   vector<string> states = {"Ejected"};
 
@@ -73,11 +69,8 @@ auto FDS::connect(Node::Peripheral with) -> void {
     states.append("Disk 2: Side B");
   }
 
-  state->allowedValues = states;
-  Node::load(state, with);
+  state->setAllowedValues(states);
   change(state->value());
-  node->append(state);
-  port->prepend(node);
 }
 
 auto FDS::disconnect() -> void {

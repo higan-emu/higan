@@ -2,14 +2,6 @@
 
 namespace higan::SuperFamicom {
 
-/*auto Tree::CPU::initialize(Node::Object parent) -> void {
-  node = Node::Component::create("CPU");
-  version = Node::Natural::create("Version", 2);
-  version->allowedValues = {1, 2};
-  node->append(version);
-  parent->append(node);
-}*/
-
 CPU cpu;
 #include "dma.cpp"
 #include "memory.cpp"
@@ -19,12 +11,11 @@ CPU cpu;
 #include "serialization.cpp"
 
 auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  parent->append(node = Node::Component::create("CPU"));
-  from = Node::load(node, from);
+  node = Node::append<Node::Component>(parent, from, "CPU");
+  from = Node::scan(parent = node, from);
 
-  node->append(version = Node::Natural::create("Version", 2));
-  version->allowedValues = {1, 2};
-  Node::load(version, from);
+  version = Node::append<Node::Natural>(parent, from, "Version", 2);
+  version->setAllowedValues({1, 2});
 }
 
 auto CPU::main() -> void {

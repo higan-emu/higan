@@ -1,11 +1,10 @@
 Mouse::Mouse(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Mouse");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "Mouse");
+
   x     = Node::append<Node::Axis  >(node, with, "X");
   y     = Node::append<Node::Axis  >(node, with, "Y");
   left  = Node::append<Node::Button>(node, with, "Left");
   right = Node::append<Node::Button>(node, with, "Right");
-  parent->prepend(node);
 }
 
 auto Mouse::data() -> uint2 {

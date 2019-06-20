@@ -7,8 +7,12 @@ struct Sprite;
 struct Screen;
 
 struct Video {
+  Video() = default;
+  Video(const Video&) = delete;
+  auto operator=(const Video&) = delete;
+
   auto reset(Interface* interface) -> void;
-  auto createScreen(Node::Video, uint width, uint height) -> shared_pointer<Screen>;
+  auto createScreen(Node::Video) -> shared_pointer<Screen>;
   auto removeScreen(shared_pointer<Screen>) -> bool;
 
   vector<shared_pointer<Screen>> screens;
@@ -18,6 +22,10 @@ private:
 };
 
 struct Sprite {
+  Sprite() = default;
+  Sprite(const Sprite&) = delete;
+  auto operator=(const Sprite&) = delete;
+
   Sprite(uint width, uint height);
 
   auto setPixels(const nall::image& image) -> void;
@@ -37,7 +45,11 @@ private:
 };
 
 struct Screen {
-  Screen(Node::Video node, uint width, uint height);
+  Screen() = default;
+  Screen(const Screen&) = delete;
+  auto operator=(const Screen&) = delete;
+
+  Screen(Node::Video node);
 
   auto createSprite(uint width, uint height) -> shared_pointer<Sprite>;
   auto removeSprite(shared_pointer<Sprite>) -> bool;

@@ -1,9 +1,8 @@
-Display display;
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Display");
+  from = Node::scan(parent = node, from);
 
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
-
-  if(Model::MasterSystem()) {
+  if(MasterSystem::Model::MasterSystem()) {
     node->type    = "CRT";
     node->width   = 256;
     node->height  = 240;
@@ -15,7 +14,7 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
     node->color   = [&](auto index) { return colorMasterSystem(index); };
   }
 
-  if(Model::GameGear()) {
+  if(MasterSystem::Model::GameGear()) {
     node->type   = "LCD";
     node->width  = 160;
     node->height = 144;
@@ -23,12 +22,15 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
     node->scaleY = 3.0;
     node->colors = 1 << 12;
     node->color  = [&](auto index) { return colorGameGear(index); };
-  }
 
-  parent->append(node);
+    interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+      vdp.screen->setInterframeBlending(value);
+    });
+    interframeBlending->dynamic = true;
+  }
 }
 
-auto Display::colorMasterSystem(uint32 color) -> uint64 {
+auto System::Video::colorMasterSystem(uint32 color) -> uint64 {
   uint2 B = color >> 4;
   uint2 G = color >> 2;
   uint2 R = color >> 0;
@@ -40,7 +42,7 @@ auto Display::colorMasterSystem(uint32 color) -> uint64 {
   return r << 32 | g << 16 | b << 0;
 }
 
-auto Display::colorGameGear(uint32 color) -> uint64 {
+auto System::Video::colorGameGear(uint32 color) -> uint64 {
   uint4 B = color >> 8;
   uint4 G = color >> 4;
   uint4 R = color >> 0;

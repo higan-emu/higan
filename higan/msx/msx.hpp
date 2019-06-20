@@ -14,7 +14,6 @@
 
 namespace higan::MSX {
   #include <emulator/inline.hpp>
-  extern Cheat cheat;
 
   struct Model {
     inline static auto MSX() -> bool;

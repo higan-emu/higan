@@ -1,7 +1,5 @@
 Satellaview::Satellaview(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Satellaview");
-  node->load(with);
-  parent->append(node);
+  node = Node::append<Node::Peripheral>(parent, with, "Satellaview");
 
   bus.map({&Satellaview::read, this}, {&Satellaview::write, this}, "00-3f,80-bf:2188-219f");
   regs = {};

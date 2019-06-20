@@ -13,8 +13,6 @@
 
 namespace higan::MegaDrive {
   #include <emulator/inline.hpp>
-  extern Random random;
-  extern Cheat cheat;
 
   enum : uint {
     Byte = 0,

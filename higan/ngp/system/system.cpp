@@ -2,11 +2,11 @@
 
 namespace higan::NeoGeoPocket {
 
-System system;
-Scheduler scheduler;
 Cheat cheat;
+Scheduler scheduler;
+System system;
 #include "controls.cpp"
-#include "display.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -24,14 +24,17 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Neo Geo Pocket"      ) information.model = Model::NeoGeoPocket;
   if(interface->name() == "Neo Geo Pocket Color") information.model = Model::NeoGeoPocketColor;
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
+
+  node = Node::append<Node::System>(nullptr, from, interface->name());
 
   fastBoot = Node::append<Node::Boolean>(node, from, "Fast Boot", false);
 
   scheduler.reset();
   controls.load(node, from);
-  display.load(node, from);
+  video.load(node, from);
+  vpu.load(node, from);
   cartridge.load(node, from);
 }
 
@@ -41,6 +44,7 @@ auto System::unload() -> void {
   cartridge.port = {};
   cpu.unload();
   apu.unload();
+  vpu.unload();
   node = {};
 }
 
@@ -60,10 +64,6 @@ auto System::power() -> void {
   }
   cpu.load();
   apu.load();
-
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, 160, 152);
-  audio.reset(interface);
 
   cartridge.power();
   cpu.power();

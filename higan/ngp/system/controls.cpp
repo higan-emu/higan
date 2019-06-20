@@ -1,6 +1,7 @@
-Controls controls;
+auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Object>(parent, from, "Controls");
+  from = Node::scan(parent = node, from);
 
-auto Controls::load(Node::Object parent, Node::Object from) -> void {
   up     = Node::append<Node::Button>(parent, from, "Up");
   down   = Node::append<Node::Button>(parent, from, "Down");
   left   = Node::append<Node::Button>(parent, from, "Left");
@@ -12,7 +13,7 @@ auto Controls::load(Node::Object parent, Node::Object from) -> void {
   power  = Node::append<Node::Button>(parent, from, "Power");
 }
 
-auto Controls::poll() -> void {
+auto System::Controls::poll() -> void {
   platform->input(up);
   platform->input(down);
   platform->input(left);

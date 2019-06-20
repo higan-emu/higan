@@ -58,6 +58,15 @@ template<typename Cast, typename Type> struct Abstract : Setting {
     latchedValue = currentValue;
   }
 
+  auto setAllowedValues(vector<Type> setAllowedValues) -> void {
+    allowedValues = setAllowedValues;
+    //if the current setting isn't an allowed value, change it to the first allowed value
+    if(allowedValues && !allowedValues.find(currentValue)) {
+      currentValue = allowedValues.first();
+      latchedValue = currentValue;
+    }
+  }
+
   auto readValue() const -> string override { return value(); }
   auto readLatch() const -> string override { return latch(); }
   auto readAllowedValues() const -> vector<string> override {
@@ -80,7 +89,7 @@ template<typename Cast, typename Type> struct Abstract : Setting {
   auto load(Node::Object source) -> bool override {
     if(!Setting::load(source)) return false;
     if(auto setting = source->cast<shared_pointer<Cast>>()) {
-      if(allowedValues.find(setting->currentValue)) {
+      if(!allowedValues || allowedValues.find(setting->currentValue)) {
         currentValue = setting->currentValue;
         latchedValue = currentValue;
       }

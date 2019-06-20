@@ -1,6 +1,6 @@
 FightingPad::FightingPad(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Fighting Pad");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "Fighting Pad");
+
   up    = Node::append<Node::Button>(node, with, "Up");
   down  = Node::append<Node::Button>(node, with, "Down");
   left  = Node::append<Node::Button>(node, with, "Left");
@@ -13,7 +13,6 @@ FightingPad::FightingPad(Node::Port parent, Node::Peripheral with) {
   z     = Node::append<Node::Button>(node, with, "Z");
   mode  = Node::append<Node::Button>(node, with, "Mode");
   start = Node::append<Node::Button>(node, with, "Start");
-  parent->prepend(node);
 
   Thread::create(1'000'000, {&FightingPad::main, this});
 }

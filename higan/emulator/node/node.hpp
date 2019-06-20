@@ -81,22 +81,34 @@ namespace higan::Node {
     return node;
   }
 
-  static inline auto load(Object to, Object from) -> Object {
-    if(!to || !from) return {};
-    if(auto object = from->find(to)) return to->load(object), object;
+  static inline auto parent(Object child) -> Object {
+    if(!child || !child->parent) return {};
+    if(auto parent = child->parent.acquire()) return parent;
     return {};
   }
 
-  template<typename T, typename... P> static inline auto append(Object parent, Object from, string name, P&&... p) -> T {
+  //tries to locate a node within a source tree's parent.
+  //returns the source tree's equivalent node when found.
+  static inline auto scan(Object node, Object from) -> Object {
+    if(!node || !from) return {};
+    if(auto object = from->find(node)) return object;
+    return {};
+  }
+
+  template<typename T, typename... P>
+  static inline auto append(Object parent, Object from, string name, P&&... p) -> T {
     auto node = T::create(name, forward<P>(p)...);
     if(from) {
-      if(auto object = from->find<T>(name)) node->load(object);
+      if(!node->load(from)) {
+        if(auto object = from->find<T>(name)) node->load(object);
+      }
     }
     if(parent) parent->append(node);
     return node;
   }
 
-  template<typename T> static inline auto find(Object from, string name) -> Object {
+  template<typename T>
+  static inline auto find(Object from, string name) -> Object {
     if(!from) return {};
     if(auto object = from->find<T>(name)) return object;
     return {};

@@ -2,12 +2,12 @@
 
 namespace higan::Famicom {
 
-System system;
-Scheduler scheduler;
 Random random;
 Cheat cheat;
+Scheduler scheduler;
+System system;
 #include "controls.cpp"
-#include "display.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -27,11 +27,13 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
 
-  regionNode = Node::String::create("Region", "NTSC-J → NTSC-U → PAL");
-  regionNode->allowedValues = {
+  node = Node::append<Node::System>(nullptr, from, interface->name());
+
+  regionNode = Node::append<Node::String>(node, from, "Region", "NTSC-J → NTSC-U → PAL");
+  regionNode->setAllowedValues({
     "NTSC-J → NTSC-U → PAL",
     "NTSC-U → NTSC-J → PAL",
     "PAL → NTSC-J → NTSC-U",
@@ -39,16 +41,15 @@ auto System::load(Node::Object from) -> void {
     "NTSC-J",
     "NTSC-U",
     "PAL"
-  };
-  Node::load(regionNode, from);
-  node->append(regionNode);
+  });
 
   scheduler.reset();
+  controls.load(node, from);
+  video.load(node, from);
+  ppu.load(node, from);
   cartridge.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
-  display.load(node, from);
-  controls.load(node, from);
 }
 
 auto System::unload() -> void {
@@ -57,6 +58,7 @@ auto System::unload() -> void {
   cartridge.unload();
   controllerPort1.port = {};
   controllerPort2.port = {};
+  ppu.unload();
   node = {};
 }
 
@@ -82,15 +84,12 @@ auto System::power(bool reset) -> void {
       information.frequency = Constants::Colorburst::PAL * 6.0;
     }
   };
-  auto regions = regionNode->latch().split("→").strip();
-  setRegion(regions.first());
-  for(auto& requested : reverse(regions)) {
-    if(requested == cartridge.region()) setRegion(requested);
+  auto regionsHave = regionNode->latch().split("→").strip();
+  setRegion(regionsHave.first());
+  for(auto& have : reverse(regionsHave)) {
+    if(have == cartridge.region()) setRegion(have);
   }
 
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, 256, 240);
-  audio.reset(interface);
   random.entropy(Random::Entropy::Low);
 
   cartridge.power();

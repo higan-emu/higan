@@ -1,16 +1,32 @@
-#include "controls.hpp"
-#include "display.hpp"
+extern Cheat cheat;
 
 struct System {
   Node::Object node;
   Node::String regionNode;
 
+  struct Controls {
+    Node::Object node;
+    Node::Button pause;
+
+    //controls.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto poll() -> void;
+  } controls;
+
+  struct Video {
+    Node::Video node;
+
+    //video.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto color(uint32) -> uint64;
+  } video;
+
   enum class Model : uint { SG1000, SC3000 };
   enum class Region : uint { NTSC, PAL };
 
-  auto model() const -> Model { return information.model; }
-  auto region() const -> Region { return information.region; }
-  auto colorburst() const -> double { return information.colorburst; }
+  inline auto model() const -> Model { return information.model; }
+  inline auto region() const -> Region { return information.region; }
+  inline auto colorburst() const -> double { return information.colorburst; }
 
   //system.cpp
   auto run() -> void;

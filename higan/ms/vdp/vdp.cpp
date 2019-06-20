@@ -8,6 +8,14 @@ VDP vdp;
 #include "sprite.cpp"
 #include "serialization.cpp"
 
+auto VDP::load(Node::Object parent, Node::Object from) -> void {
+  screen = video.createScreen(system.video.node);
+}
+
+auto VDP::unload() -> void {
+  screen = {};
+}
+
 auto VDP::main() -> void {
   if(io.vcounter <= vlines()) {
     if(io.lcounter-- == 0) {
@@ -70,15 +78,15 @@ auto VDP::step(uint clocks) -> void {
 auto VDP::refresh() -> void {
   if(Model::MasterSystem()) {
     //center the video output vertically in the viewport
-    uint32* screen = buffer;
-    if(vlines() == 224) screen += 16 * 256;
-    if(vlines() == 240) screen += 24 * 256;
+    uint32* centered = buffer;
+    if(vlines() == 224) centered += 16 * 256;
+    if(vlines() == 240) centered += 24 * 256;
 
-    display.screen->refresh(screen, 256 * sizeof(uint32), 256, 240);
+    screen->refresh(centered, 256 * sizeof(uint32), 256, 240);
   }
 
   if(Model::GameGear()) {
-    display.screen->refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
+    screen->refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
   }
 }
 

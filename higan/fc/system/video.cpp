@@ -1,7 +1,7 @@
-Display display;
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Display");
+  from = Node::scan(parent = node, from);
 
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
   node->type    = "CRT";
   node->width   = 256;
   node->height  = 240;
@@ -11,18 +11,14 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
   node->aspectY = 7.0;
   node->colors  = 1 << 9;
   node->color   = [&](auto index) { return color(index); };
-  parent->append(node);
 
-  colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto value) {
-    if(screen) screen->setPalette();
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    ppu.screen->setPalette();
   });
   colorEmulation->dynamic = true;
-  node->append(colorEmulation);
-
-  Node::load(node, from);
 }
 
-auto Display::color(uint32 n) -> uint64 {
+auto System::Video::color(uint32 n) -> uint64 {
   double saturation = 2.0;
   double hue = 0.0;
   double contrast = 1.0;

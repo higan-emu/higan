@@ -1,10 +1,11 @@
-Controls controls;
+auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Object>(parent, from, "Controls");
+  from = Node::scan(parent = node, from);
 
-auto Controls::load(Node::Object parent, Node::Object from) -> void {
   pause = Node::append<Node::Button>(parent, from, "Pause");
 }
 
-auto Controls::poll() -> void {
+auto System::Controls::poll() -> void {
   auto value = pause->value;
   platform->input(pause);
   if(!value && pause->value) cpu.setNMI(1);

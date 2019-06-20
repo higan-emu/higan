@@ -1,9 +1,8 @@
-Display display;
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Video");
+  from = Node::scan(parent = node, from);
 
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
-
-  if(Model::MSX()) {
+  if(MSX::Model::MSX()) {
     node->type   = "CRT";
     node->width  = 256;
     node->height = 192;
@@ -13,7 +12,7 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
     node->color  = [&](auto index) { return colorMSX(index); };
   }
 
-  if(Model::MSX2()) {
+  if(MSX::Model::MSX2()) {
     node->type   = "CRT";
     node->width  = 512;
     node->height = 424;
@@ -22,11 +21,9 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
     node->colors = 1 << 9;
     node->color  = [&](auto index) { return colorMSX2(index); };
   }
-
-  parent->append(node);
 }
 
-auto Display::colorMSX(uint32 color) -> uint64 {
+auto System::Video::colorMSX(uint32 color) -> uint64 {
   switch(color.bits(0,3)) {
   case  0: return 0x0000'0000'0000ull;  //transparent
   case  1: return 0x0000'0000'0000ull;  //black
@@ -48,7 +45,7 @@ auto Display::colorMSX(uint32 color) -> uint64 {
   unreachable;
 }
 
-auto Display::colorMSX2(uint32 color) -> uint64 {
+auto System::Video::colorMSX2(uint32 color) -> uint64 {
   uint3 B = color.bits(0,2);
   uint3 R = color.bits(3,5);
   uint3 G = color.bits(6,8);

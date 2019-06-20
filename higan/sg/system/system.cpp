@@ -2,11 +2,11 @@
 
 namespace higan::SG1000 {
 
-System system;
-Scheduler scheduler;
 Cheat cheat;
+Scheduler scheduler;
+System system;
 #include "controls.cpp"
-#include "display.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -27,22 +27,23 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "SG-1000") information.model = Model::SG1000;
   if(interface->name() == "SC-3000") information.model = Model::SC3000;
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
 
-  regionNode = Node::String::create("Region", "NTSC → PAL");
-  regionNode->allowedValues = {
+  node = Node::append<Node::System>(nullptr, from, interface->name());
+
+  regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
+  regionNode->setAllowedValues({
     "NTSC → PAL",
     "PAL → NTSC",
     "NTSC",
     "PAL"
-  };
-  Node::load(regionNode, from);
-  node->append(regionNode);
+  });
 
   scheduler.reset();
   controls.load(node, from);
-  display.load(node, from);
+  video.load(node, from);
+  vdp.load(node, from);
   cartridge.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
@@ -59,6 +60,7 @@ auto System::unload() -> void {
   cartridge.port = {};
   controllerPort1.port = {};
   controllerPort2.port = {};
+  vdp.unload();
   node = {};
 }
 
@@ -75,15 +77,11 @@ auto System::power() -> void {
       information.colorburst = Constants::Colorburst::PAL * 4.0 / 5.0;
     }
   };
-  auto regions = regionNode->latch().split("→").strip();
-  setRegion(regions.first());
-  for(auto& requested : reverse(regions)) {
-    if(requested == cartridge.region()) setRegion(requested);
+  auto regionsHave = regionNode->latch().split("→").strip();
+  setRegion(regionsHave.first());
+  for(auto& have : reverse(regionsHave)) {
+    if(have == cartridge.region()) setRegion(have);
   }
-
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, display.node->width, display.node->height);
-  audio.reset(interface);
 
   cartridge.power();
   cpu.power();

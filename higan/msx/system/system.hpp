@@ -1,4 +1,4 @@
-#include "display.hpp"
+extern Cheat cheat;
 
 struct ROM {
   Memory::Readable<uint8> bios;
@@ -8,12 +8,23 @@ struct ROM {
 struct System {
   Node::Object node;
   Node::String regionNode;
+
+  struct Video {
+    Node::Video node;
+
+    //video.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto unload() -> void;
+    auto colorMSX(uint32) -> uint64;
+    auto colorMSX2(uint32) -> uint64;
+  } video;
+
   enum class Model : uint { MSX, MSX2 };
   enum class Region : uint { NTSC, PAL };
 
-  auto model() const -> Model { return information.model; }
-  auto region() const -> Region { return information.region; }
-  auto colorburst() const -> double { return information.colorburst; }
+  inline auto model() const -> Model { return information.model; }
+  inline auto region() const -> Region { return information.region; }
+  inline auto colorburst() const -> double { return information.colorburst; }
 
   //system.cpp
   auto run() -> void;

@@ -9,8 +9,7 @@ namespace higan::SuperFamicom {
 Cartridge cartridge;
 
 auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
-  node = Node::Peripheral::create(interface->name());
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, interface->name());
 
   information = {};
   has = {};
@@ -32,7 +31,6 @@ auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
   if(has.SharpRTC) sharprtc.load(node, with);
 
   power(false);
-  parent->prepend(node);
 }
 
 auto Cartridge::disconnect() -> void {

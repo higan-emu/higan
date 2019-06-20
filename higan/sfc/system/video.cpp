@@ -1,7 +1,7 @@
-Display display;
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Video");
+  from = Node::scan(parent = node, from);
 
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
   node->type    = "CRT";
   node->width   = 512;
   node->height  = 480;
@@ -9,24 +9,19 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
   node->aspectY = 7.0;
   node->colors  = 1 << 19;
   node->color   = [&](auto index) { return color(index); };
-  parent->append(node);
 
-  colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto value) {
-    if(screen) screen->setPalette();
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    ppu.display->setPalette();
   });
   colorEmulation->dynamic = true;
-  node->append(colorEmulation);
 
-  colorBleed = Node::Boolean::create("Color Bleed", true, [&](auto value) {
-    if(screen) screen->setColorBleed(value);
+  colorBleed = Node::append<Node::Boolean>(parent, from, "Color Bleed", true, [&](auto value) {
+    ppu.display->setColorBleed(value);
   });
   colorBleed->dynamic = true;
-  node->append(colorBleed);
-
-  Node::load(node, from);
 }
 
-auto Display::color(uint32 color) -> uint64 {
+auto System::Video::color(uint32 color) -> uint64 {
   uint r = color.bits( 0, 4);
   uint g = color.bits( 5, 9);
   uint b = color.bits(10,14);
@@ -39,7 +34,7 @@ auto Display::color(uint32 color) -> uint64 {
   uint64 G = L * image::normalize(g, 5, 16);
   uint64 B = L * image::normalize(b, 5, 16);
 
-  if(display.colorEmulation->value()) {
+  if(colorEmulation->value()) {
     static const uint8 gammaRamp[32] = {
       0x00, 0x01, 0x03, 0x06, 0x0a, 0x0f, 0x15, 0x1c,
       0x24, 0x2d, 0x37, 0x42, 0x4e, 0x5b, 0x69, 0x78,

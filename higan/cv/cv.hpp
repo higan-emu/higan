@@ -12,7 +12,6 @@
 
 namespace higan::ColecoVision {
   #include <emulator/inline.hpp>
-  extern Cheat cheat;
 
   struct Model {
     inline static auto ColecoVision() -> bool;

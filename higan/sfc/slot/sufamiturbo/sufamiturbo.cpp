@@ -5,19 +5,15 @@ SufamiTurboCartridge sufamiturboB;
 
 auto SufamiTurboCartridge::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   bool portID = this == &sufamiturboB;
-  port = Node::Port::create(string{"Sufami Turbo Cartridge Slot ", !portID ? "A" : "B"}, "Sufami Turbo Cartridge");
+  port = Node::append<Node::Port>(parent, from, string{"Sufami Turbo Cartridge Slot ", !portID ? "A" : "B"}, "Sufami Turbo Cartridge");
   port->allocate = [&] { return Node::Peripheral::create("Sufami Turbo"); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
 }
 
 auto SufamiTurboCartridge::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create("Sufami Turbo");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(port, with, "Sufami Turbo");
 
   if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
     self.metadata = fp->reads();
@@ -40,8 +36,6 @@ auto SufamiTurboCartridge::connect(Node::Peripheral with) -> void {
       }
     }
   }
-
-  port->prepend(node);
 }
 
 auto SufamiTurboCartridge::disconnect() -> void {

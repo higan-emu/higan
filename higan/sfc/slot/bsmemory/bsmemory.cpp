@@ -2,14 +2,11 @@ BSMemory bsmemory;
 #include "serialization.cpp"
 
 auto BSMemory::load(Node::Peripheral parent, Node::Peripheral from) -> void {
-  port = Node::Port::create("BS Memory Cartridge Slot", "BS Memory Cartridge");
+  port = Node::append<Node::Port>(parent, from, "BS Memory Cartridge Slot", "BS Memory Cartridge");
   port->allocate = [&] { return Node::Peripheral::create("BS Memory"); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
 }
 
 BSMemory::BSMemory() {
@@ -38,8 +35,7 @@ auto BSMemory::step(uint clocks) -> void {
 }
 
 auto BSMemory::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create("BS Memory");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(port, with, "BS Memory");
 
   if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
     self.metadata = fp->reads();
@@ -103,7 +99,6 @@ auto BSMemory::connect(Node::Peripheral with) -> void {
   }
 
   power();
-  port->prepend(node);
 }
 
 auto BSMemory::disconnect() -> void {

@@ -10,7 +10,6 @@
 
 namespace higan::GameBoy {
   #include <emulator/inline.hpp>
-  extern Cheat cheat;
 
   struct Model {
     inline static auto GameBoy() -> bool;

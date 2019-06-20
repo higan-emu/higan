@@ -3,6 +3,7 @@ struct PPU : Thread, PPUcounter {
   Node::Natural versionPPU1;
   Node::Natural versionPPU2;
   Node::Natural vramSize;
+  shared_pointer<higan::Screen> display;
 
   alwaysinline auto interlace() const -> bool { return self.interlace; }
   alwaysinline auto overscan() const -> bool { return self.overscan; }

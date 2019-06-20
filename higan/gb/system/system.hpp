@@ -1,8 +1,41 @@
-#include "controls.hpp"
-#include "display.hpp"
+extern Cheat cheat;
 
 struct System {
   Node::Object node;
+
+  struct Controls {
+    Node::Object node;
+    Node::Button up;
+    Node::Button down;
+    Node::Button left;
+    Node::Button right;
+    Node::Button b;
+    Node::Button a;
+    Node::Button select;
+    Node::Button start;
+
+    //controls.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto poll() -> void;
+
+    bool yHold = 0;
+    bool upLatch = 0;
+    bool downLatch = 0;
+    bool xHold = 0;
+    bool leftLatch = 0;
+    bool rightLatch = 0;
+  } controls;
+
+  struct Video {
+    Node::Video node;
+    Node::Boolean colorEmulation;
+    Node::Boolean interframeBlending;
+
+    //video.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto colorGameBoy(uint32) -> uint64;
+    auto colorGameBoyColor(uint32) -> uint64;
+  } video;
 
   enum class Model : uint {
     GameBoy,

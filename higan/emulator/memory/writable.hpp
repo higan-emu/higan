@@ -24,6 +24,12 @@ struct Writable {
     memory::fill<T>(self.data, self.mask + 1, fill);
   }
 
+  inline auto fill(T fill = ~0ull) -> void {
+    for(uint address : range(self.size)) {
+      self.data[address] = fill;
+    }
+  }
+
   inline auto load(vfs::shared::file fp) -> void {
     fp->read(self.data, min(fp->size(), self.size * sizeof(T)));
     for(uint address = self.size; address <= self.mask; address++) {
@@ -46,6 +52,12 @@ struct Writable {
   inline auto read(uint address) const -> T { return self.data[address & self.mask]; }
   inline auto write(uint address, T data) -> void { self.data[address & self.mask] = data; }
   inline auto program(uint address, T data) -> void { self.data[address & self.mask] = data; }
+
+  auto begin() -> T* { return &self.data[0]; }
+  auto end() -> T* { return &self.data[self.size]; }
+
+  auto begin() const -> const T* { return &self.data[0]; }
+  auto end() const -> const T* { return &self.data[self.size]; }
 
   auto serialize(serializer& s) -> void {
     const uint size = self.size;

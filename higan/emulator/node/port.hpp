@@ -20,6 +20,18 @@ struct Port : Object {
     if(attach) attach(peripheral);
   }
 
+  //searches a source port tree for a peripheral that matches this peripheral.
+  //if found, it will connect the peripheral to its parent port.
+  auto scan(Node::Object port) -> void {
+    disconnect();
+    if(!port) return;
+    if(auto from = port->find(shared())) {
+      if(auto node = from->find<Node::Peripheral>(0)) {
+        connect(node);
+      }
+    }
+  }
+
   auto disconnect() -> void {
     if(auto peripheral = connected()) {
       if(detach) detach(peripheral);

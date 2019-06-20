@@ -8,7 +8,7 @@ Player player;
 #include "serialization.cpp"
 
 auto Player::main() -> void {
-  if(status.timeout && !--status.timeout) controls.rumble(false);
+  if(status.timeout && !--status.timeout) system.controls.rumble(false);
   step(1);
 }
 
@@ -115,7 +115,7 @@ auto Player::write(uint2 addr, uint8 byte) -> void {
 
   if(addr == 3 && status.packet == 15) {
     status.rumble = (status.recv & 0xff) == 0x26;  //on = 0x26, off = 0x04
-    controls.rumble(status.rumble);
+    system.controls.rumble(status.rumble);
     if(status.rumble) status.timeout = 500;  //stop rumble manually after 500ms
   }
 }

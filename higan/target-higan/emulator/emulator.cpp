@@ -108,6 +108,7 @@ auto Emulator::power(bool on) -> void {
     interface->power();
     //powering on the system latches static settings
     nodeManager.refreshSettings();
+    if(settingEditor.visible()) settingEditor.refresh();
   } else {
     for(auto& viewport : viewports) {
       viewport->hide();

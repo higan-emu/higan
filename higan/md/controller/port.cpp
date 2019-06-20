@@ -6,14 +6,11 @@ ControllerPort::ControllerPort(string_view name) : name(name) {
 }
 
 auto ControllerPort::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::Port::create(name, "Controller");
+  port = Node::append<Node::Port>(parent, from, name, "Controller");
   port->hotSwappable = true;
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
 }
 
 auto ControllerPort::connect(Node::Peripheral node) -> void {

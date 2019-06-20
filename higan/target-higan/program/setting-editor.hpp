@@ -2,7 +2,7 @@ struct SettingEditor : Panel {
   SettingEditor(View*);
   auto show() -> void override;
   auto hide() -> void override;
-  auto refresh(higan::Node::Setting setting) -> void;
+  auto refresh(higan::Node::Setting setting = {}) -> void;
 
   auto eventChange() -> void;
 

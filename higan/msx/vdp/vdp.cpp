@@ -5,6 +5,14 @@ namespace higan::MSX {
 VDP vdp;
 #include "serialization.cpp"
 
+auto VDP::load(Node::Object parent, Node::Object from) -> void {
+  display = video.createScreen(system.video.node);
+}
+
+auto VDP::unload() -> void {
+  screen = {};
+}
+
 auto VDP::step(uint clocks) -> void {
   Thread::step(clocks);
   Thread::synchronize(cpu);
@@ -20,11 +28,11 @@ auto VDP::frame() -> void {
 
 auto VDP::refresh() -> void {
   if(Model::MSX()) {
-    display.screen->refresh(TMS9918::buffer, 256 * sizeof(uint32), 256, 192);
+    display->refresh(TMS9918::buffer, 256 * sizeof(uint32), 256, 192);
   }
 
   if(Model::MSX2()) {
-    display.screen->refresh(V9938::buffer, 512 * sizeof(uint32), 512, 424);
+    display->refresh(V9938::buffer, 512 * sizeof(uint32), 512, 424);
   }
 }
 

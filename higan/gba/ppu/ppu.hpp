@@ -1,8 +1,11 @@
 struct PPU : Thread, IO {
-  PPU();
-  ~PPU();
+  shared_pointer<higan::Screen> display;
 
   inline auto blank() -> bool;
+
+  //ppu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
 
   auto step(uint clocks) -> void;
   auto main() -> void;
@@ -27,9 +30,9 @@ struct PPU : Thread, IO {
 
   auto serialize(serializer&) -> void;
 
-  uint8 vram[96 * 1024];
+   uint8 vram[96_KiB];
   uint16 pram[512];
-  uint32* output;
+  uint32 output[240 * 160];
 
 private:
   //note: I/O register order is {BG0-BG3, OBJ, SFX}

@@ -1,6 +1,6 @@
 NTTDataKeypad::NTTDataKeypad(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("NTT Data Keypad");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "NTT Data Keypad");
+
   up    = Node::append<Node::Button>(node, with, "Up");
   down  = Node::append<Node::Button>(node, with, "Down");
   left  = Node::append<Node::Button>(node, with, "Left");
@@ -28,7 +28,6 @@ NTTDataKeypad::NTTDataKeypad(Node::Port parent, Node::Peripheral with) {
   pound = Node::append<Node::Button>(node, with, "#");
   point = Node::append<Node::Button>(node, with, ".");
   end   = Node::append<Node::Button>(node, with, "End");
-  parent->append(node);
 }
 
 auto NTTDataKeypad::data() -> uint2 {

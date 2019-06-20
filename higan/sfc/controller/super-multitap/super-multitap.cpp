@@ -4,13 +4,12 @@ port2{"Controller Port 2"},
 port3{"Controller Port 3"},
 port4{"Controller Port 4"}
 {
-  node = Node::Peripheral::create("Super Multitap");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "Super Multitap");
+
   port1.load(node, with);
   port2.load(node, with);
   port3.load(node, with);
   port4.load(node, with);
-  parent->append(node);
 }
 
 auto SuperMultitap::data() -> uint2 {

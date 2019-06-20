@@ -1,6 +1,6 @@
 Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Gamepad");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "Gamepad");
+
   up    = Node::append<Node::Button>(node, with, "Up");
   down  = Node::append<Node::Button>(node, with, "Down");
   left  = Node::append<Node::Button>(node, with, "Left");
@@ -19,7 +19,6 @@ Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
   star  = Node::append<Node::Button>(node, with, "*");
   zero  = Node::append<Node::Button>(node, with, "0");
   pound = Node::append<Node::Button>(node, with, "#");
-  parent->prepend(node);
 }
 
 auto Gamepad::read() -> uint8 {

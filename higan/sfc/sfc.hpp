@@ -20,8 +20,6 @@
 
 namespace higan::SuperFamicom {
   #include <emulator/inline.hpp>
-  extern Random random;
-  extern Cheat cheat;
 
   struct Region {
     static inline auto NTSC() -> bool;

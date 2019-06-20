@@ -2,11 +2,11 @@
 
 namespace higan::ColecoVision {
 
-System system;
-Scheduler scheduler;
 Cheat cheat;
+Scheduler scheduler;
+System system;
+#include "video.cpp"
 #include "controls.cpp"
-#include "display.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -27,22 +27,23 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "ColecoVision") information.model = Model::ColecoVision;
   if(interface->name() == "ColecoAdam"  ) information.model = Model::ColecoAdam;
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
 
-  regionNode = Node::String::create("Region", "NTSC → PAL");
-  regionNode->allowedValues = {
+  node = Node::append<Node::System>(nullptr, from, interface->name());
+
+  regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
+  regionNode->setAllowedValues({
     "NTSC → PAL",
     "PAL → NTSC",
     "NTSC",
     "PAL"
-  };
-  Node::load(regionNode, from);
-  node->append(regionNode);
+  });
 
   scheduler.reset();
   controls.load(node, from);
-  display.load(node, from);
+  video.load(node, from);
+  vdp.load(node, from);
   cartridge.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
@@ -84,10 +85,6 @@ auto System::power() -> void {
   if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
     fp->read(bios, 0x2000);
   }
-
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, display.node->width, display.node->height);
-  audio.reset(interface);
 
   cartridge.power();
   cpu.power();

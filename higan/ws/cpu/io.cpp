@@ -2,37 +2,37 @@ auto CPU::keypadRead() -> uint4 {
   uint4 data = 0;
 
   if(r.ypadEnable) {
-    if(display.orientation->value() == "Horizontal") {
-      data.bit(0) = controls.y1->value;
-      data.bit(1) = controls.y2->value;
-      data.bit(2) = controls.y3->value;
-      data.bit(3) = controls.y4->value;
+    if(system.video.orientation->value() == "Horizontal") {
+      data.bit(0) = system.controls.y1->value;
+      data.bit(1) = system.controls.y2->value;
+      data.bit(2) = system.controls.y3->value;
+      data.bit(3) = system.controls.y4->value;
     } else {
-      data.bit(0) = controls.x4->value;
-      data.bit(1) = controls.x1->value;
-      data.bit(2) = controls.x2->value;
-      data.bit(3) = controls.x3->value;
+      data.bit(0) = system.controls.x4->value;
+      data.bit(1) = system.controls.x1->value;
+      data.bit(2) = system.controls.x2->value;
+      data.bit(3) = system.controls.x3->value;
     }
   }
 
   if(r.xpadEnable) {
-    if(display.orientation->value() == "Horizontal") {
-      data.bit(0) = controls.x1->value;
-      data.bit(1) = controls.x2->value;
-      data.bit(2) = controls.x3->value;
-      data.bit(3) = controls.x4->value;
+    if(system.video.orientation->value() == "Horizontal") {
+      data.bit(0) = system.controls.x1->value;
+      data.bit(1) = system.controls.x2->value;
+      data.bit(2) = system.controls.x3->value;
+      data.bit(3) = system.controls.x4->value;
     } else {
-      data.bit(0) = controls.y4->value;
-      data.bit(1) = controls.y1->value;
-      data.bit(2) = controls.y2->value;
-      data.bit(3) = controls.y3->value;
+      data.bit(0) = system.controls.y4->value;
+      data.bit(1) = system.controls.y1->value;
+      data.bit(2) = system.controls.y2->value;
+      data.bit(3) = system.controls.y3->value;
     }
   }
 
   if(r.buttonEnable) {
-    data.bit(1) = controls.start->value;
-    data.bit(2) = controls.a->value;
-    data.bit(3) = controls.b->value;
+    data.bit(1) = system.controls.start->value;
+    data.bit(2) = system.controls.a->value;
+    data.bit(3) = system.controls.b->value;
   }
 
   return data;

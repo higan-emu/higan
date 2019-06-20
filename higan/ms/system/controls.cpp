@@ -1,12 +1,13 @@
-Controls controls;
+auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Object>(parent, from, "Controls");
+  from = Node::scan(parent = node, from);
 
-auto Controls::load(Node::Object parent, Node::Object from) -> void {
-  if(Model::MasterSystem()) {
+  if(MasterSystem::Model::MasterSystem()) {
     pause = Node::append<Node::Button>(parent, from, "Pause");
     reset = Node::append<Node::Button>(parent, from, "Reset");
   }
 
-  if(Model::GameGear()) {
+  if(MasterSystem::Model::GameGear()) {
     up    = Node::append<Node::Button>(parent, from, "Up");
     down  = Node::append<Node::Button>(parent, from, "Down");
     left  = Node::append<Node::Button>(parent, from, "Left");
@@ -17,8 +18,8 @@ auto Controls::load(Node::Object parent, Node::Object from) -> void {
   }
 }
 
-auto Controls::poll() -> void {
-  if(Model::MasterSystem()) {
+auto System::Controls::poll() -> void {
+  if(MasterSystem::Model::MasterSystem()) {
     platform->input(pause);
     platform->input(reset);
 
@@ -27,7 +28,7 @@ auto Controls::poll() -> void {
     if(!value && pause->value) cpu.setNMI(1);
   }
 
-  if(Model::GameGear()) {
+  if(MasterSystem::Model::GameGear()) {
     platform->input(up);
     platform->input(down);
     platform->input(left);

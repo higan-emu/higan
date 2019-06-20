@@ -21,8 +21,8 @@ auto CPU::in(uint16 address) -> uint8 {
 
   case 0: {
     if(Model::GameGear()) {
-      platform->input(controls.start);
-      bool start = !controls.start->value;
+      platform->input(system.controls.start);
+      bool start = !system.controls.start->value;
       return start << 7 | 0x7f;
     }
 
@@ -41,8 +41,8 @@ auto CPU::in(uint16 address) -> uint8 {
     if(address == 0xf2) return state.enableFM;
 
     if(Model::MasterSystem()) {
-      platform->input(controls.reset);
-      bool reset = !controls.reset->value;
+      platform->input(system.controls.reset);
+      bool reset = !system.controls.reset->value;
       auto port1 = controllerPort1.read();
       auto port2 = controllerPort2.read();
       if(address.bit(0) == 0) {
@@ -54,13 +54,13 @@ auto CPU::in(uint16 address) -> uint8 {
 
     if(Model::GameGear()) {
       if(address.bit(0) == 0) {
-        controls.poll();
-        bool up    = !controls.upLatch;
-        bool down  = !controls.downLatch;
-        bool left  = !controls.leftLatch;
-        bool right = !controls.rightLatch;
-        bool one   = !controls.one->value;
-        bool two   = !controls.two->value;
+        system.controls.poll();
+        bool up    = !system.controls.upLatch;
+        bool down  = !system.controls.downLatch;
+        bool left  = !system.controls.leftLatch;
+        bool right = !system.controls.rightLatch;
+        bool one   = !system.controls.one->value;
+        bool two   = !system.controls.two->value;
         return up << 0 | down << 1 | left << 2 | right << 3 | one << 4 | two << 5 | 1 << 6 | 1 << 7;
       } else {
         return 0xff;

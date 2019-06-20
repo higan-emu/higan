@@ -10,7 +10,6 @@
 
 namespace higan::PCEngine {
   #include <emulator/inline.hpp>
-  extern Cheat cheat;
 
   struct Model {
     inline static auto PCEngine() -> bool;

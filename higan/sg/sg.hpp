@@ -12,7 +12,6 @@
 
 namespace higan::SG1000 {
   #include <emulator/inline.hpp>
-  extern Cheat cheat;
 
   struct Model {
     inline static auto SG1000() -> bool;

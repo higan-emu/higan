@@ -1,7 +1,6 @@
-Display display;
-
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Display");
+  from = Node::scan(parent = node, from);
   node->type   = "CRT";
   node->width  = 240;
   node->height = 160;
@@ -9,31 +8,25 @@ auto Display::load(Node::Object parent, Node::Object from) -> void {
   node->scaleY = 3.0;
   node->colors = 1 << 15;
   node->color  = [&](auto index) { return color(index); };
-  parent->append(node);
 
-  colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto value) {
-    if(screen) screen->setPalette();
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    ppu.display->setPalette();
   });
   colorEmulation->dynamic = true;
-  node->append(colorEmulation);
 
-  interframeBlending = Node::Boolean::create("Interframe Blending", true, [&](auto value) {
-    if(screen) screen->setInterframeBlending(value);
+  interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+    ppu.display->setInterframeBlending(value);
   });
   interframeBlending->dynamic = true;
-  node->append(interframeBlending);
 
-  orientation = Node::String::create("Orientation", "Horizontal", [&](auto value) {
-    if(screen) screen->setRotateLeft(value == "Vertical");
+  orientation = Node::append<Node::String>(parent, from, "Orientation", "Horizontal", [&](auto value) {
+    ppu.display->setRotateLeft(value == "Vertical");
   });
   orientation->dynamic = true;
-  orientation->allowedValues = {"Horizontal", "Vertical"};
-  node->append(orientation);
-
-  Node::load(node, from);
+  orientation->setAllowedValues({"Horizontal", "Vertical"});
 }
 
-auto Display::color(uint32 color) -> uint64 {
+auto System::Video::color(uint32 color) -> uint64 {
   uint R = color.bits( 0, 4);
   uint G = color.bits( 5, 9);
   uint B = color.bits(10,14);

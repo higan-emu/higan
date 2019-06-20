@@ -11,6 +11,14 @@ VDP vdp;
 #include "sprite.cpp"
 #include "serialization.cpp"
 
+auto VDP::load(Node::Object parent, Node::Object from) -> void {
+  screen = video.createScreen(system.video.node);
+}
+
+auto VDP::unload() -> void {
+  screen = {};
+}
+
 auto VDP::main() -> void {
   scanline();
 
@@ -73,7 +81,7 @@ auto VDP::step(uint clocks) -> void {
 auto VDP::refresh() -> void {
   auto data = output;
   if(!latch.overscan) data -= 16 * 1280;
-  display.screen->refresh(data, 1280 * sizeof(uint32), 1280, 480);
+  screen->refresh(data, 1280 * sizeof(uint32), 1280, 480);
 }
 
 auto VDP::power(bool reset) -> void {

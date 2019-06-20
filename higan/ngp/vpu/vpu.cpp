@@ -9,6 +9,14 @@ VPU vpu;
 #include "sprite.cpp"
 #include "serialization.cpp"
 
+auto VPU::load(Node::Object parent, Node::Object from) -> void {
+  display = video.createScreen(system.video.node);
+}
+
+auto VPU::unload() -> void {
+  display = {};
+}
+
 auto VPU::main() -> void {
   if(io.vcounter < 152) {
     uint8 y = io.vcounter;
@@ -84,7 +92,7 @@ auto VPU::step(uint clocks) -> void {
 }
 
 auto VPU::refresh() -> void {
-  display.screen->refresh(buffer, 160 * sizeof(uint32), 160, 152);
+  display->refresh(buffer, 160 * sizeof(uint32), 160, 152);
 }
 
 auto VPU::power() -> void {

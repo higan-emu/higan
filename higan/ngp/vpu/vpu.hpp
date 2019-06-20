@@ -2,7 +2,12 @@
 //K2GE: K2 Graphics Engine (Neo Geo Pocket Color)
 
 struct VPU : Thread {
+  shared_pointer<higan::Screen> display;
+
   //vpu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto refresh() -> void;

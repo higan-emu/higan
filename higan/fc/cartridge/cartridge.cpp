@@ -8,14 +8,11 @@ Cartridge cartridge;
 #include "serialization.cpp"
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port = Node::append<Node::Port>(parent, from, "Cartridge Slot", "Cartridge");
   port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
 }
 
 auto Cartridge::unload() -> void {
@@ -23,8 +20,7 @@ auto Cartridge::unload() -> void {
 }
 
 auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create(interface->name());
-  node->load(with);
+  node = Node::append<Node::Peripheral>(port, with, interface->name());
 
   information = {};
   if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
@@ -36,7 +32,6 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(fds.present) {
     fds.load(node, with);
   }
-  port->prepend(node);
 }
 
 auto Cartridge::disconnect() -> void {

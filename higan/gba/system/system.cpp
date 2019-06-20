@@ -2,11 +2,11 @@
 
 namespace higan::GameBoyAdvance {
 
-System system;
 Scheduler scheduler;
+System system;
 #include "bios.cpp"
 #include "controls.cpp"
-#include "display.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -25,12 +25,16 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Game Boy Advance") information.model = Model::GameBoyAdvance;
   if(interface->name() == "Game Boy Player" ) information.model = Model::GameBoyPlayer;
 
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
+
   node = Node::System::create(interface->name());
   node->load(from);
 
   scheduler.reset();
   controls.load(node, from);
-  display.load(node, from);
+  video.load(node, from);
+  ppu.load(node, from);
   cartridge.load(node, from);
 }
 
@@ -38,6 +42,7 @@ auto System::unload() -> void {
   if(!node) return;
   save();
   cartridge.port = {};
+  ppu.unload();
   node = {};
 }
 
@@ -54,10 +59,6 @@ auto System::power() -> void {
   }
 
   serializeInit();
-
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, 240, 160);
-  audio.reset(interface);
 
   bus.power();
   player.power();

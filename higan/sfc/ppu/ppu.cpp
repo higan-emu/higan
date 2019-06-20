@@ -12,26 +12,27 @@ PPU ppu;
 #include "counter/serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  parent->append(node = Node::Component::create("PPU"));
-  from = Node::load(node, from);
+  node = Node::append<Node::Component>(parent, from, "PPU");
+  from = Node::scan(parent = node, from);
 
-  node->append(versionPPU1 = Node::Natural::create("PPU1 Version", 1));
-  versionPPU1->allowedValues = {1};
-  Node::load(versionPPU1, from);
+  versionPPU1 = Node::append<Node::Natural>(parent, from, "PPU1 Version", 1);
+  versionPPU1->setAllowedValues({1});
 
-  node->append(versionPPU2 = Node::Natural::create("PPU2 Version", 3));
-  versionPPU2->allowedValues = {1, 2, 3};
-  Node::load(versionPPU2, from);
+  versionPPU2 = Node::append<Node::Natural>(parent, from, "PPU2 Version", 3);
+  versionPPU2->setAllowedValues({1, 2, 3});
 
-  node->append(vramSize = Node::Natural::create("VRAM", 64_KiB));
-  vramSize->allowedValues = {64_KiB, 128_KiB};
-  Node::load(vramSize, from);
+  vramSize = Node::append<Node::Natural>(parent, from, "VRAM", 64_KiB);
+  vramSize->setAllowedValues({64_KiB, 128_KiB});
 
   output = new uint32[512 * 512];
   output += 16 * 512;  //overscan offset
+
+  display = video.createScreen(system.video.node);
 }
 
 auto PPU::unload() -> void {
+  screen = {};
+
   output -= 16 * 512;
   delete[] output;
 }
@@ -224,8 +225,8 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  display.screen->setColorBleed(display.colorBleed->value());
-  display.screen->refresh(output, pitch * sizeof(uint32), width, height);
+  display->setColorBleed(system.video.colorBleed->value());
+  display->refresh(output, pitch * sizeof(uint32), width, height);
 }
 
 }

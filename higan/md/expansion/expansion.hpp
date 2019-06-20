@@ -6,6 +6,9 @@ struct Expansion {
   Node::Port port;
   Node::Peripheral node;
 
+  inline auto metadata() const -> string { return information.metadata; }
+  inline auto regions() const -> vector<string> { return information.regions; }
+
   auto load(Node::Object, Node::Object) -> void;
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
@@ -24,7 +27,7 @@ struct Expansion {
 
   struct Information {
     string metadata;
-    string region;
+    vector<string> regions;
   };
 
   Information information;

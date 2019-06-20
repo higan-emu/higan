@@ -1,7 +1,8 @@
-Controls controls;
+auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
+  if(GameBoy::Model::SuperGameBoy()) return;  //inputs provided by SNES gamepad(s)
 
-auto Controls::load(Node::Object parent, Node::Object from) -> void {
-  if(Model::SuperGameBoy()) return;  //inputs provided by SNES gamepad(s)
+  node = Node::append<Node::Object>(parent, from, "Controls");
+  from = Node::scan(parent = node, from);
 
   up     = Node::append<Node::Button>(parent, from, "Up");
   down   = Node::append<Node::Button>(parent, from, "Down");
@@ -13,8 +14,8 @@ auto Controls::load(Node::Object parent, Node::Object from) -> void {
   start  = Node::append<Node::Button>(parent, from, "Start");
 }
 
-auto Controls::poll() -> void {
-  if(Model::SuperGameBoy()) {
+auto System::Controls::poll() -> void {
+  if(GameBoy::Model::SuperGameBoy()) {
     auto data = superGameBoy->input();
     rightLatch    = data.bit(0);
     leftLatch     = data.bit(1);

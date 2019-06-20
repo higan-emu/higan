@@ -21,16 +21,16 @@ PPU ppu;
 #include "memory.cpp"
 #include "serialization.cpp"
 
+auto PPU::load(Node::Object parent, Node::Object from) -> void {
+  display = video.createScreen(system.video.node);
+}
+
+auto PPU::unload() -> void {
+  display = {};
+}
+
 auto PPU::blank() -> bool {
   return io.forceBlank || cpu.stopped();
-}
-
-PPU::PPU() {
-  output = new uint32[240 * 160];
-}
-
-PPU::~PPU() {
-  delete[] output;
 }
 
 auto PPU::step(uint clocks) -> void {
@@ -105,7 +105,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  display.screen->refresh(output, 240 * sizeof(uint32), 240, 160);
+  display->refresh(output, 240 * sizeof(uint32), 240, 160);
 }
 
 auto PPU::power() -> void {

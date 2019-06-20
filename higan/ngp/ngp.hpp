@@ -12,7 +12,6 @@
 
 namespace higan::NeoGeoPocket {
   #include <emulator/inline.hpp>
-  extern Cheat cheat;
 
   struct Model {
     inline static auto NeoGeoPocket() -> bool;

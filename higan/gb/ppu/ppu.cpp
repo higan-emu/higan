@@ -8,6 +8,14 @@ PPU ppu;
 #include "cgb.cpp"
 #include "serialization.cpp"
 
+auto PPU::load(Node::Object parent, Node::Object from) -> void {
+  display = video.createScreen(system.video.node);
+}
+
+auto PPU::unload() -> void {
+  display = {};
+}
+
 auto PPU::main() -> void {
   if(!status.displayEnable) {
     for(uint n : range(160 * 144)) screen[n] = Model::GameBoy() ? 0 : 0x7fff;
@@ -69,7 +77,7 @@ auto PPU::coincidence() -> bool {
 }
 
 auto PPU::refresh() -> void {
-  if(!Model::SuperGameBoy()) display.screen->refresh(screen, 160 * sizeof(uint32), 160, 144);
+  if(!Model::SuperGameBoy()) display->refresh(screen, 160 * sizeof(uint32), 160, 144);
 }
 
 auto PPU::step(uint clocks) -> void {

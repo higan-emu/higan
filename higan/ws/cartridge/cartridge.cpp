@@ -22,19 +22,15 @@ auto Cartridge::step(uint clocks) -> void {
 }
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::Port::create("Cartridge Slot", "Cartridge");
+  port = Node::append<Node::Port>(parent, from, "Cartridge Slot", "Cartridge");
   port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
 }
 
 auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::Peripheral::create(interface->name());
-  node->load(with);
+  node = Node::append<Node::Peripheral>(port, with, interface->name());
 
   information = {};
 
@@ -90,7 +86,6 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(document["game/orientation"].text() == "vertical"  ) information.orientation = "Vertical";
 
   power();
-  port->prepend(node);
 }
 
 auto Cartridge::disconnect() -> void {

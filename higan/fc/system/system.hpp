@@ -1,9 +1,29 @@
-#include "controls.hpp"
-#include "display.hpp"
+extern Random random;
+extern Cheat cheat;
 
 struct System {
   Node::Object node;
   Node::String regionNode;
+
+  struct Controls {
+    Node::Object node;
+    Node::Button reset;
+    Node::Button microphone;
+
+    //controls.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto poll() -> void;
+  } controls;
+
+  struct Video {
+    Node::Video node;
+    Node::Boolean colorEmulation;
+
+    //video.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto color(uint32) -> uint64;
+  } video;
+
   enum class Region : uint { NTSCJ, NTSCU, PAL };
 
   inline auto region() const -> Region { return information.region; }

@@ -1,4 +1,10 @@
 struct PPU : Thread, IO {
+  shared_pointer<Screen> screen;
+
+  //ppu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto scanline() -> void;
   auto frame() -> void;

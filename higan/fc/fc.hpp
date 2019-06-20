@@ -13,8 +13,6 @@
 
 namespace higan::Famicom {
   #include <emulator/inline.hpp>
-  extern Random random;
-  extern Cheat cheat;
 
   struct Region {
     static inline auto NTSCJ() -> bool;

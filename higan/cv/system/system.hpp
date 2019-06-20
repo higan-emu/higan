@@ -1,9 +1,25 @@
-#include "controls.hpp"
-#include "display.hpp"
+extern Cheat cheat;
 
 struct System {
   Node::Object node;
   Node::String regionNode;
+
+  struct Controls {
+    Node::Object node;
+    Node::Button reset;
+
+    //controls.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto poll() -> void;
+  } controls;
+
+  struct Video {
+    Node::Video node;
+
+    //video.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto color(uint32) -> uint64;
+  } video;
 
   enum class Model : uint { ColecoVision, ColecoAdam };
   enum class Region : uint { NTSC, PAL };

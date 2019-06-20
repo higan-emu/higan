@@ -1,13 +1,12 @@
 Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Justifier");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "Justifier");
+
   x       = Node::append<Node::Axis  >(node, with, "X");
   y       = Node::append<Node::Axis  >(node, with, "Y");
   trigger = Node::append<Node::Button>(node, with, "Trigger");
   start   = Node::append<Node::Button>(node, with, "Start");
-  parent->prepend(node);
 
-  sprite = display.screen->createSprite(32, 32);
+  sprite = ppu.display->createSprite(32, 32);
   sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
   Thread::create(system.cpuFrequency(), {&Justifier::main, this});
@@ -16,7 +15,7 @@ Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
 
 Justifier::~Justifier() {
   cpu.peripherals.removeWhere() == this;
-  display.screen->removeSprite(sprite);
+  ppu.display->removeSprite(sprite);
 }
 
 auto Justifier::main() -> void {

@@ -20,15 +20,12 @@ MCD mcd;
 #include "serialization.cpp"
 
 auto MCD::load(Node::Object parent, Node::Object from) -> void {
-  tray = Node::Port::create("Disc Tray", "Mega CD");
+  tray = Node::append<Node::Port>(parent, from, "Disc Tray", "Mega CD");
   tray->hotSwappable = true;
   tray->allocate = [&] { return Node::Peripheral::create("Mega CD"); };
   tray->attach = [&](auto node) { connect(node); };
   tray->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(tray, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) tray->connect(node);
-  }
-  parent->append(tray);
+  tray->scan(from);
 
   bios.allocate  (128_KiB >> 1);
   pram.allocate  (512_KiB >> 1);
@@ -47,9 +44,7 @@ auto MCD::load(Node::Object parent, Node::Object from) -> void {
 auto MCD::connect(Node::Peripheral with) -> void {
   disconnect();
   if(with) {
-    disc = Node::Peripheral::create("Mega CD");
-    disc->load(with);
-    tray->prepend(disc);
+    disc = Node::append<Node::Peripheral>(tray, with, "Mega CD");
     fd = platform->open(disc, "cd.rom", File::Read, File::Required);
     cdd.insert();
   }

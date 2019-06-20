@@ -4,13 +4,10 @@ ExpansionPort::ExpansionPort(string_view name) : name(name) {
 }
 
 auto ExpansionPort::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::Port::create(name, "Expansion");
+  port = Node::append<Node::Port>(parent, from, name, "Expansion");
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
 }
 
 auto ExpansionPort::connect(Node::Peripheral node) -> void {

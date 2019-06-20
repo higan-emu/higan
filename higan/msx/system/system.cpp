@@ -2,11 +2,11 @@
 
 namespace higan::MSX {
 
+Cheat cheat;
+Scheduler scheduler;
 ROM rom;
 System system;
-Scheduler scheduler;
-Cheat cheat;
-#include "display.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -24,22 +24,23 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "MSX" ) information.model = Model::MSX;
   if(interface->name() == "MSX2") information.model = Model::MSX2;
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
 
-  regionNode = Node::String::create("Region", "NTSC → PAL");
-  regionNode->allowedValues = {
+  node = Node::append<Node::System>(nullptr, from, interface->name());
+
+  regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
+  regionNode->setAllowedValues({
     "NTSC → PAL",
     "PAL → NTSC",
     "NTSC",
     "PAL"
-  };
-  Node::load(regionNode, from);
-  node->append(regionNode);
+  });
 
   scheduler.reset();
-  display.load(node, from);
+  video.load(node, from);
   keyboard.load(node, from);
+  vdp.load(node, from);
   cartridge.load(node, from);
   expansion.load(node, from);
   controllerPort1.load(node, from);
@@ -53,6 +54,7 @@ auto System::unload() -> void {
   expansion.port = {};
   controllerPort1.port = {};
   controllerPort2.port = {};
+  vdp.unload();
   node = {};
   rom.bios.reset();
   rom.sub.reset();
@@ -94,10 +96,6 @@ auto System::power() -> void {
       rom.sub.load(fp);
     }
   }
-
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, display.node->width, display.node->height);
-  audio.reset(interface);
 
   keyboard.power();
   cartridge.power();

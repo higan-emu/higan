@@ -1,9 +1,38 @@
-#include "controls.hpp"
-#include "display.hpp"
+extern Cheat cheat;
 
 struct System : IO {
   Node::Object node;
   enum class Model : uint { WonderSwan, WonderSwanColor, SwanCrystal, PocketChallengeV2 };
+
+  struct Controls {
+    Node::Object node;
+    Node::Button y1;
+    Node::Button y2;
+    Node::Button y3;
+    Node::Button y4;
+    Node::Button x1;
+    Node::Button x2;
+    Node::Button x3;
+    Node::Button x4;
+    Node::Button b;
+    Node::Button a;
+    Node::Button start;
+
+    //controls.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto poll() -> void;
+  } controls;
+
+  struct Video {
+    Node::Video node;
+    Node::Boolean colorEmulation;
+    Node::Boolean interframeBlending;
+    Node::String orientation;
+
+    //video.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto color(uint32) -> uint64;
+  } video;
 
   inline auto model() const -> Model { return information.model; }
   inline auto color() const -> bool { return r.color; }

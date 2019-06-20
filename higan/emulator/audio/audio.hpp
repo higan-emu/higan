@@ -11,6 +11,10 @@ struct Filter;
 struct Stream;
 
 struct Audio {
+  Audio() = default;
+  Audio(const Audio&) = delete;
+  auto operator=(const Audio&) = delete;
+
   auto reset(Interface* interface) -> void;
 
   auto setFrequency(double frequency) -> void;
@@ -45,6 +49,10 @@ struct Filter {
 };
 
 struct Stream {
+  Stream() = default;
+  Stream(const Stream&) = delete;
+  auto operator=(const Stream&) = delete;
+
   auto reset(uint channels, double inputFrequency, double outputFrequency) -> void;
   auto resetFilters() -> void;
 
@@ -59,7 +67,8 @@ struct Stream {
   auto read(double samples[]) -> uint;
   auto write(const double samples[]) -> void;
 
-  template<typename... P> auto sample(P&&... p) -> void {
+  template<typename... P>
+  auto sample(P&&... p) -> void {
     double samples[sizeof...(P)] = {forward<P>(p)...};
     write(samples);
   }

@@ -11,20 +11,17 @@
 //Note that no commercial game ever utilizes a Super Scope in port 1.
 
 SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Super Scope");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "Super Scope");
+
   x       = Node::append<Node::Axis  >(node, with, "X");
   y       = Node::append<Node::Axis  >(node, with, "Y");
   trigger = Node::append<Node::Button>(node, with, "Trigger");
   cursor  = Node::append<Node::Button>(node, with, "Cursor");
   turbo   = Node::append<Node::Button>(node, with, "Turbo");
   pause   = Node::append<Node::Button>(node, with, "Pause");
-  parent->prepend(node);
 
-  if(display.screen) {
-    sprite = display.screen->createSprite(32, 32);
-    sprite->setPixels(Resource::Sprite::CrosshairGreen);
-  }
+  sprite = ppu.display->createSprite(32, 32);
+  sprite->setPixels(Resource::Sprite::CrosshairGreen);
 
   Thread::create(system.cpuFrequency(), {&SuperScope::main, this});
   cpu.peripherals.append(this);
@@ -32,10 +29,7 @@ SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
 
 SuperScope::~SuperScope() {
   cpu.peripherals.removeWhere() == this;
-
-  if(display.screen) {
-    display.screen->removeSprite(sprite);
-  }
+  ppu.display->removeSprite(sprite);
 }
 
 auto SuperScope::main() -> void {

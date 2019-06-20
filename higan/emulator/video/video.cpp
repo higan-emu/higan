@@ -9,8 +9,8 @@ auto Video::reset(Interface* interface) -> void {
   screens.reset();
 }
 
-auto Video::createScreen(Node::Video node, uint width, uint height) -> shared_pointer<Screen> {
-  auto screen = shared_pointer_make<Screen>(node, width, height);
+auto Video::createScreen(Node::Video node) -> shared_pointer<Screen> {
+  auto screen = shared_pointer_make<Screen>(node);
   screens.append(screen);
   return screen;
 }

@@ -7,6 +7,14 @@ VCE vce;
 #include "io.cpp"
 #include "serialization.cpp"
 
+auto VCE::load(Node::Object parent, Node::Object from) -> void {
+  screen = video.createScreen(system.video.node);
+}
+
+auto VCE::unload() -> void {
+  screen = {};
+}
+
 auto VCE::main() -> void {
   if(timing.vclock == 0) {
     vdc0.frame();
@@ -50,7 +58,7 @@ auto VCE::step(uint clocks) -> void {
 }
 
 auto VCE::refresh() -> void {
-  display.screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
+  screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
 }
 
 auto VCE::power() -> void {

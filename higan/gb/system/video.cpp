@@ -1,40 +1,32 @@
-Display display;
-
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Display");
+  from = Node::scan(parent = node, from);
   node->type   = "LCD";
   node->width  = 160;
   node->height = 144;
   node->scaleX = 3.0;
   node->scaleY = 3.0;
-  parent->append(node);
-
-  if(Model::GameBoy()) {
+  if(GameBoy::Model::GameBoy()) {
     node->colors = 1 << 2;
     node->color  = [&](auto index) { return colorGameBoy(index); };
   }
-
-  if(Model::GameBoyColor()) {
+  if(GameBoy::Model::GameBoyColor()) {
     node->colors = 1 << 15;
     node->color  = [&](auto index) { return colorGameBoyColor(index); };
   }
 
-  colorEmulation = Node::Boolean::create("Color Emulation", true, [&](auto value) {
-    if(screen) screen->setPalette();
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    ppu.display->setPalette();
   });
   colorEmulation->dynamic = true;
-  node->append(colorEmulation);
 
-  interframeBlending = Node::Boolean::create("Interframe Blending", true, [&](auto value) {
-    if(screen) screen->setInterframeBlending(value);
+  interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+    ppu.display->setInterframeBlending(value);
   });
   interframeBlending->dynamic = true;
-  node->append(interframeBlending);
-
-  Node::load(node, from);
 }
 
-auto Display::colorGameBoy(uint32 color) -> uint64 {
+auto System::Video::colorGameBoy(uint32 color) -> uint64 {
   if(!colorEmulation->value()) {
     uint64 L = image::normalize(3 - color, 2, 16);
     return L << 32 | L << 16 | L << 0;
@@ -70,7 +62,7 @@ auto Display::colorGameBoy(uint32 color) -> uint64 {
   }
 }
 
-auto Display::colorGameBoyColor(uint32 color) -> uint64 {
+auto System::Video::colorGameBoyColor(uint32 color) -> uint64 {
   uint r = color.bits( 0, 4);
   uint g = color.bits( 5, 9);
   uint b = color.bits(10,14);

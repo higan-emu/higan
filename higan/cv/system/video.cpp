@@ -1,18 +1,16 @@
-Display display;
-
-auto Display::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::Video::create("Display");
+auto System::Video::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Video>(parent, from, "Video");
+  from = Node::scan(parent = node, from);
   node->type   = "CRT";
   node->width  = 256;
   node->height = 192;
   node->scaleX = 2.0;
   node->scaleY = 2.0;
   node->colors = 1 << 4;
-  node->color  = [&](auto index) { return color(index); };
-  parent->append(node);
+  node->color = [&](auto index) { return color(index); };
 }
 
-auto Display::color(uint32 color) -> uint64 {
+auto System::Video::color(uint32 color) -> uint64 {
   switch(color.bits(0,3)) {
   case  0: return 0x0000'0000'0000ull;  //transparent
   case  1: return 0x0000'0000'0000ull;  //black

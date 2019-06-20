@@ -1,11 +1,12 @@
-Controls controls;
+auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Object>(parent, from, "Controls");
+  from = Node::scan(parent = node, from);
 
-auto Controls::load(Node::Object parent, Node::Object from) -> void {
   reset = Node::append<Node::Button>(parent, from, "Reset");
 }
 
-auto Controls::poll() -> void {
+auto System::Controls::poll() -> void {
   auto value = reset->value;
   platform->input(reset);
-  if(!value && reset->value) system.power();  //todo: soft reset
+  if(!value && reset->value) system.power();  //todo: implement soft reset
 }

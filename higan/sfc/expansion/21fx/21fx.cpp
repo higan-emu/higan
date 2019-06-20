@@ -1,7 +1,5 @@
 S21FX::S21FX(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("21fx");
-  node->load(with);
-  parent->append(node);
+  node = Node::append<Node::Peripheral>(parent, with, "21fx");
 
   Thread::create(10'000'000, {&S21FX::main, this});
 

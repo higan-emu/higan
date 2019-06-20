@@ -6,19 +6,19 @@ auto CPU::wramAddress(uint16 addr) const -> uint {
 }
 
 auto CPU::joypPoll() -> void {
-  controls.poll();
+  system.controls.poll();
 
   uint4 dpad;
-  dpad.bit(0) = controls.rightLatch;
-  dpad.bit(1) = controls.leftLatch;
-  dpad.bit(2) = controls.upLatch;
-  dpad.bit(3) = controls.downLatch;
+  dpad.bit(0) = system.controls.rightLatch;
+  dpad.bit(1) = system.controls.leftLatch;
+  dpad.bit(2) = system.controls.upLatch;
+  dpad.bit(3) = system.controls.downLatch;
 
   uint4 button;
-  button.bit(0) = controls.a->value;
-  button.bit(1) = controls.b->value;
-  button.bit(2) = controls.select->value;
-  button.bit(3) = controls.start->value;
+  button.bit(0) = system.controls.a->value;
+  button.bit(1) = system.controls.b->value;
+  button.bit(2) = system.controls.select->value;
+  button.bit(3) = system.controls.start->value;
 
   status.joyp = 0x0f;
   if(status.p15 == 1 && status.p14 == 1 && Model::SuperGameBoy()) {

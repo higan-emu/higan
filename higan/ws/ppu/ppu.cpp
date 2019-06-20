@@ -8,6 +8,14 @@ PPU ppu;
 #include "render.cpp"
 #include "serialization.cpp"
 
+auto PPU::load(Node::Object parent, Node::Object from) -> void {
+  screen = video.createScreen(system.video.node);
+}
+
+auto PPU::unload() -> void {
+  screen = {};
+}
+
 auto PPU::main() -> void {
   if(s.vtime == 142) {
     latchOAM();
@@ -75,7 +83,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  display.screen->refresh(output, 224 * sizeof(uint32), 224, 144);
+  screen->refresh(output, 224 * sizeof(uint32), 224, 144);
 }
 
 auto PPU::step(uint clocks) -> void {

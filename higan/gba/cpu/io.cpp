@@ -68,35 +68,35 @@ auto CPU::readIO(uint32 addr) -> uint8 {
     if(Model::GameBoyPlayer()) {
       if(auto result = player.keyinput()) return result() >> 0;
     }
-    controls.poll();
+    system.controls.poll();
     uint8 result;
-    result.bit(0) = controls.a->value;
-    result.bit(1) = controls.b->value;
-    result.bit(2) = controls.select->value;
-    result.bit(3) = controls.start->value;
-    if(display.orientation->value() == "Horizontal") {
-      result.bit(4) = controls.rightLatch;
-      result.bit(5) = controls.leftLatch;
-      result.bit(6) = controls.upLatch;
-      result.bit(7) = controls.downLatch;
+    result.bit(0) = !system.controls.a->value;
+    result.bit(1) = !system.controls.b->value;
+    result.bit(2) = !system.controls.select->value;
+    result.bit(3) = !system.controls.start->value;
+    if(system.video.orientation->value() == "Horizontal") {
+      result.bit(4) = !system.controls.rightLatch;
+      result.bit(5) = !system.controls.leftLatch;
+      result.bit(6) = !system.controls.upLatch;
+      result.bit(7) = !system.controls.downLatch;
     }
-    if(display.orientation->value() == "Vertical") {
-      result.bit(4) = controls.upLatch;
-      result.bit(5) = controls.downLatch;
-      result.bit(6) = controls.leftLatch;
-      result.bit(7) = controls.rightLatch;
+    if(system.video.orientation->value() == "Vertical") {
+      result.bit(4) = !system.controls.upLatch;
+      result.bit(5) = !system.controls.downLatch;
+      result.bit(6) = !system.controls.leftLatch;
+      result.bit(7) = !system.controls.rightLatch;
     }
-    return result ^ 0xff;
+    return result;
   }
   case 0x04000131: {
     if(Model::GameBoyPlayer()) {
       if(auto result = player.keyinput()) return result() >> 8;
     }
-    controls.poll();
+    system.controls.poll();
     uint8 result;
-    result.bit(0) = controls.r->value;
-    result.bit(1) = controls.l->value;
-    return result ^ 0x03;
+    result.bit(0) = !system.controls.r->value;
+    result.bit(1) = !system.controls.l->value;
+    return result;
   }
 
   //KEYCNT

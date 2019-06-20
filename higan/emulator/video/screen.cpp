@@ -1,7 +1,7 @@
-Screen::Screen(Node::Video node, uint width, uint height) {
+Screen::Screen(Node::Video node) {
   this->node = node;
-  buffer = new uint32[width * height]();
-  rotate = new uint32[width * height]();
+  buffer = new uint32[node->width * node->height]();
+  rotate = new uint32[node->width * node->height]();
   palette = new uint32[node->colors];
 }
 

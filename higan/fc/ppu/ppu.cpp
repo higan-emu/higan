@@ -7,6 +7,14 @@ PPU ppu;
 #include "render.cpp"
 #include "serialization.cpp"
 
+auto PPU::load(Node::Object parent, Node::Object from) -> void {
+  screen = video.createScreen(system.video.node);
+}
+
+auto PPU::unload() -> void {
+  screen = {};
+}
+
 auto PPU::main() -> void {
   renderScanline();
 }
@@ -47,7 +55,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  display.screen->refresh(buffer, 256 * sizeof(uint32), 256, 240);
+  screen->refresh(buffer, 256 * sizeof(uint32), 256, 240);
 }
 
 auto PPU::power(bool reset) -> void {

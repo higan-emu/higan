@@ -2,19 +2,20 @@
 
 namespace higan::MegaDrive {
 
-System system;
-Scheduler scheduler;
 Random random;
 Cheat cheat;
-#include "display.cpp"
+Scheduler scheduler;
+System system;
+#include "controls.cpp"
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
   if(scheduler.enter() == Scheduler::Event::Frame) vdp.refresh();
 
-  auto reset = resetButton->value;
-  platform->input(resetButton);
-  if(!reset && resetButton->value) power(true);
+  auto reset = controls.reset->value;
+  controls.poll();
+  if(!reset && controls.reset->value) power(true);
 }
 
 auto System::runToSave() -> void {
@@ -26,15 +27,15 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
 
-  tmss = Node::Boolean::create("TMSS", false);
-  Node::load(tmss, from);
-  node->append(tmss);
+  node = Node::append<Node::System>(nullptr, from, interface->name());
 
-  regionNode = Node::String::create("Region", "NTSC-J → NTSC-U → PAL");
-  regionNode->allowedValues = {
+  tmss = Node::append<Node::Boolean>(node, from, "TMSS", false);
+
+  regionNode = Node::append<Node::String>(node, from, "Region", "NTSC-J → NTSC-U → PAL");
+  regionNode->setAllowedValues({
     "NTSC-J → NTSC-U → PAL",
     "NTSC-U → NTSC-J → PAL",
     "PAL → NTSC-J → NTSC-U",
@@ -42,16 +43,12 @@ auto System::load(Node::Object from) -> void {
     "NTSC-J",
     "NTSC-U",
     "PAL"
-  };
-  Node::load(regionNode, from);
-  node->append(regionNode);
-
-  resetButton = Node::Button::create("Reset");
-  Node::load(resetButton, from);
-  node->append(resetButton);
+  });
 
   scheduler.reset();
-  display.load(node, from);
+  controls.load(node, from);
+  video.load(node, from);
+  vdp.load(node, from);
   cartridge.load(node, from);
   expansion.load(node, from);
   controllerPort1.load(node, from);
@@ -67,6 +64,7 @@ auto System::unload() -> void {
   controllerPort1.port = {};
   controllerPort2.port = {};
   extensionPort.port = {};
+  vdp.unload();
   mcd.unload();
   node = {};
 }
@@ -94,18 +92,16 @@ auto System::power(bool reset) -> void {
       information.frequency = Constants::Colorburst::PAL * 12.0;
     }
   };
-  auto regions = regionNode->latch().split("→").strip();
-  setRegion(regions.first());
-  for(auto& requested : reverse(regions)) {
-    for(auto& available : reverse(cartridge.regions())) {
-      if(requested == available) setRegion(requested);
+  auto regionsHave = regionNode->latch().split("→").strip();
+  auto regionsWant = cartridge.bootable() ? cartridge.regions() : expansion.regions();
+  setRegion(regionsHave.first());
+  for(auto& have : reverse(regionsHave)) {
+    for(auto& want : reverse(regionsWant)) {
+      if(have == want) setRegion(have);
     }
   }
   information.megaCD = (bool)expansion.node;
 
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, 1280, 480);
-  audio.reset(interface);
   random.entropy(Random::Entropy::Low);
 
   cartridge.power();

@@ -457,19 +457,20 @@ auto CPU::readIO(uint8 address) -> uint8 {
     return data;
 
   case 0xb0:
-    controls.poll();
-    data.bit(0) = controls.upLatch;
-    data.bit(1) = controls.downLatch;
-    data.bit(2) = controls.leftLatch;
-    data.bit(3) = controls.rightLatch;
-    data.bit(4) = controls.a->value;
-    data.bit(5) = controls.b->value;
-    data.bit(6) = controls.option->value;
-    data.bit(7) = controls.debug->value;
+    system.controls.poll();
+    data.bit(0) = system.controls.upLatch;
+    data.bit(1) = system.controls.downLatch;
+    data.bit(2) = system.controls.leftLatch;
+    data.bit(3) = system.controls.rightLatch;
+    data.bit(4) = system.controls.a->value;
+    data.bit(5) = system.controls.b->value;
+    data.bit(6) = system.controls.option->value;
+    data.bit(7) = system.controls.debug->value;
     return data;
 
   case 0xb1:
-    data.bit(0) = !controls.power->value;
+    //power button polled in CPU::pollPowerButton()
+    data.bit(0) = !system.controls.power->value;
     data.bit(1) = 1;  //sub battery (CR2032)
     return data;
 

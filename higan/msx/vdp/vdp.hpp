@@ -1,5 +1,10 @@
 struct VDP : TMS9918, V9938, Thread {
+  shared_pointer<higan::Screen> display;
+
   //vdp.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto step(uint clocks) -> void override;
   auto irq(bool line) -> void override;
   auto frame() -> void override;

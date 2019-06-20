@@ -1,6 +1,6 @@
 ControlPad::ControlPad(Node::Port parent, Node::Peripheral with) {
-  node = Node::Peripheral::create("Control Pad");
-  node->load(with);
+  node = Node::append<Node::Peripheral>(parent, with, "Control Pad");
+
   up    = Node::append<Node::Button>(node, with, "Up");
   down  = Node::append<Node::Button>(node, with, "Down");
   left  = Node::append<Node::Button>(node, with, "Left");
@@ -9,7 +9,6 @@ ControlPad::ControlPad(Node::Port parent, Node::Peripheral with) {
   b     = Node::append<Node::Button>(node, with, "B");
   c     = Node::append<Node::Button>(node, with, "C");
   start = Node::append<Node::Button>(node, with, "Start");
-  parent->prepend(node);
 }
 
 auto ControlPad::readData() -> uint8 {

@@ -23,7 +23,8 @@ struct Object : shared_pointer_this<Object> {
     return node;
   }
 
-  template<typename T, typename... P> auto prepend(P&&... p) -> Node::Object {
+  template<typename T, typename... P>
+  auto prepend(P&&... p) -> Node::Object {
     using Type = typename T::type;
     return prepend(shared_pointer<Type>::create(forward<P>(p)...));
   }
@@ -36,7 +37,8 @@ struct Object : shared_pointer_this<Object> {
     return node;
   }
 
-  template<typename T, typename... P> auto append(P&&... p) -> Node::Object {
+  template<typename T, typename... P>
+  auto append(P&&... p) -> Node::Object {
     using Type = typename T::type;
     return append(shared_pointer<Type>::create(forward<P>(p)...));
   }
@@ -59,16 +61,19 @@ struct Object : shared_pointer_this<Object> {
     nodes.reset();
   }
 
-  template<typename T> auto cast() -> shared_pointer<typename T::type> {
+  template<typename T>
+  auto cast() -> shared_pointer<typename T::type> {
     if(dynamic_cast<typename T::type*>(this)) return shared();
     return {};
   }
 
-  template<typename T> auto is() -> bool {
+  template<typename T>
+  auto is() -> bool {
     return (bool)cast<T>();
   }
 
-  template<typename T> auto find() -> vector<shared_pointer<typename T::type>> {
+  template<typename T>
+  auto find() -> vector<shared_pointer<typename T::type>> {
     vector<shared_pointer<typename T::type>> result;
     if(dynamic_cast<typename T::type*>(this)) {
       if(auto instance = shared()) result.append(instance);
@@ -77,7 +82,8 @@ struct Object : shared_pointer_this<Object> {
     return result;
   }
 
-  template<typename T> auto find(uint index) -> shared_pointer<typename T::type> {
+  template<typename T>
+  auto find(uint index) -> shared_pointer<typename T::type> {
     auto result = find<T>();
     if(index < result.size()) return result[index];
     return {};
@@ -91,7 +97,8 @@ struct Object : shared_pointer_this<Object> {
     return {};
   }
 
-  template<typename T = Node::Object> auto find(string name) -> Node::Object {
+  template<typename T = Node::Object>
+  auto find(string name) -> Node::Object {
     using Type = typename T::type;
     for(auto& node : nodes) {
       if(node->identity() == Type::identifier && node->name == name) return node;
@@ -99,14 +106,16 @@ struct Object : shared_pointer_this<Object> {
     return {};
   }
 
-  template<typename T = string> auto property(const string& name) const -> T {
+  template<typename T = string>
+  auto property(const string& name) const -> T {
     if(auto property = properties.find(name)) {
       if(property->value.is<T>()) return property->value.get<T>();
     }
     return {};
   }
 
-  template<typename T = string, typename U = string> auto setProperty(const string& name, const U& value = {}) -> void {
+  template<typename T = string, typename U = string>
+  auto setProperty(const string& name, const U& value = {}) -> void {
     if constexpr(is_same_v<T, string> && !is_same_v<U, string>) return setProperty(name, string{value});
     if(auto property = properties.find(name)) {
       if((const T&)value) property->value = (const T&)value;

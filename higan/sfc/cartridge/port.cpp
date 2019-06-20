@@ -4,14 +4,11 @@ CartridgePort::CartridgePort(string_view name) : name(name) {
 }
 
 auto CartridgePort::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::Port::create(name, "Cartridge");
+  port = Node::append<Node::Port>(parent, from, name, "Cartridge");
   port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  if(from = Node::load(port, from)) {
-    if(auto node = from->find<Node::Peripheral>(0)) port->connect(node);
-  }
-  parent->append(port);
+  port->scan(from);
 }
 
 auto CartridgePort::connect(Node::Peripheral node) -> void {

@@ -2,10 +2,10 @@
 
 namespace higan::PCEngine {
 
-System system;
-Scheduler scheduler;
 Cheat cheat;
-#include "display.cpp"
+Scheduler scheduler;
+System system;
+#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -23,11 +23,14 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "PC Engine" ) information.model = Model::PCEngine;
   if(interface->name() == "SuperGrafx") information.model = Model::SuperGrafx;
 
-  node = Node::System::create(interface->name());
-  node->load(from);
+  higan::video.reset(interface);
+  higan::audio.reset(interface);
+
+  node = Node::append<Node::System>(nullptr, from, interface->name());
 
   scheduler.reset();
-  display.load(node, from);
+  video.load(node, from);
+  vce.load(node, from);
   cartridge.load(node, from);
   controllerPort.load(node, from);
 }
@@ -37,6 +40,7 @@ auto System::unload() -> void {
   save();
   cartridge.port = {};
   controllerPort.port = {};
+  vce.unload();
   node = {};
 }
 
@@ -47,10 +51,6 @@ auto System::save() -> void {
 
 auto System::power() -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
-
-  video.reset(interface);
-  display.screen = video.createScreen(display.node, 1120, 240);
-  audio.reset(interface);
 
   cartridge.power();
   cpu.power();

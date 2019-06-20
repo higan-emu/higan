@@ -17,7 +17,11 @@ auto SettingEditor::hide() -> void {
 }
 
 auto SettingEditor::refresh(higan::Node::Setting setting) -> void {
-  this->setting = setting;
+  if(setting) {
+    this->setting = setting;  //assigning a new setting to the editor
+  } else {
+    setting = this->setting;  //refreshing an existing setting in the editor
+  }
   nameLabel.setText(setting->name);
   latchedLayout.setVisible(!setting->dynamic);
   latchedValue.setText(setting->readLatch());
