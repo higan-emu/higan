@@ -18,6 +18,9 @@
 struct BSMemory : Thread, Memory {
   Node::Port port;
   Node::Peripheral node;
+
+  inline auto name() const -> string { return self.name; }
+
   auto load(Node::Peripheral, Node::Peripheral) -> void;
 
   uint ROM = 1;
@@ -48,6 +51,7 @@ struct BSMemory : Thread, Memory {
 
   struct {
     string metadata;
+    string name;
   } self;
 
 private:

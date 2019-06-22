@@ -10,6 +10,12 @@ SystemCreation::SystemCreation(View* parent) : Panel(parent, Size{~0, ~0}) {
 auto SystemCreation::show() -> void {
   refresh();
   setVisible(true);
+
+  //todo: GTK2 hack
+  for(uint n : range(2)) {
+    Application::processEvents();
+    systemList.resize();
+  }
 }
 
 auto SystemCreation::hide() -> void {
@@ -18,12 +24,10 @@ auto SystemCreation::hide() -> void {
 
 auto SystemCreation::refresh() -> void {
   systemList.reset();
-  ListViewItem item{&systemList};
-  item.setIcon(Icon::Emblem::Folder).setText("Folder");
   for(auto& interface : interfaces) {
     ListViewItem item{&systemList};
     item.setProperty<shared_pointer<higan::Interface>>("interface", interface);
-    item.setIcon(Icon::Place::Server).setText(interface->name());
+    item.setText(interface->name());
   }
   systemList.doChange();
 }
@@ -32,17 +36,17 @@ auto SystemCreation::eventChange() -> void {
   if(auto item = systemList.selected()) {
     if(auto interface = item.property<shared_pointer<higan::Interface>>("interface")) {
       nameValue.setText(interface->name());
-    } else {
-      nameValue.setText();
+      nameLabel.setVisible(true);
+      nameValue.setVisible(true);
+      createButton.setVisible(true);
+      return;
     }
-    nameLabel.setVisible(true);
-    nameValue.setVisible(true);
-    createButton.setVisible(true);
-  } else {
-    nameLabel.setVisible(false);
-    nameValue.setVisible(false);
-    createButton.setVisible(false);
   }
+
+  //nothing selected
+  nameLabel.setVisible(false);
+  nameValue.setVisible(false);
+  createButton.setVisible(false);
 }
 
 auto SystemCreation::eventAccept() -> void {
@@ -51,9 +55,6 @@ auto SystemCreation::eventAccept() -> void {
   name.append("/");
 
   auto location = Path::data;
-  if(auto item = systemManager.systemList.selected()) {
-    location = {item.property("path"), item.property("name"), "/"};
-  }
   if(directory::exists({location, name})) {
     if(MessageDialog()
       .setTitle("Warning")

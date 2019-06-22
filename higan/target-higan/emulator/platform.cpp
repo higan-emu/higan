@@ -59,17 +59,14 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
 }
 
 auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
-  auto viewport = node->property<shared_pointer<ViewportWindow>>("viewport");
-  if(!viewport) return;
-
   pitch >>= 2;
-  if(auto [output, length] = viewport->video.acquire(width, height); output) {
+  if(auto [output, length] = videoInstance.acquire(width, height); output) {
     length >>= 2;
     for(auto y : range(height)) {
       memory::copy<uint32>(output + y * length, data + y * pitch, width);
     }
-    viewport->video.release();
-    viewport->video.output();
+    videoInstance.release();
+    videoInstance.output();
   }
 
   static uint frameCounter = 0;
@@ -80,9 +77,7 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
   if(current != previous) {
     previous = current;
     if(settings.video.showFrameRate) {
-      viewport->setTitle({node->name, ": ", frameCounter, " FPS"});
     } else {
-      viewport->setTitle(node->name);
     }
     frameCounter = 0;
   }
@@ -91,19 +86,16 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
 auto Emulator::audio(higan::Node::Audio node, const double* samples, uint channels) -> void {
   if(channels == 1) {
     double stereo[] = {samples[0], samples[0]};
-    sound.output(stereo);
+    audioInstance.output(stereo);
   } else {
-    sound.output(samples);
+    audioInstance.output(samples);
   }
 }
 
 auto Emulator::input(higan::Node::Input input) -> void {
   inputManager.poll();
 
-  bool allow = false;
-  for(auto& viewport : viewports) {
-    if(viewport->focused()) allow = true;
-  }
+  bool allow = programWindow.viewport.focused();
   if(settings.input.unfocused == "Allow") allow = true;
 
   if(auto button = input->cast<higan::Node::Button>()) {

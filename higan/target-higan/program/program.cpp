@@ -34,14 +34,29 @@ InputSettings& inputSettings = programWindow.inputSettings;
 HotkeySettings& hotkeySettings = programWindow.hotkeySettings;
 
 ProgramWindow::ProgramWindow() {
-  panels.setPadding(5_sx, 5_sy);
+  viewport.setFocusable();
+  verticalResizeGrip.setCollapsible();
+  panels.setCollapsible();
+
   for(auto& cell : panels.cells()) cell.setSpacing(0);
-  resizeGrip.onActivate([&] {
-    resizeWidth = panels.cell(*primaryPanel).size().width();
+
+  verticalResizeGrip.onActivate([&] {
+    verticalResizeHeight = layout.cell(*panels).size().height();
+  }).onResize([&](auto offset) {
+    float min = 128_sy, max = geometry().height() - 128_sy;
+    float height = verticalResizeHeight - offset;
+    height = height < min ? min : height > max ? max : height;
+    if(layout.cell(*panels).size().height() != height) {
+      layout.cell(*panels).setSize({~0, height});
+      layout.resize();
+    }
   });
-  resizeGrip.onResize([&](auto offset) {
+
+  horizontalResizeGrip.onActivate([&] {
+    horizontalResizeWidth = panels.cell(*primaryPanel).size().width();
+  }).onResize([&](auto offset) {
     float min = 128_sx, max = panels.geometry().width() - 128_sx;
-    float width = resizeWidth + offset;
+    float width = horizontalResizeWidth + offset;
     width = width < min ? min : width > max ? max : width;
     if(panels.cell(*primaryPanel).size().width() != width) {
       panels.cell(*primaryPanel).setSize({width, ~0});
@@ -55,9 +70,20 @@ ProgramWindow::ProgramWindow() {
   show(systemManager);
 
   setTitle({"higan v", higan::Version});
-  setSize({720_sx, 360_sy});
+  setSize({640_sx, 480_sy + 7_sy + 250_sy});
   setAlignment(Alignment::Center);
   setVisible();
+
+  //GTK2 hack: this should not be necessary ...
+  for(uint loop : range(2)) {
+    Application::processEvents();
+    systemManager.systemList.resize();
+  }
+
+  //start the ruby input driver at program startup rather than after emulator instance creation.
+  //the input driver is much less likely to crash, and is needed for hotkey support to work immediately.
+  emulator.inputUpdate();
+  inputSettings.eventActivate();
 }
 
 auto ProgramWindow::show(Panel& panel) -> void {
@@ -90,4 +116,20 @@ auto ProgramWindow::show(Panel& panel) -> void {
 
 auto ProgramWindow::hide(Panel& panel) -> void {
   show(home);
+}
+
+auto ProgramWindow::showPanels() -> void {
+  if(panels.visible()) return;
+  verticalResizeGrip.setVisible(true);
+  panels.setVisible(true);
+  setSize({640_sx, 480_sy + 7_sy + 250_sy});
+  layout.resize();
+}
+
+auto ProgramWindow::hidePanels() -> void {
+  if(!panels.visible()) return;
+  verticalResizeGrip.setVisible(false);
+  panels.setVisible(false);
+  setSize({640_sx, 480_sy});
+  layout.resize();
 }

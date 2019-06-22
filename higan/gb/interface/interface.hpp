@@ -5,6 +5,8 @@ namespace higan::GameBoy {
 extern Interface* interface;
 
 struct AbstractInterface : Interface {
+  auto title() -> string override;
+
   auto root() -> Node::Object override;
   auto load(string tree = {}) -> void override;
   auto unload() -> void;
@@ -33,7 +35,7 @@ struct SuperGameBoyInterface {
   virtual auto lcdScanline() -> void = 0;
   virtual auto lcdOutput(uint2 color) -> void = 0;
   virtual auto joypRead() -> uint4 = 0;
-  virtual auto joypWrite(bool p15, bool p14) -> void = 0;
+  virtual auto joypWrite(uint1 p14, uint1 p15) -> void = 0;
 };
 
 extern SuperGameBoyInterface* superGameBoy;

@@ -6,32 +6,34 @@ auto CPU::serialize(serializer& s) -> void {
   s.array(hram);
 
   s.integer(status.clock);
+  s.integer(status.interruptLatch);
 
-  s.integer(status.p15);
-  s.integer(status.p14);
   s.integer(status.joyp);
+  s.integer(status.p14);
+  s.integer(status.p15);
 
   s.integer(status.serialData);
   s.integer(status.serialBits);
 
-  s.integer(status.serialTransfer);
   s.integer(status.serialClock);
+  s.integer(status.serialSpeed);
+  s.integer(status.serialTransfer);
 
   s.integer(status.div);
   s.integer(status.tima);
   s.integer(status.tma);
-  s.integer(status.timerEnable);
   s.integer(status.timerClock);
+  s.integer(status.timerEnable);
 
-  s.integer(status.interruptRequest);
+  s.integer(status.interruptFlag);
 
-  s.integer(status.speedDouble);
   s.integer(status.speedSwitch);
+  s.integer(status.speedDouble);
 
   s.integer(status.dmaSource);
   s.integer(status.dmaTarget);
-  s.integer(status.dmaMode);
   s.integer(status.dmaLength);
+  s.integer(status.dmaMode);
   s.integer(status.dmaCompleted);
 
   s.integer(status.ff6c);

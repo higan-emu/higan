@@ -24,6 +24,8 @@ struct ProgramWindow : Window {
   ProgramWindow();
   auto show(Panel&) -> void;
   auto hide(Panel&) -> void;
+  auto showPanels() -> void;
+  auto hidePanels() -> void;
 
   MenuBar menuBar{this};
   ActionMenu actionMenu{&menuBar};
@@ -32,25 +34,29 @@ struct ProgramWindow : Window {
   ToolsMenu toolsMenu{&menuBar};
   HelpMenu helpMenu{&menuBar};
 
-  HorizontalLayout panels{this};
-    SystemManager systemManager{&panels};
-    NodeManager nodeManager{&panels};
-    HorizontalResizeGrip resizeGrip{&panels, Size{7, ~0}};
-    Home home{&panels};
-    SystemCreation systemCreation{&panels};
-    SystemOverview systemOverview{&panels};
-    PortConnector portConnector{&panels};
-    InputMapper inputMapper{&panels};
-    SettingEditor settingEditor{&panels};
-    VideoSettings videoSettings{&panels};
-    AudioSettings audioSettings{&panels};
-    InputSettings inputSettings{&panels};
-    HotkeySettings hotkeySettings{&panels};
+  VerticalLayout layout{this};
+    Viewport viewport{&layout, Size{~0, ~0}, 0};
+    VerticalResizeGrip verticalResizeGrip{&layout, Size{~0, 7}, 0};
+    HorizontalLayout panels{&layout, Size{~0, 250}, 0};
+      SystemManager systemManager{&panels};
+      NodeManager nodeManager{&panels};
+      HorizontalResizeGrip horizontalResizeGrip{&panels, Size{7, ~0}};
+      Home home{&panels};
+      SystemCreation systemCreation{&panels};
+      SystemOverview systemOverview{&panels};
+      PortConnector portConnector{&panels};
+      InputMapper inputMapper{&panels};
+      SettingEditor settingEditor{&panels};
+      VideoSettings videoSettings{&panels};
+      AudioSettings audioSettings{&panels};
+      InputSettings inputSettings{&panels};
+      HotkeySettings hotkeySettings{&panels};
 
 private:
   maybe<Panel&> primaryPanel;
   maybe<Panel&> secondaryPanel;
-  float resizeWidth = 0;
+  float verticalResizeHeight = 0;
+  float horizontalResizeWidth = 0;
 };
 
 namespace Instances { extern Instance<ProgramWindow> programWindow; }

@@ -263,6 +263,7 @@ auto GameBoy::heuristics(vector<uint8_t>& data, string location) -> string {
 
   string s;
   s += "game\n";
+  s +={"  label:  ", Location::prefix(location), "\n"};
   s +={"  title:  ", title, "\n"};
   if(serial)
   s +={"  serial: ", serial, "\n"};

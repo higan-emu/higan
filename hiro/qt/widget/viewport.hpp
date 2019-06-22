@@ -7,6 +7,7 @@ struct pViewport : pWidget {
 
   auto handle() const -> uintptr_t;
   auto setDroppable(bool droppable) -> void;
+  auto setFocusable(bool focusable) -> void;
 
   auto _setState() -> void;
 

@@ -13,16 +13,11 @@ auto InputButton::value() -> bool {
 
 auto InputManager::create() -> void {
   root = interface->root();
-
-  input.create(settings.input.driver);
-  input.setContext(programWindow.handle());
-  input.onChange({&InputManager::eventInput, this});
-  inputSettings.eventActivate();
+  inputInstance.onChange({&InputManager::eventInput, this});
 }
 
 auto InputManager::reset() -> void {
   devices = {};
-  input.reset();
 }
 
 auto InputManager::poll() -> void {
@@ -34,7 +29,7 @@ auto InputManager::poll() -> void {
   //poll hardware, detect when the available devices have changed:
   //existing in-use devices may have been disconnected; or mapped but disconnected devices may now be available.
   //as such, when the returned devices tree changes, rebind all inputs
-  auto devices = input.poll();
+  auto devices = inputInstance.poll();
   bool changed = devices.size() != this->devices.size();
   if(!changed) {
     for(uint n : range(devices.size())) {

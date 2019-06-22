@@ -1,41 +1,31 @@
 auto Emulator::videoUpdate() -> void {
-  for(auto& viewport : viewports) {
-    videoUpdate(viewport->video, viewport->handle());
-  }
-}
-
-auto Emulator::videoUpdate(Video& video, uintptr context) -> void {
-  if(video && video.driver() != settings.video.driver) {
-    video.reset();
+  if(videoInstance && videoInstance.driver() != settings.video.driver) {
+    videoInstance.reset();
   }
 
-  if(!video) {
-    video.create(settings.video.driver);
-    video.setContext(context);
-    if(!video.ready()) {
-      video.reset();
-      video.create(settings.video.driver = "None");
+  if(!videoInstance) {
+    videoInstance.create(settings.video.driver);
+    videoInstance.setContext(programWindow.viewport.handle());
+    if(!videoInstance.ready()) {
+      videoInstance.reset();
+      videoInstance.create(settings.video.driver = "None");
     }
   }
 
-  video.setContext(context);
-  if(video.hasFormat(settings.video.format)) {
-    video.setFormat(settings.video.format);
-  } else {
-    settings.video.format = video.format();
-  }
-  if(video.hasExclusive()) {
+  if(videoInstance.hasExclusive()) {
   //handled by fullscreen codepath
   } else {
     settings.video.exclusive = false;
   }
-  if(video.hasBlocking()) {
-    video.setBlocking(settings.video.blocking);
+
+  if(videoInstance.hasBlocking()) {
+    videoInstance.setBlocking(settings.video.blocking);
   } else {
     settings.video.blocking = false;
   }
-  if(video.hasFlush()) {
-    video.setFlush(settings.video.flush);
+
+  if(videoInstance.hasFlush()) {
+    videoInstance.setFlush(settings.video.flush);
   } else {
     settings.video.flush = false;
   }

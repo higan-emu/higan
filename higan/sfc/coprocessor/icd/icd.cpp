@@ -7,6 +7,10 @@ ICD icd;
 #include "io.cpp"
 #include "serialization.cpp"
 
+auto ICD::name() const -> string {
+  return GameBoy::interface->title();
+}
+
 auto ICD::main() -> void {
   if(r6003 & 0x80) {
     GameBoy::system.run();

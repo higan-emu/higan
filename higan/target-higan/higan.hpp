@@ -16,6 +16,10 @@ namespace nall::Path {
   extern string data;       // ~/higan/
 }
 
+extern Video videoInstance;
+extern Audio audioInstance;
+extern Input inputInstance;
+
 #include "resource/resource.hpp"
 #include "program/program.hpp"
 #include "settings/settings.hpp"

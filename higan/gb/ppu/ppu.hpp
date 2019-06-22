@@ -14,9 +14,9 @@ struct PPU : Thread, MMIO {
   auto hflip(uint data) const -> uint;
 
   //io.cpp
-  auto vramAddress(uint16 addr) const -> uint;
-  auto readIO(uint16 addr) -> uint8;
-  auto writeIO(uint16 addr, uint8 data) -> void;
+  auto vramAddress(uint13 address) const -> uint16;
+  auto readIO(uint16 address) -> uint8;
+  auto writeIO(uint16 address, uint8 data) -> void;
 
   //dmg.cpp
   auto readTileDMG(bool select, uint x, uint y, uint& data) -> void;
@@ -45,8 +45,8 @@ struct PPU : Thread, MMIO {
   uint8 bgpd[64];
   uint8 obpd[64];
 
-  function<auto () -> void> scanline;
-  function<auto () -> void> run;
+  function<void ()> scanline;
+  function<void ()> run;
 
   struct Status {
     bool irq = 0;  //STAT IRQ line
@@ -63,11 +63,11 @@ struct PPU : Thread, MMIO {
     bool bgEnable = 0;
 
     //$ff41  STAT
-    bool interruptLYC = 0;
-    bool interruptOAM = 0;
-    bool interruptVblank = 0;
-    bool interruptHblank = 0;
     uint2 mode;
+    uint1 interruptHblank;
+    uint1 interruptVblank;
+    uint1 interruptOAM;
+    uint1 interruptLYC;
 
     //$ff42  SCY
     uint8 scy;

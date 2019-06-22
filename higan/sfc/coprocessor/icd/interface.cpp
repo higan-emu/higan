@@ -19,7 +19,7 @@ auto ICD::joypRead() -> uint4 {
   return 0xf - joypID;
 }
 
-auto ICD::joypWrite(bool p15, bool p14) -> void {
+auto ICD::joypWrite(uint1 p14, uint1 p15) -> void {
   //joypad handling
   if(p15 == 1 && p14 == 1) {
     if(joyp15Lock == 0 && joyp14Lock == 0) {

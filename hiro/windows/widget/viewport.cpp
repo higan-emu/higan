@@ -22,6 +22,10 @@ auto pViewport::setDroppable(bool droppable) -> void {
   DragAcceptFiles(hwnd, droppable);
 }
 
+auto pViewport::setFocusable(bool focusable) -> void {
+  //todo (high priority)
+}
+
 //
 
 auto pViewport::doMouseLeave() -> void {

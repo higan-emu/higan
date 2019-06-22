@@ -5,6 +5,10 @@ namespace higan::GameBoy {
 Interface* interface = nullptr;
 SuperGameBoyInterface* superGameBoy = nullptr;
 
+auto AbstractInterface::title() -> string {
+  return cartridge.name();
+}
+
 auto AbstractInterface::root() -> Node::Object {
   return system.node;
 }

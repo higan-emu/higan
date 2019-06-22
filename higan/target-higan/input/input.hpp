@@ -10,8 +10,6 @@ struct InputButton {
 };
 
 struct InputManager {
-  Input input;
-
   auto create() -> void;
   auto reset() -> void;
 

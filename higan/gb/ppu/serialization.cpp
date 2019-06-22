@@ -21,11 +21,11 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(status.obEnable);
   s.integer(status.bgEnable);
 
-  s.integer(status.interruptLYC);
-  s.integer(status.interruptOAM);
-  s.integer(status.interruptVblank);
-  s.integer(status.interruptHblank);
   s.integer(status.mode);
+  s.integer(status.interruptHblank);
+  s.integer(status.interruptVblank);
+  s.integer(status.interruptOAM);
+  s.integer(status.interruptLYC);
 
   s.integer(status.scy);
   s.integer(status.scx);

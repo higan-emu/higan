@@ -1,6 +1,5 @@
 struct Emulator : higan::Platform {
   higan::Node::Object root;
-  Audio sound;
 
   //emulator.cpp
   auto create(shared_pointer<higan::Interface>, string location) -> void;
@@ -22,17 +21,14 @@ struct Emulator : higan::Platform {
 
   //video.cpp
   auto videoUpdate() -> void;
-  auto videoUpdate(Video&, uintptr) -> void;
   auto videoUpdateColors() -> void;
 
   //audio.cpp
   auto audioUpdate() -> void;
-  auto audioUpdate(Audio&, uintptr) -> void;
   auto audioUpdateEffects() -> void;
 
   //input.cpp
   auto inputUpdate() -> void;
-  auto inputUpdate(Input&, uintptr) -> void;
 
   //states.cpp
   auto saveState(uint slot) -> bool;
@@ -44,8 +40,6 @@ struct Emulator : higan::Platform {
     string templates;
     bool power = false;
   } system;
-
-  vector<shared_pointer<ViewportWindow>> viewports;
 };
 
 extern Emulator emulator;

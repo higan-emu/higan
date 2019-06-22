@@ -15,25 +15,17 @@ auto SystemManager::hide() -> void {
 
 auto SystemManager::refresh() -> void {
   systemList.reset();
-  refresh(Path::data);
-}
-
-auto SystemManager::refresh(string location, uint depth) -> void {
+  auto location = Path::data;
   for(auto& name : directory::folders(location)) {
+    auto document = BML::unserialize(file::read({location, name, "/", "metadata.bml"}));
+    if(!document) continue;
+
     ListViewItem item{&systemList};
     item.setProperty("location", {location, name});
     item.setProperty("path", location);
     item.setProperty("name", name.trimRight("/", 1L));
-    string spacing;
-    for(auto n : range(depth)) spacing.append("   ");
-    if(auto document = BML::unserialize(file::read({location, name, "/", "metadata.bml"}))) {
-      auto label = document["system"].text();
-      item.setProperty("system", label);
-      item.setText({spacing, "\xe2\x97\xb9\xe2\x80\x82", name});
-    } else {
-      refresh({location, name, "/"}, depth + 1);
-      item.setText({spacing, "\xe2\x97\xa2\xe2\x80\x82", name});
-    }
+    item.setProperty("system", document["system"].text());
+    item.setText(name);
   }
 }
 
@@ -64,9 +56,6 @@ auto SystemManager::eventChange() -> void {
 }
 
 auto SystemManager::eventCreate() -> void {
-  if(auto item = systemList.selected()) {
-    if(item.property("system")) return;  //group folders inside system folders is not supported
-  }
   programWindow.show(systemCreation);
 }
 

@@ -38,19 +38,7 @@ auto InputSettings::hide() -> void {
 }
 
 auto InputSettings::refresh() -> void {
-  Input* input = nullptr;
-  if(inputManager.input) {
-    input = &inputManager.input;
-    emulator.inputUpdate();
-  } else {
-    input = new Input;
-    emulator.inputUpdate(*input, programWindow.handle());
-  }
-
-  if(!inputManager.input) {
-    input->reset();
-    delete input;
-  }
+  emulator.inputUpdate();
 }
 
 auto InputSettings::eventActivate() -> void {

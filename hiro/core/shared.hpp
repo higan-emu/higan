@@ -850,6 +850,7 @@ struct Viewport : sViewport {
   auto doMousePress(Mouse::Button button) const { return self().doMousePress(button); }
   auto doMouseRelease(Mouse::Button button) const { return self().doMouseRelease(button); }
   auto droppable() const { return self().droppable(); }
+  auto focusable() const { return self().focusable(); }
   auto handle() const { return self().handle(); }
   auto onDrop(const function<void (vector<string>)>& callback = {}) { return self().onDrop(callback), *this; }
   auto onMouseLeave(const function<void ()>& callback = {}) { return self().onMouseLeave(callback), *this; }
@@ -857,6 +858,7 @@ struct Viewport : sViewport {
   auto onMousePress(const function<void (Mouse::Button)>& callback = {}) { return self().onMousePress(callback), *this; }
   auto onMouseRelease(const function<void (Mouse::Button)>& callback = {}) { return self().onMouseRelease(callback), *this; }
   auto setDroppable(bool droppable = true) { return self().setDroppable(droppable), *this; }
+  auto setFocusable(bool focusable = true) { return self().setFocusable(focusable), *this; }
 };
 #endif
 

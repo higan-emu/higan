@@ -9,6 +9,10 @@ namespace nall::Path {
   string data;
 }
 
+Video videoInstance;
+Audio audioInstance;
+Input inputInstance;
+
 #include <fc/interface/interface.hpp>
 #include <gb/interface/interface.hpp>
 #include <gba/interface/interface.hpp>

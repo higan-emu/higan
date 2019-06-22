@@ -17,19 +17,19 @@ struct CPU : SM83, Thread, MMIO {
   auto serialize(serializer&) -> void;
 
   //io.cpp
-  auto wramAddress(uint16 addr) const -> uint;
+  auto wramAddress(uint13 address) const -> uint16;
   auto joypPoll() -> void;
-  auto readIO(uint16 addr) -> uint8;
-  auto writeIO(uint16 addr, uint8 data) -> void;
+  auto readIO(uint16 address) -> uint8;
+  auto writeIO(uint16 address, uint8 data) -> void;
 
   //memory.cpp
   auto idle() -> void override;
-  auto read(uint16 addr) -> uint8 override;
-  auto write(uint16 addr, uint8 data) -> void override;
+  auto read(uint16 address) -> uint8 override;
+  auto write(uint16 address, uint8 data) -> void override;
   auto cycleEdge() -> void;
-  auto readDMA(uint16 addr) -> uint8;
-  auto writeDMA(uint16 addr, uint8 data) -> void;
-  auto readDebugger(uint16 addr) -> uint8 override;
+  auto readDMA(uint16 address) -> uint8;
+  auto writeDMA(uint13 address, uint8 data) -> void;
+  auto readDebugger(uint16 address) -> uint8 override;
 
   //timing.cpp
   auto step(uint clocks) -> void;
@@ -42,19 +42,21 @@ struct CPU : SM83, Thread, MMIO {
 
   struct Status {
     uint22 clock;
+     uint8 interruptLatch;
 
     //$ff00  JOYP
-    bool p15 = 0;
-    bool p14 = 0;
-    uint8 joyp;
+    uint4 joyp;
+    uint1 p14;
+    uint1 p15;
 
     //$ff01  SB
     uint8 serialData;
-    uint serialBits = 0;
+    uint4 serialBits;
 
     //$ff02  SC
-    bool serialTransfer = 0;
-    bool serialClock = 0;
+    uint1 serialClock;
+    uint1 serialSpeed;
+    uint1 serialTransfer;
 
     //$ff04  DIV
     uint16 div;
@@ -66,15 +68,15 @@ struct CPU : SM83, Thread, MMIO {
     uint8 tma;
 
     //$ff07  TAC
-    bool timerEnable = 0;
-    uint timerClock = 0;
+    uint2 timerClock;
+    uint1 timerEnable;
 
     //$ff0f  IF
-    uint5 interruptRequest;
+    uint5 interruptFlag;
 
     //$ff4d  KEY1
-    bool speedDouble = 0;
-    bool speedSwitch = 0;
+    uint1 speedSwitch;
+    uint1 speedDouble;
 
     //$ff51,$ff52  HDMA1,HDMA2
     uint16 dmaSource;
@@ -83,12 +85,12 @@ struct CPU : SM83, Thread, MMIO {
     uint16 dmaTarget;
 
     //$ff55  HDMA5
-    bool dmaMode = 0;
-    uint16 dmaLength;
-    bool dmaCompleted = 1;
+    uint12 dmaLength;
+     uint1 dmaMode;
+     uint1 dmaCompleted = 1;
 
     //$ff6c  ???
-    uint8 ff6c;
+    uint1 ff6c;
 
     //$ff70  SVBK
     uint3 wramBank = 1;
@@ -97,7 +99,7 @@ struct CPU : SM83, Thread, MMIO {
     uint8 ff72;
     uint8 ff73;
     uint8 ff74;
-    uint8 ff75;
+    uint3 ff75;
 
     //$ffff  IE
     uint8 interruptEnable;

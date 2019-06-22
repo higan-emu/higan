@@ -18,6 +18,15 @@ static auto Viewport_expose(GtkWidget* widget, GdkEventExpose* event) -> signed 
   return true;
 }
 
+static auto Viewport_keyPress(GtkWidget* widget, GdkEventKey* event, pViewport* p) -> signed {
+  //viewports that have been set focusable are intended for games.
+  //to prevent arrow keys, tab, etc from losing focus on the game viewport, block key propagation here.
+  if(p->state().focusable) return true;
+
+  //for all other cases, allow the key to propagate.
+  return false;
+}
+
 static auto Viewport_mouseLeave(GtkWidget* widget, GdkEventButton* event, pViewport* p) -> signed {
   p->self().doMouseLeave();
   return true;
@@ -29,6 +38,10 @@ static auto Viewport_mouseMove(GtkWidget* widget, GdkEventButton* event, pViewpo
 }
 
 static auto Viewport_mousePress(GtkWidget* widget, GdkEventButton* event, pViewport* p) -> signed {
+  //gtk_widget_set_focus_on_click() is a GTK 3.2+ feature.
+  //implement this functionality manually for GTK 2.0+ compatibility.
+  if(event->button == 1 && p->state().focusable) gtk_widget_grab_focus(widget);
+
   switch(event->button) {
   case 1: p->self().doMousePress(Mouse::Button::Left); break;
   case 2: p->self().doMousePress(Mouse::Button::Middle); break;
@@ -68,6 +81,7 @@ auto pViewport::construct() -> void {
   #elif HIRO_GTK==3
   g_signal_connect(G_OBJECT(gtkWidget), "draw", G_CALLBACK(Viewport_draw), (gpointer)this);
   #endif
+  g_signal_connect(G_OBJECT(gtkWidget), "key-press-event", G_CALLBACK(Viewport_keyPress), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkWidget), "leave-notify-event", G_CALLBACK(Viewport_mouseLeave), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkWidget), "motion-notify-event", G_CALLBACK(Viewport_mouseMove), (gpointer)this);
 
@@ -96,6 +110,10 @@ auto pViewport::setDroppable(bool droppable) -> void {
     gtk_drag_dest_set(gtkWidget, GTK_DEST_DEFAULT_ALL, nullptr, 0, GDK_ACTION_COPY);
     gtk_drag_dest_add_uri_targets(gtkWidget);
   }
+}
+
+auto pViewport::setFocusable(bool focusable) -> void {
+  gtk_widget_set_can_focus(gtkWidget, focusable);
 }
 
 }

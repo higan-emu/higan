@@ -5,6 +5,8 @@ struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   Node::Peripheral node;
   shared_pointer<Stream> stream;
 
+  //icd.cpp
+  auto name() const -> string;
   auto main() -> void;
 
   auto load(Node::Peripheral, Node::Peripheral) -> void;
@@ -21,7 +23,7 @@ struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   auto lcdScanline() -> void override;
   auto lcdOutput(uint2 color) -> void override;
   auto joypRead() -> uint4 override;
-  auto joypWrite(bool p15, bool p14) -> void override;
+  auto joypWrite(uint1 p14, uint1 p15) -> void override;
 
   //io.cpp
   auto readIO(uint24 addr, uint8 data) -> uint8;
@@ -71,6 +73,8 @@ private:
 #else
 
 struct ICD : Thread {
+  auto name() const -> string { return {}; }
+
   auto load(Node::Peripheral, Node::Peripheral) -> void {}
   auto connect(Node::Peripheral) -> void {}
   auto disconnect() -> void {}

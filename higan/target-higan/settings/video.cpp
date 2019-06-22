@@ -66,19 +66,10 @@ auto VideoSettings::hide() -> void {
 }
 
 auto VideoSettings::refresh() -> void {
-  Video* video = nullptr;
-  if(emulator.viewports.size() && emulator.viewports.first()->visible()) {
-    video = &emulator.viewports.first()->video;
-    emulator.videoUpdate();
-  } else {
-    viewport.setVisible();
-    Application::processEvents();
-    video = new Video;
-    emulator.videoUpdate(*video, viewport.handle());
-  }
+  emulator.videoUpdate();
 
   formatOption.reset();
-  for(auto& format : video->hasFormats()) {
+  for(auto& format : videoInstance.hasFormats()) {
     ComboButtonItem item{&formatOption};
     item.setText(format);
     if(format == settings.video.format) item.setSelected();
@@ -87,15 +78,9 @@ auto VideoSettings::refresh() -> void {
 
   optionsLayout.resize();
 
-  exclusiveOption.setEnabled(video->hasExclusive());
-  blockingOption.setEnabled(video->hasBlocking());
-  flushOption.setEnabled(video->hasFlush());
-
-  if(viewport.visible()) {
-    video->reset();
-    delete video;
-    viewport.setVisible(false);
-  }
+  exclusiveOption.setEnabled(videoInstance.hasExclusive());
+  blockingOption.setEnabled(videoInstance.hasBlocking());
+  flushOption.setEnabled(videoInstance.hasFlush());
 }
 
 auto VideoSettings::eventActivate() -> void {

@@ -43,6 +43,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   } else return;
 
   auto document = BML::unserialize(information.metadata);
+  information.name = document["game/label"].text();
 
   auto mapperID = document["game/board"].text();
   if(mapperID == "MBC0" ) mapper = &mbc0;

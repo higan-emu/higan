@@ -1,21 +1,13 @@
 auto Emulator::inputUpdate() -> void {
-  if(auto& input = inputManager.input) {
-    inputUpdate(input, programWindow.handle());
-  }
-}
-
-auto Emulator::inputUpdate(Input& input, uintptr context) -> void {
-  if(input && input.driver() != settings.input.driver) {
-    input.reset();
+  if(inputInstance && inputInstance.driver() != settings.input.driver) {
+    inputInstance.reset();
   }
 
-  if(!input) {
-    input.create(settings.input.driver);
-    input.setContext(context);
-    if(!input.ready()) {
-      input.create(settings.input.driver = "None");
+  if(!inputInstance) {
+    inputInstance.create(settings.input.driver);
+    inputInstance.setContext(programWindow.handle());
+    if(!inputInstance.ready()) {
+      inputInstance.create(settings.input.driver = "None");
     }
   }
-
-  input.setContext(context);
 }

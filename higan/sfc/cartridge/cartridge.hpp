@@ -5,6 +5,7 @@ struct Cartridge {
 
   auto metadata() const -> string { return information.metadata; }
   auto region() const -> string { return information.region; }
+  auto name() const -> string { return information.name; }
 
   //cartridge.cpp
   auto connect(Node::Port, Node::Peripheral) -> void;
@@ -26,6 +27,7 @@ struct Cartridge {
     Markup::Node document;
     string region;
     string board;
+    string name;
   } information;
 
   struct Has {

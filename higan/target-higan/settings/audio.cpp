@@ -79,17 +79,10 @@ auto AudioSettings::hide() -> void {
 }
 
 auto AudioSettings::refresh() -> void {
-  Audio* audio = nullptr;
-  if(emulator.sound) {
-    audio = &emulator.sound;
-    emulator.audioUpdate();
-  } else {
-    audio = new Audio;
-    emulator.audioUpdate(*audio, programWindow.handle());
-  }
+  emulator.audioUpdate();
 
   deviceOption.reset();
-  for(auto& device : audio->hasDevices()) {
+  for(auto& device : audioInstance.hasDevices()) {
     ComboButtonItem item{&deviceOption};
     item.setText(device);
     if(device == settings.audio.device) item.setSelected();
@@ -97,7 +90,7 @@ auto AudioSettings::refresh() -> void {
   deviceOption.setEnabled(deviceOption.itemCount() > 1);
 
   frequencyOption.reset();
-  for(auto& frequency : audio->hasFrequencies()) {
+  for(auto& frequency : audioInstance.hasFrequencies()) {
     ComboButtonItem item{&frequencyOption};
     item.setText(frequency);
     if(frequency == settings.audio.frequency) item.setSelected();
@@ -105,7 +98,7 @@ auto AudioSettings::refresh() -> void {
   frequencyOption.setEnabled(frequencyOption.itemCount() > 1);
 
   latencyOption.reset();
-  for(auto& latency : audio->hasLatencies()) {
+  for(auto& latency : audioInstance.hasLatencies()) {
     ComboButtonItem item{&latencyOption};
     item.setText(latency);
     if(latency == settings.audio.latency) item.setSelected();
@@ -114,14 +107,9 @@ auto AudioSettings::refresh() -> void {
 
   settingsLayout.resize();
 
-  exclusiveOption.setEnabled(audio->hasExclusive());
-  blockingOption.setEnabled(audio->hasBlocking());
-  dynamicOption.setEnabled(audio->hasDynamic());
-
-  if(!emulator.sound) {
-    audio->reset();
-    delete audio;
-  }
+  exclusiveOption.setEnabled(audioInstance.hasExclusive());
+  blockingOption.setEnabled(audioInstance.hasBlocking());
+  dynamicOption.setEnabled(audioInstance.hasDynamic());
 }
 
 auto AudioSettings::eventActivate() -> void {

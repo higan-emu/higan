@@ -17,9 +17,9 @@ auto PPU::unload() -> void {
 }
 
 auto PPU::main() -> void {
-  if(0 && !status.displayEnable) {
+  if(!status.displayEnable) {
     for(uint n : range(160 * 144)) screen[n] = Model::GameBoy() ? 0 : 0x7fff;
-    Thread::step(154 * 456);
+    step(154 * 456);
     scheduler.exit(Scheduler::Event::Frame);
     return;
   }

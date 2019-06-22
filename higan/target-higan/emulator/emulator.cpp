@@ -32,25 +32,18 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   root = interface->root();
 
   nodeManager.bind(root);
-  programWindow.setTitle(system.name);
+  systemMenu.setText(system.name);
   programWindow.show(home);
   programWindow.show(nodeManager);
+  programWindow.setTitle(system.name);
   programWindow.setFocused();
 
-  sound.create(settings.audio.driver);
-  sound.setContext(programWindow.handle());
-  sound.setBlocking(false);
-  sound.setFrequency(48000.0);
-  audioSettings.eventActivate();
-
+  videoUpdate();
+  audioUpdate();
   inputManager.create();
 
-  for(auto& display : root->find<higan::Node::Video>()) {
-    auto viewport = shared_pointer_make<ViewportWindow>();
-    display->setProperty<shared_pointer<ViewportWindow>>("viewport", viewport);
-    viewport->create(display);
-    viewports.append(viewport);
-  }
+  videoSettings.eventActivate();
+  audioSettings.eventActivate();
 
   //this call will bind all inputs on account of InputManager::devices currently being empty
   inputManager.poll();
@@ -65,17 +58,15 @@ auto Emulator::unload() -> void {
 
   power(false);
   Application::onMain();
+  programWindow.setTitle({"higan v", higan::Version});
+  systemMenu.setText("System");
 
   if(auto location = root->property("location")) {
     file::write({location, "settings.bml"}, higan::Node::serialize(root));
   }
 
-  for(auto& display : root->find<higan::Node::Video>()) {
-    display->setProperty<shared_pointer<ViewportWindow>>("viewport");
-  }
-  viewports.reset();
-
-  sound.reset();
+  videoInstance.reset();
+  audioInstance.reset();
   inputManager.reset();
   root = {};
   interface->unload();
@@ -88,12 +79,7 @@ auto Emulator::main() -> void {
   inputManager.poll();
   hotkeys.poll();
 
-  bool viewportFocused = false;
-  for(auto& viewport : viewports) {
-    if(viewport->focused()) viewportFocused = true;
-  }
-
-  if(!system.power || (!viewportFocused && settings.input.unfocused == "Pause")) {
+  if(!system.power || (!programWindow.viewport.focused() && settings.input.unfocused == "Pause")) {
     usleep(20 * 1000);
   } else {
     interface->run();
@@ -112,23 +98,18 @@ auto Emulator::quit() -> void {
 auto Emulator::power(bool on) -> void {
   if(system.power == on) return;
   if(system.power = on) {
-    for(auto& viewport : viewports) {
-      viewport->show(programWindow);
-      Application::processEvents();
-    }
+    programWindow.setTitle(interface->title());
     videoUpdateColors();
     audioUpdateEffects();
     interface->power();
     //powering on the system latches static settings
     nodeManager.refreshSettings();
     if(settingEditor.visible()) settingEditor.refresh();
+    programWindow.viewport.setFocused();
   } else {
-    for(auto& viewport : viewports) {
-      viewport->hide();
-    }
-    if(programWindow.minimized()) programWindow.setMinimized(false);
-    if(!programWindow.maximized()) programWindow.setAlignment(Alignment::Center);
-    programWindow.setFocused();
+    programWindow.setTitle(system.name);
+    videoInstance.clear();
+    audioInstance.clear();
   }
   systemMenu.power.setChecked(on);
   toolsMenu.saveStateMenu.setEnabled(on);

@@ -25,6 +25,10 @@ auto pViewport::setDroppable(bool droppable) -> void {
   _setState();
 }
 
+auto pViewport::setFocusable(bool focusable) -> void {
+  //todo (high priority)
+}
+
 auto pViewport::_setState() -> void {
   qtViewport->setAcceptDrops(state().droppable);
 }

@@ -1,6 +1,9 @@
 struct SufamiTurboCartridge {
   Node::Port port;
   Node::Peripheral node;
+
+  inline auto name() const -> string { return self.name; }
+
   auto load(Node::Peripheral, Node::Peripheral) -> void;
 
   //sufamiturbo.cpp
@@ -24,6 +27,7 @@ struct SufamiTurboCartridge {
 
   struct {
     string metadata;
+    string name;
   } self;
 };
 

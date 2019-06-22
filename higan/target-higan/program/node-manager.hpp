@@ -4,7 +4,7 @@ struct NodeManager : Panel {
   auto hide() -> void override;
   auto bind(higan::Node::Object) -> void;
   auto refresh() -> void;
-  auto refresh(higan::Node::Object, uint depth = 1) -> void;
+  auto refresh(higan::Node::Object, uint depth) -> void;
   auto refreshSettings() -> void;
   auto deselect() -> void;
 

@@ -42,6 +42,7 @@ auto BSMemory::connect(Node::Peripheral with) -> void {
   } else return;
 
   auto document = BML::unserialize(self.metadata);
+  self.name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(content=Program)"]) {
     ROM = memory["type"].text() == "ROM";

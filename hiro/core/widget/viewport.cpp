@@ -30,6 +30,10 @@ auto mViewport::droppable() const -> bool {
   return state.droppable;
 }
 
+auto mViewport::focusable() const -> bool {
+  return state.focusable;
+}
+
 auto mViewport::handle() const -> uintptr_t {
   return signal(handle);
 }
@@ -62,6 +66,12 @@ auto mViewport::onMouseRelease(const function<void (Mouse::Button)>& callback) -
 auto mViewport::setDroppable(bool droppable) -> type& {
   state.droppable = droppable;
   signal(setDroppable, droppable);
+  return *this;
+}
+
+auto mViewport::setFocusable(bool focusable) -> type& {
+  state.focusable = focusable;
+  signal(setFocusable, focusable);
   return *this;
 }
 

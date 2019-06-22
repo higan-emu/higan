@@ -15,13 +15,13 @@ auto CPU::main() -> void {
   //are interrupts enabled?
   if(r.ime) {
     //are any interrupts pending?
-    if(status.interruptRequest & status.interruptEnable) {
+    if(status.interruptLatch) {
       idle();
       idle();
       idle();
       r.ime = 0;
       write(--SP, PC >> 8);  //upper byte may write to IE before it is polled again
-      uint8 mask = status.interruptRequest & status.interruptEnable;
+      uint8 mask = status.interruptFlag & status.interruptEnable;
       write(--SP, PC >> 0);  //lower byte write to IE has no effect
       if(mask) {
         uint interruptID = bit::first(mask);  //find highest priority interrupt
@@ -38,11 +38,11 @@ auto CPU::main() -> void {
 }
 
 auto CPU::raised(uint interruptID) const -> bool {
-  return status.interruptRequest.bit(interruptID);
+  return status.interruptFlag.bit(interruptID);
 }
 
 auto CPU::raise(uint interruptID) -> void {
-  status.interruptRequest.bit(interruptID) = 1;
+  status.interruptFlag.bit(interruptID) = 1;
   if(status.interruptEnable.bit(interruptID)) {
     r.halt = false;
     if(interruptID == Interrupt::Joypad) r.stop = false;
@@ -50,7 +50,7 @@ auto CPU::raise(uint interruptID) -> void {
 }
 
 auto CPU::lower(uint interruptID) -> void {
-  status.interruptRequest.bit(interruptID) = 0;
+  status.interruptFlag.bit(interruptID) = 0;
 }
 
 auto CPU::stop() -> bool {

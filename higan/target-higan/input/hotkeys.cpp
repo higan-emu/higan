@@ -11,6 +11,17 @@ auto InputHotkey::poll() -> void {
 }
 
 Hotkeys::Hotkeys() {
+  { InputHotkey hotkey{"Toggle Panels"};
+    hotkey.onPress = [&] {
+      if(programWindow.panels.visible()) {
+        programWindow.hidePanels();
+      } else {
+        programWindow.showPanels();
+      }
+    };
+    hotkeys.append(hotkey);
+  }
+
   { InputHotkey hotkey{"Save State"};
     hotkey.onPress = [&] { emulator.saveState(stateSlot); };
     hotkeys.append(hotkey);

@@ -3,6 +3,7 @@ struct Cartridge : Thread, MMIO {
   Node::Peripheral node;
 
   inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
 
   //cartridge.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -22,6 +23,7 @@ struct Cartridge : Thread, MMIO {
 
   struct Information {
     string metadata;
+    string name;
   } information;
 
   struct Memory {
