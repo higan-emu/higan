@@ -1,9 +1,16 @@
 struct CPU : SM83, Thread, MMIO {
-  enum class Interrupt : uint { Vblank, Stat, Timer, Serial, Joypad };
+  struct Interrupt { enum : uint {
+    /* 0 */ VerticalBlank,
+    /* 1 */ Stat,
+    /* 2 */ Timer,
+    /* 3 */ Serial,
+    /* 4 */ Joypad,
+  };};
 
   auto main() -> void;
-  auto raise(Interrupt id) -> void;
-  auto interruptTest() -> void;
+  auto raised(uint interrupt) const -> bool;
+  auto raise(uint interrupt) -> void;
+  auto lower(uint interrupt) -> void;
   auto stop() -> bool;
   auto power() -> void;
 
@@ -63,11 +70,7 @@ struct CPU : SM83, Thread, MMIO {
     uint timerClock = 0;
 
     //$ff0f  IF
-    bool interruptRequestJoypad = 0;
-    bool interruptRequestSerial = 0;
-    bool interruptRequestTimer = 0;
-    bool interruptRequestStat = 0;
-    bool interruptRequestVblank = 0;
+    uint5 interruptRequest;
 
     //$ff4d  KEY1
     bool speedDouble = 0;
@@ -97,11 +100,7 @@ struct CPU : SM83, Thread, MMIO {
     uint8 ff75;
 
     //$ffff  IE
-    bool interruptEnableJoypad = 0;
-    bool interruptEnableSerial = 0;
-    bool interruptEnableTimer = 0;
-    bool interruptEnableStat = 0;
-    bool interruptEnableVblank = 0;
+    uint8 interruptEnable;
   } status;
 
   uint8 wram[32768];  //GB=8192, GBC=32768

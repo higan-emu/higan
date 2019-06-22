@@ -1,12 +1,3 @@
-auto SM83::interrupt(uint16 vector) -> void {
-  idle();
-  idle();
-  idle();
-  r.ime = 0;
-  push(PC);
-  PC = vector;
-}
-
 #define op(id, name, ...) case id: return instruction##name(__VA_ARGS__);
 
 auto SM83::instruction() -> void {

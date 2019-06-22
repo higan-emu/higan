@@ -18,7 +18,6 @@ struct SM83 {
   auto power() -> void;
 
   //instruction.cpp
-  auto interrupt(uint16 vector) -> void;
   auto instruction() -> void;
   auto instructionCB() -> void;
 

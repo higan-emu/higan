@@ -30,6 +30,8 @@ auto CPU::joypPoll() -> void {
 }
 
 auto CPU::readIO(uint16 addr) -> uint8 {
+  uint8 data = 0xff;
+
   if(addr >= 0xc000 && addr <= 0xfdff) return wram[wramAddress(addr)];
   if(addr >= 0xff80 && addr <= 0xfffe) return hram[addr & 0x7f];
 
@@ -70,12 +72,14 @@ auto CPU::readIO(uint16 addr) -> uint8 {
   }
 
   if(addr == 0xff0f) {  //IF
-    return 0xe0
-         | (status.interruptRequestJoypad << 4)
-         | (status.interruptRequestSerial << 3)
-         | (status.interruptRequestTimer << 2)
-         | (status.interruptRequestStat << 1)
-         | (status.interruptRequestVblank << 0);
+    data.bit(0) = status.interruptRequest.bit(0);
+    data.bit(1) = status.interruptRequest.bit(1);
+    data.bit(2) = status.interruptRequest.bit(2);
+    data.bit(3) = status.interruptRequest.bit(3);
+    data.bit(4) = status.interruptRequest.bit(4);
+    data.bit(5) = 1;
+    data.bit(6) = 1;
+    data.bit(7) = 1;
   }
 
   if(addr == 0xff4d) {  //KEY1
@@ -124,15 +128,10 @@ auto CPU::readIO(uint16 addr) -> uint8 {
   }
 
   if(addr == 0xffff) {  //IE
-    return 0xe0
-         | (status.interruptEnableJoypad << 4)
-         | (status.interruptEnableSerial << 3)
-         | (status.interruptEnableTimer << 2)
-         | (status.interruptEnableStat << 1)
-         | (status.interruptEnableVblank << 0);
+    data = status.interruptEnable;
   }
 
-  return 0xff;
+  return data;
 }
 
 auto CPU::writeIO(uint16 addr, uint8 data) -> void {
@@ -180,11 +179,7 @@ auto CPU::writeIO(uint16 addr, uint8 data) -> void {
   }
 
   if(addr == 0xff0f) {  //IF
-    status.interruptRequestJoypad = data & 0x10;
-    status.interruptRequestSerial = data & 0x08;
-    status.interruptRequestTimer = data & 0x04;
-    status.interruptRequestStat = data & 0x02;
-    status.interruptRequestVblank = data & 0x01;
+    status.interruptRequest = data.bits(0,4);
     return;
   }
 
@@ -265,11 +260,7 @@ auto CPU::writeIO(uint16 addr, uint8 data) -> void {
   }
 
   if(addr == 0xffff) {  //IE
-    status.interruptEnableJoypad = data & 0x10;
-    status.interruptEnableSerial = data & 0x08;
-    status.interruptEnableTimer = data & 0x04;
-    status.interruptEnableStat = data & 0x02;
-    status.interruptEnableVblank = data & 0x01;
+    status.interruptEnable = data;
     return;
   }
 }

@@ -10,6 +10,8 @@ struct ActionMenu : Menu {
 struct SystemMenu : Menu {
   SystemMenu(MenuBar*);
   MenuCheckItem power{this};
+  MenuSeparator unloadSeparator{this};
+  MenuItem unload{this};
 };
 
 struct SettingsMenu : Menu {

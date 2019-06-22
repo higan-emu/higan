@@ -23,11 +23,7 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(status.timerEnable);
   s.integer(status.timerClock);
 
-  s.integer(status.interruptRequestJoypad);
-  s.integer(status.interruptRequestSerial);
-  s.integer(status.interruptRequestTimer);
-  s.integer(status.interruptRequestStat);
-  s.integer(status.interruptRequestVblank);
+  s.integer(status.interruptRequest);
 
   s.integer(status.speedDouble);
   s.integer(status.speedSwitch);
@@ -47,9 +43,5 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(status.ff74);
   s.integer(status.ff75);
 
-  s.integer(status.interruptEnableJoypad);
-  s.integer(status.interruptEnableSerial);
-  s.integer(status.interruptEnableTimer);
-  s.integer(status.interruptEnableStat);
-  s.integer(status.interruptEnableVblank);
+  s.integer(status.interruptEnable);
 }

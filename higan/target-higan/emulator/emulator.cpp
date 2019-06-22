@@ -45,8 +45,6 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
   inputManager.create();
 
-  Application::onMain({&Emulator::main, this});
-
   for(auto& display : root->find<higan::Node::Video>()) {
     auto viewport = shared_pointer_make<ViewportWindow>();
     display->setProperty<shared_pointer<ViewportWindow>>("viewport", viewport);
@@ -58,6 +56,30 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   inputManager.poll();
 
   power(false);
+
+  Application::onMain({&Emulator::main, this});
+}
+
+auto Emulator::unload() -> void {
+  if(!interface) return;
+
+  power(false);
+  Application::onMain();
+
+  if(auto location = root->property("location")) {
+    file::write({location, "settings.bml"}, higan::Node::serialize(root));
+  }
+
+  for(auto& display : root->find<higan::Node::Video>()) {
+    display->setProperty<shared_pointer<ViewportWindow>>("viewport");
+  }
+  viewports.reset();
+
+  sound.reset();
+  inputManager.reset();
+  root = {};
+  interface->unload();
+  interface.reset();
 }
 
 auto Emulator::main() -> void {
@@ -80,24 +102,15 @@ auto Emulator::main() -> void {
 
 auto Emulator::quit() -> void {
   Application::quit();  //stop processing callbacks and timers
-  if(!interface) return;
+  unload();
 
-  if(auto location = root->property("location")) {
-    file::write({location, "settings.bml"}, higan::Node::serialize(root));
-  }
-
-  viewports.reset();
-  sound.reset();
-  inputManager.reset();
   Instances::inputManager.destruct();
   Instances::programWindow.destruct();
-  root = {};
-  interface->unload();
-  interface.reset();
   interfaces.reset();
 }
 
 auto Emulator::power(bool on) -> void {
+  if(system.power == on) return;
   if(system.power = on) {
     for(auto& viewport : viewports) {
       viewport->show(programWindow);

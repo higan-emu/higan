@@ -4,6 +4,7 @@ struct Emulator : higan::Platform {
 
   //emulator.cpp
   auto create(shared_pointer<higan::Interface>, string location) -> void;
+  auto unload() -> void;
   auto main() -> void;
   auto quit() -> void;
   auto power(bool on) -> void;

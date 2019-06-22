@@ -17,6 +17,12 @@ ActionMenu::ActionMenu(MenuBar* parent) : Menu(parent) {
 SystemMenu::SystemMenu(MenuBar* parent) : Menu(parent) {
   setText("System");
   power.setText("Power").onToggle([&] { emulator.power(power.checked()); });
+  unload.setIcon(Icon::Go::Home).setText("Unload").onActivate([&] {
+    emulator.unload();
+    programWindow.show(home);
+    programWindow.show(systemManager);
+    programWindow.setTitle({"higan v", higan::Version});
+  });
 }
 
 //
@@ -53,17 +59,18 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
 ToolsMenu::ToolsMenu(MenuBar* parent) : Menu(parent) {
   setText("Tools");
   saveStateMenu.setText("Save State");
-    saveState1.setText("Slot 1").onActivate([&] { emulator.saveState(1); });
-    saveState2.setText("Slot 2").onActivate([&] { emulator.saveState(2); });
-    saveState3.setText("Slot 3").onActivate([&] { emulator.saveState(3); });
-    saveState4.setText("Slot 4").onActivate([&] { emulator.saveState(4); });
-    saveState5.setText("Slot 5").onActivate([&] { emulator.saveState(5); });
+  saveState1.setText("Slot 1").onActivate([&] { emulator.saveState(1); });
+  saveState2.setText("Slot 2").onActivate([&] { emulator.saveState(2); });
+  saveState3.setText("Slot 3").onActivate([&] { emulator.saveState(3); });
+  saveState4.setText("Slot 4").onActivate([&] { emulator.saveState(4); });
+  saveState5.setText("Slot 5").onActivate([&] { emulator.saveState(5); });
+
   loadStateMenu.setText("Load State");
-    loadState1.setText("Slot 1").onActivate([&] { emulator.loadState(1); });
-    loadState2.setText("Slot 2").onActivate([&] { emulator.loadState(2); });
-    loadState3.setText("Slot 3").onActivate([&] { emulator.loadState(3); });
-    loadState4.setText("Slot 4").onActivate([&] { emulator.loadState(4); });
-    loadState5.setText("Slot 5").onActivate([&] { emulator.loadState(5); });
+  loadState1.setText("Slot 1").onActivate([&] { emulator.loadState(1); });
+  loadState2.setText("Slot 2").onActivate([&] { emulator.loadState(2); });
+  loadState3.setText("Slot 3").onActivate([&] { emulator.loadState(3); });
+  loadState4.setText("Slot 4").onActivate([&] { emulator.loadState(4); });
+  loadState5.setText("Slot 5").onActivate([&] { emulator.loadState(5); });
 }
 
 //

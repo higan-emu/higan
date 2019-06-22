@@ -17,10 +17,9 @@ auto PPU::unload() -> void {
 }
 
 auto PPU::main() -> void {
-  if(!status.displayEnable) {
+  if(0 && !status.displayEnable) {
     for(uint n : range(160 * 144)) screen[n] = Model::GameBoy() ? 0 : 0x7fff;
     Thread::step(154 * 456);
-    synchronize(cpu);
     scheduler.exit(Scheduler::Event::Frame);
     return;
   }
@@ -50,7 +49,7 @@ auto PPU::main() -> void {
   status.ly++;
 
   if(status.ly == 144) {
-    cpu.raise(CPU::Interrupt::Vblank);
+    cpu.raise(CPU::Interrupt::VerticalBlank);
     scheduler.exit(Scheduler::Event::Frame);
   }
 
@@ -94,7 +93,11 @@ auto PPU::step(uint clocks) -> void {
           //cool-down; disable
           status.dmaActive = false;
         } else {
-          oam[hi - 1] = bus.read(status.dmaBank << 8 | hi - 1);
+          uint8 bank = status.dmaBank;
+          if(bank == 0xfe) bank = 0xde;  //OAM DMA cannot reference OAM, I/O, or HRAM:
+          if(bank == 0xff) bank = 0xdf;  //it accesses HRAM instead.
+          uint8 data = bus.read(bank << 8 | hi - 1);
+          oam[hi - 1] = data;
         }
       }
     }

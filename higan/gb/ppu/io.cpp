@@ -1,8 +1,10 @@
-auto PPU::vramAddress(uint16 addr) const -> uint {
-  return status.vramBank << 13 | (uint13)addr;
+auto PPU::vramAddress(uint16 address) const -> uint {
+  return status.vramBank << 13 | (uint13)address;
 }
 
 auto PPU::readIO(uint16 addr) -> uint8 {
+  uint8 data = 0xff;
+
   if(addr >= 0x8000 && addr <= 0x9fff) {
     return vram[vramAddress(addr)];
   }
@@ -24,12 +26,14 @@ auto PPU::readIO(uint16 addr) -> uint8 {
   }
 
   if(addr == 0xff41) {  //STAT
-    return (status.interruptLYC << 6)
-         | (status.interruptOAM << 5)
-         | (status.interruptVblank << 4)
-         | (status.interruptHblank << 3)
-         | ((status.ly == status.lyc) << 2)
-         | (status.mode << 0);
+    data.bit(0) = status.mode.bit(0);
+    data.bit(1) = status.mode.bit(1);
+    data.bit(2) = status.ly == status.lyc;
+    data.bit(3) = status.interruptHblank;
+    data.bit(4) = status.interruptVblank;
+    data.bit(5) = status.interruptOAM;
+    data.bit(6) = status.interruptLYC;
+    data.bit(7) = 1;
   }
 
   if(addr == 0xff42) {  //SCY
@@ -46,6 +50,10 @@ auto PPU::readIO(uint16 addr) -> uint8 {
 
   if(addr == 0xff45) {  //LYC
     return status.lyc;
+  }
+
+  if(addr == 0xff46) {  //DMA
+    data = status.dmaBank;
   }
 
   if(addr == 0xff47) {  //BGP
@@ -97,7 +105,7 @@ auto PPU::readIO(uint16 addr) -> uint8 {
     return obpd[status.obpi];
   }
 
-  return 0xff;  //should never occur
+  return data;
 }
 
 auto PPU::writeIO(uint16 addr, uint8 data) -> void {
@@ -113,7 +121,7 @@ auto PPU::writeIO(uint16 addr, uint8 data) -> void {
   }
 
   if(addr == 0xff40) {  //LCDC
-    if(status.displayEnable && !data.bit(7)) {
+    if(status.displayEnable != data.bit(7)) {
       status.mode = 0;
       status.ly = 0;
       status.lx = 0;
@@ -143,7 +151,7 @@ auto PPU::writeIO(uint16 addr, uint8 data) -> void {
 
     //hardware bug: writes to STAT on DMG,SGB during vblank triggers STAT IRQ
     //note: this behavior isn't entirely correct; more research is needed ...
-    if(!Model::GameBoyColor() && status.mode == 1) {
+    if(!Model::GameBoyColor() && status.displayEnable && status.mode == 1) {
       cpu.raise(CPU::Interrupt::Stat);
     }
 

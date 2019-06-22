@@ -12,6 +12,7 @@ using View = HorizontalLayout;
 struct ProgramWindow : Window {
   ProgramWindow();
   auto show(Panel&) -> void;
+  auto hide(Panel&) -> void;
 
   MenuBar menuBar{this};
     Menu actionMenu{&menuBar};

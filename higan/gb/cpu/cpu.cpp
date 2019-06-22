@@ -2,6 +2,9 @@
 
 namespace higan::GameBoy {
 
+#define SP r.sp.word
+#define PC r.pc.word
+
 #include "io.cpp"
 #include "memory.cpp"
 #include "timing.cpp"
@@ -9,64 +12,45 @@ namespace higan::GameBoy {
 CPU cpu;
 
 auto CPU::main() -> void {
-  interruptTest();
+  //are interrupts enabled?
+  if(r.ime) {
+    //are any interrupts pending?
+    if(status.interruptRequest & status.interruptEnable) {
+      idle();
+      idle();
+      idle();
+      r.ime = 0;
+      write(--SP, PC >> 8);  //upper byte may write to IE before it is polled again
+      uint8 mask = status.interruptRequest & status.interruptEnable;
+      write(--SP, PC >> 0);  //lower byte write to IE has no effect
+      if(mask) {
+        uint interruptID = bit::first(mask);  //find highest priority interrupt
+        lower(interruptID);
+        PC = 0x0040 + interruptID * 8;
+      } else {
+        //if push(PCH) writes to IE and disables all requested interrupts, PC is forced to zero
+        PC = 0x0000;
+      }
+    }
+  }
+
   instruction();
 }
 
-auto CPU::raise(CPU::Interrupt id) -> void {
-  if(id == Interrupt::Vblank) {
-    status.interruptRequestVblank = 1;
-    if(status.interruptEnableVblank) r.halt = false;
-  }
+auto CPU::raised(uint interruptID) const -> bool {
+  return status.interruptRequest.bit(interruptID);
+}
 
-  if(id == Interrupt::Stat) {
-    status.interruptRequestStat = 1;
-    if(status.interruptEnableStat) r.halt = false;
-  }
-
-  if(id == Interrupt::Timer) {
-    status.interruptRequestTimer = 1;
-    if(status.interruptEnableTimer) r.halt = false;
-  }
-
-  if(id == Interrupt::Serial) {
-    status.interruptRequestSerial = 1;
-    if(status.interruptEnableSerial) r.halt = false;
-  }
-
-  if(id == Interrupt::Joypad) {
-    status.interruptRequestJoypad = 1;
-    if(status.interruptEnableJoypad) r.halt = r.stop = false;
+auto CPU::raise(uint interruptID) -> void {
+  status.interruptRequest.bit(interruptID) = 1;
+  if(status.interruptEnable.bit(interruptID)) {
+    r.halt = false;
+    if(interruptID == Interrupt::Joypad) r.stop = false;
   }
 }
 
-auto CPU::interruptTest() -> void {
-  if(!r.ime) return;
-
-  if(status.interruptRequestVblank && status.interruptEnableVblank) {
-    status.interruptRequestVblank = 0;
-    return interrupt(0x0040);
-  }
-
-  if(status.interruptRequestStat && status.interruptEnableStat) {
-    status.interruptRequestStat = 0;
-    return interrupt(0x0048);
-  }
-
-  if(status.interruptRequestTimer && status.interruptEnableTimer) {
-    status.interruptRequestTimer = 0;
-    return interrupt(0x0050);
-  }
-
-  if(status.interruptRequestSerial && status.interruptEnableSerial) {
-    status.interruptRequestSerial = 0;
-    return interrupt(0x0058);
-  }
-
-  if(status.interruptRequestJoypad && status.interruptEnableJoypad) {
-    status.interruptRequestJoypad = 0;
-    return interrupt(0x0060);
-  }
+auto CPU::lower(uint interruptID) -> void {
+  status.interruptRequest.bit(interruptID) = 0;
 }
 
 auto CPU::stop() -> bool {

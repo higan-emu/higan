@@ -36,7 +36,9 @@ HotkeySettings& hotkeySettings = programWindow.hotkeySettings;
 ProgramWindow::ProgramWindow() {
   panels.setPadding(5_sx, 5_sy);
   for(auto& cell : panels.cells()) cell.setSpacing(0);
-  resizeGrip.onActivate([&] { resizeWidth = panels.cell(*primaryPanel).size().width(); });
+  resizeGrip.onActivate([&] {
+    resizeWidth = panels.cell(*primaryPanel).size().width();
+  });
   resizeGrip.onResize([&](auto offset) {
     float min = 128_sx, max = panels.geometry().width() - 128_sx;
     float width = resizeWidth + offset;
