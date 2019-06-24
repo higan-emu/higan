@@ -80,14 +80,6 @@ auto Video::setShader(string shader) -> bool {
 
 //
 
-auto Video::configure(uint width, uint height, double inputFrequency, double outputFrequency) -> bool {
-  instance->width = width;
-  instance->height = height;
-  instance->inputFrequency = inputFrequency;
-  instance->outputFrequency = outputFrequency;
-  return instance->configure(width, height, inputFrequency, outputFrequency);
-}
-
 auto Video::clear() -> void {
   return instance->clear();
 }
@@ -102,8 +94,8 @@ auto Video::release() -> void {
   return instance->release();
 }
 
-auto Video::output() -> void {
-  return instance->output();
+auto Video::output(uint width, uint height) -> void {
+  return instance->output(width, height);
 }
 
 auto Video::poll() -> void {

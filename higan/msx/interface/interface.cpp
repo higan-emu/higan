@@ -4,6 +4,22 @@ namespace higan::MSX {
 
 Interface* interface = nullptr;
 
+auto AbstractInterface::game() -> string {
+  if(cartridge.node && expansion.node) {
+    return {cartridge.name(), " + ", expansion.name()};
+  }
+
+  if(cartridge.node) {
+    return cartridge.name();
+  }
+
+  if(expansion.node) {
+    return expansion.name();
+  }
+
+  return "(no cartridge connected)";
+}
+
 auto AbstractInterface::root() -> Node::Object {
   return system.node;
 }

@@ -67,11 +67,6 @@ struct VideoGLX2 : VideoDriver {
     return true;
   }
 
-  auto configure(uint width, uint height, double inputFrequency, double outputFrequency) -> bool override {
-    XResizeWindow(_display, _window, width, height);
-    return true;
-  }
-
   auto clear() -> void override {
     memory::fill<uint32_t>(_glBuffer, _glWidth * _glHeight);
     glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -89,7 +84,22 @@ struct VideoGLX2 : VideoDriver {
   auto release() -> void override {
   }
 
-  auto output() -> void override {
+  auto output(uint width, uint height) -> void override {
+    XWindowAttributes window;
+    XGetWindowAttributes(_display, _window, &window);
+
+    XWindowAttributes parent;
+    XGetWindowAttributes(_display, self.context, &parent);
+
+    if(window.width != parent.width || window.height != parent.height) {
+      XResizeWindow(_display, _window, parent.width, parent.height);
+    }
+
+    if(!width) width = parent.width;
+    if(!height) height = parent.height;
+    int x = ((int)parent.width - (int)width) / 2;
+    int y = ((int)parent.height - (int)height) / 2;
+
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, self.shader == "Blur" ? GL_LINEAR : GL_NEAREST);
@@ -97,8 +107,8 @@ struct VideoGLX2 : VideoDriver {
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, self.width, 0, self.height, -1.0, 1.0);
-    glViewport(0, 0, self.width, self.height);
+    glOrtho(0, parent.width, 0, parent.height, -1.0, 1.0);
+    glViewport(x, y, width, height);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
@@ -107,8 +117,8 @@ struct VideoGLX2 : VideoDriver {
 
     double w = (double)_width / (double)_glWidth;
     double h = (double)_height / (double)_glHeight;
-    int u = self.width;
-    int v = self.height;
+    int u = parent.width;
+    int v = parent.height;
 
     glBegin(GL_TRIANGLE_STRIP);
     glTexCoord2f(0, 0); glVertex3i(0, v, 0);

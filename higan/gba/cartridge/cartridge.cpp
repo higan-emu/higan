@@ -38,9 +38,10 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
   if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
     information.metadata = fp->reads();
-  } else return;
+  }
 
   auto document = BML::unserialize(information.metadata);
+  information.name = document["game/label"].text();
 
   hasSRAM   = false;
   hasEEPROM = false;

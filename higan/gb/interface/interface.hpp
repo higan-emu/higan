@@ -5,7 +5,7 @@ namespace higan::GameBoy {
 extern Interface* interface;
 
 struct AbstractInterface : Interface {
-  auto title() -> string override;
+  auto game() -> string override;
 
   auto root() -> Node::Object override;
   auto load(string tree = {}) -> void override;

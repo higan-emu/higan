@@ -401,7 +401,7 @@ auto pTableView::_doToggle(GtkCellRendererToggle* gtkCellRendererToggle, const c
 //this isn't currently exposed as a hiro API call, so try and determine if we should apply it here
 //basically, if there's two or more columns and no custom colors applied, then we do so
 auto pTableView::_updateRulesHint() -> void {
-  bool rules = true;
+  bool rules = false;  //true
   if(state().backgroundColor) rules = false;
   if(state().foregroundColor) rules = false;
   if(state().columns.size() <= 1) rules = false;

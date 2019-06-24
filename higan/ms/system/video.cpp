@@ -6,8 +6,8 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
     node->type    = "CRT";
     node->width   = 256;
     node->height  = 240;
-    node->scaleX  = 2.0;
-    node->scaleY  = 2.0;
+    node->scaleX  = 1.0;
+    node->scaleY  = 1.0;
     node->aspectX = 8.0;
     node->aspectY = 7.0;
     node->colors  = 1 << 6;

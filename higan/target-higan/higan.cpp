@@ -153,10 +153,12 @@ auto nall::main(Arguments arguments) -> void {
   for(auto& interface : interfaces) interface->load();
 
   Instances::programWindow.construct();
-  Instances::inputManager.construct();
+  emulator.inputUpdate();
+  inputManager.poll();
+  hotkeys.bind();
+  Application::onMain({&Emulator::main, &emulator});
   Application::run();
 
   settings.save();
-  Instances::inputManager.destruct();
   Instances::programWindow.destruct();
 }

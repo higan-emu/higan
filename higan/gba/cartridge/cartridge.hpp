@@ -5,6 +5,7 @@ struct Cartridge {
   #include "memory.hpp"
 
   inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
 
   //cartridge.cpp
   Cartridge();
@@ -25,6 +26,7 @@ struct Cartridge {
 private:
   struct {
     string metadata;
+    string name;
   } information;
 
   bool hasSRAM = false;

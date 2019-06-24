@@ -7,6 +7,7 @@ struct Cartridge {
   Flash flash[2];
 
   inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
 
   //cartridge.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -24,6 +25,7 @@ struct Cartridge {
 private:
   struct Information {
     string metadata;
+    string name;
   } information;
 };
 

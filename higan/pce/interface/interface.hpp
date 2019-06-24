@@ -5,6 +5,8 @@ namespace higan::PCEngine {
 extern Interface* interface;
 
 struct AbstractInterface : Interface {
+  auto game() -> string override;
+
   auto root() -> Node::Object override;
   auto load(string tree = {}) -> void override;
   auto unload() -> void override;

@@ -19,6 +19,8 @@ auto PCEngine::heuristics(vector<uint8_t>& data, string location) -> string {
 
   string s;
   s += "game\n";
+  s +={"  name:  ", Location::prefix(location), "\n"};
+  s +={"  label: ", Location::prefix(location), "\n"};
   s += "  board\n";
   s += "    memory\n";
   s += "      type: ROM\n";

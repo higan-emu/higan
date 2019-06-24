@@ -3,6 +3,7 @@ struct Cartridge {
   Node::Peripheral node;
 
   inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
   inline auto region() const -> string { return information.region; }
 
   //cartridge.cpp
@@ -23,13 +24,14 @@ struct Cartridge {
 private:
   struct Information {
     string metadata;
+    string name;
     string region;
   } information;
 
   Memory::Readable<uint8> rom;
   Memory::Writable<uint8> ram;
 
-  const string name;
+  const string portName;
 };
 
 extern Cartridge cartridge;

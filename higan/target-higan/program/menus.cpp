@@ -1,12 +1,13 @@
 ActionMenu::ActionMenu(MenuBar* parent) : Menu(parent) {
   setText("System");
   create.setIcon(Icon::Action::Add).setText("Create").onActivate([&] {
+    programWindow.showPanels();
     systemManager.eventCreate();
   });
-  rename.setIcon(Icon::Application::TextEditor).setText("Rename").onActivate([&] {
+  rename.setIcon(Icon::Application::TextEditor).setText("Rename").setEnabled(false).onActivate([&] {
     systemManager.eventRename();
   });
-  remove.setIcon(Icon::Action::Remove).setText("Delete").onActivate([&] {
+  remove.setIcon(Icon::Action::Remove).setText("Delete").setEnabled(false).onActivate([&] {
     systemManager.eventRemove();
   });
   quit.setIcon(Icon::Action::Quit).setText("Quit").onActivate([&] { emulator.quit(); });
@@ -19,6 +20,7 @@ SystemMenu::SystemMenu(MenuBar* parent) : Menu(parent) {
   power.setText("Power").onToggle([&] { emulator.power(power.checked()); });
   unload.setIcon(Icon::Go::Home).setText("Unload").onActivate([&] {
     emulator.unload();
+    programWindow.showPanels();
     programWindow.show(home);
     programWindow.show(systemManager);
     programWindow.setTitle({"higan v", higan::Version});
@@ -29,20 +31,42 @@ SystemMenu::SystemMenu(MenuBar* parent) : Menu(parent) {
 
 SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   setText("Settings");
+  outputMenu.setText("Output").setIcon(Icon::Emblem::Image);
+  outputCenter.setText("Center").onActivate([&] {
+    settings.video.output = "Center";
+  });
+  outputScale.setText("Scale").onActivate([&] {
+    settings.video.output = "Scale";
+  });
+  outputStretch.setText("Stretch").onActivate([&] {
+    settings.video.output = "Stretch";
+  });
+  if(settings.video.output == "Center") outputCenter.setChecked();
+  if(settings.video.output == "Scale") outputScale.setChecked();
+  if(settings.video.output == "Stretch") outputStretch.setChecked();
+  aspectCorrection.setText("Aspect Correction").setChecked(settings.video.aspectCorrection).onToggle([&] {
+    settings.video.aspectCorrection = aspectCorrection.checked();
+  });
+  shaderMenu.setText("Shader").setIcon(Icon::Emblem::Image).setEnabled(false);
   video.setText("Video").setIcon(Icon::Device::Display).onActivate([&] {
+    programWindow.showPanels();
     programWindow.show(videoSettings);
   });
   audio.setText("Audio").setIcon(Icon::Device::Speaker).onActivate([&] {
+    programWindow.showPanels();
     programWindow.show(audioSettings);
   });
   input.setText("Input").setIcon(Icon::Device::Joypad).onActivate([&] {
+    programWindow.showPanels();
     programWindow.show(inputSettings);
   });
   hotkeys.setText("Hotkeys").setIcon(Icon::Device::Keyboard).onActivate([&] {
+    programWindow.showPanels();
     programWindow.show(hotkeySettings);
   });
   showFrameRate.setText("Show Frame Rate").setChecked(settings.video.showFrameRate).onToggle([&] {
     settings.video.showFrameRate = showFrameRate.checked();
+    if(interface) programWindow.setTitle(interface->game());
   });
   muteAudio.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {
     settings.audio.mute = muteAudio.checked();
@@ -52,6 +76,52 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
     if(systemOverview.visible()) systemOverview.refresh();
     if(nodeManager.visible()) nodeManager.refresh();
   });
+}
+
+auto SettingsMenu::updateShaders() -> void {
+  shaderMenu.reset();
+  if(!videoInstance.ready() || !videoInstance.hasShader()) {
+    shaderMenu.setEnabled(false);
+    return;
+  }
+  shaderMenu.setEnabled();
+
+  Group shaders;
+
+  MenuRadioItem none{&shaderMenu};
+  none.setText("None").onActivate([&] {
+    settings.video.shader = "None";
+    emulator.videoUpdateShader();
+  });
+  shaders.append(none);
+
+  MenuRadioItem blur{&shaderMenu};
+  blur.setText("Blur").onActivate([&] {
+    settings.video.shader = "Blur";
+    emulator.videoUpdateShader();
+  });
+  shaders.append(blur);
+
+  string location{Path::settings, "Shaders/"};
+
+  if(settings.video.driver == "OpenGL 3.2") {
+    for(auto shaderName : directory::folders(location, "*.shader")) {
+      if(shaders.objectCount() == 2) shaderMenu.append(MenuSeparator());
+      MenuRadioItem item{&shaderMenu};
+      item.setText(Location::prefix(shaderName)).onActivate([=] {
+        settings.video.shader = {location, shaderName};
+        emulator.videoUpdateShader();
+      });
+    }
+  }
+
+  if(settings.video.shader == "None") none.setChecked();
+  if(settings.video.shader == "Blur") blur.setChecked();
+  for(auto item : shaders.objects<MenuRadioItem>()) {
+    if(settings.video.shader == string{location, item.text(), ".shader/"}) {
+      item.setChecked();
+    }
+  }
 }
 
 //
@@ -87,7 +157,7 @@ HelpMenu::HelpMenu(MenuBar* parent) : Menu(parent) {
     .setAuthor(higan::Author)
     .setLicense(higan::License)
     .setWebsite(higan::Website)
-    .setAlignment(programWindow)
+    .setAlignment(programWindow, {0.5f, programWindow.panels.visible() ? 0.32f : 0.5f})
     .show();
   });
 }

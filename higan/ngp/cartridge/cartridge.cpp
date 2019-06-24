@@ -24,6 +24,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   };
 
   auto document = BML::unserialize(information.metadata);
+  information.name = document["game/label"].text();
 
   flash[0].reset(0);
   flash[1].reset(1);

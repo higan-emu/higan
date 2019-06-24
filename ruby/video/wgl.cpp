@@ -51,9 +51,11 @@ struct VideoWGL : VideoDriver, OpenGL {
   auto release() -> void override {
   }
 
-  auto output() -> void override {
+  auto output(uint width, uint height) -> void override {
     RECT rectangle;
     GetClientRect((HWND)self.context, &rectangle);
+    OpenGL::absoluteWidth = width;
+    OpenGL::absoluteHeight = height;
     OpenGL::outputWidth = rectangle.right - rectangle.left;
     OpenGL::outputHeight = rectangle.bottom - rectangle.top;
     OpenGL::output();

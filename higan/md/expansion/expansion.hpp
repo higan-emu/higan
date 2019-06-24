@@ -7,6 +7,7 @@ struct Expansion {
   Node::Peripheral node;
 
   inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
   inline auto regions() const -> vector<string> { return information.regions; }
 
   auto load(Node::Object, Node::Object) -> void;
@@ -27,6 +28,7 @@ struct Expansion {
 
   struct Information {
     string metadata;
+    string name;
     vector<string> regions;
   };
 

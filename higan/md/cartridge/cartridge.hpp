@@ -8,6 +8,7 @@ struct Cartridge {
   Memory::Writable< uint8> bram;  // 8-bit save RAM
 
   inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
   inline auto regions() const -> vector<string> { return information.regions; }
   inline auto bootable() const -> boolean { return information.bootable; }  //CART_IN line
 
@@ -49,6 +50,7 @@ struct Cartridge {
 
   struct Information {
     string metadata;
+    string name;
     vector<string> regions;
     boolean bootable;
   } information;

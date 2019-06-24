@@ -74,18 +74,19 @@ struct VideoGLX : VideoDriver, OpenGL {
   auto release() -> void override {
   }
 
-  auto output() -> void override {
-    //we must ensure that the child window is the same size as the parent window.
-    //unfortunately, we cannot hook the parent window resize event notification,
-    //as we did not create the parent window, nor have any knowledge of the toolkit used.
-    //therefore, inelegant as it may be, we query each window size and resize as needed.
-    XWindowAttributes parent, child;
-    XGetWindowAttributes(_display, (Window)self.context, &parent);
-    XGetWindowAttributes(_display, (Window)_window, &child);
-    if(child.width != parent.width || child.height != parent.height) {
+  auto output(uint width, uint height) -> void override {
+    XWindowAttributes window;
+    XGetWindowAttributes(_display, _window, &window);
+
+    XWindowAttributes parent;
+    XGetWindowAttributes(_display, self.context, &parent);
+
+    if(window.width != parent.width || window.height != parent.height) {
       XResizeWindow(_display, _window, parent.width, parent.height);
     }
 
+    OpenGL::absoluteWidth = width;
+    OpenGL::absoluteHeight = height;
     OpenGL::outputWidth = parent.width;
     OpenGL::outputHeight = parent.height;
     OpenGL::output();

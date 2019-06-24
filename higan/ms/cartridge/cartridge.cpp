@@ -24,6 +24,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   }
 
   auto document = BML::unserialize(information.metadata);
+  information.name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.allocate(memory["size"].natural());

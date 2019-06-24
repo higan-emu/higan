@@ -7,7 +7,7 @@ struct Interface {
 
   //information
   virtual auto name() -> string { return {}; }
-  virtual auto title() -> string { return {}; }
+  virtual auto game() -> string { return {}; }
 
   //system interface
   virtual auto root() -> Node::Object { return {}; }

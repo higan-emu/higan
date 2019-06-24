@@ -6,7 +6,7 @@ extern Interface* interface;
 
 struct SuperFamicomInterface : Interface {
   auto name() -> string override { return "Super Famicom"; }
-  auto title() -> string override;
+  auto game() -> string override;
 
   auto root() -> Node::Object override;
   auto load(string tree = {}) -> void override;

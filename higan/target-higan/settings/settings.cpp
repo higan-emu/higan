@@ -16,8 +16,8 @@ auto Settings::save() -> void {
 
 auto Settings::properties(bool mode, Markup::Node document) -> void {
   #define s(name) \
-    if(mode == 0) document[string{#name}.transform(".", "/")].value(name); \
-    if(mode == 1) document(string{#name}.transform(".", "/")).setValue(name);
+    if(mode == 0) document[string{#name}.trimRight(".identifier", 1L).transform(".", "/")].value(name); \
+    if(mode == 1) document(string{#name}.trimRight(".identifier", 1L).transform(".", "/")).setValue(name);
   s(video.driver)
   s(video.format)
   s(video.exclusive)
@@ -26,6 +26,9 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(video.luminance)
   s(video.saturation)
   s(video.gamma)
+  s(video.output)
+  s(video.aspectCorrection)
+  s(video.shader)
   s(video.showFrameRate)
   s(audio.driver)
   s(audio.device)
@@ -40,5 +43,11 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(audio.mute)
   s(input.driver)
   s(input.unfocused)
+  s(hotkeys.togglePanels.identifier)
+  s(hotkeys.fastForward.identifier)
+  s(hotkeys.saveState.identifier)
+  s(hotkeys.loadState.identifier)
+  s(hotkeys.incrementStateSlot.identifier)
+  s(hotkeys.decrementStateSlot.identifier)
   #undef s
 }

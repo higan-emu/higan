@@ -4,6 +4,18 @@ namespace higan::MegaDrive {
 
 Interface* interface = nullptr;
 
+auto MegaDriveInterface::game() -> string {
+  if(expansion.node && (!cartridge.node || !cartridge.bootable())) {
+    return expansion.name();
+  }
+
+  if(cartridge.node && cartridge.bootable()) {
+    return cartridge.name();
+  }
+
+  return "(no cartridge connected)";
+}
+
 auto MegaDriveInterface::root() -> Node::Object {
   return system.node;
 }

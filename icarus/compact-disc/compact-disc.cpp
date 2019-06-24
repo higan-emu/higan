@@ -7,6 +7,8 @@ auto CompactDisc::construct() -> void {
 auto CompactDisc::metadata(string location) -> string {
   string s;
   s += "game\n";
+  s +={"  name:  ", Location::prefix(location), "\n"};
+  s +={"  label: ", Location::prefix(location), "\n"};
   return s;
 }
 

@@ -8,7 +8,7 @@ ICD icd;
 #include "serialization.cpp"
 
 auto ICD::name() const -> string {
-  return GameBoy::interface->title();
+  return GameBoy::interface->game();
 }
 
 auto ICD::main() -> void {

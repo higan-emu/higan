@@ -10,6 +10,9 @@ struct FDS {
   Node::String state;
   uint1 present;
 
+  inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
+
   struct Disk {
     Memory::Writable<uint8> sideA;
     Memory::Writable<uint8> sideB;
@@ -41,6 +44,7 @@ struct FDS {
 private:
   struct Information {
     string metadata;
+    string name;
   } information;
 
   FDSDrive drive;

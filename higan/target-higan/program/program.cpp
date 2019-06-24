@@ -122,7 +122,7 @@ auto ProgramWindow::showPanels() -> void {
   if(panels.visible()) return;
   verticalResizeGrip.setVisible(true);
   panels.setVisible(true);
-  setSize({640_sx, 480_sy + 7_sy + 250_sy});
+  if(!maximized()) setSize({640_sx, 480_sy + 7_sy + 250_sy});
   layout.resize();
 }
 
@@ -130,6 +130,6 @@ auto ProgramWindow::hidePanels() -> void {
   if(!panels.visible()) return;
   verticalResizeGrip.setVisible(false);
   panels.setVisible(false);
-  setSize({640_sx, 480_sy});
+  if(!maximized()) setSize({640_sx, 480_sy});
   layout.resize();
 }

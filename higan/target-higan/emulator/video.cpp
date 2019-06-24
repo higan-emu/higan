@@ -10,6 +10,7 @@ auto Emulator::videoUpdate() -> void {
       videoInstance.reset();
       videoInstance.create(settings.video.driver = "None");
     }
+    settingsMenu.updateShaders();
   }
 
   if(videoInstance.hasExclusive()) {
@@ -29,6 +30,10 @@ auto Emulator::videoUpdate() -> void {
   } else {
     settings.video.flush = false;
   }
+
+  if(videoInstance.hasShader()) {
+    videoInstance.setShader(settings.video.shader);
+  }
 }
 
 auto Emulator::videoUpdateColors() -> void {
@@ -41,4 +46,8 @@ auto Emulator::videoUpdateColors() -> void {
       screen->setPalette();
     }
   }
+}
+
+auto Emulator::videoUpdateShader() -> void {
+  videoInstance.setShader(settings.video.shader);
 }

@@ -4,7 +4,7 @@ namespace higan::SuperFamicom {
 
 Interface* interface = nullptr;
 
-auto SuperFamicomInterface::title() -> string {
+auto SuperFamicomInterface::game() -> string {
   if(icd.node) {
     return icd.name();
   }
@@ -29,7 +29,7 @@ auto SuperFamicomInterface::title() -> string {
     return cartridge.name();
   }
 
-  return {};
+  return "(no cartridge connected)";
 }
 
 auto SuperFamicomInterface::root() -> Node::Object {

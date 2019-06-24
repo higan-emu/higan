@@ -26,11 +26,11 @@ auto pViewport::setDroppable(bool droppable) -> void {
 }
 
 auto pViewport::setFocusable(bool focusable) -> void {
-  //todo (high priority)
+  //TODO
 }
 
 auto pViewport::_setState() -> void {
-  qtViewport->setAcceptDrops(state().droppable);
+  qtViewport->setAcceptDrops(self().droppable());
 }
 
 auto QtViewport::dragEnterEvent(QDragEnterEvent* event) -> void {

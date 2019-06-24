@@ -1,19 +1,17 @@
-#if defined(Hiro_SourceEdit)
-struct mSourceEdit : mWidget {
-  Declare(SourceEdit)
+#if defined(Hiro_TextEdit)
+struct mTextEdit : mWidget {
+  Declare(TextEdit)
 
+  auto backgroundColor() const -> Color;
   auto doChange() const -> void;
   auto doMove() const -> void;
   auto editable() const -> bool;
-  auto language() const -> string;
-  auto numbered() const -> bool;
+  auto foregroundColor() const -> Color;
   auto onChange(const function<void ()>& callback = {}) -> type&;
   auto onMove(const function<void ()>& callback = {}) -> type&;
-  auto scheme() const -> string;
-  auto setEditable(bool editable) -> type&;
-  auto setLanguage(const string& language = "") -> type&;
-  auto setNumbered(bool numbered = true) -> type&;
-  auto setScheme(const string& scheme = "") -> type&;
+  auto setBackgroundColor(Color color = {}) -> type&;
+  auto setEditable(bool editable = true) -> type&;
+  auto setForegroundColor(Color color = {}) -> type&;
   auto setText(const string& text = "") -> type&;
   auto setTextCursor(TextCursor textCursor = {}) -> type&;
   auto setWordWrap(bool wordWrap = true) -> type&;
@@ -23,12 +21,11 @@ struct mSourceEdit : mWidget {
 
 //private:
   struct State {
+    Color backgroundColor;
     bool editable = true;
-    string language;
-    bool numbered = true;
+    Color foregroundColor;
     function<void ()> onChange;
     function<void ()> onMove;
-    string scheme;
     string text;
     TextCursor textCursor;
     bool wordWrap = true;

@@ -23,7 +23,7 @@ auto Expansion::connect(Node::Peripheral with) -> void {
   }
 
   auto document = BML::unserialize(information.metadata);
-
+  information.name = document["game/label"].text();
   information.regions = document["game/region"].text().split(",").strip();
 
   mcd.load(node, with);

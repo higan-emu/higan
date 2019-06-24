@@ -1,8 +1,26 @@
 struct FamicomDisk : FloppyDisk {
   auto name() -> string override { return "Famicom Disk"; }
+  auto export(string location) -> vector<uint8_t> override;
+  auto heuristics(vector<uint8_t>& data, string location) -> string override;
   auto import(string filename) -> string override;
   auto transform(array_view<uint8_t> input) -> vector<uint8_t>;
 };
+
+auto FamicomDisk::export(string location) -> vector<uint8_t> {
+  vector<uint8_t> data;
+  for(auto& filename : directory::files(location, "disk?*.side?*")) {
+    append(data, {location, filename});
+  }
+  return data;
+}
+
+auto FamicomDisk::heuristics(vector<uint8_t>& data, string location) -> string {
+  string s;
+  s += "game\n";
+  s +={"  name:  ", Location::prefix(location), "\n"};
+  s +={"  label: ", Location::prefix(location), "\n"};
+  return s;
+}
 
 auto FamicomDisk::import(string location) -> string {
   auto input = Media::read(location);

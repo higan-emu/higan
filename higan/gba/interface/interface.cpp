@@ -4,6 +4,14 @@ namespace higan::GameBoyAdvance {
 
 Interface* interface = nullptr;
 
+auto GameBoyAdvanceInterface::game() -> string {
+  if(cartridge.node) {
+    return cartridge.name();
+  }
+
+  return "(no cartridge connected)";
+}
+
 auto GameBoyAdvanceInterface::root() -> Node::Object {
   return system.node;
 }

@@ -3,6 +3,7 @@ struct InputHotkey {
   auto poll() -> void;
 
   const string name;
+  string identifier;
 
   shared_pointer<HID::Device> device;
   uint pathID = 0;
@@ -23,8 +24,17 @@ struct Hotkeys {
   auto poll() -> void;
   auto bind() -> void;
 
-  vector<InputHotkey> hotkeys;
+  InputHotkey togglePanels{"Toggle Panels"};
+  InputHotkey fastForward{"Fast Forward"};
+  InputHotkey saveState{"Save State"};
+  InputHotkey loadState{"Load State"};
+  InputHotkey incrementStateSlot{"Increment State Slot"};
+  InputHotkey decrementStateSlot{"Decrement State Slot"};
+
+  vector<InputHotkey*> hotkeys;
 
 private:
   uint stateSlot = 1;
+  bool fastForwardVideoBlocking = false;
+  bool fastForwardAudioBlocking = false;
 };

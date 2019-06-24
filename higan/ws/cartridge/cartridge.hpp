@@ -3,6 +3,7 @@ struct Cartridge : Thread, IO {
   Node::Peripheral node;
 
   inline auto metadata() const { return information.metadata; }
+  inline auto name() const { return information.name; }
   inline auto orientation() const { return information.orientation; }
 
   //cartridge.cpp
@@ -41,6 +42,7 @@ struct Cartridge : Thread, IO {
 
   struct Information {
     string metadata;
+    string name;
     string orientation = "Horizontal";
   } information;
 

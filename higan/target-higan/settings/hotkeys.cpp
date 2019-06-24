@@ -13,6 +13,12 @@ HotkeySettings::HotkeySettings(View* parent) : Panel(parent, Size{~0, ~0}) {
 auto HotkeySettings::show() -> void {
   refresh();
   setVisible(true);
+
+  //GTK hack
+  for(uint n : range(2)) {
+    Application::processEvents();
+    hotkeyList.resizeColumns();
+  }
 }
 
 auto HotkeySettings::hide() -> void {
@@ -22,67 +28,85 @@ auto HotkeySettings::hide() -> void {
 
 auto HotkeySettings::refresh() -> void {
   hotkeyList.reset().setEnabled();
-  hotkeyList.append(TableViewColumn().setText("Name"));
+  hotkeyList.append(TableViewColumn().setText("Name").setBackgroundColor({240, 240, 255}));
   hotkeyList.append(TableViewColumn().setText("Mapping").setExpandable());
   for(auto& hotkey : hotkeys.hotkeys) {
     TableViewItem item{&hotkeyList};
-    item.setProperty<InputHotkey*>("hotkey", &hotkey);
+    item.setProperty<InputHotkey*>("hotkey", hotkey);
     TableViewCell name{&item};
-    name.setText(hotkey.name).setFont(Font().setBold());
+    name.setText(hotkey->name).setFont(Font().setBold());
     TableViewCell value{&item};
-    if(hotkey.device) {
-      value.setText(hotkey.device->group(hotkey.groupID).input(hotkey.inputID).name());
+  }
+  update();
+  hotkeyList.doChange();
+  message.setText();
+}
+
+auto HotkeySettings::update() -> void {
+  for(auto& item : hotkeyList.items()) {
+    auto value = item.cell(1);
+    auto hotkey = item.property<InputHotkey*>("hotkey");
+    if(hotkey->device) {
+      value.setText(hotkey->device->group(hotkey->groupID).input(hotkey->inputID).name()).setFont();
     } else {
       value.setText("(unmapped)").setFont(Font().setSize(7.0));
     }
   }
-  hotkeyList.resizeColumns().doChange();
-  message.setText();
+
+  hotkeyList.resizeColumns();
 }
 
 auto HotkeySettings::eventAssign() -> void {
-  auto batched = hotkeyList.batched();
-  for(auto& item : batched) {
-    auto hotkey = item.property<InputHotkey*>("hotkey");
-    message.setText({"Assign: ", hotkey->name});
-    hotkeyList.setEnabled(false);
-    assignButton.setEnabled(false);
-    clearButton.setEnabled(false);
-    assigning = *hotkey;
+  inputManager.poll();
+  assigningQueue = hotkeyList.batched();
+  eventAssignNext();
+}
+
+auto HotkeySettings::eventAssignNext() -> void {
+  if(!assigningQueue) {
+    hotkeyList.setFocused();
+    for(auto& item : hotkeyList.batched()) item.setSelected(false);
+    message.setText();
+    return;
   }
+
+  programWindow.viewport.setFocused();
+  auto item = assigningQueue.takeFirst();
+  item.setFocused();
+  auto hotkey = item.property<InputHotkey*>("hotkey");
+  message.setText({"Assign: ", hotkey->name});
+  assignButton.setEnabled(false);
+  clearButton.setEnabled(false);
+  assigning = *hotkey;
 }
 
 auto HotkeySettings::eventClear() -> void {
   if(auto batched = hotkeyList.batched()) {
     for(auto& item : batched) {
       auto hotkey = item.property<InputHotkey*>("hotkey");
-      hotkey->device.reset();
-      hotkey->pathID = 0;
-      hotkey->vendorID = 0;
-      hotkey->productID = 0;
-      hotkey->groupID = 0;
-      hotkey->inputID = 0;
+      hotkey->identifier = {};
     }
     hotkeys.bind();
-    refresh();
+    update();
   }
 }
 
 auto HotkeySettings::eventChange() -> void {
   auto batched = hotkeyList.batched();
-  assignButton.setEnabled(batched.size() == 1);
+  assignButton.setEnabled((bool)batched);
   clearButton.setEnabled((bool)batched);
 }
 
 auto HotkeySettings::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
-  if(!assigning || !device->isKeyboard()) return;
-  assigning->device = device;
-  assigning->pathID = device->pathID();
-  assigning->vendorID = device->vendorID();
-  assigning->productID = device->productID();
-  assigning->groupID = group;
-  assigning->inputID = input;
+  if(!assigning || !device->isKeyboard() || oldValue == 1 || newValue == 0) return;
+  assigning->identifier = {};
+  assigning->identifier.append(hex(device->pathID()), "/");
+  assigning->identifier.append(hex(device->vendorID()), "/");
+  assigning->identifier.append(hex(device->productID()), "/");
+  assigning->identifier.append(device->group(group).name(), "/");
+  assigning->identifier.append(device->group(group).input(input).name());
   assigning.reset();
   hotkeys.bind();
-  refresh();
+  update();
+  eventAssignNext();
 }

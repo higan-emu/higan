@@ -17,9 +17,9 @@ auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
   if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
     information.metadata = fp->reads();
     information.document = BML::unserialize(information.metadata);
+    information.name     = information.document["game/label"].text();
     information.region   = information.document["game/region"].text();
     information.board    = information.document["game/board"].text();
-    information.name     = information.document["game/label"].text();
   } else return;
 
   loadCartridge(information.document);

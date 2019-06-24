@@ -4,6 +4,18 @@ namespace higan::Famicom {
 
 Interface* interface = nullptr;
 
+auto FamicomInterface::game() -> string {
+  if(fds.node) {
+    return fds.name();
+  }
+
+  if(cartridge.node) {
+    return cartridge.name();
+  }
+
+  return "(no cartridge connected)";
+}
+
 auto FamicomInterface::root() -> Node::Object {
   return system.node;
 }

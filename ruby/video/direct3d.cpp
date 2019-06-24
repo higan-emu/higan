@@ -81,17 +81,17 @@ struct VideoDirect3D : VideoDriver {
     _surface = nullptr;
   }
 
-  auto output() -> void override {
+  auto output(uint width, uint height) -> void override {
     if(_lost && !recover()) return;
 
+    if(!width) width = _windowWidth;
+    if(!height) height = _windowHeight;
+
     _device->BeginScene();
-    uint x = 0, y = 0;
-    if(self.exclusive) {
-      //center output in exclusive mode fullscreen window
-      x = (_monitorWidth - _windowWidth) / 2;
-      y = (_monitorHeight - _windowHeight) / 2;
-    }
-    setVertex(0, 0, _inputWidth, _inputHeight, _textureWidth, _textureHeight, x, y, _windowWidth, _windowHeight);
+    //center output within window
+    uint x = (_monitorWidth - width) / 2;
+    uint y = (_monitorHeight - weight) / 2;
+    setVertex(0, 0, _inputWidth, _inputHeight, _textureWidth, _textureHeight, x, y, width, height);
     _device->SetTexture(0, _texture);
     _device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
     _device->EndScene();

@@ -4,8 +4,8 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->type   = "LCD";
   node->width  = 160;
   node->height = 152;
-  node->scaleX = 3.0;
-  node->scaleY = 3.0;
+  node->scaleX = 1.0;
+  node->scaleY = 1.0;
 
   if(NeoGeoPocket::Model::NeoGeoPocket()) {
     node->colors = 1 << 3;

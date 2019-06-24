@@ -15,7 +15,18 @@ struct SystemMenu : Menu {
 };
 
 struct SettingsMenu : Menu {
+  auto updateShaders() -> void;
+
   SettingsMenu(MenuBar*);
+  Menu outputMenu{this};
+    MenuRadioItem outputCenter{&outputMenu};
+    MenuRadioItem outputScale{&outputMenu};
+    MenuRadioItem outputStretch{&outputMenu};
+    Group videoOutputGroup{&outputCenter, &outputScale, &outputStretch};
+    MenuSeparator outputSeparator{&outputMenu};
+    MenuCheckItem aspectCorrection{&outputMenu};
+  Menu shaderMenu{this};
+  MenuSeparator separator{this};
   MenuItem video{this};
   MenuItem audio{this};
   MenuItem input{this};

@@ -15,6 +15,9 @@ auto SystemManager::hide() -> void {
 
 auto SystemManager::refresh() -> void {
   systemList.reset();
+  actionMenu.rename.setEnabled(false);
+  actionMenu.remove.setEnabled(false);
+
   auto location = Path::data;
   for(auto& name : directory::folders(location)) {
     auto document = BML::unserialize(file::read({location, name, "/", "metadata.bml"}));
@@ -48,10 +51,15 @@ auto SystemManager::eventActivate() -> void {
 auto SystemManager::eventChange() -> void {
   if(auto item = systemList.selected()) {
     if(auto system = item.property("system")) {
+      actionMenu.rename.setEnabled(true);
+      actionMenu.remove.setEnabled(true);
       systemOverview.refresh();
       return programWindow.show(systemOverview);
     }
   }
+
+  actionMenu.rename.setEnabled(false);
+  actionMenu.remove.setEnabled(false);
   programWindow.show(home);
 }
 

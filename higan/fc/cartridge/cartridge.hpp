@@ -7,6 +7,7 @@ struct Cartridge : Thread {
 
   inline auto rate() const -> uint { return Region::PAL() ? 16 : 12; }
   inline auto metadata() const -> string { return information.metadata; }
+  inline auto name() const -> string { return information.name; }
   inline auto region() const -> string { return information.region; }
 
   //cartridge.cpp
@@ -24,6 +25,7 @@ struct Cartridge : Thread {
 
   struct Information {
     string metadata;
+    string name;
     string region;
   } information;
 

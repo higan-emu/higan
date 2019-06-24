@@ -7,7 +7,6 @@ auto pViewport::construct() -> void {
     WS_CHILD | WS_DISABLED,
     0, 0, 0, 0, _parentHandle(), nullptr, GetModuleHandle(0), 0);
   pWidget::construct();
-  setDroppable(state().droppable);
 }
 
 auto pViewport::destruct() -> void {
@@ -23,7 +22,7 @@ auto pViewport::setDroppable(bool droppable) -> void {
 }
 
 auto pViewport::setFocusable(bool focusable) -> void {
-  //todo (high priority)
+  //handled by windowProc()
 }
 
 //
@@ -43,15 +42,18 @@ auto pViewport::windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) ->
   }
 
   if(msg == WM_ERASEBKGND) {
-  //this will cause flickering during window resize
-  /*PAINTSTRUCT ps;
+    return false;
+  }
+
+  if(msg == WM_PAINT) {
+    PAINTSTRUCT ps;
     BeginPaint(hwnd, &ps);
     auto brush = CreateSolidBrush(RGB(0, 0, 0));
     RECT rc{};
     GetClientRect(hwnd, &rc);
     FillRect(ps.hdc, &rc, brush);
     DeleteObject(brush);
-    EndPaint(hwnd, &ps);*/
+    EndPaint(hwnd, &ps);
     return true;
   }
 
@@ -59,20 +61,8 @@ auto pViewport::windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) ->
     return DLGC_STATIC | DLGC_WANTCHARS;
   }
 
-  if(msg == WM_LBUTTONDOWN || msg == WM_MBUTTONDOWN || msg == WM_RBUTTONDOWN) {
-    switch(msg) {
-    case WM_LBUTTONDOWN: self().doMousePress(Mouse::Button::Left); break;
-    case WM_MBUTTONDOWN: self().doMousePress(Mouse::Button::Middle); break;
-    case WM_RBUTTONDOWN: self().doMousePress(Mouse::Button::Right); break;
-    }
-  }
-
-  if(msg == WM_LBUTTONUP || msg == WM_MBUTTONUP || msg == WM_RBUTTONUP) {
-    switch(msg) {
-    case WM_LBUTTONUP: self().doMouseRelease(Mouse::Button::Left); break;
-    case WM_MBUTTONUP: self().doMouseRelease(Mouse::Button::Middle); break;
-    case WM_RBUTTONUP: self().doMouseRelease(Mouse::Button::Right); break;
-    }
+  if(msg == WM_LBUTTONDOWN) {
+    if(self().focusable()) setFocused();
   }
 
   return pWidget::windowProc(hwnd, msg, wparam, lparam);

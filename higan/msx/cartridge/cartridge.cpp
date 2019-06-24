@@ -6,11 +6,11 @@ Cartridge cartridge{"Cartridge Slot"};
 Cartridge expansion{"Expansion Slot"};
 #include "serialization.cpp"
 
-Cartridge::Cartridge(string_view name) : name(name) {
+Cartridge::Cartridge(string_view name) : portName(name) {
 }
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, name, "Cartridge");
+  port = Node::append<Node::Port>(parent, from, portName, "Cartridge");
   port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
@@ -27,6 +27,8 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   }
 
   auto document = BML::unserialize(information.metadata);
+  information.name = document["game/label"].text();
+  information.region = document["game/region"].text();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.allocate(memory["size"].natural());

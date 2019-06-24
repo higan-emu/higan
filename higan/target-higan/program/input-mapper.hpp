@@ -3,8 +3,10 @@ struct InputMapper : Panel {
   auto show() -> void override;
   auto hide() -> void override;
   auto refresh(higan::Node::Object) -> void;
+  auto update() -> void;
 
   auto eventAssign() -> void;
+  auto eventAssignNext() -> void;
   auto eventClear() -> void;
   auto eventChange() -> void;
 
@@ -19,4 +21,5 @@ struct InputMapper : Panel {
 
   higan::Node::Object node;
   higan::Node::Input assigning;
+  vector<TableViewItem> assigningQueue;
 };

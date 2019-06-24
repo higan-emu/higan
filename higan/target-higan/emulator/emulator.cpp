@@ -40,24 +40,19 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
   videoUpdate();
   audioUpdate();
-  inputManager.create();
+  inputManager.bind(root);
+  inputManager.poll();
 
   videoSettings.eventActivate();
   audioSettings.eventActivate();
 
-  //this call will bind all inputs on account of InputManager::devices currently being empty
-  inputManager.poll();
-
   power(false);
-
-  Application::onMain({&Emulator::main, this});
 }
 
 auto Emulator::unload() -> void {
   if(!interface) return;
 
   power(false);
-  Application::onMain();
   programWindow.setTitle({"higan v", higan::Version});
   systemMenu.setText("System");
 
@@ -65,9 +60,8 @@ auto Emulator::unload() -> void {
     file::write({location, "settings.bml"}, higan::Node::serialize(root));
   }
 
-  videoInstance.reset();
-  audioInstance.reset();
-  inputManager.reset();
+  inputManager.unbind();
+
   root = {};
   interface->unload();
   interface.reset();
@@ -78,6 +72,8 @@ auto Emulator::main() -> void {
 
   inputManager.poll();
   hotkeys.poll();
+
+  if(!interface) return (void)usleep(20 * 1000);
 
   if(!system.power || (!programWindow.viewport.focused() && settings.input.unfocused == "Pause")) {
     usleep(20 * 1000);
@@ -90,15 +86,17 @@ auto Emulator::quit() -> void {
   Application::quit();  //stop processing callbacks and timers
   unload();
 
-  Instances::inputManager.destruct();
-  Instances::programWindow.destruct();
   interfaces.reset();
+
+  videoInstance.reset();
+  audioInstance.reset();
+  inputInstance.reset();
 }
 
 auto Emulator::power(bool on) -> void {
   if(system.power == on) return;
   if(system.power = on) {
-    programWindow.setTitle(interface->title());
+    programWindow.setTitle(interface->game());
     videoUpdateColors();
     audioUpdateEffects();
     interface->power();

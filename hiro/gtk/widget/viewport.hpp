@@ -6,8 +6,9 @@ struct pViewport : pWidget {
   Declare(Viewport, Widget)
 
   auto handle() const -> uintptr;
-  auto setDroppable(bool droppable) -> void;
-  auto setFocusable(bool focusable) -> void;
+
+  auto _onDraw(cairo_t* context) -> void;
+  auto _onExpose(GdkEventExpose* expose) -> void;
 };
 
 }

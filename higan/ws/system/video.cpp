@@ -4,8 +4,8 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->type   = "LCD";
   node->width  = 224;
   node->height = 144;
-  node->scaleX = 3.0;
-  node->scaleY = 3.0;
+  node->scaleX = 1.0;
+  node->scaleY = 1.0;
   node->colors = 1 << 12;
   node->color  = [&](auto index) { return color(index); };
 

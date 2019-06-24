@@ -6,6 +6,7 @@ extern Interface* interface;
 
 struct MegaDriveInterface : Interface {
   auto name() -> string override { return "Mega Drive"; }
+  auto game() -> string override;
 
   auto root() -> Node::Object override;
   auto load(string tree = {}) -> void override;

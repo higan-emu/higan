@@ -59,6 +59,37 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
 }
 
 auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
+  uint videoWidth = node->width * node->scaleX;
+  uint videoHeight = node->height * node->scaleY;
+
+  if(settings.video.aspectCorrection) {
+    videoWidth = videoWidth * node->aspectX / node->aspectY;
+  }
+
+  uint viewportWidth = programWindow.viewport.geometry().width();
+  uint viewportHeight = programWindow.viewport.geometry().height();
+
+  uint multiplierX = viewportWidth / videoWidth;
+  uint multiplierY = viewportHeight / videoHeight;
+  uint multiplier = min(multiplierX, multiplierY);
+
+  uint outputWidth = videoWidth * multiplier;
+  uint outputHeight = videoHeight * multiplier;
+
+  if(multiplier == 0 || settings.video.output == "Scale") {
+    float multiplierX = (float)viewportWidth / (float)videoWidth;
+    float multiplierY = (float)viewportHeight / (float)videoHeight;
+    float multiplier = min(multiplierX, multiplierY);
+
+    outputWidth = videoWidth * multiplier;
+    outputHeight = videoHeight * multiplier;
+  }
+
+  if(settings.video.output == "Stretch") {
+    outputWidth = viewportWidth;
+    outputHeight = viewportHeight;
+  }
+
   pitch >>= 2;
   if(auto [output, length] = videoInstance.acquire(width, height); output) {
     length >>= 2;
@@ -66,7 +97,7 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
       memory::copy<uint32>(output + y * length, data + y * pitch, width);
     }
     videoInstance.release();
-    videoInstance.output();
+    videoInstance.output(outputWidth, outputHeight);
   }
 
   static uint frameCounter = 0;
@@ -77,7 +108,9 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
   if(current != previous) {
     previous = current;
     if(settings.video.showFrameRate) {
+      programWindow.setTitle({interface->game(), " [", frameCounter, " fps]"});
     } else {
+      programWindow.setTitle(interface->game());
     }
     frameCounter = 0;
   }

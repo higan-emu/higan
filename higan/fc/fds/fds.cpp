@@ -44,6 +44,7 @@ auto FDS::connect(Node::Peripheral with) -> void {
   } else return;
 
   auto document = BML::unserialize(information.metadata);
+  information.name = document["game/label"].text();
 
   if(auto fp = platform->open(node, "disk1.sideA", File::Read, File::Required)) {
     disk1.sideA.allocate(fp->size());

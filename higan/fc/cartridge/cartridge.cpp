@@ -27,6 +27,10 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
     information.metadata = fp->reads();
   }
 
+  auto document = BML::unserialize(information.metadata);
+  information.name = document["game/label"].text();
+  information.region = document["game/region"].text();
+
   Board::load(information.metadata);  //this call will set Cartridge::board if successful
   power();
   if(fds.present) {

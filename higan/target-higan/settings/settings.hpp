@@ -12,6 +12,9 @@ struct Settings {
     double luminance = 1.0;
     double saturation = 1.0;
     double gamma = 1.0;
+    string output = "Center";
+    bool aspectCorrection = true;
+    string shader = "Blur";
     bool showFrameRate = true;
   } video;
 

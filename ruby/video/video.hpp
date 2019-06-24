@@ -24,11 +24,10 @@ struct VideoDriver {
   virtual auto setFormat(string format) -> bool { return true; }
   virtual auto setShader(string shader) -> bool { return true; }
 
-  virtual auto configure(uint width, uint height, double inputFrequency, double outputFrequency) -> bool { return true; }
   virtual auto clear() -> void {}
   virtual auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool { return false; }
   virtual auto release() -> void {}
-  virtual auto output() -> void {}
+  virtual auto output(uint width = 0, uint height = 0) -> void {}
   virtual auto poll() -> void {}
 
 protected:
@@ -41,11 +40,6 @@ protected:
   bool flush = false;
   string format = "RGB24";
   string shader = "Blur";
-
-  uint width = 0;
-  uint height = 0;
-  double inputFrequency = 0.0;
-  double outputFrequency = 0.0;
 };
 
 struct Video {
@@ -84,7 +78,6 @@ struct Video {
   auto setFormat(string format) -> bool;
   auto setShader(string shader) -> bool;
 
-  auto configure(uint width, uint height, double inputFrequency, double outputFrequency) -> bool;
   auto clear() -> void;
   struct Acquire {
     explicit operator bool() const { return data; }
@@ -93,7 +86,7 @@ struct Video {
   };
   auto acquire(uint width, uint height) -> Acquire;
   auto release() -> void;
-  auto output() -> void;
+  auto output(uint width = 0, uint height = 0) -> void;
   auto poll() -> void;
 
   auto onUpdate(const function<void (uint, uint)>&) -> void;

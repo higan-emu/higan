@@ -11,6 +11,12 @@ InputMapper::InputMapper(View* view) : Panel(view, Size{~0, ~0}) {
 
 auto InputMapper::show() -> void {
   setVisible(true);
+
+  //GTK hack
+  for(uint n : range(2)) {
+    Application::processEvents();
+    inputList.resizeColumns();
+  }
 }
 
 auto InputMapper::hide() -> void {
@@ -24,7 +30,7 @@ auto InputMapper::refresh(higan::Node::Object node) -> void {
 
   nameLabel.setText(node->name);
   inputList.reset().setEnabled();
-  inputList.append(TableViewColumn().setText("Name"));
+  inputList.append(TableViewColumn().setText("Name").setBackgroundColor({240, 240, 255}));
   inputList.append(TableViewColumn().setText("Mapping").setExpandable());
   for(auto& node : node->find<higan::Node::Input>()) {
     if(node->parent != this->node) continue;
@@ -33,59 +39,85 @@ auto InputMapper::refresh(higan::Node::Object node) -> void {
     TableViewCell name{&item};
     name.setText(node->name).setFont(Font().setBold());
     TableViewCell value{&item};
-    if(auto name = node->property("name")) {
-      value.setFont().setText(name);
-    } else {
-      value.setFont(Font().setSize(7.0)).setText("(unmapped)");
-    }
   }
-  inputList.resizeColumns().doChange();
+  update();
+  inputList.doChange();
   message.setText();
 }
 
-auto InputMapper::eventAssign() -> void {
-  auto batched = inputList.batched();
-  for(auto& item : batched) {
-    auto input = item.property<higan::Node::Input>("node");
-    message.setText({"Assign: ", input->name});
-    inputList.setEnabled(false);
-    assignButton.setEnabled(false);
-    clearButton.setEnabled(false);
-    assigning = input;
+auto InputMapper::update() -> void {
+  for(auto& item : inputList.items()) {
+    auto value = item.cell(1);
+    auto node = item.property<higan::Node::Input>("node");
+    if(auto name = node->property("inputName")) {
+      value.setText(name).setFont();
+    } else {
+      value.setText("(unmapped)").setFont(Font().setSize(7.0));
+    }
   }
+
+  inputList.resizeColumns();
+}
+
+auto InputMapper::eventAssign() -> void {
+  inputManager.poll();  //prevent an activation via the return key from mapping return instantly
+  assigningQueue = inputList.batched();
+  eventAssignNext();
+}
+
+auto InputMapper::eventAssignNext() -> void {
+  if(!assigningQueue) {
+    inputList.setFocused();
+    for(auto& item : inputList.batched()) item.setSelected(false);
+    message.setText();
+    return;
+  }
+
+  //use the viewport to sink inputs away from the table view during assignment
+  programWindow.viewport.setFocused();
+  auto item = assigningQueue.takeFirst();
+  item.setFocused();  //scroll the current assigning mapping into view
+  auto input = item.property<higan::Node::Input>("node");
+  message.setText({"Assign: ", input->name});
+  assignButton.setEnabled(false);
+  clearButton.setEnabled(false);
+  assigning = input;
 }
 
 auto InputMapper::eventClear() -> void {
   if(auto batched = inputList.batched()) {
     for(auto& item : batched) {
       auto input = item.property<higan::Node::Input>("node");
-      input->setProperty("name");
       input->setProperty("pathID");
       input->setProperty("vendorID");
       input->setProperty("productID");
       input->setProperty("groupID");
       input->setProperty("inputID");
+      input->setProperty("groupName");
+      input->setProperty("inputName");
     }
     inputManager.bind();
-    refresh(node);
+    update();
   }
 }
 
 auto InputMapper::eventChange() -> void {
   auto batched = inputList.batched();
-  assignButton.setEnabled(batched.size() == 1);
+  assignButton.setEnabled((bool)batched);
   clearButton.setEnabled((bool)batched);
 }
 
 auto InputMapper::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
-  if(!assigning || !device->isKeyboard()) return;
-  assigning->setProperty("name", device->group(group).input(input).name());
+  if(!assigning || !device->isKeyboard() || oldValue == 1 || newValue == 0) return;
   assigning->setProperty("pathID", device->pathID());
   assigning->setProperty("vendorID", device->vendorID());
   assigning->setProperty("productID", device->productID());
   assigning->setProperty("groupID", group);
   assigning->setProperty("inputID", input);
-  assigning = {};
+  assigning->setProperty("groupName", device->group(group).name());
+  assigning->setProperty("inputName", device->group(group).input(input).name());
+  assigning.reset();
   inputManager.bind();
-  refresh(node);
+  update();
+  eventAssignNext();
 }

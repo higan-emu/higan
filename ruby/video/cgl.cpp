@@ -68,10 +68,12 @@ struct VideoCGL : VideoDriver, OpenGL {
   auto release() -> void override {
   }
 
-  auto output() -> void override {
+  auto output(uint width, uint height) -> void override {
     @autoreleasepool {
       if([view lockFocusIfCanDraw]) {
         auto area = [view convertRectToBacking:[view bounds]];
+        OpenGL::absoluteWidth = width;
+        OpenGL::absoluteHeight = height;
         OpenGL::outputWidth = area.size.width;
         OpenGL::outputHeight = area.size.height;
         OpenGL::output();

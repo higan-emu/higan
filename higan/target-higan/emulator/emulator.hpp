@@ -22,6 +22,7 @@ struct Emulator : higan::Platform {
   //video.cpp
   auto videoUpdate() -> void;
   auto videoUpdateColors() -> void;
+  auto videoUpdateShader() -> void;
 
   //audio.cpp
   auto audioUpdate() -> void;

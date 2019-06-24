@@ -1,8 +1,7 @@
 #include "../higan.hpp"
 #include "hotkeys.cpp"
 
-namespace Instances { Instance<InputManager> inputManager; }
-InputManager& inputManager = Instances::inputManager();
+InputManager inputManager;
 Hotkeys& hotkeys = inputManager.hotkeys;
 
 auto InputButton::value() -> bool {
@@ -11,39 +10,15 @@ auto InputButton::value() -> bool {
 
 //
 
-auto InputManager::create() -> void {
-  root = interface->root();
+InputManager::InputManager() {
   inputInstance.onChange({&InputManager::eventInput, this});
 }
 
-auto InputManager::reset() -> void {
-  devices = {};
+InputManager::~InputManager() {
 }
 
-auto InputManager::poll() -> void {
-  //polling actual hardware is very time-consuming: skip call if poll was called too recently
-  auto thisPoll = chrono::millisecond();
-  if(thisPoll - lastPoll < pollFrequency) return;
-  lastPoll = thisPoll;
-
-  //poll hardware, detect when the available devices have changed:
-  //existing in-use devices may have been disconnected; or mapped but disconnected devices may now be available.
-  //as such, when the returned devices tree changes, rebind all inputs
-  auto devices = inputInstance.poll();
-  bool changed = devices.size() != this->devices.size();
-  if(!changed) {
-    for(uint n : range(devices.size())) {
-      if(changed = devices[n] != this->devices[n]) break;
-    }
-  }
-  if(changed) {
-    this->devices = devices;
-    bind();
-  }
-}
-
-auto InputManager::bind() -> void {
-  hotkeys.bind();
+auto InputManager::bind(maybe<higan::Node::Object> newRoot) -> void {
+  if(newRoot) root = newRoot();
   if(!root) return;
 
   for(auto& input : root->find<higan::Node::Input>()) {
@@ -72,6 +47,32 @@ auto InputManager::bind() -> void {
         break;
       }
     }
+  }
+}
+
+auto InputManager::unbind() -> void {
+  this->root = {};
+}
+
+auto InputManager::poll() -> void {
+  //polling actual hardware is very time-consuming: skip call if poll was called too recently
+  auto thisPoll = chrono::millisecond();
+  if(thisPoll - lastPoll < pollFrequency) return;
+  lastPoll = thisPoll;
+
+  //poll hardware, detect when the available devices have changed:
+  //existing in-use devices may have been disconnected; or mapped but disconnected devices may now be available.
+  //as such, when the returned devices tree changes, rebind all inputs
+  auto devices = inputInstance.poll();
+  bool changed = devices.size() != this->devices.size();
+  if(!changed) {
+    for(uint n : range(devices.size())) {
+      if(changed = devices[n] != this->devices[n]) break;
+    }
+  }
+  if(changed) {
+    this->devices = devices;
+    bind();
   }
 }
 

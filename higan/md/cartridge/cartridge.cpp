@@ -29,6 +29,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(!loadRAM(wram, document["game/board/memory(type=RAM,content=Save)"])) wram.reset();
   if(!loadRAM(bram, document["game/board/memory(type=RAM,content=Save)"])) bram.reset();
 
+  information.name = document["game/label"].text();
   information.regions = document["game/region"].text().split(",").strip();
   information.bootable = (bool)document["game/bootable"];
 

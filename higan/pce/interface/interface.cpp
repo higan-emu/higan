@@ -4,6 +4,14 @@ namespace higan::PCEngine {
 
 Interface* interface = nullptr;
 
+auto AbstractInterface::game() -> string {
+  if(cartridge.node) {
+    return cartridge.name();
+  }
+
+  return "(no cartridge connected)";
+}
+
 auto AbstractInterface::root() -> Node::Object {
   return system.node;
 }
