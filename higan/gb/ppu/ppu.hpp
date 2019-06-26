@@ -104,6 +104,10 @@ struct PPU : Thread, MMIO {
     uint8 obpi;
   } status;
 
+  struct Latch {
+    uint wy;
+  } latch;
+
   uint32 screen[160 * 144];
 
   struct Pixel {

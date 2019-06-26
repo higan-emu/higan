@@ -9,7 +9,7 @@ struct pWidget : pSizable {
   auto focused() const -> bool override;
   auto setDroppable(bool droppable) -> void;
   auto setEnabled(bool enabled) -> void override;
-  auto setFocusable(bool focusable) -> void;
+  virtual auto setFocusable(bool focusable) -> void;
   auto setFocused() -> void override;
   auto setFont(const Font& font) -> void override;
   auto setGeometry(Geometry geometry) -> void override;

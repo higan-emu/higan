@@ -123,7 +123,7 @@ auto pWidget::windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) -> m
     //if using a (Horizontal,Vertical)ResizeGrip, it's possible to move the cursor off the widget momentarily.
     //ordinarily, this will cause the cursor to revert to the newly hovered Widget.
     //by capturing the mouse until the mouse button is released, this prevents said cursor flickering.
-    if(msg == WM_LBUTTONDOWN && self().mouseCursor()) SetCapture(hwnd);
+    //if(msg == WM_LBUTTONDOWN && self().mouseCursor()) SetCapture(hwnd);
 
     switch(msg) {
     case WM_LBUTTONDOWN: self().doMousePress(Mouse::Button::Left); break;
@@ -133,7 +133,7 @@ auto pWidget::windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) -> m
   }
 
   if(msg == WM_LBUTTONUP || msg == WM_MBUTTONUP || msg == WM_RBUTTONUP) {
-    if(msg == WM_LBUTTONUP && self().mouseCapture() && GetCapture() == hwnd) ReleaseCapture();
+    //if(msg == WM_LBUTTONUP && self().mouseCursor() && GetCapture() == hwnd) ReleaseCapture();
 
     switch(msg) {
     case WM_LBUTTONUP: self().doMouseRelease(Mouse::Button::Left); break;

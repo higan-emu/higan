@@ -111,7 +111,7 @@ auto PPU::runBackgroundCGB() -> void {
 }
 
 auto PPU::runWindowCGB() -> void {
-  uint scrolly = status.ly - status.wy;
+  uint scrolly = latch.wy;
   uint scrollx = px + 7 - status.wx;
   if(scrolly >= 144u) return;  //also matches underflow (scrolly < 0)
   if(scrollx >= 160u) return;  //also matches underflow (scrollx < 0)

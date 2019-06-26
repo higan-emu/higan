@@ -10,12 +10,21 @@ auto APU::read(uint16 address) -> uint8 {
   if(address >= 0x0000 && address <= 0x3fff) return ram.read(address);
   if(address >= 0x4000 && address <= 0x4003) return ym2612.readStatus();
   if(address >= 0x8000 && address <= 0xffff) {
+    while(vdp.dma.active) {
+      Thread::step(1);
+      Thread::synchronize(vdp);
+    }
+
     //bus arbiter delay rough approximation
     cpu.idle(11);
     step(3);
 
-    uint24 location = io.bank << 15 | (uint15)address;
-    if(location >= 0xa00000 && location <= 0xffffff) return 0xff;
+    uint24 location = io.bank << 15 | (uint15)address & ~1;
+    if(location >= 0xa00000 && location <= 0xffffff) {
+      //todo: apparently *some* I/O addresses can be read or written from the Z80.
+      //it is not currently known which addresses are accepted.
+      if(location != 0xa10000) return 0xff;  //version register can be read
+    }
     if(address & 1) {
       return cpu.read(0, 1, location & ~1, 0x00).byte(0);
     } else {
@@ -38,6 +47,11 @@ auto APU::write(uint16 address, uint8 data) -> void {
   if(address == 0x7f15) return psg.write(data);
   if(address == 0x7f17) return psg.write(data);
   if(address >= 0x8000 && address <= 0xffff) {
+    while(vdp.dma.active) {
+      Thread::step(1);
+      Thread::synchronize(vdp);
+    }
+
     //bus arbiter delay rough approximation
     cpu.idle(11);
     step(3);

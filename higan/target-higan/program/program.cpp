@@ -37,6 +37,7 @@ ProgramWindow::ProgramWindow() {
   viewport.setFocusable();
   verticalResizeGrip.setCollapsible();
   panels.setCollapsible();
+  panels.setPadding({5_sx, 0_sy, 5_sx, 5_sy});
 
   for(auto& cell : panels.cells()) cell.setSpacing(0);
 

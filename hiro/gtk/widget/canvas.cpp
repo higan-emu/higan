@@ -23,6 +23,14 @@ static auto Canvas_keyPress(GtkWidget* widget, GdkEventKey* event, pViewport* p)
   return false;
 }
 
+static auto Canvas_mousePress(GtkWidget* widget, GdkEventButton* event, pCanvas* p) -> signed {
+  //gtk_widget_set_focus_on_click() is a GTK 3.2+ feature.
+  //implement this functionality manually for GTK 2.0+ compatibility.
+  if(event->button == 1 && p->self().focusable()) gtk_widget_grab_focus(widget);
+
+  return Widget_mousePress(widget, event, p);
+}
+
 auto pCanvas::construct() -> void {
   gtkWidget = gtk_drawing_area_new();
   gtk_widget_add_events(gtkWidget,
@@ -35,7 +43,7 @@ auto pCanvas::construct() -> void {
   //after calling destruct(), construct() with state.droppable == true;
   //GTK+ will throw SIGBUS inside g_signal_connect_data() on one of the below connections
 
-  g_signal_connect(G_OBJECT(gtkWidget), "button-press-event", G_CALLBACK(Widget_mousePress), (gpointer)this);
+  g_signal_connect(G_OBJECT(gtkWidget), "button-press-event", G_CALLBACK(Canvas_mousePress), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkWidget), "button-release-event", G_CALLBACK(Widget_mouseRelease), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkWidget), "drag-data-received", G_CALLBACK(Widget_drop), (gpointer)this);
   #if HIRO_GTK==2
@@ -80,6 +88,10 @@ auto pCanvas::setAlignment(Alignment) -> void {
 
 auto pCanvas::setColor(Color color) -> void {
   update();
+}
+
+auto pCanvas::setFocusable(bool focusable) -> void {
+  gtk_widget_set_can_focus(gtkWidget, focusable);
 }
 
 auto pCanvas::setGeometry(Geometry geometry) -> void {

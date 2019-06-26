@@ -9,6 +9,7 @@ struct CPU : M68K, Thread {
 
   //cpu.cpp
   auto main() -> void;
+  inline auto step(uint clocks) -> void;
   auto idle(uint clocks) -> void override;
   auto wait(uint clocks) -> void override;
 
@@ -38,6 +39,11 @@ private:
     boolean romEnable;
     boolean vdpEnable[2];
   } io;
+
+  struct Refresh {
+    uint32 ram;
+     uint7 external;
+  } refresh;
 
   struct State {
     uint32 interruptLine;

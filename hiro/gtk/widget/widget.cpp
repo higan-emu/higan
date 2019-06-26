@@ -36,10 +36,6 @@ static auto Widget_mouseMove(GtkWidget* widget, GdkEventButton* event, pWidget* 
 }
 
 static auto Widget_mousePress(GtkWidget* widget, GdkEventButton* event, pWidget* p) -> signed {
-  //gtk_widget_set_focus_on_click() is a GTK 3.2+ feature.
-  //implement this functionality manually for GTK 2.0+ compatibility.
-  if(event->button == 1 && p->state().focusable) gtk_widget_grab_focus(widget);
-
   switch(event->button) {
   case 1: p->self().doMousePress(Mouse::Button::Left); break;
   case 2: p->self().doMousePress(Mouse::Button::Middle); break;
@@ -97,8 +93,7 @@ auto pWidget::setEnabled(bool enabled) -> void {
 }
 
 auto pWidget::setFocusable(bool focusable) -> void {
-  if(!gtkWidget) return;
-  gtk_widget_set_can_focus(gtkWidget, focusable);
+  //virtual overload: only configurable for Canvas and Viewport
 }
 
 auto pWidget::setFocused() -> void {
@@ -135,6 +130,7 @@ auto pWidget::setGeometry(Geometry geometry) -> void {
 }
 
 auto pWidget::setMouseCursor(const MouseCursor& mouseCursor) -> void {
+//TODO: this should be freed, yet this code seems to break the cursor assignment completely ...
 //if(gdkMouseCursor) {
 //  gdk_cursor_unref(gdkMouseCursor);
 //  gdkMouseCursor = nullptr;

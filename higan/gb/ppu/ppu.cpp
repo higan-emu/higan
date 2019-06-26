@@ -27,6 +27,10 @@ auto PPU::main() -> void {
   status.lx = 0;
   if(Model::SuperGameBoy()) superGameBoy->lcdScanline();
 
+  if(status.ly == 0) {
+    latch.wy = 0 - status.wy;
+  }
+
   if(status.ly <= 143) {
     status.mode = 2;
     scanline();
@@ -47,6 +51,7 @@ auto PPU::main() -> void {
   }
 
   status.ly++;
+  if(status.windowDisplayEnable && status.wx < 167) latch.wy++;
 
   if(status.ly == 144) {
     cpu.raise(CPU::Interrupt::VerticalBlank);
@@ -159,6 +164,7 @@ auto PPU::power() -> void {
   for(auto& n : obpd) n = 0x0000;
 
   status = {};
+  latch = {};
 
   for(auto& n : screen) n = 0;
 

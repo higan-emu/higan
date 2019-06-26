@@ -26,7 +26,7 @@ auto APU::main() -> void {
 
 auto APU::step(uint clocks) -> void {
   Thread::step(clocks);
-  Thread::synchronize(cpu, psg, ym2612);
+  Thread::synchronize(cpu, vdp, psg, ym2612);
 }
 
 auto APU::serializing() const -> bool {

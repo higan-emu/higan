@@ -128,15 +128,18 @@ auto pTableView::setBordered(bool bordered) -> void {
 }
 
 auto pTableView::setFocused() -> void {
+  lock();
   //gtk_widget_grab_focus() will select the first item if nothing is currently selected
   //this behavior is undesirable. detect selection state first, and restore if required
-  if(!state().batchable) {  //gtk_tree_selection_get_selected() will throw a critical exception in batchable mode
-    lock();
+  if(!state().batchable) {
+    //gtk_tree_selection_get_selected() will throw a critical exception in batchable mode
     bool selected = gtk_tree_selection_get_selected(gtkTreeSelection, nullptr, nullptr);
     gtk_widget_grab_focus(gtkWidgetChild);
     if(!selected) gtk_tree_selection_unselect_all(gtkTreeSelection);
-    unlock();
+  } else {
+    gtk_widget_grab_focus(gtkWidgetChild);
   }
+  unlock();
 }
 
 auto pTableView::setFont(const Font& font) -> void {
@@ -352,23 +355,25 @@ auto pTableView::_doHeaderActivate(GtkTreeViewColumn* gtkTreeViewColumn) -> void
 }
 
 auto pTableView::_doKeyPress(GdkEventKey* event) -> bool {
+  //TODO: GCC 8.2.0 on FreeBSD 12.0 (amd64) seems to miscompile this function periodically to always return true.
+  return false;
+
   if(state().batchable && event->type == GDK_KEY_PRESS) {
     //when using keyboard to activate tree view items in GTK_SELECTION_MULTIPLE mode, GTK will deselect all but the last item
     //this code detects said case, blocks the key from being propagated, and calls the activate callback directly
     //the result is that the enter key can be used to activate multiple selected items at a time
     //there are four ways to activate items via the keyboard in GTK, so we have to detect all of them here
-    auto modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_SUPER_MASK);  //ignore other modifiers (eg mouse buttons)
+    uint modifiers = event->state & (GDK_SHIFT_MASK | GDK_CONTROL_MASK | GDK_SUPER_MASK);  //ignore other modifiers (eg mouse buttons)
     if((event->keyval == GDK_KEY_Return && !modifiers)
     || (event->keyval == GDK_KEY_KP_Enter && !modifiers)
     || (event->keyval == GDK_KEY_space && !modifiers)
     || (event->keyval == GDK_KEY_space && modifiers == GDK_SHIFT_MASK)
     ) {
       _doActivate();
-      return true;
+      return true;  //block GTK from handling this keypress
     }
   }
-  //allow GTK to handle this keypress
-  return false;
+  return false;  //allow GTK to handle this keypress
 }
 
 //GtkTreeView::cursor-changed and GtkTreeSelection::changed do not send signals for changes during rubber-banding selection

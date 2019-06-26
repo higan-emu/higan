@@ -23,12 +23,20 @@ static auto Viewport_keyPress(GtkWidget* widget, GdkEventKey* event, pViewport* 
   return false;
 }
 
+static auto Viewport_mousePress(GtkWidget* widget, GdkEventButton* event, pViewport* p) -> signed {
+  //gtk_widget_set_focus_on_click() is a GTK 3.2+ feature.
+  //implement this functionality manually for GTK 2.0+ compatibility.
+  if(event->button == 1 && p->self().focusable()) gtk_widget_grab_focus(widget);
+
+  return Widget_mousePress(widget, event, p);
+}
+
 auto pViewport::construct() -> void {
   gtkWidget = gtk_drawing_area_new();
   gtk_widget_add_events(gtkWidget,
     GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK | GDK_ENTER_NOTIFY_MASK | GDK_LEAVE_NOTIFY_MASK | GDK_POINTER_MOTION_MASK);
 
-  g_signal_connect(G_OBJECT(gtkWidget), "button-press-event", G_CALLBACK(Widget_mousePress), (gpointer)this);
+  g_signal_connect(G_OBJECT(gtkWidget), "button-press-event", G_CALLBACK(Viewport_mousePress), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkWidget), "button-release-event", G_CALLBACK(Widget_mouseRelease), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkWidget), "drag-data-received", G_CALLBACK(Widget_drop), (gpointer)this);
   #if HIRO_GTK==2
@@ -59,6 +67,10 @@ auto pViewport::handle() const -> uintptr {
   #endif
 
   return (uintptr)nullptr;
+}
+
+auto pViewport::setFocusable(bool focusable) -> void {
+  gtk_widget_set_can_focus(gtkWidget, focusable);
 }
 
 auto pViewport::_onDraw(cairo_t* context) -> void {

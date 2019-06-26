@@ -45,17 +45,24 @@ if(!mask[(uint24)r.pc]) {
   instruction();
 }
 
-auto CPU::idle(uint clocks) -> void {
+auto CPU::step(uint clocks) -> void {
+  refresh.ram += clocks;
+  while(refresh.ram >= 133) refresh.ram -= 133;
+  refresh.external += clocks;
   Thread::step(clocks);
+}
+
+auto CPU::idle(uint clocks) -> void {
+  step(clocks);
 }
 
 auto CPU::wait(uint clocks) -> void {
   while(vdp.dma.active) {
-    Thread::step(2);
+    Thread::step(1);
     Thread::synchronize(vdp);
   }
 
-  Thread::step(clocks);
+  step(clocks);
   Thread::synchronize();
 }
 
@@ -93,6 +100,8 @@ auto CPU::power(bool reset) -> void {
   io.romEnable = !tmssEnable;
   io.vdpEnable[0] = !tmssEnable;
   io.vdpEnable[1] = !tmssEnable;
+
+  refresh = {};
 
   state = {};
   state.interruptPending.bit((uint)Interrupt::Reset) = 1;

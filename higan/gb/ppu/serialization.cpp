@@ -48,6 +48,8 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(status.obpiIncrement);
   s.integer(status.obpi);
 
+  s.integer(latch.wy);
+
   s.array(screen);
 
   s.integer(bg.color);

@@ -9,6 +9,7 @@ struct pCanvas : pWidget {
   auto minimumSize() const -> Size;
   auto setAlignment(Alignment) -> void;
   auto setColor(Color color) -> void;
+  auto setFocusable(bool focusable) -> void override;
   auto setGeometry(Geometry geometry) -> void override;
   auto setGradient(Gradient gradient) -> void;
   auto setIcon(const image& icon) -> void;

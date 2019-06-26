@@ -106,6 +106,7 @@ auto SystemManager::eventRemove() -> void {
     .setText("Failed to delete directory.")
     .setAlignment(programWindow)
     .error();
+    programWindow.show(home);  //hide the system overview for the now-deleted system
     refresh();
   }
 }

@@ -112,6 +112,7 @@ auto SettingsMenu::updateShaders() -> void {
         settings.video.shader = {location, shaderName};
         emulator.videoUpdateShader();
       });
+      shaders.append(item);
     }
   }
 

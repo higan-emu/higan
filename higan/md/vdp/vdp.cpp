@@ -74,7 +74,7 @@ auto VDP::step(uint clocks) -> void {
   while(clocks--) {
     dma.run();
     Thread::step(1);
-    Thread::synchronize(cpu);
+    Thread::synchronize(cpu, apu);
   }
 }
 

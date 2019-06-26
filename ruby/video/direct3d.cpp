@@ -89,8 +89,8 @@ struct VideoDirect3D : VideoDriver {
 
     _device->BeginScene();
     //center output within window
-    uint x = (_monitorWidth - width) / 2;
-    uint y = (_monitorHeight - weight) / 2;
+    uint x = (_windowWidth - width) / 2;
+    uint y = (_windowHeight - height) / 2;
     setVertex(0, 0, _inputWidth, _inputHeight, _textureWidth, _textureHeight, x, y, width, height);
     _device->SetTexture(0, _texture);
     _device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
