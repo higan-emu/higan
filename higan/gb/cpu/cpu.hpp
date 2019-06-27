@@ -1,4 +1,7 @@
 struct CPU : SM83, Thread, MMIO {
+  Node::Component node;
+  Node::String version;
+
   struct Interrupt { enum : uint {
     /* 0 */ VerticalBlank,
     /* 1 */ Stat,
@@ -7,6 +10,7 @@ struct CPU : SM83, Thread, MMIO {
     /* 4 */ Joypad,
   };};
 
+  auto load(Node::Object, Node::Object) -> void;
   auto main() -> void;
   auto raised(uint interrupt) const -> bool;
   auto raise(uint interrupt) -> void;
@@ -19,19 +23,19 @@ struct CPU : SM83, Thread, MMIO {
   //io.cpp
   auto wramAddress(uint13 address) const -> uint16;
   auto joypPoll() -> void;
-  auto readIO(uint16 address) -> uint8;
+  auto readIO(uint16 address, uint8 data) -> uint8;
   auto writeIO(uint16 address, uint8 data) -> void;
 
   //memory.cpp
   auto idle() -> void override;
   auto read(uint16 address) -> uint8 override;
   auto write(uint16 address, uint8 data) -> void override;
-  auto cycleEdge() -> void;
   auto readDMA(uint16 address) -> uint8;
   auto writeDMA(uint13 address, uint8 data) -> void;
   auto readDebugger(uint16 address) -> uint8 override;
 
   //timing.cpp
+  auto step() -> void;
   auto step(uint clocks) -> void;
   auto timer262144hz() -> void;
   auto timer65536hz() -> void;

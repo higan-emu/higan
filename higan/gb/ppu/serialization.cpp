@@ -12,14 +12,14 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(status.irq);
   s.integer(status.lx);
 
-  s.integer(status.displayEnable);
-  s.integer(status.windowTilemapSelect);
-  s.integer(status.windowDisplayEnable);
-  s.integer(status.bgTiledataSelect);
-  s.integer(status.bgTilemapSelect);
-  s.integer(status.obSize);
-  s.integer(status.obEnable);
   s.integer(status.bgEnable);
+  s.integer(status.obEnable);
+  s.integer(status.obSize);
+  s.integer(status.bgTilemapSelect);
+  s.integer(status.bgTiledataSelect);
+  s.integer(status.windowDisplayEnable);
+  s.integer(status.windowTilemapSelect);
+  s.integer(status.displayEnable);
 
   s.integer(status.mode);
   s.integer(status.interruptHblank);
@@ -33,9 +33,9 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(status.ly);
   s.integer(status.lyc);
 
+  s.integer(status.dmaBank);
   s.integer(status.dmaActive);
   s.integer(status.dmaClock);
-  s.integer(status.dmaBank);
 
   s.integer(status.wy);
   s.integer(status.wx);
@@ -48,6 +48,7 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(status.obpiIncrement);
   s.integer(status.obpi);
 
+  s.integer(latch.wx);
   s.integer(latch.wy);
 
   s.array(screen);

@@ -9,6 +9,9 @@ auto CPU::serialize(serializer& s) -> void {
   s.boolean(io.vdpEnable[0]);
   s.boolean(io.vdpEnable[1]);
 
+  s.integer(refresh.ram);
+  s.integer(refresh.external);
+
   s.integer(state.interruptLine);
   s.integer(state.interruptPending);
 }

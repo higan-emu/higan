@@ -2,9 +2,7 @@ auto PPU::vramAddress(uint13 address) const -> uint16 {
   return status.vramBank << 13 | address;
 }
 
-auto PPU::readIO(uint16 address) -> uint8 {
-  uint8 data = 0xff;
-
+auto PPU::readIO(uint16 address, uint8 data) -> uint8 {
   if(address >= 0x8000 && address <= 0x9fff) {
     return vram[vramAddress(address)];
   }
@@ -15,25 +13,27 @@ auto PPU::readIO(uint16 address) -> uint8 {
   }
 
   if(address == 0xff40) {  //LCDC
-    return (status.displayEnable << 7)
-         | (status.windowTilemapSelect << 6)
-         | (status.windowDisplayEnable << 5)
-         | (status.bgTiledataSelect << 4)
-         | (status.bgTilemapSelect << 3)
-         | (status.obSize << 2)
-         | (status.obEnable << 1)
-         | (status.bgEnable << 0);
+    data(0) = status.bgEnable;
+    data(1) = status.obEnable;
+    data(2) = status.obSize;
+    data(3) = status.bgTilemapSelect;
+    data(4) = status.bgTiledataSelect;
+    data(5) = status.windowDisplayEnable;
+    data(6) = status.windowTilemapSelect;
+    data(7) = status.displayEnable;
+    return data;
   }
 
   if(address == 0xff41) {  //STAT
-    data.bit(0) = status.mode.bit(0);
-    data.bit(1) = status.mode.bit(1);
-    data.bit(2) = status.ly == status.lyc;
-    data.bit(3) = status.interruptHblank;
-    data.bit(4) = status.interruptVblank;
-    data.bit(5) = status.interruptOAM;
-    data.bit(6) = status.interruptLYC;
-    data.bit(7) = 1;
+    data(0) = status.mode(0);
+    data(1) = status.mode(1);
+    data(2) = status.ly == status.lyc;
+    data(3) = status.interruptHblank;
+    data(4) = status.interruptVblank;
+    data(5) = status.interruptOAM;
+    data(6) = status.interruptLYC;
+    data(7) = 1;
+    return data;
   }
 
   if(address == 0xff42) {  //SCY
@@ -57,24 +57,27 @@ auto PPU::readIO(uint16 address) -> uint8 {
   }
 
   if(address == 0xff47) {  //BGP
-    return (bgp[3] << 6)
-         | (bgp[2] << 4)
-         | (bgp[1] << 2)
-         | (bgp[0] << 0);
+    data(0,1) = bgp[0];
+    data(2,3) = bgp[1];
+    data(4,5) = bgp[2];
+    data(6,7) = bgp[3];
+    return data;
   }
 
   if(address == 0xff48) {  //OBP0
-    return (obp[0][3] << 6)
-         | (obp[0][2] << 4)
-         | (obp[0][1] << 2)
-         | (obp[0][0] << 0);
+    data(0,1) = obp[0][0];
+    data(2,3) = obp[1][1];
+    data(4,5) = obp[2][2];
+    data(6,7) = obp[3][3];
+    return data;
   }
 
   if(address == 0xff49) {  //OBP1
-    return (obp[1][3] << 6)
-         | (obp[1][2] << 4)
-         | (obp[1][1] << 2)
-         | (obp[1][0] << 0);
+    data(0,1) = obp[1][0];
+    data(2,3) = obp[1][1];
+    data(4,5) = obp[1][2];
+    data(6,7) = obp[1][3];
+    return data;
   }
 
   if(address == 0xff4a) {  //WY
@@ -90,7 +93,9 @@ auto PPU::readIO(uint16 address) -> uint8 {
   }
 
   if(address == 0xff68) {  //BGPI
-    return status.bgpiIncrement << 7 | status.bgpi;
+    data(0,5) = status.bgpi;
+    data(7)   = status.bgpiIncrement;
+    return data;
   }
 
   if(address == 0xff69) {  //BGPD
@@ -98,7 +103,9 @@ auto PPU::readIO(uint16 address) -> uint8 {
   }
 
   if(address == 0xff6a) {  //OBPI
-    return status.obpiIncrement << 7 | status.obpi;
+    data(0,5) = status.obpi;
+    data(7)   = status.obpiIncrement;
+    return data;
   }
 
   if(address == 0xff6b) {  //OBPD
@@ -132,14 +139,14 @@ auto PPU::writeIO(uint16 address, uint8 data) -> void {
       Thread::setClock(clock);
     }
 
-    status.displayEnable = data & 0x80;
-    status.windowTilemapSelect = data & 0x40;
-    status.windowDisplayEnable = data & 0x20;
-    status.bgTiledataSelect = data & 0x10;
-    status.bgTilemapSelect = data & 0x08;
-    status.obSize = data & 0x04;
-    status.obEnable = data & 0x02;
-    status.bgEnable = data & 0x01;
+    status.bgEnable            = data(0);
+    status.obEnable            = data(1);
+    status.obSize              = data(2);
+    status.bgTilemapSelect     = data(3);
+    status.bgTiledataSelect    = data(4);
+    status.windowDisplayEnable = data(5);
+    status.windowTilemapSelect = data(6);
+    status.displayEnable       = data(7);
     return;
   }
 
@@ -155,10 +162,10 @@ auto PPU::writeIO(uint16 address, uint8 data) -> void {
       stat();
     }
 
-    status.interruptHblank = data.bit(3);
-    status.interruptVblank = data.bit(4);
-    status.interruptOAM    = data.bit(5);
-    status.interruptLYC    = data.bit(6);
+    status.interruptHblank = data(3);
+    status.interruptVblank = data(4);
+    status.interruptOAM    = data(5);
+    status.interruptLYC    = data(6);
     return;
   }
 
@@ -183,33 +190,33 @@ auto PPU::writeIO(uint16 address, uint8 data) -> void {
   }
 
   if(address == 0xff46) {  //DMA
-    status.dmaActive = true;
-    status.dmaClock = 0;
-    status.dmaBank = data;
+    status.dmaBank   = data;
+    status.dmaActive = 1;
+    status.dmaClock  = 0;
     return;
   }
 
   if(address == 0xff47) {  //BGP
-    bgp[3] = (data >> 6) & 3;
-    bgp[2] = (data >> 4) & 3;
-    bgp[1] = (data >> 2) & 3;
-    bgp[0] = (data >> 0) & 3;
+    bgp[0] = data(0,1);
+    bgp[1] = data(2,3);
+    bgp[2] = data(4,5);
+    bgp[3] = data(6,7);
     return;
   }
 
   if(address == 0xff48) {  //OBP0
-    obp[0][3] = (data >> 6) & 3;
-    obp[0][2] = (data >> 4) & 3;
-    obp[0][1] = (data >> 2) & 3;
-    obp[0][0] = (data >> 0) & 3;
+    obp[0][0] = data(0,1);
+    obp[0][1] = data(2,3);
+    obp[0][2] = data(4,5);
+    obp[0][3] = data(6,7);
     return;
   }
 
   if(address == 0xff49) {  //OBP1
-    obp[1][3] = (data >> 6) & 3;
-    obp[1][2] = (data >> 4) & 3;
-    obp[1][1] = (data >> 2) & 3;
-    obp[1][0] = (data >> 0) & 3;
+    obp[1][0] = data(0,1);
+    obp[1][1] = data(2,3);
+    obp[1][2] = data(4,5);
+    obp[1][3] = data(6,7);
     return;
   }
 
@@ -224,13 +231,13 @@ auto PPU::writeIO(uint16 address, uint8 data) -> void {
   }
 
   if(address == 0xff4f) {  //VBK
-    status.vramBank = data & 1;
+    status.vramBank = data.bit(0);
     return;
   }
 
   if(address == 0xff68) {  //BGPI
-    status.bgpiIncrement = data & 0x80;
-    status.bgpi = data & 0x3f;
+    status.bgpi          = data(0,5);
+    status.bgpiIncrement = data(7);
     return;
   }
 
@@ -241,8 +248,8 @@ auto PPU::writeIO(uint16 address, uint8 data) -> void {
   }
 
   if(address == 0xff6a) {  //OBPI
-    status.obpiIncrement = data & 0x80;
-    status.obpi = data & 0x3f;
+    status.obpi          = data(0,5);
+    status.obpiIncrement = data(7);
   }
 
   if(address == 0xff6b) {  //OBPD

@@ -60,80 +60,22 @@ auto APU::Square1::clockEnvelope() -> void {
   }
 }
 
-auto APU::Square1::read(uint16 addr) -> uint8 {
-  if(addr == 0xff10) {  //NR10
-    return 0x80 | sweepFrequency << 4 | sweepDirection << 3 | sweepShift;
+auto APU::Square1::trigger() -> void {
+  enable = dacEnable();
+  period = 2 * (2048 - frequency);
+  envelopePeriod = envelopeFrequency ? (uint)envelopeFrequency : 8;
+  volume = envelopeVolume;
+
+  if(!length) {
+    length = 64;
+    if(apu.phase.bit(0) && counter) length--;
   }
 
-  if(addr == 0xff11) {  //NR11
-    return duty << 6 | 0x3f;
-  }
-
-  if(addr == 0xff12) {  //NR12
-    return envelopeVolume << 4 | envelopeDirection << 3 | envelopeFrequency;
-  }
-
-  if(addr == 0xff13) {  //NR13
-    return 0xff;
-  }
-
-  if(addr == 0xff14) {  //NR14
-    return 0x80 | counter << 6 | 0x3f;
-  }
-
-  return 0xff;
-}
-
-auto APU::Square1::write(uint16 addr, uint8 data) -> void {
-  if(addr == 0xff10) {  //NR10
-    if(sweepEnable && sweepNegate && !data.bit(3)) enable = false;
-    sweepFrequency = data.bits(6,4);
-    sweepDirection = data.bit (3);
-    sweepShift     = data.bits(2,0);
-  }
-
-  if(addr == 0xff11) {  //NR11
-    duty = data.bits(7,6);
-    length = 64 - data.bits(5,0);
-  }
-
-  if(addr == 0xff12) {  //NR12
-    envelopeVolume    = data.bits(7,4);
-    envelopeDirection = data.bit (3);
-    envelopeFrequency = data.bits(2,0);
-    if(!dacEnable()) enable = false;
-  }
-
-  if(addr == 0xff13) {  //NR13
-    frequency.bits(7,0) = data;
-  }
-
-  if(addr == 0xff14) {  //NR14
-    if(apu.phase.bit(0) && !counter && data.bit(6)) {
-      if(length && --length == 0) enable = false;
-    }
-
-    counter = data.bit(6);
-    frequency.bits(10,8) = data.bits(2,0);
-
-    if(data.bit(7)) {
-      enable = dacEnable();
-      period = 2 * (2048 - frequency);
-      envelopePeriod = envelopeFrequency ? (uint)envelopeFrequency : 8;
-      volume = envelopeVolume;
-
-      if(!length) {
-        length = 64;
-        if(apu.phase.bit(0) && counter) length--;
-      }
-
-      frequencyShadow = frequency;
-      sweepNegate = false;
-      sweepPeriod = sweepFrequency ? (uint)sweepFrequency : 8;
-      sweepEnable = sweepPeriod || sweepShift;
-      if(sweepShift) sweep(0);
-    }
-  }
+  frequencyShadow = frequency;
+  sweepNegate = false;
+  sweepPeriod = sweepFrequency ? (uint)sweepFrequency : 8;
+  sweepEnable = sweepPeriod || sweepShift;
+  if(sweepShift) sweep(0);
 }
 
 auto APU::Square1::power(bool initializeLength) -> void {

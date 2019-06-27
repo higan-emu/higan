@@ -154,8 +154,8 @@ auto Cartridge::second() -> void {
   mapper->second();
 }
 
-auto Cartridge::readIO(uint16 address) -> uint8 {
-  if(address == 0xff50) return 0xff;
+auto Cartridge::readIO(uint16 address, uint8 data) -> uint8 {
+  if(address == 0xff50) return data;
   if(bootromEnable) {
     if(address >= 0x0000 && address <= 0x00ff) return system.bootROM.read(address);
     if(address >= 0x0200 && address <= 0x08ff && Model::GameBoyColor()) return system.bootROM.read(address - 0x100);

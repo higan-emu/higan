@@ -28,9 +28,7 @@ auto CPU::joypPoll() -> void {
   if(status.joyp != 0x0f) raise(Interrupt::Joypad);
 }
 
-auto CPU::readIO(uint16 address) -> uint8 {
-  uint8 data = 0xff;
-
+auto CPU::readIO(uint16 address, uint8 data) -> uint8 {
   if(address >= 0xc000 && address <= 0xfdff) return wram[wramAddress(address)];
   if(address >= 0xff80 && address <= 0xfffe) return hram[(uint7)address];
 

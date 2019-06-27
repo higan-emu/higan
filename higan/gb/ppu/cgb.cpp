@@ -69,7 +69,7 @@ auto PPU::runCGB() -> void {
 
   uint color = 0x7fff;
   runBackgroundCGB();
-  if(status.windowDisplayEnable) runWindowCGB();
+  if(latch.windowDisplayEnable) runWindowCGB();
   if(status.obEnable) runObjectsCGB();
 
   if(ob.palette == 0) {
@@ -112,8 +112,11 @@ auto PPU::runBackgroundCGB() -> void {
 
 auto PPU::runWindowCGB() -> void {
   uint scrolly = latch.wy;
-  uint scrollx = px + 7 - status.wx;
-  if(scrolly >= 144u) return;  //also matches underflow (scrolly < 0)
+  uint scrollx = px + 7 - latch.wx;
+
+  if(status.ly < status.wy) return;
+  if(px + 7 == status.wx) latch.wy++;
+
   if(scrollx >= 160u) return;  //also matches underflow (scrollx < 0)
   uint tx = scrollx & 7;
   if(tx == 0 || px == 0) readTileCGB(status.windowTilemapSelect, scrollx, scrolly, window.attr, window.data);

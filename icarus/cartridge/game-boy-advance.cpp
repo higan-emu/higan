@@ -40,8 +40,8 @@ auto GameBoyAdvance::heuristics(vector<uint8_t>& data, string location) -> strin
 
   string s;
   s += "game\n";
-  s +={"  name:  ", Location::prefix(location), "\n"};
-  s +={"  label: ", Location::prefix(location), "\n"};
+  s +={"  name:  ", Media::name(location), "\n"};
+  s +={"  label: ", Media::name(location), "\n"};
   s += "  board\n";
 
   s += "    memory\n";

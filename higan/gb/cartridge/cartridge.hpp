@@ -16,7 +16,7 @@ struct Cartridge : Thread, MMIO {
   auto power() -> void;
   auto second() -> void;
 
-  auto readIO(uint16 address) -> uint8;
+  auto readIO(uint16 address, uint8 data) -> uint8;
   auto writeIO(uint16 address, uint8 data) -> void;
 
   auto serialize(serializer&) -> void;

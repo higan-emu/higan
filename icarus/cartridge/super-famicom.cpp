@@ -69,8 +69,8 @@ auto SuperFamicom::heuristics(vector<uint8_t>& data, string location) -> string 
   string s;
   auto& output = s;
   s += "game\n";
-  s +={"  name:     ", Location::prefix(location), "\n"};
-  s +={"  label:    ", Location::prefix(location), "\n"};
+  s +={"  name:     ", Media::name(location), "\n"};
+  s +={"  label:    ", Media::name(location), "\n"};
   s +={"  title:    ", title(), "\n"};
   s +={"  region:   ", region(), "\n"};
   s +={"  revision: ", revision(), "\n"};

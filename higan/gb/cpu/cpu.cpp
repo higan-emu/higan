@@ -11,6 +11,42 @@ namespace higan::GameBoy {
 #include "serialization.cpp"
 CPU cpu;
 
+auto CPU::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Component>(parent, from, "CPU");
+  from = Node::scan(parent = node, from);
+
+  if(Model::GameBoy()) {
+    version = Node::append<Node::String>(parent, from, "Version", "DMG-CPU B");
+    version->setAllowedValues({
+      "DMG-CPU",
+      "DMG-CPU A",
+      "DMG-CPU B",
+      "DMG-CPU C",
+      "CPU MGB",
+    });
+  }
+
+  if(Model::SuperGameBoy()) {
+    version = Node::append<Node::String>(parent, from, "Version", "SGB-CPU-01");
+    version->setAllowedValues({
+      "SGB-CPU-01",
+      "CPU SGB2"
+    });
+  }
+
+  if(Model::GameBoyColor()) {
+    version = Node::append<Node::String>(parent, from, "Version", "CPU CGB");
+    version->setAllowedValues({
+      "CPU CGB",
+      "CPU CGB A",
+      "CPU CGB B",
+      "CPU CGB C",
+      "CPU CGB D",
+      "CPU CGB E",
+    });
+  }
+}
+
 auto CPU::main() -> void {
   //are interrupts enabled?
   if(r.ime) {
@@ -104,6 +140,28 @@ auto CPU::power() -> void {
   for(auto& n : hram) n = 0x00;
 
   status = {};
+
+  //0146~0149
+  if(version->latch() == "DMG-CPU"   ) status.div = 0x0146;
+
+  //ffe6~ffe9
+  if(version->latch() == "DMG-CPU A" ) status.div = 0xffe6;
+  if(version->latch() == "DMG-CPU B" ) status.div = 0xffe6;
+  if(version->latch() == "DMG-CPU C" ) status.div = 0xffe6;
+  if(version->latch() == "CPU MGB"   ) status.div = 0xffe6;
+
+  if(version->latch() == "SGB-CPU-01") status.div = 0xffe6;  //unconfirmed
+  if(version->latch() == "CPU SGB2"  ) status.div = 0xffe6;  //unconfirmed
+
+  //0206~0209
+  if(version->latch() == "CPU CGB"   ) status.div = 0x0206;
+
+  //fffa~fffd
+  if(version->latch() == "CPU CGB A" ) status.div = 0xfffa;
+  if(version->latch() == "CPU CGB B" ) status.div = 0xfffa;
+  if(version->latch() == "CPU CGB C" ) status.div = 0xfffa;
+  if(version->latch() == "CPU CGB D" ) status.div = 0xfffa;
+  if(version->latch() == "CPU CGB E" ) status.div = 0xfffa;
 }
 
 }

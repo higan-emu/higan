@@ -7,6 +7,8 @@ struct Media {
   virtual auto metadata(string location) -> string = 0;
   virtual auto import(string filename) -> string = 0;
 
+  auto name(string location) const -> string;
+
   Markup::Node database;
   string pathname;
 };

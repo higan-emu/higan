@@ -15,7 +15,7 @@ struct PPU : Thread, MMIO {
 
   //io.cpp
   auto vramAddress(uint13 address) const -> uint16;
-  auto readIO(uint16 address) -> uint8;
+  auto readIO(uint16 address, uint8 data) -> uint8;
   auto writeIO(uint16 address, uint8 data) -> void;
 
   //dmg.cpp
@@ -49,18 +49,18 @@ struct PPU : Thread, MMIO {
   function<void ()> run;
 
   struct Status {
-    bool irq = 0;  //STAT IRQ line
-    uint lx = 0;
+    uint1 irq;  //STAT IRQ line
+    uint9 lx;   //0~455
 
     //$ff40  LCDC
-    bool displayEnable = 0;
-    bool windowTilemapSelect = 0;
-    bool windowDisplayEnable = 0;
-    bool bgTiledataSelect = 0;
-    bool bgTilemapSelect = 0;
-    bool obSize = 0;
-    bool obEnable = 0;
-    bool bgEnable = 0;
+    uint1 bgEnable;
+    uint1 obEnable;
+    uint1 obSize;
+    uint1 bgTilemapSelect;
+    uint1 bgTiledataSelect;
+    uint1 windowDisplayEnable;
+    uint1 windowTilemapSelect;
+    uint1 displayEnable;
 
     //$ff41  STAT
     uint2 mode;
@@ -82,9 +82,9 @@ struct PPU : Thread, MMIO {
     uint8 lyc;
 
     //$ff46  DMA
-    bool dmaActive = 0;
-    uint dmaClock = 0;
-    uint8 dmaBank;
+     uint8 dmaBank;
+     uint1 dmaActive;
+    uint10 dmaClock;  //0~323 (DMG), 0~645 (CGB)
 
     //$ff4a  WY
     uint8 wy;
@@ -93,27 +93,29 @@ struct PPU : Thread, MMIO {
     uint8 wx;
 
     //$ff4f  VBK
-    bool vramBank = 0;
+    uint1 vramBank;
 
     //$ff68  BGPI
-    bool bgpiIncrement = 0;
     uint6 bgpi;
+    uint1 bgpiIncrement;
 
     //$ff6a  OBPI
-    bool obpiIncrement = 0;
     uint8 obpi;
+    uint1 obpiIncrement;
   } status;
 
   struct Latch {
-    uint wy;
+    uint1 windowDisplayEnable;
+    uint8 wx;
+    uint8 wy;
   } latch;
 
   uint32 screen[160 * 144];
 
   struct Pixel {
     uint16 color;
-    uint8 palette;
-    bool priority = 0;
+     uint8 palette;
+     uint1 priority;
   };
   Pixel bg;
   Pixel ob;
@@ -126,9 +128,9 @@ struct PPU : Thread, MMIO {
     uint data = 0;
   };
   Sprite sprite[10];
-  uint sprites = 0;
+  uint4 sprites;  //0~9
 
-  uint px = 0;
+  uint8 px;  //0~159
 
   struct Background {
     uint attr = 0;

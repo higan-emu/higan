@@ -2,6 +2,10 @@
 //  456 clocks/scanline
 //  154 scanlines/frame
 
+auto CPU::step() -> void {
+  step(1);
+}
+
 auto CPU::step(uint clocks) -> void {
   for(auto n : range(clocks)) {
     if(++status.clock == 0) {

@@ -27,8 +27,11 @@ auto PPU::main() -> void {
   status.lx = 0;
   if(Model::SuperGameBoy()) superGameBoy->lcdScanline();
 
+  latch.windowDisplayEnable = status.windowDisplayEnable;
+  latch.wx = status.wx;
+
   if(status.ly == 0) {
-    latch.wy = 0 - status.wy;
+    latch.wy = 0;
   }
 
   if(status.ly <= 143) {
@@ -51,7 +54,6 @@ auto PPU::main() -> void {
   }
 
   status.ly++;
-  if(status.windowDisplayEnable && status.wx < 167) latch.wy++;
 
   if(status.ly == 144) {
     cpu.raise(CPU::Interrupt::VerticalBlank);
@@ -101,7 +103,7 @@ auto PPU::step(uint clocks) -> void {
           uint8 bank = status.dmaBank;
           if(bank == 0xfe) bank = 0xde;  //OAM DMA cannot reference OAM, I/O, or HRAM:
           if(bank == 0xff) bank = 0xdf;  //it accesses HRAM instead.
-          uint8 data = bus.read(bank << 8 | hi - 1);
+          uint8 data = bus.read(bank << 8 | hi - 1, 0xff);
           oam[hi - 1] = data;
         }
       }

@@ -60,7 +60,7 @@ auto PPU::runDMG() -> void {
 
   uint color = 0;
   if(status.bgEnable) runBackgroundDMG();
-  if(status.windowDisplayEnable) runWindowDMG();
+  if(latch.windowDisplayEnable) runWindowDMG();
   if(status.obEnable) runObjectsDMG();
 
   if(ob.palette == 0) {
@@ -94,9 +94,11 @@ auto PPU::runBackgroundDMG() -> void {
 
 auto PPU::runWindowDMG() -> void {
   uint scrolly = latch.wy;
-  uint scrollx = px + 7 - status.wx;
+  uint scrollx = px + 7 - latch.wx;
 
-  if(scrolly >= 144u) return;  //also matches underflow (scrolly < 0)
+  if(status.ly < status.wy) return;
+  if(px + 7 == status.wx) latch.wy++;
+
   if(scrollx >= 160u) return;  //also matches underflow (scrollx < 0)
   uint tx = scrollx & 7;
   if(tx == 0 || px == 0) readTileDMG(status.windowTilemapSelect, scrollx, scrolly, window.data);

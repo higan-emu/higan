@@ -11,18 +11,22 @@ struct Memory {
 };
 
 struct MMIO {
-  virtual auto readIO(uint16 addr) -> uint8 = 0;
-  virtual auto writeIO(uint16 addr, uint8 data) -> void = 0;
+  virtual auto readIO(uint16 address, uint8 data) -> uint8 = 0;
+  virtual auto writeIO(uint16 address, uint8 data) -> void = 0;
 };
 
 struct Unmapped : MMIO {
-  auto readIO(uint16) -> uint8 { return 0xff; }
-  auto writeIO(uint16, uint8) -> void {}
+  auto readIO(uint16 address, uint8 data) -> uint8 { return data; }
+  auto writeIO(uint16 address, uint8 data) -> void {}
 };
 
 struct Bus {
-  auto read(uint16 addr) -> uint8;
-  auto write(uint16 addr, uint8 data) -> void;
+  auto read(uint cycle, uint16 address, uint8 data) -> uint8;
+  auto write(uint cycle, uint16 address, uint8 data) -> void;
+
+  auto read(uint16 address, uint8 data) -> uint8;
+  auto write(uint16 address, uint8 data) -> void;
+
   auto power() -> void;
 
   MMIO* mmio[65536];

@@ -35,22 +35,36 @@ auto Memory::free() -> void {
 
 //
 
-auto Bus::read(uint16 addr) -> uint8 {
-  uint8 data = mmio[addr]->readIO(addr);
-
-  if(cheat) {
-    if(auto result = cheat.find(addr, data)) return result();
-  }
-
+auto Bus::read(uint cycle, uint16 address, uint8 data) -> uint8 {
+  data &= apu.readIO(cycle, address, data);
+  if(cycle == 2) data &= mmio[address]->readIO(address, data);
   return data;
 }
 
-auto Bus::write(uint16 addr, uint8 data) -> void {
-  mmio[addr]->writeIO(addr, data);
+auto Bus::write(uint cycle, uint16 address, uint8 data) -> void {
+  apu.writeIO(cycle, address, data);
+  if(cycle == 2) mmio[address]->writeIO(address, data);
+}
+
+auto Bus::read(uint16 address, uint8 data) -> uint8 {
+  data &= read(0, address, data);
+  data &= read(1, address, data);
+  data &= read(2, address, data);
+  data &= read(3, address, data);
+  data &= read(4, address, data);
+  return data;
+}
+
+auto Bus::write(uint16 address, uint8 data) -> void {
+  write(0, address, data);
+  write(1, address, data);
+  write(2, address, data);
+  write(3, address, data);
+  write(4, address, data);
 }
 
 auto Bus::power() -> void {
-  for(auto n : range(65536)) mmio[n] = &unmapped;
+  for(uint address : range(65536)) mmio[address] = &unmapped;
 }
 
 }

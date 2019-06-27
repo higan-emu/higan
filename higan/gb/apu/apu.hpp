@@ -1,12 +1,14 @@
-struct APU : Thread, MMIO {
+struct APU : Thread {
   shared_pointer<Stream> stream;
 
   auto main() -> void;
   auto power() -> void;
 
-  auto readIO(uint16 addr) -> uint8;
-  auto writeIO(uint16 addr, uint8 data) -> void;
+  //io.cpp
+  auto readIO(uint cycle, uint16 address, uint8 data) -> uint8;
+  auto writeIO(uint cycle, uint16 address, uint8 data) -> void;
 
+  //serialization.cpp
   auto serialize(serializer&) -> void;
 
   //square1.cpp
@@ -18,8 +20,7 @@ struct APU : Thread, MMIO {
     auto clockLength() -> void;
     auto clockSweep() -> void;
     auto clockEnvelope() -> void;
-    auto read(uint16 addr) -> uint8;
-    auto write(uint16 addr, uint8 data) -> void;
+    auto trigger() -> void;
     auto power(bool initializeLength = true) -> void;
 
     auto serialize(serializer&) -> void;
@@ -56,8 +57,7 @@ struct APU : Thread, MMIO {
     auto run() -> void;
     auto clockLength() -> void;
     auto clockEnvelope() -> void;
-    auto read(uint16 addr) -> uint8;
-    auto write(uint16 addr, uint8 data) -> void;
+    auto trigger() -> void;
     auto power(bool initializeLength = true) -> void;
 
     auto serialize(serializer&) -> void;
@@ -85,8 +85,9 @@ struct APU : Thread, MMIO {
 
     auto run() -> void;
     auto clockLength() -> void;
-    auto read(uint16 addr) -> uint8;
-    auto write(uint16 addr, uint8 data) -> void;
+    auto trigger() -> void;
+    auto readRAM(uint4 address, uint8 data) -> uint8;
+    auto writeRAM(uint4 address, uint8 data) -> void;
     auto power(bool initializeLength = true) -> void;
 
     auto serialize(serializer&) -> void;
@@ -114,8 +115,7 @@ struct APU : Thread, MMIO {
     auto run() -> void;
     auto clockLength() -> void;
     auto clockEnvelope() -> void;
-    auto read(uint16 addr) -> uint8;
-    auto write(uint16 addr, uint8 data) -> void;
+    auto trigger() -> void;
     auto power(bool initializeLength = true) -> void;
 
     auto serialize(serializer&) -> void;
@@ -140,8 +140,6 @@ struct APU : Thread, MMIO {
 
   struct Sequencer {
     auto run() -> void;
-    auto read(uint16 addr) -> uint8;
-    auto write(uint16 addr, uint8 data) -> void;
     auto power() -> void;
 
     auto serialize(serializer&) -> void;

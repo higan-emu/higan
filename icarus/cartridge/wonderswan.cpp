@@ -35,8 +35,8 @@ auto WonderSwan::heuristics(vector<uint8_t>& data, string location) -> string {
 
   string s;
   s += "game\n";
-  s +={"  name:        ", Location::prefix(location), "\n"};
-  s +={"  label:       ", Location::prefix(location), "\n"};
+  s +={"  name:        ", Media::name(location), "\n"};
+  s +={"  label:       ", Media::name(location), "\n"};
   s +={"  orientation: ", !orientation ? "horizontal" : "vertical", "\n"};
   s += "  board\n";
 
