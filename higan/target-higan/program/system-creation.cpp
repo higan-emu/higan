@@ -1,6 +1,7 @@
 SystemCreation::SystemCreation(View* parent) : Panel(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
   header.setText("Create").setFont(Font().setBold());
+  systemList.onActivate([&] { eventAccept(); });
   systemList.onChange([&] { eventChange(); });
   nameLabel.setText("Name:");
   nameValue.onActivate([&] { eventAccept(); });

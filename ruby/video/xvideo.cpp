@@ -62,7 +62,7 @@ struct VideoXVideo : VideoDriver {
   auto release() -> void override {
   }
 
-  auto output() -> void override {
+  auto output(uint width = 0, uint height = 0) -> void override {
     XWindowAttributes target;
     XGetWindowAttributes(_display, _window, &target);
 
@@ -89,9 +89,14 @@ struct VideoXVideo : VideoDriver {
     if(name == "YV12"  ) renderYV12  (_width, _height);
     if(name == "I420"  ) renderI420  (_width, _height);
 
+    if(!width) width = _width;
+    if(!height) height = _height;
+    int x = (target.width - width) / 2;
+    int y = (target.height - height) / 2;
+
     XvShmPutImage(_display, _port, _window, _gc, _image,
       0, 0, _width, _height,
-      0, 0, target.width, target.height,
+      x, y, width, height,
       true);
   }
 

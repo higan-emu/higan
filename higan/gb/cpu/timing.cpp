@@ -78,7 +78,7 @@ auto CPU::timer4096hz() -> void {
 auto CPU::hblank() -> void {
   if(status.dmaMode == 1 && status.dmaLength && ppu.status.ly < 144) {
     for(auto n : range(16)) {
-      writeDMA(status.dmaTarget++, readDMA(status.dmaSource++));
+      writeDMA(status.dmaTarget++, readDMA(status.dmaSource++, 0xff));
       status.dmaLength--;
       if(n & 1) step(1 << status.speedDouble);
     }

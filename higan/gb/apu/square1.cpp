@@ -68,7 +68,7 @@ auto APU::Square1::trigger() -> void {
 
   if(!length) {
     length = 64;
-    if(apu.phase.bit(0) && counter) length--;
+    if(apu.phase(0) && counter) length--;
   }
 
   frequencyShadow = frequency;

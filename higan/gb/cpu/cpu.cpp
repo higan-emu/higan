@@ -74,19 +74,19 @@ auto CPU::main() -> void {
 }
 
 auto CPU::raised(uint interruptID) const -> bool {
-  return status.interruptFlag.bit(interruptID);
+  return status.interruptFlag(interruptID);
 }
 
 auto CPU::raise(uint interruptID) -> void {
-  status.interruptFlag.bit(interruptID) = 1;
-  if(status.interruptEnable.bit(interruptID)) {
+  status.interruptFlag(interruptID) = 1;
+  if(status.interruptEnable(interruptID)) {
     r.halt = false;
     if(interruptID == Interrupt::Joypad) r.stop = false;
   }
 }
 
 auto CPU::lower(uint interruptID) -> void {
-  status.interruptFlag.bit(interruptID) = 0;
+  status.interruptFlag(interruptID) = 0;
 }
 
 auto CPU::stop() -> bool {
@@ -104,42 +104,13 @@ auto CPU::power() -> void {
   Thread::create(4 * 1024 * 1024, {&CPU::main, this});
   SM83::power();
 
-  for(uint n = 0xc000; n <= 0xdfff; n++) bus.mmio[n] = this;  //WRAM
-  for(uint n = 0xe000; n <= 0xfdff; n++) bus.mmio[n] = this;  //WRAM (mirror)
-  for(uint n = 0xff80; n <= 0xfffe; n++) bus.mmio[n] = this;  //HRAM
-
-  bus.mmio[0xff00] = this;  //JOYP
-  bus.mmio[0xff01] = this;  //SB
-  bus.mmio[0xff02] = this;  //SC
-  bus.mmio[0xff04] = this;  //DIV
-  bus.mmio[0xff05] = this;  //TIMA
-  bus.mmio[0xff06] = this;  //TMA
-  bus.mmio[0xff07] = this;  //TAC
-  bus.mmio[0xff0f] = this;  //IF
-  bus.mmio[0xffff] = this;  //IE
-
-  if(Model::GameBoyColor()) {
-  bus.mmio[0xff4d] = this;  //KEY1
-  bus.mmio[0xff51] = this;  //HDMA1
-  bus.mmio[0xff52] = this;  //HDMA2
-  bus.mmio[0xff53] = this;  //HDMA3
-  bus.mmio[0xff54] = this;  //HDMA4
-  bus.mmio[0xff55] = this;  //HDMA5
-  bus.mmio[0xff56] = this;  //RP
-  bus.mmio[0xff6c] = this;  //???
-  bus.mmio[0xff70] = this;  //SVBK
-  bus.mmio[0xff72] = this;  //???
-  bus.mmio[0xff73] = this;  //???
-  bus.mmio[0xff74] = this;  //???
-  bus.mmio[0xff75] = this;  //???
-  bus.mmio[0xff76] = this;  //???
-  bus.mmio[0xff77] = this;  //???
-  }
-
   for(auto& n : wram) n = 0x00;
   for(auto& n : hram) n = 0x00;
 
   status = {};
+
+  //note: this may not be accurate, DIV values at startup may be due to LCD delays?
+  //but probably not, since "CPU CGB" differs from "CPU CGB [A-E]"
 
   //0146~0149
   if(version->latch() == "DMG-CPU"   ) status.div = 0x0146;

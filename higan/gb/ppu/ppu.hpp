@@ -1,4 +1,4 @@
-struct PPU : Thread, MMIO {
+struct PPU : Thread {
   shared_pointer<Screen> display;
 
   //ppu.cpp
@@ -13,10 +13,15 @@ struct PPU : Thread, MMIO {
 
   auto hflip(uint data) const -> uint;
 
+  //timing.cpp
+  auto canAccessVRAM() const -> bool;
+  auto canAccessOAM() const -> bool;
+  auto compareLYC() const -> bool;
+
   //io.cpp
   auto vramAddress(uint13 address) const -> uint16;
-  auto readIO(uint16 address, uint8 data) -> uint8;
-  auto writeIO(uint16 address, uint8 data) -> void;
+  auto readIO(uint cycle, uint16 address, uint8 data) -> uint8;
+  auto writeIO(uint cycle, uint16 address, uint8 data) -> void;
 
   //dmg.cpp
   auto readTileDMG(bool select, uint x, uint y, uint& data) -> void;
@@ -105,10 +110,15 @@ struct PPU : Thread, MMIO {
   } status;
 
   struct Latch {
+    uint1 displayEnable;
     uint1 windowDisplayEnable;
     uint8 wx;
     uint8 wy;
   } latch;
+
+  struct History {
+    uint10 mode;  //5 x 2-bit
+  } history;
 
   uint32 screen[160 * 144];
 

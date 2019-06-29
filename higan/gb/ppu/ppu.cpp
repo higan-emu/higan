@@ -3,6 +3,7 @@
 namespace higan::GameBoy {
 
 PPU ppu;
+#include "timing.cpp"
 #include "io.cpp"
 #include "dmg.cpp"
 #include "cgb.cpp"
@@ -34,20 +35,34 @@ auto PPU::main() -> void {
     latch.wy = 0;
   }
 
-  if(status.ly <= 143) {
+  if(latch.displayEnable) {
+    latch.displayEnable = 0;
+    status.mode = 0;
+    step(72);
+
+    status.mode = 3;
+    step(172);
+
+    status.mode = 0;
+    cpu.hblank();
+    step(456 - 8 - status.lx);
+  } else if(status.ly <= 143) {
     status.mode = 2;
     scanline();
-    step(92);
+    step(80);
+
+    if(status.ly >= status.wy && status.wx < 7) latch.wy++;
 
     status.mode = 3;
     for(auto n : range(160)) {
       run();
       step(1);
     }
+    step(12);
 
     status.mode = 0;
     cpu.hblank();
-    step(204);
+    step(456 - status.lx);
   } else {
     status.mode = 1;
     step(456);
@@ -88,6 +103,7 @@ auto PPU::refresh() -> void {
 
 auto PPU::step(uint clocks) -> void {
   while(clocks--) {
+    history.mode = history.mode << 2 | status.mode;
     stat();
     if(status.dmaActive) {
       uint hi = status.dmaClock++;
@@ -98,7 +114,7 @@ auto PPU::step(uint clocks) -> void {
           //warm-up
         } else if(hi == 161) {
           //cool-down; disable
-          status.dmaActive = false;
+          status.dmaActive = 0;
         } else {
           uint8 bank = status.dmaBank;
           if(bank == 0xfe) bank = 0xde;  //OAM DMA cannot reference OAM, I/O, or HRAM:
@@ -133,30 +149,6 @@ auto PPU::power() -> void {
     run = {&PPU::runDMG, this};
   }
 
-  for(uint n = 0x8000; n <= 0x9fff; n++) bus.mmio[n] = this;  //VRAM
-  for(uint n = 0xfe00; n <= 0xfe9f; n++) bus.mmio[n] = this;  //OAM
-
-  bus.mmio[0xff40] = this;  //LCDC
-  bus.mmio[0xff41] = this;  //STAT
-  bus.mmio[0xff42] = this;  //SCY
-  bus.mmio[0xff43] = this;  //SCX
-  bus.mmio[0xff44] = this;  //LY
-  bus.mmio[0xff45] = this;  //LYC
-  bus.mmio[0xff46] = this;  //DMA
-  bus.mmio[0xff47] = this;  //BGP
-  bus.mmio[0xff48] = this;  //OBP0
-  bus.mmio[0xff49] = this;  //OBP1
-  bus.mmio[0xff4a] = this;  //WY
-  bus.mmio[0xff4b] = this;  //WX
-
-  if(Model::GameBoyColor()) {
-  bus.mmio[0xff4f] = this;  //VBK
-  bus.mmio[0xff68] = this;  //BGPI
-  bus.mmio[0xff69] = this;  //BGPD
-  bus.mmio[0xff6a] = this;  //OBPI
-  bus.mmio[0xff6b] = this;  //OBPD
-  }
-
   for(auto& n : vram) n = 0x00;
   for(auto& n : oam) n = 0x00;
   for(auto& n : bgp) n = 0x00;
@@ -167,6 +159,7 @@ auto PPU::power() -> void {
 
   status = {};
   latch = {};
+  history = {};
 
   for(auto& n : screen) n = 0;
 

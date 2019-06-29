@@ -17,8 +17,8 @@ namespace higan::GameBoy {
     inline static auto SuperGameBoy() -> bool;
   };
 
-  #include <gb/memory/memory.hpp>
   #include <gb/system/system.hpp>
+  #include <gb/bus/bus.hpp>
   #include <gb/cartridge/cartridge.hpp>
   #include <gb/cpu/cpu.hpp>
   #include <gb/ppu/ppu.hpp>

@@ -3,6 +3,8 @@
 namespace higan::GameBoy {
 
 Cartridge cartridge;
+#include "io.cpp"
+#include "serialization.cpp"
 #include "mbc0/mbc0.cpp"
 #include "mbc1/mbc1.cpp"
 #include "mbc1m/mbc1m.cpp"
@@ -15,7 +17,6 @@ Cartridge cartridge;
 #include "huc1/huc1.cpp"
 #include "huc3/huc3.cpp"
 #include "tama/tama.cpp"
-#include "serialization.cpp"
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   port = Node::append<Node::Port>(parent, from, "Cartridge Slot", "Cartridge");
@@ -63,29 +64,26 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   rumble = (bool)document["game/board/rumble"];
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
-    rom.size = max(0x4000, memory["size"].natural());
-    rom.data = memory::allocate<uint8>(rom.size, 0xff);
+    rom.allocate(max(0x4000, memory["size"].natural()));
     if(auto fp = platform->open(node, "program.rom", File::Read, File::Required)) {
-      fp->read(rom.data, min(rom.size, fp->size()));
+      rom.load(fp);
     }
   }
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
-    ram.size = memory["size"].natural();
-    ram.data = memory::allocate<uint8>(ram.size, 0xff);
+    ram.allocate(memory["size"].natural());
     if(!memory["volatile"]) {
       if(auto fp = platform->open(node, "save.ram", File::Read, File::Optional)) {
-        fp->read(ram.data, min(ram.size, fp->size()));
+        ram.load(fp);
       }
     }
   }
 
   if(auto memory = document["game/board/memory(type=RTC,content=Time)"]) {
-    rtc.size = memory["size"].natural();
-    rtc.data = memory::allocate<uint8>(rtc.size, 0xff);
+    rtc.allocate(memory["size"].natural());
     if(!memory["volatile"]) {
       if(auto fp = platform->open(node, "time.rtc", File::Read, File::Optional)) {
-        fp->read(rtc.data, min(rtc.size, fp->size()));
+        rtc.load(fp);
       }
     }
   }
@@ -97,12 +95,9 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
 auto Cartridge::disconnect() -> void {
   if(!node) return;
-  delete[] rom.data;
-  delete[] ram.data;
-  delete[] rtc.data;
-  rom = {};
-  ram = {};
-  rtc = {};
+  rom.reset();
+  ram.reset();
+  rtc.reset();
   node = {};
 }
 
@@ -113,7 +108,7 @@ auto Cartridge::save() -> void {
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
     if(!memory["volatile"]) {
       if(auto fp = platform->open(node, "save.ram", File::Write)) {
-        fp->write(ram.data, ram.size);
+        ram.save(fp);
       }
     }
   }
@@ -121,7 +116,7 @@ auto Cartridge::save() -> void {
   if(auto memory = document["game/board/memory(type=RTC,content=Time)"]) {
     if(!memory["volatile"]) {
       if(auto fp = platform->open(node, "time.rtc", File::Write)) {
-        fp->write(rtc.data, rtc.size);
+        rtc.save(fp);
       }
     }
   }
@@ -131,10 +126,6 @@ auto Cartridge::save() -> void {
 
 auto Cartridge::power() -> void {
   Thread::create(4 * 1024 * 1024, {&Cartridge::main, this});
-
-  for(uint n = 0x0000; n <= 0x7fff; n++) bus.mmio[n] = this;
-  for(uint n = 0xa000; n <= 0xbfff; n++) bus.mmio[n] = this;
-  bus.mmio[0xff50] = this;
 
   bootromEnable = true;
 
@@ -153,34 +144,6 @@ auto Cartridge::step(uint clocks) -> void {
 auto Cartridge::second() -> void {
   mapper->second();
 }
-
-auto Cartridge::readIO(uint16 address, uint8 data) -> uint8 {
-  if(address == 0xff50) return data;
-  if(bootromEnable) {
-    if(address >= 0x0000 && address <= 0x00ff) return system.bootROM.read(address);
-    if(address >= 0x0200 && address <= 0x08ff && Model::GameBoyColor()) return system.bootROM.read(address - 0x100);
-  }
-  return mapper->read(address);
-}
-
-auto Cartridge::writeIO(uint16 address, uint8 data) -> void {
-  if(bootromEnable && address == 0xff50) return void(bootromEnable = false);
-  mapper->write(address, data);
-}
-
-auto Cartridge::Memory::read(uint address) const -> uint8 {
-  if(!size) return 0xff;
-  if(address >= size) address %= size;
-  return data[address];
-}
-
-auto Cartridge::Memory::write(uint address, uint8 byte) -> void {
-  if(!size) return;
-  if(address >= size) address %= size;
-  data[address] = byte;
-}
-
-//
 
 auto Cartridge::Mapper::main() -> void {
   cartridge.step(cartridge.frequency());

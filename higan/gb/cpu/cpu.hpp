@@ -1,4 +1,4 @@
-struct CPU : SM83, Thread, MMIO {
+struct CPU : SM83, Thread {
   Node::Component node;
   Node::String version;
 
@@ -10,6 +10,10 @@ struct CPU : SM83, Thread, MMIO {
     /* 4 */ Joypad,
   };};
 
+  inline auto lowSpeed()  const -> bool { return status.speedDouble == 0; }
+  inline auto highSpeed() const -> bool { return status.speedDouble == 1; }
+
+  //cpu.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto main() -> void;
   auto raised(uint interrupt) const -> bool;
@@ -23,14 +27,14 @@ struct CPU : SM83, Thread, MMIO {
   //io.cpp
   auto wramAddress(uint13 address) const -> uint16;
   auto joypPoll() -> void;
-  auto readIO(uint16 address, uint8 data) -> uint8;
-  auto writeIO(uint16 address, uint8 data) -> void;
+  auto readIO(uint cycle, uint16 address, uint8 data) -> uint8;
+  auto writeIO(uint cycle, uint16 address, uint8 data) -> void;
 
   //memory.cpp
   auto idle() -> void override;
   auto read(uint16 address) -> uint8 override;
   auto write(uint16 address, uint8 data) -> void override;
-  auto readDMA(uint16 address) -> uint8;
+  auto readDMA(uint16 address, uint8 data) -> uint8;
   auto writeDMA(uint13 address, uint8 data) -> void;
   auto readDebugger(uint16 address) -> uint8 override;
 

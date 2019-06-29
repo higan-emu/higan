@@ -1,4 +1,4 @@
-struct Cartridge : Thread, MMIO {
+struct Cartridge : Thread {
   Node::Port port;
   Node::Peripheral node;
 
@@ -16,9 +16,11 @@ struct Cartridge : Thread, MMIO {
   auto power() -> void;
   auto second() -> void;
 
-  auto readIO(uint16 address, uint8 data) -> uint8;
-  auto writeIO(uint16 address, uint8 data) -> void;
+  //io.cpp
+  auto readIO(uint cycle, uint16 address, uint8 data) -> uint8;
+  auto writeIO(uint cycle, uint16 address, uint8 data) -> void;
 
+  //serialization.cpp
   auto serialize(serializer&) -> void;
 
   struct Information {
@@ -26,13 +28,9 @@ struct Cartridge : Thread, MMIO {
     string name;
   } information;
 
-  struct Memory {
-    auto read(uint address) const -> uint8;
-    auto write(uint address, uint8 data) -> void;
-
-    uint8* data = nullptr;
-    uint size = 0;
-  } rom, ram, rtc;
+  Memory::Readable<uint8> rom;
+  Memory::Writable<uint8> ram;
+  Memory::Writable<uint8> rtc;
 
   bool bootromEnable = true;
 

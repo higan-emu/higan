@@ -2,6 +2,10 @@ SystemManager::SystemManager(View* view) : Panel(view, Size{200_sx, ~0}) {
   setCollapsible().setVisible(false);
   systemList.onActivate([&] { eventActivate(); });
   systemList.onChange([&] { eventChange(); });
+  systemList.onContext([&] { eventContext(); });
+  systemListCreate.setText("Create").setIcon(Icon::Action::Add).onActivate([&] { eventCreate(); });
+  systemListRename.setText("Rename").setIcon(Icon::Application::TextEditor).onActivate([&] { eventRename(); });
+  systemListRemove.setText("Delete").setIcon(Icon::Action::Remove).onActivate([&] { eventRemove(); });
 }
 
 auto SystemManager::show() -> void {
@@ -61,6 +65,13 @@ auto SystemManager::eventChange() -> void {
   actionMenu.rename.setEnabled(false);
   actionMenu.remove.setEnabled(false);
   programWindow.show(home);
+}
+
+auto SystemManager::eventContext() -> void {
+  auto selected = (bool)systemList.selected();
+  systemListRename.setVisible(selected);
+  systemListRemove.setVisible(selected);
+  systemListMenu.setVisible();
 }
 
 auto SystemManager::eventCreate() -> void {

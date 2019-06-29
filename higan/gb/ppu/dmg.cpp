@@ -93,11 +93,11 @@ auto PPU::runBackgroundDMG() -> void {
 }
 
 auto PPU::runWindowDMG() -> void {
-  uint scrolly = latch.wy;
-  uint scrollx = px + 7 - latch.wx;
-
   if(status.ly < status.wy) return;
   if(px + 7 == status.wx) latch.wy++;
+
+  uint scrolly = latch.wy - 1;
+  uint scrollx = px + 7 - latch.wx;
 
   if(scrollx >= 160u) return;  //also matches underflow (scrollx < 0)
   uint tx = scrollx & 7;

@@ -17,14 +17,14 @@ auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
 auto System::Controls::poll() -> void {
   if(GameBoy::Model::SuperGameBoy()) {
     auto data = superGameBoy->input();
-    rightLatch    = data.bit(0);
-    leftLatch     = data.bit(1);
-    upLatch       = data.bit(2);
-    downLatch     = data.bit(3);
-    a->value      = data.bit(4);
-    b->value      = data.bit(5);
-    select->value = data.bit(6);
-    start->value  = data.bit(7);
+    rightLatch    = data(0);
+    leftLatch     = data(1);
+    upLatch       = data(2);
+    downLatch     = data(3);
+    a->value      = data(4);
+    b->value      = data(5);
+    select->value = data(6);
+    start->value  = data(7);
     return;
   }
 

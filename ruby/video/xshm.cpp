@@ -28,25 +28,6 @@ struct VideoXShm : VideoDriver {
   auto setContext(uintptr context) -> bool override { return initialize(); }
   auto setShader(string shader) -> bool override { return true; }
 
-  auto configure(uint width, uint height, double inputFrequency, double outputFrequency) -> bool override {
-    if(width == _outputWidth && height == _outputHeight) return true;
-
-    _outputWidth = width;
-    _outputHeight = height;
-    XResizeWindow(_display, _window, _outputWidth, _outputHeight);
-    free();
-
-    _shmInfo.shmid = shmget(IPC_PRIVATE, _outputWidth * _outputHeight * sizeof(uint32_t), IPC_CREAT | 0777);
-    if(_shmInfo.shmid < 0) return false;
-
-    _shmInfo.shmaddr = (char*)shmat(_shmInfo.shmid, 0, 0);
-    _shmInfo.readOnly = False;
-    XShmAttach(_display, &_shmInfo);
-    _outputBuffer = (uint32_t*)_shmInfo.shmaddr;
-    _image = XShmCreateImage(_display, _visual, _depth, ZPixmap, _shmInfo.shmaddr, &_shmInfo, _outputWidth, _outputHeight);
-    return (bool)_image;
-  }
-
   auto clear() -> void override {
     auto dp = _inputBuffer;
     uint length = _inputWidth * _inputHeight;
@@ -70,25 +51,70 @@ struct VideoXShm : VideoDriver {
   auto release() -> void override {
   }
 
-  auto output() -> void override {
-    float xratio = (float)_inputWidth / (float)_outputWidth;
-    float yratio = (float)_inputHeight / (float)_outputHeight;
+  auto output(uint width = 0, uint height = 0) -> void override {
+    XWindowAttributes window;
+    XGetWindowAttributes(_display, _window, &window);
+
+    XWindowAttributes parent;
+    XGetWindowAttributes(_display, self.context, &parent);
+
+    if(window.width != parent.width || window.height != parent.height) {
+      _outputWidth = parent.width;
+      _outputHeight = parent.height;
+      XResizeWindow(_display, _window, _outputWidth, _outputHeight);
+      free();
+
+      _shmInfo.shmid = shmget(IPC_PRIVATE, _outputWidth * _outputHeight * sizeof(uint32_t), IPC_CREAT | 0777);
+      if(_shmInfo.shmid < 0) return;
+
+      _shmInfo.shmaddr = (char*)shmat(_shmInfo.shmid, 0, 0);
+      _shmInfo.readOnly = False;
+      XShmAttach(_display, &_shmInfo);
+      _outputBuffer = (uint32_t*)_shmInfo.shmaddr;
+      _image = XShmCreateImage(_display, _visual, _depth, ZPixmap, _shmInfo.shmaddr, &_shmInfo, _outputWidth, _outputHeight);
+    }
+    if(!_image) return;
+
+    if(!width) width = _inputWidth;
+    if(!height) height = _inputHeight;
+
+    float xratio = (float)_inputWidth / (float)width;
+    float yratio = (float)_inputHeight / (float)height;
+
+    int x = ((int)_outputWidth - (int)width) / 2;
+    int y = ((int)_outputHeight - (int)height) / 2;
+
+    width = min(width, _outputWidth);
+    height = min(height, _outputHeight);
+
+    auto inputBuffer = _inputBuffer;
+    auto outputBuffer = _outputBuffer;
+
+    if(x < 0) {
+      inputBuffer += abs(x);
+      x = 0;
+    }
+
+    if(y < 0) {
+      inputBuffer += abs(y) * _inputWidth;
+      y = 0;
+    }
 
     #pragma omp parallel for
-    for(uint y = 0; y < _outputHeight; y++) {
+    for(uint y = 0; y < height; y++) {
       float ystep = y * yratio;
       float xstep = 0;
 
-      uint32_t* sp = _inputBuffer + (uint)ystep * _inputWidth;
-      uint32_t* dp = _outputBuffer + y * _outputWidth;
+      uint32_t* sp = inputBuffer + (uint)ystep * _inputWidth;
+      uint32_t* dp = outputBuffer + y * _outputWidth;
 
       if(self.shader != "Blur") {
-        for(uint x = 0; x < _outputWidth; x++) {
+        for(uint x = 0; x < width; x++) {
           *dp++ = 255u << 24 | sp[(uint)xstep];
           xstep += xratio;
         }
       } else {
-        for(uint x = 0; x < _outputWidth; x++) {
+        for(uint x = 0; x < width; x++) {
           *dp++ = 255u << 24 | interpolate(xstep - (uint)xstep, sp[(uint)xstep], sp[(uint)xstep + 1]);
           xstep += xratio;
         }
@@ -96,7 +122,7 @@ struct VideoXShm : VideoDriver {
     }
 
     GC gc = XCreateGC(_display, _window, 0, 0);
-    XShmPutImage(_display, _window, gc, _image, 0, 0, 0, 0, _outputWidth, _outputHeight, False);
+    XShmPutImage(_display, _window, gc, _image, 0, 0, x, y, width, height, False);
     XFreeGC(_display, gc);
     XFlush(_display);
   }

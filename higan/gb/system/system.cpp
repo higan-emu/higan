@@ -57,27 +57,36 @@ auto System::power() -> void {
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
   string name = "boot.rom";  //fallback name (should not be used)
+
   if(GameBoy::Model::GameBoy()) {
     bootROM.allocate(256);
-    if(cpu.version->latch() == "DMG-CPU"  ) name = "boot.dmg-0.rom";
-    if(cpu.version->latch() == "DMG-CPU A") name = "boot.dmg-1.rom";
-    if(cpu.version->latch() == "DMG-CPU B") name = "boot.dmg-1.rom";
-    if(cpu.version->latch() == "DMG-CPU C") name = "boot.dmg-1.rom";
-    if(cpu.version->latch() == "CPU MGB"  ) name = "boot.mgb.rom";
+    if(cpu.version->latch() == "DMG-CPU"   ) name = "boot.dmg-0.rom";
+    if(cpu.version->latch() == "DMG-CPU A" ) name = "boot.dmg-1.rom";
+    if(cpu.version->latch() == "DMG-CPU B" ) name = "boot.dmg-1.rom";
+    if(cpu.version->latch() == "DMG-CPU C" ) name = "boot.dmg-1.rom";
+    if(cpu.version->latch() == "CPU MGB"   ) name = "boot.mgb.rom";
   }
+
   if(GameBoy::Model::SuperGameBoy()) {
     bootROM.allocate(256);
-    name = "sm83.boot.rom";  //filename is identical for SGB1 and SGB2 boot ROM
+    if(cpu.version->latch() == "SGB-CPU-01") name = "sm83.boot.rom";
+    if(cpu.version->latch() == "CPU SGB2"  ) name = "sm83.boot.rom";
   }
+
   if(GameBoy::Model::GameBoyColor()) {
     bootROM.allocate(2048);
-    name = "boot.rom";  //only one known CGB boot ROM
+    if(cpu.version->latch() == "CGB CPU"   ) name = "boot.cgb-0.rom";
+    if(cpu.version->latch() == "CGB CPU A" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CGB CPU B" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CGB CPU C" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CGB CPU D" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CGB CPU E" ) name = "boot.cgb-1.rom";
   }
+
   if(auto fp = platform->open(node, name, File::Read, File::Required)) {
     bootROM.load(fp);
   }
 
-  bus.power();
   cartridge.power();
   cpu.power();
   ppu.power();

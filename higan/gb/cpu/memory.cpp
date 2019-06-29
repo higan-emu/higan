@@ -14,8 +14,8 @@ auto CPU::read(uint16 address) -> uint8 {
   step();
   data &= bus.read(1, address, data);
   step();
-  status.interruptLatch = status.interruptFlag & status.interruptEnable;
   data &= bus.read(2, address, data);
+  status.interruptLatch = status.interruptFlag & status.interruptEnable;
   step();
   data &= bus.read(3, address, data);
   step();
@@ -29,17 +29,16 @@ auto CPU::write(uint16 address, uint8 data) -> void {
   step();
   bus.write(1, address, data);
   step();
-  status.interruptLatch = status.interruptFlag & status.interruptEnable;
   bus.write(2, address, data);
   step();
   bus.write(3, address, data);
   step();
   bus.write(4, address, data);
+  status.interruptLatch = status.interruptFlag & status.interruptEnable;
 }
 
 //VRAM DMA source can only be ROM or RAM
-auto CPU::readDMA(uint16 address) -> uint8 {
-  uint8 data = 0xff;
+auto CPU::readDMA(uint16 address, uint8 data) -> uint8 {
   if(address < 0x8000) return bus.read(address, data);  //0000-7fff
   if(address < 0xa000) return data;                     //8000-9fff
   if(address < 0xe000) return bus.read(address, data);  //a000-dfff
