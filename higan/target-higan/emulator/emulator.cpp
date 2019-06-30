@@ -4,6 +4,7 @@
 #include "audio.cpp"
 #include "input.cpp"
 #include "states.cpp"
+#include "status.cpp"
 
 Emulator emulator;
 
@@ -55,6 +56,7 @@ auto Emulator::unload() -> void {
   power(false);
   programWindow.setTitle({"higan v", higan::Version});
   systemMenu.setText("System");
+  setCaption();
 
   if(auto location = root->property("location")) {
     file::write({location, "settings.bml"}, higan::Node::serialize(root));

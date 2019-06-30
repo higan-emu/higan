@@ -107,11 +107,7 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
   current = chrono::timestamp();
   if(current != previous) {
     previous = current;
-    if(settings.video.showFrameRate) {
-      programWindow.setTitle({interface->game(), " [", frameCounter, " fps]"});
-    } else {
-      programWindow.setTitle(interface->game());
-    }
+    setCaption({frameCounter, " fps"});
     frameCounter = 0;
   }
 }

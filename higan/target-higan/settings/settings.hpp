@@ -15,7 +15,6 @@ struct Settings {
     string output = "Center";
     bool aspectCorrection = true;
     string shader = "Blur";
-    bool showFrameRate = true;
   } video;
 
   struct {
@@ -36,6 +35,11 @@ struct Settings {
     string driver = Input::safestDriver();
     string unfocused = "Block";
   } input;
+
+  struct {
+    bool showStatusBar = true;
+    bool showSystemPanels = true;
+  } interface;
 };
 
 extern Settings settings;

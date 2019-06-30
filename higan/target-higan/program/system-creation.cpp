@@ -11,12 +11,6 @@ SystemCreation::SystemCreation(View* parent) : Panel(parent, Size{~0, ~0}) {
 auto SystemCreation::show() -> void {
   refresh();
   setVisible(true);
-
-  //todo: GTK2 hack
-  for(uint n : range(2)) {
-    Application::processEvents();
-    systemList.resize();
-  }
 }
 
 auto SystemCreation::hide() -> void {

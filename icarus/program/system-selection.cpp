@@ -1,4 +1,4 @@
-SystemSelection::SystemSelection(View* view) : Panel(view, Size{140_sx, ~0}) {
+SystemSelection::SystemSelection(View* view) : Panel(view, Size{155_sx, ~0}) {
   setCollapsible().setVisible(false);
 
   for(auto& medium : media) {

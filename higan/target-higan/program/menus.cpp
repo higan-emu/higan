@@ -64,13 +64,25 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
     programWindow.showPanels();
     programWindow.show(hotkeySettings);
   });
-  showFrameRate.setText("Show Frame Rate").setChecked(settings.video.showFrameRate).onToggle([&] {
-    settings.video.showFrameRate = showFrameRate.checked();
-    if(interface) programWindow.setTitle(interface->game());
-  });
   muteAudio.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {
     settings.audio.mute = muteAudio.checked();
     emulator.audioUpdateEffects();
+  });
+  showStatusBar.setText("Show Status Bar").setChecked(settings.interface.showStatusBar).onToggle([&] {
+    settings.interface.showStatusBar = showStatusBar.checked();
+    if(showStatusBar.checked()) {
+      programWindow.showStatus();
+    } else {
+      programWindow.hideStatus();
+    }
+  });
+  showSystemPanels.setText("Show System Panels").setChecked(settings.interface.showSystemPanels).onToggle([&] {
+    settings.interface.showSystemPanels = showSystemPanels.checked();
+    if(showSystemPanels.checked()) {
+      programWindow.showPanels();
+    } else {
+      programWindow.hidePanels();
+    }
   });
   showComponents.setText("Show Components").onToggle([&] {
     if(systemOverview.visible()) systemOverview.refresh();

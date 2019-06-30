@@ -32,8 +32,9 @@ struct SettingsMenu : Menu {
   MenuItem input{this};
   MenuItem hotkeys{this};
   MenuSeparator panelSeparator{this};
-  MenuCheckItem showFrameRate{this};
   MenuCheckItem muteAudio{this};
+  MenuCheckItem showStatusBar{this};
+  MenuCheckItem showSystemPanels{this};
   MenuSeparator showSeparator{this};
   MenuCheckItem showComponents{this};
 };

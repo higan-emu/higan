@@ -11,12 +11,6 @@ InputMapper::InputMapper(View* view) : Panel(view, Size{~0, ~0}) {
 
 auto InputMapper::show() -> void {
   setVisible(true);
-
-  //GTK hack
-  for(uint n : range(2)) {
-    Application::processEvents();
-    inputList.resizeColumns();
-  }
 }
 
 auto InputMapper::hide() -> void {

@@ -13,12 +13,6 @@ HotkeySettings::HotkeySettings(View* parent) : Panel(parent, Size{~0, ~0}) {
 auto HotkeySettings::show() -> void {
   refresh();
   setVisible(true);
-
-  //GTK hack
-  for(uint n : range(2)) {
-    Application::processEvents();
-    hotkeyList.resizeColumns();
-  }
 }
 
 auto HotkeySettings::hide() -> void {

@@ -14,6 +14,15 @@ static auto TableView_popup(GtkTreeView*, pTableView* p) -> void { return p->_do
 static auto TableView_dataFunc(GtkTreeViewColumn* column, GtkCellRenderer* renderer, GtkTreeModel* model, GtkTreeIter* iter, pTableView* p) -> void { return p->_doDataFunc(column, renderer, iter); }
 static auto TableView_toggle(GtkCellRendererToggle* toggle, const char* path, pTableView* p) -> void { return p->_doToggle(toggle, path); }
 
+static auto TableView_realize(GtkTreeView*, pTableView* p) -> void {
+  //the initial geometry for column sizing is most likely wrong at this point:
+  //having to call processEvents() twice is very heavy-handed, but necessary here.
+  for(uint repeat : range(2)) {
+    Application::processEvents();
+    p->resizeColumns();
+  }
+}
+
 auto pTableView::construct() -> void {
   gtkWidget = gtk_scrolled_window_new(0, 0);
   gtkScrolledWindow = GTK_SCROLLED_WINDOW(gtkWidget);
@@ -41,6 +50,7 @@ auto pTableView::construct() -> void {
   g_signal_connect(G_OBJECT(gtkTreeView), "key-press-event", G_CALLBACK(TableView_keyPressEvent), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeView), "motion-notify-event", G_CALLBACK(TableView_mouseMoveEvent), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeView), "popup-menu", G_CALLBACK(TableView_popup), (gpointer)this);
+  g_signal_connect(G_OBJECT(gtkTreeView), "realize", G_CALLBACK(TableView_realize), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeView), "row-activated", G_CALLBACK(TableView_activate), (gpointer)this);
   g_signal_connect(G_OBJECT(gtkTreeSelection), "changed", G_CALLBACK(TableView_change), (gpointer)this);
 

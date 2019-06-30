@@ -56,12 +56,9 @@ ProgramWindow::ProgramWindow() {
 
   onClose(&Application::quit);
   setTitle({"icarus v", icarus::Version});
-  setSize({720_sx, 490_sy});
+  setSize({720_sx, 470_sy});
   setAlignment(Alignment::Center);
   setVisible();
-
-  Application::processEvents();
-  systemSelection.systemList.resize();
 }
 
 auto ProgramWindow::show(Panel& panel) -> void {

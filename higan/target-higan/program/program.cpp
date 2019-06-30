@@ -35,8 +35,24 @@ HotkeySettings& hotkeySettings = programWindow.hotkeySettings;
 
 ProgramWindow::ProgramWindow() {
   viewport.setFocusable();
-  verticalResizeGrip.setCollapsible();
-  panels.setCollapsible();
+
+  statusHeight = Font().size(" ").height() + 8_sy;
+  layout.cell(statusLayout).setSize({~0, statusHeight});
+
+  statusLayout.setCollapsible().setVisible(settings.interface.showStatusBar);
+  statusMessage.setFont(Font().setBold());
+  statusCaption.setFont(Font().setBold()).setAlignment(1.0);
+
+  Color foreground{255, 255, 255};
+  Color background{ 48,  48,  48};
+  statusBefore.setForegroundColor(foreground).setBackgroundColor(background);
+  statusMessage.setForegroundColor(foreground).setBackgroundColor(background);
+  statusCaption.setForegroundColor(foreground).setBackgroundColor(background);
+  statusAfter.setForegroundColor(foreground).setBackgroundColor(background);
+
+  panelsHeight = 7 + 250_sy;
+  verticalResizeGrip.setCollapsible().setVisible(settings.interface.showSystemPanels);
+  panels.setCollapsible().setVisible(settings.interface.showSystemPanels);
   panels.setPadding({5_sx, 0_sy, 5_sx, 5_sy});
 
   for(auto& cell : panels.cells()) cell.setSpacing(0);
@@ -71,15 +87,12 @@ ProgramWindow::ProgramWindow() {
   show(systemManager);
 
   setTitle({"higan v", higan::Version});
-  setSize({640_sx, 480_sy + 7_sy + 250_sy});
+  setSize({640_sx, 480_sy
+  + (settings.interface.showStatusBar ? statusHeight : 0)
+  + (settings.interface.showSystemPanels ? panelsHeight : 0)
+  });
   setAlignment(Alignment::Center);
   setVisible();
-
-  //GTK2 hack: this should not be necessary ...
-  for(uint loop : range(2)) {
-    Application::processEvents();
-    systemManager.systemList.resize();
-  }
 
   //start the ruby input driver at program startup rather than after emulator instance creation.
   //the input driver is much less likely to crash, and is needed for hotkey support to work immediately.
@@ -119,18 +132,33 @@ auto ProgramWindow::hide(Panel& panel) -> void {
   show(home);
 }
 
+auto ProgramWindow::showStatus() -> void {
+  if(statusLayout.visible()) return;
+  statusLayout.setVisible(true);
+  if(!maximized()) setSize({geometry().width(), geometry().height() + statusHeight});
+  layout.resize();
+}
+
+auto ProgramWindow::hideStatus() -> void {
+  if(!statusLayout.visible()) return;
+  statusLayout.setVisible(false);
+  if(!maximized()) setSize({geometry().width(), geometry().height() - statusHeight});
+  layout.resize();
+}
+
 auto ProgramWindow::showPanels() -> void {
   if(panels.visible()) return;
   verticalResizeGrip.setVisible(true);
   panels.setVisible(true);
-  if(!maximized()) setSize({640_sx, 480_sy + 7_sy + 250_sy});
+  if(!maximized()) setSize({geometry().width(), geometry().height() + panelsHeight});
   layout.resize();
 }
 
 auto ProgramWindow::hidePanels() -> void {
   if(!panels.visible()) return;
+  panelsHeight = 7 + panels.geometry().height();
   verticalResizeGrip.setVisible(false);
   panels.setVisible(false);
-  if(!maximized()) setSize({640_sx, 480_sy});
+  if(!maximized()) setSize({geometry().width(), geometry().height() - panelsHeight});
   layout.resize();
 }

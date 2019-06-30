@@ -24,6 +24,8 @@ struct ProgramWindow : Window {
   ProgramWindow();
   auto show(Panel&) -> void;
   auto hide(Panel&) -> void;
+  auto showStatus() -> void;
+  auto hideStatus() -> void;
   auto showPanels() -> void;
   auto hidePanels() -> void;
 
@@ -36,6 +38,11 @@ struct ProgramWindow : Window {
 
   VerticalLayout layout{this};
     Viewport viewport{&layout, Size{~0, ~0}, 0};
+    HorizontalLayout statusLayout{&layout, Size{~0, 0}, 0};
+      Label statusBefore{&statusLayout, Size{8_sx, ~0}, 0};
+      Label statusMessage{&statusLayout, Size{~0, ~0}, 0};
+      Label statusCaption{&statusLayout, Size{100_sx, ~0}, 0};
+      Label statusAfter{&statusLayout, Size{8_sx, ~0}, 0};
     VerticalResizeGrip verticalResizeGrip{&layout, Size{~0, 7}, 0};
     HorizontalLayout panels{&layout, Size{~0, 250}, 0};
       SystemManager systemManager{&panels};
@@ -57,6 +64,8 @@ private:
   maybe<Panel&> secondaryPanel;
   float verticalResizeHeight = 0;
   float horizontalResizeWidth = 0;
+  float panelsHeight = 0;
+  float statusHeight = 0;
 };
 
 namespace Instances { extern Instance<ProgramWindow> programWindow; }

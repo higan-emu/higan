@@ -35,6 +35,10 @@ struct Emulator : higan::Platform {
   auto saveState(uint slot) -> bool;
   auto loadState(uint slot) -> bool;
 
+  //status.cpp
+  auto setMessage(const string& message = {}) -> void;
+  auto setCaption(const string& caption = {}) -> void;
+
   struct System {
     string name;
     string data;

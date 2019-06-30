@@ -24,10 +24,6 @@ auto NodeManager::refresh() -> void {
   if(auto item = nodeList.selected()) active = item.property<higan::Node::Object>("node");
 
   nodeList.reset();
-//ListViewItem item{&nodeList};
-//item.setProperty<higan::Node::Object>("node", root);
-//item.setProperty<uint>("depth", 0);
-//item.setText(root->name);
   for(auto& node : *root) refresh(node, 0);
 
   if(active) {
