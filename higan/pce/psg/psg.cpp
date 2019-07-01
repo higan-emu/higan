@@ -36,7 +36,7 @@ auto PSG::main() -> void {
     }
   }
 
-  stream->sample(sclamp<16>(outputLeft) / 32768.0, sclamp<16>(outputRight) / 32768.0);
+  stream.sample(sclamp<16>(outputLeft) / 32768.0, sclamp<16>(outputRight) / 32768.0);
   step(1);
 }
 
@@ -47,8 +47,8 @@ auto PSG::step(uint clocks) -> void {
 
 auto PSG::power() -> void {
   Thread::create(system.colorburst(), {&PSG::main, this});
-  stream = audio.createStream(2, frequency());
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream.create(2, frequency());
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   io = {};
   for(auto C : range(6)) channel[C].power(C);

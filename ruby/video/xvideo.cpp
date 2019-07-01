@@ -53,16 +53,7 @@ struct VideoXVideo : VideoDriver {
     output();
   }
 
-  auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
-    if(width != _width || height != _height) resize(_width = width, _height = height);
-    pitch = _bufferWidth * 4;
-    return data = _buffer;
-  }
-
-  auto release() -> void override {
-  }
-
-  auto output(uint width = 0, uint height = 0) -> void override {
+  auto size(uint& width, uint& height) -> void override {
     XWindowAttributes target;
     XGetWindowAttributes(_display, _window, &target);
 
@@ -76,8 +67,22 @@ struct VideoXVideo : VideoDriver {
       XResizeWindow(_display, _window, parent.width, parent.height);
     }
 
-    //update target width and height attributes
-    XGetWindowAttributes(_display, _window, &target);
+    width = parent.width;
+    height = parent.height;
+  }
+
+  auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
+    if(width != _width || height != _height) resize(_width = width, _height = height);
+    pitch = _bufferWidth * 4;
+    return data = _buffer;
+  }
+
+  auto release() -> void override {
+  }
+
+  auto output(uint width = 0, uint height = 0) -> void override {
+    uint windowWidth, windowHeight;
+    size(windowWidth, windowHeight);
 
     auto& name = _formatName;
     if(name == "RGB24" ) renderRGB24 (_width, _height);
@@ -89,10 +94,10 @@ struct VideoXVideo : VideoDriver {
     if(name == "YV12"  ) renderYV12  (_width, _height);
     if(name == "I420"  ) renderI420  (_width, _height);
 
-    if(!width) width = _width;
-    if(!height) height = _height;
-    int x = (target.width - width) / 2;
-    int y = (target.height - height) / 2;
+    if(!width) width = windowWidth;
+    if(!height) height = windowHeight;
+    int x = (windowWidth - width) / 2;
+    int y = (windowHeight - height) / 2;
 
     XvShmPutImage(_display, _port, _window, _gc, _image,
       0, 0, _width, _height,

@@ -5,7 +5,7 @@
 
 auto CPU::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 {
   if(address >= 0x000000 && address <= 0x3fffff) {
-    if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
+  //if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
     if(!io.romEnable) return tmss[address >> 1];
     if(cartridge.bootable()) {
       if(cartridge.node) return cartridge.read(upper, lower, address, data);
@@ -16,7 +16,7 @@ auto CPU::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 
   }
 
   if(address >= 0x400000 && address <= 0x7fffff) {
-    if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
+  //if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
     if(!cartridge.bootable()) {
       if(cartridge.node) return cartridge.read(upper, lower, address, data);
     } else {
@@ -50,7 +50,7 @@ auto CPU::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 
   }
 
   if(address >= 0xe00000 && address <= 0xffffff) {
-    if(refresh.ram >= 116) idle(min(3, 133 - refresh.ram));
+  //if(refresh.ram >= 116) idle(min(3, 133 - refresh.ram));
     return ram[address >> 1];
   }
 
@@ -59,7 +59,7 @@ auto CPU::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 
 
 auto CPU::write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   if(address >= 0x000000 && address <= 0x3fffff) {
-    if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
+  //if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
     if(cartridge.bootable()) {
       if(cartridge.node) return cartridge.write(upper, lower, address, data);
     } else {
@@ -69,7 +69,7 @@ auto CPU::write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   }
 
   if(address >= 0x400000 && address <= 0x7fffff) {
-    if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
+  //if(refresh.external >= 126) idle(min(2, 128 - refresh.external));
     if(!cartridge.bootable()) {
       if(cartridge.node) return cartridge.write(upper, lower, address, data);
     } else {
@@ -104,7 +104,7 @@ auto CPU::write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   }
 
   if(address >= 0xe00000 && address <= 0xffffff) {
-    if(refresh.ram >= 116) idle(min(3, 133 - refresh.ram));
+  //if(refresh.ram >= 116) idle(min(3, 133 - refresh.ram));
     if(upper) ram[address >> 1].byte(1) = data.byte(1);
     if(lower) ram[address >> 1].byte(0) = data.byte(0);
     return;

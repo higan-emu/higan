@@ -6,11 +6,11 @@ VDP vdp;
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  screen = video.createScreen(system.video.node);
+  screen.create(system.video.node);
 }
 
 auto VDP::unload() -> void {
-  screen = {};
+  screen.destroy();
 }
 
 auto VDP::step(uint clocks) -> void {
@@ -27,7 +27,7 @@ auto VDP::frame() -> void {
 }
 
 auto VDP::refresh() -> void {
-  screen->refresh(buffer, 256 * sizeof(uint32), 256, 192);
+  screen.refresh(buffer, 256 * sizeof(uint32), 256, 192);
 }
 
 auto VDP::power() -> void {

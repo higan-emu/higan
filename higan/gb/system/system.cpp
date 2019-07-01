@@ -22,6 +22,7 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
   if(interface->name() == "Game Boy"      ) information.model = Model::GameBoy;
+  if(interface->name() == "Super Game Boy") information.model = Model::SuperGameBoy;
   if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
 
   if(!GameBoy::Model::SuperGameBoy()) {

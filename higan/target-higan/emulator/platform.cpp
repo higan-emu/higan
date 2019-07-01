@@ -66,8 +66,7 @@ auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, 
     videoWidth = videoWidth * node->aspectX / node->aspectY;
   }
 
-  uint viewportWidth = programWindow.viewport.geometry().width();
-  uint viewportHeight = programWindow.viewport.geometry().height();
+  auto [viewportWidth, viewportHeight] = videoInstance.size();
 
   uint multiplierX = viewportWidth / videoWidth;
   uint multiplierY = viewportHeight / videoHeight;
@@ -126,6 +125,7 @@ auto Emulator::input(higan::Node::Input input) -> void {
 
   bool allow = programWindow.viewport.focused();
   if(settings.input.unfocused == "Allow") allow = true;
+  if(videoInstance.exclusive()) allow = true;
 
   if(auto button = input->cast<higan::Node::Button>()) {
     button->value = 0;

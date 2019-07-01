@@ -1,5 +1,5 @@
 struct PSG : SN76489, Thread {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   //psg.cpp
   auto main() -> void;

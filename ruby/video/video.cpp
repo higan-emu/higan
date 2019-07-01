@@ -84,6 +84,12 @@ auto Video::clear() -> void {
   return instance->clear();
 }
 
+auto Video::size() -> Size {
+  Size result;
+  instance->size(result.width, result.height);
+  return result;
+}
+
 auto Video::acquire(uint width, uint height) -> Acquire {
   Acquire result;
   if(instance->acquire(result.data, result.pitch, width, height)) return result;

@@ -137,6 +137,7 @@ auto ProgramWindow::showStatus() -> void {
   statusLayout.setVisible(true);
   if(!maximized()) setSize({geometry().width(), geometry().height() + statusHeight});
   layout.resize();
+  settingsMenu.showStatusBar.setChecked(true);
 }
 
 auto ProgramWindow::hideStatus() -> void {
@@ -144,6 +145,7 @@ auto ProgramWindow::hideStatus() -> void {
   statusLayout.setVisible(false);
   if(!maximized()) setSize({geometry().width(), geometry().height() - statusHeight});
   layout.resize();
+  settingsMenu.showStatusBar.setChecked(false);
 }
 
 auto ProgramWindow::showPanels() -> void {
@@ -152,6 +154,7 @@ auto ProgramWindow::showPanels() -> void {
   panels.setVisible(true);
   if(!maximized()) setSize({geometry().width(), geometry().height() + panelsHeight});
   layout.resize();
+  settingsMenu.showSystemPanels.setChecked(true);
 }
 
 auto ProgramWindow::hidePanels() -> void {
@@ -161,4 +164,5 @@ auto ProgramWindow::hidePanels() -> void {
   panels.setVisible(false);
   if(!maximized()) setSize({geometry().width(), geometry().height() - panelsHeight});
   layout.resize();
+  settingsMenu.showSystemPanels.setChecked(false);
 }

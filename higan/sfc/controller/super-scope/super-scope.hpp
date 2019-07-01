@@ -1,12 +1,11 @@
 struct SuperScope : Controller, Thread {
+  Sprite sprite;
   Node::Axis x;
   Node::Axis y;
   Node::Button trigger;
   Node::Button cursor;
   Node::Button turbo;
   Node::Button pause;
-
-  shared_pointer<Sprite> sprite;
 
   SuperScope(Node::Port, Node::Peripheral);
   ~SuperScope();

@@ -11,6 +11,15 @@ auto InputHotkey::poll() -> void {
 }
 
 Hotkeys::Hotkeys() {
+  toggleStatus.onPress = [&] {
+    if(programWindow.statusLayout.visible()) {
+      programWindow.hideStatus();
+    } else {
+      programWindow.showStatus();
+    }
+  };
+  hotkeys.append(&toggleStatus);
+
   togglePanels.onPress = [&] {
     if(programWindow.panels.visible()) {
       programWindow.hidePanels();
@@ -19,6 +28,11 @@ Hotkeys::Hotkeys() {
     }
   };
   hotkeys.append(&togglePanels);
+
+  toggleFullscreen.onPress = [&] {
+    emulator.videoToggleFullscreen();
+  };
+  hotkeys.append(&toggleFullscreen);
 
   fastForward.onPress = [&] {
     if(!interface) return;

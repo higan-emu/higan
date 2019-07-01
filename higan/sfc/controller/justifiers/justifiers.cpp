@@ -10,20 +10,22 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
   trigger2 = Node::append<Node::Button>(node, with, "Player 2: Trigger");
   start2   = Node::append<Node::Button>(node, with, "Player 2: Start");
 
-  sprite1 = ppu.display->createSprite(32, 32);
-  sprite1->setPixels(Resource::Sprite::CrosshairGreen);
+  sprite1.create(32, 32);
+  sprite1.setPixels(Resource::Sprite::CrosshairGreen);
+  ppu.display.append(sprite1);
 
-  sprite2 = ppu.display->createSprite(32, 32);
-  sprite2->setPixels(Resource::Sprite::CrosshairRed);
+  sprite2.create(32, 32);
+  sprite2.setPixels(Resource::Sprite::CrosshairRed);
+  ppu.display.append(sprite2);
 
   Thread::create(system.cpuFrequency(), {&Justifiers::main, this});
   cpu.peripherals.append(this);
 }
 
 Justifiers::~Justifiers() {
-  cpu.peripherals.removeWhere() == this;
-  ppu.display->removeSprite(sprite1);
-  ppu.display->removeSprite(sprite2);
+  removeWhere(cpu.peripherals) == this;
+  ppu.display.remove(sprite1);
+  ppu.display.remove(sprite2);
 }
 
 auto Justifiers::main() -> void {
@@ -49,8 +51,8 @@ auto Justifiers::main() -> void {
     int ny1 = y1->value + cy1;
     cx1 = max(-16, min(256 + 16, nx1));
     cy1 = max(-16, min(240 + 16, ny1));
-    sprite1->setPosition(cx1 * 2 - 16, cy1 * 2 - 16);
-    sprite1->setVisible(true);
+    sprite1.setPosition(cx1 * 2 - 16, cy1 * 2 - 16);
+    sprite1.setVisible(true);
 
     platform->input(x2);
     platform->input(y2);
@@ -58,8 +60,8 @@ auto Justifiers::main() -> void {
     int ny2 = y2->value + cy2;
     cx2 = max(-16, min(256 + 16, nx2));
     cy2 = max(-16, min(240 + 16, ny2));
-    sprite2->setPosition(cx2 * 2 - 16, cy2 * 2 - 16);
-    sprite2->setVisible(true);
+    sprite2.setPosition(cx2 * 2 - 16, cy2 * 2 - 16);
+    sprite2.setVisible(true);
   }
 
   previous = next;

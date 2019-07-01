@@ -35,23 +35,7 @@ struct VideoXShm : VideoDriver {
     output();
   }
 
-  auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
-    if(!_inputBuffer || _inputWidth != width || _inputHeight != height) {
-      if(_inputBuffer) delete[] _inputBuffer;
-      _inputWidth = width;
-      _inputHeight = height;
-      _inputBuffer = new uint32_t[width * height + 16];  //+16 is padding for linear interpolation
-    }
-
-    data = _inputBuffer;
-    pitch = _inputWidth * sizeof(uint32_t);
-    return true;
-  }
-
-  auto release() -> void override {
-  }
-
-  auto output(uint width = 0, uint height = 0) -> void override {
+  auto size(uint& width, uint& height) -> void override {
     XWindowAttributes window;
     XGetWindowAttributes(_display, _window, &window);
 
@@ -73,10 +57,34 @@ struct VideoXShm : VideoDriver {
       _outputBuffer = (uint32_t*)_shmInfo.shmaddr;
       _image = XShmCreateImage(_display, _visual, _depth, ZPixmap, _shmInfo.shmaddr, &_shmInfo, _outputWidth, _outputHeight);
     }
+
+    width = parent.width;
+    height = parent.height;
+  }
+
+  auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
+    if(!_inputBuffer || _inputWidth != width || _inputHeight != height) {
+      if(_inputBuffer) delete[] _inputBuffer;
+      _inputWidth = width;
+      _inputHeight = height;
+      _inputBuffer = new uint32_t[width * height + 16];  //+16 is padding for linear interpolation
+    }
+
+    data = _inputBuffer;
+    pitch = _inputWidth * sizeof(uint32_t);
+    return true;
+  }
+
+  auto release() -> void override {
+  }
+
+  auto output(uint width = 0, uint height = 0) -> void override {
+    uint windowWidth, windowHeight;
+    size(windowWidth, windowHeight);
     if(!_image) return;
 
-    if(!width) width = _inputWidth;
-    if(!height) height = _inputHeight;
+    if(!width) width = _outputWidth;
+    if(!height) height = _outputHeight;
 
     float xratio = (float)_inputWidth / (float)width;
     float yratio = (float)_inputHeight / (float)height;

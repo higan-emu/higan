@@ -25,6 +25,7 @@ struct VideoDriver {
   virtual auto setShader(string shader) -> bool { return true; }
 
   virtual auto clear() -> void {}
+  virtual auto size(uint& width, uint& height) -> void {}
   virtual auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool { return false; }
   virtual auto release() -> void {}
   virtual auto output(uint width = 0, uint height = 0) -> void {}
@@ -79,6 +80,11 @@ struct Video {
   auto setShader(string shader) -> bool;
 
   auto clear() -> void;
+  struct Size {
+    uint width = 0;
+    uint height = 0;
+  };
+  auto size() -> Size;
   struct Acquire {
     explicit operator bool() const { return data; }
     uint32_t* data = nullptr;

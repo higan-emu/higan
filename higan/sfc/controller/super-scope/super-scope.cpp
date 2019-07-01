@@ -20,16 +20,17 @@ SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
   turbo   = Node::append<Node::Button>(node, with, "Turbo");
   pause   = Node::append<Node::Button>(node, with, "Pause");
 
-  sprite = ppu.display->createSprite(32, 32);
-  sprite->setPixels(Resource::Sprite::CrosshairGreen);
+  sprite.create(32, 32);
+  sprite.setPixels(Resource::Sprite::CrosshairGreen);
+  ppu.display.append(sprite);
 
   Thread::create(system.cpuFrequency(), {&SuperScope::main, this});
   cpu.peripherals.append(this);
 }
 
 SuperScope::~SuperScope() {
-  cpu.peripherals.removeWhere() == this;
-  ppu.display->removeSprite(sprite);
+  removeWhere(cpu.peripherals) == this;
+  ppu.display.remove(sprite);
 }
 
 auto SuperScope::main() -> void {
@@ -53,8 +54,8 @@ auto SuperScope::main() -> void {
     cx = max(-16, min(256 + 16, nx));
     cy = max(-16, min(240 + 16, ny));
     offscreen = (cx < 0 || cy < 0 || cx >= 256 || cy >= ppu.vdisp());
-    sprite->setPosition(cx * 2 - 16, cy * 2 - 16);
-    sprite->setVisible(true);
+    sprite.setPosition(cx * 2 - 16, cy * 2 - 16);
+    sprite.setVisible(true);
   }
 
   previous = next;
@@ -69,7 +70,7 @@ auto SuperScope::data() -> uint2 {
     bool turboNew = turbo->value;
     if(turboNew && !turboOld) {
       turboEdge = !turboEdge;  //toggle state
-      sprite->setPixels(turboEdge ? (image)Resource::Sprite::CrosshairRed : (image)Resource::Sprite::CrosshairGreen);
+      sprite.setPixels(turboEdge ? (image)Resource::Sprite::CrosshairRed : (image)Resource::Sprite::CrosshairGreen);
     }
     turboOld = turboNew;
 

@@ -24,7 +24,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
     node->color  = [&](auto index) { return colorGameGear(index); };
 
     interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
-      vdp.screen->setInterframeBlending(value);
+      vdp.screen.setInterframeBlending(value);
     });
     interframeBlending->dynamic = true;
   }

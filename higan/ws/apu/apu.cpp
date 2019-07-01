@@ -53,7 +53,7 @@ auto APU::dacRun() -> void {
     right = 0;
   }
 
-  stream->sample(left / 32768.0, right / 32768.0);
+  stream.sample(left / 32768.0, right / 32768.0);
 }
 
 auto APU::step(uint clocks) -> void {
@@ -63,8 +63,8 @@ auto APU::step(uint clocks) -> void {
 
 auto APU::power() -> void {
   Thread::create(3'072'000, {&APU::main, this});
-  stream = audio.createStream(2, frequency());
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream.create(2, frequency());
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   bus.map(this, 0x004a, 0x004c);
   bus.map(this, 0x004e, 0x0050);

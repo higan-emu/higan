@@ -136,7 +136,6 @@ auto FDS::power() -> void {
   change();
   drive = {};  //clears drive.changing; no need to wait after power-on
   timer = {};
-  audio = {};
   audio.power();
 }
 

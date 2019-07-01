@@ -8,11 +8,11 @@ PPU ppu;
 #include "serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  screen = video.createScreen(system.video.node);
+  screen.create(system.video.node);
 }
 
 auto PPU::unload() -> void {
-  screen = {};
+  screen.destroy();
 }
 
 auto PPU::main() -> void {
@@ -55,7 +55,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  screen->refresh(buffer, 256 * sizeof(uint32), 256, 240);
+  screen.refresh(buffer, 256 * sizeof(uint32), 256, 240);
 }
 
 auto PPU::power(bool reset) -> void {

@@ -108,6 +108,7 @@ auto Emulator::power(bool on) -> void {
     programWindow.viewport.setFocused();
   } else {
     programWindow.setTitle(system.name);
+    setCaption();
     videoInstance.clear();
     audioInstance.clear();
   }

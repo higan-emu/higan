@@ -1,5 +1,5 @@
-auto ICD::audio(const double* samples, uint channels) -> void {
-  stream->write(samples);
+auto ICD::audio(double left, double right) -> void {
+  stream.sample(left, right);
 }
 
 auto ICD::input() -> uint8 {

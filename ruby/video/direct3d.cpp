@@ -52,14 +52,25 @@ struct VideoDirect3D : VideoDriver {
     }
   }
 
-  auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
-    if(_lost && !recover()) return false;
+  auto size(uint& width, uint& height) -> void {
+    if(_lost && !recover()) return;
+
+    RECT rectangle;
+    GetClientRect((HWND)self.context, &rectangle);
+
+    width = rectangle.right - rectangle.left;
+    height = rectangle.bottom - rectangle.top;
 
     //if output size changed, driver must be re-initialized.
     //failure to do so causes scaling issues on some video drivers.
-    RECT rectangle;
-    GetClientRect((HWND)self.context, &rectangle);
-    if(_windowWidth != rectangle.right || _windowHeight != rectangle.bottom) initialize();
+    if(width != _windowWidth || height != _windowHeight) initialize();
+  }
+
+  auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
+    if(_lost && !recover()) return false;
+
+    uint windowWidth, windowHeight;
+    size(windowWidth, windowHeight);
 
     if(width != _inputWidth || height != _inputHeight) {
       resize(_inputWidth = width, _inputHeight = height);
@@ -220,7 +231,7 @@ private:
     _monitorWidth = information.rcMonitor.right - information.rcMonitor.left;
     _monitorHeight = information.rcMonitor.bottom - information.rcMonitor.top;
 
-    WNDCLASS windowClass = {};
+    WNDCLASS windowClass{};
     windowClass.cbClsExtra = 0;
     windowClass.cbWndExtra = 0;
     windowClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
@@ -239,8 +250,8 @@ private:
 
     RECT rectangle;
     GetClientRect((HWND)self.context, &rectangle);
-    _windowWidth = rectangle.right;
-    _windowHeight = rectangle.bottom;
+    _windowWidth = rectangle.right - rectangle.left;
+    _windowHeight = rectangle.bottom - rectangle.top;
 
     _instance = Direct3DCreate9(D3D_SDK_VERSION);
     if(!_instance) return false;

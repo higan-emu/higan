@@ -62,7 +62,7 @@ auto APU::main() -> void {
   if(regs.bias.amplitude == 3) lsample &= ~7, rsample &= ~7;  //6-bit
 
   if(cpu.stopped()) lsample = 0, rsample = 0;
-  stream->sample((lsample << 5) / 32768.0, (rsample << 5) / 32768.0);
+  stream.sample((lsample << 5) / 32768.0, (rsample << 5) / 32768.0);
 }
 
 auto APU::step(uint clocks) -> void {
@@ -71,9 +71,9 @@ auto APU::step(uint clocks) -> void {
 }
 
 auto APU::power() -> void {
-  create(system.frequency(), {&APU::main, this});
-  stream = audio.createStream(2, frequency() / 64.0);
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  Thread::create(system.frequency(), {&APU::main, this});
+  stream.create(2, frequency() / 64.0);
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   clock = 0;
   square1.power();

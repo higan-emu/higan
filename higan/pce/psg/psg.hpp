@@ -1,7 +1,7 @@
 //Programmable Sound Generator
 
 struct PSG : Thread {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   auto main() -> void;
   auto step(uint clocks) -> void;

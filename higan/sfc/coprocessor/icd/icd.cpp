@@ -17,7 +17,7 @@ auto ICD::main() -> void {
     Thread::step(GameBoy::system.information.clocksExecuted);
     GameBoy::system.information.clocksExecuted = 0;
   } else {  //DMG halted
-    stream->sample(0.0, 0.0);
+    stream.sample(0.0, 0.0);
     Thread::step(2);  //two clocks per audio sample
   }
   Thread::synchronize(cpu);
@@ -31,6 +31,9 @@ auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   GameBoy::superGameBoy = this;
   GameBoy::system.node = parent;
   GameBoy::system.information.model = GameBoy::System::Model::SuperGameBoy;
+  GameBoy::cpu.version->setAllowedValues({"SGB-CPU-01", "CPU SGB2"});
+  GameBoy::cpu.version->setValue(!Frequency ? "SGB-CPU-01" : "CPU SGB2");
+  GameBoy::cpu.version->setLatch();
   GameBoy::cartridge.port = port;
   port->scan(from);
 }
@@ -45,7 +48,7 @@ auto ICD::connect(Node::Peripheral with) -> void {
 
 auto ICD::disconnect() -> void {
   GameBoy::cartridge.disconnect();
-  cpu.coprocessors.removeWhere() == this;
+  removeWhere(cpu.coprocessors) == this;
   Thread::destroy();
   node = {};
   port = {};
@@ -62,8 +65,8 @@ auto ICD::power() -> void {
   });
   cpu.coprocessors.append(this);
 
-  stream = higan::audio.createStream(2, frequency() / 2.0);
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream.create(2, frequency() / 2.0);
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   r6003 = 0x00;
   r6004 = 0xff;

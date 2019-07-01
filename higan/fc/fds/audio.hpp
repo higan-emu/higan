@@ -1,5 +1,5 @@
 struct FDSAudio {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   auto clock() -> void;
   auto updateOutput() -> void;

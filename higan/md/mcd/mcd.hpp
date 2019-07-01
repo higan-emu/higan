@@ -279,7 +279,7 @@ struct MCD : M68K, Thread {
     uint16 counter;
 
     struct DAC {
-      shared_pointer<Stream> stream;
+      Stream stream;
 
       //cdd-dac.cpp
       auto sample(int16 left, int16 right) -> void;
@@ -373,7 +373,7 @@ struct MCD : M68K, Thread {
   } gpu;
 
   struct PCM {
-    shared_pointer<Stream> stream;
+    Stream stream;
     Memory::Writable<uint8> ram;
 
     //pcm.cpp

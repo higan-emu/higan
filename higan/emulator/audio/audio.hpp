@@ -16,16 +16,17 @@ struct Audio {
   auto operator=(const Audio&) = delete;
 
   auto reset(Interface* interface) -> void;
+  auto append(Stream& stream) -> void;
+  auto remove(Stream& stream) -> void;
 
   auto setFrequency(double frequency) -> void;
   auto setVolume(double volume) -> void;
   auto setBalance(double balance) -> void;
 
-  auto createStream(uint channels, double frequency) -> shared_pointer<Stream>;
-
-  vector<shared_pointer<Stream>> streams;
+  vector<Stream*> streams;
 
 private:
+  auto synchronize() -> void;
   auto process() -> void;
 
   Interface* interface = nullptr;
@@ -53,11 +54,13 @@ struct Stream {
   Stream(const Stream&) = delete;
   auto operator=(const Stream&) = delete;
 
-  auto reset(uint channels, double inputFrequency, double outputFrequency) -> void;
-  auto resetFilters() -> void;
+  auto create(uint channels, double frequency) -> void;
+  auto destroy() -> void;
 
+  auto setChannels(uint channels) -> void;
   auto setFrequency(double inputFrequency, maybe<double> outputFrequency = {}) -> void;
 
+  auto resetFilters() -> void;
   auto addLowPassFilter(double cutoffFrequency, Filter::Order, uint passes = 1) -> void;
   auto addHighPassFilter(double cutoffFrequency, Filter::Order, uint passes = 1) -> void;
   auto addLowShelfFilter(double cutoffFrequency, Filter::Order, double gain, double slope) -> void;

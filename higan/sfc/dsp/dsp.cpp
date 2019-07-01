@@ -172,12 +172,12 @@ auto DSP::tick() -> void {
 }
 
 auto DSP::sample(int16 left, int16 right) -> void {
-  stream->sample(left / 32768.0, right / 32768.0);
+  stream.sample(left / 32768.0, right / 32768.0);
 }
 
 auto DSP::power(bool reset) -> void {
-  create(system.apuFrequency(), {&DSP::main, this});
-  stream = audio.createStream(2, frequency() / 768.0);
+  Thread::create(system.apuFrequency(), {&DSP::main, this});
+  stream.create(2, frequency() / 768);
 
   if(!reset) {
     random.array(apuram, sizeof(apuram));

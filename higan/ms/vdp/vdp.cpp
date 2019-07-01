@@ -9,11 +9,11 @@ VDP vdp;
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  screen = video.createScreen(system.video.node);
+  screen.create(system.video.node);
 }
 
 auto VDP::unload() -> void {
-  screen = {};
+  screen.destroy();
 }
 
 auto VDP::main() -> void {
@@ -82,11 +82,11 @@ auto VDP::refresh() -> void {
     if(vlines() == 224) centered += 16 * 256;
     if(vlines() == 240) centered += 24 * 256;
 
-    screen->refresh(centered, 256 * sizeof(uint32), 256, 240);
+    screen.refresh(centered, 256 * sizeof(uint32), 256, 240);
   }
 
   if(Model::GameGear()) {
-    screen->refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
+    screen.refresh(buffer + 48 * 256 + 48, 256 * sizeof(uint32), 160, 144);
   }
 }
 

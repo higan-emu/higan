@@ -1,9 +1,9 @@
 #if defined(CORE_GB)
 
 struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
+  Stream stream;
   Node::Port port;
   Node::Peripheral node;
-  shared_pointer<Stream> stream;
 
   //icd.cpp
   auto name() const -> string;
@@ -16,7 +16,7 @@ struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   auto reset() -> void;  //software reset
 
   //platform.cpp
-  auto audio(const double* samples, uint channels) -> void override;
+  auto audio(double left, double right) -> void override;
   auto input() -> uint8 override;
 
   //interface.cpp
@@ -73,6 +73,9 @@ private:
 #else
 
 struct ICD : Thread {
+  Node::Port port;
+  Node::Peripheral node;
+
   auto name() const -> string { return {}; }
 
   auto load(Node::Peripheral, Node::Peripheral) -> void {}

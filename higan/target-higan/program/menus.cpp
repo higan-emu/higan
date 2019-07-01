@@ -51,18 +51,26 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   video.setText("Video").setIcon(Icon::Device::Display).onActivate([&] {
     programWindow.showPanels();
     programWindow.show(videoSettings);
+    systemManager.systemList.selectNone();
+    nodeManager.nodeList.selectNone();
   });
   audio.setText("Audio").setIcon(Icon::Device::Speaker).onActivate([&] {
     programWindow.showPanels();
     programWindow.show(audioSettings);
+    systemManager.systemList.selectNone();
+    nodeManager.nodeList.selectNone();
   });
   input.setText("Input").setIcon(Icon::Device::Joypad).onActivate([&] {
     programWindow.showPanels();
     programWindow.show(inputSettings);
+    systemManager.systemList.selectNone();
+    nodeManager.nodeList.selectNone();
   });
   hotkeys.setText("Hotkeys").setIcon(Icon::Device::Keyboard).onActivate([&] {
     programWindow.showPanels();
     programWindow.show(hotkeySettings);
+    systemManager.systemList.selectNone();
+    nodeManager.nodeList.selectNone();
   });
   muteAudio.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {
     settings.audio.mute = muteAudio.checked();

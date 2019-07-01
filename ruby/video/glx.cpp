@@ -20,6 +20,7 @@ struct VideoGLX : VideoDriver, OpenGL {
   auto driver() -> string override { return "OpenGL 3.2"; }
   auto ready() -> bool override { return _ready; }
 
+  auto hasExclusive() -> bool override { return true; }
   auto hasContext() -> bool override { return true; }
   auto hasBlocking() -> bool override { return true; }
   auto hasFlush() -> bool override { return true; }
@@ -27,6 +28,10 @@ struct VideoGLX : VideoDriver, OpenGL {
 
   auto hasFormats() -> vector<string> override {
     return {"RGB24"};  //"RGB30" is currently broken; use OpenGL 2.0 driver instead
+  }
+
+  auto setExclusive(bool exclusive) -> bool override {
+    return initialize();
   }
 
   auto setContext(uintptr context) -> bool override {
@@ -66,6 +71,21 @@ struct VideoGLX : VideoDriver, OpenGL {
     if(_doubleBuffer) glXSwapBuffers(_display, _glXWindow);
   }
 
+  auto size(uint& width, uint& height) -> void override {
+    XWindowAttributes window;
+    XGetWindowAttributes(_display, _window, &window);
+
+    XWindowAttributes parent;
+    XGetWindowAttributes(_display, _parent, &parent);
+
+    if(window.width != parent.width || window.height != parent.height) {
+      XResizeWindow(_display, _window, parent.width, parent.height);
+    }
+
+    width = parent.width;
+    height = parent.height;
+  }
+
   auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
     OpenGL::size(width, height);
     return OpenGL::lock(data, pitch);
@@ -75,20 +95,13 @@ struct VideoGLX : VideoDriver, OpenGL {
   }
 
   auto output(uint width, uint height) -> void override {
-    XWindowAttributes window;
-    XGetWindowAttributes(_display, _window, &window);
-
-    XWindowAttributes parent;
-    XGetWindowAttributes(_display, self.context, &parent);
-
-    if(window.width != parent.width || window.height != parent.height) {
-      XResizeWindow(_display, _window, parent.width, parent.height);
-    }
+    uint windowWidth, windowHeight;
+    size(windowWidth, windowHeight);
 
     OpenGL::absoluteWidth = width;
     OpenGL::absoluteHeight = height;
-    OpenGL::outputWidth = parent.width;
-    OpenGL::outputHeight = parent.height;
+    OpenGL::outputWidth = windowWidth;
+    OpenGL::outputHeight = windowHeight;
     OpenGL::output();
     if(_doubleBuffer) glXSwapBuffers(_display, _glXWindow);
     if(self.flush) glFinish();
@@ -109,7 +122,7 @@ struct VideoGLX : VideoDriver, OpenGL {
 private:
   auto initialize() -> bool {
     terminate();
-    if(!self.context) return false;
+    if(!self.exclusive && !self.context) return false;
 
     _display = XOpenDisplay(nullptr);
     _screen = DefaultScreen(_display);
@@ -117,9 +130,6 @@ private:
     //require GLX 1.2+ API
     glXQueryVersion(_display, &_versionMajor, &_versionMinor);
     if(_versionMajor < 1 || (_versionMajor == 1 && _versionMinor < 2)) return false;
-
-    XWindowAttributes windowAttributes;
-    XGetWindowAttributes(_display, (Window)self.context, &windowAttributes);
 
     int redDepth   = VideoDriver::format == "RGB30" ? 10 : 8;
     int greenDepth = VideoDriver::format == "RGB30" ? 10 : 8;
@@ -141,22 +151,27 @@ private:
     GLXFBConfig* fbConfig = glXChooseFBConfig(_display, _screen, attributeList, &fbCount);
     if(fbCount == 0) return false;
 
-    XVisualInfo* vi = glXGetVisualFromFBConfig(_display, fbConfig[0]);
+    auto visual = glXGetVisualFromFBConfig(_display, fbConfig[0]);
+
+    _parent = self.exclusive ? RootWindow(_display, visual->screen) : (Window)self.context;
+    XWindowAttributes windowAttributes;
+    XGetWindowAttributes(_display, _parent, &windowAttributes);
 
     //(Window)self.context has already been realized, most likely with DefaultVisual.
     //GLX requires that the GL output window has the same Visual as the GLX context.
     //it is not possible to change the Visual of an already realized (created) window.
     //therefore a new child window, using the same GLX Visual, must be created and binded to it.
-    _colormap = XCreateColormap(_display, RootWindow(_display, vi->screen), vi->visual, AllocNone);
-    XSetWindowAttributes attributes = {};
-    attributes.colormap = _colormap;
+    _colormap = XCreateColormap(_display, RootWindow(_display, visual->screen), visual->visual, AllocNone);
+    XSetWindowAttributes attributes{};
     attributes.border_pixel = 0;
-    _window = XCreateWindow(_display, /* parent = */ (Window)self.context,
-      /* x = */ 0, /* y = */ 0, windowAttributes.width, windowAttributes.height,
-      /* border_width = */ 0, vi->depth, InputOutput, vi->visual,
-      CWColormap | CWBorderPixel, &attributes);
+    attributes.colormap = _colormap;
+    attributes.override_redirect = self.exclusive;
+    _window = XCreateWindow(_display, _parent,
+      0, 0, windowAttributes.width, windowAttributes.height,
+      0, visual->depth, InputOutput, visual->visual,
+      CWBorderPixel | CWColormap | CWOverrideRedirect, &attributes);
     XSelectInput(_display, _window, ExposureMask);
-    XSetWindowBackground(_display, _window, /* color = */ 0);
+    XSetWindowBackground(_display, _window, 0);
     XMapWindow(_display, _window);
     XFlush(_display);
 
@@ -166,7 +181,7 @@ private:
       XNextEvent(_display, &event);
     }
 
-    _glXContext = glXCreateContext(_display, vi, /* sharelist = */ 0, /* direct = */ GL_TRUE);
+    _glXContext = glXCreateContext(_display, visual, 0, GL_TRUE);
     glXMakeCurrent(_display, _glXWindow = _window, _glXContext);
 
     //glXSwapInterval is used to toggle Vsync
@@ -204,7 +219,7 @@ private:
 
     //read attributes of frame buffer for later use, as requested attributes from above are not always granted
     int value = 0;
-    glXGetConfig(_display, vi, GLX_DOUBLEBUFFER, &value);
+    glXGetConfig(_display, visual, GLX_DOUBLEBUFFER, &value);
     _doubleBuffer = value;
     _isDirect = glXIsDirect(_display, _glXContext);
 
@@ -242,6 +257,7 @@ private:
 
   Display* _display = nullptr;
   int _screen = 0;
+  Window _parent = 0;
   Window _window = 0;
   Colormap _colormap = 0;
   GLXContext _glXContext = nullptr;

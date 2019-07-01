@@ -1,5 +1,5 @@
 struct PPU : Thread {
-  shared_pointer<Screen> screen;
+  Screen screen;
 
   inline auto rate() const -> uint { return Region::PAL() ? 5 : 4; }
   inline auto vlines() const -> uint { return Region::PAL() ? 312 : 262; }

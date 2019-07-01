@@ -43,6 +43,13 @@ struct VideoWGL : VideoDriver, OpenGL {
     SwapBuffers(_display);
   }
 
+  auto size(uint& width, uint& height) -> void {
+    RECT rectangle;
+    GetClientRect((HWND)self.context, &rectangle);
+    width = rectangle.right - rectangle.left;
+    height = rectangle.bottom - rectangle.top;
+  }
+
   auto acquire(uint32_t*& data, uint& pitch, uint width, uint height) -> bool override {
     OpenGL::size(width, height);
     return OpenGL::lock(data, pitch);
@@ -52,12 +59,12 @@ struct VideoWGL : VideoDriver, OpenGL {
   }
 
   auto output(uint width, uint height) -> void override {
-    RECT rectangle;
-    GetClientRect((HWND)self.context, &rectangle);
+    uint windowWidth, windowHeight;
+    size(windowWidth, windowHeight);
     OpenGL::absoluteWidth = width;
     OpenGL::absoluteHeight = height;
-    OpenGL::outputWidth = rectangle.right - rectangle.left;
-    OpenGL::outputHeight = rectangle.bottom - rectangle.top;
+    OpenGL::outputWidth = windowWidth;
+    OpenGL::outputHeight = windowHeight;
     OpenGL::output();
     SwapBuffers(_display);
     if(self.flush) glFinish();

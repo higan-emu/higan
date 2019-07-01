@@ -1,5 +1,5 @@
 struct APU : Thread {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   auto main() -> void;
   auto power() -> void;

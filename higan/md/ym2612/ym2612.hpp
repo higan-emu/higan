@@ -1,7 +1,7 @@
 //Yamaha YM2612
 
 struct YM2612 : Thread {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   auto main() -> void;
   auto sample() -> void;

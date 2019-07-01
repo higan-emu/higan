@@ -10,17 +10,17 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->color  = [&](auto index) { return color(index); };
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
-    ppu.screen->setPalette();
+    ppu.screen.setPalette();
   });
   colorEmulation->dynamic = true;
 
   interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
-    ppu.screen->setInterframeBlending(value);
+    ppu.screen.setInterframeBlending(value);
   });
   interframeBlending->dynamic = true;
 
   orientation = Node::append<Node::String>(parent, from, "Orientation", "Horizontal", [&](auto value) {
-    ppu.screen->setRotateLeft(value == "Vertical");
+    ppu.screen.setRotateLeft(value == "Vertical");
   });
   orientation->dynamic = true;
   orientation->setAllowedValues({"Horizontal", "Vertical"});

@@ -1,7 +1,8 @@
 //Sony CXD1222Q-1
 
 struct DSP : Thread {
-  shared_pointer<Stream> stream;
+  Stream stream;
+
   uint8 apuram[64 * 1024];
   uint8 registers[128];
 

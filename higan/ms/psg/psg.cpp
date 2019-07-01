@@ -15,7 +15,7 @@ auto PSG::main() -> void {
     output += volume[channels[2]];
     output += volume[channels[3]];
 
-    stream->sample(output / 4.0);
+    stream.sample(output / 4.0);
   }
 
   if(Model::GameGear()) {
@@ -31,7 +31,7 @@ auto PSG::main() -> void {
     if(io.enable.bit(2)) right += volume[channels[2]];
     if(io.enable.bit(3)) right += volume[channels[3]];
 
-    stream->sample(left / 4.0, right / 4.0);
+    stream.sample(left / 4.0, right / 4.0);
   }
 
   step(1);
@@ -51,8 +51,8 @@ auto PSG::balance(uint8 data) -> void {
 auto PSG::power() -> void {
   SN76489::power();
   Thread::create(system.colorburst() / 16.0, {&PSG::main, this});
-  stream = audio.createStream(Model::MasterSystem() ? 1 : 2, frequency());
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream.create(Model::MasterSystem() ? 1 : 2, frequency());
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   io = {};
   for(uint level : range(15)) {

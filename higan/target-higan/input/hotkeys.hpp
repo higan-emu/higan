@@ -24,7 +24,9 @@ struct Hotkeys {
   auto poll() -> void;
   auto bind() -> void;
 
-  InputHotkey togglePanels{"Toggle Panels"};
+  InputHotkey toggleStatus{"Toggle Status Bar"};
+  InputHotkey togglePanels{"Toggle System Panels"};
+  InputHotkey toggleFullscreen{"Toggle Fullscreen"};
   InputHotkey fastForward{"Fast Forward"};
   InputHotkey saveState{"Save State"};
   InputHotkey loadState{"Load State"};

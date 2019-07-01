@@ -3,8 +3,8 @@
 namespace higan {
 
 struct Video;
-struct Sprite;
 struct Screen;
+struct Sprite;
 
 struct Video {
   Video() = default;
@@ -12,36 +12,13 @@ struct Video {
   auto operator=(const Video&) = delete;
 
   auto reset(Interface* interface) -> void;
-  auto createScreen(Node::Video) -> shared_pointer<Screen>;
-  auto removeScreen(shared_pointer<Screen>) -> bool;
+  auto append(Screen& screen) -> void;
+  auto remove(Screen& screen) -> void;
 
-  vector<shared_pointer<Screen>> screens;
+  vector<Screen*> screens;
 
 private:
   Interface* interface = nullptr;
-};
-
-struct Sprite {
-  Sprite() = default;
-  Sprite(const Sprite&) = delete;
-  auto operator=(const Sprite&) = delete;
-
-  Sprite(uint width, uint height);
-
-  auto setPixels(const nall::image& image) -> void;
-  auto setVisible(bool visible) -> void;
-  auto setPosition(int x, int y) -> void;
-
-private:
-  const uint width;
-  const uint height;
-  unique_pointer<uint32[]> pixels;
-
-  bool visible = false;
-  int x = 0;
-  int y = 0;
-
-  friend class Screen;
 };
 
 struct Screen {
@@ -49,10 +26,11 @@ struct Screen {
   Screen(const Screen&) = delete;
   auto operator=(const Screen&) = delete;
 
-  Screen(Node::Video node);
+  auto create(Node::Video) -> void;
+  auto destroy() -> void;
 
-  auto createSprite(uint width, uint height) -> shared_pointer<Sprite>;
-  auto removeSprite(shared_pointer<Sprite>) -> bool;
+  auto append(Sprite& sprite) -> void;
+  auto remove(Sprite& sprite) -> void;
 
   auto setPalette() -> void;
   auto setDepth(uint depth) -> void;
@@ -71,7 +49,7 @@ private:
   unique_pointer<uint32[]> buffer;
   unique_pointer<uint32[]> rotate;
   unique_pointer<uint32[]> palette;
-  vector<shared_pointer<Sprite>> sprites;
+  vector<Sprite*> sprites;
 
   uint depth = 24;
   double saturation = 1.0;
@@ -87,6 +65,30 @@ private:
     uint width = 0;
     uint height = 0;
   } cached;
+};
+
+struct Sprite {
+  Sprite() = default;
+  Sprite(const Sprite&) = delete;
+  auto operator=(const Sprite&) = delete;
+
+  auto create(uint width, uint height) -> void;
+  auto destroy() -> void;
+
+  auto setPixels(const nall::image& image) -> void;
+  auto setVisible(bool visible) -> void;
+  auto setPosition(int x, int y) -> void;
+
+private:
+  uint width;
+  uint height;
+  unique_pointer<uint32[]> pixels;
+
+  bool visible = false;
+  int x = 0;
+  int y = 0;
+
+  friend class Screen;
 };
 
 extern Video video;

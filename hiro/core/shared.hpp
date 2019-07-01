@@ -721,6 +721,8 @@ struct TableView : sTableView {
   auto remove(sTableViewItem item) { return self().remove(item), *this; }
   auto reset() { return self().reset(), *this; }
   auto resizeColumns() { return self().resizeColumns(), *this; }
+  auto selectAll() { return self().selectAll(), *this; }
+  auto selectNone() { return self().selectNone(), *this; }
   auto selected() const { return self().selected(); }
   auto setAlignment(Alignment alignment = {}) { return self().setAlignment(alignment), *this; }
   auto setBackgroundColor(Color color = {}) { return self().setBackgroundColor(color), *this; }
@@ -810,6 +812,7 @@ struct TreeView : sTreeView {
   auto onToggle(const function<void (sTreeViewItem)>& callback = {}) { return self().onToggle(callback), *this; }
   auto remove(sTreeViewItem item) { return self().remove(item), *this; }
   auto reset() { return self().reset(), *this; }
+  auto selectNone() { return self().selectNone(), *this; }
   auto selected() const { return self().selected(); }
   auto setBackgroundColor(Color color = {}) { return self().setBackgroundColor(color), *this; }
   auto setForegroundColor(Color color = {}) { return self().setForegroundColor(color), *this; }

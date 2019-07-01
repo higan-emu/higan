@@ -29,7 +29,7 @@ struct GameBoyColorInterface : AbstractInterface {
 };
 
 struct SuperGameBoyInterface {
-  virtual auto audio(const double* samples, uint channels) -> void = 0;
+  virtual auto audio(double left, double right) -> void = 0;
   virtual auto input() -> uint8 = 0;
 
   virtual auto lcdScanline() -> void = 0;

@@ -1,10 +1,9 @@
 struct Justifier : Controller, Thread {
+  Sprite sprite;
   Node::Axis x;
   Node::Axis y;
   Node::Button trigger;
   Node::Button start;
-
-  shared_pointer<Sprite> sprite;
 
   Justifier(Node::Port, Node::Peripheral);
   ~Justifier();

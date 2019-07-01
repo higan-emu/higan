@@ -1,7 +1,7 @@
 //Konami VRC7
 
 struct VRC7 : YM2413, Chip {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   VRC7(Board& board) : Chip(board) {
   }
@@ -36,7 +36,7 @@ struct VRC7 : YM2413, Chip {
       divider = 0;
       double sample = 0.0;
       if(!disableFM) sample = YM2413::clock();
-      stream->sample(sample);
+      stream.sample(sample);
     }
 
     tick();
@@ -113,8 +113,8 @@ struct VRC7 : YM2413, Chip {
   }
 
   auto power() -> void {
-    stream = audio.createStream(1, system.frequency() / cartridge.rate() / 36.0);
-    stream->addLowPassFilter(2280.0, Filter::Order::First);
+    stream.create(1, system.frequency() / cartridge.rate() / 36.0);
+    stream.addLowPassFilter(2280.0, Filter::Order::First);
 
     for(auto& n : prgBank) n = 0;
     for(auto& n : chrBank) n = 0;

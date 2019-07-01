@@ -27,12 +27,21 @@ auto SystemManager::refresh() -> void {
     auto document = BML::unserialize(file::read({location, name, "/", "metadata.bml"}));
     if(!document) continue;
 
+    auto system = document["system"].text();
+
     ListViewItem item{&systemList};
     item.setProperty("location", {location, name});
     item.setProperty("path", location);
     item.setProperty("name", name.trimRight("/", 1L));
-    item.setProperty("system", document["system"].text());
+    item.setProperty("system", system);
     item.setText(name);
+
+    //highlight any systems found that have not been compiled into this binary.
+    bool found = false;
+    interfaces.foreach([&](auto interface) {
+      if(interface->name() == system) found = true;
+    });
+    if(!found) item.setForegroundColor({240, 80, 80});
   }
 }
 

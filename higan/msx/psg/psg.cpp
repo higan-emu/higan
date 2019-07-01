@@ -11,7 +11,7 @@ auto PSG::main() -> void {
   output += volume[channels[0]];
   output += volume[channels[1]];
   output += volume[channels[2]];
-  stream->sample(output / 3.0);
+  stream.sample(output / 3.0);
   step(1);
 }
 
@@ -23,8 +23,8 @@ auto PSG::step(uint clocks) -> void {
 auto PSG::power() -> void {
   AY38910::power();
   Thread::create(system.colorburst() / 16.0, {&PSG::main, this});
-  stream = audio.createStream(1, frequency());
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream.create(1, frequency());
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   for(uint level : range(16)) {
     volume[level] = 1.0 / pow(2, 1.0 / 2 * (15 - level));

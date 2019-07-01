@@ -1,14 +1,16 @@
-auto Stream::reset(uint channelCount, double inputFrequency, double outputFrequency) -> void {
-  channels.reset();
-  channels.resize(channelCount);
-  resetFilters();
-  setFrequency(inputFrequency, outputFrequency);
+auto Stream::create(uint channels, double frequency) -> void {
+  setChannels(channels);
+  setFrequency(frequency, audio.frequency);
+  audio.append(*this);
 }
 
-auto Stream::resetFilters() -> void {
-  for(auto& channel : channels) {
-    channel.filters.reset();
-  }
+auto Stream::destroy() -> void {
+  audio.remove(*this);
+}
+
+auto Stream::setChannels(uint channelCount) -> void {
+  channels.reset();
+  channels.resize(channelCount);
 }
 
 auto Stream::setFrequency(double inputFrequency, maybe<double> outputFrequency) -> void {
@@ -32,6 +34,12 @@ auto Stream::setFrequency(double inputFrequency, maybe<double> outputFrequency) 
         channel.nyquist.append(filter);
       }
     }
+  }
+}
+
+auto Stream::resetFilters() -> void {
+  for(auto& channel : channels) {
+    channel.filters.reset();
   }
 }
 

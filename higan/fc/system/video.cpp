@@ -13,7 +13,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->color   = [&](auto index) { return color(index); };
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
-    ppu.screen->setPalette();
+    ppu.screen.setPalette();
   });
   colorEmulation->dynamic = true;
 }

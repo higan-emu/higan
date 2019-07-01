@@ -1,5 +1,5 @@
 struct APU : Thread, IO {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   auto main() -> void;
   auto sample(uint channel, uint5 index) -> uint4;

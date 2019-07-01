@@ -58,10 +58,10 @@ auto ICD::writeIO(uint24 addr, uint8 data) -> void {
     }
     auto frequency = system.cpuFrequency();
     switch(data & 3) {
-    case 0: setFrequency(frequency / 4); break;  //fast (glitchy, even on real hardware)
-    case 1: setFrequency(frequency / 5); break;  //normal
-    case 2: setFrequency(frequency / 7); break;  //slow
-    case 3: setFrequency(frequency / 9); break;  //very slow
+    case 0: Thread::setFrequency(frequency / 4); break;  //fast (glitchy, even on real hardware)
+    case 1: Thread::setFrequency(frequency / 5); break;  //normal
+    case 2: Thread::setFrequency(frequency / 7); break;  //slow
+    case 3: Thread::setFrequency(frequency / 9); break;  //very slow
     }
     r6003 = data;
     return;

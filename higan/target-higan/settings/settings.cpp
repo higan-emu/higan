@@ -20,7 +20,6 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
     if(mode == 1) document(string{#name}.trimRight(".identifier", 1L).transform(".", "/")).setValue(name);
   s(video.driver)
   s(video.format)
-  s(video.exclusive)
   s(video.blocking)
   s(video.flush)
   s(video.luminance)
@@ -44,7 +43,9 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(input.unfocused)
   s(interface.showStatusBar)
   s(interface.showSystemPanels)
+  s(hotkeys.toggleStatus.identifier)
   s(hotkeys.togglePanels.identifier)
+  s(hotkeys.toggleFullscreen.identifier)
   s(hotkeys.fastForward.identifier)
   s(hotkeys.saveState.identifier)
   s(hotkeys.loadState.identifier)

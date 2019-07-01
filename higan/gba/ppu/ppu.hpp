@@ -1,5 +1,5 @@
 struct PPU : Thread, IO {
-  shared_pointer<higan::Screen> display;
+  higan::Screen display;
 
   inline auto blank() -> bool;
 

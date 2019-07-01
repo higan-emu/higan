@@ -25,7 +25,7 @@ auto MSU1::main() -> void {
     }
   }
 
-  stream->sample(left, right);
+  stream.sample(left, right);
   Thread::step(1);
   Thread::synchronize(cpu);
 }
@@ -34,15 +34,14 @@ auto MSU1::unload() -> void {
   dataFile.reset();
   audioFile.reset();
 
-  cpu.coprocessors.removeWhere() == this;
+  removeWhere(cpu.coprocessors) == this;
   Thread::destroy();
 }
 
 auto MSU1::power() -> void {
   Thread::create(44100, {&MSU1::main, this});
+  stream.create(2, 44100);
   cpu.coprocessors.append(this);
-
-  stream = audio.createStream(2, frequency());
 
   io.dataSeekOffset = 0;
   io.dataReadOffset = 0;

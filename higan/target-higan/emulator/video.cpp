@@ -13,12 +13,6 @@ auto Emulator::videoUpdate() -> void {
     settingsMenu.updateShaders();
   }
 
-  if(videoInstance.hasExclusive()) {
-  //handled by fullscreen codepath
-  } else {
-    settings.video.exclusive = false;
-  }
-
   if(videoInstance.hasBlocking()) {
     videoInstance.setBlocking(settings.video.blocking);
   } else {
@@ -50,4 +44,17 @@ auto Emulator::videoUpdateColors() -> void {
 
 auto Emulator::videoUpdateShader() -> void {
   videoInstance.setShader(settings.video.shader);
+}
+
+auto Emulator::videoToggleFullscreen() -> void {
+  //not all drivers support exclusive fullscreen mode
+  if(!videoInstance.hasExclusive()) return;
+
+  if(!videoInstance.exclusive()) {
+    videoInstance.setExclusive(true);
+    inputInstance.acquire();
+  } else {
+    videoInstance.setExclusive(false);
+    inputInstance.release();
+  }
 }

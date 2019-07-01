@@ -9,15 +9,13 @@ auto Video::reset(Interface* interface) -> void {
   screens.reset();
 }
 
-auto Video::createScreen(Node::Video node) -> shared_pointer<Screen> {
-  auto screen = shared_pointer_make<Screen>(node);
-  screens.append(screen);
-  return screen;
+auto Video::append(Screen& screen) -> void {
+  if(screens.find(&screen)) return;
+  screens.append(&screen);
 }
 
-auto Video::removeScreen(shared_pointer<Screen> screen) -> bool {
-  if(auto index = screens.find(screen)) return screens.remove(*index), true;
-  return false;
+auto Video::remove(Screen& screen) -> void {
+  removeWhere(screens) == &screen;
 }
 
 }

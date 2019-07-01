@@ -141,7 +141,7 @@ auto YM2612::sample() -> void {
     if(channel.rightEnable) right += voiceData;
   }
 
-  stream->sample(sclamp<16>(left) / 32768.0, sclamp<16>(right) / 32768.0);
+  stream.sample(sclamp<16>(left) / 32768.0, sclamp<16>(right) / 32768.0);
 }
 
 auto YM2612::step(uint clocks) -> void {
@@ -151,9 +151,9 @@ auto YM2612::step(uint clocks) -> void {
 
 auto YM2612::power(bool reset) -> void {
   Thread::create(system.frequency() / 7.0, {&YM2612::main, this});
-  stream = audio.createStream(2, frequency() / 144.0);
-  stream->addHighPassFilter(  20.0, Filter::Order::First);
-  stream->addLowPassFilter (2840.0, Filter::Order::First);
+  stream.create(2, frequency() / 144.0);
+  stream.addHighPassFilter(  20.0, Filter::Order::First);
+  stream.addLowPassFilter (2840.0, Filter::Order::First);
 
   io = {};
   lfo = {};

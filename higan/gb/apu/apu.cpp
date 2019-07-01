@@ -19,10 +19,9 @@ auto APU::main() -> void {
   sequencer.run();
 
   if(!Model::SuperGameBoy()) {
-    stream->sample(sequencer.left / 32768.0, sequencer.right / 32768.0);
+    stream.sample(sequencer.left / 32768.0, sequencer.right / 32768.0);
   } else {
-    double samples[] = {sequencer.left / 32768.0, sequencer.right / 32768.0};
-    superGameBoy->audio(samples, 2);
+    superGameBoy->audio(sequencer.left / 32768.0, sequencer.right / 32768.0);
   }
 
   if(cycle == 0) {  //512hz
@@ -51,8 +50,8 @@ auto APU::main() -> void {
 auto APU::power() -> void {
   Thread::create(2 * 1024 * 1024, {&APU::main, this});
   if(!Model::SuperGameBoy()) {
-    stream = audio.createStream(2, frequency());
-    stream->addHighPassFilter(20.0, Filter::Order::First);
+    stream.create(2, frequency());
+    stream.addHighPassFilter(20.0, Filter::Order::First);
   }
 
   square1.power();

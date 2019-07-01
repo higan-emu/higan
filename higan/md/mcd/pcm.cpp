@@ -26,7 +26,7 @@ auto MCD::PCM::clock() -> void {
   //clamp to 10-bit DAC output rate
   left  = sclamp<16>(left ) >> 2 & ~15;
   right = sclamp<16>(right) >> 2 & ~15;
-  stream->sample(left / 32768.0, right / 32768.0);
+  stream.sample(left / 32768.0, right / 32768.0);
 }
 
 auto MCD::PCM::read(uint13 address, uint8 data) -> uint8 {
@@ -104,7 +104,7 @@ auto MCD::PCM::write(uint13 address, uint8 data) -> void {
 }
 
 auto MCD::PCM::power(bool reset) -> void {
-  stream = audio.createStream(2, mcd.frequency() / 384.0);
+  stream.create(2, mcd.frequency() / 384.0);
   io = {};
   for(auto& channel : channels) channel = {};
 }

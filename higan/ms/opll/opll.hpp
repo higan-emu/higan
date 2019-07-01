@@ -1,5 +1,5 @@
 struct OPLL : YM2413, Thread {
-  shared_pointer<Stream> stream;
+  Stream stream;
 
   //opll.cpp
   auto main() -> void;

@@ -1,19 +1,22 @@
-Screen::Screen(Node::Video node) {
+auto Screen::create(Node::Video node) -> void {
   this->node = node;
   buffer = new uint32[node->width * node->height]();
   rotate = new uint32[node->width * node->height]();
   palette = new uint32[node->colors];
+  video.append(*this);
 }
 
-auto Screen::createSprite(uint width, uint height) -> shared_pointer<Sprite> {
-  auto sprite = shared_pointer_make<Sprite>(width, height);
-  sprites.append(sprite);
-  return sprite;
+auto Screen::destroy() -> void {
+  video.remove(*this);
 }
 
-auto Screen::removeSprite(shared_pointer<Sprite> sprite) -> bool {
-  if(auto index = sprites.find(sprite)) return sprites.remove(*index), true;
-  return false;
+auto Screen::append(Sprite& sprite) -> void {
+  if(sprites.find(&sprite)) return;
+  sprites.append(&sprite);
+}
+
+auto Screen::remove(Sprite& sprite) -> void {
+  removeWhere(sprites) == &sprite;
 }
 
 auto Screen::setPalette() -> void {

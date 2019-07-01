@@ -26,7 +26,7 @@ auto PSG::main() -> void {
     right += dac.right / 255.0;
   }
 
-  stream->sample(left, right);
+  stream.sample(left, right);
   step(1);
 }
 
@@ -55,8 +55,8 @@ auto PSG::writeRightDAC(uint8 data) -> void {
 auto PSG::power() -> void {
   Thread::create(system.frequency() / 32.0, {&PSG::main, this});
 
-  stream = audio.createStream(2, frequency());
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream.create(2, frequency());
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   psg = {};
   dac = {};

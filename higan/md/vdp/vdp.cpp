@@ -12,11 +12,11 @@ VDP vdp;
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  screen = video.createScreen(system.video.node);
+  screen.create(system.video.node);
 }
 
 auto VDP::unload() -> void {
-  screen = {};
+  screen.destroy();
 }
 
 auto VDP::main() -> void {
@@ -81,7 +81,7 @@ auto VDP::step(uint clocks) -> void {
 auto VDP::refresh() -> void {
   auto data = output;
   if(!latch.overscan) data -= 16 * 1280;
-  screen->refresh(data, 1280 * sizeof(uint32), 1280, 480);
+  screen.refresh(data, 1280 * sizeof(uint32), 1280, 480);
 }
 
 auto VDP::power(bool reset) -> void {

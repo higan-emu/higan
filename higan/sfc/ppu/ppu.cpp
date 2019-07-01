@@ -27,11 +27,11 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   output = new uint32[512 * 512];
   output += 16 * 512;  //overscan offset
 
-  display = video.createScreen(system.video.node);
+  display.create(system.video.node);
 }
 
 auto PPU::unload() -> void {
-  screen = {};
+  display.destroy();
 
   output -= 16 * 512;
   delete[] output;
@@ -89,7 +89,7 @@ auto PPU::step(uint clocks) -> void {
 }
 
 auto PPU::power(bool reset) -> void {
-  create(system.cpuFrequency(), {&PPU::main, this});
+  Thread::create(system.cpuFrequency(), {&PPU::main, this});
   PPUcounter::reset();
   memory::fill<uint32>(output, 512 * 480);
 
@@ -225,8 +225,8 @@ auto PPU::refresh() -> void {
   auto pitch = 512;
   auto width = 512;
   auto height = 480;
-  display->setColorBleed(system.video.colorBleed->value());
-  display->refresh(output, pitch * sizeof(uint32), width, height);
+  display.setColorBleed(system.video.colorBleed->value());
+  display.refresh(output, pitch * sizeof(uint32), width, height);
 }
 
 }

@@ -7,7 +7,7 @@ OPLL opll;
 
 auto OPLL::main() -> void {
   auto output = YM2413::clock();
-  stream->sample(output);
+  stream.sample(output);
   step(1);
 }
 
@@ -19,8 +19,8 @@ auto OPLL::step(uint clocks) -> void {
 auto OPLL::power() -> void {
   YM2413::power();
   Thread::create(system.colorburst() / 72.0, {&OPLL::main, this});
-  stream = audio.createStream(1, frequency());
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream.create(1, frequency());
+  stream.addHighPassFilter(20.0, Filter::Order::First);
 }
 
 }

@@ -24,12 +24,23 @@ auto Audio::setBalance(double balance) -> void {
   this->balance = balance;
 }
 
-auto Audio::createStream(uint channels, double frequency) -> shared_pointer<Stream> {
-  this->channels = max(this->channels, channels);
-  shared_pointer<Stream> stream = new Stream;
-  stream->reset(channels, frequency, this->frequency);
-  streams.append(stream);
-  return stream;
+auto Audio::append(Stream& stream) -> void {
+  if(streams.find(&stream)) return;
+  streams.append(&stream);
+  synchronize();
+}
+
+auto Audio::remove(Stream& stream) -> void {
+  removeWhere(streams) == &stream;
+  synchronize();
+}
+
+auto Audio::synchronize() -> void {
+  uint channels = 0;
+  for(auto& stream : streams) {
+    channels = max(channels, stream->channels.size());
+  }
+  this->channels = channels;
 }
 
 auto Audio::process() -> void {
