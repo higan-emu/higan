@@ -17,10 +17,6 @@ VideoSettings::VideoSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
     settings.video.format = formatOption.selected().text();
     refresh();
   });
-  exclusiveOption.setText("Fullscreen").setEnabled(false).setToolTip(
-    "This option indicates support for fullscreen mode.\n"
-    "If this option is checked, the fullscreen hotkey may be used."
-  );
   blockingOption.setText("Blocking").setChecked(settings.video.blocking).onToggle([&] {
     settings.video.blocking = blockingOption.checked();
     refresh();
@@ -78,7 +74,6 @@ auto VideoSettings::refresh() -> void {
 
   optionsLayout.resize();
 
-  exclusiveOption.setChecked(videoInstance.hasExclusive());
   blockingOption.setEnabled(videoInstance.hasBlocking());
   flushOption.setEnabled(videoInstance.hasFlush());
 }

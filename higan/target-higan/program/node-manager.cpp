@@ -36,12 +36,12 @@ auto NodeManager::refresh() -> void {
     }
   }
 
-  nodeList.resize().doChange();
+  nodeList.resizeColumn().doChange();
 }
 
 auto NodeManager::refresh(higan::Node::Object node, uint depth) -> void {
   if(node->is<higan::Node::Input>()) return;
-  if(node->is<higan::Node::Component>() && !settingsMenu.showComponents.checked()) return;
+  if(node->is<higan::Node::Component>() && !settings.interface.advancedMode) return;
 
   ListViewItem item{&nodeList};
   item.setProperty<higan::Node::Object>("node", node);

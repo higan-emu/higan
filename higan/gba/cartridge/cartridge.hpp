@@ -4,7 +4,7 @@ struct Cartridge {
 
   #include "memory.hpp"
 
-  inline auto metadata() const -> string { return information.metadata; }
+  inline auto manifest() const -> string { return information.manifest; }
   inline auto name() const -> string { return information.name; }
 
   //cartridge.cpp
@@ -25,7 +25,7 @@ struct Cartridge {
 
 private:
   struct {
-    string metadata;
+    string manifest;
     string name;
   } information;
 

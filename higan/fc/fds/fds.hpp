@@ -10,7 +10,7 @@ struct FDS {
   Node::String state;
   uint1 present;
 
-  inline auto metadata() const -> string { return information.metadata; }
+  inline auto manifest() const -> string { return information.manifest; }
   inline auto name() const -> string { return information.name; }
 
   struct Disk {
@@ -43,7 +43,7 @@ struct FDS {
 
 private:
   struct Information {
-    string metadata;
+    string manifest;
     string name;
   } information;
 

@@ -3,7 +3,7 @@
 struct Cartridge {
   Node::Peripheral node;
 
-  auto metadata() const -> string { return information.metadata; }
+  auto manifest() const -> string { return information.manifest; }
   auto name() const -> string { return information.name; }
   auto region() const -> string { return information.region; }
 
@@ -23,7 +23,7 @@ struct Cartridge {
   WritableMemory ram;
 
   struct Information {
-    string metadata;
+    string manifest;
     Markup::Node document;
     string name;
     string region;

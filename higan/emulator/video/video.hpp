@@ -15,6 +15,15 @@ struct Video {
   auto append(Screen& screen) -> void;
   auto remove(Screen& screen) -> void;
 
+  auto setPalette() -> void;
+  auto setDepth(uint depth) -> void;
+  auto setSaturation(double saturation) -> void;
+  auto setGamma(double gamma) -> void;
+  auto setLuminance(double luminance) -> void;
+  auto setColorBleed(bool colorBleed) -> void;
+  auto setInterframeBlending(bool interframeBlending) -> void;
+  auto setRotateLeft(bool rotateLeft) -> void;
+
   vector<Screen*> screens;
 
 private:

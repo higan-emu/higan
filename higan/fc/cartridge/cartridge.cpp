@@ -23,15 +23,15 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, interface->name());
 
   information = {};
-  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
-    information.metadata = fp->reads();
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
   }
 
-  auto document = BML::unserialize(information.metadata);
+  auto document = BML::unserialize(information.manifest);
   information.name = document["game/label"].text();
   information.region = document["game/region"].text();
 
-  Board::load(information.metadata);  //this call will set Cartridge::board if successful
+  Board::load(information.manifest);  //this call will set Cartridge::board if successful
   power();
   if(fds.present) {
     fds.load(node, with);

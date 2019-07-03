@@ -51,6 +51,5 @@ auto GameManager::refresh() -> void {
   }
 
   programWindow.show(*this);
-  Application::processEvents();
-  gameList.resize();
+  gameList.resizeColumn();
 }

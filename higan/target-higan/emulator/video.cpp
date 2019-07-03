@@ -25,21 +25,23 @@ auto Emulator::videoUpdate() -> void {
     settings.video.flush = false;
   }
 
+  if(!videoInstance.hasFormat(settings.video.format)) {
+    settings.video.format = videoInstance.hasFormats().first();
+  }
+  videoInstance.setFormat(settings.video.format);
+  higan::video.setDepth(settings.video.format == "RGB30" ? 30 : 24);
+
   if(videoInstance.hasShader()) {
     videoInstance.setShader(settings.video.shader);
   }
 }
 
 auto Emulator::videoUpdateColors() -> void {
-  if(interface) {
-    for(auto& screen : higan::video.screens) {
-      screen->setDepth(settings.video.format == "RGB30" ? 30 : 24);
-      screen->setLuminance(settings.video.luminance);
-      screen->setSaturation(settings.video.saturation);
-      screen->setGamma(settings.video.gamma);
-      screen->setPalette();
-    }
-  }
+  higan::video.setDepth(settings.video.format == "RGB30" ? 30 : 24);
+  higan::video.setLuminance(settings.video.luminance);
+  higan::video.setSaturation(settings.video.saturation);
+  higan::video.setGamma(settings.video.gamma);
+  higan::video.setPalette();
 }
 
 auto Emulator::videoUpdateShader() -> void {

@@ -13,10 +13,10 @@ auto Emulator::detach(higan::Node::Object node) -> void {
 auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
   auto location = node->property("location");
 
-  if(name == "metadata.bml") {
+  if(name == "manifest.bml") {
     if(!file::exists({location, name}) && directory::exists(location)) {
-      if(auto metadata = execute("icarus", "--system", node->name, "--metadata", location).output) {
-        return vfs::memory::file::open(metadata.data<uint8_t>(), metadata.size());
+      if(auto manifest = execute("icarus", "--system", node->name, "--manifest", location).output) {
+        return vfs::memory::file::open(manifest.data<uint8_t>(), manifest.size());
       }
     }
   }

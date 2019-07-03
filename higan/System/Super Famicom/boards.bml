@@ -1,5 +1,5 @@
 database
-  revision: 2019-04-12
+  revision: 2019-07-03
 
 //Boards (Production)
 
@@ -578,7 +578,7 @@ board: SHVC-YJ0N-01
 //Boards (Generic)
 
 database
-  revision: 2018-07-25
+  revision: 2019-07-02
 
 board: ARM-LOROM-RAM
   memory type=ROM content=Program
@@ -682,6 +682,13 @@ board: EVENT-PF94
     memory type=RAM content=Data architecture=uPD7725
     oscillator
 
+board: EXHIROM
+  memory type=ROM content=Program
+    map address=00-3f:8000-ffff base=0x400000
+    map address=40-7d:0000-ffff base=0x400000
+    map address=80-bf:8000-ffff mask=0xc00000
+    map address=c0-ff:0000-ffff mask=0xc00000
+
 board: EXHIROM-RAM
   memory type=ROM content=Program
     map address=00-3f:8000-ffff base=0x400000
@@ -704,6 +711,18 @@ board: EXHIROM-RAM-SHARPRTC
   rtc manufacturer=Sharp
     map address=00-3f,80-bf:2800-2801
     memory type=RTC content=Time manufacturer=Sharp
+
+board: EXLOROM
+  memory type=ROM content=Program
+    map address=00-7d:8000-ffff mask=0x8000 base=0x400000
+    map address=80-ff:8000-ffff mask=0x8000 base=0x000000
+
+board: EXLOROM-RAM
+  memory type=ROM content=Program
+    map address=00-7d:8000-ffff mask=0x8000 base=0x400000
+    map address=80-ff:8000-ffff mask=0x8000 base=0x000000
+  memory type=RAM content=Save
+    map address=70-7d,f0-ff:0000-7fff mask=0x8000
 
 board: EXNEC-LOROM
   memory type=ROM content=Program

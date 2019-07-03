@@ -20,7 +20,6 @@ struct VideoSettings : Panel {
     Label formatLabel{&optionsLayout, Size{0, 0}};
     ComboButton formatOption{&optionsLayout, Size{0, 0}};
   HorizontalLayout togglesLayout{&settingsLayout, Size{~0, 0}};
-    CheckLabel exclusiveOption{&togglesLayout, Size{0, 0}};
     CheckLabel blockingOption{&togglesLayout, Size{0, 0}};
     CheckLabel flushOption{&togglesLayout, Size{0, 0}};
 

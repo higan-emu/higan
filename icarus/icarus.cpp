@@ -57,8 +57,8 @@ auto nall::main(Arguments arguments) -> void {
     for(auto& medium : media) {
       if(medium->name() != system) continue;
 
-      if(string metadata; arguments.take("--metadata", metadata)) {
-        return print(medium->metadata(metadata));
+      if(string manifest; arguments.take("--manifest", manifest)) {
+        return print(medium->manifest(manifest));
       }
 
       if(string import; arguments.take("--import", import)) {

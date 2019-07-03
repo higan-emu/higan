@@ -18,11 +18,11 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
   information = {};
 
-  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
-    information.metadata = fp->reads();
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
   }
 
-  auto document = BML::unserialize(information.metadata);
+  auto document = BML::unserialize(information.manifest);
 
   if(!loadROM(rom, document["game/board/memory(type=ROM,content=Program)"])) rom.reset();
   if(!loadROM(patch, document["game/board/memory(type=ROM,content=Patch)"])) patch.reset();
@@ -91,7 +91,7 @@ auto Cartridge::disconnect() -> void {
 
 auto Cartridge::save() -> void {
   if(!node) return;
-  auto document = BML::unserialize(information.metadata);
+  auto document = BML::unserialize(information.manifest);
   saveRAM(wram, document["game/board/memory(type=RAM,content=Save)"]);
   saveRAM(bram, document["game/board/memory(type=RAM,content=Save)"]);
   if(slot) slot->save();

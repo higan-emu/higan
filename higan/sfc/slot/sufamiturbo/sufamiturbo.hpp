@@ -2,7 +2,8 @@ struct SufamiTurboCartridge {
   Node::Port port;
   Node::Peripheral node;
 
-  inline auto name() const -> string { return self.name; }
+  inline auto manifest() const -> string { return information.manifest; }
+  inline auto name() const -> string { return information.name; }
 
   auto load(Node::Peripheral, Node::Peripheral) -> void;
 
@@ -26,9 +27,9 @@ struct SufamiTurboCartridge {
   WritableMemory ram;
 
   struct {
-    string metadata;
+    string manifest;
     string name;
-  } self;
+  } information;
 };
 
 extern SufamiTurboCartridge sufamiturboA;

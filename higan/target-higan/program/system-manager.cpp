@@ -24,7 +24,7 @@ auto SystemManager::refresh() -> void {
 
   auto location = Path::data;
   for(auto& name : directory::folders(location)) {
-    auto document = BML::unserialize(file::read({location, name, "/", "metadata.bml"}));
+    auto document = BML::unserialize(file::read({location, name, "/", "manifest.bml"}));
     if(!document) continue;
 
     auto system = document["system"].text();

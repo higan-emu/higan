@@ -36,10 +36,10 @@ auto Cartridge::append(vector<uint8_t>& output, string filename) -> bool {
 
 auto Cartridge::import(string location) -> string {
   auto data = Media::read(location);
-  auto metadata = this->metadata(data, location);
-  if(!metadata) return "failed to parse ROM";
+  auto manifest = this->manifest(data, location);
+  if(!manifest) return "failed to parse ROM";
 
-  auto document = BML::unserialize(metadata);
+  auto document = BML::unserialize(manifest);
   location = {pathname, Location::prefix(location), "/"};
   if(!directory::create(location)) return "output directory not writable";
 
@@ -69,17 +69,17 @@ auto Cartridge::import(string location) -> string {
   return {};
 }
 
-auto Cartridge::metadata(string location) -> string {
+auto Cartridge::manifest(string location) -> string {
   vector<uint8_t> data;
   if(directory::exists(location)) {
     data = export(location);
   } else if(file::exists(location)) {
     data = file::read(location);
   }
-  return metadata(data, location);
+  return manifest(data, location);
 }
 
-auto Cartridge::metadata(vector<uint8_t>& data, string location) -> string {
+auto Cartridge::manifest(vector<uint8_t>& data, string location) -> string {
   string digest = Hash::SHA256(data).digest();
   for(auto game : database.find("game")) {
     if(game["sha256"].text() == digest) return BML::serialize(game);

@@ -32,7 +32,7 @@ auto GameImporter::import(string system, const vector<string>& files) -> void {
         item.setProperty("error", error);
       }
       item.setText(Location::file(file));
-      importList.resize();
+      importList.resizeColumn();
     }
   }
   processing = false;

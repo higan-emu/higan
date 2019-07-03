@@ -7,7 +7,7 @@ struct Cartridge {
   Memory::Writable<uint16> wram;  //16-bit save RAM
   Memory::Writable< uint8> bram;  // 8-bit save RAM
 
-  inline auto metadata() const -> string { return information.metadata; }
+  inline auto manifest() const -> string { return information.manifest; }
   inline auto name() const -> string { return information.name; }
   inline auto regions() const -> vector<string> { return information.regions; }
   inline auto bootable() const -> boolean { return information.bootable; }  //CART_IN line
@@ -49,7 +49,7 @@ struct Cartridge {
   auto serialize(serializer&) -> void;
 
   struct Information {
-    string metadata;
+    string manifest;
     string name;
     vector<string> regions;
     boolean bootable;

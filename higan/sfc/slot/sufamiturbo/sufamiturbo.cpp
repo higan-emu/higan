@@ -15,12 +15,12 @@ auto SufamiTurboCartridge::load(Node::Peripheral parent, Node::Peripheral from) 
 auto SufamiTurboCartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, "Sufami Turbo");
 
-  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
-    self.metadata = fp->reads();
-  } else return;
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
+  }
 
-  auto document = BML::unserialize(self.metadata);
-  self.name = document["game/label"].text();
+  auto document = BML::unserialize(information.manifest);
+  information.name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.allocate(memory["size"].natural());
@@ -52,7 +52,7 @@ auto SufamiTurboCartridge::power() -> void {
 
 auto SufamiTurboCartridge::save() -> void {
   if(!node) return;
-  auto document = BML::unserialize(self.metadata);
+  auto document = BML::unserialize(information.manifest);
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
     if(!(bool)memory["volatile"]) {

@@ -4,7 +4,7 @@ struct Media {
   virtual auto read(string filename, string suffix = "") -> vector<uint8_t>;
   virtual auto type() -> string = 0;
   virtual auto name() -> string = 0;
-  virtual auto metadata(string location) -> string = 0;
+  virtual auto manifest(string location) -> string = 0;
   virtual auto import(string filename) -> string = 0;
 
   auto name(string location) const -> string;

@@ -19,11 +19,11 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
   information = {};
 
-  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
-    information.metadata = fp->reads();
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
   }
 
-  auto document = BML::unserialize(information.metadata);
+  auto document = BML::unserialize(information.manifest);
   information.name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
@@ -53,7 +53,7 @@ auto Cartridge::disconnect() -> void {
 }
 
 auto Cartridge::save() -> void {
-  auto document = BML::unserialize(information.metadata);
+  auto document = BML::unserialize(information.manifest);
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
     if(!(bool)memory["volatile"]) {

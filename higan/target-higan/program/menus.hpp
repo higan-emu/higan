@@ -36,7 +36,7 @@ struct SettingsMenu : Menu {
   MenuCheckItem showStatusBar{this};
   MenuCheckItem showSystemPanels{this};
   MenuSeparator showSeparator{this};
-  MenuCheckItem showComponents{this};
+  MenuCheckItem advancedMode{this};
 };
 
 struct ToolsMenu : Menu {

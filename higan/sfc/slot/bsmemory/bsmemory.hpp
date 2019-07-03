@@ -19,7 +19,8 @@ struct BSMemory : Thread, Memory {
   Node::Port port;
   Node::Peripheral node;
 
-  inline auto name() const -> string { return self.name; }
+  inline auto manifest() const -> string { return information.manifest; }
+  inline auto name() const -> string { return information.name; }
 
   auto load(Node::Peripheral, Node::Peripheral) -> void;
 
@@ -50,9 +51,9 @@ struct BSMemory : Thread, Memory {
   WritableMemory memory;
 
   struct {
-    string metadata;
+    string manifest;
     string name;
-  } self;
+  } information;
 
 private:
   struct Pin {

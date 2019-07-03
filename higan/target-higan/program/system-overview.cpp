@@ -14,15 +14,15 @@ auto SystemOverview::hide() -> void {
 auto SystemOverview::refresh() -> void {
   auto location = systemManager.systemList.selected().property("location");
   nodeList.reset();
-  auto metadata = BML::unserialize(file::read({location, "metadata.bml"}));
+  auto manifest = BML::unserialize(file::read({location, "manifest.bml"}));
   auto root = higan::Node::unserialize(file::read({location, "settings.bml"}));
-  nodeList.append(ListViewItem().setText(metadata["system"].text()));
+  nodeList.append(ListViewItem().setText(manifest["system"].text()));
   for(auto& node : *root) scan(node);
 }
 
 auto SystemOverview::scan(higan::Node::Object node, uint depth) -> void {
   if(node->is<higan::Node::Input>()) return;
-  if(node->is<higan::Node::Component>() && !settingsMenu.showComponents.checked()) return;
+  if(node->is<higan::Node::Component>() && !settings.interface.advancedMode) return;
 
   ListViewItem item{&nodeList};
   string name;

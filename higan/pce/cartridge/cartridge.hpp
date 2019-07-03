@@ -2,7 +2,7 @@ struct Cartridge {
   Node::Port port;
   Node::Peripheral node;
 
-  inline auto metadata() const -> string { return information.metadata; }
+  inline auto manifest() const -> string { return information.manifest; }
   inline auto name() const -> string { return information.name; }
 
   //cartridge.cpp
@@ -20,7 +20,7 @@ private:
   auto mirror(uint addr, uint size) -> uint;
 
   struct Information {
-    string metadata;
+    string manifest;
     string name;
   } information;
 

@@ -20,11 +20,13 @@ struct VideoXShm : VideoDriver {
   auto driver() -> string override { return "XShm"; }
   auto ready() -> bool override { return _ready; }
 
+  auto hasExclusive() -> bool override { return true; }
   auto hasContext() -> bool override { return true; }
   auto hasShader() -> bool override { return true; }
 
   auto hasFormats() -> vector<string> override { return {"RGB24"}; }
 
+  auto setExclusive(bool exclusive) -> bool override { return initialize(); }
   auto setContext(uintptr context) -> bool override { return initialize(); }
   auto setShader(string shader) -> bool override { return true; }
 
@@ -40,22 +42,13 @@ struct VideoXShm : VideoDriver {
     XGetWindowAttributes(_display, _window, &window);
 
     XWindowAttributes parent;
-    XGetWindowAttributes(_display, self.context, &parent);
+    XGetWindowAttributes(_display, _parent, &parent);
 
     if(window.width != parent.width || window.height != parent.height) {
       _outputWidth = parent.width;
       _outputHeight = parent.height;
       XResizeWindow(_display, _window, _outputWidth, _outputHeight);
-      free();
-
-      _shmInfo.shmid = shmget(IPC_PRIVATE, _outputWidth * _outputHeight * sizeof(uint32_t), IPC_CREAT | 0777);
-      if(_shmInfo.shmid < 0) return;
-
-      _shmInfo.shmaddr = (char*)shmat(_shmInfo.shmid, 0, 0);
-      _shmInfo.readOnly = False;
-      XShmAttach(_display, &_shmInfo);
-      _outputBuffer = (uint32_t*)_shmInfo.shmaddr;
-      _image = XShmCreateImage(_display, _visual, _depth, ZPixmap, _shmInfo.shmaddr, &_shmInfo, _outputWidth, _outputHeight);
+      allocate();
     }
 
     width = parent.width;
@@ -160,12 +153,16 @@ private:
 
   auto initialize() -> bool {
     terminate();
-    if(!self.context) return false;
+    if(!self.exclusive && !self.context) return false;
 
-    XWindowAttributes getAttributes{};
-    XGetWindowAttributes(_display, (Window)self.context, &getAttributes);
-    _depth = getAttributes.depth;
-    _visual = getAttributes.visual;
+    _parent = self.exclusive ? RootWindow(_display, _screen) : (Window)self.context;
+
+    XWindowAttributes windowAttributes{};
+    XGetWindowAttributes(_display, _parent, &windowAttributes);
+    _outputWidth = windowAttributes.width;
+    _outputHeight = windowAttributes.height;
+    _depth = windowAttributes.depth;
+    _visual = windowAttributes.visual;
     //driver only supports 32-bit pixels
     //note that even on 15-bit and 16-bit displays, the window visual's depth should be 32
     if(_depth < 24 || _depth > 32) {
@@ -173,12 +170,15 @@ private:
       return false;
     }
 
-    XSetWindowAttributes setAttributes = {};
-    setAttributes.border_pixel = 0;
-    _window = XCreateWindow(_display, (Window)self.context,
-      0, 0, 256, 256, 0,
-      getAttributes.depth, InputOutput, getAttributes.visual,
-      CWBorderPixel, &setAttributes
+    _colormap = XCreateColormap(_display, _parent, _visual, AllocNone);
+    XSetWindowAttributes attributes{};
+    attributes.border_pixel = 0;
+    attributes.colormap = _colormap;
+    attributes.override_redirect = self.exclusive;
+    _window = XCreateWindow(_display, _parent,
+      0, 0, _outputWidth, _outputHeight,
+      0, _depth, InputOutput, _visual,
+      CWBorderPixel | CWColormap | CWOverrideRedirect, &attributes
     );
     XSelectInput(_display, _window, ExposureMask);
     XSetWindowBackground(_display, _window, 0);
@@ -190,11 +190,30 @@ private:
       XNextEvent(_display, &event);
     }
 
+    allocate();
     return _ready = true;
   }
 
   auto terminate() -> void {
     free();
+
+    if(_colormap) {
+      XFreeColormap(_display, _colormap);
+      _colormap = 0;
+    }
+  }
+
+  auto allocate() -> void {
+    free();
+
+    _shmInfo.shmid = shmget(IPC_PRIVATE, _outputWidth * _outputHeight * sizeof(uint32_t), IPC_CREAT | 0777);
+    if(_shmInfo.shmid < 0) return;
+
+    _shmInfo.shmaddr = (char*)shmat(_shmInfo.shmid, 0, 0);
+    _shmInfo.readOnly = False;
+    XShmAttach(_display, &_shmInfo);
+    _outputBuffer = (uint32_t*)_shmInfo.shmaddr;
+    _image = XShmCreateImage(_display, _visual, _depth, ZPixmap, _shmInfo.shmaddr, &_shmInfo, _outputWidth, _outputHeight);
   }
 
   auto free() -> void {
@@ -232,7 +251,9 @@ private:
   int _screen = 0;
   int _depth = 0;
   Visual* _visual = nullptr;
+  Window _parent = 0;
   Window _window = 0;
+  Colormap _colormap = 0;
 
   XShmSegmentInfo _shmInfo;
   XImage* _image = nullptr;

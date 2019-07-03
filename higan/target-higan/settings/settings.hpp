@@ -38,6 +38,7 @@ struct Settings {
   struct {
     bool showStatusBar = true;
     bool showSystemPanels = true;
+    bool advancedMode = false;
   } interface;
 };
 

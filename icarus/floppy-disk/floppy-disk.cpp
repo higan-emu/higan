@@ -13,17 +13,17 @@ auto FloppyDisk::append(vector<uint8_t>& output, string filename) -> bool {
   return true;
 }
 
-auto FloppyDisk::metadata(string location) -> string {
+auto FloppyDisk::manifest(string location) -> string {
   vector<uint8_t> data;
   if(directory::exists(location)) {
     data = export(location);
   } else if(file::exists(location)) {
     data = file::read(location);
   }
-  return metadata(data, location);
+  return manifest(data, location);
 }
 
-auto FloppyDisk::metadata(vector<uint8_t>& data, string location) -> string {
+auto FloppyDisk::manifest(vector<uint8_t>& data, string location) -> string {
   string digest = Hash::SHA256(data).digest();
   for(auto game : database.find("game")) {
     if(game["sha256"].text() == digest) return BML::serialize(game);

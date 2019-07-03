@@ -164,7 +164,10 @@ auto pTableView::setForegroundColor(Color color) -> void {
 auto pTableView::setGeometry(Geometry geometry) -> void {
   pWidget::setGeometry(geometry);
   for(auto& column : state().columns) {
-    if(column->expandable()) return resizeColumns();
+    if(column->expandable()) {
+      Application::processEvents();
+      return resizeColumns();
+    }
   }
 }
 

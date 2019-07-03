@@ -14,13 +14,13 @@ auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
   information = {};
   has = {};
 
-  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
-    information.metadata = fp->reads();
-    information.document = BML::unserialize(information.metadata);
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
+    information.document = BML::unserialize(information.manifest);
     information.name     = information.document["game/label"].text();
     information.region   = information.document["game/region"].text();
     information.board    = information.document["game/board"].text();
-  } else return;
+  }
 
   loadCartridge(information.document);
   if(has.GameBoySlot) icd.load(node, with);

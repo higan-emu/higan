@@ -4,7 +4,7 @@ auto CompactDisc::construct() -> void {
   Media::construct();
 }
 
-auto CompactDisc::metadata(string location) -> string {
+auto CompactDisc::manifest(string location) -> string {
   string s;
   s += "game\n";
   s +={"  name:  ", Media::name(location), "\n"};

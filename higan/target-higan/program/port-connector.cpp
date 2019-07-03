@@ -103,7 +103,7 @@ auto PortConnector::eventActivate() -> void {
       .setTitle("Error").setAlignment(programWindow).error();
 
       if(directory::copy(source, target)) {
-        file::write({target, "metadata.bml"}, string{
+        file::write({target, "manifest.bml"}, string{
           "system: ", interface->name(), "\n",
           "name: ", name, "\n"
         });

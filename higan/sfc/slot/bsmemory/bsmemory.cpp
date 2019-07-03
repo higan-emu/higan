@@ -37,12 +37,12 @@ auto BSMemory::step(uint clocks) -> void {
 auto BSMemory::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, "BS Memory");
 
-  if(auto fp = platform->open(node, "metadata.bml", File::Read, File::Required)) {
-    self.metadata = fp->reads();
-  } else return;
+  if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
+  }
 
-  auto document = BML::unserialize(self.metadata);
-  self.name = document["game/label"].text();
+  auto document = BML::unserialize(information.manifest);
+  information.name = document["game/label"].text();
 
   if(auto memory = document["game/board/memory(content=Program)"]) {
     ROM = memory["type"].text() == "ROM";
@@ -144,7 +144,7 @@ auto BSMemory::power() -> void {
 
 auto BSMemory::save() -> void {
   if(!node) return;
-  auto document = BML::unserialize(self.metadata);
+  auto document = BML::unserialize(information.manifest);
 
   if(auto memory = document["game/board/memory(type=Flash,content=Program)"]) {
     if(auto fp = platform->open(node, "program.flash", File::Write)) {

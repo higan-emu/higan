@@ -85,6 +85,7 @@ auto Emulator::main() -> void {
 }
 
 auto Emulator::quit() -> void {
+  programWindow.setVisible(false);  //make quitting feel more responsive
   Application::quit();  //stop processing callbacks and timers
   unload();
 

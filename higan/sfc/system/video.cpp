@@ -12,6 +12,10 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->colors  = 1 << 19;
   node->color   = [&](auto index) { return color(index); };
 
+  display = Node::append<Node::String>(parent, from, "Display", "PAL");
+  display->setAllowedValues({"NTSC", "PAL"});
+  display->dynamic = true;
+
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
     ppu.display.setPalette();
   });

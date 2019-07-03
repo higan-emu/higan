@@ -23,8 +23,8 @@
 
 struct VideoGLX2 : VideoDriver {
   VideoGLX2& self = *this;
-  VideoGLX2(Video& super) : VideoDriver(super) {}
-  ~VideoGLX2() { terminate(); }
+  VideoGLX2(Video& super) : VideoDriver(super) { construct(); }
+  ~VideoGLX2() { destruct(); }
 
   auto create() -> bool {
     super.setFormat("RGB24");
@@ -38,8 +38,13 @@ struct VideoGLX2 : VideoDriver {
   auto hasContext() -> bool override { return true; }
   auto hasBlocking() -> bool override { return true; }
   auto hasFlush() -> bool override { return true; }
-  auto hasFormats() -> vector<string> override { return {"RGB24", "RGB30"}; }
   auto hasShader() -> bool override { return true; }
+
+  auto hasFormats() -> vector<string> override {
+    if(_depth == 30) return {"RGB30", "RGB24"};
+    if(_depth == 24) return {"RGB24"};
+    return {"RGB24"};  //fallback
+  }
 
   auto setExclusive(bool exclusive) -> bool override {
     return initialize();
@@ -158,12 +163,28 @@ struct VideoGLX2 : VideoDriver {
   }
 
 private:
+  auto construct() -> void {
+    _display = XOpenDisplay(nullptr);
+    _screen = DefaultScreen(_display);
+
+    XWindowAttributes attributes{};
+    XGetWindowAttributes(_display, RootWindow(_display, _screen), &attributes);
+    _depth = attributes.depth;
+  }
+
+  auto destruct() -> void {
+    terminate();
+
+    if(_display) {
+      XCloseDisplay(_display);
+      _display = nullptr;
+      _screen = 0;
+    }
+  }
+
   auto initialize() -> bool {
     terminate();
     if(!self.exclusive && !self.context) return false;
-
-    _display = XOpenDisplay(nullptr);
-    _screen = DefaultScreen(_display);
 
     int versionMajor = 0, versionMinor = 0;
     glXQueryVersion(_display, &versionMajor, &versionMinor);
@@ -268,11 +289,6 @@ private:
       XFreeColormap(_display, _colormap);
       _colormap = 0;
     }
-
-    if(_display) {
-      XCloseDisplay(_display);
-      _display = nullptr;
-    }
   }
 
   auto resize(uint width, uint height) -> void {
@@ -295,6 +311,7 @@ private:
 
   Display* _display = nullptr;
   int _screen = 0;
+  uint _depth = 24;  //depth of the default root window
   Window _parent = 0;
   Window _window = 0;
   Colormap _colormap = 0;

@@ -43,6 +43,7 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(input.unfocused)
   s(interface.showStatusBar)
   s(interface.showSystemPanels)
+  s(interface.advancedMode)
   s(hotkeys.toggleStatus.identifier)
   s(hotkeys.togglePanels.identifier)
   s(hotkeys.toggleFullscreen.identifier)

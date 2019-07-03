@@ -92,7 +92,8 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
       programWindow.hidePanels();
     }
   });
-  showComponents.setText("Show Components").onToggle([&] {
+  advancedMode.setText("Advanced Mode").setChecked(settings.interface.advancedMode).onToggle([&] {
+    settings.interface.advancedMode = advancedMode.checked();
     if(systemOverview.visible()) systemOverview.refresh();
     if(nodeManager.visible()) nodeManager.refresh();
   });

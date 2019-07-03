@@ -9,8 +9,8 @@ auto VideoGLX_X11ErrorHandler(Display*, XErrorEvent*) -> int {
 
 struct VideoGLX : VideoDriver, OpenGL {
   VideoGLX& self = *this;
-  VideoGLX(Video& super) : VideoDriver(super) {}
-  ~VideoGLX() { terminate(); }
+  VideoGLX(Video& super) : VideoDriver(super) { construct(); }
+  ~VideoGLX() { destruct(); }
 
   auto create() -> bool override {
     super.setFormat("RGB24");
@@ -27,7 +27,9 @@ struct VideoGLX : VideoDriver, OpenGL {
   auto hasShader() -> bool override { return true; }
 
   auto hasFormats() -> vector<string> override {
-    return {"RGB24"};  //"RGB30" is currently broken; use OpenGL 2.0 driver instead
+    if(_depth == 30) return {"RGB30", "RGB24"};
+    if(_depth == 24) return {"RGB24"};
+    return {"RGB24"};  //fallback
   }
 
   auto setExclusive(bool exclusive) -> bool override {
@@ -50,12 +52,12 @@ struct VideoGLX : VideoDriver, OpenGL {
   auto setFormat(string format) -> bool override {
     if(format == "RGB24") {
       OpenGL::inputFormat = GL_RGBA8;
-      return true;
+      return initialize();
     }
 
     if(format == "RGB30") {
       OpenGL::inputFormat = GL_RGB10_A2;
-      return true;
+      return initialize();
     }
 
     return false;
@@ -120,12 +122,28 @@ struct VideoGLX : VideoDriver, OpenGL {
   }
 
 private:
+  auto construct() -> void {
+    _display = XOpenDisplay(nullptr);
+    _screen = DefaultScreen(_display);
+
+    XWindowAttributes attributes{};
+    XGetWindowAttributes(_display, RootWindow(_display, _screen), &attributes);
+    _depth = attributes.depth;
+  }
+
+  auto destruct() -> void {
+    terminate();
+
+    if(_display) {
+      XCloseDisplay(_display);
+      _display = nullptr;
+      _screen = 0;
+    }
+  }
+
   auto initialize() -> bool {
     terminate();
     if(!self.exclusive && !self.context) return false;
-
-    _display = XOpenDisplay(nullptr);
-    _screen = DefaultScreen(_display);
 
     //require GLX 1.2+ API
     glXQueryVersion(_display, &_versionMajor, &_versionMinor);
@@ -244,11 +262,6 @@ private:
       XFreeColormap(_display, _colormap);
       _colormap = 0;
     }
-
-    if(_display) {
-      XCloseDisplay(_display);
-      _display = nullptr;
-    }
   }
 
   bool _ready = false;
@@ -257,6 +270,7 @@ private:
 
   Display* _display = nullptr;
   int _screen = 0;
+  uint _depth = 24;  //depth of the default root window
   Window _parent = 0;
   Window _window = 0;
   Colormap _colormap = 0;

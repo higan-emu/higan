@@ -58,7 +58,7 @@ Board::Board(Markup::Node& document) {
 }
 
 auto Board::save() -> void {
-  auto document = BML::unserialize(cartridge.metadata());
+  auto document = BML::unserialize(cartridge.manifest());
 
   if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
     if(!memory["volatile"]) {
@@ -131,8 +131,8 @@ auto Board::serialize(serializer& s) -> void {
   if(chrram.size) s.array(chrram.data, chrram.size);
 }
 
-auto Board::load(string metadata) -> Board* {
-  auto document = BML::unserialize(metadata);
+auto Board::load(string manifest) -> Board* {
+  auto document = BML::unserialize(manifest);
 
   string type = document["game/board"].text();
 
