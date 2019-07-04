@@ -3,7 +3,6 @@ SettingEditor::SettingEditor(View* view) : Panel(view, Size{~0, ~0}) {
   nameLabel.setFont(Font().setBold());
   latchedLayout.setCollapsible();
   latchedLabel.setText("Latched:");
-  latchedValue;
   valueList.onChange([&] { eventChange(); });
 }
 

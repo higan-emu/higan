@@ -10,13 +10,6 @@ auto InputButton::value() -> bool {
 
 //
 
-InputManager::InputManager() {
-  inputInstance.onChange({&InputManager::eventInput, this});
-}
-
-InputManager::~InputManager() {
-}
-
 auto InputManager::bind(maybe<higan::Node::Object> newRoot) -> void {
   if(newRoot) root = newRoot();
   if(!root) return;

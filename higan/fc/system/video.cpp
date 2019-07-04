@@ -1,5 +1,5 @@
 auto System::Video::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Video>(parent, from, "Display");
+  node = Node::append<Node::Video>(parent, from, "Video");
   from = Node::scan(parent = node, from);
 
   node->type    = "CRT";
@@ -11,6 +11,10 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->aspectY = 7.0;
   node->colors  = 1 << 9;
   node->color   = [&](auto index) { return color(index); };
+
+  display = Node::append<Node::String>(parent, from, "Display", "PAL");
+  display->setAllowedValues({"NTSC", "PAL"});
+  display->dynamic = true;
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
     ppu.screen.setPalette();

@@ -220,24 +220,24 @@ auto PPU::scanline() -> void {
 }
 
 auto PPU::refresh() -> void {
-  auto output = this->output;
+  auto data = output;
   display.setColorBleed(system.video.colorBleed->value());
 
   if(system.video.display->value() == "NTSC") {
-    output += 2 * 512;
-    if(overscan()) output += 16 * 512;
+    data += 2 * 512;
+    if(overscan()) data += 16 * 512;
     auto pitch = 512;
     auto width = 512;
     auto height = system.video.node->height = 448;
-    display.refresh(output, pitch * sizeof(uint32), width, height);
+    display.refresh(data, pitch * sizeof(uint32), width, height);
   }
 
   if(system.video.display->value() == "PAL") {
-    if(!overscan()) output -= 14 * 512;
+    if(!overscan()) data -= 14 * 512;
     auto pitch = 512;
     auto width = 512;
     auto height = system.video.node->height = 480;
-    display.refresh(output, pitch * sizeof(uint32), width, height);
+    display.refresh(data, pitch * sizeof(uint32), width, height);
   }
 }
 

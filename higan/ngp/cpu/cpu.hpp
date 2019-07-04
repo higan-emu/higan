@@ -4,7 +4,7 @@
 //it is able to.
 
 struct CPU : TLCS900H, Thread {
-  Memory::Writable<uint8> ram;
+  higan::Memory::Writable<uint8> ram;
 
   //Neo Geo Pocket Color: 0x87e2 (K2GE mode selection) is a privileged register.
   //the development manual states user-mode code cannot change this value, and

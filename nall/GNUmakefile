@@ -61,7 +61,7 @@ ifeq ($(compiler),)
   else ifeq ($(platform),linux)
     compiler := g++
   else ifeq ($(platform),bsd)
-    compiler := g++8
+    compiler := clang++
   else
     compiler := g++
   endif

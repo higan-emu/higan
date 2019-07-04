@@ -1,6 +1,7 @@
 auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node = Node::append<Node::Video>(parent, from, "Video");
   from = Node::scan(parent = node, from);
+
   node->type   = "CRT";
   node->width  = 1280;
   node->height =  480;
@@ -8,6 +9,10 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->scaleY = 0.50;
   node->colors = 3 * (1 << 9);
   node->color  = [&](auto index) { return color(index); };
+
+  display = Node::append<Node::String>(parent, from, "Display", "PAL");
+  display->setAllowedValues({"NTSC", "PAL"});
+  display->dynamic = true;
 }
 
 auto System::Video::color(uint32 color) -> uint64 {

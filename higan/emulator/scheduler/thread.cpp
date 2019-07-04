@@ -85,7 +85,7 @@ auto Thread::synchronize(Thread& thread, P&&... p) -> void {
     co_switch(thread.handle());
   }
   //convenience: allow synchronizing multiple threads with one function call.
-  if constexpr(sizeof...(p)) synchronize(forward<P>(p)...);
+  if constexpr(sizeof...(p) > 0) synchronize(forward<P>(p)...);
 }
 
 auto Thread::serialize(serializer& s) -> void {

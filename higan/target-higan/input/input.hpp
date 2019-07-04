@@ -10,9 +10,6 @@ struct InputButton {
 };
 
 struct InputManager {
-  InputManager();
-  ~InputManager();
-
   auto bind(maybe<higan::Node::Object> root = {}) -> void;
   auto unbind() -> void;
 

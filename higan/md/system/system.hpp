@@ -17,6 +17,7 @@ struct System {
 
   struct Video {
     Node::Video node;
+    Node::String display;
 
     //video.cpp
     auto load(Node::Object, Node::Object) -> void;

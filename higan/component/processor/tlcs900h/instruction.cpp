@@ -1,3 +1,8 @@
+#if defined(COMPILER_CLANG)
+  //this core uses "Undefined;" many times, which Clang does not like to ignore.
+  #pragma clang diagnostic ignored "-Wunused-value"
+#endif
+
 template<uint Bits> auto TLCS900H::idleBW(uint b, uint w) -> void {
   if constexpr(Bits ==  8) return idle(b);
   if constexpr(Bits == 16) return idle(w);

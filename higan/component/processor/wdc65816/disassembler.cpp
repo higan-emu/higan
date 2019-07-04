@@ -46,7 +46,7 @@ auto WDC65816::dreadl(uint24 addr) -> uint24 {
   return data;
 }
 
-auto WDC65816::decode(uint8 mode, uint24 addr) -> uint24 {
+auto WDC65816::decode(uint8 mode, uint24 addr) -> uint {
   uint24 a = 0;
 
   switch(mode) {
@@ -123,7 +123,7 @@ auto WDC65816::decode(uint8 mode, uint24 addr) -> uint24 {
     break;
   }
 
-  return a;
+  return (uint24)a;
 }
 
 auto WDC65816::disassemble() -> string {
@@ -136,10 +136,10 @@ auto WDC65816::disassemble(uint24 addr, bool e, bool m, bool x) -> string {
   uint24 pc = addr;
   s = {hex(pc, 6), " "};
 
-  uint8 op  = dreadb(pc); pc.bits(0,15)++;
-  uint8 op0 = dreadb(pc); pc.bits(0,15)++;
-  uint8 op1 = dreadb(pc); pc.bits(0,15)++;
-  uint8 op2 = dreadb(pc);
+  uint8_t op  = dreadb(pc); pc.bits(0,15)++;
+  uint8_t op0 = dreadb(pc); pc.bits(0,15)++;
+  uint8_t op1 = dreadb(pc); pc.bits(0,15)++;
+  uint8_t op2 = dreadb(pc);
 
   #define op8  ((op0))
   #define op16 ((op0) | (op1 << 8))

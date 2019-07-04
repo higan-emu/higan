@@ -170,7 +170,6 @@ auto pCanvas::_rasterize() -> void {
 
     if(width != surfaceWidth || height != surfaceHeight) {
       [cocoaView setImage:nil];
-      [surface release];
       surface = nullptr;
       bitmap = nullptr;
     }

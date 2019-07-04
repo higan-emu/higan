@@ -44,7 +44,7 @@ auto PSG::step(uint clocks) -> void {
 
 auto PSG::balance(uint8 data) -> void {
   if(Model::GameGear()) {
-    io.enable;
+    io.enable = data;
   }
 }
 

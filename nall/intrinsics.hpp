@@ -36,6 +36,7 @@ namespace nall {
   #pragma clang diagnostic ignored "-Wswitch-bool"
   #pragma clang diagnostic ignored "-Wtautological-compare"
   #pragma clang diagnostic ignored "-Wabsolute-value"
+  #pragma clang diagnostic ignored "-Wshift-count-overflow"
 
   //temporary
   #pragma clang diagnostic ignored "-Winconsistent-missing-override"

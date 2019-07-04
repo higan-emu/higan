@@ -17,6 +17,7 @@ struct System {
 
   struct Video {
     Node::Video node;
+    Node::String display;
     Node::Boolean colorEmulation;
 
     //video.cpp

@@ -12,7 +12,7 @@ namespace higan {
 auto YM2413::clock() -> double {
   auto melody = 0;
   auto rhythm = 0;
-  auto mask = -1 << 12 - 9;
+  auto mask = -(1 << 12 - 9);
 
   for(uint index : range(io.rhythmMode ? 6 : 9)) {
     auto& voice = voices[index];

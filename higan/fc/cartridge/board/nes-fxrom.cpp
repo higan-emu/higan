@@ -31,6 +31,7 @@ struct NES_FxROM : Board {
     case 0: return ((addr & 0x0400) >> 0) | (addr & 0x03ff);  //vertical mirroring
     case 1: return ((addr & 0x0800) >> 1) | (addr & 0x03ff);  //horizontal mirroring
     }
+    unreachable;
   }
 
   auto readCHR(uint addr) -> uint8 {

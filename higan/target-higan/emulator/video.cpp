@@ -58,5 +58,6 @@ auto Emulator::videoToggleFullscreen() -> void {
   } else {
     videoInstance.setExclusive(false);
     inputInstance.release();
+    programWindow.viewport.setFocused();
   }
 }

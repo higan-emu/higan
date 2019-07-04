@@ -74,7 +74,7 @@ auto GSU::disassembleALT0(char* output) -> void {
     case6 (0x98): sprintf(t, "jmp r%u", op0 & 15); break;
     case  (0x9e): sprintf(t, "lob"); break;
     case  (0x9f): sprintf(t, "fmult"); break;
-    case16(0xa0): sprintf(t, "ibt r%u,#$%.2x", op0 & 15, op1); break;
+    case16(0xa0): sprintf(t, "ibt r%u,#$%.2x", op0 & 15, op1 & 255); break;
     case16(0xb0): sprintf(t, "from r%u", op0 & 15); break;
     case  (0xc0): sprintf(t, "hib"); break;
     case15(0xc1): sprintf(t, "or r%u", op0 & 15); break;
@@ -82,7 +82,7 @@ auto GSU::disassembleALT0(char* output) -> void {
     case  (0xdf): sprintf(t, "getc"); break;
     case15(0xe0): sprintf(t, "dec r%u", op0 & 15); break;
     case  (0xef): sprintf(t, "getb"); break;
-    case16(0xf0): sprintf(t, "iwt r%u,#$%.2x%.2x", op0 & 15, op2, op1); break;
+    case16(0xf0): sprintf(t, "iwt r%u,#$%.2x%.2x", op0 & 15, op2 & 255, op1 & 255); break;
   }
   strcat(output, t);
 }

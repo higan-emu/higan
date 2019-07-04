@@ -35,6 +35,10 @@ endif
 	$(call delete,obj/*)
 	$(call delete,out/*)
 
+# convenience method for Windows development
+copy: all
+	cp out/$(name) ../higan/out/$(name)
+
 install: all
 ifeq ($(shell id -un),root)
 	$(error "make install should not be run as root")

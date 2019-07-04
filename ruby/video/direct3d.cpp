@@ -3,14 +3,14 @@
 #include <d3d9.h>
 #undef interface
 
-static LRESULT CALLBACK VideoDirect3D_WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
+static LRESULT CALLBACK VideoDirect3D9_WindowProcedure(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) {
   return DefWindowProc(hwnd, msg, wparam, lparam);
 }
 
 struct VideoDirect3D : VideoDriver {
   VideoDirect3D& self = *this;
-  VideoDirect3D(Video& super) : VideoDriver(super) {}
-  ~VideoDirect3D() { terminate(); }
+  VideoDirect3D(Video& super) : VideoDriver(super) { construct(); }
+  ~VideoDirect3D() { destruct(); }
 
   auto create() -> bool override {
     return initialize();
@@ -56,7 +56,7 @@ struct VideoDirect3D : VideoDriver {
     if(_lost && !recover()) return;
 
     RECT rectangle;
-    GetClientRect((HWND)self.context, &rectangle);
+    GetClientRect(_context, &rectangle);
 
     width = rectangle.right - rectangle.left;
     height = rectangle.bottom - rectangle.top;
@@ -123,6 +123,25 @@ struct VideoDirect3D : VideoDriver {
   }
 
 private:
+  auto construct() -> void {
+    WNDCLASS windowClass{};
+    windowClass.cbClsExtra = 0;
+    windowClass.cbWndExtra = 0;
+    windowClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
+    windowClass.hCursor = LoadCursor(0, IDC_ARROW);
+    windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+    windowClass.hInstance = GetModuleHandle(0);
+    windowClass.lpfnWndProc = VideoDirect3D9_WindowProcedure;
+    windowClass.lpszClassName = L"VideoDirect3D9_Window";
+    windowClass.lpszMenuName = 0;
+    windowClass.style = CS_HREDRAW | CS_VREDRAW;
+    RegisterClass(&windowClass);
+  }
+
+  auto destruct() -> void {
+    terminate();
+  }
+
   auto recover() -> bool {
     if(!_device) return false;
 
@@ -222,34 +241,26 @@ private:
 
   auto initialize() -> bool {
     terminate();
-    if(!self.context) return false;
+    if(!self.exclusive && !self.context) return false;
 
-    HMONITOR monitor = MonitorFromWindow((HWND)self.context, MONITOR_DEFAULTTOPRIMARY);
-    MONITORINFOEX information = {};
+    POINT point{0, 0};
+    HMONITOR monitor = MonitorFromPoint(point, MONITOR_DEFAULTTOPRIMARY);
+    MONITORINFOEX information{};
     information.cbSize = sizeof(MONITORINFOEX);
     GetMonitorInfo(monitor, &information);
     _monitorWidth = information.rcMonitor.right - information.rcMonitor.left;
     _monitorHeight = information.rcMonitor.bottom - information.rcMonitor.top;
 
-    WNDCLASS windowClass{};
-    windowClass.cbClsExtra = 0;
-    windowClass.cbWndExtra = 0;
-    windowClass.hbrBackground = (HBRUSH)GetStockObject(BLACK_BRUSH);
-    windowClass.hCursor = LoadCursor(0, IDC_ARROW);
-    windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-    windowClass.hInstance = GetModuleHandle(0);
-    windowClass.lpfnWndProc = VideoDirect3D_WindowProcedure;
-    windowClass.lpszClassName = L"VideoDirect3D_Window";
-    windowClass.lpszMenuName = 0;
-    windowClass.style = CS_HREDRAW | CS_VREDRAW;
-    RegisterClass(&windowClass);
-
-    _exclusiveContext = (uintptr)CreateWindow(L"VideoDirect3D_Window", L"", WS_POPUP,
-      information.rcMonitor.left, information.rcMonitor.top, _monitorWidth, _monitorHeight,
-      nullptr, nullptr, GetModuleHandle(0), nullptr);
+    if(self.exclusive) {
+      _context = _exclusive = CreateWindowEx(WS_EX_TOPMOST, L"VideoDirect3D9_Window", L"", WS_VISIBLE | WS_POPUP,
+        information.rcMonitor.left, information.rcMonitor.top, _monitorWidth, _monitorHeight,
+        nullptr, nullptr, GetModuleHandle(0), nullptr);
+    } else {
+      _context = (HWND)self.context;
+    }
 
     RECT rectangle;
-    GetClientRect((HWND)self.context, &rectangle);
+    GetClientRect(_context, &rectangle);
     _windowWidth = rectangle.right - rectangle.left;
     _windowHeight = rectangle.bottom - rectangle.top;
 
@@ -265,36 +276,19 @@ private:
     _presentation.EnableAutoDepthStencil = false;
     _presentation.AutoDepthStencilFormat = D3DFMT_UNKNOWN;
     _presentation.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+    _presentation.hDeviceWindow = _context;
+    _presentation.Windowed = !self.exclusive;
+    _presentation.BackBufferFormat = self.exclusive ? D3DFMT_X8R8G8B8 : D3DFMT_UNKNOWN;
+    _presentation.BackBufferWidth = self.exclusive ? _monitorWidth : 0;
+    _presentation.BackBufferHeight = self.exclusive ? _monitorHeight : 0;
+    _presentation.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
 
-    if(!self.exclusive) {
-      _presentation.hDeviceWindow = (HWND)self.context;
-      _presentation.Windowed = true;
-      _presentation.BackBufferFormat = D3DFMT_UNKNOWN;
-      _presentation.BackBufferWidth = 0;
-      _presentation.BackBufferHeight = 0;
-
-      ShowWindow((HWND)_exclusiveContext, SW_HIDE);
-      if(_instance->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, (HWND)self.context,
-        D3DCREATE_FPU_PRESERVE | D3DCREATE_SOFTWARE_VERTEXPROCESSING, &_presentation, &_device) != D3D_OK) {
-        return false;
-      }
-    } else {
-      _presentation.hDeviceWindow = (HWND)_exclusiveContext;
-      _presentation.Windowed = false;
-      _presentation.BackBufferFormat = D3DFMT_X8R8G8B8;
-      _presentation.BackBufferWidth = _monitorWidth;
-      _presentation.BackBufferHeight = _monitorHeight;
-      _presentation.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
-
-      ShowWindow((HWND)_exclusiveContext, SW_SHOWNORMAL);
-      if(_instance->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, (HWND)_exclusiveContext,
-        D3DCREATE_FPU_PRESERVE | D3DCREATE_SOFTWARE_VERTEXPROCESSING, &_presentation, &_device) != D3D_OK) {
-        return false;
-      }
+    if(_instance->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, _context,
+      D3DCREATE_FPU_PRESERVE | D3DCREATE_SOFTWARE_VERTEXPROCESSING, &_presentation, &_device) != D3D_OK) {
+      return false;
     }
 
     _device->GetDeviceCaps(&_capabilities);
-
     if(_capabilities.Caps2 & D3DCAPS2_DYNAMICTEXTURES) {
       _textureUsage = D3DUSAGE_DYNAMIC;
       _texturePool = D3DPOOL_DEFAULT;
@@ -318,7 +312,8 @@ private:
     if(_texture) { _texture->Release(); _texture = nullptr; }
     if(_device) { _device->Release(); _device = nullptr; }
     if(_instance) { _instance->Release(); _instance = nullptr; }
-    if(_exclusiveContext) { DestroyWindow((HWND)_exclusiveContext); _exclusiveContext = 0; }
+    if(_exclusive) { DestroyWindow(_exclusive); _exclusive = nullptr; }
+    _context = nullptr;
   }
 
   struct Vertex {
@@ -327,8 +322,9 @@ private:
   };
 
   bool _ready = false;
-  uintptr _exclusiveContext = 0;
 
+  HWND _exclusive = nullptr;
+  HWND _context = nullptr;
   LPDIRECT3D9 _instance = nullptr;
   LPDIRECT3DDEVICE9 _device = nullptr;
   LPDIRECT3DVERTEXBUFFER9 _vertexBuffer = nullptr;

@@ -41,6 +41,10 @@ auto pViewport::windowProc(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam) ->
     return false;
   }
 
+  if(msg == WM_KEYDOWN || msg == WM_SYSKEYDOWN || msg == WM_KEYUP || msg == WM_SYSKEYUP) {
+    if(self().focusable()) return true;
+  }
+
   if(msg == WM_ERASEBKGND) {
     return false;
   }

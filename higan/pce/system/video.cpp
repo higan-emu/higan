@@ -1,5 +1,5 @@
 auto System::Video::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Video>(parent, from, "Display");
+  node = Node::append<Node::Video>(parent, from, "Video");
   from = Node::scan(parent = node, from);
   node->type    = "CRT";
   node->width   = 1120;
