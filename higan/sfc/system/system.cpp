@@ -3,7 +3,6 @@
 namespace higan::SuperFamicom {
 
 Random random;
-Cheat cheat;
 Scheduler scheduler;
 System system;
 #include "controls.cpp"

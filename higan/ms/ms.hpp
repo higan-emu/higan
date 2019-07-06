@@ -4,7 +4,6 @@
 //started: 2016-08-17
 
 #include <emulator/emulator.hpp>
-#include <emulator/cheat.hpp>
 
 #include <component/processor/z80/z80.hpp>
 #include <component/audio/sn76489/sn76489.hpp>

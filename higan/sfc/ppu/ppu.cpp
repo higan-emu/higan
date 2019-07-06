@@ -226,18 +226,12 @@ auto PPU::refresh() -> void {
   if(system.video.display->value() == "NTSC") {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
-    auto pitch = 512;
-    auto width = 512;
-    auto height = system.video.node->height = 448;
-    display.refresh(data, pitch * sizeof(uint32), width, height);
+    display.refresh(data, 512 * sizeof(uint32), 512, 448);
   }
 
   if(system.video.display->value() == "PAL") {
     if(!overscan()) data -= 14 * 512;
-    auto pitch = 512;
-    auto width = 512;
-    auto height = system.video.node->height = 480;
-    display.refresh(data, pitch * sizeof(uint32), width, height);
+    display.refresh(data, 512 * sizeof(uint32), 512, 480);
   }
 }
 

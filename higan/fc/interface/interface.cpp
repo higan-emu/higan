@@ -50,8 +50,4 @@ auto FamicomInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto FamicomInterface::cheats(const vector<string>& list) -> void {
-  cheat.assign(list);
-}
-
 }

@@ -4,7 +4,6 @@
 //started: 2010-12-27
 
 #include <emulator/emulator.hpp>
-#include <emulator/cheat.hpp>
 
 #include <component/processor/sm83/sm83.hpp>
 

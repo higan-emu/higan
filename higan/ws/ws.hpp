@@ -4,7 +4,6 @@
 //started: 2016-01-26
 
 #include <emulator/emulator.hpp>
-#include <emulator/cheat.hpp>
 
 #include <component/processor/v30mz/v30mz.hpp>
 

@@ -56,12 +56,10 @@ auto PPU::frame() -> void {
 
 auto PPU::refresh() -> void {
   if(system.video.display->value() == "NTSC") {
-    system.video.node->height = 224;
     screen.refresh(buffer + 8 * 256, 256 * sizeof(uint32), 256, 224);
   }
 
   if(system.video.display->value() == "PAL") {
-    system.video.node->height = 240;
     screen.refresh(buffer, 256 * sizeof(uint32), 256, 240);
   }
 }

@@ -2,7 +2,6 @@
 
 namespace higan::PCEngine {
 
-Cheat cheat;
 Scheduler scheduler;
 System system;
 #include "video.cpp"

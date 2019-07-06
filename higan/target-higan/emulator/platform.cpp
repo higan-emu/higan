@@ -1,7 +1,4 @@
 auto Emulator::attach(higan::Node::Object node) -> void {
-  if(auto location = node->property("location")) {
-    if(node->find<higan::Node::Input>()) inputManager.bind();
-  }
 }
 
 auto Emulator::detach(higan::Node::Object node) -> void {

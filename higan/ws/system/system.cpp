@@ -2,7 +2,6 @@
 
 namespace higan::WonderSwan {
 
-Cheat cheat;
 Scheduler scheduler;
 System system;
 #include "controls.cpp"

@@ -47,6 +47,10 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   aspectCorrection.setText("Aspect Correction").setChecked(settings.video.aspectCorrection).onToggle([&] {
     settings.video.aspectCorrection = aspectCorrection.checked();
   });
+  adaptiveSizing.setText("Adaptive Sizing").setChecked(settings.video.adaptiveSizing).onToggle([&] {
+    settings.video.adaptiveSizing = adaptiveSizing.checked();
+    programWindow.adaptiveResize();
+  });
   shaderMenu.setText("Shader").setIcon(Icon::Emblem::Image).setEnabled(false);
   video.setText("Video").setIcon(Icon::Device::Display).onActivate([&] {
     programWindow.showPanels();

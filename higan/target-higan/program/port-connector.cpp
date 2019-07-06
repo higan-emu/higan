@@ -103,15 +103,12 @@ auto PortConnector::eventActivate() -> void {
       .setTitle("Error").setAlignment(programWindow).error();
 
       if(directory::copy(source, target)) {
-        file::write({target, "manifest.bml"}, string{
-          "system: ", interface->name(), "\n",
-          "name: ", name, "\n"
-        });
         auto peripheral = port->allocate();
         peripheral->name = name;
         peripheral->setProperty("location", target);
         peripheral->setProperty("name", label);
         port->connect(peripheral);
+        inputManager.bind();  //bind any inputs this peripheral may contain
         nodeManager.refresh();
       }
     }
@@ -134,6 +131,7 @@ auto PortConnector::eventActivate() -> void {
       peripheral->setProperty("location", location);
       peripheral->setProperty("name", item.property("name"));
       port->connect(peripheral);
+      inputManager.bind();  //bind any inputs this peripheral may contain
       nodeManager.refresh();
     }
   }

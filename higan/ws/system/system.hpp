@@ -1,5 +1,3 @@
-extern Cheat cheat;
-
 struct System : IO {
   Node::Object node;
   enum class Model : uint { WonderSwan, WonderSwanColor, SwanCrystal, PocketChallengeV2 };

@@ -34,6 +34,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
   nodeManager.bind(root);
   systemMenu.setText(system.name);
+  programWindow.adaptiveResize();
   programWindow.show(home);
   programWindow.show(nodeManager);
   programWindow.setTitle(system.name);
@@ -54,9 +55,6 @@ auto Emulator::unload() -> void {
   if(!interface) return;
 
   power(false);
-  programWindow.setTitle({"higan v", higan::Version});
-  systemMenu.setText("System");
-  setCaption();
 
   if(auto location = root->property("location")) {
     file::write({location, "settings.bml"}, higan::Node::serialize(root));
@@ -67,6 +65,11 @@ auto Emulator::unload() -> void {
   root = {};
   interface->unload();
   interface.reset();
+
+  programWindow.adaptiveResize();
+  programWindow.setTitle({"higan v", higan::Version});
+  systemMenu.setText("System");
+  setCaption();
 }
 
 auto Emulator::main() -> void {
@@ -85,8 +88,13 @@ auto Emulator::main() -> void {
 }
 
 auto Emulator::quit() -> void {
-  programWindow.setVisible(false);  //make quitting feel more responsive
-  Application::quit();  //stop processing callbacks and timers
+  //make quitting feel more responsive
+  programWindow.setVisible(false);
+  Application::processEvents();
+
+  //stop processing callbacks and timers
+  Application::quit();
+
   unload();
 
   interfaces.reset();

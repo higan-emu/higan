@@ -1,7 +1,7 @@
 auto PPU::canAccessVRAM() const -> bool {
   if(!status.displayEnable) return 1;
   if(history.mode(4,5) == 3) return 0;
-  if(status.lx >> 2 == 20) return 0;
+  if(history.mode(4,5) == 2 && status.lx >> 2 == 20) return 0;
   return 1;
 }
 

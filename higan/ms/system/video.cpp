@@ -18,8 +18,8 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
     node->type   = "LCD";
     node->width  = 160;
     node->height = 144;
-    node->scaleX = 3.0;
-    node->scaleY = 3.0;
+    node->scaleX = 1.5;
+    node->scaleY = 1.5;
     node->colors = 1 << 12;
     node->color  = [&](auto index) { return colorGameGear(index); };
 

@@ -1,5 +1,3 @@
-extern Cheat cheat;
-
 struct System {
   Node::Object node;
 

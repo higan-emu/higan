@@ -2,7 +2,6 @@
 
 namespace higan::SG1000 {
 
-Cheat cheat;
 Scheduler scheduler;
 System system;
 #include "controls.cpp"

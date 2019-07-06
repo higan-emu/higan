@@ -1,5 +1,4 @@
 extern Random random;
-extern Cheat cheat;
 
 struct System {
   Node::Object node;

@@ -15,12 +15,13 @@
 //other commands generally complete so quickly that it's unnecessary (eg 70-120ns for writes)
 //suspend, resume, abort, ready/busy modes are not supported
 
-struct BSMemory : Thread, Memory {
+struct BSMemory : Thread {
   Node::Port port;
   Node::Peripheral node;
 
   inline auto manifest() const -> string { return information.manifest; }
   inline auto name() const -> string { return information.name; }
+  inline auto size() const -> uint { return memory.size(); }
 
   auto load(Node::Peripheral, Node::Peripheral) -> void;
 
@@ -40,10 +41,8 @@ struct BSMemory : Thread, Memory {
   auto power() -> void;
   auto save() -> void;
 
-  auto data() -> uint8* override;
-  auto size() const -> uint override;
-  auto read(uint24 address, uint8 data) -> uint8 override;
-  auto write(uint24 address, uint8 data) -> void override;
+  auto read(uint24 address, uint8 data) -> uint8;
+  auto write(uint24 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

@@ -2,7 +2,6 @@
 
 namespace higan::MSX {
 
-Cheat cheat;
 Scheduler scheduler;
 ROM rom;
 System system;

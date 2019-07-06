@@ -5,7 +5,6 @@
 
 #include <emulator/emulator.hpp>
 #include <emulator/random.hpp>
-#include <emulator/cheat.hpp>
 
 #include <component/processor/m68k/m68k.hpp>
 #include <component/processor/z80/z80.hpp>

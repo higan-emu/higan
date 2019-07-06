@@ -4,7 +4,6 @@
 //started: 2018-12-28
 
 #include <emulator/emulator.hpp>
-#include <emulator/cheat.hpp>
 
 #include <component/processor/z80/z80.hpp>
 #include <component/video/tms9918/tms9918.hpp>

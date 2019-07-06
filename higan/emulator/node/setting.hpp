@@ -92,6 +92,7 @@ template<typename Cast, typename Type> struct Abstract : Setting {
       if(!allowedValues || allowedValues.find(setting->currentValue)) {
         currentValue = setting->currentValue;
         latchedValue = currentValue;
+        if(modify) modify(currentValue);
       }
     }
     return true;

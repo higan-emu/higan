@@ -1,5 +1,3 @@
-extern Cheat cheat;
-
 struct ROM {
   Memory::Readable<uint8> bios;
   Memory::Readable<uint8> sub;

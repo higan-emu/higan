@@ -12,7 +12,10 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   node->colors  = 1 << 19;
   node->color   = [&](auto index) { return color(index); };
 
-  display = Node::append<Node::String>(parent, from, "Display", "PAL");
+  display = Node::append<Node::String>(parent, from, "Display", "PAL", [&](auto region) {
+    if(region == "NTSC") node->height = 448;
+    if(region == "PAL" ) node->height = 480;
+  });
   display->setAllowedValues({"NTSC", "PAL"});
   display->dynamic = true;
 

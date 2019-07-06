@@ -54,8 +54,13 @@ auto InputMapper::update() -> void {
 }
 
 auto InputMapper::eventAssign() -> void {
-  inputManager.poll();  //prevent an activation via the return key from mapping return instantly
-  assigningQueue = inputList.batched();
+  //prevent an activation via the return key from mapping return instantly
+  inputManager.poll();
+
+  assigningQueue = inputList.batched();  //assign selected
+  if(!assigningQueue) assigningQueue = inputList.items();  //assign all
+  if(!assigningQueue) return;  //no inputs to assign
+
   eventAssignNext();
 }
 
@@ -64,7 +69,7 @@ auto InputMapper::eventAssignNext() -> void {
     inputList.setFocused();
     for(auto& item : inputList.batched()) item.setSelected(false);
     message.setText();
-    return;
+    return eventChange();
   }
 
   //use the viewport to sink inputs away from the table view during assignment
@@ -73,32 +78,32 @@ auto InputMapper::eventAssignNext() -> void {
   item.setFocused();  //scroll the current assigning mapping into view
   auto input = item.property<higan::Node::Input>("node");
   message.setText({"Assign: ", input->name});
-  assignButton.setEnabled(false);
-  clearButton.setEnabled(false);
   assigning = input;
 }
 
 auto InputMapper::eventClear() -> void {
-  if(auto batched = inputList.batched()) {
-    for(auto& item : batched) {
-      auto input = item.property<higan::Node::Input>("node");
-      input->setProperty("pathID");
-      input->setProperty("vendorID");
-      input->setProperty("productID");
-      input->setProperty("groupID");
-      input->setProperty("inputID");
-      input->setProperty("groupName");
-      input->setProperty("inputName");
-    }
-    inputManager.bind();
-    update();
+  auto batched = inputList.batched();  //clear selected
+  if(!batched) batched = inputList.items();  //clear all
+  if(!batched) return;  //no inputs to clear
+
+  for(auto& item : batched) {
+    auto input = item.property<higan::Node::Input>("node");
+    input->setProperty("pathID");
+    input->setProperty("vendorID");
+    input->setProperty("productID");
+    input->setProperty("groupID");
+    input->setProperty("inputID");
+    input->setProperty("groupName");
+    input->setProperty("inputName");
   }
+  inputManager.bind();
+  update();
 }
 
 auto InputMapper::eventChange() -> void {
   auto batched = inputList.batched();
-  assignButton.setEnabled((bool)batched);
-  clearButton.setEnabled((bool)batched);
+  assignButton.setText((bool)batched ? "Assign" : "Assign All");
+  clearButton.setText((bool)batched ? "Clear" : "Clear All");
 }
 
 auto InputMapper::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {

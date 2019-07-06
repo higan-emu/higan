@@ -17,8 +17,6 @@ struct FamicomInterface : Interface {
 
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
-
-  auto cheats(const vector<string>&) -> void override;
 };
 
 }

@@ -50,8 +50,4 @@ auto MegaDriveInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto MegaDriveInterface::cheats(const vector<string>& list) -> void {
-  cheat.assign(list);
-}
-
 }

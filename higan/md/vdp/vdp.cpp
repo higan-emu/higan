@@ -83,13 +83,11 @@ auto VDP::refresh() -> void {
 
   if(system.video.display->value() == "NTSC") {
     if(latch.overscan) data += 16 * 1280;
-    system.video.node->height = 448;
     screen.refresh(data, 1280 * sizeof(uint32), 1280, 448);
   }
 
   if(system.video.display->value() == "PAL") {
     if(!latch.overscan) data -= 16 * 1280;
-    system.video.node->height = 480;
     screen.refresh(data, 1280 * sizeof(uint32), 1280, 480);
   }
 }

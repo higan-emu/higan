@@ -16,8 +16,6 @@ struct AbstractInterface : Interface {
 
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
-
-  auto cheats(const vector<string>& list) -> void override;
 };
 
 struct ColecoVisionInterface : AbstractInterface {

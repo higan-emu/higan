@@ -66,12 +66,4 @@ auto SuperFamicomInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto SuperFamicomInterface::cheats(const vector<string>& list) -> void {
-  cheat.reset();
-  #if defined(CORE_GB)
-  if(cartridge.has.ICD) return GameBoy::cheat.assign(list);
-  #endif
-  cheat.assign(list);
-}
-
 }

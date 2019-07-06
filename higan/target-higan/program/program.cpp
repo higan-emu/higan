@@ -100,6 +100,29 @@ ProgramWindow::ProgramWindow() {
   inputSettings.eventActivate();
 }
 
+auto ProgramWindow::adaptiveResize() -> void {
+  if(!settings.video.adaptiveSizing) return;
+
+  uint width  = 320;
+  uint height = 240;
+
+  if(emulator.root) {
+    if(auto video = emulator.root->find<higan::Node::Video>(0)) {
+      width  = video->width  * video->scaleX;
+      height = video->height * video->scaleY;
+      if(settings.video.aspectCorrection) width *= video->aspectX / video->aspectY;
+    }
+  }
+
+  width  *= 2;
+  height *= 2;
+
+  if(statusLayout.visible()) height += statusHeight;
+  if(panels.visible()) height += panelsHeight;
+
+  setSize({width, height});
+}
+
 auto ProgramWindow::show(Panel& panel) -> void {
   if(&panel == &systemManager || &panel == &nodeManager) {
     if(primaryPanel && *primaryPanel == panel) return;

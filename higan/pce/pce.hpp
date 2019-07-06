@@ -4,7 +4,6 @@
 //started: 2017-01-11
 
 #include <emulator/emulator.hpp>
-#include <emulator/cheat.hpp>
 
 #include <component/processor/huc6280/huc6280.hpp>
 

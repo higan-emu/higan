@@ -5,7 +5,6 @@ auto CPU::read(uint16 address) -> uint8 {
   } else if(address >= 0xc000) {
     data = ram.read(address);
   }
-  if(auto result = cheat.find(address, data)) data = result();
   return data;
 }
 

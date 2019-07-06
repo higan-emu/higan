@@ -5,7 +5,6 @@
 
 #include <emulator/emulator.hpp>
 #include <emulator/random.hpp>
-#include <emulator/cheat.hpp>
 
 #include <component/processor/arm7tdmi/arm7tdmi.hpp>
 #include <component/processor/gsu/gsu.hpp>

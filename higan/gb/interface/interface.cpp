@@ -47,8 +47,4 @@ auto AbstractInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
-auto AbstractInterface::cheats(const vector<string>& list) -> void {
-  cheat.assign(list);
-}
-
 }

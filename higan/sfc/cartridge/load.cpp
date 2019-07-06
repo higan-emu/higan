@@ -170,8 +170,10 @@ auto Cartridge::loadMCC(Markup::Node node) -> void {
 auto Cartridge::loadBSMemory(Markup::Node node) -> void {
   has.BSMemorySlot = true;
 
-  for(auto map : node.find("map")) {
-    loadMap(map, bsmemory);
+  if(auto node = board["slot(type=BSMemory)"]) {
+    for(auto map : node.find("map")) {
+      loadMap(map, {&BSMemory::read, &bsmemory}, {&BSMemory::write, &bsmemory});
+    }
   }
 }
 

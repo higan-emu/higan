@@ -49,11 +49,12 @@ auto BSMemory::connect(Node::Peripheral with) -> void {
     this->memory.allocate(memory["size"].natural());
     if(auto fp = platform->open(node, {"program.", memory["type"].text().downcase()}, File::Read, File::Required)) {
       fp->read(this->memory.data(), this->memory.size());
-    } else return;
-  } else return;
+    }
+  }
 
-  auto memory = document["game/board/memory"];
-  if(!memory) return;
+  //some BS Memory cassetes use ROM chips rather than Flash chips ...
+  //do not emulate a flash chip interface for ROM cassettes.
+  if(ROM) return;
 
   if(size() != 0x100000 && size() != 0x200000 && size() != 0x400000) {
     memory.reset();
@@ -153,16 +154,8 @@ auto BSMemory::save() -> void {
   }
 }
 
-auto BSMemory::data() -> uint8* {
-  return memory.data();
-}
-
-auto BSMemory::size() const -> uint {
-  return memory.size();
-}
-
 auto BSMemory::read(uint24 address, uint8 data) -> uint8 {
-  if(!size()) return data;
+  if(!memory) return data;
   if(ROM) return memory.read(bus.mirror(address, size()));
 
   if(mode == Mode::Chip) {
@@ -190,7 +183,7 @@ auto BSMemory::read(uint24 address, uint8 data) -> uint8 {
 }
 
 auto BSMemory::write(uint24 address, uint8 data) -> void {
-  if(!size() || ROM) return;
+  if(!memory || ROM) return;
   queue.push(address, data);
 
   //write page to flash
