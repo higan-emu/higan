@@ -40,8 +40,9 @@ auto CPU::main() -> void {
     } else if(status.powerPending) {
       status.powerPending = false;
       step(186);
-      r.pc.byte(0) = bus.read(0xfffc, r.mdr);
-      r.pc.byte(1) = bus.read(0xfffd, r.mdr);
+      r.pc.l = bus.read(0xfffc, r.mdr);
+      r.pc.h = bus.read(0xfffd, r.mdr);
+      r.pc.b = 0x00;
     }
   }
 

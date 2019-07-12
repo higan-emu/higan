@@ -20,9 +20,6 @@ struct Interface {
   //state functions
   virtual auto serialize() -> serializer { return {}; }
   virtual auto unserialize(serializer&) -> bool { return false; }
-
-  //cheat functions
-  virtual auto cheats(const vector<string>& = {}) -> void {}
 };
 
 }

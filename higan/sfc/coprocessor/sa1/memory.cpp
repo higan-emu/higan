@@ -5,8 +5,8 @@ auto SA1::idle() -> void {
 //RTx, JMx, JSx
 auto SA1::idleJump() -> void {
   //ROM access penalty cycle: does not apply to BWRAM or IRAM
-  if((r.pc & 0x408000) == 0x008000  //00-3f,80-bf:8000-ffff
-  || (r.pc & 0xc00000) == 0xc00000  //c0-ff:0000-ffff
+  if((r.pc.d & 0x408000) == 0x008000  //00-3f,80-bf:8000-ffff
+  || (r.pc.d & 0xc00000) == 0xc00000  //c0-ff:0000-ffff
   ) {
     step();
     if(rom.conflict()) step();
@@ -15,7 +15,7 @@ auto SA1::idleJump() -> void {
 
 //Bxx
 auto SA1::idleBranch() -> void {
-  if(r.pc & 1) idleJump();
+  if(r.pc.d & 1) idleJump();
 }
 
 auto SA1::read(uint24 address) -> uint8 {

@@ -377,8 +377,8 @@ auto BSMemory::write(uint24 address, uint8 data) -> void {
     count.byte(1) = queue.data(2);
     page.write(queue.address(3), queue.data(3));
     if(count--) {
-      queue.data(1) = count.byte(0);
-      queue.data(2) = count.byte(1);
+      queue.history[1].data = count.byte(0);
+      queue.history[2].data = count.byte(1);
       return queue.pop();  //hack to avoid needing a 65539-entry queue
     } else {
       return queue.flush();

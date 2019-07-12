@@ -50,7 +50,7 @@ struct CPU : WDC65816, Thread, PPUcounter {
 
   alwaysinline auto aluEdge() -> void;
   alwaysinline auto dmaEdge() -> void;
-  alwaysinline auto lastCycle() -> void;
+  alwaysinline auto lastCycle() -> void override;
 
   //irq.cpp
   alwaysinline auto pollInterrupts() -> void;

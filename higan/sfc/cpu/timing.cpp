@@ -186,7 +186,7 @@ auto CPU::joypadEdge() -> void {
 //used to test for NMI/IRQ, which can trigger on the edge of every opcode.
 //test one cycle early to simulate two-stage pipeline of x816 CPU.
 //
-//status.irq_lock is used to simulate hardware delay before interrupts can
+//status.irqLock is used to simulate hardware delay before interrupts can
 //trigger during certain events (immediately after DMA, writes to $4200, etc)
 auto CPU::lastCycle() -> void {
   if(!status.irqLock) {

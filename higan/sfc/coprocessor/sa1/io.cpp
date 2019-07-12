@@ -109,7 +109,7 @@ auto SA1::writeIOCPU(uint24 address, uint8 data) -> void {
   case 0x2200: {
     if(mmio.sa1_resb && !(data & 0x80)) {
       //reset SA-1 CPU (PC bank set to 0x00)
-      r.pc = mmio.crv;
+      r.pc.d = mmio.crv;
     }
 
     mmio.sa1_irq  = (data & 0x80);

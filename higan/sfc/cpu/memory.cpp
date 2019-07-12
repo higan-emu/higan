@@ -28,9 +28,16 @@ auto CPU::write(uint24 address, uint8 data) -> void {
 }
 
 auto CPU::wait(uint24 address) const -> uint {
+  //00-3f,80-bf:8000-ffff; 40-7f,c0-ff:0000-ffff
   if(address & 0x408000) return address & 0x800000 ? io.romSpeed : 8;
+
+  //00-3f,80-bf:0000-1fff,6000-7fff
   if(address + 0x6000 & 0x4000) return 8;
+
+  //00-3f,80-bf:2000-3fff,4200-5fff
   if(address - 0x4000 & 0x7e00) return 6;
+
+  //00-3f,80-bf:4000-41ff
   return 12;
 }
 
