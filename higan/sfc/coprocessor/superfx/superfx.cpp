@@ -28,7 +28,7 @@ auto SuperFX::unload() -> void {
   ram.reset();
   bram.reset();
 
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

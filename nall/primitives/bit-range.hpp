@@ -2,9 +2,6 @@
 
 namespace nall {
 
-//warning: so that BitRange can modify the underlying number directly, it must bind a reference.
-//as a result, auto value = number.bits() will capture by-reference, rather than by-value.
-
 template<int Precision> struct BitRange {
   static_assert(Precision >= 1 && Precision <= 64);
   static inline constexpr auto bits() -> uint { return Precision; }
@@ -15,25 +12,27 @@ template<int Precision> struct BitRange {
     conditional_t<bits() <= 64, uint64_t,
     void>>>>;
 
-  BitRange(const BitRange&) = delete;
+  BitRange(const BitRange& source) = delete;
 
-  inline BitRange(utype& source, int index) : target(source) {
+  inline auto& operator=(const BitRange& source) {
+    target = target & ~mask | ((source.target & source.mask) >> source.shift) << shift & mask;
+    return *this;
+  }
+
+  template<typename T> inline BitRange(T* source, int index) : target((utype&)*source) {
+    static_assert(sizeof(T) == sizeof(utype));
     if(index < 0) index = Precision + index;
     mask = 1ull << index;
     shift = index;
   }
 
-  inline BitRange(utype& source, int lo, int hi) : target(source) {
+  template<typename T> inline BitRange(T* source, int lo, int hi) : target((utype&)*source) {
+    static_assert(sizeof(T) == sizeof(utype));
     if(lo < 0) lo = Precision + lo;
     if(hi < 0) hi = Precision + hi;
     if(lo > hi) swap(lo, hi);
     mask = ~0ull >> 64 - (hi - lo + 1) << lo;
     shift = lo;
-  }
-
-  inline auto& operator=(const BitRange& source) {
-    target = target & ~mask | (source.target & mask) << shift;
-    return *this;
   }
 
   inline operator utype() const {

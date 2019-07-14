@@ -68,7 +68,7 @@ auto EpsonRTC::initialize() -> void {
 }
 
 auto EpsonRTC::unload() -> void {
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

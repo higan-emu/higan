@@ -58,7 +58,7 @@ auto System::power() -> void {
   vdc0.power();
   vdc1.power();
   psg.power();
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   serializeInit();
 }

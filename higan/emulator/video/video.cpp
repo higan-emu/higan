@@ -15,7 +15,7 @@ auto Video::append(Screen& screen) -> void {
 }
 
 auto Video::remove(Screen& screen) -> void {
-  removeWhere(screens) == &screen;
+  screens.removeByValue(&screen);
 }
 
 auto Video::setPalette() -> void {

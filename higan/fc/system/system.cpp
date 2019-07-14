@@ -95,7 +95,7 @@ auto System::power(bool reset) -> void {
   cpu.power(reset);
   apu.power(reset);
   ppu.power(reset);
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   serializeInit();
 }

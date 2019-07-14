@@ -48,20 +48,19 @@ struct PPU : Thread {
 
     uint8 busData;
 
-    union Union {
-      auto& operator=(const Union& u) { value = u.value; return *this; }
-      uint value = 0;
-      NaturalBitField<uint, 0, 4> tileX;
-      NaturalBitField<uint, 5, 9> tileY;
-      NaturalBitField<uint,10,11> nametable;
-      NaturalBitField<uint,10,10> nametableX;
-      NaturalBitField<uint,11,11> nametableY;
-      NaturalBitField<uint,12,14> fineY;
-      NaturalBitField<uint, 0,14> address;
-      NaturalBitField<uint, 0, 7> addressLo;
-      NaturalBitField<uint, 8,14> addressHi;
-      NaturalBitField<uint,15,15> latch;
-      NaturalBitField<uint,16,18> fineX;
+    struct Union {
+      uint19 data;
+      BitRange<19> tileX      = {&data, 0, 4};
+      BitRange<19> tileY      = {&data, 5, 9};
+      BitRange<19> nametable  = {&data,10,11};
+      BitRange<19> nametableX = {&data,10   };
+      BitRange<19> nametableY = {&data,11   };
+      BitRange<19> fineY      = {&data,12,14};
+      BitRange<19> address    = {&data, 0,14};
+      BitRange<19> addressLo  = {&data, 0, 7};
+      BitRange<19> addressHi  = {&data, 8,14};
+      BitRange<19> latch      = {&data,15   };
+      BitRange<19> fineX      = {&data,16,18};
     } v, t;
 
     bool nmiHold = 0;

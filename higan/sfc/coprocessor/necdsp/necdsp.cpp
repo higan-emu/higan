@@ -36,7 +36,7 @@ auto NECDSP::writeRAM(uint24 addr, uint8 data) -> void {
 }
 
 auto NECDSP::unload() -> void {
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

@@ -76,7 +76,7 @@ auto System::power() -> void {
   ppu.power();
   apu.power();
   cartridge.power();
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   serializeInit();
 

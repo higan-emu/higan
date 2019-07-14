@@ -111,7 +111,7 @@ auto System::power(bool reset) -> void {
   psg.power(reset);
   ym2612.power(reset);
   if(MegaCD()) mcd.power(reset);
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   serializeInit();
 }

@@ -21,5 +21,5 @@ auto V30MZ::instructionClearFlag(uint bit) -> void {
 auto V30MZ::instructionSetFlag(uint bit) -> void {
   wait(3);
   r.f |= 1 << bit;
-  if(bit == r.f.i.bit) state.poll = false;
+  if(bit == r.f.i.bit()) state.poll = false;
 }

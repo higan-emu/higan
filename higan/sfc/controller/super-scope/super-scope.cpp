@@ -29,7 +29,7 @@ SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
 }
 
 SuperScope::~SuperScope() {
-  removeWhere(cpu.peripherals) == this;
+  cpu.peripherals.removeByValue(this);
   ppu.display.remove(sprite);
 }
 

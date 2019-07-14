@@ -25,7 +25,7 @@ auto SharpRTC::initialize() -> void {
 }
 
 auto SharpRTC::unload() -> void {
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

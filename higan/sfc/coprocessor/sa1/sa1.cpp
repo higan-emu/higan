@@ -118,7 +118,7 @@ auto SA1::unload() -> void {
   iram.reset();
   bwram.reset();
 
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

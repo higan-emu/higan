@@ -48,7 +48,7 @@ auto ICD::connect(Node::Peripheral with) -> void {
 
 auto ICD::disconnect() -> void {
   GameBoy::cartridge.disconnect();
-  removeWhere(cpu.coprocessors) == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
   node = {};
   port = {};

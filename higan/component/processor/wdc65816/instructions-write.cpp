@@ -118,7 +118,7 @@ auto WDC65816::instructionIndirectIndexedWrite16() -> void {
   U.l = fetch();
   idle2();
   V.l = readDirect(U.l + 0);
-  V.w = readDirect(U.l + 1);
+  V.h = readDirect(U.l + 1);
   idle();
   writeBank(V.w + Y.w + 0, A.l);
 L writeBank(V.w + Y.w + 1, A.h);

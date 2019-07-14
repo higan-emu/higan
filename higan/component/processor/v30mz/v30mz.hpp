@@ -290,25 +290,23 @@ struct V30MZ {
     uint16_t* s[8]{&es, &cs, &ss, &ds, &es, &cs, &ss, &ds};
 
     struct Flags {
-      union {
-        uint16_t data = 0;
-        BooleanBitField<uint16_t, 15> m;  //mode
-        BooleanBitField<uint16_t, 11> v;  //overflow
-        BooleanBitField<uint16_t, 10> d;  //direction
-        BooleanBitField<uint16_t,  9> i;  //interrupt
-        BooleanBitField<uint16_t,  8> b;  //break
-        BooleanBitField<uint16_t,  7> s;  //sign
-        BooleanBitField<uint16_t,  6> z;  //zero
-        BooleanBitField<uint16_t,  4> h;  //half-carry
-        BooleanBitField<uint16_t,  2> p;  //parity
-        BooleanBitField<uint16_t,  0> c;  //carry
-      };
+      uint16 data;
+      BitField<16> c = {&data, 0};  //carry
+      BitField<16> p = {&data, 2};  //parity
+      BitField<16> h = {&data, 4};  //half-carry
+      BitField<16> z = {&data, 6};  //zero
+      BitField<16> s = {&data, 7};  //sign
+      BitField<16> b = {&data, 8};  //break
+      BitField<16> i = {&data, 9};  //interrupt
+      BitField<16> d = {&data,10};  //direction
+      BitField<16> v = {&data,11};  //overflow
+      BitField<16> m = {&data,15};  //mode
 
-      operator uint() const { return data & 0x8fd5 | 0x7002; }
-      auto& operator =(uint value) { return data  = value, *this; }
-      auto& operator&=(uint value) { return data &= value, *this; }
-      auto& operator|=(uint value) { return data |= value, *this; }
-      auto& operator^=(uint value) { return data ^= value, *this; }
+      inline operator uint() const { return data & 0x8fd5 | 0x7002; }
+      inline auto& operator =(uint value) { return data  = value, *this; }
+      inline auto& operator&=(uint value) { return data &= value, *this; }
+      inline auto& operator^=(uint value) { return data ^= value, *this; }
+      inline auto& operator|=(uint value) { return data |= value, *this; }
     } f;
   } r;
 };

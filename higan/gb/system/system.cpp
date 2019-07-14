@@ -91,7 +91,7 @@ auto System::power() -> void {
   cpu.power();
   ppu.power();
   apu.power();
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   serializeInit();
 }

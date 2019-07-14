@@ -16,7 +16,7 @@ auto Screen::append(Sprite& sprite) -> void {
 }
 
 auto Screen::remove(Sprite& sprite) -> void {
-  removeWhere(sprites) == &sprite;
+  sprites.removeByValue(&sprite);
 }
 
 auto Screen::setPalette() -> void {

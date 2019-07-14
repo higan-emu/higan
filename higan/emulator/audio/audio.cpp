@@ -31,7 +31,7 @@ auto Audio::append(Stream& stream) -> void {
 }
 
 auto Audio::remove(Stream& stream) -> void {
-  removeWhere(streams) == &stream;
+  streams.removeByValue(&stream);
   synchronize();
 }
 

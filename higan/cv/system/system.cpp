@@ -89,7 +89,7 @@ auto System::power() -> void {
   cpu.power();
   vdp.power();
   psg.power();
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   serializeInit();
 }

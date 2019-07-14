@@ -69,7 +69,7 @@ auto System::power() -> void {
   apu.power();
   vpu.power();
   psg.power();
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   if(fastBoot->latch() && cartridge.flash[0]) cpu.fastBoot();
 

@@ -23,7 +23,7 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
 }
 
 Justifiers::~Justifiers() {
-  removeWhere(cpu.peripherals) == this;
+  cpu.peripherals.removeByValue(this);
   ppu.display.remove(sprite1);
   ppu.display.remove(sprite2);
 }

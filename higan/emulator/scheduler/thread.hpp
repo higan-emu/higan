@@ -39,6 +39,7 @@ struct Thread {
 
 protected:
   cothread_t _handle = nullptr;
+  uint _uniqueID = 0;
   uintmax _frequency = 0;
   uintmax _scalar = 0;
   uintmax _clock = 0;

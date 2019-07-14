@@ -95,7 +95,7 @@ auto System::power(bool reset) -> void {
   dsp.power(reset);
   ppu.power(reset);
   cartridge.power(reset);
-  scheduler.setPrimary(cpu);
+  scheduler.power(cpu);
 
   serializeInit();
 }

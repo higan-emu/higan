@@ -26,7 +26,7 @@ auto Event::unload() -> void {
   rom[1].reset();
   rom[2].reset();
   rom[3].reset();
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

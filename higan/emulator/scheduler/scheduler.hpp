@@ -9,6 +9,7 @@ struct Scheduler {
   };
 
   enum class Event : uint {
+    None,
     Step,
     Frame,
     Serialize,
@@ -18,21 +19,22 @@ struct Scheduler {
   Scheduler(const Scheduler&) = delete;
   auto operator=(const Scheduler&) = delete;
 
-  inline auto serializing() const -> bool;
-
   inline auto reset() -> void;
   inline auto threads() const -> uint;
-
-  inline auto setPrimary(Thread& thread) -> void;
+  inline auto thread(uint threadID) const -> maybe<Thread&>;
+  inline auto uniqueID() const -> uint;
+  inline auto minimum() const -> uintmax;
+  inline auto maximum() const -> uintmax;
 
   inline auto append(Thread& thread) -> bool;
   inline auto remove(Thread& thread) -> void;
 
+  inline auto power(Thread& thread) -> void;
   inline auto enter(Mode mode = Mode::Run) -> Event;
   inline auto exit(Event event) -> void;
 
+  inline auto serializing() const -> bool;
   inline auto serialize() -> void;
-  inline auto serialize(Thread& thread) -> void;
 
 private:
   cothread_t _host = nullptr;     //program thread (used to exit scheduler)

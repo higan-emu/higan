@@ -34,7 +34,7 @@ auto MSU1::unload() -> void {
   dataFile.reset();
   audioFile.reset();
 
-  removeWhere(cpu.coprocessors) == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

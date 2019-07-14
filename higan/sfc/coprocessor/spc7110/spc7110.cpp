@@ -29,7 +29,7 @@ auto SPC7110::unload() -> void {
   drom.reset();
   ram.reset();
 
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

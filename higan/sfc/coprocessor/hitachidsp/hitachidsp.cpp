@@ -16,7 +16,7 @@ auto HitachiDSP::halt() -> void {
 auto HitachiDSP::unload() -> void {
   rom.reset();
   ram.reset();
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 

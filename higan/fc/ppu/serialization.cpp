@@ -9,8 +9,8 @@ auto PPU::serialize(serializer& s) -> void {
 
   s.integer(io.busData);
 
-  s.integer(io.v.value);
-  s.integer(io.t.value);
+  s.integer(io.v.data);
+  s.integer(io.t.data);
 
   s.integer(io.nmiHold);
   s.integer(io.nmiFlag);

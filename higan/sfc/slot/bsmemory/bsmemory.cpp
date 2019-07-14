@@ -124,7 +124,7 @@ auto BSMemory::disconnect() -> void {
 
   memory.reset();
 
-  cpu.coprocessors.removeWhere() == this;
+  cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 
