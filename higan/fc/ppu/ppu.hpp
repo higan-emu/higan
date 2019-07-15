@@ -50,17 +50,17 @@ struct PPU : Thread {
 
     struct Union {
       uint19 data;
-      BitRange<19> tileX      = {&data, 0, 4};
-      BitRange<19> tileY      = {&data, 5, 9};
-      BitRange<19> nametable  = {&data,10,11};
-      BitRange<19> nametableX = {&data,10   };
-      BitRange<19> nametableY = {&data,11   };
-      BitRange<19> fineY      = {&data,12,14};
-      BitRange<19> address    = {&data, 0,14};
-      BitRange<19> addressLo  = {&data, 0, 7};
-      BitRange<19> addressHi  = {&data, 8,14};
-      BitRange<19> latch      = {&data,15   };
-      BitRange<19> fineX      = {&data,16,18};
+      BitRange<19, 0, 4> tileX     {&data};
+      BitRange<19, 5, 9> tileY     {&data};
+      BitRange<19,10,11> nametable {&data};
+      BitRange<19,10,10> nametableX{&data};
+      BitRange<19,11,11> nametableY{&data};
+      BitRange<19,12,14> fineY     {&data};
+      BitRange<19, 0,14> address   {&data};
+      BitRange<19, 0, 7> addressLo {&data};
+      BitRange<19, 8,14> addressHi {&data};
+      BitRange<19,15,15> latch     {&data};
+      BitRange<19,16,18> fineX     {&data};
     } v, t;
 
     bool nmiHold = 0;

@@ -21,23 +21,30 @@ struct WDC65816 {
 
   using r8 = uint8;
 
-  union r16 {
-    inline r16() : w(0) {}
+  struct r16 {
+    inline r16() {}
     inline r16(uint data) : w(data) {}
+    inline r16(const r16& data) : w(data.w) {}
     inline auto& operator=(uint data) { w = data; return *this; }
+    inline auto& operator=(const r16& data) { w = data.w; return *this; }
 
     uint16 w;
-    struct { uint8 order_lsb2(l, h); };
+    BitRange<16,0, 7> l{&w};
+    BitRange<16,8,15> h{&w};
   };
 
-  union r24 {
-    inline r24() : d(0) {}
+  struct r24 {
+    inline r24() {}
     inline r24(uint data) : d(data) {}
+    inline r24(const r24& data) : d(data.d) {}
     inline auto& operator=(uint data) { d = data; return *this; }
+    inline auto& operator=(const r24& data) { d = data.d; return *this; }
 
     uint24 d;
-    struct { uint16 order_lsb2(w, x); };
-    struct {  uint8 order_lsb4(l, h, b, y); };
+    BitRange<24, 0, 7> l{&d};
+    BitRange<24, 8,15> h{&d};
+    BitRange<24,16,23> b{&d};
+    BitRange<24, 0,15> w{&d};
   };
 
   //wdc65816.cpp

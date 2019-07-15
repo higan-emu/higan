@@ -38,10 +38,13 @@ template<uint Precision> struct Natural {
   template<typename T> inline auto& operator ^=(const T& value) { data = cast(data  ^ value); return *this; }
   template<typename T> inline auto& operator |=(const T& value) { data = cast(data  | value); return *this; }
 
-  inline auto operator()(int index) -> BitRange<Precision> { return {&data, index}; }
-  inline auto operator()(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
+  inline auto operator[](int index) -> BitField<Precision> { return {&data, index}; }
+  inline auto operator[](int index) const -> const BitField<Precision> { return {&data, index}; }
 
+  inline auto operator()(int index) -> BitRange<Precision> { return {&data, index}; }
   inline auto operator()(int index) const -> const BitRange<Precision> { return {&data, index}; }
+
+  inline auto operator()(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
   inline auto operator()(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
 
   inline auto bit(int index) -> BitRange<Precision> { return {&data, index}; }

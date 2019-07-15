@@ -291,16 +291,16 @@ struct V30MZ {
 
     struct Flags {
       uint16 data;
-      BitField<16> c = {&data, 0};  //carry
-      BitField<16> p = {&data, 2};  //parity
-      BitField<16> h = {&data, 4};  //half-carry
-      BitField<16> z = {&data, 6};  //zero
-      BitField<16> s = {&data, 7};  //sign
-      BitField<16> b = {&data, 8};  //break
-      BitField<16> i = {&data, 9};  //interrupt
-      BitField<16> d = {&data,10};  //direction
-      BitField<16> v = {&data,11};  //overflow
-      BitField<16> m = {&data,15};  //mode
+      BitField<16, 0> c{&data};  //carry
+      BitField<16, 2> p{&data};  //parity
+      BitField<16, 4> h{&data};  //half-carry
+      BitField<16, 6> z{&data};  //zero
+      BitField<16, 7> s{&data};  //sign
+      BitField<16, 8> b{&data};  //break
+      BitField<16, 9> i{&data};  //interrupt
+      BitField<16,10> d{&data};  //direction
+      BitField<16,11> v{&data};  //overflow
+      BitField<16,15> m{&data};  //mode
 
       inline operator uint() const { return data & 0x8fd5 | 0x7002; }
       inline auto& operator =(uint value) { return data  = value, *this; }
