@@ -16,16 +16,16 @@ auto Cartridge::MBC3::second() -> void {
 
 auto Cartridge::MBC3::read(uint16 address) -> uint8 {
   if((address & 0xc000) == 0x0000) {  //$0000-3fff
-    return cartridge.rom.read(address(0,13));
+    return cartridge.rom.read((uint14)address);
   }
 
   if((address & 0xc000) == 0x4000) {  //$4000-7fff
-    return cartridge.rom.read(io.rom.bank << 14 | address(0,13));
+    return cartridge.rom.read(io.rom.bank << 14 | (uint14)address);
   }
 
   if((address & 0xe000) == 0xa000) {  //$a000-bfff
     if(!io.ram.enable) return 0xff;
-    if(io.ram.bank <= 0x03) return cartridge.ram.read(io.ram.bank << 13 | address(0,12));
+    if(io.ram.bank <= 0x03) return cartridge.ram.read(io.ram.bank << 13 | (uint13)address);
     if(io.ram.bank == 0x08) return io.rtc.latchSecond;
     if(io.ram.bank == 0x09) return io.rtc.latchMinute;
     if(io.ram.bank == 0x0a) return io.rtc.latchHour;
@@ -39,12 +39,12 @@ auto Cartridge::MBC3::read(uint16 address) -> uint8 {
 
 auto Cartridge::MBC3::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x0000) {  //$0000-1fff
-    io.ram.enable = data(0,3) == 0x0a;
+    io.ram.enable = data.range(0,3) == 0x0a;
     return;
   }
 
   if((address & 0xe000) == 0x2000) {  //$2000-3fff
-    io.rom.bank = data(0,6);
+    io.rom.bank = data.range(0,6);
     if(!io.rom.bank) io.rom.bank = 0x01;
     return;
   }
@@ -69,7 +69,7 @@ auto Cartridge::MBC3::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0xa000) {  //$a000-bfff
     if(!io.ram.enable) return;
     if(io.ram.bank <= 0x03) {
-      cartridge.ram.write(io.ram.bank << 13 | address(0,12), data);
+      cartridge.ram.write(io.ram.bank << 13 | (uint13)address, data);
     } else if(io.ram.bank == 0x08) {
       if(data >= 60) data = 0;
       io.rtc.second = data;
@@ -80,11 +80,11 @@ auto Cartridge::MBC3::write(uint16 address, uint8 data) -> void {
       if(data >= 24) data = 0;
       io.rtc.hour = data;
     } else if(io.ram.bank == 0x0b) {
-      io.rtc.day(0,7) = data(0,7);
+      io.rtc.day.range(0,7) = data.range(0,7);
     } else if(io.ram.bank == 0x0c) {
-      io.rtc.day(8) = data(0);
-      io.rtc.halt = data(6);
-      io.rtc.dayCarry = data(7);
+      io.rtc.day.field(8) = data.field(0);
+      io.rtc.halt = data.field(6);
+      io.rtc.dayCarry = data.field(7);
     }
     return;
   }

@@ -12,13 +12,13 @@ auto CPU::step(uint clocks) -> void {
       cartridge.second();
     }
 
-    //4MHz / N(hz) - 1 = mask
     status.div++;
-    if((status.div &   15) == 0) timer262144hz();
-    if((status.div &   63) == 0)  timer65536hz();
-    if((status.div &  255) == 0)  timer16384hz();
-    if((status.div &  511) == 0)   timer8192hz();
-    if((status.div & 1023) == 0)   timer4096hz();
+    if(( uint4)status.div == 0) timer262144hz();
+    if(( uint6)status.div == 0)  timer65536hz();
+    if(( uint8)status.div == 0)  timer16384hz();
+    if(( uint9)status.div == 0)   timer8192hz();
+    if((uint10)status.div == 0)   timer4096hz();
+    if((uint12)status.div == 0)   timer1024hz();
 
     Thread::step(1);
     Thread::synchronize();
@@ -26,7 +26,6 @@ auto CPU::step(uint clocks) -> void {
 
   if(Model::SuperGameBoy()) {
     system.information.clocksExecuted += clocks;
-    scheduler.exit(Scheduler::Event::Step);
   }
 }
 
@@ -75,9 +74,13 @@ auto CPU::timer4096hz() -> void {
   }
 }
 
+auto CPU::timer1024hz() -> void {
+  joypPoll();
+}
+
 auto CPU::hblank() -> void {
   if(status.dmaMode == 1 && status.dmaLength && ppu.status.ly < 144) {
-    for(auto n : range(16)) {
+    for(uint n : range(16)) {
       writeDMA(status.dmaTarget++, readDMA(status.dmaSource++, 0xff));
       status.dmaLength--;
       if(n & 1) step(1 << status.speedDouble);

@@ -27,12 +27,9 @@ struct GameBoyColorInterface : AbstractInterface {
 };
 
 struct SuperGameBoyInterface {
-  virtual auto audio(double left, double right) -> void = 0;
-  virtual auto input() -> uint8 = 0;
-
-  virtual auto lcdScanline() -> void = 0;
-  virtual auto lcdOutput(uint2 color) -> void = 0;
-  virtual auto joypRead() -> uint4 = 0;
+  virtual auto ppuScanline() -> void = 0;
+  virtual auto ppuOutput(uint2 color) -> void = 0;
+  virtual auto apuOutput(double left, double right) -> void = 0;
   virtual auto joypWrite(uint1 p14, uint1 p15) -> void = 0;
 };
 

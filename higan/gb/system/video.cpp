@@ -63,9 +63,9 @@ auto System::Video::colorGameBoy(uint32 color) -> uint64 {
 }
 
 auto System::Video::colorGameBoyColor(uint32 color) -> uint64 {
-  uint r = color( 0, 4);
-  uint g = color( 5, 9);
-  uint b = color(10,14);
+  uint r = color.range( 0, 4);
+  uint g = color.range( 5, 9);
+  uint b = color.range(10,14);
 
   uint64_t R = image::normalize(r, 5, 16);
   uint64_t G = image::normalize(g, 5, 16);

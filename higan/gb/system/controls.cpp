@@ -15,18 +15,7 @@ auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Controls::poll() -> void {
-  if(GameBoy::Model::SuperGameBoy()) {
-    auto data = superGameBoy->input();
-    rightLatch    = data(0);
-    leftLatch     = data(1);
-    upLatch       = data(2);
-    downLatch     = data(3);
-    a->value      = data(4);
-    b->value      = data(5);
-    select->value = data(6);
-    start->value  = data(7);
-    return;
-  }
+  if(GameBoy::Model::SuperGameBoy()) return;
 
   platform->input(up);
   platform->input(down);

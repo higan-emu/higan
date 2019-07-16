@@ -19,18 +19,21 @@ struct CPU : SM83, Thread {
   auto raised(uint interrupt) const -> bool;
   auto raise(uint interrupt) -> void;
   auto lower(uint interrupt) -> void;
-  auto stop() -> bool;
+  auto stoppable() -> bool override;
   auto power() -> void;
 
   auto serialize(serializer&) -> void;
 
   //io.cpp
   auto wramAddress(uint13 address) const -> uint16;
+  auto input(uint4 data) -> void;
   auto joypPoll() -> void;
   auto readIO(uint cycle, uint16 address, uint8 data) -> uint8;
   auto writeIO(uint cycle, uint16 address, uint8 data) -> void;
 
   //memory.cpp
+  auto stop() -> void override;
+  auto halt() -> void override;
   auto idle() -> void override;
   auto read(uint16 address) -> uint8 override;
   auto write(uint16 address, uint8 data) -> void override;
@@ -46,6 +49,7 @@ struct CPU : SM83, Thread {
   auto timer16384hz() -> void;
   auto timer8192hz() -> void;
   auto timer4096hz() -> void;
+  auto timer1024hz() -> void;
   auto hblank() -> void;
 
   struct Status {

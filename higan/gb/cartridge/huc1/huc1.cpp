@@ -1,14 +1,14 @@
 auto Cartridge::HuC1::read(uint16 address) -> uint8 {
   if((address & 0xc000) == 0x0000) {  //$0000-3fff
-    return cartridge.rom.read(address(0,13));
+    return cartridge.rom.read((uint14)address);
   }
 
   if((address & 0xc000) == 0x4000) {  //$4000-7fff
-    return cartridge.rom.read(io.rom.bank << 14 | address(0,13));
+    return cartridge.rom.read(io.rom.bank << 14 | (uint14)address);
   }
 
   if((address & 0xe000) == 0xa000) {  //$a000-bfff
-    return cartridge.ram.read(io.ram.bank << 13 | address(0,12));
+    return cartridge.ram.read(io.ram.bank << 13 | (uint13)address);
   }
 
   return 0xff;
@@ -16,7 +16,7 @@ auto Cartridge::HuC1::read(uint16 address) -> uint8 {
 
 auto Cartridge::HuC1::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x0000) {  //$0000-1fff
-    io.ram.writable = data(0,3) == 0x0a;
+    io.ram.writable = data.range(0,3) == 0x0a;
     return;
   }
 
@@ -32,13 +32,13 @@ auto Cartridge::HuC1::write(uint16 address, uint8 data) -> void {
   }
 
   if((address & 0xe000) == 0x6000) {  //$6000-7fff
-    io.model = data(0);
+    io.model = data.field(0);
     return;
   }
 
   if((address & 0xe000) == 0xa000) {  //$a000-bfff
     if(!io.ram.writable) return;
-    return cartridge.ram.write(io.ram.bank << 13 | address(0,12), data);
+    return cartridge.ram.write(io.ram.bank << 13 | (uint13)address, data);
   }
 }
 

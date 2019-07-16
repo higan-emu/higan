@@ -21,7 +21,7 @@ auto APU::main() -> void {
   if(!Model::SuperGameBoy()) {
     stream.sample(sequencer.left / 32768.0, sequencer.right / 32768.0);
   } else {
-    superGameBoy->audio(sequencer.left / 32768.0, sequencer.right / 32768.0);
+    superGameBoy->apuOutput(sequencer.left / 32768.0, sequencer.right / 32768.0);
   }
 
   if(cycle == 0) {  //512hz

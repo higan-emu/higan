@@ -1,22 +1,22 @@
 auto Cartridge::MBC1::read(uint16 address) -> uint8 {
   if((address & 0xc000) == 0x0000) {  //$0000-3fff
-    return cartridge.rom.read(address(0,13));
+    return cartridge.rom.read((uint14)address);
   }
 
   if((address & 0xc000) == 0x4000) {  //$4000-7fff
     if(io.mode == 0) {
-      return cartridge.rom.read(io.ram.bank << 19 | io.rom.bank << 14 | address(0,13));
+      return cartridge.rom.read(io.ram.bank << 19 | io.rom.bank << 14 | (uint14)address);
     } else {
-      return cartridge.rom.read(io.rom.bank << 14 | address(0,13));
+      return cartridge.rom.read(io.rom.bank << 14 | (uint14)address);
     }
   }
 
   if((address & 0xe000) == 0xa000) {  //$a000-bfff
     if(!io.ram.enable) return 0xff;
     if(io.mode == 0) {
-      return cartridge.ram.read(address(0,12));
+      return cartridge.ram.read((uint13)address);
     } else {
-      return cartridge.ram.read(io.ram.bank << 13 | address(0,12));
+      return cartridge.ram.read(io.ram.bank << 13 | (uint13)address);
     }
   }
 
@@ -25,32 +25,32 @@ auto Cartridge::MBC1::read(uint16 address) -> uint8 {
 
 auto Cartridge::MBC1::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x0000) {  //$0000-1fff
-    io.ram.enable = data(0,3) == 0x0a;
+    io.ram.enable = data.range(0,3) == 0x0a;
     return;
   }
 
   if((address & 0xe000) == 0x2000) {  //$2000-3fff
-    io.rom.bank = data(0,4);
+    io.rom.bank = data.range(0,4);
     if(!io.rom.bank) io.rom.bank = 0x01;
     return;
   }
 
   if((address & 0xe000) == 0x4000) {  //$4000-5fff
-    io.ram.bank = data(0,1);
+    io.ram.bank = data.range(0,1);
     return;
   }
 
   if((address & 0xe000) == 0x6000) {  //$6000-7fff
-    io.mode = data(0);
+    io.mode = data.field(0);
     return;
   }
 
   if((address & 0xe000) == 0xa000) {  //$a000-bfff
     if(!io.ram.enable) return;
     if(io.mode == 0) {
-      return cartridge.ram.write(address(0,12), data);
+      return cartridge.ram.write((uint13)address, data);
     } else {
-      return cartridge.ram.write(io.ram.bank << 13 | address(0,12), data);
+      return cartridge.ram.write(io.ram.bank << 13 | (uint13)address, data);
     }
   }
 }

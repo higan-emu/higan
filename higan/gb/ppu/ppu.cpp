@@ -26,7 +26,7 @@ auto PPU::main() -> void {
   }
 
   status.lx = 0;
-  if(Model::SuperGameBoy()) superGameBoy->lcdScanline();
+  if(Model::SuperGameBoy()) superGameBoy->ppuScanline();
 
   latch.windowDisplayEnable = status.windowDisplayEnable;
   latch.wx = status.wx;

@@ -71,33 +71,37 @@ auto CPU::main() -> void {
   }
 
   instruction();
+
+  if(Model::SuperGameBoy()) {
+    scheduler.exit(Scheduler::Event::Step);
+  }
 }
 
 auto CPU::raised(uint interruptID) const -> bool {
-  return status.interruptFlag(interruptID);
+  return status.interruptFlag.field(interruptID);
 }
 
 auto CPU::raise(uint interruptID) -> void {
-  status.interruptFlag(interruptID) = 1;
-  if(status.interruptEnable(interruptID)) {
+  status.interruptFlag.field(interruptID) = 1;
+  if(status.interruptEnable.field(interruptID)) {
     r.halt = false;
     if(interruptID == Interrupt::Joypad) r.stop = false;
   }
 }
 
 auto CPU::lower(uint interruptID) -> void {
-  status.interruptFlag(interruptID) = 0;
+  status.interruptFlag.field(interruptID) = 0;
 }
 
-auto CPU::stop() -> bool {
+auto CPU::stoppable() -> bool {
   if(status.speedSwitch) {
     status.speedSwitch = 0;
     status.speedDouble ^= 1;
     if(status.speedDouble == 0) setFrequency(4 * 1024 * 1024);
     if(status.speedDouble == 1) setFrequency(8 * 1024 * 1024);
-    return true;
+    return false;
   }
-  return false;
+  return true;
 }
 
 auto CPU::power() -> void {

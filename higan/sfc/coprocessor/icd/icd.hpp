@@ -15,19 +15,15 @@ struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   auto power() -> void;
   auto reset() -> void;  //software reset
 
-  //platform.cpp
-  auto audio(double left, double right) -> void override;
-  auto input() -> uint8 override;
-
   //interface.cpp
-  auto lcdScanline() -> void override;
-  auto lcdOutput(uint2 color) -> void override;
-  auto joypRead() -> uint4 override;
+  auto ppuScanline() -> void override;
+  auto ppuOutput(uint2 color) -> void override;
+  auto apuOutput(double left, double right) -> void override;
   auto joypWrite(uint1 p14, uint1 p15) -> void override;
 
   //io.cpp
-  auto readIO(uint24 addr, uint8 data) -> uint8;
-  auto writeIO(uint24 addr, uint8 data) -> void;
+  auto readIO(uint24 address, uint8 data) -> uint8;
+  auto writeIO(uint24 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -37,7 +33,7 @@ struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
 
 private:
   struct Packet {
-    auto operator[](uint addr) -> uint8& { return data[addr & 15]; }
+    auto operator[](uint4 address) -> uint8& { return data[address]; }
     uint8 data[16];
   };
   Packet packet[64];

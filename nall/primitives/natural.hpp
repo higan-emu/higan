@@ -38,14 +38,16 @@ template<uint Precision> struct Natural {
   template<typename T> inline auto& operator ^=(const T& value) { data = cast(data  ^ value); return *this; }
   template<typename T> inline auto& operator |=(const T& value) { data = cast(data  | value); return *this; }
 
-  inline auto operator[](int index) -> BitField<Precision> { return {&data, index}; }
-  inline auto operator[](int index) const -> const BitField<Precision> { return {&data, index}; }
+  inline auto field(int index) -> BitField<Precision> { return {&data, index}; }
+  inline auto field(int index) const -> const BitField<Precision> { return {&data, index}; }
 
-  inline auto operator()(int index) -> BitRange<Precision> { return {&data, index}; }
-  inline auto operator()(int index) const -> const BitRange<Precision> { return {&data, index}; }
+  inline auto range(int index) -> BitRange<Precision> { return {&data, index}; }
+  inline auto range(int index) const -> const BitRange<Precision> { return {&data, index}; }
 
-  inline auto operator()(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
-  inline auto operator()(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
+  inline auto range(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
+  inline auto range(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
+
+  /* deprecated */
 
   inline auto bit(int index) -> BitRange<Precision> { return {&data, index}; }
   inline auto bits(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
@@ -54,6 +56,8 @@ template<uint Precision> struct Natural {
   inline auto bit(int index) const -> const BitRange<Precision> { return {&data, index}; }
   inline auto bits(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
   inline auto byte(int index) const -> const BitRange<Precision> { return {&data, index * 8 + 0, index * 8 + 7}; }
+
+  /* end deprecated */
 
   inline auto mask(int index) const -> utype {
     return data & 1 << index;

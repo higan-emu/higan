@@ -249,14 +249,14 @@ struct WDC65816 {
     }
 
     inline auto& operator=(uint8 data) {
-      c = data(0);
-      z = data(1);
-      i = data(2);
-      d = data(3);
-      x = data(4);
-      m = data(5);
-      v = data(6);
-      n = data(7);
+      c = data.field(0);
+      z = data.field(1);
+      i = data.field(2);
+      d = data.field(3);
+      x = data.field(4);
+      m = data.field(5);
+      v = data.field(6);
+      n = data.field(7);
       return *this;
     }
   };

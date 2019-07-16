@@ -2,7 +2,6 @@ ICD icd;
 
 #if defined(CORE_GB)
 
-#include "platform.cpp"
 #include "interface.cpp"
 #include "io.cpp"
 #include "serialization.cpp"

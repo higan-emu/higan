@@ -1,3 +1,17 @@
+auto CPU::stop() -> void {
+  idle();
+  if(Model::SuperGameBoy()) {
+    scheduler.exit(Scheduler::Event::Step);
+  }
+}
+
+auto CPU::halt() -> void {
+  idle();
+  if(Model::SuperGameBoy()) {
+    scheduler.exit(Scheduler::Event::Step);
+  }
+}
+
 auto CPU::idle() -> void {
   if(r.ei) r.ei = 0, r.ime = 1;
   step();
