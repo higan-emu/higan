@@ -50,11 +50,11 @@ Where to get custom shaders
 
   - higan includes some simple example shaders.
     If your copy of higan did not come with shaders,
-    you can get them from the [unofficial higan repository].
+    you can get them from the [official git repository].
   - [quark-shaders] contains many high-quality shaders for use with higan.
   - You can write your own.
 
-[unofficial higan repository]: https://gitlab.com/higan/higan/tree/master/shaders
+[official git repository]: https://github.com/byuu/higan/tree/master/shaders
 [quark-shaders]: https://github.com/hizzlekizzle/quark-shaders
 
 How to install custom shaders

@@ -35,6 +35,10 @@ Official higan resources
 ------------------------
 
   - [Official homepage](https://byuu.org/emulation/higan/)
+  - [Official git repo](https://github.com/byuu/higan/)
+    archives official higan releases
+    and WIP snapshots
+    since approximately v067r21
 
 Unofficial higan resources
 --------------------------
@@ -42,10 +46,9 @@ Unofficial higan resources
   - [Unofficial forum](https://helmet.kafuka.org/bboard/)
   - Documentation for
     [the current stable version][stadocs]
-  - [Source code repository](https://gitlab.com/higan/higan/)
-    archives official higan releases
-    and WIP snapshots
-    since approximately v067r21
+  - [Unofficial git repo](https://gitlab.com/higan/higan/)
+    is the ancestor of the official repo,
+    and is no longer updated.
   - [Latest WIP build for Windows][wipwin]
   - Documentation for
     [the latest WIP version][wipdocs]

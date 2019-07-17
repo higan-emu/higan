@@ -70,15 +70,15 @@ Official higan resources
 ------------------------
 
   - [Official homepage](https://byuu.org/emulation/higan/)
+  - [Source code repository](https://github.com/byuu/higan/)
+    archives official higan releases
+    and WIP snapshots
+    since approximately v067r21.
 
 Unofficial higan resources
 --------------------------
 
   - [Unofficial forum](https://helmet.kafuka.org/bboard/)
-  - [Source code repository](https://gitlab.com/higan/higan/)
-    archives official higan releases
-    and WIP snapshots
-    since approximately v067r21.
   - [Quark shader repository](https://github.com/hizzlekizzle/quark-shaders)
     collects shaders that higan can use
     to add special effects like TV scanlines to its video output,

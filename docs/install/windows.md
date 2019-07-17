@@ -45,7 +45,7 @@ you will need [7-zip](http://www.7-zip.org/)
 or a compatible tool to extract it.
 Alternatively,
 you may obtain higan source code from
-[the unofficial git repo](https://gitlab.com/higan/higan/)
+[the official git repo](https://github.com/byuu/higan/)
 using the Git source-code management tool,
 or by clicking the download button on the right-hand side of the web-page
 and choosing an archive format.
