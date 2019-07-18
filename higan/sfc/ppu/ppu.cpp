@@ -71,7 +71,6 @@ auto PPU::main() -> void {
       step(2);
     }
 
-    obj.scanline();
     step(14 + 34 * 2);
     obj.tilefetch();
   }
@@ -211,6 +210,7 @@ auto PPU::scanline() -> void {
   bg2.scanline();
   bg3.scanline();
   bg4.scanline();
+  obj.scanline();
   window.scanline();
   screen.scanline();
 

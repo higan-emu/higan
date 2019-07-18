@@ -40,7 +40,7 @@ auto ICD::joypWrite(uint1 p14, uint1 p15) -> void {
   if(joypID == 3) joypad = r6007;
 
   uint4 input = 0xf;
-  if(p15 == 1 && p14 == 1) input = 0xf - joypID;
+  if(p14 == 1 && p15 == 1) input -= joypID;
   if(p14 == 0) input &= joypad.range(0,3);  //d-pad
   if(p15 == 0) input &= joypad.range(4,7);  //buttons
 

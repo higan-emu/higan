@@ -70,8 +70,9 @@ struct Object {
     uint itemCount;
     uint tileCount;
 
-    Item item[32];
-    Tile tile[34];
+    bool active;
+    Item item[2][32];
+    Tile tile[2][34];
   } t;
 
   struct Output {
