@@ -4,6 +4,14 @@ higan
 higan is a multi-system emulator with an uncompromising focus on accuracy and
 code readability.
 
+It is a research project meant to improve all emulators through open source
+collaboration, and as such is not meant to be used as a standard emulator for
+playing games (although it can be used as such with some patience.)
+
+Testing is greatly appreciated so that the emulation quality can be improved.
+Such improvements will migrate downstream to user-focused emulators such as
+bsnes.
+
 It currently emulates the following systems: Famicom, Famicom Disk System,
 Super Famicom, Super Game Boy, Game Boy, Game Boy Color, Game Boy Advance,
 Game Boy Player, SG-1000, SC-3000, Master System, Game Gear, Mega Drive,
