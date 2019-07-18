@@ -1,59 +1,29 @@
-The official higan repository
-=============================
+higan
+=====
 
-higan emulates a number of classic video-game consoles of the 1980s and 1990s,
-allowing you to play classic games on a modern general-purpose computer.
+higan is a multi-system emulator with an uncompromising focus on accuracy and
+code readability.
 
-This repository includes
-the source-code for
-stable and WIP releases of higan,
-starting during the development of v068.
-It also includes community-maintained documentation.
+It currently emulates the following systems: Famicom, Famicom Disk System,
+Super Famicom, Super Game Boy, Game Boy, Game Boy Color, Game Boy Advance,
+Game Boy Player, SG-1000, SC-3000, Master System, Game Gear, Mega Drive,
+Mega CD, PC Engine, SuperGrafx, MSX, MSX2, ColecoVision, Neo Geo Pocket,
+Neo Geo Pocket Color, WonderSwan, WonderSwan Color, SwanCrystal,
+Pocket Challenge V2.
 
-Basically,
-apart from `.gitignore` files,
-anything in the
-[higan](higan/),
-[hiro](hiro/),
-[icarus](icarus/),
-[libco](libco/),
-[nall](nall/),
-[ruby](ruby/),
-or [shaders](shaders/)
-directories should be exactly as it appeared in official releases.
-Everything else has been added for various reasons.
+Development
+-----------
 
-History before v068 has not been recorded in Git, but [the bsnes history
-kit][kit] is an attempt to reconstruct the development history of bsnes/higan.
-A pre-built example of its output is available as [the bsnes history][history]
-repository.
+Git is used for the development of new releases, and represents a staging
+environment. higan is currently in the midst of a major redesign, so please
+expect rapid changes and some instabilities during this period.
 
-[kit]: https://gitlab.com/higan/bsnes-history-kit
-[history]: https://gitlab.com/higan/bsnes-history
+If stability is required, please download the latest stable release from the
+[official website.](https://higan.byuu.org)
 
-Official higan resources
-------------------------
+Links
+-----
 
-  - [Official homepage](https://byuu.org/emulation/higan/)
-  - [Official git repo](https://github.com/byuu/higan/)
-    archives official higan releases
-    and WIP snapshots
-    since approximately v067r21
-
-Unofficial higan resources
---------------------------
-
-  - [Unofficial forum](https://helmet.kafuka.org/bboard/)
-  - Documentation for
-    [the current stable version][stadocs]
-  - [Unofficial git repo](https://gitlab.com/higan/higan/)
-    is the ancestor of the official repo,
-    and is no longer updated.
-  - [Latest WIP build for Windows][wipwin]
-  - Documentation for
-    [the latest WIP version][wipdocs]
-
-
-[wipwin]: https://gitlab.com/higan/higan/-/jobs/artifacts/master/download?job=higan-windows-x86_64-binaries
-[stadocs]: https://higan.readthedocs.io/
-[wipdocs]: https://higan.readthedocs.io/en/latest/
+  - [Official website](https://higan.byuu.org)
+  - [Official git repository](https://github.com/byuu/higan)
+  - [Official documentation](https://higan.readthedocs.io/)
