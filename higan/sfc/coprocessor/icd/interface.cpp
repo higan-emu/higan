@@ -81,8 +81,8 @@ auto ICD::joypWrite(uint1 p14, uint1 p15) -> void {
     }
   }
 
-  //p14:0 = 0, p15:1
-  //p14:1 = 1, p15:0
+  //p14:0, p15:1 = 0
+  //p14:1, p15:0 = 1
   bool bit = p15 == 0;
   strobeLock = true;
 

@@ -19,7 +19,7 @@ auto PPU::unload() -> void {
 
 auto PPU::main() -> void {
   if(!status.displayEnable) {
-    for(uint n : range(160 * 144)) screen[n] = Model::GameBoy() ? 0 : 0x7fff;
+    for(uint n : range(160 * 144)) screen[n] = Model::GameBoyColor() ? 0x7fff : 0;
     step(154 * 456);
     scheduler.exit(Scheduler::Event::Frame);
     return;

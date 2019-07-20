@@ -1,6 +1,6 @@
 struct Screen {
   auto scanline() -> void;
-  noinline auto run() -> void;
+  auto run() -> void;
   auto power() -> void;
 
   auto below(bool hires) -> uint16;

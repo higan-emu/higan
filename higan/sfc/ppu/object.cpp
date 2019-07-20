@@ -17,7 +17,6 @@ auto PPU::Object::frame() -> void {
 auto PPU::Object::scanline() -> void {
   t.x = 0;
   t.y = ppu.vcounter();
-
   t.itemCount = 0;
   t.tileCount = 0;
 
@@ -25,16 +24,23 @@ auto PPU::Object::scanline() -> void {
   auto oamItem = t.item[t.active];
   auto oamTile = t.tile[t.active];
 
-  if(t.y == ppu.vdisp() && !ppu.io.displayDisable) addressReset();
-  if(t.y >= ppu.vdisp() - 1 || ppu.io.displayDisable) return;
-
   for(auto n : range(32)) oamItem[n].valid = false;
   for(auto n : range(34)) oamTile[n].valid = false;
 
-  for(auto n : range(128)) {
-    uint7 sprite = io.firstSprite + n;
-    if(!onScanline(oam.object[sprite])) continue;
-    if(t.itemCount++ >= 32) break;
+  if(t.y == ppu.vdisp() && !ppu.io.displayDisable) addressReset();
+  if(t.y >= ppu.vdisp() - 1 || ppu.io.displayDisable) return;
+}
+
+auto PPU::Object::evaluate(uint7 index) -> void {
+  if(ppu.io.displayDisable) return;
+
+  auto oamItem = t.item[t.active];
+  auto oamTile = t.tile[t.active];
+
+  uint7 sprite = io.firstSprite + index;
+  if(!onScanline(oam.object[sprite])) return;
+
+  if(t.itemCount++ < 32) {
     oamItem[t.itemCount - 1] = {true, sprite};
   }
 
@@ -66,10 +72,10 @@ auto PPU::Object::run() -> void {
     if(px & ~7) continue;
 
     uint color = 0, shift = tile.hflip ? px : 7 - px;
-    color += tile.data >> (shift +  0) & 1;
-    color += tile.data >> (shift +  7) & 2;
-    color += tile.data >> (shift + 14) & 4;
-    color += tile.data >> (shift + 21) & 8;
+    color += tile.data >> shift +  0 & 1;
+    color += tile.data >> shift +  7 & 2;
+    color += tile.data >> shift + 14 & 4;
+    color += tile.data >> shift + 21 & 8;
 
     if(color) {
       if(io.aboveEnable) {
@@ -85,13 +91,16 @@ auto PPU::Object::run() -> void {
   }
 }
 
-auto PPU::Object::tilefetch() -> void {
+auto PPU::Object::fetch() -> void {
+  ppu.step(34 * 2);
+
   auto oamItem = t.item[t.active];
   auto oamTile = t.tile[t.active];
 
   for(int i = 31; i >= 0; i--) {
     if(!oamItem[i].valid) continue;
-    const auto& sprite = oam.object[oamItem[i].index];
+    auto index = oamItem[i].index;
+    const auto& sprite = oam.object[index];
 
     uint tileWidth = sprite.width() >> 3;
     int x = sprite.x;
@@ -134,10 +143,14 @@ auto PPU::Object::tilefetch() -> void {
 
       uint mx = !sprite.hflip ? tx : tileWidth - 1 - tx;
       uint pos = tiledataAddress + ((chry + (chrx + mx & 15)) << 4);
-      uint16 addr = (pos & 0xfff0) + (y & 7);
+      uint16 address = (pos & 0xfff0) + (y & 7);
 
-      oamTile[n].data.bits( 0,15) = ppu.vram[addr + 0];
-      oamTile[n].data.bits(16,31) = ppu.vram[addr + 8];
+    //ppu.latch.oamAddress = index << 2 | 0;
+      oamTile[n].data.bits( 0,15) = ppu.vram[address + 0];
+    //ppu.step();
+
+    //ppu.latch.oamAddress = index << 2 | 2;
+      oamTile[n].data.bits(16,31) = ppu.vram[address + 8];
       ppu.step();
     }
   }

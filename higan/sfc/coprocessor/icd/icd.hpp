@@ -79,6 +79,8 @@ struct ICD : Thread {
   auto name() const -> string { return {}; }
 
   auto load(Node::Peripheral, Node::Peripheral) -> void {}
+  auto unload() -> void {}
+
   auto connect(Node::Peripheral) -> void {}
   auto disconnect() -> void {}
   auto power(bool reset = false) -> void {}

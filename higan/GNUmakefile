@@ -1,6 +1,6 @@
 target := higan
 build := performance
-openmp := true
+openmp := false
 flags += -I. -I..
 
 nall.path := ../nall

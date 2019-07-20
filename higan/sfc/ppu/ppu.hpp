@@ -18,6 +18,11 @@ struct PPU : Thread, PPUcounter {
 
   //main.cpp
   auto main() -> void;
+  noinline auto cycleObjectEvaluate() -> void;
+  noinline auto cycleBackgroundBegin() -> void;
+  noinline auto cycleBackgroundBelow() -> void;
+  noinline auto cycleBackgroundAbove() -> void;
+  noinline auto cycleRenderPixel() -> void;
   template<uint> auto cycle() -> void;
 
   //io.cpp

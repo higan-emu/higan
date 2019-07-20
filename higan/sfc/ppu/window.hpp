@@ -1,6 +1,6 @@
 struct Window {
   auto scanline() -> void;
-  noinline auto run() -> void;
+  auto run() -> void;
   auto test(bool oneEnable, bool one, bool twoEnable, bool two, uint mask) -> bool;
   auto power() -> void;
 

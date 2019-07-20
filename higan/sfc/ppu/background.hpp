@@ -8,7 +8,7 @@ struct Background {
   auto frame() -> void;
   auto scanline() -> void;
   auto begin() -> void;
-  noinline auto run(bool screen) -> void;
+  auto run(bool screen) -> void;
   auto power() -> void;
 
   auto getTile() -> void;
