@@ -12,6 +12,11 @@ auto SufamiTurboCartridge::load(Node::Peripheral parent, Node::Peripheral from) 
   port->scan(from);
 }
 
+auto SufamiTurboCartridge::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 auto SufamiTurboCartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, "Sufami Turbo");
 

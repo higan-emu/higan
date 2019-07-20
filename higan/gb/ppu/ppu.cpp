@@ -26,7 +26,6 @@ auto PPU::main() -> void {
   }
 
   status.lx = 0;
-  if(Model::SuperGameBoy()) superGameBoy->ppuScanline();
 
   latch.windowDisplayEnable = status.windowDisplayEnable;
   latch.wx = status.wx;
@@ -37,34 +36,34 @@ auto PPU::main() -> void {
 
   if(latch.displayEnable) {
     latch.displayEnable = 0;
-    status.mode = 0;
+    mode(0);
     step(72);
 
-    status.mode = 3;
+    mode(3);
     step(172);
 
-    status.mode = 0;
+    mode(0);
     cpu.hblank();
     step(456 - 8 - status.lx);
   } else if(status.ly <= 143) {
-    status.mode = 2;
+    mode(2);
     scanline();
     step(80);
 
     if(status.ly >= status.wy && status.wx < 7) latch.wy++;
 
-    status.mode = 3;
+    mode(3);
     for(auto n : range(160)) {
       run();
       step(1);
     }
     step(12);
 
-    status.mode = 0;
+    mode(0);
     cpu.hblank();
     step(456 - status.lx);
   } else {
-    status.mode = 1;
+    mode(1);
     step(456);
   }
 
@@ -78,6 +77,18 @@ auto PPU::main() -> void {
   if(status.ly == 154) {
     status.ly = 0;
   }
+}
+
+auto PPU::mode(uint2 mode) -> void {
+  if(status.mode == 0 && mode != 0) {
+    if(Model::SuperGameBoy()) superGameBoy->ppuHreset();
+  }
+
+  if(status.mode == 1 && mode != 1) {
+    if(Model::SuperGameBoy()) superGameBoy->ppuVreset();
+  }
+
+  status.mode = mode;
 }
 
 auto PPU::stat() -> void {

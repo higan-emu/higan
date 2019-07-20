@@ -48,6 +48,7 @@ struct System {
   //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
+  auto clocksExecuted() -> uint;
 
   auto load(Node::Object) -> void;
   auto unload() -> void;

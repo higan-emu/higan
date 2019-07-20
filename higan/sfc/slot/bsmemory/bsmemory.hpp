@@ -18,19 +18,18 @@
 struct BSMemory : Thread {
   Node::Port port;
   Node::Peripheral node;
+  uint ROM = 1;
 
   inline auto manifest() const -> string { return information.manifest; }
   inline auto name() const -> string { return information.name; }
   inline auto size() const -> uint { return memory.size(); }
-
-  auto load(Node::Peripheral, Node::Peripheral) -> void;
-
-  uint ROM = 1;
-
-  auto writable() const { return pin.writable; }
-  auto writable(bool writable) { pin.writable = !ROM && writable; }
+  inline auto writable() const { return pin.writable; }
+  inline auto writable(bool writable) { pin.writable = !ROM && writable; }
 
   //bsmemory.cpp
+  auto load(Node::Peripheral, Node::Peripheral) -> void;
+  auto unload() -> void;
+
   BSMemory();
   auto main() -> void;
   auto step(uint clocks) -> void;

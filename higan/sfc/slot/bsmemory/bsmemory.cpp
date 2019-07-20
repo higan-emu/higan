@@ -9,6 +9,11 @@ auto BSMemory::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   port->scan(from);
 }
 
+auto BSMemory::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 BSMemory::BSMemory() {
   page.self = this;
   uint blockID = 0;

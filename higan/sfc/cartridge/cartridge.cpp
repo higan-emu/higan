@@ -37,7 +37,7 @@ auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
 auto Cartridge::disconnect() -> void {
   if(!node) return;
 
-  if(has.ICD) icd.disconnect();
+  if(has.ICD) icd.unload();
   if(has.MCC) mcc.unload();
   if(has.Event) event.unload();
   if(has.SA1) sa1.unload();
@@ -51,9 +51,9 @@ auto Cartridge::disconnect() -> void {
   if(has.SDD1) sdd1.unload();
   if(has.OBC1) obc1.unload();
   if(has.MSU1) msu1.unload();
-  if(has.BSMemorySlot) bsmemory.disconnect();
-  if(has.SufamiTurboSlotA) sufamiturboA.disconnect();
-  if(has.SufamiTurboSlotB) sufamiturboB.disconnect();
+  if(has.BSMemorySlot) bsmemory.unload();
+  if(has.SufamiTurboSlotA) sufamiturboA.unload();
+  if(has.SufamiTurboSlotB) sufamiturboB.unload();
 
   rom.reset();
   ram.reset();

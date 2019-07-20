@@ -16,6 +16,12 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
+auto System::clocksExecuted() -> uint {
+  uint clocks = information.clocksExecuted;
+  information.clocksExecuted = 0;
+  return clocks;
+}
+
 auto System::load(Node::Object from) -> void {
   if(node) unload();
 

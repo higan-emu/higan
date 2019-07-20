@@ -6,8 +6,8 @@ auto ICD::serialize(serializer& s) -> void {
   s.integer(packetSize);
 
   s.integer(joypID);
-  s.integer(joyp15Lock);
   s.integer(joyp14Lock);
+  s.integer(joyp15Lock);
   s.integer(pulseLock);
   s.integer(strobeLock);
   s.integer(packetLock);
@@ -15,6 +15,11 @@ auto ICD::serialize(serializer& s) -> void {
   s.integer(packetOffset);
   s.integer(bitData);
   s.integer(bitOffset);
+
+  s.array(output);
+  s.integer(readBank);
+  s.integer(readAddress);
+  s.integer(writeBank);
 
   s.integer(r6003);
   s.integer(r6004);
@@ -24,9 +29,6 @@ auto ICD::serialize(serializer& s) -> void {
   s.array(r7000);
   s.integer(mltReq);
 
-  s.array(output);
-  s.integer(readBank);
-  s.integer(readAddress);
-  s.integer(writeBank);
-  s.integer(writeAddress);
+  s.integer(hcounter);
+  s.integer(vcounter);
 }

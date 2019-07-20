@@ -56,7 +56,7 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridgePort.port.reset();
+  cartridgePort.unload();
   controllerPort1.port.reset();
   controllerPort2.port.reset();
   expansionPort.port.reset();

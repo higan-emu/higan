@@ -10,15 +10,16 @@ struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   auto main() -> void;
 
   auto load(Node::Peripheral, Node::Peripheral) -> void;
+  auto unload() -> void;
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
-  auto power() -> void;
-  auto reset() -> void;  //software reset
+  auto power(bool reset = false) -> void;
 
   //interface.cpp
-  auto ppuScanline() -> void override;
-  auto ppuOutput(uint2 color) -> void override;
-  auto apuOutput(double left, double right) -> void override;
+  auto ppuHreset() -> void override;
+  auto ppuVreset() -> void override;
+  auto ppuWrite(uint2 color) -> void override;
+  auto apuWrite(double left, double right) -> void override;
   auto joypWrite(uint1 p14, uint1 p15) -> void override;
 
   //io.cpp
@@ -37,17 +38,23 @@ private:
     uint8 data[16];
   };
   Packet packet[64];
-  uint packetSize;
+  uint7 packetSize;
 
-  uint joypID;
-  bool joyp15Lock;
-  bool joyp14Lock;
-  bool pulseLock;
-  bool strobeLock;
-  bool packetLock;
+  uint2 joypID;
+  uint1 joyp14Lock;
+  uint1 joyp15Lock;
+  uint1 pulseLock;
+  uint1 strobeLock;
+  uint1 packetLock;
   Packet joypPacket;
-  uint8 packetOffset;
-  uint8 bitData, bitOffset;
+  uint4 packetOffset;
+  uint8 bitData;
+  uint3 bitOffset;
+
+  uint8 output[4 * 512];
+  uint2 readBank;
+  uint9 readAddress;
+  uint2 writeBank;
 
   uint8 r6003;      //control port
   uint8 r6004;      //joypad 1
@@ -57,11 +64,8 @@ private:
   uint8 r7000[16];  //JOYP packet data
   uint8 mltReq;     //number of active joypads
 
-  uint8 output[4 * 512];
-  uint readBank;
-  uint readAddress;
-  uint writeBank;
-  uint writeAddress;
+  uint8 hcounter;
+  uint8 vcounter;
 
   GameBoy::GameBoyInterface gameBoyInterface;
 };
@@ -77,7 +81,7 @@ struct ICD : Thread {
   auto load(Node::Peripheral, Node::Peripheral) -> void {}
   auto connect(Node::Peripheral) -> void {}
   auto disconnect() -> void {}
-  auto power() -> void {}
+  auto power(bool reset = false) -> void {}
 
   auto readIO(uint24, uint8) -> uint8 { return 0; }
   auto writeIO(uint24, uint8) -> void { return; }

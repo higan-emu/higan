@@ -6,6 +6,7 @@ struct PPU : Thread {
   auto unload() -> void;
 
   auto main() -> void;
+  auto mode(uint2 mode) -> void;
   auto stat() -> void;
   auto coincidence() -> bool;
   auto refresh() -> void;
@@ -68,7 +69,7 @@ struct PPU : Thread {
     uint1 displayEnable;
 
     //$ff41  STAT
-    uint2 mode;
+    uint2 mode;  //0 = Hblank, 1 = Vblank, 2 = OAM search, 3 = LCD transfer
     uint1 interruptHblank;
     uint1 interruptVblank;
     uint1 interruptOAM;

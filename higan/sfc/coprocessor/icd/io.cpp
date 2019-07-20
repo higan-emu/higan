@@ -3,8 +3,7 @@ auto ICD::readIO(uint24 address, uint8 data) -> uint8 {
 
   //LY counter
   if(address == 0x6000) {
-    uint y = min((uint8)143, GameBoy::ppu.status.ly);
-    return (y & ~7) | writeBank;
+    return vcounter & ~7 | writeBank;
   }
 
   //command ready port
@@ -30,8 +29,7 @@ auto ICD::readIO(uint24 address, uint8 data) -> uint8 {
 
   //VRAM port
   if(address == 0x7800) {
-    data = output[readBank * 512 + readAddress];
-    readAddress = (readAddress + 1) & 511;
+    data = output[readBank * 512 + readAddress++];
     return data;
   }
 
@@ -54,7 +52,7 @@ auto ICD::writeIO(uint24 address, uint8 data) -> void {
   //d1,d0: 0 = frequency divider (clock rate adjust)
   if(address == 0x6003) {
     if(r6003.field(7) == 0 && data.field(7) == 1) {
-      reset();
+      power(true);  //soft reset
     }
     auto frequency = system.cpuFrequency();
     switch(data.range(0,1)) {

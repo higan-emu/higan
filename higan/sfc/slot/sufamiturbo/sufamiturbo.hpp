@@ -5,9 +5,10 @@ struct SufamiTurboCartridge {
   inline auto manifest() const -> string { return information.manifest; }
   inline auto name() const -> string { return information.name; }
 
-  auto load(Node::Peripheral, Node::Peripheral) -> void;
-
   //sufamiturbo.cpp
+  auto load(Node::Peripheral, Node::Peripheral) -> void;
+  auto unload() -> void;
+
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
   auto power() -> void;

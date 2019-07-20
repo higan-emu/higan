@@ -11,10 +11,9 @@ auto ICD::name() const -> string {
 }
 
 auto ICD::main() -> void {
-  if(r6003 & 0x80) {
+  if(r6003.field(7)) {
     GameBoy::system.run();
-    Thread::step(GameBoy::system.information.clocksExecuted);
-    GameBoy::system.information.clocksExecuted = 0;
+    Thread::step(GameBoy::system.clocksExecuted());
   } else {  //DMG halted
     stream.sample(0.0, 0.0);
     Thread::step(2);  //two clocks per audio sample
@@ -37,6 +36,11 @@ auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   port->scan(from);
 }
 
+auto ICD::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 auto ICD::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, "Game Boy");
 
@@ -46,52 +50,16 @@ auto ICD::connect(Node::Peripheral with) -> void {
 }
 
 auto ICD::disconnect() -> void {
+  if(!node) return;
   GameBoy::cartridge.disconnect();
   cpu.coprocessors.removeByValue(this);
   Thread::destroy();
   node = {};
-  port = {};
 }
 
-auto ICD::power() -> void {
+auto ICD::power(bool reset) -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
   Thread::create((Frequency ? Frequency : system.cpuFrequency()) / 5.0, [&] {
-    while(true) {
-      if(scheduler.serializing()) GameBoy::system.runToSave();
-      scheduler.serialize();
-      icd.main();
-    }
-  });
-  cpu.coprocessors.append(this);
-
-  stream.create(2, frequency() / 2.0);
-  stream.addHighPassFilter(20.0, Filter::Order::First);
-
-  r6003 = 0x00;
-  r6004 = 0xff;
-  r6005 = 0xff;
-  r6006 = 0xff;
-  r6007 = 0xff;
-  for(auto& r : r7000) r = 0x00;
-  mltReq = 0;
-
-  for(auto& n : output) n = 0xff;
-  readBank = 0;
-  readAddress = 0;
-  writeBank = 0;
-  writeAddress = 0;
-
-  packetSize = 0;
-  joypID = 3;
-  joyp15Lock = 0;
-  joyp14Lock = 0;
-  pulseLock = true;
-
-  GameBoy::system.power();
-}
-
-auto ICD::reset() -> void {
-  Thread::create(Frequency ? Frequency : system.cpuFrequency() / 5.0, [&] {
     while(true) {
       if(scheduler.serializing()) GameBoy::system.runToSave();
       scheduler.serialize();
@@ -100,6 +68,30 @@ auto ICD::reset() -> void {
   });
   cpu.coprocessors.append(this);
 
+  if(!reset) {
+    stream.create(2, frequency() / 2.0);
+    stream.addHighPassFilter(20.0, Filter::Order::First);
+  }
+
+  for(auto& packet : this->packet) packet = {};
+  packetSize = 0;
+
+  joypID = 3;
+  joyp14Lock = 0;
+  joyp15Lock = 0;
+  pulseLock = 1;
+  strobeLock = 0;
+  packetLock = 0;
+  joypPacket = {};
+  packetOffset = 0;
+  bitData = 0;
+  bitOffset = 0;
+
+  for(auto& n : output) n = 0xff;
+  readBank = 0;
+  readAddress = 0;
+  writeBank = 0;
+
   r6003 = 0x00;
   r6004 = 0xff;
   r6005 = 0xff;
@@ -108,17 +100,8 @@ auto ICD::reset() -> void {
   for(auto& r : r7000) r = 0x00;
   mltReq = 0;
 
-  for(auto& n : output) n = 0xff;
-  readBank = 0;
-  readAddress = 0;
-  writeBank = 0;
-  writeAddress = 0;
-
-  packetSize = 0;
-  joypID = 3;
-  joyp15Lock = 0;
-  joyp14Lock = 0;
-  pulseLock = true;
+  hcounter = 0;
+  vcounter = 0;
 
   GameBoy::system.power();
 }

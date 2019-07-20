@@ -11,6 +11,10 @@ auto CartridgePort::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto CartridgePort::unload() -> void {
+  port = {};
+}
+
 auto CartridgePort::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {
