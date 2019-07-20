@@ -24,11 +24,11 @@ auto SMP::readIO(uint16 address) -> uint8 {
     return 0x00;
 
   case 0xf2:  //DSPADDR
-    return io.dspAddr;
+    return io.dspAddress;
 
   case 0xf3:  //DSPDATA
     //0x80-0xff are read-only mirrors of 0x00-0x7f
-    return dsp.read(io.dspAddr & 0x7f);
+    return dsp.read(io.dspAddress & 0x7f);
 
   case 0xf4:  //CPUIO0
     synchronize(cpu);
@@ -126,12 +126,12 @@ auto SMP::writeIO(uint16 address, uint8 data) -> void {
     break;
 
   case 0xf2:  //DSPADDR
-    io.dspAddr = data;
+    io.dspAddress = data;
     break;
 
   case 0xf3:  //DSPDATA
-    if(io.dspAddr & 0x80) break;  //0x80-0xff are read-only mirrors of 0x00-0x7f
-    dsp.write(io.dspAddr & 0x7f, data);
+    if(io.dspAddress & 0x80) break;  //0x80-0xff are read-only mirrors of 0x00-0x7f
+    dsp.write(io.dspAddress & 0x7f, data);
     break;
 
   case 0xf4:  //CPUIO0

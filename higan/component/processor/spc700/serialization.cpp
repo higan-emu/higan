@@ -3,6 +3,7 @@ auto SPC700::serialize(serializer& s) -> void {
   s.integer(r.ya.w);
   s.integer(r.x);
   s.integer(r.s);
+
   s.integer(r.p.c);
   s.integer(r.p.z);
   s.integer(r.p.i);

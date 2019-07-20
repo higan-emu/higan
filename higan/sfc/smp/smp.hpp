@@ -3,13 +3,13 @@
 struct SMP : SPC700, Thread {
   inline auto serializing() const -> bool override { return scheduler.serializing(); }
 
-  //io.cpp
-  auto portRead(uint2 port) const -> uint8;
-  auto portWrite(uint2 port, uint8 data) -> void;
-
   //smp.cpp
   auto main() -> void;
   auto power(bool reset) -> void;
+
+  //io.cpp
+  auto portRead(uint2 port) const -> uint8;
+  auto portWrite(uint2 port, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -40,7 +40,7 @@ private:
     uint1 iplromEnable = true;
 
     //$00f2
-    uint8 dspAddr;
+    uint8 dspAddress;
 
     //$00f4-00f7
     uint8 cpu0;
@@ -67,7 +67,6 @@ private:
   inline auto readIO(uint16 address) -> uint8;
   inline auto writeIO(uint16 address, uint8 data) -> void;
 
-  //timing.cpp
   template<uint Frequency>
   struct Timer {
     uint8   stage0;
@@ -78,14 +77,19 @@ private:
     boolean enable;
     uint8   target;
 
+    //timing.cpp
     auto step(uint clocks) -> void;
     auto synchronizeStage1() -> void;
+
+    //serialization.cpp
+    auto serialize(serializer&) -> void;
   };
 
   Timer<128> timer0;
   Timer<128> timer1;
   Timer< 16> timer2;
 
+  //timing.cpp
   inline auto wait(maybe<uint16> address = nothing) -> void;
   inline auto step(uint clocks) -> void;
   inline auto stepTimers(uint clocks) -> void;

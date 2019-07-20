@@ -75,6 +75,7 @@ auto DSP::Voice::serialize(serializer& s) -> void {
   s.integer(envelopeMode);
   s.integer(envelope);
 
+  s.integer(_envelope);
   s.integer(_keylatch);
   s.integer(_keyon);
   s.integer(_keyoff);
@@ -83,5 +84,4 @@ auto DSP::Voice::serialize(serializer& s) -> void {
   s.integer(_echo);
   s.integer(_end);
   s.integer(_looped);
-  s.integer(_envelope);
 }

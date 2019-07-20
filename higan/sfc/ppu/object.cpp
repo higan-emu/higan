@@ -24,8 +24,8 @@ auto PPU::Object::scanline() -> void {
   auto oamItem = t.item[t.active];
   auto oamTile = t.tile[t.active];
 
-  for(auto n : range(32)) oamItem[n].valid = false;
-  for(auto n : range(34)) oamTile[n].valid = false;
+  for(uint n : range(32)) oamItem[n].valid = false;
+  for(uint n : range(34)) oamTile[n].valid = false;
 
   if(t.y == ppu.vdisp() && !ppu.io.displayDisable) addressReset();
   if(t.y >= ppu.vdisp() - 1 || ppu.io.displayDisable) return;
@@ -39,13 +39,10 @@ auto PPU::Object::evaluate(uint7 index) -> void {
 
   uint7 sprite = io.firstSprite + index;
   if(!onScanline(oam.object[sprite])) return;
+  ppu.latch.oamAddress = sprite;
 
   if(t.itemCount++ < 32) {
     oamItem[t.itemCount - 1] = {true, sprite};
-  }
-
-  if(t.itemCount > 0 && oamItem[t.itemCount - 1].valid) {
-    ppu.latch.oamAddress = 0x0200 + (oamItem[t.itemCount - 1].index >> 2);
   }
 }
 
@@ -64,7 +61,7 @@ auto PPU::Object::run() -> void {
   auto oamTile = t.tile[!t.active];
   uint x = t.x++;
 
-  for(auto n : range(34)) {
+  for(uint n : range(34)) {
     const auto& tile = oamTile[n];
     if(!tile.valid) break;
 
@@ -92,15 +89,19 @@ auto PPU::Object::run() -> void {
 }
 
 auto PPU::Object::fetch() -> void {
-  ppu.step(34 * 2);
-
   auto oamItem = t.item[t.active];
   auto oamTile = t.tile[t.active];
 
-  for(int i = 31; i >= 0; i--) {
+  for(uint i : reverse(range(32))) {
     if(!oamItem[i].valid) continue;
-    auto index = oamItem[i].index;
-    const auto& sprite = oam.object[index];
+
+    if(ppu.io.displayDisable) {
+      ppu.step(8);
+      continue;
+    }
+
+    ppu.latch.oamAddress = oamItem[i].index;
+    const auto& sprite = oam.object[ppu.latch.oamAddress];
 
     uint tileWidth = sprite.width() >> 3;
     int x = sprite.x;
@@ -145,17 +146,16 @@ auto PPU::Object::fetch() -> void {
       uint pos = tiledataAddress + ((chry + (chrx + mx & 15)) << 4);
       uint16 address = (pos & 0xfff0) + (y & 7);
 
-    //ppu.latch.oamAddress = index << 2 | 0;
+      if(!ppu.io.displayDisable)
       oamTile[n].data.bits( 0,15) = ppu.vram[address + 0];
-    //ppu.step();
+      ppu.step(4);
 
-    //ppu.latch.oamAddress = index << 2 | 2;
+      if(!ppu.io.displayDisable)
       oamTile[n].data.bits(16,31) = ppu.vram[address + 8];
-      ppu.step();
+      ppu.step(4);
     }
   }
 
-  if(t.tileCount < 34) ppu.step((34 - t.tileCount) * 2);
   io.timeOver  |= (t.tileCount > 34);
   io.rangeOver |= (t.itemCount > 32);
 }
@@ -180,12 +180,12 @@ auto PPU::Object::power() -> void {
   t.tileCount = 0;
 
   t.active = 0;
-  for(auto p : range(2)) {
-    for(auto n : range(32)) {
+  for(uint p : range(2)) {
+    for(uint n : range(32)) {
       t.item[p][n].valid = false;
       t.item[p][n].index = 0;
     }
-    for(auto n : range(34)) {
+    for(uint n : range(34)) {
       t.tile[p][n].valid = false;
       t.tile[p][n].x = 0;
       t.tile[p][n].priority = 0;

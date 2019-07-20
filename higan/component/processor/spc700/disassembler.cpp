@@ -1,4 +1,4 @@
-auto SPC700::disassemble(uint16 addr, bool p) -> string {
+auto SPC700::disassemble(uint16 addr, uint1 p) -> string {
   auto read = [&](uint16 addr) -> uint8 {
     return readDisassembler(addr);
   };

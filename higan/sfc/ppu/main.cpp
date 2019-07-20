@@ -60,7 +60,9 @@ auto PPU::main() -> void {
   cycles32(1024);
   cycles16(1056);
   cycles08(1072);
+  //H = 1080
   obj.fetch();
+  //H = 1352 (max)
   step(lineclocks() - hcounter());
 }
 
@@ -94,9 +96,9 @@ auto PPU::cycleRenderPixel() -> void {
 
 template<uint Cycle>
 auto PPU::cycle() -> void {
-  if constexpr(Cycle >=    0 && Cycle <= 1022 && (Cycle -    0) % 8 == 0) cycleObjectEvaluate();
-  if constexpr(Cycle >=   28 && Cycle <= 1078 && (Cycle -   28) % 4 == 0) cycleBackgroundBelow();
-  if constexpr(Cycle >=   28 && Cycle <= 1078 && (Cycle -   28) % 4 == 2) cycleBackgroundAbove();
-  if constexpr(Cycle >=   56 && Cycle <= 1078 && (Cycle -   28) % 4 == 2) cycleRenderPixel();
+  if constexpr(Cycle >=  0 && Cycle <= 1022 && (Cycle -    0) % 8 == 0) cycleObjectEvaluate();
+  if constexpr(Cycle >= 28 && Cycle <= 1078 && (Cycle -   28) % 4 == 0) cycleBackgroundBelow();
+  if constexpr(Cycle >= 28 && Cycle <= 1078 && (Cycle -   28) % 4 == 2) cycleBackgroundAbove();
+  if constexpr(Cycle >= 56 && Cycle <= 1078 && (Cycle -   28) % 4 == 2) cycleRenderPixel();
   step();
 }

@@ -22,42 +22,49 @@ auto PPU::readVRAM() -> uint16 {
   return vram[address];
 }
 
-auto PPU::writeVRAM(bool byte, uint8 data) -> void {
+auto PPU::writeVRAM(uint1 byte, uint8 data) -> void {
   if(!io.displayDisable && vcounter() < vdisp()) return;
   auto address = addressVRAM();
   vram[address].byte(byte) = data;
 }
 
-auto PPU::readOAM(uint10 addr) -> uint8 {
-  if(!io.displayDisable && vcounter() < vdisp()) addr = latch.oamAddress;
-  return obj.oam.read(addr);
+auto PPU::readOAM(uint10 address) -> uint8 {
+  if(!io.displayDisable && vcounter() < vdisp()) {
+    if(address.field(9) == 0) return obj.oam.read(0x000 | latch.oamAddress << 2 | address & 1);
+    if(address.field(9) == 1) return obj.oam.read(0x200 | latch.oamAddress >> 2);
+  }
+  return obj.oam.read(address);
 }
 
-auto PPU::writeOAM(uint10 addr, uint8 data) -> void {
-  if(!io.displayDisable && vcounter() < vdisp()) addr = latch.oamAddress;
-  obj.oam.write(addr, data);
+auto PPU::writeOAM(uint10 address, uint8 data) -> void {
+  if(!io.displayDisable && vcounter() < vdisp()) {
+    if(address.field(9) == 0) obj.oam.write(0x000 | latch.oamAddress << 2 | address & 1, data);
+    if(address.field(9) == 1) obj.oam.write(0x200 | latch.oamAddress >> 2, data);
+    return;
+  }
+  obj.oam.write(address, data);
 }
 
-auto PPU::readCGRAM(bool byte, uint8 addr) -> uint8 {
+auto PPU::readCGRAM(uint1 byte, uint8 address) -> uint8 {
   if(!io.displayDisable
   && vcounter() > 0 && vcounter() < vdisp()
   && hcounter() >= 88 && hcounter() < 1096
-  ) addr = latch.cgramAddress;
-  return screen.cgram[addr].byte(byte);
+  ) address = latch.cgramAddress;
+  return screen.cgram[address].byte(byte);
 }
 
-auto PPU::writeCGRAM(uint8 addr, uint15 data) -> void {
+auto PPU::writeCGRAM(uint8 address, uint15 data) -> void {
   if(!io.displayDisable
   && vcounter() > 0 && vcounter() < vdisp()
   && hcounter() >= 88 && hcounter() < 1096
-  ) addr = latch.cgramAddress;
-  screen.cgram[addr] = data;
+  ) address = latch.cgramAddress;
+  screen.cgram[address] = data;
 }
 
-auto PPU::readIO(uint24 addr, uint8 data) -> uint8 {
+auto PPU::readIO(uint24 address, uint8 data) -> uint8 {
   cpu.synchronize(ppu);
 
-  switch((uint16)addr) {
+  switch((uint16)address) {
 
   case 0x2104: case 0x2105: case 0x2106: case 0x2108:
   case 0x2109: case 0x210a: case 0x2114: case 0x2115:
@@ -178,10 +185,10 @@ auto PPU::readIO(uint24 addr, uint8 data) -> uint8 {
   return data;
 }
 
-auto PPU::writeIO(uint24 addr, uint8 data) -> void {
+auto PPU::writeIO(uint24 address, uint8 data) -> void {
   cpu.synchronize(ppu);
 
-  switch((uint16)addr) {
+  switch((uint16)address) {
 
   //INIDISP
   case 0x2100: {

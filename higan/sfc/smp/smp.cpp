@@ -11,6 +11,7 @@ SMP smp;
 auto SMP::main() -> void {
   if(r.wait) return instructionWait();
   if(r.stop) return instructionStop();
+
   instruction();
 }
 

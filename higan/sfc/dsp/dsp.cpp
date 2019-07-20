@@ -189,9 +189,9 @@ auto DSP::power(bool reset) -> void {
   noise = {};
   brr = {};
   latch = {};
-  for(auto n : range(8)) {
+  for(uint n : range(8)) {
     voice[n] = {};
-    voice[n].index = n * 0x10;
+    voice[n].index = n << 4;
   }
 }
 

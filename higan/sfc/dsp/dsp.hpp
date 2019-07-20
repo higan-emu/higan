@@ -6,7 +6,7 @@ struct DSP : Thread {
   uint8 apuram[64 * 1024];
   uint8 registers[128];
 
-  alwaysinline auto mute() const -> bool { return master.mute; }
+  inline auto mute() const -> bool { return master.mute; }
 
   //dsp.cpp
   auto main() -> void;
@@ -110,17 +110,17 @@ private:
      uint3 keyonDelay;      //KON delay/current setup phase
      uint2 envelopeMode;
     uint11 envelope;        //current envelope level (0-2047)
-     int32 _envelope;       //used by GAIN mode 7, very obscure quirk
 
     //internal latches
-    uint1 _keylatch;
-    uint1 _keyon;
-    uint1 _keyoff;
-    uint1 _modulate;
-    uint1 _noise;
-    uint1 _echo;
-    uint1 _end;
-    uint1 _looped;
+     int32 _envelope;       //used by GAIN mode 7, very obscure quirk
+     uint1 _keylatch;
+     uint1 _keyon;
+     uint1 _keyoff;
+     uint1 _modulate;
+     uint1 _noise;
+     uint1 _echo;
+     uint1 _end;
+     uint1 _looped;
   } voice[8];
 
   //gaussian.cpp
