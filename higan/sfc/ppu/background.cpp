@@ -140,9 +140,9 @@ auto PPU::Background::getTile() -> void {
   }
 
   if(mirrorX) for(auto n : range(2)) {
-    data[n] = (data[n] >> 4 & 0x0f0f0f0f) | (data[n] << 4 & 0xf0f0f0f0);
-    data[n] = (data[n] >> 2 & 0x33333333) | (data[n] << 2 & 0xcccccccc);
-    data[n] = (data[n] >> 1 & 0x55555555) | (data[n] << 1 & 0xaaaaaaaa);
+    data[n] = data[n] >> 4 & 0x0f0f0f0f | data[n] << 4 & 0xf0f0f0f0;
+    data[n] = data[n] >> 2 & 0x33333333 | data[n] << 2 & 0xcccccccc;
+    data[n] = data[n] >> 1 & 0x55555555 | data[n] << 1 & 0xaaaaaaaa;
   }
 }
 

@@ -5,16 +5,20 @@ struct PPU : Thread, PPUcounter {
   Node::Natural versionPPU2;
   Node::Natural vramSize;
 
-  alwaysinline auto interlace() const -> bool { return self.interlace; }
-  alwaysinline auto overscan() const -> bool { return self.overscan; }
-  alwaysinline auto vdisp() const -> uint { return self.vdisp; }
+  inline auto interlace() const -> bool { return self.interlace; }
+  inline auto overscan() const -> bool { return self.overscan; }
+  inline auto vdisp() const -> uint { return self.vdisp; }
 
   //ppu.cpp
   auto load(Node::Object parent, Node::Object from) -> void;
   auto unload() -> void;
   auto map() -> void;
-  auto main() -> void;
   auto power(bool reset) -> void;
+  auto refresh() -> void;
+
+  //main.cpp
+  auto main() -> void;
+  template<uint> auto cycle() -> void;
 
   //io.cpp
   auto latchCounters() -> void;
@@ -24,7 +28,8 @@ struct PPU : Thread, PPUcounter {
 
 private:
   //ppu.cpp
-  alwaysinline auto step(uint clocks) -> void;
+  inline auto step() -> void;
+  inline auto step(uint clocks) -> void;
 
   //io.cpp
   alwaysinline auto addressVRAM() const -> uint16;
@@ -41,7 +46,7 @@ private:
   uint32* output = nullptr;
 
   struct VRAM {
-    auto& operator[](uint addr) { return data[addr & mask]; }
+    inline auto& operator[](uint addr) { return data[addr & mask]; }
     uint16 data[64 * 1024];
     uint16 mask = 0x7fff;
   } vram;
@@ -51,9 +56,6 @@ private:
     uint1 overscan;
     uint9 vdisp;
   } self;
-
-  auto scanline() -> void;
-  auto refresh() -> void;
 
   struct {
     uint4 version;

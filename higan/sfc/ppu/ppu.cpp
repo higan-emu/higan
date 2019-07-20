@@ -3,6 +3,7 @@
 namespace higan::SuperFamicom {
 
 PPU ppu;
+#include "main.cpp"
 #include "io.cpp"
 #include "background.cpp"
 #include "object.cpp"
@@ -38,44 +39,15 @@ auto PPU::unload() -> void {
 }
 
 auto PPU::map() -> void {
-  function<auto (uint24, uint8) -> uint8> reader{&PPU::readIO, this};
-  function<auto (uint24, uint8) -> void> writer{&PPU::writeIO, this};
+  function<uint8 (uint24, uint8)> reader{&PPU::readIO, this};
+  function<void (uint24, uint8)> writer{&PPU::writeIO, this};
   bus.map(reader, writer, "00-3f,80-bf:2100-213f");
 }
 
-auto PPU::main() -> void {
-  scanline();
-  step(28);
-  bg1.begin();
-  bg2.begin();
-  bg3.begin();
-  bg4.begin();
-
-  if(vcounter() < vdisp()) {
-    for(int pixel = -7; pixel <= 255; pixel++) {
-      bg1.run(1);
-      bg2.run(1);
-      bg3.run(1);
-      bg4.run(1);
-      step(2);
-
-      bg1.run(0);
-      bg2.run(0);
-      bg3.run(0);
-      bg4.run(0);
-      if(pixel >= 0) {
-        obj.run();
-        window.run();
-        screen.run();
-      }
-      step(2);
-    }
-
-    step(14 + 34 * 2);
-    obj.tilefetch();
-  }
-
-  step(lineclocks() - hcounter());
+auto PPU::step() -> void {
+  tick(2);
+  Thread::step(2);
+  Thread::synchronize(cpu);
 }
 
 auto PPU::step(uint clocks) -> void {
@@ -193,30 +165,6 @@ auto PPU::power(bool reset) -> void {
   screen.power();
 
   updateVideoMode();
-}
-
-auto PPU::scanline() -> void {
-  if(vcounter() == 0) {
-    self.interlace = io.interlace;
-    self.overscan = io.overscan;
-    bg1.frame();
-    bg2.frame();
-    bg3.frame();
-    bg4.frame();
-    obj.frame();
-  }
-
-  bg1.scanline();
-  bg2.scanline();
-  bg3.scanline();
-  bg4.scanline();
-  obj.scanline();
-  window.scanline();
-  screen.scanline();
-
-  if(vcounter() == 240) {
-    scheduler.exit(Scheduler::Event::Frame);
-  }
 }
 
 auto PPU::refresh() -> void {

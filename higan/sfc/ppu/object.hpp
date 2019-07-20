@@ -23,7 +23,7 @@ struct Object {
   alwaysinline auto setFirstSprite() -> void;
   auto frame() -> void;
   auto scanline() -> void;
-  auto run() -> void;
+  noinline auto run() -> void;
   auto tilefetch() -> void;
   auto power() -> void;
 
