@@ -32,7 +32,16 @@ auto PPU::main() -> void {
   #define cycles16(index) cycles08(index); cycles08(index +  8)
   #define cycles32(index) cycles16(index); cycles16(index + 16)
   #define cycles64(index) cycles32(index); cycles32(index + 32)
-  cycles64(   0);
+  cycles16(   0);
+  cycles08(  16);
+  cycles04(  24);
+  //H =   28
+  bg1.begin();
+  bg2.begin();
+  bg3.begin();
+  bg4.begin();
+  cycles04(  28);
+  cycles32(  32);
   cycles64(  64);
   cycles64( 128);
   cycles64( 192);
@@ -63,13 +72,6 @@ auto PPU::cycleObjectEvaluate() -> void {
   obj.evaluate(hcounter() >> 3);
 }
 
-auto PPU::cycleBackgroundBegin() -> void {
-  bg1.begin();
-  bg2.begin();
-  bg3.begin();
-  bg4.begin();
-}
-
 auto PPU::cycleBackgroundBelow() -> void {
   bg1.run(1);
   bg2.run(1);
@@ -93,7 +95,6 @@ auto PPU::cycleRenderPixel() -> void {
 template<uint Cycle>
 auto PPU::cycle() -> void {
   if constexpr(Cycle >=    0 && Cycle <= 1022 && (Cycle -    0) % 8 == 0) cycleObjectEvaluate();
-  if constexpr(Cycle ==   28                                            ) cycleBackgroundBegin();
   if constexpr(Cycle >=   28 && Cycle <= 1078 && (Cycle -   28) % 4 == 0) cycleBackgroundBelow();
   if constexpr(Cycle >=   28 && Cycle <= 1078 && (Cycle -   28) % 4 == 2) cycleBackgroundAbove();
   if constexpr(Cycle >=   56 && Cycle <= 1078 && (Cycle -   28) % 4 == 2) cycleRenderPixel();
