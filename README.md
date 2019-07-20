@@ -34,4 +34,5 @@ Links
 
   - [Official website](https://higan.byuu.org)
   - [Official git repository](https://github.com/byuu/higan)
-  - [Official documentation](https://higan.readthedocs.io/)
+  - [Official documentation](https://higan.readthedocs.io)
+  - [Donations](https://patreon.com/byuu)
