@@ -2,7 +2,7 @@ InputHotkey::InputHotkey(string_view name) : name(name) {
 }
 
 auto InputHotkey::poll() -> void {
-  if(device) {
+  if(device && !hotkeySettings.visible()) {
     newValue = device->group(groupID).input(inputID).value();
     if(oldValue == 0 && newValue == 1 && onPress) onPress();
     if(oldValue == 1 && newValue == 0 && onRelease) onRelease();
@@ -30,9 +30,20 @@ Hotkeys::Hotkeys() {
   hotkeys.append(&togglePanels);
 
   toggleFullscreen.onPress = [&] {
+    if(!emulator.system.power) return;
     emulator.videoToggleFullscreen();
   };
   hotkeys.append(&toggleFullscreen);
+
+  toggleMouseCapture.onPress = [&] {
+    if(!emulator.system.power) return;
+    if(!inputInstance.acquired()) {
+      inputInstance.acquire();
+    } else {
+      inputInstance.release();
+    }
+  };
+  hotkeys.append(&toggleMouseCapture);
 
   fastForward.onPress = [&] {
     if(!interface) return;

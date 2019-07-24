@@ -15,7 +15,7 @@ struct HotkeySettings : Panel {
   Label headerLabel{this, Size{~0, 0}};
   TableView hotkeyList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Label message{&controlLayout, Size{~0, 0}};
+    Widget spacer{&controlLayout, Size{~0, 0}, 0};
     Button assignButton{&controlLayout, Size{80_sx, 0}};
     Button clearButton{&controlLayout, Size{80_sx, 0}};
 

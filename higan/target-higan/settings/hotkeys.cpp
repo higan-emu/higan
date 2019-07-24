@@ -5,7 +5,6 @@ HotkeySettings::HotkeySettings(View* parent) : Panel(parent, Size{~0, ~0}) {
   hotkeyList.setBatchable();
   hotkeyList.onActivate([&] { eventAssign(); });
   hotkeyList.onChange([&] { eventChange(); });
-  message.setFont(Font().setBold());
   assignButton.setText("Assign").onActivate([&] { eventAssign(); });
   clearButton.setText("Clear").onActivate([&] { eventClear(); });
 }
@@ -33,7 +32,6 @@ auto HotkeySettings::refresh() -> void {
   }
   update();
   hotkeyList.doChange();
-  message.setText();
 }
 
 auto HotkeySettings::update() -> void {
@@ -41,7 +39,10 @@ auto HotkeySettings::update() -> void {
     auto value = item.cell(1);
     auto hotkey = item.property<InputHotkey*>("hotkey");
     if(hotkey->device) {
-      value.setText(hotkey->device->group(hotkey->groupID).input(hotkey->inputID).name()).setFont();
+      string label{hotkey->device->name()};
+      if(hotkey->device->isJoypad()) label.append(".", hotkey->device->group(hotkey->groupID).name());
+      label.append(".", hotkey->device->group(hotkey->groupID).input(hotkey->inputID).name());
+      value.setText(label).setFont();
     } else {
       value.setText("(unmapped)").setFont(Font().setSize(7.0));
     }
@@ -58,20 +59,19 @@ auto HotkeySettings::eventAssign() -> void {
 
 auto HotkeySettings::eventAssignNext() -> void {
   if(!assigningQueue) {
-    hotkeyList.setFocused();
-    for(auto& item : hotkeyList.batched()) item.setSelected(false);
-    message.setText();
-    return;
+    hotkeyList.selectNone().setFocused();
+    return eventChange();
   }
 
+  //use the viewport to sink inputs away from the table view during assignment
   programWindow.viewport.setFocused();
   auto item = assigningQueue.takeFirst();
-  item.setFocused();
+  hotkeyList.selectNone();
+  item.setSelected().setFocused();
   auto hotkey = item.property<InputHotkey*>("hotkey");
-  message.setText({"Assign: ", hotkey->name});
-  assignButton.setEnabled(false);
-  clearButton.setEnabled(false);
+  item.cell(1).setText("(assign)");
   assigning = *hotkey;
+  eventChange();
 }
 
 auto HotkeySettings::eventClear() -> void {
@@ -92,13 +92,27 @@ auto HotkeySettings::eventChange() -> void {
 }
 
 auto HotkeySettings::eventInput(shared_pointer<HID::Device> device, uint group, uint input, int16_t oldValue, int16_t newValue) -> void {
-  if(!assigning || !device->isKeyboard() || oldValue == 1 || newValue == 0) return;
+  if(!assigning) return;
+
+  bool allow = false;
+
+  if(device->isKeyboard()) {
+    if(oldValue == 0 && newValue == 1) allow = true;
+  }
+  if(device->isJoypad() && group == HID::Joypad::Button) {
+    if(oldValue == 0 && newValue == 1) allow = true;
+  }
+
+  if(!allow) return;
+
   assigning->identifier = {};
-  assigning->identifier.append(hex(device->pathID()), "/");
-  assigning->identifier.append(hex(device->vendorID()), "/");
-  assigning->identifier.append(hex(device->productID()), "/");
-  assigning->identifier.append(device->group(group).name(), "/");
-  assigning->identifier.append(device->group(group).input(input).name());
+  if(device->group(group).input(input).name() != "Escape") {
+    assigning->identifier.append(hex(device->pathID()), "/");
+    assigning->identifier.append(hex(device->vendorID()), "/");
+    assigning->identifier.append(hex(device->productID()), "/");
+    assigning->identifier.append(device->group(group).name(), "/");
+    assigning->identifier.append(device->group(group).input(input).name());
+  }
   assigning.reset();
   hotkeys.bind();
   update();

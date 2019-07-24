@@ -46,6 +46,7 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   if(settings.video.output == "Stretch") outputStretch.setChecked();
   aspectCorrection.setText("Aspect Correction").setChecked(settings.video.aspectCorrection).onToggle([&] {
     settings.video.aspectCorrection = aspectCorrection.checked();
+    programWindow.adaptiveResize();
   });
   adaptiveSizing.setText("Adaptive Sizing").setChecked(settings.video.adaptiveSizing).onToggle([&] {
     settings.video.adaptiveSizing = adaptiveSizing.checked();
@@ -174,7 +175,7 @@ ToolsMenu::ToolsMenu(MenuBar* parent) : Menu(parent) {
 HelpMenu::HelpMenu(MenuBar* parent) : Menu(parent) {
   setText("Help");
   documentation.setIcon(Icon::Application::Browser).setText("Documentation ...").onActivate([&] {
-    invoke("https://doc.byuu.org/higan/");
+    invoke("https://doc.byuu.org/higan");
   });
   about.setIcon(Icon::Prompt::Question).setText("About ...").onActivate([&] {
     AboutDialog()

@@ -4,8 +4,37 @@
 InputManager inputManager;
 Hotkeys& hotkeys = inputManager.hotkeys;
 
-auto InputButton::value() -> bool {
-  return device->group(groupID).input(inputID).value();
+auto InputButton::value() -> int16_t {
+  auto value = device->group(groupID).input(inputID).value();
+
+  if(device->isKeyboard() && groupID == HID::Keyboard::Button) {
+    return value == 1;
+  }
+
+  if(device->isJoypad() && (groupID == HID::Joypad::Axis || groupID == HID::Joypad::Hat)) {
+    if(qualifier == Qualifier::Lo && value < -16384) return 1;
+    if(qualifier == Qualifier::Hi && value > +16384) return 1;
+    return 0;
+  }
+
+  if(device->isJoypad() && groupID == HID::Joypad::Button) {
+    return value == 1;
+  }
+
+  return 0;
+}
+
+//
+
+auto InputAxis::value() -> int16_t {
+  if(!inputInstance.acquired()) return 0;
+  auto value = device->group(groupID).input(inputID).value();
+
+  if(device->isMouse() && groupID == HID::Mouse::Axis) {
+    return value;
+  }
+
+  return 0;
 }
 
 //
@@ -36,7 +65,18 @@ auto InputManager::bind(maybe<higan::Node::Object> newRoot) -> void {
         instance->device = device;
         instance->groupID = input->property("groupID").natural();
         instance->inputID = input->property("inputID").natural();
+        if(input->property("qualifier") == "Lo") instance->qualifier = InputButton::Qualifier::Lo;
+        if(input->property("qualifier") == "Hi") instance->qualifier = InputButton::Qualifier::Hi;
         input->setProperty<shared_pointer<InputButton>>("instance", instance);
+        break;
+      }
+
+      if(input->cast<higan::Node::Axis>()) {
+        auto instance = shared_pointer_make<InputAxis>();
+        instance->device = device;
+        instance->groupID = input->property("groupID").natural();
+        instance->inputID = input->property("inputID").natural();
+        input->setProperty<shared_pointer<InputAxis>>("instance", instance);
         break;
       }
     }

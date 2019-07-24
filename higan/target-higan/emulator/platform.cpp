@@ -130,4 +130,11 @@ auto Emulator::input(higan::Node::Input input) -> void {
       button->value = allow ? instance->value() : 0;
     }
   }
+
+  if(auto axis = input->cast<higan::Node::Axis>()) {
+    axis->value = 0;
+    if(auto instance = axis->property<shared_pointer<InputAxis>>("instance")) {
+      axis->value = allow ? instance->value() : 0;
+    }
+  }
 }

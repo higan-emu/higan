@@ -1,12 +1,22 @@
 #include "hotkeys.hpp"
 
-struct InputButton {
-  auto value() -> bool;
+struct InputAxis {
+  auto value() -> int16_t;
 
   const string name;
   shared_pointer<HID::Device> device;
   uint groupID;
   uint inputID;
+};
+
+struct InputButton {
+  auto value() -> int16_t;
+
+  const string name;
+  shared_pointer<HID::Device> device;
+  uint groupID;
+  uint inputID;
+  enum class Qualifier : uint { None, Lo, Hi } qualifier = Qualifier::None;
 };
 
 struct InputManager {
@@ -20,7 +30,6 @@ struct InputManager {
   vector<shared_pointer<HID::Device>> devices;
   Hotkeys hotkeys;
 
-private:
   uint64_t pollFrequency = 5;
   uint64_t lastPoll = 0;
 };

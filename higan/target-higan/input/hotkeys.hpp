@@ -27,6 +27,7 @@ struct Hotkeys {
   InputHotkey toggleStatus{"Toggle Status Bar"};
   InputHotkey togglePanels{"Toggle System Panels"};
   InputHotkey toggleFullscreen{"Toggle Fullscreen"};
+  InputHotkey toggleMouseCapture{"Toggle Mouse Capture"};
   InputHotkey fastForward{"Fast Forward"};
   InputHotkey saveState{"Save State"};
   InputHotkey loadState{"Load State"};

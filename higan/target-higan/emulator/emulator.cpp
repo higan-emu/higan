@@ -120,6 +120,7 @@ auto Emulator::power(bool on) -> void {
     setCaption();
     videoInstance.clear();
     audioInstance.clear();
+    inputInstance.release();
   }
   systemMenu.power.setChecked(on);
   toolsMenu.saveStateMenu.setEnabled(on);

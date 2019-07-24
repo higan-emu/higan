@@ -48,6 +48,7 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(hotkeys.toggleStatus.identifier)
   s(hotkeys.togglePanels.identifier)
   s(hotkeys.toggleFullscreen.identifier)
+  s(hotkeys.toggleMouseCapture.identifier)
   s(hotkeys.fastForward.identifier)
   s(hotkeys.saveState.identifier)
   s(hotkeys.loadState.identifier)

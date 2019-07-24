@@ -103,8 +103,8 @@ ProgramWindow::ProgramWindow() {
 auto ProgramWindow::adaptiveResize() -> void {
   if(!settings.video.adaptiveSizing) return;
 
-  uint width  = 320;
-  uint height = 240;
+  uint width  = 640;
+  uint height = 480;
 
   if(emulator.root) {
     if(auto video = emulator.root->find<higan::Node::Video>(0)) {
@@ -114,8 +114,12 @@ auto ProgramWindow::adaptiveResize() -> void {
     }
   }
 
-  width  *= 2;
-  height *= 2;
+  uint multiplierX = ceil(640.0 / width);
+  uint multiplierY = ceil(480.0 / height);
+  uint multiplier  = max(multiplierX, multiplierY);
+
+  width  *= multiplier;
+  height *= multiplier;
 
   if(statusLayout.visible()) height += statusHeight;
   if(panels.visible()) height += panelsHeight;
