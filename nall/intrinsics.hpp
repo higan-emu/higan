@@ -29,6 +29,7 @@ namespace nall {
   constexpr auto compiler() -> Compiler { return Compiler::Clang; }
 
   #pragma clang diagnostic warning "-Wreturn-type"
+  #pragma clang diagnostic ignored "-Wunused-result"
   #pragma clang diagnostic ignored "-Wunknown-pragmas"
   #pragma clang diagnostic ignored "-Wempty-body"
   #pragma clang diagnostic ignored "-Wparentheses"
@@ -46,6 +47,7 @@ namespace nall {
   constexpr auto compiler() -> Compiler { return Compiler::GCC; }
 
   #pragma GCC diagnostic warning "-Wreturn-type"
+  #pragma GCC diagnostic ignored "-Wunused-result"
   #pragma GCC diagnostic ignored "-Wunknown-pragmas"
   #pragma GCC diagnostic ignored "-Wpragmas"
   #pragma GCC diagnostic ignored "-Wswitch-bool"
