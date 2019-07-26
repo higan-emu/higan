@@ -157,6 +157,7 @@ auto AboutDialog::show() -> void {
   window.setDismissable();
   window.setVisible();
   window.setModal();
+  window.setVisible(false);
 }
 
 #endif

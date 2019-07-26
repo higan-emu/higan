@@ -41,9 +41,9 @@ else ifeq ($(platform),windows)
 	cp -R System/* $(prefix)/$(name)/
 else ifeq ($(platform),macos)
 	mkdir -p ~/Library/Application\ Support\$(name)/
-	mkdir -p ~/Library/Application\ Support\$(name)/Systems/
+	mkdir -p ~/Library/Application\ Support\$(name)/System/
 	cp -R out/$(name).app /Applications/$(name).app
-	cp -R Systems/* ~/Library/Application\ Support/$(name)/Systems/
+	cp -R System/* ~/Library/Application\ Support/$(name)/
 else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/bin/
 	mkdir -p $(prefix)/share/applications/
