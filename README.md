@@ -29,6 +29,10 @@ expect rapid changes and some instabilities during this period.
 If stability is required, please download the latest stable release from the
 [official website.](https://higan.byuu.org)
 
+Nightly builds are available via Cirrus CI.
+
+  - [Nightly builds](https://cirrus-ci.com/github/byuu/higan)
+
 Links
 -----
 
