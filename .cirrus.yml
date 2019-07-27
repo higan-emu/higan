@@ -6,18 +6,18 @@ linux-x86_64-binaries_task:
         - apt-get update && apt-get -y install build-essential libgtk2.0-dev libpulse-dev mesa-common-dev libgtksourceview2.0-dev libcairo2-dev libsdl2-dev libxv-dev libao-dev libopenal-dev libudev-dev
 
     compile_script:
-        - make -C genius
+        - make -C higan
         - make -C icarus
-        - make -C higan target=higan
+        - make -C genius
 
     package_script:
         - mkdir higan-nightly
-        - cp -a genius/out/genius higan-nightly/genius
+        - cp -a higan/out/higan higan-nightly/higan
+        - cp -a higan/System/ higan-nightly/
         - cp -a icarus/out/icarus higan-nightly/icarus
         - cp -a icarus/Database higan-nightly/
         - cp -a icarus/Firmware higan-nightly/
-        - cp -a higan/out/higan higan-nightly/higan
-        - cp -a higan/System/ higan-nightly/
+        - cp -a genius/out/genius higan-nightly/genius
         - cp -a GPLv3.txt higan-nightly/
 
     higan-nightly_artifacts:
@@ -31,18 +31,18 @@ freebsd-x86_64-binaries_task:
         - pkg install --yes gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv
 
     compile_script:
-        - gmake -C genius
+        - gmake -C higan
         - gmake -C icarus
-        - gmake -C higan target=higan
+        - gmake -C genius
 
     package_script:
         - mkdir higan-nightly
-        - cp -a genius/out/genius higan-nightly/genius
+        - cp -a higan/out/higan higan-nightly/higan
+        - cp -a higan/System/ higan-nightly/
         - cp -a icarus/out/icarus higan-nightly/icarus
         - cp -a icarus/Database higan-nightly/
         - cp -a icarus/Firmware higan-nightly/
-        - cp -a higan/out/higan higan-nightly/higan
-        - cp -a higan/System/ higan-nightly/
+        - cp -a genius/out/genius higan-nightly/genius
         - cp -a GPLv3.txt higan-nightly/
 
     higan-nightly_artifacts:
@@ -56,19 +56,16 @@ windows-x86_64-binaries_task:
         - apt-get update && apt-get -y install build-essential mingw-w64
 
     compile_script:
-        # genius does not currently build on Windows due to lack of a combo edit control in hiro
-        #- make -C genius platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
+        - make -C higan platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
         - make -C icarus platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
-        - make -C higan target=higan platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
 
     package_script:
         - mkdir higan-nightly
-        #- cp -a genius/out/genius higan-nightly/genius.exe
+        - cp -a higan/out/higan higan-nightly/higan.exe
+        - cp -a higan/System/ higan-nightly/
         - cp -a icarus/out/icarus higan-nightly/icarus.exe
         - cp -a icarus/Database higan-nightly/
         - cp -a icarus/Firmware higan-nightly/
-        - cp -a higan/out/higan higan-nightly/higan.exe
-        - cp -a higan/System/ higan-nightly/
         - cp -a GPLv3.txt higan-nightly/
 
     higan-nightly_artifacts:
@@ -79,17 +76,16 @@ macOS-x86_64-binaries_task:
         image: mojave-base
 
     compile_script:
+        - make -C higan
         - make -C icarus
-        - make -C higan target=higan
 
     package_script:
         - mkdir higan-nightly
-        # FIXME: How does icarus on macOS find its Database and Firmware directories?
+        - cp -a higan/out/higan.app higan-nightly/
+        - cp -a higan/System/ higan-nightly/
         - cp -a icarus/out/icarus.app higan-nightly/
         - cp -a icarus/Database higan-nightly/
         - cp -a icarus/Firmware higan-nightly/
-        - cp -a higan/out/higan.app higan-nightly/
-        - cp -a higan/System/ higan-nightly/
         - cp -a GPLv3.txt higan-nightly/
 
     higan-nightly_artifacts:
