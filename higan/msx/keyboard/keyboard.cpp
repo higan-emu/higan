@@ -6,6 +6,42 @@ Keyboard keyboard;
 #include "serialization.cpp"
 
 auto Keyboard::load(Node::Object parent, Node::Object from) -> void {
+  port = Node::append<Node::Port>(parent, from, "Keyboard", "Keyboard");
+  port->hotSwappable = true;
+  port->attach = [&](auto node) { connect(node); };
+  port->detach = [&](auto node) { disconnect(); };
+  port->scan(from);
+}
+
+auto Keyboard::connect(Node::Peripheral node) -> void {
+  disconnect();
+  if(node) {
+    string name{"Layout"};
+    if(node) name = node->name;
+    layout = Node::append<Node::Peripheral>(port, node, name);
+    Markup::Node document;
+    if(auto fp = platform->open(layout, "layout.bml", File::Read)) {
+      document = BML::unserialize(fp->reads());
+    }
+    for(uint column : range(12)) {
+      for(uint row : range(8)) {
+        string label{column, ",", row};
+        if(auto key = document[{"layout/key[", column * 8 + row, "]"}]) {
+          label = key.text();
+        }
+        matrix[column][row] = Node::append<Node::Button>(layout, node, label);
+      }
+    }
+  }
+}
+
+auto Keyboard::disconnect() -> void {
+  layout = {};
+  for(uint column : range(12)) {
+    for(uint row : range(8)) {
+      matrix[column][row] = {};
+    }
+  }
 }
 
 auto Keyboard::power() -> void {
@@ -13,8 +49,16 @@ auto Keyboard::power() -> void {
 }
 
 auto Keyboard::read() -> uint8 {
-  uint8 index = io.select << 3;
+  uint8 column = io.select;
   uint8 data = 0xff;
+  if(column >= 0 && column <= 11) {
+    for(uint row : range(8)) {
+      if(auto node = matrix[column][row]) {
+        platform->input(node);
+        data.field(row) = !node->value;
+      }
+    }
+  }
   return data;
 }
 

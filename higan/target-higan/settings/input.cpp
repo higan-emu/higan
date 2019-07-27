@@ -13,8 +13,7 @@ InputSettings::InputSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
   });
   activateButton.setText("Activate").onActivate([&] { eventActivate(); });
 
-  optionsHeader.setText("Options").setFont(Font().setBold());
-  focusLabel.setText("When focus is lost:");
+  focusLossHeader.setText("Focus Loss").setFont(Font().setBold());
   focusPause.setText("Pause emulation").onActivate([&] {
     settings.input.unfocused = "Pause";
   });

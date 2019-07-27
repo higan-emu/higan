@@ -6,10 +6,10 @@ using namespace hiro;
 
 namespace icarus {
   static const string Name    = "icarus";
-  static const string Version = "106.171";
+  static const string Version = "106.188";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
-  static const string Website = "https://byuu.org/";
+  static const string Website = "https://byuu.org";
 }
 
 auto operator+=(string& lhs, const string& rhs) -> string& {

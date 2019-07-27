@@ -21,7 +21,7 @@ auto HotkeySettings::hide() -> void {
 
 auto HotkeySettings::refresh() -> void {
   hotkeyList.reset().setEnabled();
-  hotkeyList.append(TableViewColumn().setText("Name").setBackgroundColor({240, 240, 255}));
+  hotkeyList.append(TableViewColumn().setText("Name"));
   hotkeyList.append(TableViewColumn().setText("Mapping").setExpandable());
   for(auto& hotkey : hotkeys.hotkeys) {
     TableViewItem item{&hotkeyList};
@@ -39,12 +39,18 @@ auto HotkeySettings::update() -> void {
     auto value = item.cell(1);
     auto hotkey = item.property<InputHotkey*>("hotkey");
     if(hotkey->device) {
-      string label{hotkey->device->name()};
-      if(hotkey->device->isJoypad()) label.append(".", hotkey->device->group(hotkey->groupID).name());
-      label.append(".", hotkey->device->group(hotkey->groupID).input(hotkey->inputID).name());
-      value.setText(label).setFont();
+      auto device = hotkey->device->name();
+      if(device == "Keyboard") value.setIcon(Icon::Device::Keyboard);
+      else if(device == "Mouse") value.setIcon(Icon::Device::Mouse);
+      else if(device == "Joypad") value.setIcon(Icon::Device::Joypad);
+      else value.setIcon(Icon::Action::Close);
+      string label;
+      if(hotkey->device->isJoypad()) label.append(hotkey->device->group(hotkey->groupID).name(), ".");
+      label.append(hotkey->device->group(hotkey->groupID).input(hotkey->inputID).name());
+      value.setText(label);
     } else {
-      value.setText("(unmapped)").setFont(Font().setSize(7.0));
+      value.setIcon(Icon::Action::Close);
+      value.setText("(unmapped)");
     }
   }
 
@@ -69,7 +75,7 @@ auto HotkeySettings::eventAssignNext() -> void {
   hotkeyList.selectNone();
   item.setSelected().setFocused();
   auto hotkey = item.property<InputHotkey*>("hotkey");
-  item.cell(1).setText("(assign)");
+  item.cell(1).setIcon(Icon::Go::Right).setText("(assign)");
   assigning = *hotkey;
   eventChange();
 }

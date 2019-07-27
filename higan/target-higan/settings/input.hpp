@@ -14,11 +14,10 @@ struct InputSettings : Panel {
     ComboButton driverOption{&driverLayout, Size{0, 0}};
     Button activateButton{&driverLayout, Size{0, 0}};
 
-  Label optionsHeader{&layout, Size{~0, 0}};
-  HorizontalLayout optionsLayout{&layout, Size{~0, 0}};
-    Label focusLabel{&optionsLayout, Size{0, 0}};
-    RadioLabel focusPause{&optionsLayout, Size{0, 0}};
-    RadioLabel focusBlock{&optionsLayout, Size{0, 0}};
-    RadioLabel focusAllow{&optionsLayout, Size{0, 0}};
+  Label focusLossHeader{&layout, Size{~0, 0}};
+  HorizontalLayout focusLossLayout{&layout, Size{~0, 0}};
+    RadioLabel focusPause{&focusLossLayout, Size{0, 0}};
+    RadioLabel focusBlock{&focusLossLayout, Size{0, 0}};
+    RadioLabel focusAllow{&focusLossLayout, Size{0, 0}};
     Group focusGroup{&focusPause, &focusBlock, &focusAllow};
 };

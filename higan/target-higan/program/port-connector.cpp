@@ -4,6 +4,7 @@ PortConnector::PortConnector(View* parent) : Panel(parent, Size{~0, ~0}) {
   renameAction.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] { eventRename(); });
   removeAction.setIcon(Icon::Action::Remove).setText("Delete ...").onActivate([&] { eventRemove(); });
 
+  locationLabel.setMouseCursor(MouseCursor::Hand);
   locationLabel.setFont(Font().setBold());
   locationLabel.setForegroundColor({0, 0, 240});
   locationLabel.onMousePress([&](auto button) {
@@ -31,6 +32,10 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
 
   auto path = port->property("path");
   if(!path) path = {emulator.system.data, port->type, "/"};
+  if(path.beginsWith(Path::user())) {
+    path.trimLeft(Path::user(), 1L);
+    path.prepend("~/");
+  }
   locationLabel.setText(path);
   peripheralList.reset();
   ListViewItem item{&peripheralList};

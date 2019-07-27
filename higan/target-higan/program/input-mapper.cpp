@@ -28,7 +28,7 @@ auto InputMapper::refresh(higan::Node::Object node) -> void {
 
   nameLabel.setText(node->name);
   inputList.reset().setEnabled();
-  inputList.append(TableViewColumn().setText("Name").setBackgroundColor({240, 240, 255}));
+  inputList.append(TableViewColumn().setText("Name"));
   inputList.append(TableViewColumn().setText("Mapping").setExpandable());
   for(auto& node : node->find<higan::Node::Input>()) {
     if(node->parent != this->node) continue;
@@ -47,13 +47,19 @@ auto InputMapper::update() -> void {
     auto value = item.cell(1);
     auto node = item.property<higan::Node::Input>("node");
     if(auto name = node->property("inputName")) {
-      string label{node->property("deviceName")};
-      if(label == "Joypad") label.append(".", node->property("groupName"));
-      label.append(".", node->property("inputName"));
+      auto device = node->property("deviceName");
+      if(device == "Keyboard") value.setIcon(Icon::Device::Keyboard);
+      else if(device == "Mouse") value.setIcon(Icon::Device::Mouse);
+      else if(device == "Joypad") value.setIcon(Icon::Device::Joypad);
+      else value.setIcon(Icon::Action::Close);
+      string label;
+      if(label == "Joypad") label.append(node->property("groupName"), ".");
+      label.append(node->property("inputName"));
       if(auto qualifier = node->property("qualifier")) label.append(".", qualifier);
-      value.setText(label).setFont();
+      value.setText(label);
     } else {
-      value.setText("(unmapped)").setFont(Font().setSize(7.0));
+      value.setIcon(Icon::Action::Close);
+      value.setText("(unmapped)");
     }
   }
 
@@ -94,7 +100,7 @@ auto InputMapper::eventAssignNext() -> void {
   inputList.selectNone();
   item.setSelected().setFocused();  //scroll the current assigning mapping into view
   auto input = item.property<higan::Node::Input>("node");
-  item.cell(1).setText("(assign)");
+  item.cell(1).setIcon(Icon::Go::Right).setText("(assign)");
   assigning = input;
   eventChange();
 }

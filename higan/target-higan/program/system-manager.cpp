@@ -41,7 +41,11 @@ auto SystemManager::refresh() -> void {
     interfaces.foreach([&](auto interface) {
       if(interface->name() == system) found = true;
     });
-    if(!found) item.setForegroundColor({240, 80, 80});
+    if(!found) {
+      item.setForegroundColor({240, 80, 80});
+      //only show the missing systems in advanced mode.
+      if(!settings.interface.advancedMode) item.remove();
+    }
   }
 }
 

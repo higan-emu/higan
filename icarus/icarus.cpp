@@ -80,6 +80,7 @@ auto nall::main(Arguments arguments) -> void {
             .error();
           }
         }
+        return;
       }
     }
   }
