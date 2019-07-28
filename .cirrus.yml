@@ -3,7 +3,7 @@ linux-x86_64-binaries_task:
         image: ubuntu:latest
 
     setup_script:
-        - apt-get update && apt-get -y install build-essential libgtk2.0-dev libpulse-dev mesa-common-dev libgtksourceview2.0-dev libcairo2-dev libsdl2-dev libxv-dev libao-dev libopenal-dev libudev-dev
+        - apt-get update && apt-get -y install build-essential libgtk2.0-dev libpulse-dev mesa-common-dev libgtksourceview2.0-dev libcairo2-dev libsdl2-dev libxv-dev libao-dev libopenal-dev libudev-dev zip
 
     compile_script:
         - make -C higan
@@ -28,7 +28,7 @@ freebsd-x86_64-binaries_task:
         image: freebsd-12-0-release-amd64
 
     setup_script:
-        - pkg install --yes gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv
+        - pkg install --yes gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv zip
 
     compile_script:
         - gmake -C higan

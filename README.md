@@ -29,10 +29,6 @@ expect rapid changes and some instabilities during this period.
 If stability is required, please download the latest stable release from the
 [official website.](https://higan.byuu.org)
 
-Nightly builds are available via Cirrus CI.
-
-  - [Nightly builds](https://cirrus-ci.com/github/byuu/higan)
-
 Links
 -----
 
@@ -40,3 +36,12 @@ Links
   - [Official git repository](https://github.com/byuu/higan)
   - [Official documentation](https://higan.readthedocs.io)
   - [Donations](https://patreon.com/byuu)
+
+Nightly Builds
+--------------
+
+  - [Download](https://cirrus-ci.com/github/byuu/higan/master)
+  - ![Build status](https://api.cirrus-ci.com/github/byuu/higan.svg?task=windows-x86_64-binaries)
+  - ![Build status](https://api.cirrus-ci.com/github/byuu/higan.svg?task=macOS-x86_64-binaries)
+  - ![Build status](https://api.cirrus-ci.com/github/byuu/higan.svg?task=linux-x86_64-binaries)
+  - ![Build status](https://api.cirrus-ci.com/github/byuu/higan.svg?task=freebsd-x86_64-binaries)
