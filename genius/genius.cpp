@@ -44,14 +44,14 @@ ListWindow::ListWindow() {
     .setVersion("1")
     .setAuthor("byuu")
     .setLicense("GPLv3")
-    .setWebsite("https://byuu.org/")
+    .setWebsite("https://byuu.org")
     .setAlignment(*this)
     .show();
   });
 
   layout.setPadding(5);
   gameList.setHeadered();
-  gameList.onActivate([&] { modifyButton.doActivate(); });
+  gameList.onActivate([&](auto cell) { modifyButton.doActivate(); });
   gameList.onChange([&] { updateWindow(); });
   appendButton.setText("Append").onActivate([&] {
     setEnabled(false);
