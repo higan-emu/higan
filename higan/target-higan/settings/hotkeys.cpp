@@ -3,7 +3,7 @@ HotkeySettings::HotkeySettings(View* parent) : Panel(parent, Size{~0, ~0}) {
 
   headerLabel.setText("Hotkeys").setFont(Font().setBold());
   hotkeyList.setBatchable();
-  hotkeyList.onActivate([&] { eventAssign(); });
+  hotkeyList.onActivate([&](auto cell) { eventAssign(); });
   hotkeyList.onChange([&] { eventChange(); });
   assignButton.setText("Assign").onActivate([&] { eventAssign(); });
   clearButton.setText("Clear").onActivate([&] { eventClear(); });

@@ -1,20 +1,24 @@
 target := higan
 build := performance
 openmp := false
+local := true
 flags += -I. -I..
 
 nall.path := ../nall
 include $(nall.path)/GNUmakefile
 
+ifeq ($(platform),local)
+  flags += -march=native
+endif
+
 ifeq ($(platform),windows)
-  link += -luuid -lkernel32 -luser32 -lgdi32 -lcomctl32 -lcomdlg32 -lshell32
-  link += -Wl,-enable-auto-import
-  link += -Wl,-enable-runtime-pseudo-reloc
+  options += -luuid -lkernel32 -luser32 -lgdi32 -lcomctl32 -lcomdlg32 -lshell32
+  options += -Wl,-enable-auto-import
+  options += -Wl,-enable-runtime-pseudo-reloc
 else ifeq ($(platform),macos)
 else ifneq ($(filter $(platform),linux bsd),)
-  flags += -march=native
-  link += -Wl,-export-dynamic
-  link += -lX11 -lXext
+  options += -Wl,-export-dynamic
+  options += -lX11 -lXext
 else
   $(error "unsupported platform")
 endif

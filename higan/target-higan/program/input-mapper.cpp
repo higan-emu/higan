@@ -2,7 +2,7 @@ InputMapper::InputMapper(View* view) : Panel(view, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
   nameLabel.setFont(Font().setBold());
   inputList.setBatchable();
-  inputList.onActivate([&] { eventAssign(); });
+  inputList.onActivate([&](auto cell) { eventAssign(); });
   inputList.onChange([&] { eventChange(); });
   mouseXaxis.setText("Mouse X-axis").setCollapsible().onActivate([&] { eventAssignMouse(0, 0); });
   mouseYaxis.setText("Mouse Y-axis").setCollapsible().onActivate([&] { eventAssignMouse(0, 1); });

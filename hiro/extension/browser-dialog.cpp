@@ -8,10 +8,12 @@ struct BrowserDialogWindow {
   auto activate() -> void;
   auto change() -> void;
   auto context() -> void;
+  auto isObject(const string& name) -> bool;
+  auto isFile(const string& name) -> bool;
   auto isFolder(const string& name) -> bool;
   auto isMatch(const string& name) -> bool;
   auto run() -> BrowserDialog::Response;
-  auto setPath(string path) -> void;
+  auto setPath(string path, const string& contains = "") -> void;
 
 private:
   Window window;
@@ -24,7 +26,8 @@ private:
         Button pathUp{&pathLayout, Size{0, 0}, 0};
       ListView view{&layout, Size{~0, ~0}, 5_sx};
       HorizontalLayout controlLayout{&layout, Size{~0, 0}};
-        ComboButton filterList{&controlLayout, Size{0, 0}, 5_sx};
+        ComboButton filterList{&controlLayout, Size{0, 0}, 0};
+        Button searchButton{&controlLayout, Size{0, 0}, 0};
         LineEdit fileName{&controlLayout, Size{~0, 0}, 5_sx};
         ComboButton optionList{&controlLayout, Size{0, 0}, 5_sx};
         Button acceptButton{&controlLayout, Size{80_sx, 0}, 5_sx};
@@ -42,7 +45,7 @@ private:
   vector<vector<string>> filters;
 };
 
-//accept button clicked, or enter pressed on file name line edit
+//accept button clicked, or enter pressed inside file name field
 //also called by table view activate after special case handling
 auto BrowserDialogWindow::accept() -> void {
   auto batched = view.batched();
@@ -50,7 +53,7 @@ auto BrowserDialogWindow::accept() -> void {
   if(state.action == "openFile" && batched.size() == 1) {
     string name = batched[0].text();
     if(isFolder(name)) return setPath({state.path, name});
-    response.selected.append(string{state.path, name});
+    response.selected.append({state.path, name});
   }
 
   if(state.action == "openFiles" && batched) {
@@ -62,20 +65,20 @@ auto BrowserDialogWindow::accept() -> void {
         response.selected.reset();
         return;
       }
-      response.selected.append(string{state.path, name});
+      response.selected.append({state.path, name});
     }
   }
 
   if(state.action == "openFolder" && batched.size() == 1) {
     string name = batched[0].text();
     if(!isMatch(name)) return setPath({state.path, name});
-    response.selected.append(string{state.path, name, "/"});
+    response.selected.append({state.path, name, "/"});
   }
 
   if(state.action == "openObject" && batched.size() == 1) {
     string name = batched[0].text();
     if(!isMatch(name) && isFolder(name)) return setPath({state.path, name});
-    response.selected.append(string{state.path, name, isFolder(name) ? "/" : ""});
+    response.selected.append({state.path, name, isFolder(name) ? "/" : ""});
   }
 
   if(state.action == "saveFile") {
@@ -84,7 +87,7 @@ auto BrowserDialogWindow::accept() -> void {
     if(file::exists({state.path, name})) {
       if(MessageDialog("File already exists. Overwrite it?").question() != "Yes") return;
     }
-    response.selected.append(string{state.path, name});
+    response.selected.append({state.path, name});
   }
 
   if(state.action == "selectFolder") {
@@ -92,7 +95,7 @@ auto BrowserDialogWindow::accept() -> void {
       response.selected.append(state.path);
     } else if(batched.size() == 1) {
       string name = batched[0].text();
-      if(isFolder(name)) response.selected.append(string{state.path, name, "/"});
+      if(isFolder(name)) response.selected.append({state.path, name, "/"});
     }
   }
 
@@ -136,9 +139,13 @@ auto BrowserDialogWindow::change() -> void {
     acceptButton.setEnabled(batched.size() == 1);
   }
   if(state.action == "saveFile") {
+    string result;
     if(batched.size() == 1) {
       string name = batched[0].text();
-      if(!isFolder(name)) fileName.setText(name).doChange();
+      if(!isFolder(name)) result = name;
+    }
+    if(result != fileName.text()) {
+      fileName.setText(result).doChange();
     }
   }
   if(state.action == "selectFolder") {
@@ -162,6 +169,14 @@ auto BrowserDialogWindow::context() -> void {
     removeAction.setVisible(true);
   }
   contextMenu.setVisible();
+}
+
+auto BrowserDialogWindow::isObject(const string& name) -> bool {
+  return inode::exists({state.path, name});
+}
+
+auto BrowserDialogWindow::isFile(const string& name) -> bool {
+  return file::exists({state.path, name});
 }
 
 auto BrowserDialogWindow::isFolder(const string& name) -> bool {
@@ -212,12 +227,30 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
     optionList.append(ComboButtonItem().setText(option));
   }
   optionList.doChange();  //updates response.option to point to the default (first) option
-  fileName.setVisible(state.action == "saveFile").onActivate([&] { accept(); }).onChange([&] {
+  image iconSearch{Icon::Action::Search};
+  iconSearch.scale(16_sx, 16_sy);
+  searchButton.setIcon(iconSearch).setBordered(false).onActivate([&] { setPath(state.path, fileName.text()); });
+  fileName.onActivate([&] {
+    string name = fileName.text();
+    if((state.action == "openFile" || state.action == "openFiles") && isFile(name)) {
+      response.selected.append({state.path, name});
+      return (void)window.setModal(false);
+    }
+    if((state.action == "openFolder" || state.action == "selectFolder") && isFolder(name)) {
+      response.selected.append({state.path, name});
+      return (void)window.setModal(false);
+    }
+    if(state.action == "openObject" && isObject(name)) {
+      response.selected.append({state.path, name});
+      return (void)window.setModal(false);
+    }
+    if(state.action == "saveFile") return accept();
+    setPath(state.path, name);
+  }).onChange([&] {
     auto name = fileName.text();
-    acceptButton.setEnabled(name && !isFolder(name));
-    fileName.setBackgroundColor(acceptButton.enabled() ? Color{} : Color{255, 224, 224});
+    if(state.action == "saveFile") acceptButton.setEnabled(name && !isFolder(name));
   });
-  acceptButton.onActivate([&] { accept(); });
+  acceptButton.setEnabled(false).onActivate([&] { accept(); });
   if(state.action.beginsWith("open")) acceptButton.setText(tr("Open"));
   if(state.action.beginsWith("save")) acceptButton.setText(tr("Save"));
   if(state.action.beginsWith("select")) acceptButton.setText(tr("Select"));
@@ -326,7 +359,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   window.setAlignment(state.relativeTo, state.alignment);
   window.setDismissable();
   window.setVisible();
-  view.setFocused();
+  fileName.setFocused();
   Application::processEvents();
   view->resizeColumns();
   window.setModal();
@@ -335,7 +368,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   return response;
 }
 
-auto BrowserDialogWindow::setPath(string path) -> void {
+auto BrowserDialogWindow::setPath(string path, const string& contains) -> void {
   path.transform("\\", "/");
   if((path || Path::root() == "/") && !path.endsWith("/")) path.append("/");
   pathName.setText(state.path = path);
@@ -365,13 +398,14 @@ auto BrowserDialogWindow::setPath(string path) -> void {
       if(state.action == "openFolder") continue;
     }
     if(!isMatch(content)) continue;
+    if(contains && !content.ifind(contains)) continue;
     if(!showHiddenOption.checked() && file::hidden({state.path, content})) continue;
     view.append(ListViewItem().setText(content).setIcon(isFolder ? (image)Icon::Action::Open : (image)Icon::Emblem::File));
   }
 
   Application::processEvents();
   view->resizeColumns();  //todo: on Windows, adding items may add vertical scrollbar; this hack corrects column width
-  view.setFocused().doChange();
+  view.doChange();
 }
 
 //

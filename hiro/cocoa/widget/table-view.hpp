@@ -8,7 +8,7 @@
   CocoaTableViewContent* content;
   NSFont* font;
 }
--(id) initWith:(hiro::mTableView&)tableView;
+-(id) initWith:(hiro::mTableView&)tableViewReference;
 -(void) dealloc;
 -(CocoaTableViewContent*) content;
 -(NSFont*) font;
@@ -20,12 +20,13 @@
 -(NSString*) tableView:(NSTableView*)table toolTipForCell:(NSCell*)cell rect:(NSRectPointer)rect tableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row mouseLocation:(NSPoint)mouseLocation;
 -(void) tableView:(NSTableView*)tableView willDisplayCell:(id)cell forTableColumn:(NSTableColumn*)tableColumn row:(NSInteger)row;
 -(void) tableViewSelectionDidChange:(NSNotification*)notification;
--(IBAction) activate:(id)sender;
 -(IBAction) doubleAction:(id)sender;
 @end
 
 @interface CocoaTableViewContent : NSTableView {
+  hiro::mTableView* tableView;
 }
+-(id) initWith:(hiro::mTableView&)tableViewReference;
 -(void) keyDown:(NSEvent*)event;
 @end
 
