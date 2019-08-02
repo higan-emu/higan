@@ -19,6 +19,9 @@ struct WDC65816 {
 
   virtual auto readDisassembler(uint24 addr) -> uint8 { return 0; }
 
+  inline auto irq() const -> bool { return r.irq; }
+  virtual inline auto irq(bool line) -> void { r.irq = line; }
+
   using r8 = uint8;
 
   struct r16 {
@@ -190,7 +193,7 @@ struct WDC65816 {
   auto instructionReturnShort() -> void;
   auto instructionReturnLong() -> void;
 
-  //instructions-misc.cpp
+  //instructions-other.cpp
   auto instructionBitImmediate8() -> void;
   auto instructionBitImmediate16() -> void;
   auto instructionNoOperation() -> void;

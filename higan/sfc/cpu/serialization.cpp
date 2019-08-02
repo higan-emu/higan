@@ -9,7 +9,6 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(counter.dma);
 
   s.integer(status.clockCount);
-  s.integer(status.lineClocks);
 
   s.integer(status.irqLock);
 
@@ -34,9 +33,7 @@ auto CPU::serialize(serializer& s) -> void {
   s.boolean(status.irqPending);
   s.boolean(status.irqHold);
 
-  s.integer(status.powerPending);
   s.integer(status.resetPending);
-
   s.integer(status.interruptPending);
 
   s.integer(status.dmaActive);

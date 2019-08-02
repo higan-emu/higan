@@ -21,37 +21,33 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
 auto CPU::main() -> void {
   if(r.wai) return instructionWait();
   if(r.stp) return instructionStop();
+  if(!status.interruptPending) return instruction();
 
-  if(status.interruptPending) {
-    status.interruptPending = false;
-    if(status.nmiPending) {
-      status.nmiPending = false;
-      r.vector = r.e ? 0xfffa : 0xffea;
-      interrupt();
-    } else if(status.irqPending) {
-      status.irqPending = false;
-      r.vector = r.e ? 0xfffe : 0xffee;
-      interrupt();
-    } else if(status.resetPending) {
-      status.resetPending = false;
-      step(132);
-      r.vector = 0xfffc;
-      interrupt();
-    } else if(status.powerPending) {
-      status.powerPending = false;
-      step(186);
-      r.pc.l = bus.read(0xfffc, r.mdr);
-      r.pc.h = bus.read(0xfffd, r.mdr);
-      r.pc.b = 0x00;
-    }
+  if(status.nmiPending) {
+    status.nmiPending = 0;
+    r.vector = r.e ? 0xfffa : 0xffea;
+    return interrupt();
   }
 
-  instruction();
+  if(status.irqPending) {
+    status.irqPending = 0;
+    r.vector = r.e ? 0xfffe : 0xffee;
+    return interrupt();
+  }
+
+  if(status.resetPending) {
+    status.resetPending = 0;
+    step(132);
+    r.vector = 0xfffc;
+    return interrupt();  //H=186
+  }
+
+  status.interruptPending = 0;
 }
 
 auto CPU::map() -> void {
-  function<auto (uint24, uint8) -> uint8> reader;
-  function<auto (uint24, uint8) -> void> writer;
+  function<uint8 (uint24, uint8)> reader;
+  function<void  (uint24, uint8)> writer;
 
   reader = {&CPU::readRAM, this};
   writer = {&CPU::writeRAM, this};
@@ -93,13 +89,11 @@ auto CPU::power(bool reset) -> void {
   alu = {};
 
   status = {};
-  status.lineClocks = lineclocks();
   status.dramRefreshPosition = (io.version == 1 ? 530 : 538);
   status.hdmaSetupPosition = (io.version == 1 ? 12 + 8 - dmaCounter() : 12 + dmaCounter());
   status.hdmaPosition = 1104;
-  status.powerPending = reset == 0;
-  status.resetPending = reset == 1;
-  status.interruptPending = true;
+  status.resetPending = 1;
+  status.interruptPending = 1;
 }
 
 }

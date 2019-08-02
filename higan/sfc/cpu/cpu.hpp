@@ -50,9 +50,9 @@ struct CPU : WDC65816, Thread, PPUcounter {
 
   alwaysinline auto aluEdge() -> void;
   alwaysinline auto dmaEdge() -> void;
-  alwaysinline auto lastCycle() -> void override;
 
   //irq.cpp
+  auto irq(bool line) -> void override;
   alwaysinline auto pollInterrupts() -> void;
   auto nmitimenUpdate(uint8 data) -> void;
   auto rdnmi() -> bool;
@@ -60,6 +60,7 @@ struct CPU : WDC65816, Thread, PPUcounter {
 
   alwaysinline auto nmiTest() -> bool;
   alwaysinline auto irqTest() -> bool;
+  alwaysinline auto lastCycle() -> void override;
 
   //joypad.cpp
   auto joypadEdge() -> void;
@@ -79,18 +80,17 @@ private:
 
   struct Status {
     uint clockCount = 0;
-    uint lineClocks = 0;
 
-    bool irqLock = false;
+    bool irqLock = 0;
 
     uint dramRefreshPosition = 0;
     uint dramRefresh = 0;  //0 = not refreshed; 1 = refresh active; 2 = refresh inactive
 
     uint hdmaSetupPosition = 0;
-    bool hdmaSetupTriggered = false;
+    bool hdmaSetupTriggered = 0;
 
     uint hdmaPosition = 0;
-    bool hdmaTriggered = false;
+    bool hdmaTriggered = 0;
 
     boolean nmiValid;
     boolean nmiLine;
@@ -104,18 +104,16 @@ private:
     boolean irqPending;
     boolean irqHold;
 
-    bool powerPending = false;
-    bool resetPending = false;
+    bool resetPending = 0;
+    bool interruptPending = 0;
 
-    bool interruptPending = false;
-
-    bool dmaActive = false;
-    bool dmaPending = false;
-    bool hdmaPending = false;
+    bool dmaActive = 0;
+    bool dmaPending = 0;
+    bool hdmaPending = 0;
     bool hdmaMode = 0;  //0 = init, 1 = run
 
-    bool autoJoypadActive = false;
-    bool autoJoypadLatch = false;
+    bool autoJoypadActive = 0;
+    bool autoJoypadLatch = 0;
     uint autoJoypadCounter = 0;
   } status;
 

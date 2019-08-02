@@ -22,7 +22,7 @@ auto PPU::main() -> void {
   }
 
   if(vcounter() > 240) {
-    step(lineclocks());
+    step(hperiod());
     return;
   }
 
@@ -63,7 +63,7 @@ auto PPU::main() -> void {
   //H = 1080
   obj.fetch();
   //H = 1352 (max)
-  step(lineclocks() - hcounter());
+  step(hperiod() - hcounter());
 }
 
 //it would be lovely if we could put these functions inside cycle(),
