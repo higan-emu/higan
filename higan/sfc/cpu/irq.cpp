@@ -54,6 +54,7 @@ auto CPU::nmitimenUpdate(uint8 data) -> void {
 
   if(io.nmiEnable.raise(data.field(7)) && status.nmiLine) {
     status.nmiTransition = 1;
+    r.wai = 0;
   }
 
   status.irqLock = 1;
