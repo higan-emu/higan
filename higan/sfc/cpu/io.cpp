@@ -81,7 +81,7 @@ auto CPU::readDMA(uint24 address, uint8 data) -> uint8 {
   case 0x4302: return channel.sourceAddress >> 0;  //A1TxL
   case 0x4303: return channel.sourceAddress >> 8;  //A1TxH
   case 0x4304: return channel.sourceBank;          //A1Bx
-  case 0x4305: return channel.transferSize >> 8;   //DASxL
+  case 0x4305: return channel.transferSize >> 0;   //DASxL
   case 0x4306: return channel.transferSize >> 8;   //DASxH
   case 0x4307: return channel.indirectBank;        //DASBx
   case 0x4308: return channel.hdmaAddress >> 0;    //A2AxL
