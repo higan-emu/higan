@@ -6,7 +6,6 @@ auto SA1::serialize(serializer& s) -> void {
   s.array(bwram.data(), bwram.size());
   s.integer(bwram.dma);
 
-  //sa1.hpp
   s.integer(status.counter);
 
   s.integer(status.interruptPending);
@@ -15,129 +14,127 @@ auto SA1::serialize(serializer& s) -> void {
   s.integer(status.vcounter);
   s.integer(status.hcounter);
 
-  //dma/dma.hpp
   s.integer(dma.line);
 
-  //mmio/mmio.hpp
-  s.integer(mmio.sa1_irq);
-  s.integer(mmio.sa1_rdyb);
-  s.integer(mmio.sa1_resb);
-  s.integer(mmio.sa1_nmi);
-  s.integer(mmio.smeg);
+  s.integer(io.sa1_irq);
+  s.integer(io.sa1_rdyb);
+  s.integer(io.sa1_resb);
+  s.integer(io.sa1_nmi);
+  s.integer(io.smeg);
 
-  s.integer(mmio.cpu_irqen);
-  s.integer(mmio.chdma_irqen);
+  s.integer(io.cpu_irqen);
+  s.integer(io.chdma_irqen);
 
-  s.integer(mmio.cpu_irqcl);
-  s.integer(mmio.chdma_irqcl);
+  s.integer(io.cpu_irqcl);
+  s.integer(io.chdma_irqcl);
 
-  s.integer(mmio.crv);
+  s.integer(io.crv);
 
-  s.integer(mmio.cnv);
+  s.integer(io.cnv);
 
-  s.integer(mmio.civ);
+  s.integer(io.civ);
 
-  s.integer(mmio.cpu_irq);
-  s.integer(mmio.cpu_ivsw);
-  s.integer(mmio.cpu_nvsw);
-  s.integer(mmio.cmeg);
+  s.integer(io.cpu_irq);
+  s.integer(io.cpu_ivsw);
+  s.integer(io.cpu_nvsw);
+  s.integer(io.cmeg);
 
-  s.integer(mmio.sa1_irqen);
-  s.integer(mmio.timer_irqen);
-  s.integer(mmio.dma_irqen);
-  s.integer(mmio.sa1_nmien);
+  s.integer(io.sa1_irqen);
+  s.integer(io.timer_irqen);
+  s.integer(io.dma_irqen);
+  s.integer(io.sa1_nmien);
 
-  s.integer(mmio.sa1_irqcl);
-  s.integer(mmio.timer_irqcl);
-  s.integer(mmio.dma_irqcl);
-  s.integer(mmio.sa1_nmicl);
+  s.integer(io.sa1_irqcl);
+  s.integer(io.timer_irqcl);
+  s.integer(io.dma_irqcl);
+  s.integer(io.sa1_nmicl);
 
-  s.integer(mmio.snv);
+  s.integer(io.snv);
 
-  s.integer(mmio.siv);
+  s.integer(io.siv);
 
-  s.integer(mmio.hvselb);
-  s.integer(mmio.ven);
-  s.integer(mmio.hen);
+  s.integer(io.hvselb);
+  s.integer(io.ven);
+  s.integer(io.hen);
 
-  s.integer(mmio.hcnt);
+  s.integer(io.hcnt);
 
-  s.integer(mmio.vcnt);
+  s.integer(io.vcnt);
 
-  s.integer(mmio.cbmode);
-  s.integer(mmio.cb);
+  s.integer(io.cbmode);
+  s.integer(io.cb);
 
-  s.integer(mmio.dbmode);
-  s.integer(mmio.db);
+  s.integer(io.dbmode);
+  s.integer(io.db);
 
-  s.integer(mmio.ebmode);
-  s.integer(mmio.eb);
+  s.integer(io.ebmode);
+  s.integer(io.eb);
 
-  s.integer(mmio.fbmode);
-  s.integer(mmio.fb);
+  s.integer(io.fbmode);
+  s.integer(io.fb);
 
-  s.integer(mmio.sbm);
+  s.integer(io.sbm);
 
-  s.integer(mmio.sw46);
-  s.integer(mmio.cbm);
+  s.integer(io.sw46);
+  s.integer(io.cbm);
 
-  s.integer(mmio.swen);
+  s.integer(io.swen);
 
-  s.integer(mmio.cwen);
+  s.integer(io.cwen);
 
-  s.integer(mmio.bwp);
+  s.integer(io.bwp);
 
-  s.integer(mmio.siwp);
+  s.integer(io.siwp);
 
-  s.integer(mmio.ciwp);
+  s.integer(io.ciwp);
 
-  s.integer(mmio.dmaen);
-  s.integer(mmio.dprio);
-  s.integer(mmio.cden);
-  s.integer(mmio.cdsel);
-  s.integer(mmio.dd);
-  s.integer(mmio.sd);
+  s.integer(io.dmaen);
+  s.integer(io.dprio);
+  s.integer(io.cden);
+  s.integer(io.cdsel);
+  s.integer(io.dd);
+  s.integer(io.sd);
 
-  s.integer(mmio.chdend);
-  s.integer(mmio.dmasize);
-  s.integer(mmio.dmacb);
+  s.integer(io.chdend);
+  s.integer(io.dmasize);
+  s.integer(io.dmacb);
 
-  s.integer(mmio.dsa);
+  s.integer(io.dsa);
 
-  s.integer(mmio.dda);
+  s.integer(io.dda);
 
-  s.integer(mmio.dtc);
+  s.integer(io.dtc);
 
-  s.integer(mmio.bbf);
+  s.integer(io.bbf);
 
-  s.array(mmio.brf);
+  s.array(io.brf);
 
-  s.integer(mmio.acm);
-  s.integer(mmio.md);
+  s.integer(io.acm);
+  s.integer(io.md);
 
-  s.integer(mmio.ma);
+  s.integer(io.ma);
 
-  s.integer(mmio.mb);
+  s.integer(io.mb);
 
-  s.integer(mmio.hl);
-  s.integer(mmio.vb);
+  s.integer(io.hl);
+  s.integer(io.vb);
 
-  s.integer(mmio.va);
-  s.integer(mmio.vbit);
+  s.integer(io.va);
+  s.integer(io.vbit);
 
-  s.integer(mmio.cpu_irqfl);
-  s.integer(mmio.chdma_irqfl);
+  s.integer(io.cpu_irqfl);
+  s.integer(io.chdma_irqfl);
 
-  s.integer(mmio.sa1_irqfl);
-  s.integer(mmio.timer_irqfl);
-  s.integer(mmio.dma_irqfl);
-  s.integer(mmio.sa1_nmifl);
+  s.integer(io.sa1_irqfl);
+  s.integer(io.timer_irqfl);
+  s.integer(io.dma_irqfl);
+  s.integer(io.sa1_nmifl);
 
-  s.integer(mmio.hcr);
+  s.integer(io.hcr);
 
-  s.integer(mmio.vcr);
+  s.integer(io.vcr);
 
-  s.integer(mmio.mr);
+  s.integer(io.mr);
 
-  s.integer(mmio.overflow);
+  s.integer(io.overflow);
 }

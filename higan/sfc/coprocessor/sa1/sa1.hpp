@@ -24,7 +24,7 @@ struct SA1 : WDC65816, Thread {
 
   auto dmaNormal() -> void;
   auto dmaCC1() -> void;
-  auto dmaCC1Read(uint addr) -> uint8;
+  auto dmaCC1Read(uint address) -> uint8;
   auto dmaCC2() -> void;
 
   //memory.cpp
@@ -113,7 +113,7 @@ private:
     uint16 hcounter;
   } status;
 
-  struct MMIO {
+  struct IO {
     //$2200 CCNT
     bool sa1_irq;
     bool sa1_rdyb;
@@ -225,10 +225,10 @@ private:
     uint8 dmacb;
 
     //$2232-$2234 SDA
-    uint32 dsa;
+    uint24 dsa;
 
     //$2235-$2237 DDA
-    uint32 dda;
+    uint24 dda;
 
     //$2238,$2239 DTC
     uint16 dtc;
@@ -254,7 +254,7 @@ private:
     uint8 vb;
 
     //$2259-$225b VDA
-    uint32 va;
+    uint24 va;
     uint8 vbit;
 
     //$2300 SFR
@@ -278,7 +278,7 @@ private:
 
     //$230b OF
     bool overflow;
-  } mmio;
+  } io;
 };
 
 extern SA1 sa1;

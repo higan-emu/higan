@@ -31,7 +31,7 @@ auto Bus::reset() -> void {
 
 auto Bus::map(
   const function<uint8 (uint24, uint8)>& read,
-  const function<void (uint24, uint8)>& write,
+  const function<void  (uint24, uint8)>& write,
   const string& addr, uint size, uint base, uint mask
 ) -> uint {
   uint id = 1;

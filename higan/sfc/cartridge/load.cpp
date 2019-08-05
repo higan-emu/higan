@@ -75,7 +75,7 @@ auto Cartridge::loadCartridge(Markup::Node node) -> void {
 
 //
 
-auto Cartridge::loadMemory(Memory& ram, Markup::Node node, bool required) -> void {
+auto Cartridge::loadMemory(AbstractMemory& ram, Markup::Node node, bool required) -> void {
   if(auto memory = lookupMemory(node)) {
     ram.allocate(memory["size"].natural());
     if(memory["type"].text() == "RAM" && memory["volatile"]) return;
@@ -91,13 +91,13 @@ auto Cartridge::loadMemory(Memory& ram, Markup::Node node, bool required) -> voi
 
 template<typename T>  //T = ReadableMemory, WritableMemory, ProtectableMemory
 auto Cartridge::loadMap(Markup::Node map, T& memory) -> uint {
-  auto addr = map["address"].text();
+  auto address = map["address"].text();
   auto size = map["size"].natural();
   auto base = map["base"].natural();
   auto mask = map["mask"].natural();
   if(size == 0) size = memory.size();
   if(size == 0) return print("loadMap(): size=0\n"), 0;  //does this ever actually occur?
-  return bus.map({&T::read, &memory}, {&T::write, &memory}, addr, size, base, mask);
+  return bus.map({&T::read, &memory}, {&T::write, &memory}, address, size, base, mask);
 }
 
 auto Cartridge::loadMap(
@@ -105,11 +105,11 @@ auto Cartridge::loadMap(
   const function<uint8 (uint24, uint8)>& reader,
   const function<void (uint24, uint8)>& writer
 ) -> uint {
-  auto addr = map["address"].text();
+  auto address = map["address"].text();
   auto size = map["size"].natural();
   auto base = map["base"].natural();
   auto mask = map["mask"].natural();
-  return bus.map(reader, writer, addr, size, base, mask);
+  return bus.map(reader, writer, address, size, base, mask);
 }
 
 //memory(type=ROM,content=Program)

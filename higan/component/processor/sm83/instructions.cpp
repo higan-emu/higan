@@ -106,7 +106,7 @@ auto SM83::instructionDAA() -> void {
     if(CF) a -= 0x60;
   }
   A = a;
-  CF |= a.bit(8);
+  CF |= a.field(8);
   HF = 0;
   ZF = A == 0;
 }
@@ -277,12 +277,12 @@ auto SM83::instructionPUSH_Direct(uint16& data) -> void {
 }
 
 auto SM83::instructionRES_Index_Direct(uint3 index, uint8& data) -> void {
-  data.bit(index) = 0;
+  data.field(index) = 0;
 }
 
 auto SM83::instructionRES_Index_Indirect(uint3 index, uint16& address) -> void {
   auto data = read(address);
-  data.bit(index) = 0;
+  data.field(index) = 0;
   write(address, data);
 }
 
@@ -386,12 +386,12 @@ auto SM83::instructionSCF() -> void {
 }
 
 auto SM83::instructionSET_Index_Direct(uint3 index, uint8& data) -> void {
-  data.bit(index) = 1;
+  data.field(index) = 1;
 }
 
 auto SM83::instructionSET_Index_Indirect(uint3 index, uint16& address) -> void {
   auto data = read(address);
-  data.bit(index) = 1;
+  data.field(index) = 1;
   write(address, data);
 }
 

@@ -2,11 +2,11 @@ auto DSP::brrDecode(Voice& v) -> void {
   //state.t_brr_byte = ram[v.brr_addr + v.brr_offset] cached from previous clock cycle
   int nybbles = (brr._byte << 8) + apuram[(uint16)(v.brrAddress + v.brrOffset + 1)];
 
-  const int filter = brr._header.bits(2,3);
-  const int scale  = brr._header.bits(4,7);
+  const int filter = brr._header.range(2,3);
+  const int scale  = brr._header.range(4,7);
 
   //decode four samples
-  for(auto n : range(4)) {
+  for(uint n : range(4)) {
     //bits 12-15 = current nybble; sign extend, then shift right to 4-bit precision
     //result: s = 4-bit sign-extended sample value
     int s = (int16)nybbles >> 12;

@@ -1,47 +1,47 @@
-auto SuperFX::read(uint24 addr, uint8 data) -> uint8 {
-  if((addr & 0xc00000) == 0x000000) {  //$00-3f:0000-7fff,:8000-ffff
+auto SuperFX::read(uint24 address, uint8 data) -> uint8 {
+  if((address & 0xc00000) == 0x000000) {  //$00-3f:0000-7fff,:8000-ffff
     while(!regs.scmr.ron) {
       step(6);
       synchronize(cpu);
       if(scheduler.serializing()) break;
     }
-    return rom.read((((addr & 0x3f0000) >> 1) | (addr & 0x7fff)) & romMask);
+    return rom.read((((address & 0x3f0000) >> 1) | (address & 0x7fff)) & romMask);
   }
 
-  if((addr & 0xe00000) == 0x400000) {  //$40-5f:0000-ffff
+  if((address & 0xe00000) == 0x400000) {  //$40-5f:0000-ffff
     while(!regs.scmr.ron) {
       step(6);
       synchronize(cpu);
       if(scheduler.serializing()) break;
     }
-    return rom.read(addr & romMask);
+    return rom.read(address & romMask);
   }
 
-  if((addr & 0xfe0000) == 0x700000) {  //$70-71:0000-ffff
+  if((address & 0xfe0000) == 0x700000) {  //$70-71:0000-ffff
     while(!regs.scmr.ran) {
       step(6);
       synchronize(cpu);
       if(scheduler.serializing()) break;
     }
-    return ram.read(addr & ramMask);
+    return ram.read(address & ramMask);
   }
 
   return data;
 }
 
-auto SuperFX::write(uint24 addr, uint8 data) -> void {
-  if((addr & 0xfe0000) == 0x700000) {  //$70-71:0000-ffff
+auto SuperFX::write(uint24 address, uint8 data) -> void {
+  if((address & 0xfe0000) == 0x700000) {  //$70-71:0000-ffff
     while(!regs.scmr.ran) {
       step(6);
       synchronize(cpu);
       if(scheduler.serializing()) break;
     }
-    return ram.write(addr & ramMask, data);
+    return ram.write(address & ramMask, data);
   }
 }
 
-auto SuperFX::readOpcode(uint16 addr) -> uint8 {
-  uint16 offset = addr - regs.cbr;
+auto SuperFX::readOpcode(uint16 address) -> uint8 {
+  uint16 offset = address - regs.cbr;
   if(offset < 512) {
     if(cache.valid[offset >> 4] == false) {
       uint dp = offset & 0xfff0;
@@ -61,12 +61,12 @@ auto SuperFX::readOpcode(uint16 addr) -> uint8 {
     //$00-5f:0000-ffff ROM
     syncROMBuffer();
     step(regs.clsr ? 5 : 6);
-    return read(regs.pbr << 16 | addr);
+    return read(regs.pbr << 16 | address);
   } else {
     //$60-7f:0000-ffff RAM
     syncRAMBuffer();
     step(regs.clsr ? 5 : 6);
-    return read(regs.pbr << 16 | addr);
+    return read(regs.pbr << 16 | address);
   }
 }
 
@@ -88,13 +88,13 @@ auto SuperFX::flushCache() -> void {
   for(uint n : range(32)) cache.valid[n] = false;
 }
 
-auto SuperFX::readCache(uint16 addr) -> uint8 {
-  addr = (addr + regs.cbr) & 511;
-  return cache.buffer[addr];
+auto SuperFX::readCache(uint16 address) -> uint8 {
+  address = (address + regs.cbr) & 511;
+  return cache.buffer[address];
 }
 
-auto SuperFX::writeCache(uint16 addr, uint8 data) -> void {
-  addr = (addr + regs.cbr) & 511;
-  cache.buffer[addr] = data;
-  if((addr & 15) == 15) cache.valid[addr >> 4] = true;
+auto SuperFX::writeCache(uint16 address, uint8 data) -> void {
+  address = (address + regs.cbr) & 511;
+  cache.buffer[address] = data;
+  if((address & 15) == 15) cache.valid[address >> 4] = true;
 }

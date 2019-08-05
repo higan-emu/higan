@@ -18,10 +18,10 @@ auto SA1::ROM::write(uint24 address, uint8 data) -> void {
 auto SA1::ROM::readCPU(uint24 address, uint8 data) -> uint8 {
   //reset vector overrides
   if((address & 0xffffe0) == 0x007fe0) {  //00:ffe0-ffef
-    if(address == 0x7fea && sa1.mmio.cpu_nvsw) return sa1.mmio.snv >> 0;
-    if(address == 0x7feb && sa1.mmio.cpu_nvsw) return sa1.mmio.snv >> 8;
-    if(address == 0x7fee && sa1.mmio.cpu_ivsw) return sa1.mmio.siv >> 0;
-    if(address == 0x7fef && sa1.mmio.cpu_ivsw) return sa1.mmio.siv >> 8;
+    if(address == 0x7fea && sa1.io.cpu_nvsw) return sa1.io.snv >> 0;
+    if(address == 0x7feb && sa1.io.cpu_nvsw) return sa1.io.snv >> 8;
+    if(address == 0x7fee && sa1.io.cpu_ivsw) return sa1.io.siv >> 0;
+    if(address == 0x7fef && sa1.io.cpu_ivsw) return sa1.io.siv >> 8;
   }
 
   static auto read = [](uint address) {
@@ -33,23 +33,23 @@ auto SA1::ROM::readCPU(uint24 address, uint8 data) -> uint8 {
   address &= 0x3fffff;
 
   if(address < 0x100000) {  //00-1f,8000-ffff; c0-cf:0000-ffff
-    if(lo && sa1.mmio.cbmode == 0) return read(address);
-    return read(sa1.mmio.cb << 20 | address & 0x0fffff);
+    if(lo && sa1.io.cbmode == 0) return read(address);
+    return read(sa1.io.cb << 20 | address & 0x0fffff);
   }
 
   if(address < 0x200000) {  //20-3f,8000-ffff; d0-df:0000-ffff
-    if(lo && sa1.mmio.dbmode == 0) return read(address);
-    return read(sa1.mmio.db << 20 | address & 0x0fffff);
+    if(lo && sa1.io.dbmode == 0) return read(address);
+    return read(sa1.io.db << 20 | address & 0x0fffff);
   }
 
   if(address < 0x300000) {  //80-9f,8000-ffff; e0-ef:0000-ffff
-    if(lo && sa1.mmio.ebmode == 0) return read(address);
-    return read(sa1.mmio.eb << 20 | address & 0x0fffff);
+    if(lo && sa1.io.ebmode == 0) return read(address);
+    return read(sa1.io.eb << 20 | address & 0x0fffff);
   }
 
   if(address < 0x400000) {  //a0-bf,8000-ffff; f0-ff:0000-ffff
-    if(lo && sa1.mmio.fbmode == 0) return read(address);
-    return read(sa1.mmio.fb << 20 | address & 0x0fffff);
+    if(lo && sa1.io.fbmode == 0) return read(address);
+    return read(sa1.io.fb << 20 | address & 0x0fffff);
   }
 
   return data;  //unreachable

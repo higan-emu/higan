@@ -22,8 +22,8 @@ auto DSP::voice2(Voice& v) -> void {
   //read sample pointer (ignored if not needed)
   uint16 address = brr._address;
   if(!v.keyonDelay) address += 2;
-  brr._nextAddress.byte(0) = apuram[address++];
-  brr._nextAddress.byte(1) = apuram[address++];
+  brr._nextAddress.range(0, 7) = apuram[address++];
+  brr._nextAddress.range(8,15) = apuram[address++];
   latch.adsr0 = v.adsr0;
 
   //read pitch, spread over two clocks
@@ -87,7 +87,7 @@ auto DSP::voice3c(Voice& v) -> void {
   v.envx = v.envelope >> 4;
 
   //immediate silence due to end of sample or soft reset
-  if(master.reset || brr._header.bits(0,1) == 1) {
+  if(master.reset || brr._header.range(0,1) == 1) {
     v.envelopeMode = Envelope::Release;
     v.envelope = 0;
   }
@@ -118,7 +118,7 @@ auto DSP::voice4(Voice& v) -> void {
     if(v.brrOffset >= 9) {
       //start decoding next BRR block
       v.brrAddress = (uint16)(v.brrAddress + 9);
-      if(brr._header.bit(0)) {
+      if(brr._header.field(0)) {
         v.brrAddress = brr._nextAddress;
         v._looped = 1;
       }
@@ -152,7 +152,7 @@ auto DSP::voice6(Voice& v) -> void {
 }
 
 auto DSP::voice7(Voice& v) -> void {
-  for(uint n : range(8)) registers[0x7c].bit(n) = voice[n]._end;
+  for(uint n : range(8)) registers[0x7c].field(n) = voice[n]._end;
   latch.envx = v.envx;
 }
 

@@ -19,17 +19,17 @@ auto DSP::write(uint7 address, uint8 data) -> void {
     echo.volume[1] = data;
     break;
   case 0x4c:  //KON
-    for(uint n : range(8)) voice[n].keyon = data.bit(n);
-    for(uint n : range(8)) voice[n]._keylatch = data.bit(n);
+    for(uint n : range(8)) voice[n].keyon = data.field(n);
+    for(uint n : range(8)) voice[n]._keylatch = data.field(n);
     break;
   case 0x5c:  //KOFF
-    for(uint n : range(8)) voice[n].keyoff = data.bit(n);
+    for(uint n : range(8)) voice[n].keyoff = data.field(n);
     break;
   case 0x6c:  //FLG
-    noise.frequency = data.bits(0,4);
-    echo.readonly   = data.bit(5);
-    master.mute     = data.bit(6);
-    master.reset    = data.bit(7);
+    noise.frequency = data.range(0,4);
+    echo.readonly   = data.field(5);
+    master.mute     = data.field(6);
+    master.reset    = data.field(7);
     break;
   case 0x7c:  //ENDX
     for(uint n : range(8)) voice[n]._end = 0;
@@ -39,14 +39,14 @@ auto DSP::write(uint7 address, uint8 data) -> void {
     echo.feedback = data;
     break;
   case 0x2d:  //PMON
-    for(uint n : range(8)) voice[n].modulate = data.bit(n);
+    for(uint n : range(8)) voice[n].modulate = data.field(n);
     voice[0].modulate = 0;  //voice 0 does not support modulation
     break;
   case 0x3d:  //NON
-    for(uint n : range(8)) voice[n].noise = data.bit(n);
+    for(uint n : range(8)) voice[n].noise = data.field(n);
     break;
   case 0x4d:  //EON
-    for(uint n : range(8)) voice[n].echo = data.bit(n);
+    for(uint n : range(8)) voice[n].echo = data.field(n);
     break;
   case 0x5d:  //DIR
     brr.bank = data;
@@ -55,11 +55,11 @@ auto DSP::write(uint7 address, uint8 data) -> void {
     echo.bank = data;
     break;
   case 0x7d:  //EDL
-    echo.delay = data.bits(0,3);
+    echo.delay = data.range(0,3);
     break;
   }
 
-  uint4 n = address.bits(4,6);
+  uint4 n = address.range(4,6);
   switch((uint4)address) {
   case 0x00:  //VxVOLL
     voice[n].volume[0] = data;
@@ -68,10 +68,10 @@ auto DSP::write(uint7 address, uint8 data) -> void {
     voice[n].volume[1] = data;
     break;
   case 0x02:  //VxPITCHL
-    voice[n].pitch.bits(0,7) = data;
+    voice[n].pitch.range(0,7) = data.range(0,7);
     break;
   case 0x03:  //VxPITCHH
-    voice[n].pitch.bits(8,13) = data.bits(0,5);
+    voice[n].pitch.range(8,13) = data.range(0,5);
     break;
   case 0x04:  //VxSRCN
     voice[n].source = data;

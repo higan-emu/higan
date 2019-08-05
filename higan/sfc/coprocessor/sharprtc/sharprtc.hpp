@@ -11,8 +11,8 @@ struct SharpRTC : Thread {
   auto power() -> void;
   auto synchronize(uint64 timestamp) -> void;
 
-  auto read(uint24 addr, uint8 data) -> uint8;
-  auto write(uint24 addr, uint8 data) -> void;
+  auto read(uint24 address, uint8 data) -> uint8;
+  auto write(uint24 address, uint8 data) -> void;
 
   auto serialize(serializer&) -> void;
 
@@ -28,8 +28,8 @@ struct SharpRTC : Thread {
   uint weekday;
 
   //memory.cpp
-  auto rtcRead(uint4 addr) -> uint4;
-  auto rtcWrite(uint4 addr, uint4 data) -> void;
+  auto rtcRead(uint4 address) -> uint4;
+  auto rtcWrite(uint4 address, uint4 data) -> void;
 
   auto load(const uint8* data) -> void;
   auto save(uint8* data) -> void;

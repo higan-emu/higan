@@ -76,8 +76,8 @@ auto CPU::Channel::writeB(uint8 address, uint8 data, bool valid) -> void {
 auto CPU::Channel::transfer(uint24 addressA, uint2 index) -> void {
   uint8 addressB = targetAddress;
   switch(transferMode) {
-  case 1: case 5: addressB += index.bit(0); break;
-  case 3: case 7: addressB += index.bit(1); break;
+  case 1: case 5: addressB += index.field(0); break;
+  case 3: case 7: addressB += index.field(1); break;
   case 4: addressB += index; break;
   }
 
@@ -174,6 +174,6 @@ auto CPU::Channel::hdmaTransfer() -> void {
 auto CPU::Channel::hdmaAdvance() -> void {
   if(!hdmaActive()) return;
   lineCounter--;
-  hdmaDoTransfer = lineCounter.bit(7);
+  hdmaDoTransfer = lineCounter.field(7);
   hdmaReload();
 }

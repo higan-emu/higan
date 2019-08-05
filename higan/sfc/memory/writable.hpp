@@ -1,4 +1,4 @@
-struct WritableMemory : Memory {
+struct WritableMemory : AbstractMemory {
   inline auto reset() -> void override {
     delete[] self.data;
     self.data = nullptr;
@@ -9,6 +9,14 @@ struct WritableMemory : Memory {
     delete[] self.data;
     self.data = new uint8[self.size = size];
     for(uint address : range(size)) self.data[address] = fill;
+  }
+
+  inline auto load(shared_pointer<vfs::file> fp) -> void {
+    fp->read(self.data, min(fp->size(), self.size));
+  }
+
+  inline auto save(shared_pointer<vfs::file> fp) -> void {
+    fp->write(self.data, self.size);
   }
 
   inline auto data() -> uint8* override {

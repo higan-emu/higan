@@ -15,7 +15,7 @@ auto Cartridge::saveCartridge(Markup::Node node) -> void {
 
 //
 
-auto Cartridge::saveMemory(Memory& ram, Markup::Node node) -> void {
+auto Cartridge::saveMemory(AbstractMemory& ram, Markup::Node node) -> void {
   if(auto memory = lookupMemory(node)) {
     if(memory["type"].text() == "RAM" && memory["volatile"]) return;
     if(memory["type"].text() == "RTC" && memory["volatile"]) return;

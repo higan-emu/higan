@@ -12,11 +12,11 @@ struct Bridge {
   bool signal;
 
   auto status() const -> uint8 {
-    return (
-      armtocpu.ready << 0
-    | signal         << 2
-    | cputoarm.ready << 3
-    | ready          << 7
-    );
+    uint8 data;
+    data.field(0) = armtocpu.ready;
+    data.field(2) = signal;
+    data.field(3) = cputoarm.ready;
+    data.field(7) = ready;
+    return data;
   }
 } bridge;

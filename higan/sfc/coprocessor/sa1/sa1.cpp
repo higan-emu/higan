@@ -11,7 +11,7 @@ auto SA1::main() -> void {
   if(r.wai) return instructionWait();
   if(r.stp) return instructionStop();
 
-  if(mmio.sa1_rdyb || mmio.sa1_resb) {
+  if(io.sa1_rdyb || io.sa1_resb) {
     //SA-1 co-processor is asleep
     step();
     return;
@@ -41,27 +41,27 @@ auto SA1::interrupt() -> void {
 }
 
 auto SA1::lastCycle() -> void {
-  if(mmio.sa1_nmi && !mmio.sa1_nmicl) {
+  if(io.sa1_nmi && !io.sa1_nmicl) {
     status.interruptPending = true;
-    r.vector = mmio.cnv;
-    mmio.sa1_nmifl = true;
-    mmio.sa1_nmicl = 1;
+    r.vector = io.cnv;
+    io.sa1_nmifl = true;
+    io.sa1_nmicl = 1;
     r.wai = false;
   } else if(!r.p.i) {
-    if(mmio.timer_irqen && !mmio.timer_irqcl) {
+    if(io.timer_irqen && !io.timer_irqcl) {
       status.interruptPending = true;
-      r.vector = mmio.civ;
-      mmio.timer_irqfl = true;
+      r.vector = io.civ;
+      io.timer_irqfl = true;
       r.wai = false;
-    } else if(mmio.dma_irqen && !mmio.dma_irqcl) {
+    } else if(io.dma_irqen && !io.dma_irqcl) {
       status.interruptPending = true;
-      r.vector = mmio.civ;
-      mmio.dma_irqfl = true;
+      r.vector = io.civ;
+      io.dma_irqfl = true;
       r.wai = false;
-    } else if(mmio.sa1_irq && !mmio.sa1_irqcl) {
+    } else if(io.sa1_irq && !io.sa1_irqcl) {
       status.interruptPending = true;
-      r.vector = mmio.civ;
-      mmio.sa1_irqfl = true;
+      r.vector = io.civ;
+      io.sa1_irqfl = true;
       r.wai = false;
     }
   }
@@ -81,8 +81,8 @@ auto SA1::step() -> void {
 
   //adjust counters:
   //note that internally, status counters are in clocks;
-  //whereas MMIO register counters are in dots (4 clocks = 1 dot)
-  if(mmio.hvselb == 0) {
+  //whereas IO register counters are in dots (4 clocks = 1 dot)
+  if(io.hvselb == 0) {
     //HV timer
     status.hcounter += 2;
     if(status.hcounter >= 1364) {
@@ -100,17 +100,17 @@ auto SA1::step() -> void {
   }
 
   //test counters for timer IRQ
-  switch(mmio.hen << 0 | mmio.ven << 1) {
+  switch(io.hen << 0 | io.ven << 1) {
   case 0: break;
-  case 1: if(status.hcounter == mmio.hcnt << 2) triggerIRQ(); break;
-  case 2: if(status.vcounter == mmio.vcnt && status.hcounter == 0) triggerIRQ(); break;
-  case 3: if(status.vcounter == mmio.vcnt && status.hcounter == mmio.hcnt << 2) triggerIRQ(); break;
+  case 1: if(status.hcounter == io.hcnt << 2) triggerIRQ(); break;
+  case 2: if(status.vcounter == io.vcnt && status.hcounter == 0) triggerIRQ(); break;
+  case 3: if(status.vcounter == io.vcnt && status.hcounter == io.hcnt << 2) triggerIRQ(); break;
   }
 }
 
 auto SA1::triggerIRQ() -> void {
-  mmio.timer_irqfl = true;
-  if(mmio.timer_irqen) mmio.timer_irqcl = 0;
+  io.timer_irqfl = true;
+  if(io.timer_irqen) io.timer_irqcl = 0;
 }
 
 auto SA1::unload() -> void {
@@ -144,162 +144,162 @@ auto SA1::power() -> void {
   dma.line = 0;
 
   //$2200 CCNT
-  mmio.sa1_irq  = false;
-  mmio.sa1_rdyb = false;
-  mmio.sa1_resb = true;
-  mmio.sa1_nmi  = false;
-  mmio.smeg     = 0;
+  io.sa1_irq  = false;
+  io.sa1_rdyb = false;
+  io.sa1_resb = true;
+  io.sa1_nmi  = false;
+  io.smeg     = 0;
 
   //$2201 SIE
-  mmio.cpu_irqen   = false;
-  mmio.chdma_irqen = false;
+  io.cpu_irqen   = false;
+  io.chdma_irqen = false;
 
   //$2202 SIC
-  mmio.cpu_irqcl   = false;
-  mmio.chdma_irqcl = false;
+  io.cpu_irqcl   = false;
+  io.chdma_irqcl = false;
 
   //$2203,$2204 CRV
-  mmio.crv = 0x0000;
+  io.crv = 0x0000;
 
   //$2205,$2206 CNV
-  mmio.cnv = 0x0000;
+  io.cnv = 0x0000;
 
   //$2207,$2208 CIV
-  mmio.civ = 0x0000;
+  io.civ = 0x0000;
 
   //$2209 SCNT
-  mmio.cpu_irq  = false;
-  mmio.cpu_ivsw = false;
-  mmio.cpu_nvsw = false;
-  mmio.cmeg     = 0;
+  io.cpu_irq  = false;
+  io.cpu_ivsw = false;
+  io.cpu_nvsw = false;
+  io.cmeg     = 0;
 
   //$220a CIE
-  mmio.sa1_irqen   = false;
-  mmio.timer_irqen = false;
-  mmio.dma_irqen   = false;
-  mmio.sa1_nmien   = false;
+  io.sa1_irqen   = false;
+  io.timer_irqen = false;
+  io.dma_irqen   = false;
+  io.sa1_nmien   = false;
 
   //$220b CIC
-  mmio.sa1_irqcl   = false;
-  mmio.timer_irqcl = false;
-  mmio.dma_irqcl   = false;
-  mmio.sa1_nmicl   = false;
+  io.sa1_irqcl   = false;
+  io.timer_irqcl = false;
+  io.dma_irqcl   = false;
+  io.sa1_nmicl   = false;
 
   //$220c,$220d SNV
-  mmio.snv = 0x0000;
+  io.snv = 0x0000;
 
   //$220e,$220f SIV
-  mmio.siv = 0x0000;
+  io.siv = 0x0000;
 
   //$2210
-  mmio.hvselb = false;
-  mmio.ven    = false;
-  mmio.hen    = false;
+  io.hvselb = false;
+  io.ven    = false;
+  io.hen    = false;
 
   //$2212,$2213 HCNT
-  mmio.hcnt = 0x0000;
+  io.hcnt = 0x0000;
 
   //$2214,$2215 VCNT
-  mmio.vcnt = 0x0000;
+  io.vcnt = 0x0000;
 
   //$2220-2223 CXB, DXB, EXB, FXB
-  mmio.cbmode = 0;
-  mmio.dbmode = 0;
-  mmio.ebmode = 0;
-  mmio.fbmode = 0;
+  io.cbmode = 0;
+  io.dbmode = 0;
+  io.ebmode = 0;
+  io.fbmode = 0;
 
-  mmio.cb = 0x00;
-  mmio.db = 0x01;
-  mmio.eb = 0x02;
-  mmio.fb = 0x03;
+  io.cb = 0x00;
+  io.db = 0x01;
+  io.eb = 0x02;
+  io.fb = 0x03;
 
   //$2224 BMAPS
-  mmio.sbm = 0x00;
+  io.sbm = 0x00;
 
   //$2225 BMAP
-  mmio.sw46 = false;
-  mmio.cbm  = 0x00;
+  io.sw46 = false;
+  io.cbm  = 0x00;
 
   //$2226 SWBE
-  mmio.swen = false;
+  io.swen = false;
 
   //$2227 CWBE
-  mmio.cwen = false;
+  io.cwen = false;
 
   //$2228 BWPA
-  mmio.bwp = 0x0f;
+  io.bwp = 0x0f;
 
   //$2229 SIWP
-  mmio.siwp = 0x00;
+  io.siwp = 0x00;
 
   //$222a CIWP
-  mmio.ciwp = 0x00;
+  io.ciwp = 0x00;
 
   //$2230 DCNT
-  mmio.dmaen = false;
-  mmio.dprio = false;
-  mmio.cden  = false;
-  mmio.cdsel = false;
-  mmio.dd    = 0;
-  mmio.sd    = 0;
+  io.dmaen = false;
+  io.dprio = false;
+  io.cden  = false;
+  io.cdsel = false;
+  io.dd    = 0;
+  io.sd    = 0;
 
   //$2231 CDMA
-  mmio.chdend  = false;
-  mmio.dmasize = 0;
-  mmio.dmacb   = 0;
+  io.chdend  = false;
+  io.dmasize = 0;
+  io.dmacb   = 0;
 
   //$2232-$2234 SDA
-  mmio.dsa = 0x000000;
+  io.dsa = 0x000000;
 
   //$2235-$2237 DDA
-  mmio.dda = 0x000000;
+  io.dda = 0x000000;
 
   //$2238,$2239 DTC
-  mmio.dtc = 0x0000;
+  io.dtc = 0x0000;
 
   //$223f BBF
-  mmio.bbf = 0;
+  io.bbf = 0;
 
   //$2240-$224f BRF
-  for(auto& n : mmio.brf) n = 0x00;
+  for(auto& n : io.brf) n = 0x00;
 
   //$2250 MCNT
-  mmio.acm = 0;
-  mmio.md  = 0;
+  io.acm = 0;
+  io.md  = 0;
 
   //$2251,$2252 MA
-  mmio.ma = 0x0000;
+  io.ma = 0x0000;
 
   //$2253,$2254 MB
-  mmio.mb = 0x0000;
+  io.mb = 0x0000;
 
   //$2258 VBD
-  mmio.hl = false;
-  mmio.vb = 16;
+  io.hl = false;
+  io.vb = 16;
 
   //$2259-$225b
-  mmio.va   = 0x000000;
-  mmio.vbit = 0;
+  io.va   = 0x000000;
+  io.vbit = 0;
 
   //$2300 SFR
-  mmio.cpu_irqfl   = false;
-  mmio.chdma_irqfl = false;
+  io.cpu_irqfl   = false;
+  io.chdma_irqfl = false;
 
   //$2301 CFR
-  mmio.sa1_irqfl   = false;
-  mmio.timer_irqfl = false;
-  mmio.dma_irqfl   = false;
-  mmio.sa1_nmifl   = false;
+  io.sa1_irqfl   = false;
+  io.timer_irqfl = false;
+  io.dma_irqfl   = false;
+  io.sa1_nmifl   = false;
 
   //$2302,$2303 HCR
-  mmio.hcr = 0x0000;
+  io.hcr = 0x0000;
 
   //$2304,$2305 VCR
-  mmio.vcr = 0x0000;
+  io.vcr = 0x0000;
 
   //$2306-$230a MR
-  mmio.mr = 0;
+  io.mr = 0;
 
   //$230b
-  mmio.overflow = false;
+  io.overflow = false;
 }

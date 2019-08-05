@@ -31,41 +31,41 @@ auto ArmDSP::step(uint clocks) -> void {
 //3800-3807 mirrored throughout
 //a0 ignored
 
-auto ArmDSP::read(uint24 addr, uint8) -> uint8 {
+auto ArmDSP::read(uint24 address, uint8) -> uint8 {
   cpu.synchronize(*this);
 
   uint8 data = 0x00;
-  addr &= 0xff06;
+  address &= 0xff06;
 
-  if(addr == 0x3800) {
+  if(address == 0x3800) {
     if(bridge.armtocpu.ready) {
       bridge.armtocpu.ready = false;
       data = bridge.armtocpu.data;
     }
   }
 
-  if(addr == 0x3802) {
+  if(address == 0x3802) {
     bridge.signal = false;
   }
 
-  if(addr == 0x3804) {
+  if(address == 0x3804) {
     data = bridge.status();
   }
 
   return data;
 }
 
-auto ArmDSP::write(uint24 addr, uint8 data) -> void {
+auto ArmDSP::write(uint24 address, uint8 data) -> void {
   cpu.synchronize(*this);
 
-  addr &= 0xff06;
+  address &= 0xff06;
 
-  if(addr == 0x3802) {
+  if(address == 0x3802) {
     bridge.cputoarm.ready = true;
     bridge.cputoarm.data = data;
   }
 
-  if(addr == 0x3804) {
+  if(address == 0x3804) {
     data &= 1;
     if(!bridge.reset && data) reset();
     bridge.reset = data;

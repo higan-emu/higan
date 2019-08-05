@@ -1,5 +1,5 @@
-auto SharpRTC::rtcRead(uint4 addr) -> uint4 {
-  switch(addr) {
+auto SharpRTC::rtcRead(uint4 address) -> uint4 {
+  switch(address) {
   case  0: return second % 10;
   case  1: return second / 10;
   case  2: return minute % 10;
@@ -17,8 +17,8 @@ auto SharpRTC::rtcRead(uint4 addr) -> uint4 {
   }
 }
 
-auto SharpRTC::rtcWrite(uint4 addr, uint4 data) -> void {
-  switch(addr) {
+auto SharpRTC::rtcWrite(uint4 address, uint4 data) -> void {
+  switch(address) {
   case  0: second = second / 10 * 10 + data; break;
   case  1: second = data * 10 + second % 10; break;
   case  2: minute = minute / 10 * 10 + data; break;

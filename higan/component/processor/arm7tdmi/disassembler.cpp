@@ -185,8 +185,8 @@ auto ARM7TDMI::armDisassembleMoveImmediateOffset
 auto ARM7TDMI::armDisassembleMoveMultiple
 (uint16 list, uint4 n, uint1 mode, uint1 writeback, uint1 type, uint1 up, uint1 pre) -> string {
   string registers;
-  for(auto index : range(16)) {
-    if(list.bit(index)) registers.append(_r[index], ",");
+  for(uint index : range(16)) {
+    if(list.field(index)) registers.append(_r[index], ",");
   }
   registers.trimRight(",", 1L);
   return {mode ? "ldm" : "stm", _c,
@@ -221,20 +221,20 @@ auto ARM7TDMI::armDisassembleMoveToStatusFromImmediate
 (uint8 immediate, uint4 rotate, uint4 field, uint1 mode) -> string {
   uint32 data = immediate >> (rotate << 1) | immediate << 32 - (rotate << 1);
   return {"msr", _c, " ", mode ? "spsr:" : "cpsr:",
-    field.bit(0) ? "c" : "",
-    field.bit(1) ? "x" : "",
-    field.bit(2) ? "s" : "",
-    field.bit(3) ? "f" : "",
+    field.field(0) ? "c" : "",
+    field.field(1) ? "x" : "",
+    field.field(2) ? "s" : "",
+    field.field(3) ? "f" : "",
     ",#0x", hex(data, 8L)};
 }
 
 auto ARM7TDMI::armDisassembleMoveToStatusFromRegister
 (uint4 m, uint4 field, uint1 mode) -> string {
   return {"msr", _c, " ", mode ? "spsr:" : "cpsr:",
-    field.bit(0) ? "c" : "",
-    field.bit(1) ? "x" : "",
-    field.bit(2) ? "s" : "",
-    field.bit(3) ? "f" : "",
+    field.field(0) ? "c" : "",
+    field.field(1) ? "x" : "",
+    field.field(2) ? "s" : "",
+    field.field(3) ? "f" : "",
     ",", _r[m]};
 }
 
@@ -358,7 +358,7 @@ auto ARM7TDMI::thumbDisassembleMoveMultiple
 (uint8 list, uint3 n, uint1 mode) -> string {
   string registers;
   for(uint m : range(8)) {
-    if(list.bit(m)) registers.append(_r[m], ",");
+    if(list.field(m)) registers.append(_r[m], ",");
   }
   registers.trimRight(",", 1L);
   return {mode ? "ldmia" : "stmia", " ", _r[n], "!,{", registers, "}"};
@@ -395,7 +395,7 @@ auto ARM7TDMI::thumbDisassembleStackMultiple
 (uint8 list, uint1 lrpc, uint1 mode) -> string {
   string registers;
   for(uint m : range(8)) {
-    if(list.bit(m)) registers.append(_r[m], ",");
+    if(list.field(m)) registers.append(_r[m], ",");
   }
   if(lrpc) registers.append(!mode ? "lr," : "pc,");
   registers.trimRight(",", 1L);

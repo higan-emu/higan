@@ -47,8 +47,7 @@ template<uint Precision> struct Natural {
   inline auto range(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
   inline auto range(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
 
-  /* deprecated */
-
+  #if 1 || defined(NALL_PRIMITIVES_LEGACY)
   inline auto bit(int index) -> BitRange<Precision> { return {&data, index}; }
   inline auto bits(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
   inline auto byte(int index) -> BitRange<Precision> { return {&data, index * 8 + 0, index * 8 + 7}; }
@@ -56,8 +55,7 @@ template<uint Precision> struct Natural {
   inline auto bit(int index) const -> const BitRange<Precision> { return {&data, index}; }
   inline auto bits(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
   inline auto byte(int index) const -> const BitRange<Precision> { return {&data, index * 8 + 0, index * 8 + 7}; }
-
-  /* end deprecated */
+  #endif
 
   inline auto mask(int index) const -> utype {
     return data & 1 << index;
@@ -67,8 +65,8 @@ template<uint Precision> struct Natural {
     return data & (~0ull >> 64 - (hi - lo + 1) << lo);
   }
 
-  inline auto slice(int index) const { return Natural<>{bit(index)}; }
-  inline auto slice(int lo, int hi) const { return Natural<>{bits(lo, hi)}; }
+  inline auto slice(int index) const { return Natural<>{field(index)}; }
+  inline auto slice(int lo, int hi) const { return Natural<>{range(lo, hi)}; }
 
   inline auto clamp(uint bits) -> utype {
     const uint64_t b = 1ull << bits - 1;

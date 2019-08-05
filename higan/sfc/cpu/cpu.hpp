@@ -25,10 +25,10 @@ struct CPU : WDC65816, Thread, PPUcounter {
 
   //memory.cpp
   auto idle() -> void override;
-  auto read(uint24 addr) -> uint8 override;
-  auto write(uint24 addr, uint8 data) -> void override;
-  alwaysinline auto wait(uint24 addr) const -> uint;
-  auto readDisassembler(uint24 addr) -> uint8 override;
+  auto read(uint24 address) -> uint8 override;
+  auto write(uint24 address, uint8 data) -> void override;
+  alwaysinline auto wait(uint24 address) const -> uint;
+  auto readDisassembler(uint24 address) -> uint8 override;
 
   //io.cpp
   auto readRAM(uint24 address, uint8 data) -> uint8;

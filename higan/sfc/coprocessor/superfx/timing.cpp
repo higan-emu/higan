@@ -36,14 +36,14 @@ auto SuperFX::syncRAMBuffer() -> void {
   if(regs.ramcl) step(regs.ramcl);
 }
 
-auto SuperFX::readRAMBuffer(uint16 addr) -> uint8 {
+auto SuperFX::readRAMBuffer(uint16 address) -> uint8 {
   syncRAMBuffer();
-  return read(0x700000 + (regs.rambr << 16) + addr);
+  return read(0x700000 + (regs.rambr << 16) + address);
 }
 
-auto SuperFX::writeRAMBuffer(uint16 addr, uint8 data) -> void {
+auto SuperFX::writeRAMBuffer(uint16 address, uint8 data) -> void {
   syncRAMBuffer();
   regs.ramcl = regs.clsr ? 5 : 6;
-  regs.ramar = addr;
+  regs.ramar = address;
   regs.ramdr = data;
 }

@@ -1,16 +1,16 @@
-auto SuperFX::readIO(uint24 addr, uint8) -> uint8 {
+auto SuperFX::readIO(uint24 address, uint8) -> uint8 {
   cpu.synchronize(*this);
-  addr = 0x3000 | addr.bits(0,9);
+  address = 0x3000 | address.range(0,9);
 
-  if(addr >= 0x3100 && addr <= 0x32ff) {
-    return readCache(addr - 0x3100);
+  if(address >= 0x3100 && address <= 0x32ff) {
+    return readCache(address - 0x3100);
   }
 
-  if(addr >= 0x3000 && addr <= 0x301f) {
-    return regs.r[(addr >> 1) & 15] >> ((addr & 1) << 3);
+  if(address >= 0x3000 && address <= 0x301f) {
+    return regs.r[address >> 1 & 15] >> ((address & 1) << 3);
   }
 
-  switch(addr) {
+  switch(address) {
   case 0x3030: {
     return regs.sfr >> 0;
   }
@@ -50,28 +50,28 @@ auto SuperFX::readIO(uint24 addr, uint8) -> uint8 {
   return 0x00;
 }
 
-auto SuperFX::writeIO(uint24 addr, uint8 data) -> void {
+auto SuperFX::writeIO(uint24 address, uint8 data) -> void {
   cpu.synchronize(*this);
-  addr = 0x3000 | addr.bits(0,9);
+  address = 0x3000 | address.range(0,9);
 
-  if(addr >= 0x3100 && addr <= 0x32ff) {
-    return writeCache(addr - 0x3100, data);
+  if(address >= 0x3100 && address <= 0x32ff) {
+    return writeCache(address - 0x3100, data);
   }
 
-  if(addr >= 0x3000 && addr <= 0x301f) {
-    uint n = (addr >> 1) & 15;
-    if((addr & 1) == 0) {
+  if(address >= 0x3000 && address <= 0x301f) {
+    uint n = address >> 1 & 15;
+    if(!address.field(0)) {
       regs.r[n] = (regs.r[n] & 0xff00) | data;
     } else {
       regs.r[n] = (data << 8) | (regs.r[n] & 0xff);
     }
     if(n == 14) updateROMBuffer();
 
-    if(addr == 0x301f) regs.sfr.g = 1;
+    if(address == 0x301f) regs.sfr.g = 1;
     return;
   }
 
-  switch(addr) {
+  switch(address) {
   case 0x3030: {
     bool g = regs.sfr.g;
     regs.sfr = (regs.sfr & 0xff00) | (data << 0);

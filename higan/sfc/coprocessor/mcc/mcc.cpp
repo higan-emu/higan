@@ -30,15 +30,14 @@ auto MCC::commit() -> void {
 
 auto MCC::read(uint24 address, uint8 data) -> uint8 {
   if((address & 0xf0f000) == 0x005000) {  //$00-0f:5000-5fff
-    uint4 index = address.bits(16,19);
-    switch(index) {
+    switch(address.range(16,19)) {
     case  0: return irq.flag << 7;
     case  1: return irq.enable << 7;
     case  2: return r.mapping << 7;
     case  3: return r.psramEnableLo << 7;
     case  4: return r.psramEnableHi << 7;
-    case  5: return r.psramMapping.bit(0) << 7;
-    case  6: return r.psramMapping.bit(1) << 7;
+    case  5: return r.psramMapping.field(0) << 7;
+    case  6: return r.psramMapping.field(1) << 7;
     case  7: return r.romEnableLo << 7;
     case  8: return r.romEnableHi << 7;
     case  9: return r.exEnableLo << 7;
@@ -56,22 +55,21 @@ auto MCC::read(uint24 address, uint8 data) -> uint8 {
 
 auto MCC::write(uint24 address, uint8 data) -> void {
   if((address & 0xf0f000) == 0x005000) {  //$00-0f:5000-5fff
-    uint4 index = address.bits(16,19);
-    switch(index) {
-    case  1: irq.enable = data.bit(7); break;
-    case  2: w.mapping = data.bit(7); break;
-    case  3: w.psramEnableLo = data.bit(7); break;
-    case  4: w.psramEnableHi = data.bit(7); break;
-    case  5: w.psramMapping.bit(0) = data.bit(7); break;
-    case  6: w.psramMapping.bit(1) = data.bit(7); break;
-    case  7: w.romEnableLo = data.bit(7); break;
-    case  8: w.romEnableHi = data.bit(7); break;
-    case  9: w.exEnableLo = data.bit(7); break;
-    case 10: w.exEnableHi = data.bit(7); break;
-    case 11: w.exMapping = data.bit(7); break;
-    case 12: w.internallyWritable = data.bit(7); break;
-    case 13: w.externallyWritable = data.bit(7); break;
-    case 14: if(data.bit(7)) commit(); break;
+    switch(address.range(16,19)) {
+    case  1: irq.enable = data.field(7); break;
+    case  2: w.mapping = data.field(7); break;
+    case  3: w.psramEnableLo = data.field(7); break;
+    case  4: w.psramEnableHi = data.field(7); break;
+    case  5: w.psramMapping.field(0) = data.field(7); break;
+    case  6: w.psramMapping.field(1) = data.field(7); break;
+    case  7: w.romEnableLo = data.field(7); break;
+    case  8: w.romEnableHi = data.field(7); break;
+    case  9: w.exEnableLo = data.field(7); break;
+    case 10: w.exEnableHi = data.field(7); break;
+    case 11: w.exMapping = data.field(7); break;
+    case 12: w.internallyWritable = data.field(7); break;
+    case 13: w.externallyWritable = data.field(7); break;
+    case 14: if(data.field(7)) commit(); break;
     }
   }
 }

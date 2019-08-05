@@ -50,7 +50,7 @@ private:
   uint32* output = nullptr;
 
   struct VRAM {
-    inline auto& operator[](uint addr) { return data[addr & mask]; }
+    inline auto& operator[](uint address) { return data[address & mask]; }
     uint16 data[64 * 1024];
     uint16 mask = 0x7fff;
   } vram;

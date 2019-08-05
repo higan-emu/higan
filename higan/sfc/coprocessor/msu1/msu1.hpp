@@ -8,14 +8,14 @@ struct MSU1 : Thread {
   auto dataOpen() -> void;
   auto audioOpen() -> void;
 
-  auto readIO(uint24 addr, uint8 data) -> uint8;
-  auto writeIO(uint24 addr, uint8 data) -> void;
+  auto readIO(uint24 address, uint8 data) -> uint8;
+  auto writeIO(uint24 address, uint8 data) -> void;
 
   auto serialize(serializer&) -> void;
 
 private:
-  vfs::shared::file dataFile;
-  vfs::shared::file audioFile;
+  shared_pointer<vfs::file> dataFile;
+  shared_pointer<vfs::file> audioFile;
 
   enum Flag : uint {
     Revision       = 0x02,  //max: 0x07

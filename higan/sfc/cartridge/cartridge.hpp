@@ -59,7 +59,7 @@ private:
   //load.cpp
   auto loadBoard(string) -> Markup::Node;
   auto loadCartridge(Markup::Node) -> void;
-  auto loadMemory(Memory&, Markup::Node, bool required) -> void;
+  auto loadMemory(AbstractMemory&, Markup::Node, bool required) -> void;
   template<typename T> auto loadMap(Markup::Node, T&) -> uint;
   auto loadMap(Markup::Node, const function<uint8 (uint24, uint8)>&, const function<void (uint24, uint8)>&) -> uint;
 
@@ -87,7 +87,7 @@ private:
 
   //save.cpp
   auto saveCartridge(Markup::Node) -> void;
-  auto saveMemory(Memory&, Markup::Node) -> void;
+  auto saveMemory(AbstractMemory&, Markup::Node) -> void;
 
   auto saveRAM(Markup::Node) -> void;
   auto saveMCC(Markup::Node) -> void;

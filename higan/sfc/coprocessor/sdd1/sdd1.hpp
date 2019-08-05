@@ -2,16 +2,16 @@ struct SDD1 {
   auto unload() -> void;
   auto power() -> void;
 
-  auto ioRead(uint24 addr, uint8 data) -> uint8;
-  auto ioWrite(uint24 addr, uint8 data) -> void;
+  auto ioRead(uint24 address, uint8 data) -> uint8;
+  auto ioWrite(uint24 address, uint8 data) -> void;
 
-  auto dmaRead(uint24 addr, uint8 data) -> uint8;
-  auto dmaWrite(uint24 addr, uint8 data) -> void;
+  auto dmaRead(uint24 address, uint8 data) -> uint8;
+  auto dmaWrite(uint24 address, uint8 data) -> void;
 
-  auto mmcRead(uint24 addr) -> uint8;
+  auto mmcRead(uint24 address) -> uint8;
 
-  auto mcuRead(uint24 addr, uint8 data) -> uint8;
-  auto mcuWrite(uint24 addr, uint8 data) -> void;
+  auto mcuRead(uint24 address, uint8 data) -> uint8;
+  auto mcuWrite(uint24 address, uint8 data) -> void;
 
   auto serialize(serializer&) -> void;
 
@@ -26,9 +26,10 @@ private:
   uint8 r4807;  //MMC bank 3
 
   struct DMA {
-    uint24 addr;  //$43x2-$43x4 -- DMA transfer address
-    uint16 size;  //$43x5-$43x6 -- DMA transfer size
+    uint24 address;  //$43x2-$43x4 -- DMA transfer address
+    uint16 size;     //$43x5-$43x6 -- DMA transfer size
   } dma[8];
+
   bool dmaReady;  //used to initialize decompression module
 
 public:

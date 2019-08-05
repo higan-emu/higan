@@ -203,11 +203,11 @@ auto HG51B::instructionLD(uint15& out, uint8 imm) -> void {
 }
 
 auto HG51B::instructionLDL(uint15& out, uint8 imm) -> void {
-  out.bits(0,7) = imm;
+  out.range(0,7) = imm;
 }
 
 auto HG51B::instructionLDH(uint15& out, uint7 imm) -> void {
-  out.bits(8,14) = imm;
+  out.range(8,14) = imm;
 }
 
 auto HG51B::instructionMUL(uint7 reg) -> void {
@@ -232,13 +232,21 @@ auto HG51B::instructionOR(uint8 imm, uint5 shift) -> void {
 auto HG51B::instructionRDRAM(uint2 byte, uint24& a) -> void {
   uint12 address = a;
   if(address >= 0xc00) address -= 0x400;
-  r.ram.byte(byte) = dataRAM[address];
+  switch(byte) {
+  case 0: r.ram.range( 0, 7) = dataRAM[address]; break;
+  case 1: r.ram.range( 8,15) = dataRAM[address]; break;
+  case 2: r.ram.range(16,23) = dataRAM[address]; break;
+  }
 }
 
 auto HG51B::instructionRDRAM(uint2 byte, uint8 imm) -> void {
   uint12 address = r.dpr + imm;
   if(address >= 0xc00) address -= 0x400;
-  r.ram.byte(byte) = dataRAM[address];
+  switch(byte) {
+  case 0: r.ram.range( 0, 7) = dataRAM[address]; break;
+  case 1: r.ram.range( 8,15) = dataRAM[address]; break;
+  case 2: r.ram.range(16,23) = dataRAM[address]; break;
+  }
 }
 
 auto HG51B::instructionRDROM(uint24& reg) -> void {
@@ -324,13 +332,21 @@ auto HG51B::instructionWAIT() -> void {
 auto HG51B::instructionWRRAM(uint2 byte, uint24& a) -> void {
   uint12 address = a;
   if(address >= 0xc00) address -= 0x400;
-  dataRAM[address] = r.ram.byte(byte);
+  switch(byte) {
+  case 0: dataRAM[address] = r.ram >>  0; break;
+  case 1: dataRAM[address] = r.ram >>  8; break;
+  case 2: dataRAM[address] = r.ram >> 16; break;
+  }
 }
 
 auto HG51B::instructionWRRAM(uint2 byte, uint8 imm) -> void {
   uint12 address = r.dpr + imm;
   if(address >= 0xc00) address -= 0x400;
-  dataRAM[address] = r.ram.byte(byte);
+  switch(byte) {
+  case 0: dataRAM[address] = r.ram >>  0; break;
+  case 1: dataRAM[address] = r.ram >>  8; break;
+  case 2: dataRAM[address] = r.ram >> 16; break;
+  }
 }
 
 auto HG51B::instructionXNOR(uint7 reg, uint5 shift) -> void {

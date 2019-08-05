@@ -22,9 +22,9 @@ auto Screen::remove(Sprite& sprite) -> void {
 auto Screen::setPalette() -> void {
   for(auto index : range(node->colors)) {
     uint64 color = node->color(index);
-    uint16 b = color.bits( 0,15);
-    uint16 g = color.bits(16,31);
-    uint16 r = color.bits(32,47);
+    uint16 b = color.range( 0,15);
+    uint16 g = color.range(16,31);
+    uint16 r = color.range(32,47);
     uint16 a = 0xffff;
 
     if(saturation != 1.0) {

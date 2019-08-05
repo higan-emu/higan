@@ -12,17 +12,17 @@ struct ArmDSP : ARM7TDMI, Thread {
 
   auto step(uint clocks) -> void override;
   auto sleep() -> void override;
-  auto get(uint mode, uint32 addr) -> uint32 override;
-  auto set(uint mode, uint32 addr, uint32 word) -> void override;
+  auto get(uint mode, uint32 address) -> uint32 override;
+  auto set(uint mode, uint32 address, uint32 word) -> void override;
 
-  auto read(uint24 addr, uint8 data) -> uint8;
-  auto write(uint24 addr, uint8 data) -> void;
+  auto read(uint24 address, uint8 data) -> uint8;
+  auto write(uint24 address, uint8 data) -> void;
 
   auto unload() -> void;
   auto power() -> void;
   auto reset() -> void;  //soft reset
 
-  auto firmware() const -> nall::vector<uint8>;
+  auto firmware() const -> vector<uint8>;
   auto serialize(serializer&) -> void;
 
   uint Frequency;

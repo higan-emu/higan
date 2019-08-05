@@ -5,13 +5,13 @@ auto NECDSP::firmware() const -> vector<uint8> {
   if(revision == Revision::uPD96050) plength = 16384, dlength = 2048;
   buffer.reserve(plength * 3 + dlength * 2);
 
-  for(auto n : range(plength)) {
+  for(uint n : range(plength)) {
     buffer.append(programROM[n] >>  0);
     buffer.append(programROM[n] >>  8);
     buffer.append(programROM[n] >> 16);
   }
 
-  for(auto n : range(dlength)) {
+  for(uint n : range(dlength)) {
     buffer.append(dataROM[n] >> 0);
     buffer.append(dataROM[n] >> 8);
   }

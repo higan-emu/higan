@@ -3,7 +3,7 @@
 struct MCD : M68K, Thread {
   Node::Port tray;
   Node::Peripheral disc;
-  vfs::shared::file fd;
+  shared_pointer<vfs::file> fd;
 
   Memory::Readable<uint16> bios;  //BIOS ROM
   Memory::Writable<uint16> pram;  //program RAM

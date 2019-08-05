@@ -18,7 +18,8 @@ auto PPUcounter::tick(uint clocks) -> void {
 
 auto PPUcounter::tickScanline() -> void {
   if(++time.vcounter == 128) {
-    //it's not important when this is captured: it is only needed at V=240 or V=311.
+    //it's not important when interlace is captured: it is only needed at V=240 or V=311.
+    //interlace cannot be captured at V=0,H=0 as the CPU and PPU may be out of sync.
     time.interlace = ppu.interlace();
     time.vperiod += interlace() && !field();
   }

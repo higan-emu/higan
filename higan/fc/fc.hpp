@@ -1,4 +1,5 @@
 #pragma once
+#define NALL_PRIMITIVES_LEGACY
 
 //license: GPLv3
 //started: 2011-09-05

@@ -6,9 +6,10 @@ auto SDD1::serialize(serializer& s) -> void {
   s.integer(r4806);
   s.integer(r4807);
 
-  for(auto n : range(8)) {
-    s.integer(dma[n].addr);
-    s.integer(dma[n].size);
+  for(auto& channel : dma) {
+    s.integer(channel.address);
+    s.integer(channel.size);
   }
+
   s.integer(dmaReady);
 }

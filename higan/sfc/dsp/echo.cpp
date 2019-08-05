@@ -21,8 +21,8 @@ auto DSP::echoWrite(uint1 channel) -> void {
   if(!echo._readonly) {
     uint16 address = echo._address + channel * 2;
     auto sample = echo.output[channel];
-    apuram[address++] = sample.byte(0);
-    apuram[address++] = sample.byte(1);
+    apuram[address++] = sample >> 0;
+    apuram[address++] = sample >> 8;
   }
   echo.output[channel] = 0;
 }

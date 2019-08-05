@@ -127,8 +127,8 @@ auto PPU::Object::fetch() -> void {
 
     uint16 tiledataAddress = io.tiledataAddress;
     if(sprite.nameselect) tiledataAddress += 1 + io.nameselect << 12;
-    uint16 chrx =  sprite.character.bits(0,3);
-    uint16 chry = (sprite.character.bits(4,7) + (y >> 3) & 15) << 4;
+    uint16 chrx =  sprite.character.range(0,3);
+    uint16 chry = (sprite.character.range(4,7) + (y >> 3) & 15) << 4;
 
     for(uint tx : range(tileWidth)) {
       uint sx = x + (tx << 3) & 511;
@@ -147,11 +147,11 @@ auto PPU::Object::fetch() -> void {
       uint16 address = (pos & 0xfff0) + (y & 7);
 
       if(!ppu.io.displayDisable)
-      oamTile[n].data.bits( 0,15) = ppu.vram[address + 0];
+      oamTile[n].data.range( 0,15) = ppu.vram[address + 0];
       ppu.step(4);
 
       if(!ppu.io.displayDisable)
-      oamTile[n].data.bits(16,31) = ppu.vram[address + 8];
+      oamTile[n].data.range(16,31) = ppu.vram[address + 8];
       ppu.step(4);
     }
   }

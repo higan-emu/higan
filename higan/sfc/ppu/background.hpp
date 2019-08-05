@@ -12,7 +12,7 @@ struct Background {
   auto power() -> void;
 
   auto getTile() -> void;
-  auto getTileColor() -> uint;
+  auto getTileColor() -> uint8;
   auto getTile(uint x, uint y) -> uint16;
   alwaysinline auto clip(int n) -> int;
   auto beginMode7() -> void;

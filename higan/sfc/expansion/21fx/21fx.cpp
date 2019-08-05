@@ -3,8 +3,8 @@ S21FX::S21FX(Node::Port parent, Node::Peripheral with) {
 
   Thread::create(10'000'000, {&S21FX::main, this});
 
-  resetVector.byte(0) = bus.read(0xfffc, 0x00);
-  resetVector.byte(1) = bus.read(0xfffd, 0x00);
+  resetVector.range(0, 7) = bus.read(0xfffc, 0x00);
+  resetVector.range(8,15) = bus.read(0xfffd, 0x00);
 
   bus.map({&S21FX::read, this}, {&S21FX::write, this}, "00-3f,80-bf:2184-21ff");
   bus.map({&S21FX::read, this}, {&S21FX::write, this}, "00:fffc-fffd");
@@ -75,21 +75,21 @@ auto S21FX::main() -> void {
   while(true) scheduler.serialize(), step(10'000'000);
 }
 
-auto S21FX::read(uint24 addr, uint8 data) -> uint8 {
-  addr &= 0x40ffff;
+auto S21FX::read(uint24 address, uint8 data) -> uint8 {
+  address &= 0x40ffff;
 
-  if(addr == 0xfffc) return booted ? resetVector.byte(0) : (uint8)0x84;
-  if(addr == 0xfffd) return booted ? resetVector.byte(1) : (booted = true, (uint8)0x21);
+  if(address == 0xfffc) return booted ? resetVector >> 0 : (0x84);
+  if(address == 0xfffd) return booted ? resetVector >> 8 : (booted = true, 0x21);
 
-  if(addr >= 0x2184 && addr <= 0x21fd) return ram[addr - 0x2184];
+  if(address >= 0x2184 && address <= 0x21fd) return ram[address - 0x2184];
 
-  if(addr == 0x21fe) return !link.open() ? 0 : (
+  if(address == 0x21fe) return !link.open() ? 0 : (
     (linkBuffer.size() >    0) << 7  //1 = readable
   | (snesBuffer.size() < 1024) << 6  //1 = writable
   | (link.open())              << 5  //1 = connected
   );
 
-  if(addr == 0x21ff) {
+  if(address == 0x21ff) {
     if(linkBuffer.size() > 0) {
       return linkBuffer.takeLeft();
     }
@@ -98,10 +98,10 @@ auto S21FX::read(uint24 addr, uint8 data) -> uint8 {
   return data;
 }
 
-auto S21FX::write(uint24 addr, uint8 data) -> void {
-  addr &= 0x40ffff;
+auto S21FX::write(uint24 address, uint8 data) -> void {
+  address &= 0x40ffff;
 
-  if(addr == 0x21ff) {
+  if(address == 0x21ff) {
     if(snesBuffer.size() < 1024) {
       snesBuffer.append(data);
     }

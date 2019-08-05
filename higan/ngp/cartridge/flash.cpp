@@ -21,7 +21,7 @@ auto Flash::allocate(natural size) -> bool {
   return true;
 }
 
-auto Flash::load(vfs::shared::file fp) -> void {
+auto Flash::load(shared_pointer<vfs::file> fp) -> void {
   fp->read(rom.data(), rom.size());
 }
 

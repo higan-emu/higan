@@ -62,8 +62,8 @@ auto PPU::Background::getTile() -> void {
 
   uint width = 256 << hires();
 
-  uint hmask = (width << io.tileSize << io.screenSize.bit(0)) - 1;
-  uint vmask = (width << io.tileSize << io.screenSize.bit(1)) - 1;
+  uint hmask = (width << io.tileSize << io.screenSize.field(0)) - 1;
+  uint vmask = (width << io.tileSize << io.screenSize.field(1)) - 1;
 
   uint px = x << hires();
   uint py = mosaic.enable ? (uint)mosaic.voffset : y;
@@ -87,16 +87,16 @@ auto PPU::Background::getTile() -> void {
       uint valid = 13 + id;
 
       if(ppu.io.bgMode == 4) {
-        if(hlookup.bit(valid)) {
-          if(!hlookup.bit(15)) {
+        if(hlookup.field(valid)) {
+          if(!hlookup.field(15)) {
             hoffset = offsetX + (hlookup & ~7);
           } else {
             voffset = py + hlookup;
           }
         }
       } else {
-        if(hlookup.bit(valid)) hoffset = offsetX + (hlookup & ~7);
-        if(vlookup.bit(valid)) voffset = py + vlookup;
+        if(hlookup.field(valid)) hoffset = offsetX + (hlookup & ~7);
+        if(vlookup.field(valid)) voffset = py + vlookup;
       }
     }
   }
@@ -104,42 +104,42 @@ auto PPU::Background::getTile() -> void {
   hoffset &= hmask;
   voffset &= vmask;
 
-  uint screenX = io.screenSize.bit(0) ? 32 << 5 : 0;
-  uint screenY = io.screenSize.bit(1) ? 32 << 5 + io.screenSize.bit(0) : 0;
+  uint screenX = io.screenSize.field(0) ? 32 << 5 : 0;
+  uint screenY = io.screenSize.field(1) ? 32 << 5 + io.screenSize.field(0) : 0;
 
   uint tileX = hoffset >> tileWidth;
   uint tileY = voffset >> tileHeight;
 
-  uint16 offset = (tileY & 0x1f) << 5 | (tileX & 0x1f);
+  uint16 offset = (uint5)tileY << 5 | (uint5)tileX;
   if(tileX & 0x20) offset += screenX;
   if(tileY & 0x20) offset += screenY;
 
   uint16 address = io.screenAddress + offset;
   tile = ppu.vram[address];
-  bool mirrorY = tile.bit(15);
-  bool mirrorX = tile.bit(14);
-  priority = io.priority[tile.bit(13)];
-  paletteNumber = tile.bits(10,12);
+  bool mirrorY = tile.field(15);
+  bool mirrorX = tile.field(14);
+  priority = io.priority[tile.field(13)];
+  paletteNumber = tile.range(10,12);
   paletteIndex = paletteOffset + (paletteNumber << paletteSize);
 
   if(tileWidth  == 4 && (bool)(hoffset & 8) != mirrorX) tile +=  1;
   if(tileHeight == 4 && (bool)(voffset & 8) != mirrorY) tile += 16;
-  uint16 character = tile.bits(0,9) + tiledataIndex & tileMask;
+  uint16 character = tile.range(0,9) + tiledataIndex & tileMask;
 
   if(mirrorY) voffset ^= 7;
   offset = (character << 3 + io.mode) + (voffset & 7);
 
   switch(io.mode) {
   case Mode::BPP8:
-    data[1].bits(16,31) = ppu.vram[offset + 24];
-    data[1].bits( 0,15) = ppu.vram[offset + 16];
+    data[1].range(16,31) = ppu.vram[offset + 24];
+    data[1].range( 0,15) = ppu.vram[offset + 16];
   case Mode::BPP4:
-    data[0].bits(16,31) = ppu.vram[offset +  8];
+    data[0].range(16,31) = ppu.vram[offset +  8];
   case Mode::BPP2:
-    data[0].bits( 0,15) = ppu.vram[offset +  0];
+    data[0].range( 0,15) = ppu.vram[offset +  0];
   }
 
-  if(mirrorX) for(auto n : range(2)) {
+  if(mirrorX) for(uint n : range(2)) {
     data[n] = data[n] >> 4 & 0x0f0f0f0f | data[n] << 4 & 0xf0f0f0f0;
     data[n] = data[n] >> 2 & 0x33333333 | data[n] << 2 & 0xcccccccc;
     data[n] = data[n] >> 1 & 0x55555555 | data[n] << 1 & 0xaaaaaaaa;
@@ -184,22 +184,22 @@ auto PPU::Background::run(bool screen) -> void {
   if(!hires() || screen == Screen::Below) if(io.belowEnable) output.below = pixel;
 }
 
-auto PPU::Background::getTileColor() -> uint {
-  uint color = 0;
+auto PPU::Background::getTileColor() -> uint8 {
+  uint8 color;
 
   switch(io.mode) {
   case Mode::BPP8:
-    color += data[1] >> 24 & 0x80;
-    color += data[1] >> 17 & 0x40;
-    color += data[1] >> 10 & 0x20;
-    color += data[1] >>  3 & 0x10;
+    color.field(7) = data[1].field(31);
+    color.field(6) = data[1].field(23);
+    color.field(5) = data[1].field(15);
+    color.field(4) = data[1].field( 7);
     data[1] <<= 1;
   case Mode::BPP4:
-    color += data[0] >> 28 & 0x08;
-    color += data[0] >> 21 & 0x04;
+    color.field(3) = data[0].field(31);
+    color.field(2) = data[0].field(23);
   case Mode::BPP2:
-    color += data[0] >> 14 & 0x02;
-    color += data[0] >>  7 & 0x01;
+    color.field(1) = data[0].field(15);
+    color.field(0) = data[0].field( 7);
     data[0] <<= 1;
   }
 
@@ -240,11 +240,11 @@ auto PPU::Background::power() -> void {
 auto PPU::Background::getTile(uint x, uint y) -> uint16 {
   uint tileHeight = 3 + io.tileSize;
   uint tileWidth = !hires() ? tileHeight : 4;
-  uint screenX = io.screenSize.bit(0) ? 32 << 5 : 0;
-  uint screenY = io.screenSize.bit(1) ? 32 << 5 + io.screenSize.bit(0) : 0;
+  uint screenX = io.screenSize.field(0) ? 32 << 5 : 0;
+  uint screenY = io.screenSize.field(1) ? 32 << 5 + io.screenSize.field(0) : 0;
   uint tileX = x >> tileWidth;
   uint tileY = y >> tileHeight;
-  uint16 offset = (tileY & 0x1f) << 5 | (tileX & 0x1f);
+  uint16 offset = (uint5)tileY << 5 | (uint5)tileX;
   if(tileX & 0x20) offset += screenX;
   if(tileY & 0x20) offset += screenY;
   uint16 address = io.screenAddress + offset;

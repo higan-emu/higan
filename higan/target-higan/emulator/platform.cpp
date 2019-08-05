@@ -7,7 +7,7 @@ auto Emulator::detach(higan::Node::Object node) -> void {
   }
 }
 
-auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> vfs::shared::file {
+auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   auto location = node->property("location");
 
   if(name == "manifest.bml") {
