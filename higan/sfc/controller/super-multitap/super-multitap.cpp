@@ -16,9 +16,9 @@ auto SuperMultitap::data() -> uint2 {
   if(latched) return 2;  //Super Multitap device detection
 
   if(iobit()) {
-    return port1.data().field(0) << 0 | port2.data().field(0) << 1;
+    return port1.data().bit(0) << 0 | port2.data().bit(0) << 1;
   } else {
-    return port3.data().field(0) << 0 | port4.data().field(0) << 1;
+    return port3.data().bit(0) << 0 | port4.data().bit(0) << 1;
   }
 }
 

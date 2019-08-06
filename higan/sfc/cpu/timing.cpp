@@ -171,10 +171,10 @@ auto CPU::joypadEdge() -> void {
       uint2 port0 = controllerPort1.data();
       uint2 port1 = controllerPort2.data();
 
-      io.joy1 = io.joy1 << 1 | port0.field(0);
-      io.joy2 = io.joy2 << 1 | port1.field(0);
-      io.joy3 = io.joy3 << 1 | port0.field(1);
-      io.joy4 = io.joy4 << 1 | port1.field(1);
+      io.joy1 = io.joy1 << 1 | port0.bit(0);
+      io.joy2 = io.joy2 << 1 | port1.bit(0);
+      io.joy3 = io.joy3 << 1 | port0.bit(1);
+      io.joy4 = io.joy4 << 1 | port1.bit(1);
     }
 
     status.autoJoypadCounter++;

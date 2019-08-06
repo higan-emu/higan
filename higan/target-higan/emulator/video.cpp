@@ -29,15 +29,20 @@ auto Emulator::videoUpdate() -> void {
     settings.video.format = videoInstance.hasFormats().first();
   }
   videoInstance.setFormat(settings.video.format);
-  higan::video.setDepth(settings.video.format == "RGB30" ? 30 : 24);
 
   if(videoInstance.hasShader()) {
     videoInstance.setShader(settings.video.shader);
   }
+
+  videoUpdateColors();
 }
 
 auto Emulator::videoUpdateColors() -> void {
-  higan::video.setDepth(settings.video.format == "RGB30" ? 30 : 24);
+  higan::video.setFormat(255 << 16, 255 << 8, 255 << 0);  //ARGB24 fallback
+  if(settings.video.format == "ARGB24") higan::video.setFormat(255 << 16, 255 <<  8, 255 << 0);
+  if(settings.video.format == "RGBA24") higan::video.setFormat(255 << 24, 255 << 16, 255 << 8);
+  if(settings.video.format == "ARGB30") higan::video.setFormat(1023 << 20, 1023 << 10, 1023 << 0);
+  if(settings.video.format == "RGBA30") higan::video.setFormat(1023 << 22, 1023 << 12, 1023 << 2);
   higan::video.setLuminance(settings.video.luminance);
   higan::video.setSaturation(settings.video.saturation);
   higan::video.setGamma(settings.video.gamma);

@@ -41,7 +41,7 @@ auto ICD::writeIO(uint24 address, uint8 data) -> void {
 
   //VRAM port
   if(address == 0x6001) {
-    readBank = data.range(0,1);
+    readBank = data.bit(0,1);
     readAddress = 0;
     return;
   }
@@ -51,11 +51,11 @@ auto ICD::writeIO(uint24 address, uint8 data) -> void {
   //d5,d4: 0 = 1-player, 1 = 2-player, 2 = 4-player, 3 = ???
   //d1,d0: 0 = frequency divider (clock rate adjust)
   if(address == 0x6003) {
-    if(r6003.field(7) == 0 && data.field(7) == 1) {
+    if(r6003.bit(7) == 0 && data.bit(7) == 1) {
       power(true);  //soft reset
     }
     auto frequency = system.cpuFrequency();
-    switch(data.range(0,1)) {
+    switch(data.bit(0,1)) {
     case 0: Thread::setFrequency(frequency / 4); break;  //fast (glitchy, even on real hardware)
     case 1: Thread::setFrequency(frequency / 5); break;  //normal
     case 2: Thread::setFrequency(frequency / 7); break;  //slow

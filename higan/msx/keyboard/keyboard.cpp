@@ -55,7 +55,7 @@ auto Keyboard::read() -> uint8 {
     for(uint row : range(8)) {
       if(auto node = matrix[column][row]) {
         platform->input(node);
-        data.field(row) = !node->value;
+        data.bit(row) = !node->value;
       }
     }
   }

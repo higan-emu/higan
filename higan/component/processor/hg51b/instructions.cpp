@@ -203,11 +203,11 @@ auto HG51B::instructionLD(uint15& out, uint8 imm) -> void {
 }
 
 auto HG51B::instructionLDL(uint15& out, uint8 imm) -> void {
-  out.range(0,7) = imm;
+  out.bit(0,7) = imm;
 }
 
 auto HG51B::instructionLDH(uint15& out, uint7 imm) -> void {
-  out.range(8,14) = imm;
+  out.bit(8,14) = imm;
 }
 
 auto HG51B::instructionMUL(uint7 reg) -> void {
@@ -232,21 +232,13 @@ auto HG51B::instructionOR(uint8 imm, uint5 shift) -> void {
 auto HG51B::instructionRDRAM(uint2 byte, uint24& a) -> void {
   uint12 address = a;
   if(address >= 0xc00) address -= 0x400;
-  switch(byte) {
-  case 0: r.ram.range( 0, 7) = dataRAM[address]; break;
-  case 1: r.ram.range( 8,15) = dataRAM[address]; break;
-  case 2: r.ram.range(16,23) = dataRAM[address]; break;
-  }
+  r.ram.byte(byte) = dataRAM[address];
 }
 
 auto HG51B::instructionRDRAM(uint2 byte, uint8 imm) -> void {
   uint12 address = r.dpr + imm;
   if(address >= 0xc00) address -= 0x400;
-  switch(byte) {
-  case 0: r.ram.range( 0, 7) = dataRAM[address]; break;
-  case 1: r.ram.range( 8,15) = dataRAM[address]; break;
-  case 2: r.ram.range(16,23) = dataRAM[address]; break;
-  }
+  r.ram.byte(byte) = dataRAM[address];
 }
 
 auto HG51B::instructionRDROM(uint24& reg) -> void {

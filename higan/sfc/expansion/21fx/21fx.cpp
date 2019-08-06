@@ -3,8 +3,8 @@ S21FX::S21FX(Node::Port parent, Node::Peripheral with) {
 
   Thread::create(10'000'000, {&S21FX::main, this});
 
-  resetVector.range(0, 7) = bus.read(0xfffc, 0x00);
-  resetVector.range(8,15) = bus.read(0xfffd, 0x00);
+  resetVector.byte(0) = bus.read(0xfffc, 0x00);
+  resetVector.byte(1) = bus.read(0xfffd, 0x00);
 
   bus.map({&S21FX::read, this}, {&S21FX::write, this}, "00-3f,80-bf:2184-21ff");
   bus.map({&S21FX::read, this}, {&S21FX::write, this}, "00:fffc-fffd");

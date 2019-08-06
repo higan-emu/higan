@@ -14,7 +14,7 @@
 #define H r.hl.byte.hi
 #define L r.hl.byte.lo
 
-#define CF r.af.byte.lo.field(4)
-#define HF r.af.byte.lo.field(5)
-#define NF r.af.byte.lo.field(6)
-#define ZF r.af.byte.lo.field(7)
+#define CF r.af.byte.lo.bit(4)
+#define HF r.af.byte.lo.bit(5)
+#define NF r.af.byte.lo.bit(6)
+#define ZF r.af.byte.lo.bit(7)

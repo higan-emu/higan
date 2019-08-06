@@ -11,7 +11,7 @@ auto ICD::name() const -> string {
 }
 
 auto ICD::main() -> void {
-  if(r6003.field(7)) {
+  if(r6003.bit(7)) {
     GameBoy::system.run();
     Thread::step(GameBoy::system.clocksExecuted());
   } else {  //DMG halted

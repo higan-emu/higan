@@ -24,8 +24,6 @@ struct VideoXShm : VideoDriver {
   auto hasContext() -> bool override { return true; }
   auto hasShader() -> bool override { return true; }
 
-  auto hasFormats() -> vector<string> override { return {"RGB24"}; }
-
   auto setExclusive(bool exclusive) -> bool override { return initialize(); }
   auto setContext(uintptr context) -> bool override { return initialize(); }
   auto setShader(string shader) -> bool override { return true; }

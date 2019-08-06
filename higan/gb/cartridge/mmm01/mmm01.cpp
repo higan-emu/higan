@@ -30,11 +30,11 @@ auto Cartridge::MMM01::write(uint16 address, uint8 data) -> void {
     }
 
     if((address & 0xe000) == 0x2000) {  //$2000-3fff
-      io.rom.base = data.range(0,5);
+      io.rom.base = data.bit(0,5);
     }
   } else {
     if((address & 0xe000) == 0x0000) {  //$0000-1fff
-      io.ram.enable = data.range(0,3) == 0x0a;
+      io.ram.enable = data.bit(0,3) == 0x0a;
     }
 
     if((address & 0xe000) == 0x2000) {  //$2000-3fff

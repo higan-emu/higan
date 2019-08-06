@@ -81,12 +81,12 @@ auto SMP::writeIO(uint16 address, uint8 data) -> void {
   case 0xf0:  //TEST
     if(r.p.p) break;  //writes only valid when P flag is clear
 
-    io.timersDisable      = data.field(0);
-    io.ramWritable        = data.field(1);
-    io.ramDisable         = data.field(2);
-    io.timersEnable       = data.field(3);
-    io.externalWaitStates = data.range(4,5);
-    io.internalWaitStates = data.range(6,7);
+    io.timersDisable      = data.bit(0);
+    io.ramWritable        = data.bit(1);
+    io.ramDisable         = data.bit(2);
+    io.timersEnable       = data.bit(3);
+    io.externalWaitStates = data.bit(4,5);
+    io.internalWaitStates = data.bit(6,7);
 
     timer0.synchronizeStage1();
     timer1.synchronizeStage1();
@@ -95,34 +95,34 @@ auto SMP::writeIO(uint16 address, uint8 data) -> void {
 
   case 0xf1:  //CONTROL
     //0->1 transistion resets timers
-    if(timer0.enable.raise(data.field(0))) {
+    if(timer0.enable.raise(data.bit(0))) {
       timer0.stage2 = 0;
       timer0.stage3 = 0;
     }
 
-    if(timer1.enable.raise(data.field(1))) {
+    if(timer1.enable.raise(data.bit(1))) {
       timer1.stage2 = 0;
       timer1.stage3 = 0;
     }
 
-    if(!timer2.enable.raise(data.field(2))) {
+    if(!timer2.enable.raise(data.bit(2))) {
       timer2.stage2 = 0;
       timer2.stage3 = 0;
     }
 
-    if(data.field(4)) {
+    if(data.bit(4)) {
       synchronize(cpu);
       io.apu0 = 0x00;
       io.apu1 = 0x00;
     }
 
-    if(data.field(5)) {
+    if(data.bit(5)) {
       synchronize(cpu);
       io.apu2 = 0x00;
       io.apu3 = 0x00;
     }
 
-    io.iplromEnable = data.field(7);
+    io.iplromEnable = data.bit(7);
     break;
 
   case 0xf2:  //DSPADDR
@@ -130,7 +130,7 @@ auto SMP::writeIO(uint16 address, uint8 data) -> void {
     break;
 
   case 0xf3:  //DSPDATA
-    if(io.dspAddress.field(7)) break;  //0x80-0xff are read-only mirrors of 0x00-0x7f
+    if(io.dspAddress.bit(7)) break;  //0x80-0xff are read-only mirrors of 0x00-0x7f
     dsp.write(io.dspAddress, data);
     break;
 

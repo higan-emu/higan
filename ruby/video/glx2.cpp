@@ -27,7 +27,7 @@ struct VideoGLX2 : VideoDriver {
   ~VideoGLX2() { destruct(); }
 
   auto create() -> bool {
-    super.setFormat("RGB24");
+    super.setFormat("ARGB24");
     return initialize();
   }
 
@@ -41,9 +41,9 @@ struct VideoGLX2 : VideoDriver {
   auto hasShader() -> bool override { return true; }
 
   auto hasFormats() -> vector<string> override {
-    if(_depth == 30) return {"RGB30", "RGB24"};
-    if(_depth == 24) return {"RGB24"};
-    return {"RGB24"};  //fallback
+    if(_depth == 30) return {"ARGB30", "ARGB24"};
+    if(_depth == 24) return {"ARGB24"};
+    return {"ARGB24"};  //fallback
   }
 
   auto setExclusive(bool exclusive) -> bool override {
@@ -60,12 +60,12 @@ struct VideoGLX2 : VideoDriver {
   }
 
   auto setFormat(string format) -> bool override {
-    if(format == "RGB24") {
+    if(format == "ARGB24") {
       _glFormat = GL_UNSIGNED_INT_8_8_8_8_REV;
       return initialize();
     }
 
-    if(format == "RGB30") {
+    if(format == "ARGB30") {
       _glFormat = GL_UNSIGNED_INT_2_10_10_10_REV;
       return initialize();
     }

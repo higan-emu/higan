@@ -21,27 +21,27 @@ auto Cartridge::MBC5::read(uint16 address) -> uint8 {
 
 auto Cartridge::MBC5::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x0000) {  //$0000-1fff
-    io.ram.enable = data.range(0,3) == 0x0a;
+    io.ram.enable = data.bit(0,3) == 0x0a;
     return;
   }
 
   if((address & 0xf000) == 0x2000) {  //$2000-2fff
-    io.rom.bank.range(0,7) = data.range(0,7);
+    io.rom.bank.bit(0,7) = data.bit(0,7);
     return;
   }
 
   if((address & 0xf000) == 0x3000) {  //$3000-3fff
-    io.rom.bank.field(8) = data.field(0);
+    io.rom.bank.bit(8) = data.bit(0);
     return;
   }
 
   if((address & 0xe000) == 0x4000) {  //$4000-5fff
     if(cartridge.rumble) {
       //todo: add rumble timeout?
-      rumble->enable = data.field(3);
+      rumble->enable = data.bit(3);
       platform->input(rumble);
     }
-    io.ram.bank = data.range(0,3);
+    io.ram.bank = data.bit(0,3);
     return;
   }
 

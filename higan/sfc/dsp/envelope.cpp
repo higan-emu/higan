@@ -10,16 +10,16 @@ auto DSP::envelopeRun(Voice& v) -> void {
 
   int rate;
   int envelopeData = v.adsr1;
-  if(latch.adsr0.field(7)) {  //99% ADSR
+  if(latch.adsr0.bit(7)) {  //99% ADSR
     if(v.envelopeMode >= Envelope::Decay) {  //99%
       envelope--;
       envelope -= envelope >> 8;
       rate = envelopeData & 0x1f;
       if(v.envelopeMode == Envelope::Decay) {  //1%
-        rate = latch.adsr0.range(4,6) * 2 + 16;
+        rate = latch.adsr0.bit(4,6) * 2 + 16;
       }
     } else {  //env_attack
-      rate = latch.adsr0.range(0,3) * 2 + 1;
+      rate = latch.adsr0.bit(0,3) * 2 + 1;
       envelope += rate < 31 ? 0x20 : 0x400;
     }
   } else {  //GAIN

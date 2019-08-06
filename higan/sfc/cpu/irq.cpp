@@ -40,8 +40,8 @@ auto CPU::pollInterrupts() -> void {
 }
 
 auto CPU::nmitimenUpdate(uint8 data) -> void {
-  io.hirqEnable = data.field(4);
-  io.virqEnable = data.field(5);
+  io.hirqEnable = data.bit(4);
+  io.virqEnable = data.bit(5);
   io.irqEnable = io.hirqEnable || io.virqEnable;
 
   if(io.virqEnable && !io.hirqEnable && status.irqLine) {
@@ -52,7 +52,7 @@ auto CPU::nmitimenUpdate(uint8 data) -> void {
     status.irqTransition = 0;
   }
 
-  if(io.nmiEnable.raise(data.field(7)) && status.nmiLine) {
+  if(io.nmiEnable.raise(data.bit(7)) && status.nmiLine) {
     status.nmiTransition = 1;
     r.wai = 0;
   }

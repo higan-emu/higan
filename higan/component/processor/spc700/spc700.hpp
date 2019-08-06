@@ -134,14 +134,14 @@ struct SPC700 {
     }
 
     inline auto& operator=(uint8 data) {
-      c = data.field(0);
-      z = data.field(1);
-      i = data.field(2);
-      h = data.field(3);
-      b = data.field(4);
-      p = data.field(5);
-      v = data.field(6);
-      n = data.field(7);
+      c = data.bit(0);
+      z = data.bit(1);
+      i = data.bit(2);
+      h = data.bit(3);
+      b = data.bit(4);
+      p = data.bit(5);
+      v = data.bit(6);
+      n = data.bit(7);
       return *this;
     }
   };

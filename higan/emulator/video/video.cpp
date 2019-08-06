@@ -22,8 +22,8 @@ auto Video::setPalette() -> void {
   for(auto& screen : screens) screen->setPalette();
 }
 
-auto Video::setDepth(uint depth) -> void {
-  for(auto& screen : screens) screen->setDepth(depth);
+auto Video::setFormat(uint32 red, uint32 green, uint32 blue) -> void {
+  for(auto& screen : screens) screen->setFormat(red, green, blue);
 }
 
 auto Video::setSaturation(double saturation) -> void {

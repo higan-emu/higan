@@ -16,7 +16,7 @@ auto Cartridge::HuC1::read(uint16 address) -> uint8 {
 
 auto Cartridge::HuC1::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x0000) {  //$0000-1fff
-    io.ram.writable = data.range(0,3) == 0x0a;
+    io.ram.writable = data.bit(0,3) == 0x0a;
     return;
   }
 
@@ -32,7 +32,7 @@ auto Cartridge::HuC1::write(uint16 address, uint8 data) -> void {
   }
 
   if((address & 0xe000) == 0x6000) {  //$6000-7fff
-    io.model = data.field(0);
+    io.model = data.bit(0);
     return;
   }
 

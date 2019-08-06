@@ -13,10 +13,10 @@ struct Bridge {
 
   auto status() const -> uint8 {
     uint8 data;
-    data.field(0) = armtocpu.ready;
-    data.field(2) = signal;
-    data.field(3) = cputoarm.ready;
-    data.field(7) = ready;
+    data.bit(0) = armtocpu.ready;
+    data.bit(2) = signal;
+    data.bit(3) = cputoarm.ready;
+    data.bit(7) = ready;
     return data;
   }
 } bridge;

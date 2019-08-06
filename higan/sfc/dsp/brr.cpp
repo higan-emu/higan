@@ -1,9 +1,9 @@
 auto DSP::brrDecode(Voice& v) -> void {
-  //state.t_brr_byte = ram[v.brr_addr + v.brr_offset] cached from previous clock cycle
-  int nybbles = (brr._byte << 8) + apuram[(uint16)(v.brrAddress + v.brrOffset + 1)];
+  //brr._byte = apuram[v.brrAddress + v.brrOffset] cached from previous clock cycle
+  int nybbles = brr._byte << 8 | apuram[uint16(v.brrAddress + v.brrOffset + 1)];
 
-  const int filter = brr._header.range(2,3);
-  const int scale  = brr._header.range(4,7);
+  const int filter = brr._header.bit(2,3);
+  const int scale  = brr._header.bit(4,7);
 
   //decode four samples
   for(uint n : range(4)) {

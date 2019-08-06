@@ -84,18 +84,18 @@ auto SA1::BWRAM::readBitmap(uint20 address, uint8 data) -> uint8 {
     uint shift = address & 1;
     address >>= 1;
     switch(shift) {
-    case 0: return read(address).range(0,3);
-    case 1: return read(address).range(4,7);
+    case 0: return read(address).bit(0,3);
+    case 1: return read(address).bit(4,7);
     }
   } else {
     //2bpp
     uint shift = address & 3;
     address >>= 2;
     switch(shift) {
-    case 0: return read(address).range(0,1);
-    case 1: return read(address).range(2,3);
-    case 2: return read(address).range(4,5);
-    case 3: return read(address).range(6,7);
+    case 0: return read(address).bit(0,1);
+    case 1: return read(address).bit(2,3);
+    case 2: return read(address).bit(4,5);
+    case 3: return read(address).bit(6,7);
     }
   }
   unreachable;
@@ -107,18 +107,18 @@ auto SA1::BWRAM::writeBitmap(uint20 address, uint8 data) -> void {
     uint shift = address & 1;
     address >>= 1;
     switch(shift) {
-    case 0: data = read(address) & 0xf0 | data.range(0,3) << 0; break;
-    case 1: data = read(address) & 0x0f | data.range(0,3) << 4; break;
+    case 0: data = read(address) & 0xf0 | data.bit(0,3) << 0; break;
+    case 1: data = read(address) & 0x0f | data.bit(0,3) << 4; break;
     }
   } else {
     //2bpp
     uint shift = address & 3;
     address >>= 2;
     switch(shift) {
-    case 0: data = read(address) & 0xfc | data.range(0,1) << 0; break;
-    case 1: data = read(address) & 0xf3 | data.range(0,1) << 2; break;
-    case 2: data = read(address) & 0xcf | data.range(0,1) << 4; break;
-    case 3: data = read(address) & 0x3f | data.range(0,1) << 6; break;
+    case 0: data = read(address) & 0xfc | data.bit(0,1) << 0; break;
+    case 1: data = read(address) & 0xf3 | data.bit(0,1) << 2; break;
+    case 2: data = read(address) & 0xcf | data.bit(0,1) << 4; break;
+    case 3: data = read(address) & 0x3f | data.bit(0,1) << 6; break;
     }
   }
   write(address, data);

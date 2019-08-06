@@ -52,8 +52,8 @@ auto PPU::Background::runMode7() -> void {
   if(id == ID::BG1) {
     priority = io.priority[0];
   } else if(id == ID::BG2) {
-    priority = io.priority[palette.field(7)];
-    palette.field(7) = 0;
+    priority = io.priority[palette.bit(7)];
+    palette.bit(7) = 0;
   }
 
   if(palette == 0) return;

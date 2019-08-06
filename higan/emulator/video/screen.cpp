@@ -20,11 +20,11 @@ auto Screen::remove(Sprite& sprite) -> void {
 }
 
 auto Screen::setPalette() -> void {
-  for(auto index : range(node->colors)) {
+  for(uint index : range(node->colors)) {
     uint64 color = node->color(index);
-    uint16 b = color.range( 0,15);
-    uint16 g = color.range(16,31);
-    uint16 r = color.range(32,47);
+    uint16 b = color.bit( 0,15);
+    uint16 g = color.bit(16,31);
+    uint16 r = color.bit(32,47);
     uint16 a = 0xffff;
 
     if(saturation != 1.0) {
@@ -48,18 +48,24 @@ auto Screen::setPalette() -> void {
       b = uclamp<16>(b * luminance);
     }
 
-    switch(depth) {
-    case 24: palette[index] = a >>  8 << 24 | r >> 8 << 16 | g >> 8 <<  8 | b >> 8 << 0; break;
-    case 30: palette[index] = a >> 14 << 30 | r >> 6 << 20 | g >> 6 << 10 | b >> 6 << 0; break;
-    }
+    a >>= 16 - alpha.count;
+    r >>= 16 - red.count;
+    g >>= 16 - green.count;
+    b >>= 16 - blue.count;
+
+    palette[index] = a << alpha.first | r << red.first | g << green.first | b << blue.first;
   }
 
   cached.palette = true;
 }
 
-auto Screen::setDepth(uint depth) -> void {
+auto Screen::setFormat(uint32 red, uint32 green, uint32 blue) -> void {
   cached.palette = false;
-  this->depth = depth;
+  uint32 alpha = ~(red | green | blue);
+  this->alpha = {bit::count(alpha), bit::first(alpha)};
+  this->red   = {bit::count(red),   bit::first(red)};
+  this->green = {bit::count(green), bit::first(green)};
+  this->blue  = {bit::count(blue),  bit::first(blue)};
 }
 
 auto Screen::setSaturation(double saturation) -> void {
@@ -105,7 +111,7 @@ auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void
         *target++ = color;
       }
     } else {
-      uint32 mask = depth == 30 ? 0x40100401 : 0x01010101;
+      uint32 mask = 1 << alpha.first | 1 << red.first | 1 << green.first | 1 << blue.first;
       for(uint x : range(width)) {
         auto a = *target;
         auto b = palette[*source++];
@@ -115,7 +121,7 @@ auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void
   }
 
   if(colorBleed) {
-    uint32 mask = depth == 30 ? 0x40100401 : 0x01010101;
+    uint32 mask = 1 << alpha.first | 1 << red.first | 1 << green.first | 1 << blue.first;
     for(uint y : range(height)) {
       auto target = output + y * width;
       for(uint x : range(width)) {
@@ -141,7 +147,7 @@ auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void
   for(auto& sprite : sprites) {
     if(!sprite->visible) continue;
 
-    uint32 opaqueAlpha = depth == 30 ? 0xc0000000 : 0xff000000;
+    uint32 alpha = (1 << this->alpha.count) - 1 << this->alpha.first;
     for(int y : range(sprite->height)) {
       for(int x : range(sprite->width)) {
         int pixelY = sprite->y + y;
@@ -151,7 +157,7 @@ auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void
         if(pixelX < 0 || pixelX >= width) continue;
 
         auto pixel = sprite->pixels[y * sprite->width + x];
-        if(pixel) output[pixelY * width + pixelX] = opaqueAlpha | pixel;
+        if(pixel) output[pixelY * width + pixelX] = alpha | pixel;
       }
     }
   }

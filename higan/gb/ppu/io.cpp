@@ -16,26 +16,26 @@ auto PPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
   if(address < 0xff40 || address > 0xff7f) return data;
 
   if(address == 0xff40 && cycle == 2) {  //LCDC
-    data.field(0) = status.bgEnable;
-    data.field(1) = status.obEnable;
-    data.field(2) = status.obSize;
-    data.field(3) = status.bgTilemapSelect;
-    data.field(4) = status.bgTiledataSelect;
-    data.field(5) = status.windowDisplayEnable;
-    data.field(6) = status.windowTilemapSelect;
-    data.field(7) = status.displayEnable;
+    data.bit(0) = status.bgEnable;
+    data.bit(1) = status.obEnable;
+    data.bit(2) = status.obSize;
+    data.bit(3) = status.bgTilemapSelect;
+    data.bit(4) = status.bgTiledataSelect;
+    data.bit(5) = status.windowDisplayEnable;
+    data.bit(6) = status.windowTilemapSelect;
+    data.bit(7) = status.displayEnable;
     return data;
   }
 
   if(address == 0xff41 && cycle == 2) {  //STAT
-    data.field(0) = history.mode.field(8);  //status.mode as of 4-cycles ago
-    data.field(1) = history.mode.field(9);
-    data.field(2) = compareLYC();
-    data.field(3) = status.interruptHblank;
-    data.field(4) = status.interruptVblank;
-    data.field(5) = status.interruptOAM;
-    data.field(6) = status.interruptLYC;
-    data.field(7) = 1;
+    data.bit(0) = history.mode.bit(8);  //status.mode as of 4-cycles ago
+    data.bit(1) = history.mode.bit(9);
+    data.bit(2) = compareLYC();
+    data.bit(3) = status.interruptHblank;
+    data.bit(4) = status.interruptVblank;
+    data.bit(5) = status.interruptOAM;
+    data.bit(6) = status.interruptLYC;
+    data.bit(7) = 1;
     return data;
   }
 
@@ -60,26 +60,26 @@ auto PPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
   }
 
   if(address == 0xff47 && cycle == 2) {  //BGP
-    data.range(0,1) = bgp[0];
-    data.range(2,3) = bgp[1];
-    data.range(4,5) = bgp[2];
-    data.range(6,7) = bgp[3];
+    data.bit(0,1) = bgp[0];
+    data.bit(2,3) = bgp[1];
+    data.bit(4,5) = bgp[2];
+    data.bit(6,7) = bgp[3];
     return data;
   }
 
   if(address == 0xff48 && cycle == 2) {  //OBP0
-    data.range(0,1) = obp[0][0];
-    data.range(2,3) = obp[1][1];
-    data.range(4,5) = obp[2][2];
-    data.range(6,7) = obp[3][3];
+    data.bit(0,1) = obp[0][0];
+    data.bit(2,3) = obp[1][1];
+    data.bit(4,5) = obp[2][2];
+    data.bit(6,7) = obp[3][3];
     return data;
   }
 
   if(address == 0xff49 && cycle == 2) {  //OBP1
-    data.range(0,1) = obp[1][0];
-    data.range(2,3) = obp[1][1];
-    data.range(4,5) = obp[1][2];
-    data.range(6,7) = obp[1][3];
+    data.bit(0,1) = obp[1][0];
+    data.bit(2,3) = obp[1][1];
+    data.bit(4,5) = obp[1][2];
+    data.bit(6,7) = obp[1][3];
     return data;
   }
 
@@ -98,8 +98,8 @@ auto PPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
 
   if(Model::GameBoyColor())
   if(address == 0xff68 && cycle == 2) {  //BGPI
-    data.range(0,5) = status.bgpi;
-    data.field(7)   = status.bgpiIncrement;
+    data.bit(0,5) = status.bgpi;
+    data.bit(7)   = status.bgpiIncrement;
     return data;
   }
 
@@ -110,8 +110,8 @@ auto PPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
 
   if(Model::GameBoyColor())
   if(address == 0xff6a && cycle == 2) {  //OBPI
-    data.range(0,5) = status.obpi;
-    data.field(7)   = status.obpiIncrement;
+    data.bit(0,5) = status.obpi;
+    data.bit(7)   = status.obpiIncrement;
     return data;
   }
 
@@ -138,11 +138,11 @@ auto PPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
   if(address < 0xff40 || address > 0xff7f) return;
 
   if(address == 0xff40 && cycle == 4) {  //LCDC
-    if(status.displayEnable != data.field(7)) {
+    if(status.displayEnable != data.bit(7)) {
       status.mode = 0;
       status.ly = 0;
       status.lx = 0;
-      if(data.field(7)) latch.displayEnable = 1;
+      if(data.bit(7)) latch.displayEnable = 1;
 
       //restart cothread to begin new frame
       auto clock = Thread::clock();
@@ -150,14 +150,14 @@ auto PPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
       Thread::setClock(clock);
     }
 
-    status.bgEnable            = data.field(0);
-    status.obEnable            = data.field(1);
-    status.obSize              = data.field(2);
-    status.bgTilemapSelect     = data.field(3);
-    status.bgTiledataSelect    = data.field(4);
-    status.windowDisplayEnable = data.field(5);
-    status.windowTilemapSelect = data.field(6);
-    status.displayEnable       = data.field(7);
+    status.bgEnable            = data.bit(0);
+    status.obEnable            = data.bit(1);
+    status.obSize              = data.bit(2);
+    status.bgTilemapSelect     = data.bit(3);
+    status.bgTiledataSelect    = data.bit(4);
+    status.windowDisplayEnable = data.bit(5);
+    status.windowTilemapSelect = data.bit(6);
+    status.displayEnable       = data.bit(7);
     return;
   }
 
@@ -173,10 +173,10 @@ auto PPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
   }
 
   if(address == 0xff41 && cycle == 4) {  //STAT
-    status.interruptHblank = data.field(3);
-    status.interruptVblank = data.field(4);
-    status.interruptOAM    = data.field(5);
-    status.interruptLYC    = data.field(6);
+    status.interruptHblank = data.bit(3);
+    status.interruptVblank = data.bit(4);
+    status.interruptOAM    = data.bit(5);
+    status.interruptLYC    = data.bit(6);
     return;
   }
 
@@ -208,26 +208,26 @@ auto PPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
   }
 
   if(address == 0xff47 && cycle == 2) {  //BGP
-    bgp[0] = data.range(0,1);
-    bgp[1] = data.range(2,3);
-    bgp[2] = data.range(4,5);
-    bgp[3] = data.range(6,7);
+    bgp[0] = data.bit(0,1);
+    bgp[1] = data.bit(2,3);
+    bgp[2] = data.bit(4,5);
+    bgp[3] = data.bit(6,7);
     return;
   }
 
   if(address == 0xff48 && cycle == 2) {  //OBP0
-    obp[0][0] = data.range(0,1);
-    obp[0][1] = data.range(2,3);
-    obp[0][2] = data.range(4,5);
-    obp[0][3] = data.range(6,7);
+    obp[0][0] = data.bit(0,1);
+    obp[0][1] = data.bit(2,3);
+    obp[0][2] = data.bit(4,5);
+    obp[0][3] = data.bit(6,7);
     return;
   }
 
   if(address == 0xff49 && cycle == 2) {  //OBP1
-    obp[1][0] = data.range(0,1);
-    obp[1][1] = data.range(2,3);
-    obp[1][2] = data.range(4,5);
-    obp[1][3] = data.range(6,7);
+    obp[1][0] = data.bit(0,1);
+    obp[1][1] = data.bit(2,3);
+    obp[1][2] = data.bit(4,5);
+    obp[1][3] = data.bit(6,7);
     return;
   }
 
@@ -243,14 +243,14 @@ auto PPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
 
   if(Model::GameBoyColor())
   if(address == 0xff4f && cycle == 2) {  //VBK
-    status.vramBank = data.field(0);
+    status.vramBank = data.bit(0);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff68 && cycle == 2) {  //BGPI
-    status.bgpi          = data.range(0,5);
-    status.bgpiIncrement = data.field(7);
+    status.bgpi          = data.bit(0,5);
+    status.bgpiIncrement = data.bit(7);
     return;
   }
 
@@ -263,8 +263,8 @@ auto PPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
 
   if(Model::GameBoyColor())
   if(address == 0xff6a && cycle == 2) {  //OBPI
-    status.obpi          = data.range(0,5);
-    status.obpiIncrement = data.field(7);
+    status.obpi          = data.bit(0,5);
+    status.obpiIncrement = data.bit(7);
   }
 
   if(Model::GameBoyColor())

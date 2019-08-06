@@ -12,7 +12,7 @@ struct VideoDriver {
   virtual auto hasContext() -> bool { return false; }
   virtual auto hasBlocking() -> bool { return false; }
   virtual auto hasFlush() -> bool { return false; }
-  virtual auto hasFormats() -> vector<string> { return {"RGB24"}; }
+  virtual auto hasFormats() -> vector<string> { return {"ARGB24"}; }
   virtual auto hasShader() -> bool { return false; }
 
   auto hasFormat(string format) -> bool { return (bool)hasFormats().find(format); }
@@ -39,7 +39,7 @@ protected:
   uintptr context = 0;
   bool blocking = false;
   bool flush = false;
-  string format = "RGB24";
+  string format = "ARGB24";
   string shader = "Blur";
 };
 

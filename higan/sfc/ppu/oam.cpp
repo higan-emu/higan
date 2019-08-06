@@ -1,54 +1,54 @@
 auto PPU::OAM::read(uint10 address) -> uint8 {
   uint8 data;
 
-  if(!address.field(9)) {
+  if(!address.bit(9)) {
     uint7 n = address >> 2;  //object#
     address &= 3;
-    if(address == 0) return object[n].x.range(0,7);
+    if(address == 0) return object[n].x.bit(0,7);
     if(address == 1) return object[n].y;
     if(address == 2) return object[n].character;
-    data.field(0  ) = object[n].nameselect;
-    data.range(1,3) = object[n].palette;
-    data.range(4,5) = object[n].priority;
-    data.field(6  ) = object[n].hflip;
-    data.field(7  ) = object[n].vflip;
+    data.bit(0)   = object[n].nameselect;
+    data.bit(1,3) = object[n].palette;
+    data.bit(4,5) = object[n].priority;
+    data.bit(6)   = object[n].hflip;
+    data.bit(7)   = object[n].vflip;
     return data;
   }
 
   uint7 n = (uint5)address << 2;  //object#
-  data.field(0) = object[n + 0].x.field(8);
-  data.field(1) = object[n + 0].size;
-  data.field(2) = object[n + 1].x.field(8);
-  data.field(3) = object[n + 1].size;
-  data.field(4) = object[n + 2].x.field(8);
-  data.field(5) = object[n + 2].size;
-  data.field(6) = object[n + 3].x.field(8);
-  data.field(7) = object[n + 3].size;
+  data.bit(0) = object[n + 0].x.bit(8);
+  data.bit(1) = object[n + 0].size;
+  data.bit(2) = object[n + 1].x.bit(8);
+  data.bit(3) = object[n + 1].size;
+  data.bit(4) = object[n + 2].x.bit(8);
+  data.bit(5) = object[n + 2].size;
+  data.bit(6) = object[n + 3].x.bit(8);
+  data.bit(7) = object[n + 3].size;
   return data;
 }
 
 auto PPU::OAM::write(uint10 address, uint8 data) -> void {
-  if(!address.field(9)) {
+  if(!address.bit(9)) {
     uint7 n = address >> 2;  //object#
     address &= 3;
-    if(address == 0) { object[n].x.range(0,7) = data; return; }
+    if(address == 0) { object[n].x.bit(0,7) = data; return; }
     if(address == 1) { object[n].y = data; return; }
     if(address == 2) { object[n].character = data; return; }
-    object[n].nameselect = data.field(0  );
-    object[n].palette    = data.range(1,3);
-    object[n].priority   = data.range(4,5);
-    object[n].hflip      = data.field(6  );
-    object[n].vflip      = data.field(7  );
+    object[n].nameselect = data.bit(0);
+    object[n].palette    = data.bit(1,3);
+    object[n].priority   = data.bit(4,5);
+    object[n].hflip      = data.bit(6);
+    object[n].vflip      = data.bit(7);
   } else {
     uint7 n = (uint5)address << 2;  //object#
-    object[n + 0].x.field(8) = data.field(0);
-    object[n + 0].size       = data.field(1);
-    object[n + 1].x.field(8) = data.field(2);
-    object[n + 1].size       = data.field(3);
-    object[n + 2].x.field(8) = data.field(4);
-    object[n + 2].size       = data.field(5);
-    object[n + 3].x.field(8) = data.field(6);
-    object[n + 3].size       = data.field(7);
+    object[n + 0].x.bit(8) = data.bit(0);
+    object[n + 0].size     = data.bit(1);
+    object[n + 1].x.bit(8) = data.bit(2);
+    object[n + 1].size     = data.bit(3);
+    object[n + 2].x.bit(8) = data.bit(4);
+    object[n + 2].size     = data.bit(5);
+    object[n + 3].x.bit(8) = data.bit(6);
+    object[n + 3].size     = data.bit(7);
   }
 }
 

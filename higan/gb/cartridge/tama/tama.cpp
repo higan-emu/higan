@@ -62,11 +62,11 @@ auto Cartridge::TAMA::read(uint16 address) -> uint8 {
 
     if(io.mode == 0 || io.mode == 1) {
       if(io.select == 0x0c) {
-        return 0xf0 | io.output.range(0,3);
+        return 0xf0 | io.output.bit(0,3);
       }
 
       if(io.select == 0x0d) {
-        return 0xf0 | io.output.range(4,7);
+        return 0xf0 | io.output.bit(4,7);
       }
     }
 
@@ -102,28 +102,28 @@ auto Cartridge::TAMA::write(uint16 address, uint8 data) -> void {
 
   if((address & 0xe001) == 0xa000) {  //$a000-bfff (even)
     if(io.select == 0x00) {
-      io.rom.bank.range(0,3) = data.range(0,3);
+      io.rom.bank.bit(0,3) = data.bit(0,3);
     }
 
     if(io.select == 0x01) {
-      io.rom.bank.field(4) = data.field(0);
+      io.rom.bank.bit(4) = data.bit(0);
     }
 
     if(io.select == 0x04) {
-      io.input.range(0,3) = data.range(0,3);
+      io.input.bit(0,3) = data.bit(0,3);
     }
 
     if(io.select == 0x05) {
-      io.input.range(4,7) = data.range(0,3);
+      io.input.bit(4,7) = data.bit(0,3);
     }
 
     if(io.select == 0x06) {
-      io.index.field(4) = data.field(0);
-      io.mode = data.range(1,3);
+      io.index.bit(4) = data.bit(0);
+      io.mode = data.bit(1,3);
     }
 
     if(io.select == 0x07) {
-      io.index.range(0,3) = data.range(0,3);
+      io.index.bit(0,3) = data.bit(0,3);
 
       if(io.mode == 0) {
         cartridge.ram.write(io.index, io.input);
@@ -142,53 +142,53 @@ auto Cartridge::TAMA::write(uint16 address, uint8 data) -> void {
         rtc.meridian = rtc.hour >= 12;
       }
 
-      if(io.mode == 4 && io.index == 0x00 && io.input.range(0,3) == 0x7) {
+      if(io.mode == 4 && io.index == 0x00 && io.input.bit(0,3) == 0x7) {
         uint8 day = toBCD(rtc.day);
-        day.range(0,3) = io.input.range(4,7);
+        day.bit(0,3) = io.input.bit(4,7);
         rtc.day = fromBCD(day);
       }
 
-      if(io.mode == 4 && io.index == 0x00 && io.input.range(0,3) == 0x8) {
+      if(io.mode == 4 && io.index == 0x00 && io.input.bit(0,3) == 0x8) {
         uint8 day = toBCD(rtc.day);
-        day.range(4,7) = io.input.range(4,7);
+        day.bit(4,7) = io.input.bit(4,7);
         rtc.day = fromBCD(day);
       }
 
-      if(io.mode == 4 && io.index == 0x00 && io.input.range(0,3) == 0x9) {
+      if(io.mode == 4 && io.index == 0x00 && io.input.bit(0,3) == 0x9) {
         uint8 month = toBCD(rtc.month);
-        month.range(0,3) = io.input.range(4,7);
+        month.bit(0,3) = io.input.bit(4,7);
         rtc.month = fromBCD(month);
       }
 
-      if(io.mode == 4 && io.index == 0x00 && io.input.range(0,3) == 0xa) {
+      if(io.mode == 4 && io.index == 0x00 && io.input.bit(0,3) == 0xa) {
         uint8 month = toBCD(rtc.month);
-        month.range(4,7) = io.input.range(4,7);
+        month.bit(4,7) = io.input.bit(4,7);
         rtc.month = fromBCD(month);
       }
 
-      if(io.mode == 4 && io.index == 0x00 && io.input.range(0,3) == 0xb) {
+      if(io.mode == 4 && io.index == 0x00 && io.input.bit(0,3) == 0xb) {
         uint8 year = toBCD(rtc.year);
-        year.range(0,3) = io.input.range(4,7);
+        year.bit(0,3) = io.input.bit(4,7);
         rtc.year = fromBCD(year);
       }
 
-      if(io.mode == 4 && io.index == 0x00 && io.input.range(0,3) == 0xc) {
+      if(io.mode == 4 && io.index == 0x00 && io.input.bit(0,3) == 0xc) {
         uint8 year = toBCD(rtc.year);
-        year.range(4,7) = io.input.range(4,7);
+        year.bit(4,7) = io.input.bit(4,7);
         rtc.year = fromBCD(year);
       }
 
-      if(io.mode == 4 && io.index == 0x02 && io.input.range(0,3) == 0xa) {
-        rtc.hourMode = io.input.field(4);
+      if(io.mode == 4 && io.index == 0x02 && io.input.bit(0,3) == 0xa) {
+        rtc.hourMode = io.input.bit(4);
         rtc.second = 0;  //hack: unclear where this is really being set (if it is at all)
       }
 
-      if(io.mode == 4 && io.index == 0x02 && io.input.range(0,3) == 0xb) {
-        rtc.leapYear = data.range(4,5);
+      if(io.mode == 4 && io.index == 0x02 && io.input.bit(0,3) == 0xb) {
+        rtc.leapYear = data.bit(4,5);
       }
 
-      if(io.mode == 4 && io.index == 0x02 && io.input.range(0,3) == 0xe) {
-        rtc.test = io.input.range(4,7);
+      if(io.mode == 4 && io.index == 0x02 && io.input.bit(0,3) == 0xe) {
+        rtc.test = io.input.bit(4,7);
       }
 
       if(io.mode == 2 && io.index == 0x06) {
@@ -200,7 +200,7 @@ auto Cartridge::TAMA::write(uint16 address, uint8 data) -> void {
   }
 
   if((address & 0xe001) == 0xa001) {  //$a000-bfff (odd)
-    io.select = data.range(0,3);
+    io.select = data.bit(0,3);
 
     if(io.select == 0x0a) {
       io.ready = true;

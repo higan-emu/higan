@@ -31,10 +31,10 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Video::color(uint32 color) -> uint64 {
-  uint r = color.range( 0, 4);
-  uint g = color.range( 5, 9);
-  uint b = color.range(10,14);
-  uint l = color.range(15,18);
+  uint r = color.bit( 0, 4);
+  uint g = color.bit( 5, 9);
+  uint b = color.bit(10,14);
+  uint l = color.bit(15,18);
 
   //luma=0 is not 100% black; but it's much darker than normal linear scaling
   //exact effect seems to be analog; requires > 24-bit color depth to represent accurately

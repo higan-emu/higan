@@ -1,7 +1,7 @@
 auto Cartridge::MBC1M::read(uint16 address) -> uint8 {
   if((address & 0xc000) == 0x0000) {  //$0000-3fff
     if(io.mode == 0) return cartridge.rom.read((uint14)address);
-    return cartridge.rom.read(io.rom.bank.range(4,5) << 18 | (uint14)address);
+    return cartridge.rom.read(io.rom.bank.bit(4,5) << 18 | (uint14)address);
   }
 
   if((address & 0xc000) == 0x4000) {  //$4000-7fff
@@ -17,15 +17,15 @@ auto Cartridge::MBC1M::read(uint16 address) -> uint8 {
 
 auto Cartridge::MBC1M::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x2000) {  //$2000-3fff
-    io.rom.bank.range(0,3) = data.range(0,3);
+    io.rom.bank.bit(0,3) = data.bit(0,3);
   }
 
   if((address & 0xe000) == 0x4000) {  //$4000-5fff
-    io.rom.bank.range(4,5) = data.range(0,1);
+    io.rom.bank.bit(4,5) = data.bit(0,1);
   }
 
   if((address & 0xe000) == 0x6000) {  //$6000-7fff
-    io.mode = data.field(0);
+    io.mode = data.bit(0);
   }
 
   if((address & 0xe000) == 0xa000) {  //$a000-bfff

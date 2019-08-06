@@ -47,7 +47,7 @@ auto APU::Wave::trigger() -> void {
 
   if(!length) {
     length = 256;
-    if(apu.phase.field(0) && counter) length--;
+    if(apu.phase.bit(0) && counter) length--;
   }
 }
 

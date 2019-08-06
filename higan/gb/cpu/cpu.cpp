@@ -78,19 +78,19 @@ auto CPU::main() -> void {
 }
 
 auto CPU::raised(uint interruptID) const -> bool {
-  return status.interruptFlag.field(interruptID);
+  return status.interruptFlag.bit(interruptID);
 }
 
 auto CPU::raise(uint interruptID) -> void {
-  status.interruptFlag.field(interruptID) = 1;
-  if(status.interruptEnable.field(interruptID)) {
+  status.interruptFlag.bit(interruptID) = 1;
+  if(status.interruptEnable.bit(interruptID)) {
     r.halt = false;
     if(interruptID == Interrupt::Joypad) r.stop = false;
   }
 }
 
 auto CPU::lower(uint interruptID) -> void {
-  status.interruptFlag.field(interruptID) = 0;
+  status.interruptFlag.bit(interruptID) = 0;
 }
 
 auto CPU::stoppable() -> bool {

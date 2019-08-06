@@ -42,7 +42,7 @@ auto APU::Square2::trigger() -> void {
 
   if(!length) {
     length = 64;
-    if(apu.phase.field(0) && counter) length--;
+    if(apu.phase.bit(0) && counter) length--;
   }
 }
 

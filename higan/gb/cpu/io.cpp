@@ -13,16 +13,16 @@ auto CPU::joypPoll() -> void {
     system.controls.poll();
 
     uint4 dpad;
-    dpad.field(0) = !system.controls.rightLatch;
-    dpad.field(1) = !system.controls.leftLatch;
-    dpad.field(2) = !system.controls.upLatch;
-    dpad.field(3) = !system.controls.downLatch;
+    dpad.bit(0) = !system.controls.rightLatch;
+    dpad.bit(1) = !system.controls.leftLatch;
+    dpad.bit(2) = !system.controls.upLatch;
+    dpad.bit(3) = !system.controls.downLatch;
 
     uint4 button;
-    button.field(0) = !system.controls.a->value;
-    button.field(1) = !system.controls.b->value;
-    button.field(2) = !system.controls.select->value;
-    button.field(3) = !system.controls.start->value;
+    button.bit(0) = !system.controls.a->value;
+    button.bit(1) = !system.controls.b->value;
+    button.bit(2) = !system.controls.select->value;
+    button.bit(3) = !system.controls.start->value;
 
     status.joyp = 0xf;
     if(status.p14 == 0) status.joyp &= dpad;
@@ -39,12 +39,12 @@ auto CPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
 
   if(address == 0xff00 && cycle == 2) {  //JOYP
     joypPoll();
-    data.field(0) = status.joyp.field(0);
-    data.field(1) = status.joyp.field(1);
-    data.field(2) = status.joyp.field(2);
-    data.field(3) = status.joyp.field(3);
-    data.field(4) = status.p14;
-    data.field(5) = status.p15;
+    data.bit(0) = status.joyp.bit(0);
+    data.bit(1) = status.joyp.bit(1);
+    data.bit(2) = status.joyp.bit(2);
+    data.bit(3) = status.joyp.bit(3);
+    data.bit(4) = status.p14;
+    data.bit(5) = status.p15;
     return data;
   }
 
@@ -54,14 +54,14 @@ auto CPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
   }
 
   if(address == 0xff02 && cycle == 2) {  //SC
-    data.field(0) = status.serialClock;
-    data.field(1) = status.serialSpeed | !Model::GameBoyColor();
-    data.field(7) = status.serialTransfer;
+    data.bit(0) = status.serialClock;
+    data.bit(1) = status.serialSpeed | !Model::GameBoyColor();
+    data.bit(7) = status.serialTransfer;
     return data;
   }
 
   if(address == 0xff04 && cycle == 2) {  //DIV
-    return status.div.range(8,15);
+    return status.div.bit(8,15);
   }
 
   if(address == 0xff05 && cycle == 2) {  //TIMA
@@ -73,32 +73,32 @@ auto CPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
   }
 
   if(address == 0xff07 && cycle == 2) {  //TAC
-    data.field(0) = status.timerClock.field(0);
-    data.field(1) = status.timerClock.field(1);
-    data.field(2) = status.timerEnable;
+    data.bit(0) = status.timerClock.bit(0);
+    data.bit(1) = status.timerClock.bit(1);
+    data.bit(2) = status.timerEnable;
     return data;
   }
 
   if(address == 0xff0f && cycle == 2) {  //IF
-    data.field(0) = status.interruptFlag.field(0);
-    data.field(1) = status.interruptFlag.field(1);
-    data.field(2) = status.interruptFlag.field(2);
-    data.field(3) = status.interruptFlag.field(3);
-    data.field(4) = status.interruptFlag.field(4);
+    data.bit(0) = status.interruptFlag.bit(0);
+    data.bit(1) = status.interruptFlag.bit(1);
+    data.bit(2) = status.interruptFlag.bit(2);
+    data.bit(3) = status.interruptFlag.bit(3);
+    data.bit(4) = status.interruptFlag.bit(4);
     return data;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff4d && cycle == 2) {  //KEY1
-    data.field(0) = status.speedSwitch;
-    data.field(7) = status.speedDouble;
+    data.bit(0) = status.speedSwitch;
+    data.bit(7) = status.speedDouble;
     return data;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff55 && cycle == 2) {  //HDMA5
-    data.range(0,6) = status.dmaLength / 16 - 1 & 0x7f;
-    data.field(7)   = status.dmaCompleted;
+    data.bit(0,6) = status.dmaLength / 16 - 1 & 0x7f;
+    data.bit(7)   = status.dmaCompleted;
     return data;
   }
 
@@ -110,7 +110,7 @@ auto CPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
 
   if(Model::GameBoyColor())
   if(address == 0xff6c && cycle == 2) {  //???
-    data.field(0) = status.ff6c;
+    data.bit(0) = status.ff6c;
     return data;
   }
 
@@ -136,7 +136,7 @@ auto CPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
 
   if(Model::GameBoyColor())
   if(address == 0xff75 && cycle == 2) {  //???
-    data.range(4,6) = status.ff75;
+    data.bit(4,6) = status.ff75;
     return data;
   }
 
@@ -163,8 +163,8 @@ auto CPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
   if(address >= 0xff80 && address <= 0xfffe && cycle == 2) { hram[(uint7)address] = data; return; }
 
   if(address == 0xff00 && cycle == 2) {  //JOYP
-    status.p14 = data.field(4);
-    status.p15 = data.field(5);
+    status.p14 = data.bit(4);
+    status.p15 = data.bit(5);
     if(Model::SuperGameBoy()) superGameBoy->joypWrite(status.p14, status.p15);
     return;
   }
@@ -175,9 +175,9 @@ auto CPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
   }
 
   if(address == 0xff02 && cycle == 2) {  //SC
-    status.serialClock    = data.field(0);
-    status.serialSpeed    = data.field(1) & Model::GameBoyColor();
-    status.serialTransfer = data.field(7);
+    status.serialClock    = data.bit(0);
+    status.serialSpeed    = data.bit(1) & Model::GameBoyColor();
+    status.serialTransfer = data.bit(7);
     if(status.serialTransfer) status.serialBits = 8;
     return;
   }
@@ -198,50 +198,50 @@ auto CPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
   }
 
   if(address == 0xff07 && cycle == 2) {  //TAC
-    status.timerClock  = data.range(0,1);
-    status.timerEnable = data.field(2);
+    status.timerClock  = data.bit(0,1);
+    status.timerEnable = data.bit(2);
     return;
   }
 
   if(address == 0xff0f && cycle == 2) {  //IF
-    status.interruptFlag = data.range(0,4);
+    status.interruptFlag = data.bit(0,4);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff4d && cycle == 2) {  //KEY1
-    status.speedSwitch = data.field(0);
+    status.speedSwitch = data.bit(0);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff51 && cycle == 2) {  //HDMA1
-    status.dmaSource.range(8,15) = data.range(0,7);
+    status.dmaSource.bit(8,15) = data.bit(0,7);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff52 && cycle == 2) {  //HDMA2
-    status.dmaSource.range(4,7) = data.range(4,7);
+    status.dmaSource.bit(4,7) = data.bit(4,7);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff53 && cycle == 2) {  //HDMA3
-    status.dmaTarget.range(8,15) = data.range(0,7);
+    status.dmaTarget.bit(8,15) = data.bit(0,7);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff54 && cycle == 2) {  //HDMA4
-    status.dmaTarget.range(4,7) = data.range(4,7);
+    status.dmaTarget.bit(4,7) = data.bit(4,7);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff55 && cycle == 2) {  //HDMA5
-    status.dmaLength    = (data.range(0,6) + 1) * 16;
-    status.dmaMode      = data.field(7);
+    status.dmaLength    = (data.bit(0,6) + 1) * 16;
+    status.dmaMode      = data.bit(7);
     status.dmaCompleted = !status.dmaMode;
 
     if(status.dmaMode == 0) {
@@ -263,7 +263,7 @@ auto CPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
 
   if(Model::GameBoyColor())
   if(address == 0xff6c && cycle == 2) {  //???
-    status.ff6c = data.field(0);
+    status.ff6c = data.bit(0);
     return;
   }
 
@@ -287,13 +287,13 @@ auto CPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
 
   if(Model::GameBoyColor())
   if(address == 0xff75 && cycle == 2) {  //???
-    status.ff75 = data.range(4,6);
+    status.ff75 = data.bit(4,6);
     return;
   }
 
   if(Model::GameBoyColor())
   if(address == 0xff70 && cycle == 2) {  //SVBK
-    status.wramBank = data.range(0,3);
+    status.wramBank = data.bit(0,3);
     return;
   }
 

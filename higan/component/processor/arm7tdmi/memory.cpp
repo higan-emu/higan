@@ -19,9 +19,9 @@ auto ARM7TDMI::load(uint mode, uint32 address) -> uint32 {
     word = mode & Signed ? (uint32)(int8)word : (uint32)(uint8)word;
   }
   if(mode & Signed) {
-    word = ASR(word, address.range(0,1) << 3);
+    word = ASR(word, address.bit(0,1) << 3);
   } else {
-    word = ROR(word, address.range(0,1) << 3);
+    word = ROR(word, address.bit(0,1) << 3);
   }
   idle();
   return word;

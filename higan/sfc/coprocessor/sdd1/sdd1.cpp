@@ -27,7 +27,7 @@ auto SDD1::power() -> void {
 }
 
 auto SDD1::ioRead(uint24 address, uint8 data) -> uint8 {
-  address = 0x4800 | address.range(0,3);
+  address = 0x4800 | address.bit(0,3);
 
   switch(address) {
   case 0x4800: return r4800;
@@ -43,7 +43,7 @@ auto SDD1::ioRead(uint24 address, uint8 data) -> uint8 {
 }
 
 auto SDD1::ioWrite(uint24 address, uint8 data) -> void {
-  address = 0x4800 | address.range(0,3);
+  address = 0x4800 | address.bit(0,3);
 
   switch(address) {
   case 0x4800: r4800 = data; break;
@@ -60,19 +60,19 @@ auto SDD1::dmaRead(uint24 address, uint8 data) -> uint8 {
 }
 
 auto SDD1::dmaWrite(uint24 address, uint8 data) -> void {
-  uint channel = address.range(4,6);
-  switch(address.range(0,3)) {
-  case 2: dma[channel].address.range( 0, 7) = data; break;
-  case 3: dma[channel].address.range( 8,15) = data; break;
-  case 4: dma[channel].address.range(16,23) = data; break;
-  case 5: dma[channel].size.range( 0, 7) = data; break;
-  case 6: dma[channel].size.range( 8,15) = data; break;
+  uint channel = address.bit(4,6);
+  switch(address.bit(0,3)) {
+  case 2: dma[channel].address.byte(0) = data; break;
+  case 3: dma[channel].address.byte(1) = data; break;
+  case 4: dma[channel].address.byte(2) = data; break;
+  case 5: dma[channel].size.byte(0) = data; break;
+  case 6: dma[channel].size.byte(1) = data; break;
   }
   return cpu.writeDMA(address, data);
 }
 
 auto SDD1::mmcRead(uint24 address) -> uint8 {
-  switch(address.range(20,21)) {
+  switch(address.bit(20,21)) {
   case 0: return rom.read((uint4)r4804 << 20 | (uint20)address);  //c0-cf:0000-ffff
   case 1: return rom.read((uint4)r4805 << 20 | (uint20)address);  //d0-df:0000-ffff
   case 2: return rom.read((uint4)r4806 << 20 | (uint20)address);  //e0-ef:0000-ffff
@@ -85,10 +85,10 @@ auto SDD1::mmcRead(uint24 address) -> uint8 {
 //map address=c0-ff:0000-ffff
 auto SDD1::mcuRead(uint24 address, uint8 data) -> uint8 {
   //map address=00-3f,80-bf:8000-ffff
-  if(!address.field(22)) {
-    if(!address.field(23) && address.field(21) && r4805.field(7)) address.field(21) = 0;  //20-3f:8000-ffff
-    if( address.field(23) && address.field(21) && r4807.field(7)) address.field(21) = 0;  //a0-bf:8000-ffff
-    address = address.mask(16,21) >> 1 | (uint15)address;
+  if(!address.bit(22)) {
+    if(!address.bit(23) && address.bit(21) && r4805.bit(7)) address.bit(21) = 0;  //20-3f:8000-ffff
+    if( address.bit(23) && address.bit(21) && r4807.bit(7)) address.bit(21) = 0;  //a0-bf:8000-ffff
+    address = address.bit(16,21) << 15 | (uint15)address;
     return rom.read(address);
   }
 
@@ -96,7 +96,7 @@ auto SDD1::mcuRead(uint24 address, uint8 data) -> uint8 {
   if(r4800 & r4801) {
     //at least one channel has S-DD1 decompression enabled ...
     for(uint n : range(8)) {
-      if(r4800.field(n) && r4801.field(n)) {
+      if(r4800.bit(n) && r4801.bit(n)) {
         //S-DD1 always uses fixed transfer mode, so address will not change during transfer
         if(address == dma[n].address) {
           if(!dmaReady) {
@@ -109,7 +109,7 @@ auto SDD1::mcuRead(uint24 address, uint8 data) -> uint8 {
           data = decompressor.read();
           if(--dma[n].size == 0) {
             dmaReady = false;
-            r4801.field(n) = 0;
+            r4801.bit(n) = 0;
           }
 
           return data;

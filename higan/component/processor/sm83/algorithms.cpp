@@ -20,7 +20,7 @@ auto SM83::AND(uint8 target, uint8 source) -> uint8 {
 auto SM83::BIT(uint3 index, uint8 target) -> void {
   HF = 1;
   NF = 0;
-  ZF = target.field(index) == 0;
+  ZF = target.bit(index) == 0;
 }
 
 auto SM83::CP(uint8 target, uint8 source) -> void {
@@ -56,7 +56,7 @@ auto SM83::OR(uint8 target, uint8 source) -> uint8 {
 }
 
 auto SM83::RL(uint8 target) -> uint8 {
-  bool carry = target.field(7);
+  bool carry = target.bit(7);
   target = target << 1 | CF;
   CF = carry;
   HF = NF = 0;
@@ -66,14 +66,14 @@ auto SM83::RL(uint8 target) -> uint8 {
 
 auto SM83::RLC(uint8 target) -> uint8 {
   target = target << 1 | target >> 7;
-  CF = target.field(0);
+  CF = target.bit(0);
   HF = NF = 0;
   ZF = target == 0;
   return target;
 }
 
 auto SM83::RR(uint8 target) -> uint8 {
-  bool carry = target.field(0);
+  bool carry = target.bit(0);
   target = CF << 7 | target >> 1;
   CF = carry;
   HF = NF = 0;
@@ -83,14 +83,14 @@ auto SM83::RR(uint8 target) -> uint8 {
 
 auto SM83::RRC(uint8 target) -> uint8 {
   target = target << 7 | target >> 1;
-  CF = target.field(7);
+  CF = target.bit(7);
   HF = NF = 0;
   ZF = target == 0;
   return target;
 }
 
 auto SM83::SLA(uint8 target) -> uint8 {
-  bool carry = target.field(7);
+  bool carry = target.bit(7);
   target <<= 1;
   CF = carry;
   HF = NF = 0;
@@ -99,7 +99,7 @@ auto SM83::SLA(uint8 target) -> uint8 {
 }
 
 auto SM83::SRA(uint8 target) -> uint8 {
-  bool carry = target.field(0);
+  bool carry = target.bit(0);
   target = (int8)target >> 1;
   CF = carry;
   HF = NF = 0;
@@ -108,7 +108,7 @@ auto SM83::SRA(uint8 target) -> uint8 {
 }
 
 auto SM83::SRL(uint8 target) -> uint8 {
-  bool carry = target.field(0);
+  bool carry = target.bit(0);
   target >>= 1;
   CF = carry;
   HF = NF = 0;

@@ -134,25 +134,33 @@ auto HitachiDSP::readIO(uint24 address, uint8 data) -> uint8 {
 
   //IO
   switch(address) {
-  case 0x7f40: return io.dma.source.range( 0, 7);
-  case 0x7f41: return io.dma.source.range( 8,15);
-  case 0x7f42: return io.dma.source.range(16,23);
-  case 0x7f43: return io.dma.length.range( 0, 7);
-  case 0x7f44: return io.dma.length.range( 8,15);
-  case 0x7f45: return io.dma.target.range( 0, 7);
-  case 0x7f46: return io.dma.target.range( 8,15);
-  case 0x7f47: return io.dma.target.range(16,23);
+  case 0x7f40: return io.dma.source.byte(0);
+  case 0x7f41: return io.dma.source.byte(1);
+  case 0x7f42: return io.dma.source.byte(2);
+
+  case 0x7f43: return io.dma.length.byte(0);
+  case 0x7f44: return io.dma.length.byte(1);
+
+  case 0x7f45: return io.dma.target.byte(0);
+  case 0x7f46: return io.dma.target.byte(1);
+  case 0x7f47: return io.dma.target.byte(2);
+
   case 0x7f48: return io.cache.page;
-  case 0x7f49: return io.cache.base.range( 0, 7);
-  case 0x7f4a: return io.cache.base.range( 8,15);
-  case 0x7f4b: return io.cache.base.range(16,23);
+
+  case 0x7f49: return io.cache.base.byte(0);
+  case 0x7f4a: return io.cache.base.byte(1);
+  case 0x7f4b: return io.cache.base.byte(2);
+
   case 0x7f4c: return io.cache.lock[0] << 0 | io.cache.lock[1] << 1;
-  case 0x7f4d: return io.cache.pb.range( 0, 7);
-  case 0x7f4e: return io.cache.pb.range( 8,15);
+
+  case 0x7f4d: return io.cache.pb.byte(0);
+  case 0x7f4e: return io.cache.pb.byte(1);
+
   case 0x7f4f: return io.cache.pc;
   case 0x7f50: return io.wait.ram << 0 | io.wait.rom << 4;
   case 0x7f51: return io.irq;
   case 0x7f52: return io.rom;
+
   case 0x7f53: case 0x7f54: case 0x7f55: case 0x7f56: case 0x7f57:
   case 0x7f59: case 0x7f5b: case 0x7f5c: case 0x7f5d: case 0x7f5e:
   case 0x7f5f: return io.suspend.enable << 0 | r.i << 1 | running() << 6 | busy() << 7;
@@ -166,11 +174,7 @@ auto HitachiDSP::readIO(uint24 address, uint8 data) -> uint8 {
   //registers
   if((address >= 0x7f80 && address <= 0x7faf) || (address >= 0x7fc0 && address <= 0x7fef)) {
     address &= 0x3f;
-    switch(address % 3) {
-    case 0: return r.gpr[address / 3].range( 0, 7);
-    case 1: return r.gpr[address / 3].range( 8,15);
-    case 2: return r.gpr[address / 3].range(16,23);
-    }
+    return r.gpr[address / 3].byte(address % 3);
   }
 
   return 0x00;
@@ -181,35 +185,35 @@ auto HitachiDSP::writeIO(uint24 address, uint8 data) -> void {
 
   //IO
   switch(address) {
-  case 0x7f40: io.dma.source.range( 0, 7) = data; return;
-  case 0x7f41: io.dma.source.range( 8,15) = data; return;
-  case 0x7f42: io.dma.source.range(16,23) = data; return;
+  case 0x7f40: io.dma.source.byte(0) = data; return;
+  case 0x7f41: io.dma.source.byte(1) = data; return;
+  case 0x7f42: io.dma.source.byte(2) = data; return;
 
-  case 0x7f43: io.dma.length.range( 0, 7) = data; return;
-  case 0x7f44: io.dma.length.range( 8,15) = data; return;
+  case 0x7f43: io.dma.length.byte(0) = data; return;
+  case 0x7f44: io.dma.length.byte(1) = data; return;
 
-  case 0x7f45: io.dma.target.range( 0, 7) = data; return;
-  case 0x7f46: io.dma.target.range( 8,15) = data; return;
-  case 0x7f47: io.dma.target.range(16,23) = data;
+  case 0x7f45: io.dma.target.byte(0) = data; return;
+  case 0x7f46: io.dma.target.byte(1) = data; return;
+  case 0x7f47: io.dma.target.byte(2) = data;
     if(io.halt) io.dma.enable = 1;
     return;
 
   case 0x7f48:
-    io.cache.page = data.field(0);
+    io.cache.page = data.bit(0);
     if(io.halt) io.cache.enable = 1;
     return;
 
-  case 0x7f49: io.cache.base.range( 0, 7) = data; return;
-  case 0x7f4a: io.cache.base.range( 8,15) = data; return;
-  case 0x7f4b: io.cache.base.range(16,23) = data; return;
+  case 0x7f49: io.cache.base.byte(0) = data; return;
+  case 0x7f4a: io.cache.base.byte(1) = data; return;
+  case 0x7f4b: io.cache.base.byte(2) = data; return;
 
   case 0x7f4c:
-    io.cache.lock[0] = data.field(0);
-    io.cache.lock[1] = data.field(1);
+    io.cache.lock[0] = data.bit(0);
+    io.cache.lock[1] = data.bit(1);
     return;
 
-  case 0x7f4d: io.cache.pb.range( 0, 7) = data; return;
-  case 0x7f4e: io.cache.pb.range( 8,15) = data; return;
+  case 0x7f4d: io.cache.pb.byte(0) = data; return;
+  case 0x7f4e: io.cache.pb.byte(1) = data; return;
 
   case 0x7f4f:
     io.cache.pc = data;
@@ -221,17 +225,17 @@ auto HitachiDSP::writeIO(uint24 address, uint8 data) -> void {
     return;
 
   case 0x7f50:
-    io.wait.ram = data.range(0,2);
-    io.wait.rom = data.range(4,6);
+    io.wait.ram = data.bit(0,2);
+    io.wait.rom = data.bit(4,6);
     return;
 
   case 0x7f51:
-    io.irq = data.field(0);
+    io.irq = data.bit(0);
     if(io.irq == 1) cpu.irq(r.i = 0);
     return;
 
   case 0x7f52:
-    io.rom = data.field(0);
+    io.rom = data.bit(0);
     return;
 
   case 0x7f53:
@@ -263,10 +267,7 @@ auto HitachiDSP::writeIO(uint24 address, uint8 data) -> void {
   //registers
   if((address >= 0x7f80 && address <= 0x7faf) || (address >= 0x7fc0 && address <= 0x7fef)) {
     address &= 0x3f;
-    switch(address % 3) {
-    case 0: r.gpr[address / 3].range( 0, 7) = data; break;
-    case 1: r.gpr[address / 3].range( 8,15) = data; break;
-    case 2: r.gpr[address / 3].range(16,23) = data; break;
-    }
+    r.gpr[address / 3].byte(address % 3) = data;
+    return;
   }
 }

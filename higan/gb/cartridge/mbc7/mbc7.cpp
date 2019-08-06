@@ -30,11 +30,11 @@ auto Cartridge::MBC7::read(uint16 address) -> uint8 {
   if((address & 0xf000) == 0xa000) {  //$a000-afff
     if(!io.ram.enable[0] || !io.ram.enable[1]) return 0xff;
 
-    switch(address.range(4,7)) {
-    case 2: return io.accelerometer.x.range(0, 7);
-    case 3: return io.accelerometer.x.range(8,15);
-    case 4: return io.accelerometer.y.range(0, 7);
-    case 5: return io.accelerometer.y.range(8,15);
+    switch(address.bit(4,7)) {
+    case 2: return io.accelerometer.x.bit(0, 7);
+    case 3: return io.accelerometer.x.bit(8,15);
+    case 4: return io.accelerometer.y.bit(0, 7);
+    case 5: return io.accelerometer.y.bit(8,15);
     case 6: return 0x00;  //z?
     case 7: return 0xff;  //z?
     case 8: return eeprom.readIO();
@@ -48,7 +48,7 @@ auto Cartridge::MBC7::read(uint16 address) -> uint8 {
 
 auto Cartridge::MBC7::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x0000) {  //$0000-1fff
-    io.ram.enable[0] = data.range(0,3) == 0xa;
+    io.ram.enable[0] = data.bit(0,3) == 0xa;
     if(!io.ram.enable[0]) io.ram.enable[1] = false;
     return;
   }
@@ -67,7 +67,7 @@ auto Cartridge::MBC7::write(uint16 address, uint8 data) -> void {
   if((address & 0xf000) == 0xa000) {  //$a000-afff
     if(!io.ram.enable[0] || !io.ram.enable[1]) return;
 
-    switch(address.range(4,7)) {
+    switch(address.bit(4,7)) {
     case 0: {
       if(data != 0x55) break;
       io.accelerometer.x = Center;

@@ -25,8 +25,8 @@ auto Mouse::data() -> uint2 {
 
   case  8: return right->value;
   case  9: return left->value;
-  case 10: return speed.field(1);
-  case 11: return speed.field(0);
+  case 10: return speed.bit(1);
+  case 11: return speed.bit(0);
 
   case 12: return 0;  //4-bit device signature
   case 13: return 0;
@@ -34,22 +34,22 @@ auto Mouse::data() -> uint2 {
   case 15: return 1;
 
   case 16: return dy;
-  case 17: return cy.field(6);
-  case 18: return cy.field(5);
-  case 19: return cy.field(4);
-  case 20: return cy.field(3);
-  case 21: return cy.field(2);
-  case 22: return cy.field(1);
-  case 23: return cy.field(0);
+  case 17: return cy.bit(6);
+  case 18: return cy.bit(5);
+  case 19: return cy.bit(4);
+  case 20: return cy.bit(3);
+  case 21: return cy.bit(2);
+  case 22: return cy.bit(1);
+  case 23: return cy.bit(0);
 
   case 24: return dx;
-  case 25: return cx.field(6);
-  case 26: return cx.field(5);
-  case 27: return cx.field(4);
-  case 28: return cx.field(3);
-  case 29: return cx.field(2);
-  case 30: return cx.field(1);
-  case 31: return cx.field(0);
+  case 25: return cx.bit(6);
+  case 26: return cx.bit(5);
+  case 27: return cx.bit(4);
+  case 28: return cx.bit(3);
+  case 29: return cx.bit(2);
+  case 30: return cx.bit(1);
+  case 31: return cx.bit(0);
   }
 
   counter = 32;

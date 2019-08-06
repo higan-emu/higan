@@ -26,7 +26,7 @@ auto Cartridge::MBC6::read(uint16 address) -> uint8 {
 
 auto Cartridge::MBC6::write(uint16 address, uint8 data) -> void {
   if((address & 0xfc00) == 0x0000) {
-    io.ram.enable = data.range(0,3) == 0xa;
+    io.ram.enable = data.bit(0,3) == 0xa;
     return;
   }
 

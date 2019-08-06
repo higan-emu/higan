@@ -15,8 +15,8 @@ auto ICD::ppuWrite(uint2 color) -> void {
   if(x >= 160) return;  //unverified behavior
 
   uint11 address = writeBank * 512 + y * 2 + x / 8 * 16;
-  output[address + 0] = output[address + 0] << 1 | color.field(0);
-  output[address + 1] = output[address + 1] << 1 | color.field(1);
+  output[address + 0] = output[address + 0] << 1 | color.bit(0);
+  output[address + 1] = output[address + 1] << 1 | color.bit(1);
 }
 
 auto ICD::apuWrite(double left, double right) -> void {
@@ -45,8 +45,8 @@ auto ICD::joypWrite(uint1 p14, uint1 p15) -> void {
 
   uint4 input = 0xf;
   if(p14 == 1 && p15 == 1) input -= joypID;
-  if(p14 == 0) input &= joypad.range(0,3);  //d-pad
-  if(p15 == 0) input &= joypad.range(4,7);  //buttons
+  if(p14 == 0) input &= joypad.bit(0,3);  //d-pad
+  if(p15 == 0) input &= joypad.bit(4,7);  //buttons
 
   GameBoy::cpu.input(input);
 

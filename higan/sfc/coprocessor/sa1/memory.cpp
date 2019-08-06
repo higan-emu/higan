@@ -44,8 +44,8 @@ auto SA1::read(uint24 address) -> uint8 {
     step();
     if(bwram.conflict()) step();
     if(bwram.conflict()) step();
-    if(address.field(22) && address.field(21)) return r.mdr = bwram.readBitmap(address, data);
-    if(address.field(22)) return r.mdr = bwram.readLinear(address, data);
+    if(address.bit(22) && address.bit(21)) return r.mdr = bwram.readBitmap(address, data);
+    if(address.bit(22)) return r.mdr = bwram.readLinear(address, data);
     return r.mdr = bwram.readSA1(address, data);
   }
 
@@ -88,8 +88,8 @@ auto SA1::write(uint24 address, uint8 data) -> void {
     step();
     if(bwram.conflict()) step();
     if(bwram.conflict()) step();
-    if(address.field(22) && address.field(21)) return bwram.writeBitmap(address, data);
-    if(address.field(22)) return bwram.writeLinear(address, data);
+    if(address.bit(22) && address.bit(21)) return bwram.writeBitmap(address, data);
+    if(address.bit(22)) return bwram.writeLinear(address, data);
     return bwram.writeSA1(address, data);
   }
 

@@ -16,7 +16,7 @@ struct Video {
   auto remove(Screen& screen) -> void;
 
   auto setPalette() -> void;
-  auto setDepth(uint depth) -> void;
+  auto setFormat(uint32 red, uint32 green, uint32 blue) -> void;
   auto setSaturation(double saturation) -> void;
   auto setGamma(double gamma) -> void;
   auto setLuminance(double luminance) -> void;
@@ -42,7 +42,7 @@ struct Screen {
   auto remove(Sprite& sprite) -> void;
 
   auto setPalette() -> void;
-  auto setDepth(uint depth) -> void;
+  auto setFormat(uint32 red, uint32 green, uint32 blue) -> void;
   auto setSaturation(double saturation) -> void;
   auto setGamma(double gamma) -> void;
   auto setLuminance(double luminance) -> void;
@@ -60,7 +60,16 @@ private:
   unique_pointer<uint32[]> palette;
   vector<Sprite*> sprites;
 
-  uint depth = 24;
+  struct Channel {
+    uint count;
+    uint first;
+  };
+  //default: A8R8G8B8
+  Channel alpha{8, 24};
+  Channel red  {8, 16};
+  Channel green{8,  8};
+  Channel blue {8,  0};
+
   double saturation = 1.0;
   double gamma = 1.0;
   double luminance = 1.0;

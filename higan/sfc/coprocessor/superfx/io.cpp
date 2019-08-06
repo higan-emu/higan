@@ -1,6 +1,6 @@
 auto SuperFX::readIO(uint24 address, uint8) -> uint8 {
   cpu.synchronize(*this);
-  address = 0x3000 | address.range(0,9);
+  address = 0x3000 | address.bit(0,9);
 
   if(address >= 0x3100 && address <= 0x32ff) {
     return readCache(address - 0x3100);
@@ -52,7 +52,7 @@ auto SuperFX::readIO(uint24 address, uint8) -> uint8 {
 
 auto SuperFX::writeIO(uint24 address, uint8 data) -> void {
   cpu.synchronize(*this);
-  address = 0x3000 | address.range(0,9);
+  address = 0x3000 | address.bit(0,9);
 
   if(address >= 0x3100 && address <= 0x32ff) {
     return writeCache(address - 0x3100, data);
@@ -60,7 +60,7 @@ auto SuperFX::writeIO(uint24 address, uint8 data) -> void {
 
   if(address >= 0x3000 && address <= 0x301f) {
     uint n = address >> 1 & 15;
-    if(!address.field(0)) {
+    if(!address.bit(0)) {
       regs.r[n] = (regs.r[n] & 0xff00) | data;
     } else {
       regs.r[n] = (data << 8) | (regs.r[n] & 0xff);

@@ -83,9 +83,9 @@ auto ArmDSP::set(uint mode, uint32 address, uint32 word) -> void {
 
   if(address == 0x4000'0010) bridge.signal = true;
 
-  if(address == 0x4000'0020) bridge.timerlatch.range( 0, 7) = word;
-  if(address == 0x4000'0024) bridge.timerlatch.range( 8,15) = word;
-  if(address == 0x4000'0028) bridge.timerlatch.range(16,23) = word;
+  if(address == 0x4000'0020) bridge.timerlatch.byte(0) = word;
+  if(address == 0x4000'0024) bridge.timerlatch.byte(1) = word;
+  if(address == 0x4000'0028) bridge.timerlatch.byte(2) = word;
 
   if(address == 0x4000'002c) bridge.timer = bridge.timerlatch;
 }

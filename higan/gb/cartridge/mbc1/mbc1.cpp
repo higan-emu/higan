@@ -25,23 +25,23 @@ auto Cartridge::MBC1::read(uint16 address) -> uint8 {
 
 auto Cartridge::MBC1::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x0000) {  //$0000-1fff
-    io.ram.enable = data.range(0,3) == 0x0a;
+    io.ram.enable = data.bit(0,3) == 0x0a;
     return;
   }
 
   if((address & 0xe000) == 0x2000) {  //$2000-3fff
-    io.rom.bank = data.range(0,4);
+    io.rom.bank = data.bit(0,4);
     if(!io.rom.bank) io.rom.bank = 0x01;
     return;
   }
 
   if((address & 0xe000) == 0x4000) {  //$4000-5fff
-    io.ram.bank = data.range(0,1);
+    io.ram.bank = data.bit(0,1);
     return;
   }
 
   if((address & 0xe000) == 0x6000) {  //$6000-7fff
-    io.mode = data.field(0);
+    io.mode = data.bit(0);
     return;
   }
 
