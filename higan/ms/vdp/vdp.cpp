@@ -120,7 +120,7 @@ auto VDP::palette(uint5 index) -> uint12 {
     0x00, 0x00, 0x08, 0x0c, 0x10, 0x30, 0x01, 0x3c,
     0x02, 0x03, 0x05, 0x0f, 0x04, 0x33, 0x15, 0x3f,
   };
-  if(!io.mode.bit(3)) return palette[index.bits(0,3)];
+  if(!io.mode.bit(3)) return palette[index.bit(0,3)];
   if(Model::MasterSystem()) return cram[index];
   if(Model::GameGear()) return cram[index * 2 + 0] << 0 | cram[index * 2 + 1] << 8;
   return 0;

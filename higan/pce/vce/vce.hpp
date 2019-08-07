@@ -15,8 +15,8 @@ struct VCE : Thread {
   auto power() -> void;
 
   //io.cpp
-  auto read(uint3 addr) -> uint8;
-  auto write(uint3 addr, uint8 data) -> void;
+  auto read(uint3 address) -> uint8;
+  auto write(uint3 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -26,8 +26,8 @@ private:
 
   struct CRAM {
     //memory.cpp
-    auto read(uint9 addr) -> uint9;
-    auto write(uint9 addr, bool a0, uint8 data) -> void;
+    auto read(uint9 address) -> uint9;
+    auto write(uint9 address, bool a0, uint8 data) -> void;
 
     uint9 data[0x200];
     uint9 address;

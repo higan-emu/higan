@@ -40,7 +40,7 @@ auto Cartridge::write(uint16 addr, uint8 data) -> bool {
   if(!node) return false;
 
   if(addr == 0xfffc) {
-    mapper.shift = data.bits(0,1);
+    mapper.shift = data.bit(0,1);
     mapper.ramPage2 = data.bit(2);
     mapper.ramEnablePage2 = data.bit(3);
     mapper.ramEnablePage3 = data.bit(4);

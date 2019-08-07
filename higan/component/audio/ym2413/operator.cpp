@@ -19,10 +19,10 @@ auto YM2413::Operator::update(maybe<uint> updateState) -> void {
   divider = max(state == Attack ? 2 : 0, 13 - rate / 4);
   sequence = envelopeSteps[rate < 48 ? rate % 4 : rate - 44][state == Attack ? 0 : 1];
 
-  auto ksl = levelScaling[fnumber.bits(5,8)] + 8 * block - 56;
+  auto ksl = levelScaling[fnumber.bit(5,8)] + 8 * block - 56;
   level  = totalLevel;
   level += max(0, scaleLevel ? ksl : 0) >> 3 - scaleLevel;
-  auto f = fnumber.bits(6,8);
+  auto f = fnumber.bit(6,8);
   long m = multiple;
   long lfo[8]{0, -f/2, -f, -f/2, 0, +f/2, +f, +f/2};
 
@@ -35,7 +35,7 @@ auto YM2413::Operator::update(maybe<uint> updateState) -> void {
 }
 
 auto YM2413::Operator::synchronize(uint1 hard, maybe<Operator&> modulator) -> void {
-  if(state == Trigger && envelope.bits(2,6) == 31) {
+  if(state == Trigger && envelope.bit(2,6) == 31) {
     update(Attack);
     if(rate >= 60) update(Decay), envelope = 0;
     if(hard) phase = 0;
@@ -67,9 +67,9 @@ auto YM2413::Operator::clock(natural clock, integer offset, integer modulation) 
   y += level    << 5 + 1;
   y += lfo      << 4 + 1;
   prior = output;
-  output = expTable[y.bits(0,8)] * 1L >> y.bits(9,13);
+  output = expTable[y.bit(0,8)] * 1L >> y.bit(9,13);
   phase += pitch[clock / 1024 % 8 * vibrato];
-  auto lsbs = divider ? clock.bits(0, divider - 1) : 0;
+  auto lsbs = divider ? clock.bit(0, divider - 1) : 0;
   if(rate && (state == Attack ? lsbs & -4 : lsbs) == 0) {
     natural msbs = uint4(clock >> divider);
     integer step = uint4(sequence << 4 * msbs >> 60);

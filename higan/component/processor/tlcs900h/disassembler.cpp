@@ -95,7 +95,7 @@ auto TLCS900H::disassemble() -> string {
   boolean opTargetMemory;
 
   static const natural opSizes[] = {8, 16, 32, 0};  //0xc0 - 0xf5 use combined logic switch cases:
-  #define opSize opSizes[fetch.bits(4,5)]           //extract the size from the opcode fetch
+  #define opSize opSizes[fetch.bit(4,5)]            //extract the size from the opcode fetch
   switch(auto fetch = read8()) {
   case 0x00: name = "nop"; break;
   case 0x01: break;  //"normal" (not present on 900/H)

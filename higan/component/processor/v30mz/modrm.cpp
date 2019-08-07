@@ -1,8 +1,8 @@
 auto V30MZ::modRM() -> void {
   auto data = fetch();
-  modrm.mem = data.bits(0,2);
-  modrm.reg = data.bits(3,5);
-  modrm.mod = data.bits(6,7);
+  modrm.mem = data.bit(0,2);
+  modrm.reg = data.bit(3,5);
+  modrm.mod = data.bit(6,7);
 
   if(modrm.mod == 0 && modrm.mem == 6) {
     modrm.segment = segment(r.ds);

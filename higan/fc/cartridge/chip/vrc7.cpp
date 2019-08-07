@@ -59,7 +59,7 @@ struct VRC7 : YM2413, Chip {
     case 0xd010: chrBank[7] = data; break;
     case 0xe000:
       if(disableFM && !data.bit(6)) YM2413::power(1);
-      mirror = data.bits(0,1);
+      mirror = data.bit(0,1);
       disableFM = data.bit(6);
       ramWritable = data.bit(7);
       break;
@@ -69,9 +69,9 @@ struct VRC7 : YM2413, Chip {
       break;
 
     case 0xf000:
-      irqMode = data & 0x04;
-      irqEnable = data & 0x02;
-      irqAcknowledge = data & 0x01;
+      irqAcknowledge = data.bit(0);
+      irqEnable = data.bit(1);
+      irqMode = data.bit(2);
       if(irqEnable) {
         irqCounter = irqLatch;
         irqScalar = 341;

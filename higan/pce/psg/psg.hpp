@@ -9,7 +9,7 @@ struct PSG : Thread {
   auto power() -> void;
 
   //io.cpp
-  auto write(uint4 addr, uint8 data) -> void;
+  auto write(uint4 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -31,7 +31,7 @@ private:
     auto sample(uint5 sample) -> void;
 
     //io.cpp
-    auto write(uint4 addr, uint8 data) -> void;
+    auto write(uint4 address, uint8 data) -> void;
 
     struct IO {
       uint12 waveFrequency;

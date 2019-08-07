@@ -3,7 +3,7 @@
 auto CPU::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 {
   if(address >= 0xa10000 && address <= 0xa100ff) {
     if(!lower) return data;  //even byte writes ignored
-    address.bits(5,7) = 0;   //a10020-a100ff mirrors a10000-a1001f
+    address.bit(5,7) = 0;   //a10020-a100ff mirrors a10000-a1001f
 
     switch(address) {
     case 0xa10000:
@@ -52,7 +52,7 @@ auto CPU::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
 auto CPU::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   if(address >= 0xa10000 && address <= 0xa100ff) {
     if(!lower) return;      //even byte writes ignored
-    address.bits(5,7) = 0;  //a10020-a100ff mirrors a10000-a1001f
+    address.bit(5,7) = 0;  //a10020-a100ff mirrors a10000-a1001f
 
     switch(address) {
     case 0xa10002:

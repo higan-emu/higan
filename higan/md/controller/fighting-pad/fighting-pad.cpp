@@ -59,15 +59,15 @@ auto FightingPad::readData() -> uint8 {
     if(counter == 0 || counter == 1 || counter == 4) {
       data.bit(0) = upLatch;
       data.bit(1) = downLatch;
-      data.bits(2,3) = ~0;
+      data.bit(2,3) = ~0;
     }
 
     if(counter == 2) {
-      data.bits(0,3) = ~0;  //controller type detection
+      data.bit(0,3) = ~0;  //controller type detection
     }
 
     if(counter == 3) {
-      data.bits(0,3) = 0;
+      data.bit(0,3) = 0;
     }
 
     data.bit(4) = a->value;
@@ -87,7 +87,7 @@ auto FightingPad::readData() -> uint8 {
       data.bit(1) = y->value;
       data.bit(2) = x->value;
       data.bit(3) = mode->value;
-      data.bits(4,5) = 0;
+      data.bit(4,5) = 0;
     }
   }
 

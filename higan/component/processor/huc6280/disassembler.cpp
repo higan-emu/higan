@@ -1,16 +1,16 @@
 auto HuC6280::disassemble(uint16 pc) -> string {
-  uint8 bank = r.mpr[pc.bits(13,15)];
-  uint13 addr = pc.bits(0,12);
+  uint8 bank = r.mpr[pc.bit(13,15)];
+  uint13 address = pc.bit(0,12);
 
-  string s{hex(bank, 2L), ":", hex(addr, 4L), "  "};
+  string s{hex(bank, 2L), ":", hex(address, 4L), "  "};
 
   auto readByte = [&]() -> uint8 {
-    return read(bank, addr++);
+    return read(bank, address++);
   };
 
   auto readWord = [&]() -> uint16 {
-    uint16 data = read(bank, addr++) << 0;
-    return data | read(bank, addr++) << 8;
+    uint16 data = read(bank, address++) << 0;
+    return data | read(bank, address++) << 8;
   };
 
   auto absolute = [&]() -> string { return {"$", hex(readWord(), 4L)}; };

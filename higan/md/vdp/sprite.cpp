@@ -10,31 +10,31 @@ auto VDP::Sprite::write(uint9 address, uint16 data) -> void {
   if(address > 320) return;
 
   auto& object = oam[address >> 2];
-  switch(address.bits(0,1)) {
+  switch(address.bit(0,1)) {
 
   case 0: {
-    object.y = data.bits(0,9);
+    object.y = data.bit(0,9);
     break;
   }
 
   case 1: {
-    object.link = data.bits(0,6);
-    object.tileHeight = data.bits(8,9);
-    object.tileWidth = data.bits(10,11);
+    object.link = data.bit(0,6);
+    object.tileHeight = data.bit(8,9);
+    object.tileWidth = data.bit(10,11);
     break;
   }
 
   case 2: {
-    object.address = data.bits(0,10);
+    object.address = data.bit(0,10);
     object.horizontalFlip = data.bit(11);
     object.verticalFlip = data.bit(12);
-    object.palette = data.bits(13,14);
+    object.palette = data.bit(13,14);
     object.priority = data.bit(15);
     break;
   }
 
   case 3: {
-    object.x = data.bits(0,8);
+    object.x = data.bit(0,8);
     break;
   }
 

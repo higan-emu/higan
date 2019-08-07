@@ -1,21 +1,21 @@
-auto HuC6280::load8(uint8 addr) -> uint8 {
+auto HuC6280::load8(uint8 address) -> uint8 {
   step(r.cs);
-  return read(r.mpr[1], addr);
+  return read(r.mpr[1], address);
 }
 
-auto HuC6280::load16(uint16 addr) -> uint8 {
+auto HuC6280::load16(uint16 address) -> uint8 {
   step(r.cs);
-  return read(r.mpr[addr.bits(13,15)], addr.bits(0,12));
+  return read(r.mpr[address.bit(13,15)], address.bit(0,12));
 }
 
-auto HuC6280::store8(uint8 addr, uint8 data) -> void {
+auto HuC6280::store8(uint8 address, uint8 data) -> void {
   step(r.cs);
-  return write(r.mpr[1], addr, data);
+  return write(r.mpr[1], address, data);
 }
 
-auto HuC6280::store16(uint16 addr, uint8 data) -> void {
+auto HuC6280::store16(uint16 address, uint8 data) -> void {
   step(r.cs);
-  return write(r.mpr[addr.bits(13,15)], addr.bits(0,12), data);
+  return write(r.mpr[address.bit(13,15)], address.bit(0,12), data);
 }
 
 //

@@ -31,10 +31,10 @@ auto Cartridge::MBC7::read(uint16 address) -> uint8 {
     if(!io.ram.enable[0] || !io.ram.enable[1]) return 0xff;
 
     switch(address.bit(4,7)) {
-    case 2: return io.accelerometer.x.bit(0, 7);
-    case 3: return io.accelerometer.x.bit(8,15);
-    case 4: return io.accelerometer.y.bit(0, 7);
-    case 5: return io.accelerometer.y.bit(8,15);
+    case 2: return io.accelerometer.x.byte(0);
+    case 3: return io.accelerometer.x.byte(1);
+    case 4: return io.accelerometer.y.byte(0);
+    case 5: return io.accelerometer.y.byte(1);
     case 6: return 0x00;  //z?
     case 7: return 0xff;  //z?
     case 8: return eeprom.readIO();

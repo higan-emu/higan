@@ -111,9 +111,9 @@ auto TLCS900H::load(StatusRegister) const -> uint16 {
 }
 
 auto TLCS900H::store(StatusRegister, uint16 data) -> void {
-  store(F, data.bits(0,7));
-  r.rfp = data.bits(8,9);
-  r.iff = data.bits(12,14);
+  store(F, data.bit(0,7));
+  r.rfp = data.bit(8,9);
+  r.iff = data.bit(12,14);
 }
 
 auto TLCS900H::load(ProgramCounter) const -> uint32 {

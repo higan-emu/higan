@@ -21,11 +21,11 @@ auto PPU::writeCGRAM(uint5 addr, uint8 data) -> void {
 auto PPU::readIO(uint16 addr) -> uint8 {
   uint8 result = 0x00;
 
-  switch(addr.bits(0,2)) {
+  switch(addr.bit(0,2)) {
 
   //PPUSTATUS
   case 2:
-    result |= io.mdr.bits(0,4);
+    result |= io.mdr.bit(0,4);
     result |= io.spriteOverflow << 5;
     result |= io.spriteZeroHit << 6;
     result |= io.nmiFlag << 7;
@@ -65,28 +65,28 @@ auto PPU::readIO(uint16 addr) -> uint8 {
 auto PPU::writeIO(uint16 addr, uint8 data) -> void {
   io.mdr = data;
 
-  switch(addr.bits(0,2)) {
+  switch(addr.bit(0,2)) {
 
   //PPUCTRL
   case 0:
-    io.t.nametable   = data.bits(0,1);
-    io.vramIncrement = data.bit (2) ? 32 : 1;
-    io.spriteAddress = data.bit (3) ? 0x1000 : 0x0000;
-    io.bgAddress     = data.bit (4) ? 0x1000 : 0x0000;
-    io.spriteHeight  = data.bit (5) ? 16 : 8;
-    io.masterSelect  = data.bit (6);
-    io.nmiEnable     = data.bit (7);
+    io.t.nametable   = data.bit(0,1);
+    io.vramIncrement = data.bit(2) ? 32 : 1;
+    io.spriteAddress = data.bit(3) ? 0x1000 : 0x0000;
+    io.bgAddress     = data.bit(4) ? 0x1000 : 0x0000;
+    io.spriteHeight  = data.bit(5) ? 16 : 8;
+    io.masterSelect  = data.bit(6);
+    io.nmiEnable     = data.bit(7);
     cpu.nmiLine(io.nmiEnable && io.nmiHold && io.nmiFlag);
     break;
 
   //PPUMASK
   case 1:
-    io.grayscale        = data.bit (0);
-    io.bgEdgeEnable     = data.bit (1);
-    io.spriteEdgeEnable = data.bit (2);
-    io.bgEnable         = data.bit (3);
-    io.spriteEnable     = data.bit (4);
-    io.emphasis         = data.bits(5,7);
+    io.grayscale        = data.bit(0);
+    io.bgEdgeEnable     = data.bit(1);
+    io.spriteEdgeEnable = data.bit(2);
+    io.bgEnable         = data.bit(3);
+    io.spriteEnable     = data.bit(4);
+    io.emphasis         = data.bit(5,7);
     break;
 
   //PPUSTATUS
@@ -100,27 +100,27 @@ auto PPU::writeIO(uint16 addr, uint8 data) -> void {
 
   //OAMDATA
   case 4:
-    if(io.oamAddress.bits(0,1) == 2) data.bits(2,4) = 0;  //clear non-existent bits (always read back as 0)
+    if(io.oamAddress.bit(0,1) == 2) data.bit(2,4) = 0;  //clear non-existent bits (always read back as 0)
     oam[io.oamAddress++] = data;
     break;
 
   //PPUSCROLL
   case 5:
     if(io.v.latch++ == 0) {
-      io.v.fineX = data.bits(0,2);
-      io.t.tileX = data.bits(3,7);
+      io.v.fineX = data.bit(0,2);
+      io.t.tileX = data.bit(3,7);
     } else {
-      io.t.fineY = data.bits(0,2);
-      io.t.tileY = data.bits(3,7);
+      io.t.fineY = data.bit(0,2);
+      io.t.tileY = data.bit(3,7);
     }
     break;
 
   //PPUADDR
   case 6:
     if(io.v.latch++ == 0) {
-      io.t.addressHi = data.bits(0,5);
+      io.t.addressHi = data.bit(0,5);
     } else {
-      io.t.addressLo = data.bits(0,7);
+      io.t.addressLo = data.bit(0,7);
       io.v.address = io.t.address;
     }
     break;

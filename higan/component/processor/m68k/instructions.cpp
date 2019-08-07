@@ -612,8 +612,8 @@ template<> auto M68K::instructionEXT<Long>(DataRegister with) -> void {
 auto M68K::instructionILLEGAL(uint16 code) -> void {
   idle(6);
   r.pc -= 2;
-  if(code.bits(12,15) == 0xa) return exception(Exception::Illegal, Vector::IllegalLineA);
-  if(code.bits(12,15) == 0xf) return exception(Exception::Illegal, Vector::IllegalLineF);
+  if(code.bit(12,15) == 0xa) return exception(Exception::Illegal, Vector::IllegalLineA);
+  if(code.bit(12,15) == 0xf) return exception(Exception::Illegal, Vector::IllegalLineF);
   return exception(Exception::Illegal, Vector::IllegalInstruction);
 }
 

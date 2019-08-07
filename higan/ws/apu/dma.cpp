@@ -12,8 +12,8 @@ auto APU::DMA::run() -> void {
   if(r.direction == 1) s.source--;
 
   if(r.target == 0) {
-    apu.channel2.r.volumeRight = data.bits(0,3);
-    apu.channel2.r.volumeLeft  = data.bits(4,7);
+    apu.channel2.r.volumeRight = data.bit(0,3);
+    apu.channel2.r.volumeLeft  = data.bit(4,7);
   } else {
     apu.channel5.s.data = data;
   }

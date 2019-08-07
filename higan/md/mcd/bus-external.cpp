@@ -1,5 +1,5 @@
 auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16 {
-  address.bits(18,20) = 0;  //mirrors
+  address.bit(18,20) = 0;  //mirrors
 
   if(address >= 0x000000 && address <= 0x01ffff) {
     return bios[address >> 1];
@@ -31,7 +31,7 @@ auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -
 }
 
 auto MCD::external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void {
-  address.bits(18,20) = 0;  //mirrors
+  address.bit(18,20) = 0;  //mirrors
 
   if(address >= 0x020000 && address <= 0x03ffff) {
     address = io.pramBank << 17 | (uint17)address;

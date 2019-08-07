@@ -1,5 +1,5 @@
 auto V9938::command(uint8 data) -> void {
-  if(!data.bits(4,7)) return (void)(op.executing = 0);  //stop
+  if(!data.bit(4,7)) return (void)(op.executing = 0);  //stop
   if(op.executing) return;  //busy
 
   op.lgm = 0;
@@ -9,8 +9,8 @@ auto V9938::command(uint8 data) -> void {
   if(g7()) op.lgm = 7;
   if(!op.lgm) return;  //invalid
 
-  op.logic     = data.bits(0,3);
-  op.command   = data.bits(4,7);
+  op.logic     = data.bit(0,3);
+  op.command   = data.bit(4,7);
   op.found     = 0;
   op.executing = 1;
   relatch();
@@ -122,7 +122,7 @@ auto V9938::write(uint1 source, uint9 x, uint10 y, uint8 data) -> void {
   if(op.lgm == 5) lo = (~x & 3) * 2, hi = lo + 1;
   if(op.lgm == 6) lo = (~x & 1) * 4, hi = lo + 3;
   if(op.lgm == 7) lo = (~x & 0) * 8, hi = lo + 7;
-  byte.bits(lo, hi) = data;
+  byte.bit(lo, hi) = data;
   ram.write(address(x, y), byte);
 }
 

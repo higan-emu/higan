@@ -70,25 +70,25 @@ auto AY38910::read() -> uint8 {
 
   switch(io.register) {
   case  0:
-    data.bits(0,7) = toneA.period.bits(0, 7);
+    data.bit(0,7) = toneA.period.bit(0, 7);
     break;
   case  1:
-    data.bits(0,3) = toneA.period.bits(8,11);
+    data.bit(0,3) = toneA.period.bit(8,11);
     break;
   case 2:
-    data.bits(0,7) = toneB.period.bits(0, 7);
+    data.bit(0,7) = toneB.period.bit(0, 7);
     break;
   case 3:
-    data.bits(0,3) = toneB.period.bits(8,11);
+    data.bit(0,3) = toneB.period.bit(8,11);
     break;
   case  4:
-    data.bits(0,7) = toneC.period.bits(0, 7);
+    data.bit(0,7) = toneC.period.bit(0, 7);
     break;
   case  5:
-    data.bits(0,3) = toneC.period.bits(8,11);
+    data.bit(0,3) = toneC.period.bit(8,11);
     break;
   case  6:
-    data.bits(0,4) = noise.period;
+    data.bit(0,4) = noise.period;
     break;
   case  7:
     data.bit(0) = channelA.tone;
@@ -101,22 +101,22 @@ auto AY38910::read() -> uint8 {
     data.bit(7) = portB.direction;
     break;
   case  8:
-    data.bits(0,3) = channelA.volume;
-    data.bit (4)   = channelA.envelope;
+    data.bit(0,3) = channelA.volume;
+    data.bit(4)   = channelA.envelope;
     break;
   case  9:
-    data.bits(0,3) = channelB.volume;
-    data.bit (4)   = channelB.envelope;
+    data.bit(0,3) = channelB.volume;
+    data.bit(4)   = channelB.envelope;
     break;
   case 10:
-    data.bits(0,3) = channelC.volume;
-    data.bit (4)   = channelC.envelope;
+    data.bit(0,3) = channelC.volume;
+    data.bit(4)   = channelC.envelope;
     break;
   case 11:
-    data.bits(0,7) = envelope.period.bits(0, 7);
+    data.bit(0,7) = envelope.period.bit(0, 7);
     break;
   case 12:
-    data.bits(0,7) = envelope.period.bits(8,15);
+    data.bit(0,7) = envelope.period.bit(8,15);
     break;
   case 13:
     data.bit(0) = envelope.hold;
@@ -125,10 +125,10 @@ auto AY38910::read() -> uint8 {
     data.bit(3) = envelope.repeat;
     break;
   case 14:
-    data.bits(0,7) = readIO(0);
+    data.bit(0,7) = readIO(0);
     break;
   case 15:
-    data.bits(0,7) = readIO(1);
+    data.bit(0,7) = readIO(1);
     break;
   }
 
@@ -138,25 +138,25 @@ auto AY38910::read() -> uint8 {
 auto AY38910::write(uint8 data) -> void {
   switch(io.register) {
   case  0:
-    toneA.period.bits(0, 7) = data.bits(0,7);
+    toneA.period.bit(0, 7) = data.bit(0,7);
     break;
   case  1:
-    toneA.period.bits(8,11) = data.bits(0,3);
+    toneA.period.bit(8,11) = data.bit(0,3);
     break;
   case  2:
-    toneB.period.bits(0, 7) = data.bits(0,7);
+    toneB.period.bit(0, 7) = data.bit(0,7);
     break;
   case  3:
-    toneB.period.bits(8,11) = data.bits(0,3);
+    toneB.period.bit(8,11) = data.bit(0,3);
     break;
   case  4:
-    toneC.period.bits(0, 7) = data.bits(0,7);
+    toneC.period.bit(0, 7) = data.bit(0,7);
     break;
   case  5:
-    toneC.period.bits(8,11) = data.bits(0,3);
+    toneC.period.bit(8,11) = data.bit(0,3);
     break;
   case  6:
-    noise.period = data.bits(0,4);
+    noise.period = data.bit(0,4);
     break;
   case  7:
     channelA.tone   = data.bit(0);
@@ -169,22 +169,22 @@ auto AY38910::write(uint8 data) -> void {
     portB.direction = data.bit(7);
     break;
   case  8:
-    channelA.volume   = data.bits(0,3);
-    channelA.envelope = data.bit (4);
+    channelA.volume   = data.bit(0,3);
+    channelA.envelope = data.bit(4);
     break;
   case  9:
-    channelB.volume   = data.bits(0,3);
-    channelB.envelope = data.bit (4);
+    channelB.volume   = data.bit(0,3);
+    channelB.envelope = data.bit(4);
     break;
   case 10:
-    channelC.volume   = data.bits(0,3);
-    channelC.envelope = data.bit (4);
+    channelC.volume   = data.bit(0,3);
+    channelC.envelope = data.bit(4);
     break;
   case 11:
-    envelope.period.bits(0, 7) = data.bits(0,7);
+    envelope.period.bit(0, 7) = data.bit(0,7);
     break;
   case 12:
-    envelope.period.bits(8,15) = data.bits(0,7);
+    envelope.period.bit(8,15) = data.bit(0,7);
     break;
   case 13:
     envelope.hold      = data.bit(0);

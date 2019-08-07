@@ -64,11 +64,11 @@ auto PPU::Background::linear(uint x, uint y) -> void {
     if(io.screenSize.bit(1) && (ty & 32)) offset += 32 << 5 + io.screenSize.bit(0);
     offset = (io.screenBase << 11) + (offset << 1);
 
-    uint16 tilemap = ppu.readVRAM(Half, offset);
-    latch.character = tilemap.bits(0,9);
-    latch.hflip = tilemap.bit(10);
-    latch.vflip = tilemap.bit(11);
-    latch.palette = tilemap.bits(12,15);
+    uint16 tilemap  = ppu.readVRAM(Half, offset);
+    latch.character = tilemap.bit(0,9);
+    latch.hflip     = tilemap.bit(10);
+    latch.vflip     = tilemap.bit(11);
+    latch.palette   = tilemap.bit(12,15);
   }
 
   if(latch.hflip) px = ~px;

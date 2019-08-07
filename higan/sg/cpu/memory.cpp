@@ -16,7 +16,7 @@ auto CPU::write(uint16 address, uint8 data) -> void {
 }
 
 auto CPU::in(uint16 address) -> uint8 {
-  switch(address.bits(6,7)) {
+  switch(address.bit(6,7)) {
 
   case 0: {
     return 0xff;
@@ -34,9 +34,9 @@ auto CPU::in(uint16 address) -> uint8 {
     auto port1 = controllerPort1.read();
     auto port2 = controllerPort2.read();
     if(address.bit(0) == 0) {
-      return port1.bits(0,5) << 0 | port2.bits(0,1) << 6;
+      return port1.bit(0,5) << 0 | port2.bit(0,1) << 6;
     } else {
-      return port2.bits(2,5) << 0 | 1 << 4 | 1 << 5 | port1.bit(6) << 6 | port2.bit(6) << 7;
+      return port2.bit(2,5) << 0 | 1 << 4 | 1 << 5 | port1.bit(6) << 6 | port2.bit(6) << 7;
     }
   }
 
@@ -46,7 +46,7 @@ auto CPU::in(uint16 address) -> uint8 {
 }
 
 auto CPU::out(uint16 address, uint8 data) -> void {
-  switch(address.bits(6,7)) {
+  switch(address.bit(6,7)) {
 
   case 1: {
     return psg.write(data);

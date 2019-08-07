@@ -24,7 +24,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Video::colorNeoGeoPocket(uint32 color) -> uint64 {
-  uint3 l = color.bits(0,2);
+  uint3 l = color.bit(0,2);
 
   natural L = image::normalize(7 - l, 3, 16);
 
@@ -32,9 +32,9 @@ auto System::Video::colorNeoGeoPocket(uint32 color) -> uint64 {
 }
 
 auto System::Video::colorNeoGeoPocketColor(uint32 color) -> uint64 {
-  uint r = color.bits(0, 3);
-  uint g = color.bits(4, 7);
-  uint b = color.bits(8,11);
+  uint r = color.bit(0, 3);
+  uint g = color.bit(4, 7);
+  uint b = color.bit(8,11);
 
   natural R = image::normalize(r, 4, 16);
   natural G = image::normalize(g, 4, 16);

@@ -52,12 +52,12 @@ auto VDP::data(uint8 data) -> void {
 auto VDP::control(uint8 data) -> void {
   if(io.controlLatch == 0) {
     io.controlLatch = 1;
-    io.address.bits(0,7) = data.bits(0,7);
+    io.address.bit(0,7) = data.bit(0,7);
     return;
   } else {
     io.controlLatch = 0;
-    io.address.bits(8,13) = data.bits(0,5);
-    io.code.bits(0,1) = data.bits(6,7);
+    io.address.bit(8,13) = data.bit(0,5);
+    io.code.bit(0,1) = data.bit(6,7);
   }
 
   if(io.code == 0) {
@@ -65,7 +65,7 @@ auto VDP::control(uint8 data) -> void {
   }
 
   if(io.code == 2) {
-    registerWrite(io.address.bits(11,8), io.address.bits(7,0));
+    registerWrite(io.address.bit(11,8), io.address.bit(7,0));
   }
 }
 
@@ -98,55 +98,55 @@ auto VDP::registerWrite(uint4 addr, uint8 data) -> void {
 
   //name table base address
   case 0x2: {
-    io.nameTableAddress = data.bits(0,3);
+    io.nameTableAddress = data.bit(0,3);
     return;
   }
 
   //color table base address
   case 0x3: {
-    io.colorTableAddress = data.bits(0,7);
+    io.colorTableAddress = data.bit(0,7);
     return;
   }
 
   //pattern table base address
   case 0x4: {
-    io.patternTableAddress = data.bits(0,2);
+    io.patternTableAddress = data.bit(0,2);
     return;
   }
 
   //sprite attribute table base address
   case 0x5: {
-    io.spriteAttributeTableAddress = data.bits(0,6);
+    io.spriteAttributeTableAddress = data.bit(0,6);
     return;
   }
 
   //sprite pattern table base address
   case 0x6: {
-    io.spritePatternTableAddress = data.bits(0,2);
+    io.spritePatternTableAddress = data.bit(0,2);
     return;
   }
 
   //backdrop color
   case 0x7: {
-    io.backdropColor = data.bits(0,3);
+    io.backdropColor = data.bit(0,3);
     return;
   }
 
   //horizontal scroll offset
   case 0x8: {
-    io.hscroll = data.bits(0,7);
+    io.hscroll = data.bit(0,7);
     return;
   }
 
   //vertical scroll offset
   case 0x9: {
-    io.vscroll = data.bits(0,7);
+    io.vscroll = data.bit(0,7);
     return;
   }
 
   //line counter
   case 0xa: {
-    io.lineCounter = data.bits(0,7);
+    io.lineCounter = data.bit(0,7);
     return;
   }
 

@@ -6,9 +6,9 @@ namespace higan {
 
 struct HuC6280 {
   virtual auto step(uint clocks) -> void = 0;
-  virtual auto read(uint8 bank, uint13 addr) -> uint8 = 0;
-  virtual auto write(uint8 bank, uint13 addr, uint8 data) -> void = 0;
-  virtual auto store(uint2 addr, uint8 data) -> void = 0;
+  virtual auto read(uint8 bank, uint13 address) -> uint8 = 0;
+  virtual auto write(uint8 bank, uint13 address, uint8 data) -> void = 0;
+  virtual auto store(uint2 address, uint8 data) -> void = 0;
   virtual auto lastCycle() -> void = 0;
 
   //huc6280.cpp

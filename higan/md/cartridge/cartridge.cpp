@@ -226,7 +226,7 @@ auto Cartridge::writeLinear(uint1 upper, uint1 lower, uint22 address, uint16 dat
 //
 
 auto Cartridge::readBanked(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16 {
-  uint25 offset = romBank[address.bits(19,21)] << 19 | address.bits(0,18);
+  uint25 offset = romBank[address.bit(19,21)] << 19 | address.bit(0,18);
   return data = rom[offset >> 1];
 }
 
@@ -268,8 +268,8 @@ auto Cartridge::writeGameGenie(uint1 upper, uint1 lower, uint22 address, uint16 
   if(address >= 0x04 && address <= 0x20 && upper && lower) {  //todo: what about 8-bit writes?
     address = address - 0x04 >> 1;
     auto& code = gameGenie.codes[address / 3];
-    if(address % 3 == 0) code.address.bits(16,23) = data.byte(0);
-    if(address % 3 == 1) code.address.bits( 0,15) = data;
+    if(address % 3 == 0) code.address.bit(16,23) = data.bit(0, 7);
+    if(address % 3 == 1) code.address.bit( 0,15) = data.bit(0,15);
     if(address % 3 == 2) code.data = data, code.enable = true;
   }
 }

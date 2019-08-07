@@ -21,8 +21,8 @@ auto VPU::read(uint24 address) -> uint8 {
 
   case 0x8006: data = io.vlines; break;
 
-  case 0x8008: data = io.hcounter.bits(2,9); break;
-  case 0x8009: data = io.vcounter.bits(0,7); break;
+  case 0x8008: data = io.hcounter.bit(2,9); break;
+  case 0x8009: data = io.vcounter.bit(0,7); break;
 
   case 0x8010:
     data.bit(6) = io.vblankActive;
@@ -30,7 +30,7 @@ auto VPU::read(uint24 address) -> uint8 {
     break;
 
   case 0x8012:
-    data.bits(0,2) = window.color;
+    data.bit(0,2) = window.color;
     data.bit(7) = screen.negate;
     break;
 
@@ -44,38 +44,38 @@ auto VPU::read(uint24 address) -> uint8 {
   case 0x8034: data = plane2.hscroll; break;
   case 0x8035: data = plane2.vscroll; break;
 
-  case 0x8100: data.bits(0,2) = sprite.palette[0][0]; break;
-  case 0x8101: data.bits(0,2) = sprite.palette[0][1]; break;
-  case 0x8102: data.bits(0,2) = sprite.palette[0][2]; break;
-  case 0x8103: data.bits(0,2) = sprite.palette[0][3]; break;
-  case 0x8104: data.bits(0,2) = sprite.palette[1][0]; break;
-  case 0x8105: data.bits(0,2) = sprite.palette[1][1]; break;
-  case 0x8106: data.bits(0,2) = sprite.palette[1][2]; break;
-  case 0x8107: data.bits(0,2) = sprite.palette[1][3]; break;
+  case 0x8100: data.bit(0,2) = sprite.palette[0][0]; break;
+  case 0x8101: data.bit(0,2) = sprite.palette[0][1]; break;
+  case 0x8102: data.bit(0,2) = sprite.palette[0][2]; break;
+  case 0x8103: data.bit(0,2) = sprite.palette[0][3]; break;
+  case 0x8104: data.bit(0,2) = sprite.palette[1][0]; break;
+  case 0x8105: data.bit(0,2) = sprite.palette[1][1]; break;
+  case 0x8106: data.bit(0,2) = sprite.palette[1][2]; break;
+  case 0x8107: data.bit(0,2) = sprite.palette[1][3]; break;
 
-  case 0x8108: data.bits(0,2) = plane1.palette[0][0]; break;
-  case 0x8109: data.bits(0,2) = plane1.palette[0][1]; break;
-  case 0x810a: data.bits(0,2) = plane1.palette[0][2]; break;
-  case 0x810b: data.bits(0,2) = plane1.palette[0][3]; break;
-  case 0x810c: data.bits(0,2) = plane1.palette[1][0]; break;
-  case 0x810d: data.bits(0,2) = plane1.palette[1][1]; break;
-  case 0x810e: data.bits(0,2) = plane1.palette[1][2]; break;
-  case 0x810f: data.bits(0,2) = plane1.palette[1][3]; break;
+  case 0x8108: data.bit(0,2) = plane1.palette[0][0]; break;
+  case 0x8109: data.bit(0,2) = plane1.palette[0][1]; break;
+  case 0x810a: data.bit(0,2) = plane1.palette[0][2]; break;
+  case 0x810b: data.bit(0,2) = plane1.palette[0][3]; break;
+  case 0x810c: data.bit(0,2) = plane1.palette[1][0]; break;
+  case 0x810d: data.bit(0,2) = plane1.palette[1][1]; break;
+  case 0x810e: data.bit(0,2) = plane1.palette[1][2]; break;
+  case 0x810f: data.bit(0,2) = plane1.palette[1][3]; break;
 
-  case 0x8110: data.bits(0,2) = plane2.palette[0][0]; break;
-  case 0x8111: data.bits(0,2) = plane2.palette[0][1]; break;
-  case 0x8112: data.bits(0,2) = plane2.palette[0][2]; break;
-  case 0x8113: data.bits(0,2) = plane2.palette[0][3]; break;
-  case 0x8114: data.bits(0,2) = plane2.palette[1][0]; break;
-  case 0x8115: data.bits(0,2) = plane2.palette[1][1]; break;
-  case 0x8116: data.bits(0,2) = plane2.palette[1][2]; break;
-  case 0x8117: data.bits(0,2) = plane2.palette[1][3]; break;
+  case 0x8110: data.bit(0,2) = plane2.palette[0][0]; break;
+  case 0x8111: data.bit(0,2) = plane2.palette[0][1]; break;
+  case 0x8112: data.bit(0,2) = plane2.palette[0][2]; break;
+  case 0x8113: data.bit(0,2) = plane2.palette[0][3]; break;
+  case 0x8114: data.bit(0,2) = plane2.palette[1][0]; break;
+  case 0x8115: data.bit(0,2) = plane2.palette[1][1]; break;
+  case 0x8116: data.bit(0,2) = plane2.palette[1][2]; break;
+  case 0x8117: data.bit(0,2) = plane2.palette[1][3]; break;
 
   case 0x8118:
     if(!Model::NeoGeoPocketColor()) break;
-    data.bits(0,2) = background.color;
-    data.bits(3,5) = background.unused;
-    data.bits(6,7) = background.mode;
+    data.bit(0,2) = background.color;
+    data.bit(3,5) = background.unused;
+    data.bit(6,7) = background.mode;
     break;
 
   case 0x8400: data = led.control; break;
@@ -83,7 +83,7 @@ auto VPU::read(uint24 address) -> uint8 {
 
   case 0x87e2:
     if(!Model::NeoGeoPocketColor()) break;
-    data.bits(0,6) = 0b000000;
+    data.bit(0,6) = 0b000000;
     data.bit(7) = screen.colorMode;
     break;
 
@@ -117,7 +117,7 @@ auto VPU::write(uint24 address, uint8 data) -> void {
     break;
 
   case 0x8012:
-    window.color = data.bits(0,2);
+    window.color = data.bit(0,2);
     screen.negate = data.bit(7);
     break;
 
@@ -132,40 +132,40 @@ auto VPU::write(uint24 address, uint8 data) -> void {
   case 0x8035: plane2.vscroll = data; break;
 
   case 0x8100: break;
-  case 0x8101: sprite.palette[0][1] = data.bits(0,2); break;
-  case 0x8102: sprite.palette[0][2] = data.bits(0,2); break;
-  case 0x8103: sprite.palette[0][3] = data.bits(0,2); break;
+  case 0x8101: sprite.palette[0][1] = data.bit(0,2); break;
+  case 0x8102: sprite.palette[0][2] = data.bit(0,2); break;
+  case 0x8103: sprite.palette[0][3] = data.bit(0,2); break;
   case 0x8104: break;
-  case 0x8105: sprite.palette[1][1] = data.bits(0,2); break;
-  case 0x8106: sprite.palette[1][2] = data.bits(0,2); break;
-  case 0x8107: sprite.palette[1][3] = data.bits(0,2); break;
+  case 0x8105: sprite.palette[1][1] = data.bit(0,2); break;
+  case 0x8106: sprite.palette[1][2] = data.bit(0,2); break;
+  case 0x8107: sprite.palette[1][3] = data.bit(0,2); break;
 
   case 0x8108: break;
-  case 0x8109: plane1.palette[0][1] = data.bits(0,2); break;
-  case 0x810a: plane1.palette[0][2] = data.bits(0,2); break;
-  case 0x810b: plane1.palette[0][3] = data.bits(0,2); break;
+  case 0x8109: plane1.palette[0][1] = data.bit(0,2); break;
+  case 0x810a: plane1.palette[0][2] = data.bit(0,2); break;
+  case 0x810b: plane1.palette[0][3] = data.bit(0,2); break;
   case 0x810c: break;
-  case 0x810d: plane1.palette[1][1] = data.bits(0,2); break;
-  case 0x810e: plane1.palette[1][2] = data.bits(0,2); break;
-  case 0x810f: plane1.palette[1][3] = data.bits(0,2); break;
+  case 0x810d: plane1.palette[1][1] = data.bit(0,2); break;
+  case 0x810e: plane1.palette[1][2] = data.bit(0,2); break;
+  case 0x810f: plane1.palette[1][3] = data.bit(0,2); break;
 
   case 0x8110: break;
-  case 0x8111: plane2.palette[0][1] = data.bits(0,2); break;
-  case 0x8112: plane2.palette[0][2] = data.bits(0,2); break;
-  case 0x8113: plane2.palette[0][3] = data.bits(0,2); break;
+  case 0x8111: plane2.palette[0][1] = data.bit(0,2); break;
+  case 0x8112: plane2.palette[0][2] = data.bit(0,2); break;
+  case 0x8113: plane2.palette[0][3] = data.bit(0,2); break;
   case 0x8114: break;
-  case 0x8115: plane2.palette[1][1] = data.bits(0,2); break;
-  case 0x8116: plane2.palette[1][2] = data.bits(0,2); break;
-  case 0x8117: plane2.palette[1][3] = data.bits(0,2); break;
+  case 0x8115: plane2.palette[1][1] = data.bit(0,2); break;
+  case 0x8116: plane2.palette[1][2] = data.bit(0,2); break;
+  case 0x8117: plane2.palette[1][3] = data.bit(0,2); break;
 
   case 0x8118:
     if(!Model::NeoGeoPocketColor()) break;
-    background.color  = data.bits(0,2);
-    background.unused = data.bits(3,5);
-    background.mode   = data.bits(6,7);
+    background.color  = data.bit(0,2);
+    background.unused = data.bit(3,5);
+    background.mode   = data.bit(6,7);
     break;
 
-  case 0x8400: led.control.bits(3,7) = data.bits(3,7); break;
+  case 0x8400: led.control.bit(3,7) = data.bit(3,7); break;
   case 0x8402: led.frequency = data; break;
 
   case 0x87e0:
@@ -195,13 +195,13 @@ auto VPU::writeSprite(uint8 address, uint8 data) -> void {
   auto& s = sprites[address >> 2];
   switch(address & 3) {
   case 0:
-    s.character.bits(0,7) = data;
+    s.character.bit(0,7) = data;
     break;
   case 1:
     s.character.bit(8) = data.bit(0);
     s.vchain = data.bit(1);
     s.hchain = data.bit(2);
-    s.priority = data.bits(3,4);
+    s.priority = data.bit(3,4);
     s.palette = data.bit(5);
     s.vflip = data.bit(6);
     s.hflip = data.bit(7);
@@ -220,31 +220,31 @@ auto VPU::readSpriteColor(uint6 address) -> uint8 {
 }
 
 auto VPU::writeSpriteColor(uint6 address, uint8 data) -> void {
-  sprites[address].code = data.bits(0,3);
+  sprites[address].code = data.bit(0,3);
 }
 
 auto VPU::readColor(uint9 address) -> uint8 {
   auto& p = colors[address >> 1];
   if(!address.bit(0)) {
-    return p.bits(0, 7);
+    return p.bit(0, 7);
   } else {
-    return p.bits(8,11);  //d4-d7 = 0
+    return p.bit(8,11);  //d4-d7 = 0
   }
 }
 
 auto VPU::writeColor(uint9 address, uint8 data) -> void {
   auto& p = colors[address >> 1];
   if(!address.bit(0)) {
-    p.bits(0, 7) = data.bits(0,7);
+    p.bit(0, 7) = data.bit(0,7);
   } else {
-    p.bits(8,11) = data.bits(0,3);
+    p.bit(8,11) = data.bit(0,3);
   }
 }
 
 auto VPU::readAttribute(uint12 address) -> uint8 {
   auto& a = attributes[address >> 1];
   if(!address.bit(0)) {
-    return a.character.bits(0,7);
+    return a.character.bit(0,7);
   } else {
     return a.character.bit(8) << 0 | a.code << 1 | a.palette << 5 | a.vflip << 6 | a.hflip << 7;
   }
@@ -253,10 +253,10 @@ auto VPU::readAttribute(uint12 address) -> uint8 {
 auto VPU::writeAttribute(uint12 address, uint8 data) -> void {
   auto& a = attributes[address >> 1];
   if(!address.bit(0)) {
-    a.character.bits(0,7) = data.bits(0,7);
+    a.character.bit(0,7) = data.bit(0,7);
   } else {
     a.character.bit(8) = data.bit(0);
-    a.code = data.bits(1,4);
+    a.code = data.bit(1,4);
     a.palette = data.bit(5);
     a.vflip = data.bit(6);
     a.hflip = data.bit(7);
@@ -268,10 +268,10 @@ auto VPU::readCharacter(uint13 address) -> uint8 {
   uint3 y = address >> 1;
   uint3 x = address >> 0 << 2;
   uint8 data;
-  data.bits(0,1) = c[y][x++];
-  data.bits(2,3) = c[y][x++];
-  data.bits(4,5) = c[y][x++];
-  data.bits(6,7) = c[y][x++];
+  data.bit(0,1) = c[y][x++];
+  data.bit(2,3) = c[y][x++];
+  data.bit(4,5) = c[y][x++];
+  data.bit(6,7) = c[y][x++];
   return data;
 }
 
@@ -279,8 +279,8 @@ auto VPU::writeCharacter(uint13 address, uint8 data) -> void {
   auto& c = characters[address >> 4];
   uint3 y = address >> 1;
   uint3 x = address >> 0 << 2;
-  c[y][x++] = data.bits(0,1);
-  c[y][x++] = data.bits(2,3);
-  c[y][x++] = data.bits(4,5);
-  c[y][x++] = data.bits(6,7);
+  c[y][x++] = data.bit(0,1);
+  c[y][x++] = data.bit(2,3);
+  c[y][x++] = data.bit(4,5);
+  c[y][x++] = data.bit(6,7);
 }

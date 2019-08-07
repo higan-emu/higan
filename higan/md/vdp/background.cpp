@@ -13,7 +13,7 @@ auto VDP::Background::updateHorizontalScroll(uint y) -> void {
   address += (y & mask[io.horizontalScrollMode]) << 1;
   address += id == ID::PlaneB;
 
-  state.horizontalScroll = vdp.vram.read(address).bits(0,9);
+  state.horizontalScroll = vdp.vram.read(address).bit(0,9);
 }
 
 auto VDP::Background::updateVerticalScroll(uint x) -> void {
@@ -63,14 +63,14 @@ auto VDP::Background::run(uint x, uint y) -> void {
   uint pixelY = y & 7 + interlace * 8;
 
   uint16 tileAttributes = vdp.vram.read(address);
-  uint15 tileAddress = tileAttributes.bits(0,10) << 4 + interlace;
+  uint15 tileAddress = tileAttributes.bit(0,10) << 4 + interlace;
   if(tileAttributes.bit(11)) pixelX ^= 7;
   if(tileAttributes.bit(12)) pixelY ^= 7 + interlace * 8;
   tileAddress += pixelY << 1 | pixelX >> 2;
 
   uint16 tileData = vdp.vram.read(io.generatorAddress | tileAddress);
   uint4 color = tileData >> (((pixelX & 3) ^ 3) << 2);
-  output.color = color ? tileAttributes.bits(13,14) << 4 | color : 0;
+  output.color = color ? tileAttributes.bit(13,14) << 4 | color : 0;
   output.priority = tileAttributes.bit(15);
 }
 

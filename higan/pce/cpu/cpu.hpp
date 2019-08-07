@@ -9,9 +9,9 @@ struct CPU : HuC6280, Thread {
   auto lastCycle() -> void override;
 
   //io.cpp
-  auto read(uint8 bank, uint13 addr) -> uint8 override;
-  auto write(uint8 bank, uint13 addr, uint8 data) -> void override;
-  auto store(uint2 addr, uint8 data) -> void override;
+  auto read(uint8 bank, uint13 address) -> uint8 override;
+  auto write(uint8 bank, uint13 address, uint8 data) -> void override;
+  auto store(uint2 address, uint8 data) -> void override;
 
   //timer.cpp
   auto timerStep(uint clocks) -> void;

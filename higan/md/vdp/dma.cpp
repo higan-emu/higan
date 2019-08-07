@@ -14,7 +14,7 @@ auto VDP::DMA::load() -> void {
   auto data = cpu.read(1, 1, io.mode.bit(0) << 23 | io.source << 1);
   vdp.writeDataPort(data);
 
-  io.source.bits(0,15)++;
+  io.source.bit(0,15)++;
   if(--io.length == 0) {
     vdp.io.command.bit(5) = 0;
     active = 0;
@@ -23,11 +23,11 @@ auto VDP::DMA::load() -> void {
 
 //todo: supposedly, this can also write to VSRAM and CRAM (undocumented)
 auto VDP::DMA::fill() -> void {
-  if(vdp.io.command.bits(0,3) == 1) {
+  if(vdp.io.command.bit(0,3) == 1) {
     vdp.vram.writeByte(vdp.io.address, io.fill);
   }
 
-  io.source.bits(0,15)++;
+  io.source.bit(0,15)++;
   vdp.io.address += vdp.io.dataIncrement;
   if(--io.length == 0) {
     vdp.io.command.bit(5) = 0;
@@ -39,7 +39,7 @@ auto VDP::DMA::copy() -> void {
   auto data = vdp.vram.readByte(io.source);
   vdp.vram.writeByte(vdp.io.address, data);
 
-  io.source.bits(0,15)++;
+  io.source.bit(0,15)++;
   vdp.io.address += vdp.io.dataIncrement;
   if(--io.length == 0) {
     vdp.io.command.bit(5) = 0;

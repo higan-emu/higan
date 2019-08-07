@@ -150,11 +150,11 @@ auto CPU::writeCPU(uint24 address, uint8 data) -> void {
     return;
 
   case 0x4204:  //WRDIVL
-    io.wrdiva.bit(0, 7) = data;
+    io.wrdiva.byte(0) = data;
     return;
 
   case 0x4205:  //WRDIVH
-    io.wrdiva.bit(8,15) = data;
+    io.wrdiva.byte(1) = data;
     return;
 
   case 0x4206:  //WRDIVB

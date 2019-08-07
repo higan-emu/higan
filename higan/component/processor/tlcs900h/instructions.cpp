@@ -389,9 +389,9 @@ auto TLCS900H::instructionRotateLeftDigit(LHS lhs, RHS rhs) -> void {
   auto lvalue = load(lhs);
   auto rvalue = load(rhs);
   auto Lvalue = lvalue;
-  lvalue.bits(0,3) = rvalue.bits(4,7);
-  rvalue.bits(4,7) = rvalue.bits(0,3);
-  rvalue.bits(0,3) = Lvalue.bits(0,3);
+  lvalue.bit(0,3) = rvalue.bit(4,7);
+  rvalue.bit(4,7) = rvalue.bit(0,3);
+  rvalue.bit(0,3) = Lvalue.bit(0,3);
   store(lhs, lvalue);
   store(rhs, rvalue);
   NF = 0;
@@ -433,9 +433,9 @@ auto TLCS900H::instructionRotateRightDigit(LHS lhs, RHS rhs) -> void {
   auto lvalue = load(lhs);
   auto rvalue = load(rhs);
   auto Rvalue = rvalue;
-  rvalue.bits(0,3) = rvalue.bits(4,7);
-  rvalue.bits(4,7) = lvalue.bits(0,3);
-  lvalue.bits(0,3) = Rvalue.bits(0,3);
+  rvalue.bit(0,3) = rvalue.bit(4,7);
+  rvalue.bit(4,7) = lvalue.bit(0,3);
+  lvalue.bit(0,3) = Rvalue.bit(0,3);
   store(lhs, lvalue);
   store(rhs, rvalue);
   NF = 0;

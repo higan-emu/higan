@@ -19,10 +19,10 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Video::color(uint32 color) -> uint64 {
-  uint R = color.bits(0, 2);
-  uint G = color.bits(3, 5);
-  uint B = color.bits(6, 8);
-  uint M = color.bits(9,10);
+  uint R = color.bit(0, 2);
+  uint G = color.bit(3, 5);
+  uint B = color.bit(6, 8);
+  uint M = color.bit(9,10);
 
   uint lookup[3][8] = {
     {  0,  29,  52,  70,  87, 101, 116, 130},  //shadow

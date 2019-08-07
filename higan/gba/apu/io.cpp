@@ -91,11 +91,11 @@ auto APU::readIO(uint32 addr) -> uint8 {
 
   //SOUNDBIAS
   case 0x0400'0088: return (
-    regs.bias.level.bits(0,7)
+    regs.bias.level.bit(0,7)
   );
   case 0x0400'0089: return (
-    regs.bias.level.bits(8,9) << 0
-  | regs.bias.amplitude       << 6
+    regs.bias.level.bit(8,9) << 0
+  | regs.bias.amplitude      << 6
   );
 
   //zero
@@ -188,9 +188,9 @@ auto APU::writeIO(uint32 addr, uint8 data) -> void {
 
   //SOUND_CNT_H
   case 0x0400'0082:
-    sequencer.volume = data.bits(0,1);
-    fifo[0].volume   = data.bit (2);
-    fifo[1].volume   = data.bit (3);
+    sequencer.volume = data.bit(0,1);
+    fifo[0].volume   = data.bit(2);
+    fifo[1].volume   = data.bit(3);
     return;
   case 0x0400'0083:
     fifo[0].renable = data.bit(0);
@@ -209,11 +209,11 @@ auto APU::writeIO(uint32 addr, uint8 data) -> void {
 
   //SOUNDBIAS
   case 0x0400'0088:
-    regs.bias.level.bits(0,7) = data;
+    regs.bias.level.bit(0,7) = data;
     return;
   case 0x0400'0089:
-    regs.bias.level.bits(8,9) = data.bits(0,1);
-    regs.bias.amplitude       = data.bits(6,7);
+    regs.bias.level.bit(8,9) = data.bit(0,1);
+    regs.bias.amplitude      = data.bit(6,7);
     return;
 
   //WAVE_RAM0_L

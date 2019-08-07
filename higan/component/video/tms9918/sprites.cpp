@@ -8,7 +8,7 @@ auto TMS9918::sprite(uint8 voffset) -> void {
   for(uint index : range(4)) sprites[index].y = 0xd0;
 
   uint14 attributeAddress;
-  attributeAddress.bits(7,13) = io.spriteAttributeTableAddress;
+  attributeAddress.bit(7,13) = io.spriteAttributeTableAddress;
   for(uint index : range(32)) {
     uint8 y = vram.read(attributeAddress++);
     if(y == 0xd0) break;
@@ -22,7 +22,7 @@ auto TMS9918::sprite(uint8 voffset) -> void {
     if(voffset < y) continue;
     if(voffset > y + limit) continue;
 
-    if(limit == 15) pattern.bits(0,1) = 0;
+    if(limit == 15) pattern.bit(0,1) = 0;
 
     if(valid == 4) {
       io.spriteOverflow = true;
@@ -30,7 +30,7 @@ auto TMS9918::sprite(uint8 voffset) -> void {
       break;
     }
 
-    sprites[valid++] = {x, y, pattern, extra.bits(0,3)};
+    sprites[valid++] = {x, y, pattern, extra.bit(0,3)};
   }
 }
 
@@ -48,8 +48,8 @@ auto TMS9918::sprite(uint8 hoffset, uint8 voffset) -> void {
     uint y = voffset - o.y;
 
     uint14 address;
-    address.bits( 0,10) = (o.pattern << 3) + (x >> 3 << 4) + (y & limit);
-    address.bits(11,13) = io.spritePatternTableAddress;
+    address.bit( 0,10) = (o.pattern << 3) + (x >> 3 << 4) + (y & limit);
+    address.bit(11,13) = io.spritePatternTableAddress;
 
     uint3 index = x ^ 7;
     if(vram.read(address).bit(index)) {

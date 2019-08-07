@@ -13,7 +13,7 @@ auto Z80::instruction() -> void {
 
   uint8 code;
   while(true) {
-    R.bits(0,6)++;
+    R.bit(0,6)++;
     code = opcode();
     if(code == 0xdd) { prefix = Prefix::ix; continue; }
     if(code == 0xfd) { prefix = Prefix::iy; continue; }
@@ -26,10 +26,10 @@ auto Z80::instruction() -> void {
   //R is not incremented here
     instructionCBd(WZ, opcode());
   } else if(code == 0xcb) {
-    R.bits(0,6)++;
+    R.bit(0,6)++;
     instructionCB(opcode());
   } else if(code == 0xed) {
-    R.bits(0,6)++;
+    R.bit(0,6)++;
     instructionED(opcode());
   } else {
     instruction(code);

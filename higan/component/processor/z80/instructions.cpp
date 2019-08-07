@@ -175,8 +175,8 @@ auto Z80::instructionCPL() -> void { Q = 1;
 
 auto Z80::instructionDAA() -> void { Q = 1;
   auto a = A;
-  if(CF || (A.bits(0,7) > 0x99)) { A += NF ? -0x60 : 0x60; CF = 1; }
-  if(HF || (A.bits(0,3) > 0x09)) { A += NF ? -0x06 : 0x06; }
+  if(CF || (A.bit(0,7) > 0x99)) { A += NF ? -0x60 : 0x60; CF = 1; }
+  if(HF || (A.bit(0,3) > 0x09)) { A += NF ? -0x06 : 0x06; }
 
   PF = parity(A);
   XF = A.bit(3);

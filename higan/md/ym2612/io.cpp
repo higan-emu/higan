@@ -12,26 +12,26 @@ auto YM2612::writeData(uint8 data) -> void {
 
   //LFO
   case 0x022: {
-    lfo.rate = data.bits(0,2);
+    lfo.rate = data.bit(0,2);
     lfo.enable = data.bit(3);
     break;
   }
 
   //timer A period (high)
   case 0x024: {
-    timerA.period.bits(2,9) = data.bits(0,7);
+    timerA.period.bit(2,9) = data.bit(0,7);
     break;
   }
 
   //timer A period (low)
   case 0x025: {
-    timerA.period.bits(0,1) = data.bits(0,1);
+    timerA.period.bit(0,1) = data.bit(0,1);
     break;
   }
 
   //timer B period
   case 0x026: {
-    timerB.period.bits(0,7) = data.bits(0,7);
+    timerB.period.bit(0,7) = data.bit(0,7);
     break;
   }
 
@@ -51,7 +51,7 @@ auto YM2612::writeData(uint8 data) -> void {
     if(data.bit(4)) timerA.line = 0;
     if(data.bit(5)) timerB.line = 0;
 
-    channels[2].mode = data.bits(6,7);
+    channels[2].mode = data.bit(6,7);
     for(auto& op : channels[2].operators) op.updatePitch();
 
     break;
@@ -60,7 +60,7 @@ auto YM2612::writeData(uint8 data) -> void {
   //key on/off
   case 0x28: {
     //0,1,2,4,5,6 => 0,1,2,3,4,5
-    uint index = data.bits(0,2);
+    uint index = data.bit(0,2);
     if(index == 3 || index == 7) break;
     if(index >= 4) index--;
 
@@ -86,9 +86,9 @@ auto YM2612::writeData(uint8 data) -> void {
 
   }
 
-  if(io.address.bits(0,1) == 3) return;
-  uint3 voice = io.address.bit(8) * 3 + io.address.bits(0,1);
-  uint2 index = io.address.bits(2,3) >> 1 | io.address.bits(2,3) << 1;  //0,1,2,3 => 0,2,1,3
+  if(io.address.bit(0,1) == 3) return;
+  uint3 voice = io.address.bit(8) * 3 + io.address.bit(0,1);
+  uint2 index = io.address.bit(2,3) >> 1 | io.address.bit(2,3) << 1;  //0,1,2,3 => 0,2,1,3
 
   auto& channel = channels[voice];
   auto& op = channel.operators[index];
@@ -97,23 +97,23 @@ auto YM2612::writeData(uint8 data) -> void {
 
   //detune, multiple
   case 0x030: {
-    op.multiple = data.bits(0,3);
-    op.detune = data.bits(4,6);
+    op.multiple = data.bit(0,3);
+    op.detune = data.bit(4,6);
     channel[index].updatePhase();
     break;
   }
 
   //total level
   case 0x040: {
-    op.totalLevel = data.bits(0,6);
+    op.totalLevel = data.bit(0,6);
     channel[index].updateLevel();
     break;
   }
 
   //key scaling, attack rate
   case 0x050: {
-    op.envelope.attackRate = data.bits(0,4);
-    op.envelope.keyScale = data.bits(6,7);
+    op.envelope.attackRate = data.bit(0,4);
+    op.envelope.keyScale = data.bit(6,7);
     channel[index].updateEnvelope();
     channel[index].updatePhase();
     break;
@@ -121,7 +121,7 @@ auto YM2612::writeData(uint8 data) -> void {
 
   //LFO enable, decay rate
   case 0x060: {
-    op.envelope.decayRate = data.bits(0,4);
+    op.envelope.decayRate = data.bit(0,4);
     op.lfoEnable = data.bit(7);
     channel[index].updateEnvelope();
     channel[index].updateLevel();
@@ -130,15 +130,15 @@ auto YM2612::writeData(uint8 data) -> void {
 
   //sustain rate
   case 0x070: {
-    op.envelope.sustainRate = data.bits(0,4);
+    op.envelope.sustainRate = data.bit(0,4);
     channel[index].updateEnvelope();
     break;
   }
 
   //sustain level, release rate
   case 0x080: {
-    op.envelope.releaseRate = data.bits(0,3) << 1 | 1;
-    op.envelope.sustainLevel = data.bits(4,7);
+    op.envelope.releaseRate = data.bit(0,3) << 1 | 1;
+    op.envelope.sustainLevel = data.bit(4,7);
     channel[index].updateEnvelope();
     break;
   }
@@ -160,7 +160,7 @@ auto YM2612::writeData(uint8 data) -> void {
   case 0x0a0: {
     channel[3].pitch.reload = channel[3].pitch.latch | data;
     channel[3].octave.reload = channel[3].octave.latch;
-    for(auto index : range(4)) channel[index].updatePitch();
+    for(uint index : range(4)) channel[index].updatePitch();
     break;
   }
 
@@ -194,18 +194,18 @@ auto YM2612::writeData(uint8 data) -> void {
 
   //algorithm, feedback
   case 0x0b0: {
-    channel.algorithm = data.bits(0,2);
-    channel.feedback = data.bits(3,5);
+    channel.algorithm = data.bit(0,2);
+    channel.feedback = data.bit(3,5);
     break;
   }
 
   //panning, tremolo, vibrato
   case 0x0b4: {
-    channel.vibrato = data.bits(0,2);
-    channel.tremolo = data.bits(4,5);
+    channel.vibrato = data.bit(0,2);
+    channel.tremolo = data.bit(4,5);
     channel.rightEnable = data.bit(6);
     channel.leftEnable = data.bit(7);
-    for(auto index : range(4)) {
+    for(uint index : range(4)) {
       channel[index].updateLevel();
       channel[index].updatePhase();
     }

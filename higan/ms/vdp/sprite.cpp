@@ -4,7 +4,7 @@ auto VDP::Sprite::setup(uint9 voffset) -> void {
 
   if(!vdp.io.mode.bit(3)) {
     uint14 attributeAddress;
-    attributeAddress.bits(7,13) = vdp.io.spriteAttributeTableAddress;
+    attributeAddress.bit(7,13) = vdp.io.spriteAttributeTableAddress;
     for(uint index : range(32)) {
       uint8 y = vdp.vram[attributeAddress++];
       if(y == 0xd0) break;
@@ -18,9 +18,9 @@ auto VDP::Sprite::setup(uint9 voffset) -> void {
       if(voffset < y) continue;
       if(voffset > y + limit) continue;
 
-      if(limit == 15) pattern.bits(0,1) = 0;
+      if(limit == 15) pattern.bit(0,1) = 0;
 
-      objects[objectsValid] = {x, y, pattern, extra.bits(0,3)};
+      objects[objectsValid] = {x, y, pattern, extra.bit(0,3)};
       if(++objectsValid == 4) {
         vdp.io.spriteOverflow = 1;
         break;
@@ -28,7 +28,7 @@ auto VDP::Sprite::setup(uint9 voffset) -> void {
     }
   } else {
     uint14 attributeAddress;
-    attributeAddress.bits(8,13) = vdp.io.spriteAttributeTableAddress.bits(1,6);
+    attributeAddress.bit(8,13) = vdp.io.spriteAttributeTableAddress.bit(1,6);
     for(uint index : range(64)) {
       uint8 y = vdp.vram[attributeAddress + index];
       uint8 x = vdp.vram[attributeAddress + 0x80 + (index << 1)];
@@ -89,8 +89,8 @@ auto VDP::Sprite::graphics2(uint8 hoffset, uint9 voffset) -> void {
     uint y = voffset - o.y;
 
     uint14 address;
-    address.bits( 0,10) = (o.pattern << 3) + (x >> 3 << 4) + (y & limit);
-    address.bits(11,13) = vdp.io.spritePatternTableAddress;
+    address.bit( 0,10) = (o.pattern << 3) + (x >> 3 << 4) + (y & limit);
+    address.bit(11,13) = vdp.io.spritePatternTableAddress;
 
     uint3 index = x ^ 7;
     if(vdp.vram[address].bit(index)) {
@@ -111,8 +111,8 @@ auto VDP::Sprite::graphics3(uint8 hoffset, uint9 voffset, uint vlines) -> void {
     uint y = voffset - o.y;
 
     uint14 address;
-    address.bits(2,12) = (o.pattern << 3) + (y & limit);
-    address.bit   (13) = vdp.io.spritePatternTableAddress.bit(2);
+    address.bit(2,12) = (o.pattern << 3) + (y & limit);
+    address.bit  (13) = vdp.io.spritePatternTableAddress.bit(2);
 
     uint3 index = x ^ 7;
     uint4 color;

@@ -28,9 +28,9 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Video::color(uint32 color) -> uint64 {
-  uint b = color.bits(0, 3);
-  uint g = color.bits(4, 7);
-  uint r = color.bits(8,11);
+  uint b = color.bit(0, 3);
+  uint g = color.bit(4, 7);
+  uint r = color.bit(8,11);
 
   uint64_t R = image::normalize(r, 4, 16);
   uint64_t G = image::normalize(g, 4, 16);

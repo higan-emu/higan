@@ -41,6 +41,7 @@ namespace nall {
 
   //temporary
   #pragma clang diagnostic ignored "-Winconsistent-missing-override"
+//#pragma clang diagnostic error   "-Wdeprecated-declarations"
 #elif defined(__GNUC__)
   #define COMPILER_GCC
   constexpr auto compiler() -> Compiler { return Compiler::GCC; }

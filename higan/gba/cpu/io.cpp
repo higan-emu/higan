@@ -1,6 +1,6 @@
 auto CPU::readIO(uint32 addr) -> uint8 {
   auto dma = [&]() -> DMA& { return this->dma[addr / 12 & 3]; };
-  auto timer = [&]() -> Timer& { return this->timer[addr.bits(2,3)]; };
+  auto timer = [&]() -> Timer& { return this->timer[addr.bit(2,3)]; };
 
   switch(addr) {
 
@@ -38,12 +38,12 @@ auto CPU::readIO(uint32 addr) -> uint8 {
 
   //SIOMULTI0 (SIODATA32_L), SIOMULTI1 (SIODATA32_H), SIOMULTI2, SIOMULTI3
   case 0x0400'0120: case 0x0400'0122: case 0x0400'0124: case 0x0400'0126: {
-    if(auto data = player.read()) return data().byte(addr.bits(0,1));
-    return serial.data[addr.bits(1,2)].byte(0);
+    if(auto data = player.read()) return data().byte(addr.bit(0,1));
+    return serial.data[addr.bit(1,2)].byte(0);
   }
   case 0x0400'0121: case 0x0400'0123: case 0x0400'0125: case 0x0400'0127: {
-    if(auto data = player.read()) return data().byte(addr.bits(0,1));
-    return serial.data[addr.bits(1,2)].byte(1);
+    if(auto data = player.read()) return data().byte(addr.bit(0,1));
+    return serial.data[addr.bit(1,2)].byte(1);
   }
 
   //SIOCNT
@@ -220,7 +220,7 @@ auto CPU::readIO(uint32 addr) -> uint8 {
 
 auto CPU::writeIO(uint32 addr, uint8 data) -> void {
   auto dma = [&]() -> DMA& { return this->dma[addr / 12 & 3]; };
-  auto timer = [&]() -> Timer& { return this->timer[addr.bits(2,3)]; };
+  auto timer = [&]() -> Timer& { return this->timer[addr.bit(2,3)]; };
 
   switch(addr) {
 
@@ -242,20 +242,20 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
 
   //DMA0CNT_H, DMA1CNT_H, DMA2CNT_H, DMA3CNT_H
   case 0x0400'00ba: case 0x0400'00c6: case 0x0400'00d2: case 0x0400'00de:
-    dma().targetMode        = data.bits(5,6);
-    dma().sourceMode.bit(0) = data.bit (7);
+    dma().targetMode        = data.bit(5,6);
+    dma().sourceMode.bit(0) = data.bit(7);
     return;
   case 0x0400'00bb: case 0x0400'00c7: case 0x0400'00d3: case 0x0400'00df: {
     bool enable = dma().enable;
     if(addr != 0x0400'00df) data.bit(3) = 0;  //gamepad DRQ valid for DMA3 only
 
-    dma().sourceMode.bit(1) = data.bit (0);
-    dma().repeat            = data.bit (1);
-    dma().size              = data.bit (2);
-    dma().drq               = data.bit (3);
-    dma().timingMode        = data.bits(4,5);
-    dma().irq               = data.bit (6);
-    dma().enable            = data.bit (7);
+    dma().sourceMode.bit(1) = data.bit(0);
+    dma().repeat            = data.bit(1);
+    dma().size              = data.bit(2);
+    dma().drq               = data.bit(3);
+    dma().timingMode        = data.bit(4,5);
+    dma().irq               = data.bit(6);
+    dma().enable            = data.bit(7);
 
     if(!enable && dma().enable) {  //0->1 transition
       if(dma().timingMode == 0) {
@@ -279,10 +279,10 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
   case 0x0400'0102: case 0x0400'0106: case 0x0400'010a: case 0x0400'010e: {
     bool enable = timer().enable;
 
-    timer().frequency = data.bits(0,1);
-    timer().cascade   = data.bit (2);
-    timer().irq       = data.bit (6);
-    timer().enable    = data.bit (7);
+    timer().frequency = data.bit(0,1);
+    timer().cascade   = data.bit(2);
+    timer().irq       = data.bit(6);
+    timer().enable    = data.bit(7);
 
     if(!enable && timer().enable) {  //0->1 transition
       timer().pending = true;
@@ -294,12 +294,12 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
 
   //SIOMULTI0 (SIODATA32_L), SIOMULTI1 (SIODATA32_H), SIOMULTI2, SIOMULTI3
   case 0x0400'0120: case 0x0400'0122: case 0x0400'0124: case 0x0400'0126:
-    player.write(addr.bits(0,1), data);
-    serial.data[addr.bits(1,2)].byte(0) = data;
+    player.write(addr.bit(0,1), data);
+    serial.data[addr.bit(1,2)].byte(0) = data;
     return;
   case 0x0400'0121: case 0x0400'0123: case 0x0400'0125: case 0x0400'0127:
-    player.write(addr.bits(0,1), data);
-    serial.data[addr.bits(1,2)].byte(1) = data;
+    player.write(addr.bit(0,1), data);
+    serial.data[addr.bit(1,2)].byte(1) = data;
     return;
 
   //SIOCNT
@@ -349,8 +349,8 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
     joybus.soMode = data.bit(7);
     return;
   case 0x0400'0135:
-    joybus.siIRQEnable = data.bit (0);
-    joybus.mode        = data.bits(6,7);
+    joybus.siIRQEnable = data.bit(0);
+    joybus.mode        = data.bit(6,7);
     return;
 
   //JOYCNT
@@ -380,9 +380,9 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
 
   //JOYSTAT
   case 0x0400'0158:
-    joybus.receiveFlag = data.bit (1);
-    joybus.sendFlag    = data.bit (3);
-    joybus.generalFlag = data.bits(4,5);
+    joybus.receiveFlag = data.bit(1);
+    joybus.sendFlag    = data.bit(3);
+    joybus.generalFlag = data.bit(4,5);
     return;
   case 0x0400'0159: return;
 
@@ -396,18 +396,18 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
 
   //WAITCNT
   case 0x0400'0204:
-    wait.swait[3] = data.bit (0);  //todo: is this correct?
-    wait.nwait[3] = data.bits(0,1);
-    wait.nwait[0] = data.bits(2,3);
-    wait.swait[0] = data.bit (4);
-    wait.nwait[1] = data.bits(5,6);
-    wait.swait[1] = data.bit (7);
+    wait.swait[3] = data.bit(0);  //todo: is this correct?
+    wait.nwait[3] = data.bit(0,1);
+    wait.nwait[0] = data.bit(2,3);
+    wait.swait[0] = data.bit(4);
+    wait.nwait[1] = data.bit(5,6);
+    wait.swait[1] = data.bit(7);
     return;
   case 0x0400'0205:
-    wait.nwait[2] = data.bits(0,1);
-    wait.swait[2] = data.bit (2);
-    wait.phi      = data.bit (3);
-    wait.prefetch = data.bit (6);
+    wait.nwait[2] = data.bit(0,1);
+    wait.swait[2] = data.bit(2);
+    wait.phi      = data.bit(3);
+    wait.prefetch = data.bit(6);
   //wait.gameType is read-only
     return;
 
@@ -427,15 +427,15 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
   //MEMCNT_L
   //MEMCNT_H
   case 0x0400'0800:
-    memory.disable  = data.bit (0);
-    memory.unknown1 = data.bits(1,3);
-    memory.ewram    = data.bit (5);
+    memory.disable  = data.bit(0);
+    memory.unknown1 = data.bit(1,3);
+    memory.ewram    = data.bit(5);
     return;
   case 0x0400'0801: return;
   case 0x0400'0802: return;
   case 0x0400'0803:
-    memory.ewramWait = data.bits(0,3);
-    memory.unknown2  = data.bits(4,7);
+    memory.ewramWait = data.bit(0,3);
+    memory.unknown2  = data.bit(4,7);
     return;
 
   }

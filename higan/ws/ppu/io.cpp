@@ -11,7 +11,7 @@ auto PPU::portRead(uint16 addr) -> uint8 {
 
   //BACK_COLOR
   if(addr == 0x0001) return (
-    r.backColor.bits(0, !system.color() ? 2 : 7)
+    r.backColor.bit(0, !system.color() ? 2 : 7)
   );
 
   //LINE_CUR
@@ -23,7 +23,7 @@ auto PPU::portRead(uint16 addr) -> uint8 {
 
   //SPR_BASE
   if(addr == 0x0004) return (
-    r.spriteBase.bits(0, 4 + system.depth())
+    r.spriteBase.bit(0, 4 + system.depth())
   );
 
   //SPR_FIRST
@@ -34,8 +34,8 @@ auto PPU::portRead(uint16 addr) -> uint8 {
 
   //MAP_BASE
   if(addr == 0x0007) return (
-    r.screenOneMapBase.bits(0, 2 + system.depth()) << 0
-  | r.screenTwoMapBase.bits(0, 2 + system.depth()) << 4
+    r.screenOneMapBase.bit(0, 2 + system.depth()) << 0
+  | r.screenTwoMapBase.bit(0, 2 + system.depth()) << 4
   );
 
   //SCR2_WIN_X0
@@ -99,14 +99,14 @@ auto PPU::portRead(uint16 addr) -> uint8 {
 
   //PALMONO_POOL
   if(addr >= 0x001c && addr <= 0x001f) return (
-    r.pool[addr.bits(0,1) * 2 + 0] << 0
-  | r.pool[addr.bits(0,1) * 2 + 1] << 4
+    r.pool[addr.bit(0,1) * 2 + 0] << 0
+  | r.pool[addr.bit(0,1) * 2 + 1] << 4
   );
 
   //PALMONO
   if(addr >= 0x0020 && addr <= 0x003f) return (
-    r.palette[addr.bits(1,4)].color[addr.bit(0) * 2 + 0] << 0
-  | r.palette[addr.bits(1,4)].color[addr.bit(0) * 2 + 1] << 4
+    r.palette[addr.bit(1,4)].color[addr.bit(0) * 2 + 0] << 0
+  | r.palette[addr.bit(1,4)].color[addr.bit(0) * 2 + 1] << 4
   );
 
   //TMR_CTRL
@@ -154,18 +154,18 @@ auto PPU::portWrite(uint16 addr, uint8 data) -> void {
   if(addr == 0x0003) r.lineCompare = data;
 
   //SPR_BASE
-  if(addr == 0x0004) r.spriteBase = data.bits(0,5);
+  if(addr == 0x0004) r.spriteBase = data.bit(0,5);
 
   //SPR_FIRST
-  if(addr == 0x0005) r.spriteFirst = data.bits(6,0);
+  if(addr == 0x0005) r.spriteFirst = data.bit(6,0);
 
   //SPR_COUNT
   if(addr == 0x0006) r.spriteCount = data;
 
   //MAP_BASE
   if(addr == 0x0007) {
-    r.screenOneMapBase = data.bits(0,3);
-    r.screenTwoMapBase = data.bits(4,7);
+    r.screenOneMapBase = data.bit(0,3);
+    r.screenTwoMapBase = data.bit(4,7);
   }
 
   //SCR2_WIN_X0
@@ -206,9 +206,9 @@ auto PPU::portWrite(uint16 addr, uint8 data) -> void {
 
   //LCD_CTRL
   if(addr == 0x0014) {
-    r.lcdEnable   = data.bit (0);
-    r.lcdContrast = data.bit (1);
-    r.lcdUnknown  = data.bits(2,7);
+    r.lcdEnable   = data.bit(0);
+    r.lcdContrast = data.bit(1);
+    r.lcdUnknown  = data.bit(2,7);
 
     if(Model::WonderSwanColor()) {
       r.lcdUnknown &= 0b111100;
@@ -238,14 +238,14 @@ auto PPU::portWrite(uint16 addr, uint8 data) -> void {
 
   //PALMONO_POOL
   if(addr >= 0x001c && addr <= 0x001f) {
-    r.pool[addr.bits(0,1) * 2 + 0] = data.bits(0,3);
-    r.pool[addr.bits(0,1) * 2 + 1] = data.bits(4,7);
+    r.pool[addr.bit(0,1) * 2 + 0] = data.bit(0,3);
+    r.pool[addr.bit(0,1) * 2 + 1] = data.bit(4,7);
   }
 
   //PALMONO
   if(addr >= 0x0020 && addr <= 0x003f) {
-    r.palette[addr.bits(1,4)].color[addr.bit(0) * 2 + 0] = data.bits(0,2);
-    r.palette[addr.bits(1,4)].color[addr.bit(0) * 2 + 1] = data.bits(4,6);
+    r.palette[addr.bit(1,4)].color[addr.bit(0) * 2 + 0] = data.bit(0,2);
+    r.palette[addr.bit(1,4)].color[addr.bit(0) * 2 + 1] = data.bit(4,6);
   }
 
   //TMR_CTRL

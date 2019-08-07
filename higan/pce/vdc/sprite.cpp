@@ -13,15 +13,15 @@ auto VDC::Sprite::scanline(uint y) -> void {
     uint16 d3 = vdc->satb.read(index << 2 | 3);
 
     Object object;
-    object.y = d0.bits(0,9);
-    object.height = heights[d3.bits(12,13)];
+    object.y = d0.bit(0,9);
+    object.height = heights[d3.bit(12,13)];
     if(y < object.y) continue;
     if(y > object.y + object.height) continue;
 
-    object.x = d1.bits(0,9);
+    object.x = d1.bit(0,9);
     object.mode = d2.bit(0);
-    object.pattern = d2.bits(1,10);
-    object.palette = d3.bits(0,3);
+    object.pattern = d2.bit(1,10);
+    object.palette = d3.bit(0,3);
     object.priority = d3.bit(7);
     object.width = widths[d3.bit(8)];
     object.hflip = d3.bit(11);
@@ -30,7 +30,7 @@ auto VDC::Sprite::scanline(uint y) -> void {
 
     if(object.width  == 31) object.pattern.bit(0) = 0;
     if(object.height == 31) object.pattern.bit(1) = 0;
-    if(object.height == 63) object.pattern.bits(1,2) = 0;
+    if(object.height == 63) object.pattern.bit(1,2) = 0;
 
     if(object.width == 15) {
       objects.append(object);

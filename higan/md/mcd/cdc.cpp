@@ -74,16 +74,16 @@ auto MCD::CDC::read() -> uint8 {
 
   //DBCL: data byte counter low
   case 0x2: {
-    data.bits(0,7) = transfer.length.bits(0,7);
+    data.bit(0,7) = transfer.length.bit(0,7);
   } break;
 
   //DBCH: data byte counter high
   case 0x3: {
-    data.bits(0,3) = transfer.length.bits(8,11);
-    data.bit (4)   =!irq.transfer.pending;
-    data.bit (5)   =!irq.transfer.pending;
-    data.bit (6)   =!irq.transfer.pending;
-    data.bit (7)   =!irq.transfer.pending;
+    data.bit(0,3) = transfer.length.bit(8,11);
+    data.bit(4)   =!irq.transfer.pending;
+    data.bit(5)   =!irq.transfer.pending;
+    data.bit(6)   =!irq.transfer.pending;
+    data.bit(7)   =!irq.transfer.pending;
   } break;
 
   //HEAD0: header or subheader data
@@ -124,22 +124,22 @@ auto MCD::CDC::read() -> uint8 {
 
   //PTL: block pointer low
   case 0x8: {
-    data.bits(0,7) = transfer.pointer.bits(0,7);
+    data.bit(0,7) = transfer.pointer.bit(0,7);
   } break;
 
   //PTH: block pointer high
   case 0x9: {
-    data.bits(0,7) = transfer.pointer.bits(8,15);
+    data.bit(0,7) = transfer.pointer.bit(8,15);
   } break;
 
   //WAL: write address low
   case 0xa: {
-    data.bits(0,7) = transfer.target.bits(0,7);
+    data.bit(0,7) = transfer.target.bit(0,7);
   } break;
 
   //WAH: write address high
   case 0xb: {
-    data.bits(0,7) = transfer.target.bits(8,15);
+    data.bit(0,7) = transfer.target.bit(8,15);
   } break;
 
   //STAT0: status 0
@@ -229,22 +229,22 @@ auto MCD::CDC::write(uint8 data) -> void {
 
   //DBCL: data byte counter low
   case 0x2: {
-    transfer.length.bits(0,7) = data.bits(0,7);
+    transfer.length.bit(0,7) = data.bit(0,7);
   } break;
 
   //DBCH: data byte counter high
   case 0x3: {
-    transfer.length.bits(8,11) = data.bits(0,3);
+    transfer.length.bit(8,11) = data.bit(0,3);
   } break;
 
   //DACL: data address counter low
   case 0x4: {
-    transfer.source.bits(0,7) = data.bits(0,7);
+    transfer.source.bit(0,7) = data.bit(0,7);
   } break;
 
   //DACH: data address counter high
   case 0x5: {
-    transfer.source.bits(8,15) = data.bits(0,7);
+    transfer.source.bit(8,15) = data.bit(0,7);
   } break;
 
   //DTRG: data trigger
@@ -259,12 +259,12 @@ auto MCD::CDC::write(uint8 data) -> void {
 
   //WAL: write address low
   case 0x8: {
-    transfer.target.bits(0,7) = data.bits(0,7);
+    transfer.target.bit(0,7) = data.bit(0,7);
   } break;
 
   //WAH: write address high
   case 0x9: {
-    transfer.target.bits(8,15) = data.bits(0,7);
+    transfer.target.bit(8,15) = data.bit(0,7);
   } break;
 
   //CTRL0: control 0
@@ -299,12 +299,12 @@ auto MCD::CDC::write(uint8 data) -> void {
 
   //PTL: block pointer low
   case 0xc: {
-    transfer.pointer.bits(0,7) = data.bits(0,7);
+    transfer.pointer.bit(0,7) = data.bit(0,7);
   } break;
 
   //PTH: block pointer high
   case 0xd: {
-    transfer.pointer.bits(8,15) = data.bits(0,7);
+    transfer.pointer.bit(8,15) = data.bit(0,7);
   } break;
 
   //CTRL2: control 2

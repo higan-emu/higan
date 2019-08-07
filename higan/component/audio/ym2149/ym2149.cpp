@@ -72,29 +72,29 @@ auto YM2149::read() -> uint8 {
 
   switch(io.register) {
   case  0:
-    data.bits(0,7) = toneA.period.bits(0, 7);
+    data.bit(0,7) = toneA.period.bit(0, 7);
     break;
   case  1:
-    data.bits(0,3) = toneA.period.bits(8,11);
-    data.bits(4,7) = toneA.unused.bits(0, 3);
+    data.bit(0,3) = toneA.period.bit(8,11);
+    data.bit(4,7) = toneA.unused.bit(0, 3);
     break;
   case  2:
-    data.bits(0,7) = toneB.period.bits(0, 7);
+    data.bit(0,7) = toneB.period.bit(0, 7);
     break;
   case  3:
-    data.bits(0,3) = toneB.period.bits(8,11);
-    data.bits(4,7) = toneB.unused.bits(0, 3);
+    data.bit(0,3) = toneB.period.bit(8,11);
+    data.bit(4,7) = toneB.unused.bit(0, 3);
     break;
   case  4:
-    data.bits(0,7) = toneC.period.bits(0, 7);
+    data.bit(0,7) = toneC.period.bit(0, 7);
     break;
   case  5:
-    data.bits(0,3) = toneC.period.bits(8,11);
-    data.bits(4,7) = toneC.unused.bits(0, 3);
+    data.bit(0,3) = toneC.period.bit(8,11);
+    data.bit(4,7) = toneC.unused.bit(0, 3);
     break;
   case  6:
-    data.bits(0,4) = noise.period;
-    data.bits(5,7) = noise.unused;
+    data.bit(0,4) = noise.period;
+    data.bit(5,7) = noise.unused;
     break;
   case  7:
     data.bit(0) = channelA.tone;
@@ -107,38 +107,38 @@ auto YM2149::read() -> uint8 {
     data.bit(7) = portB.direction;
     break;
   case  8:
-    data.bits(0,3) = channelA.volume;
-    data.bit (4)   = channelA.envelope;
-    data.bits(5,7) = channelA.unused;
+    data.bit(0,3) = channelA.volume;
+    data.bit(4)   = channelA.envelope;
+    data.bit(5,7) = channelA.unused;
     break;
   case  9:
-    data.bits(0,3) = channelB.volume;
-    data.bit (4)   = channelB.envelope;
-    data.bits(5,7) = channelB.unused;
+    data.bit(0,3) = channelB.volume;
+    data.bit(4)   = channelB.envelope;
+    data.bit(5,7) = channelB.unused;
     break;
   case 10:
-    data.bits(0,3) = channelC.volume;
-    data.bit (4)   = channelC.envelope;
-    data.bits(5,7) = channelC.unused;
+    data.bit(0,3) = channelC.volume;
+    data.bit(4)   = channelC.envelope;
+    data.bit(5,7) = channelC.unused;
     break;
   case 11:
-    data.bits(0,7) = envelope.period.bits(0, 7);
+    data.bit(0,7) = envelope.period.bit(0, 7);
     break;
   case 12:
-    data.bits(0,7) = envelope.period.bits(8,15);
+    data.bit(0,7) = envelope.period.bit(8,15);
     break;
   case 13:
-    data.bit (0)   = envelope.hold;
-    data.bit (1)   = envelope.alternate;
-    data.bit (2)   = envelope.attack;
-    data.bit (3)   = envelope.repeat;
-    data.bits(4,7) = envelope.unused;
+    data.bit(0)   = envelope.hold;
+    data.bit(1)   = envelope.alternate;
+    data.bit(2)   = envelope.attack;
+    data.bit(3)   = envelope.repeat;
+    data.bit(4,7) = envelope.unused;
     break;
   case 14:
-    data.bits(0,7) = portA.data;
+    data.bit(0,7) = portA.data;
     break;
   case 15:
-    data.bits(0,7) = portB.data;
+    data.bit(0,7) = portB.data;
     break;
   }
 
@@ -148,29 +148,29 @@ auto YM2149::read() -> uint8 {
 auto YM2149::write(uint8 data) -> void {
   switch(io.register) {
   case  0:
-    toneA.period.bits(0, 7) = data.bits(0,7);
+    toneA.period.bit(0, 7) = data.bit(0,7);
     break;
   case  1:
-    toneA.period.bits(8,11) = data.bits(0,3);
-    toneA.unused.bits(0, 3) = data.bits(4,7);
+    toneA.period.bit(8,11) = data.bit(0,3);
+    toneA.unused.bit(0, 3) = data.bit(4,7);
     break;
   case  2:
-    toneB.period.bits(0, 7) = data.bits(0,7);
+    toneB.period.bit(0, 7) = data.bit(0,7);
     break;
   case  3:
-    toneB.period.bits(8,11) = data.bits(0,3);
-    toneB.unused.bits(0, 3) = data.bits(4,7);
+    toneB.period.bit(8,11) = data.bit(0,3);
+    toneB.unused.bit(0, 3) = data.bit(4,7);
     break;
   case  4:
-    toneC.period.bits(0, 7) = data.bits(0,7);
+    toneC.period.bit(0, 7) = data.bit(0,7);
     break;
   case  5:
-    toneC.period.bits(8,11) = data.bits(0,3);
-    toneC.unused.bits(0, 3) = data.bits(4,7);
+    toneC.period.bit(8,11) = data.bit(0,3);
+    toneC.unused.bit(0, 3) = data.bit(4,7);
     break;
   case  6:
-    noise.period = data.bits(0,4);
-    noise.unused = data.bits(5,7);
+    noise.period = data.bit(0,4);
+    noise.unused = data.bit(5,7);
     break;
   case  7:
     channelA.tone   = data.bit(0);
@@ -183,32 +183,32 @@ auto YM2149::write(uint8 data) -> void {
     portB.direction = data.bit(7);
     break;
   case  8:
-    channelA.volume   = data.bits(0,3);
-    channelA.envelope = data.bit (4);
-    channelA.unused   = data.bits(5,7);
+    channelA.volume   = data.bit(0,3);
+    channelA.envelope = data.bit(4);
+    channelA.unused   = data.bit(5,7);
     break;
   case  9:
-    channelB.volume   = data.bits(0,3);
-    channelB.envelope = data.bit (4);
-    channelB.unused   = data.bits(5,7);
+    channelB.volume   = data.bit(0,3);
+    channelB.envelope = data.bit(4);
+    channelB.unused   = data.bit(5,7);
     break;
   case 10:
-    channelC.volume   = data.bits(0,3);
-    channelC.envelope = data.bit (4);
-    channelC.unused   = data.bits(5,7);
+    channelC.volume   = data.bit(0,3);
+    channelC.envelope = data.bit(4);
+    channelC.unused   = data.bit(5,7);
     break;
   case 11:
-    envelope.period.bits(0, 7) = data.bits(0,7);
+    envelope.period.bit(0, 7) = data.bit(0,7);
     break;
   case 12:
-    envelope.period.bits(8,15) = data.bits(0,7);
+    envelope.period.bit(8,15) = data.bit(0,7);
     break;
   case 13:
-    envelope.hold      = data.bit (0);
-    envelope.alternate = data.bit (1);
-    envelope.attack    = data.bit (2);
-    envelope.repeat    = data.bit (3);
-    envelope.unused    = data.bits(4,7);
+    envelope.hold      = data.bit(0);
+    envelope.alternate = data.bit(1);
+    envelope.attack    = data.bit(2);
+    envelope.repeat    = data.bit(3);
+    envelope.unused    = data.bit(4,7);
     envelope.holding   = 0;
     envelope.attacking = envelope.attack;
     envelope.output    = !envelope.attacking ? 31 : 0;

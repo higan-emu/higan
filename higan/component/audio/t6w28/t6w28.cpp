@@ -37,48 +37,48 @@ auto T6W28::Noise::clock() -> void {
 }
 
 auto T6W28::writeLeft(uint8 data) -> void {
-  if(data.bit(7)) io.register = data.bits(4,6);
+  if(data.bit(7)) io.register = data.bit(4,6);
 
-  if(io.register.bit(0)) switch(io.register.bits(1,2)) {
-  case 0: tone0.volume.left = data.bits(0,3); break;
-  case 1: tone1.volume.left = data.bits(0,3); break;
-  case 2: tone2.volume.left = data.bits(0,3); break;
-  case 3: noise.volume.left = data.bits(0,3); break;
+  if(io.register.bit(0)) switch(io.register.bit(1,2)) {
+  case 0: tone0.volume.left = data.bit(0,3); break;
+  case 1: tone1.volume.left = data.bit(0,3); break;
+  case 2: tone2.volume.left = data.bit(0,3); break;
+  case 3: noise.volume.left = data.bit(0,3); break;
   }
 
-  else if(data.bit(7)) switch(io.register.bits(1,2)) {
-  case 0: tone0.pitch.bits(0,3) = data.bits(0,3); break;
-  case 1: tone1.pitch.bits(0,3) = data.bits(0,3); break;
-  case 2: tone2.pitch.bits(0,3) = data.bits(0,3); break;
+  else if(data.bit(7)) switch(io.register.bit(1,2)) {
+  case 0: tone0.pitch.bit(0,3) = data.bit(0,3); break;
+  case 1: tone1.pitch.bit(0,3) = data.bit(0,3); break;
+  case 2: tone2.pitch.bit(0,3) = data.bit(0,3); break;
   }
 
-  else switch(io.register.bits(1,2)) {
-  case 0: tone0.pitch.bits(4,9) = data.bits(0,5); break;
-  case 1: tone1.pitch.bits(4,9) = data.bits(0,5); break;
-  case 2: tone2.pitch.bits(4,9) = data.bits(0,5); break;
+  else switch(io.register.bit(1,2)) {
+  case 0: tone0.pitch.bit(4,9) = data.bit(0,5); break;
+  case 1: tone1.pitch.bit(4,9) = data.bit(0,5); break;
+  case 2: tone2.pitch.bit(4,9) = data.bit(0,5); break;
   }
 }
 
 auto T6W28::writeRight(uint8 data) -> void {
-  if(data.bit(7)) io.register = data.bits(4,6);
+  if(data.bit(7)) io.register = data.bit(4,6);
 
-  if(io.register.bit(0)) switch(io.register.bits(1,2)) {
-  case 0: tone0.volume.right = data.bits(0,3); break;
-  case 1: tone1.volume.right = data.bits(0,3); break;
-  case 2: tone2.volume.right = data.bits(0,3); break;
-  case 3: noise.volume.right = data.bits(0,3); break;
+  if(io.register.bit(0)) switch(io.register.bit(1,2)) {
+  case 0: tone0.volume.right = data.bit(0,3); break;
+  case 1: tone1.volume.right = data.bit(0,3); break;
+  case 2: tone2.volume.right = data.bit(0,3); break;
+  case 3: noise.volume.right = data.bit(0,3); break;
   }
 
-  else if(data.bit(7)) switch(io.register.bits(1,2)) {
-  case 2: noise.pitch.bits(0,3) = data.bits(0,3); break;
-  case 3: noise.rate   = data.bits(0,1);
-          noise.enable = data.bit (2);
+  else if(data.bit(7)) switch(io.register.bit(1,2)) {
+  case 2: noise.pitch.bit(0,3) = data.bit(0,3); break;
+  case 3: noise.rate   = data.bit(0,1);
+          noise.enable = data.bit(2);
           noise.lfsr   = 0x4000;
           break;
   }
 
-  else switch(io.register.bits(1,2)) {
-  case 2: noise.pitch.bits(4,9) = data.bits(0,5); break;
+  else switch(io.register.bit(1,2)) {
+  case 2: noise.pitch.bit(4,9) = data.bit(0,5); break;
   }
 }
 

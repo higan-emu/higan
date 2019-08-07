@@ -17,12 +17,12 @@ auto MCD::GPU::step(uint clocks) -> void {
 
 auto MCD::GPU::read(uint19 address) -> uint4 {
   uint lo = 12 - ((address & 3) << 2), hi = lo + 3;
-  return mcd.wram[address >> 2].bits(lo, hi);
+  return mcd.wram[address >> 2].bit(lo, hi);
 }
 
 auto MCD::GPU::write(uint19 address, uint4 data) -> void {
   uint lo = 12 - ((address & 3) << 2), hi = lo + 3;
-  mcd.wram[address >> 2].bits(lo, hi) = data;
+  mcd.wram[address >> 2].bit(lo, hi) = data;
 }
 
 auto MCD::GPU::render(uint19 address, uint9 width) -> void {

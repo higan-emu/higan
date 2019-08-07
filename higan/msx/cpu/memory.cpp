@@ -1,7 +1,7 @@
 auto CPU::read(uint16 address) -> uint8 {
   if(address == 0xffff) return readSecondarySlot();
 
-  uint2 page = address.bits(14,15);
+  uint2 page = address.bit(14,15);
   uint2 primary = slot[page].primary;
   uint2 secondary = slot[primary].secondary[page];
 
@@ -34,7 +34,7 @@ auto CPU::read(uint16 address) -> uint8 {
 auto CPU::write(uint16 address, uint8 data) -> void {
   if(address == 0xffff) return writeSecondarySlot(data);
 
-  uint2 page = address.bits(14,15);
+  uint2 page = address.bit(14,15);
   uint2 primary = slot[page].primary;
   uint2 secondary = slot[primary].secondary[page];
 
@@ -86,7 +86,7 @@ auto CPU::out(uint16 address, uint8 data) -> void {
   case 0xa0: return psg.select(data);
   case 0xa1: return psg.write(data);
   case 0xa8: return writePrimarySlot(data);
-  case 0xaa: return keyboard.write(data.bits(0,3));
+  case 0xaa: return keyboard.write(data.bit(0,3));
   case 0xfc: case 0xfd: case 0xfe: case 0xff:
     slot[(uint2)address].memory = data;
     return;
@@ -97,18 +97,18 @@ auto CPU::out(uint16 address, uint8 data) -> void {
 
 auto CPU::readPrimarySlot() -> uint8 {
   uint8 data;
-  data.bits(0,1) = slot[0].primary;
-  data.bits(2,3) = slot[1].primary;
-  data.bits(4,5) = slot[2].primary;
-  data.bits(6,7) = slot[3].primary;
+  data.bit(0,1) = slot[0].primary;
+  data.bit(2,3) = slot[1].primary;
+  data.bit(4,5) = slot[2].primary;
+  data.bit(6,7) = slot[3].primary;
   return data;
 }
 
 auto CPU::writePrimarySlot(uint8 data) -> void {
-  slot[0].primary = data.bits(0,1);
-  slot[1].primary = data.bits(2,3);
-  slot[2].primary = data.bits(4,5);
-  slot[3].primary = data.bits(6,7);
+  slot[0].primary = data.bit(0,1);
+  slot[1].primary = data.bit(2,3);
+  slot[2].primary = data.bit(4,5);
+  slot[3].primary = data.bit(6,7);
 }
 
 //
@@ -116,17 +116,17 @@ auto CPU::writePrimarySlot(uint8 data) -> void {
 auto CPU::readSecondarySlot() -> uint8 {
   auto primary = slot[3].primary;
   uint8 data;
-  data.bits(0,1) = slot[primary].secondary[0];
-  data.bits(2,3) = slot[primary].secondary[1];
-  data.bits(4,5) = slot[primary].secondary[2];
-  data.bits(6,7) = slot[primary].secondary[3];
+  data.bit(0,1) = slot[primary].secondary[0];
+  data.bit(2,3) = slot[primary].secondary[1];
+  data.bit(4,5) = slot[primary].secondary[2];
+  data.bit(6,7) = slot[primary].secondary[3];
   return ~data;
 }
 
 auto CPU::writeSecondarySlot(uint8 data) -> void {
   auto primary = slot[3].primary;
-  slot[primary].secondary[0] = data.bits(0,1);
-  slot[primary].secondary[1] = data.bits(2,3);
-  slot[primary].secondary[2] = data.bits(4,5);
-  slot[primary].secondary[3] = data.bits(6,7);
+  slot[primary].secondary[0] = data.bit(0,1);
+  slot[primary].secondary[1] = data.bit(2,3);
+  slot[primary].secondary[2] = data.bit(4,5);
+  slot[primary].secondary[3] = data.bit(6,7);
 }

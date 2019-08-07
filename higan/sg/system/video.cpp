@@ -12,7 +12,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Video::color(uint32 color) -> uint64 {
-  switch(color.bits(0,3)) {
+  switch(color.bit(0,3)) {
   case  0: return 0x0000'0000'0000ull;  //transparent
   case  1: return 0x0000'0000'0000ull;  //black
   case  2: return 0x2121'c8c8'4242ull;  //medium green

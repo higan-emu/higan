@@ -44,9 +44,6 @@ template<uint Precision> struct Natural {
   inline auto bit(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
   inline auto bit(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
 
-  inline auto bits(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
-  inline auto bits(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
-
   inline auto byte(int index) -> BitRange<Precision> { return {&data, index * 8 + 0, index * 8 + 7}; }
   inline auto byte(int index) const -> const BitRange<Precision> { return {&data, index * 8 + 0, index * 8 + 7}; }
 

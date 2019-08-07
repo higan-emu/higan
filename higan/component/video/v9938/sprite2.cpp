@@ -23,7 +23,7 @@ auto V9938::sprite2(uint8 voffset) -> void {
     if(voffset > y + sizeLimit) continue;
 
     //16x16 sprites use four patterns; thus lower two pattern bits are ignored
-    if(sprite.size) pattern.bits(0,1) = 0;
+    if(sprite.size) pattern.bit(0,1) = 0;
 
     if(valid == 8) {
       sprite.overflow = 1;
@@ -36,7 +36,7 @@ auto V9938::sprite2(uint8 voffset) -> void {
     colorTable += voffset - y;
 
     uint8 attributes = videoRAM.read(colorTable);
-    uint4 color = attributes.bits(0,3);
+    uint4 color = attributes.bit(0,3);
     uint1 collision = attributes.bit(5);
     uint1 priority = attributes.bit(6);
     if(attributes.bit(7)) x -= 32;

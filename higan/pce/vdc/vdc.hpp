@@ -12,8 +12,8 @@ struct VDC : Thread {
   auto power() -> void;
 
   //io.cpp
-  auto read(uint2 addr) -> uint8;
-  auto write(uint2 addr, uint8 data) -> void;
+  auto read(uint2 address) -> uint8;
+  auto write(uint2 address, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -23,8 +23,8 @@ private:
 
   struct VRAM {
     //memory.cpp
-    auto read(uint16 addr) -> uint16;
-    auto write(uint16 addr, uint16 data) -> void;
+    auto read(uint16 address) -> uint16;
+    auto write(uint16 address, uint16 data) -> void;
 
     uint16 data[0x8000];
 
@@ -38,8 +38,8 @@ private:
 
   struct SATB {
     //memory.cpp
-    auto read(uint8 addr) -> uint16;
-    auto write(uint8 addr, uint16 data) -> void;
+    auto read(uint8 address) -> uint16;
+    auto write(uint8 address, uint16 data) -> void;
 
     uint16 data[0x100];
   } satb;

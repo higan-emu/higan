@@ -81,9 +81,9 @@ auto EEPROM::write(uint port, uint8 data) -> void {
 
 auto EEPROM::execute() -> void {
   auto bits = bit::first(_size);
-  auto address = r.address.bits(0, bits - 1);
-  auto special = r.address.bits(bits - 2, bits - 1);
-  auto command = r.address.bits(bits, bits + 1);
+  auto address = r.address.bit(0, bits - 1);
+  auto special = r.address.bit(bits - 2, bits - 1);
+  auto command = r.address.bit(bits, bits + 1);
   auto start = r.address.bit(bits + 2);
   if(!start) return;
 

@@ -38,7 +38,7 @@ auto ControlPad::readData() -> uint8 {
   if(select == 0) {
     data.bit(0) = upLatch;
     data.bit(1) = downLatch;
-    data.bits(2,3) = ~0;
+    data.bit(2,3) = ~0;
     data.bit(4) = a->value;
     data.bit(5) = start->value;
   } else {

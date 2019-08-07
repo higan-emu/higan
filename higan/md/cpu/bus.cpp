@@ -41,10 +41,10 @@ auto CPU::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 
   }
 
   if(address >= 0xc00000 && address <= 0xdfffff) {
-    if(address.bits( 5, 7)) return cpu.ird();  //should deadlock the machine
-    if(address.bits(16,18)) return cpu.ird();  //should deadlock the machine
-    address.bits(8,15) = 0;  //mirrors
-    if(address.bits( 2, 3) == 3) return cpu.ird();  //should return VDP open bus
+    if(address.bit(5,7)) return cpu.ird();  //should deadlock the machine
+    if(address.bit(16,18)) return cpu.ird();  //should deadlock the machine
+    address.bit(8,15) = 0;  //mirrors
+    if(address.bit(2,3) == 3) return cpu.ird();  //should return VDP open bus
     if(address.bit(4)) return cpu.ird();  //reading the PSG should deadlock the machine
     return vdp.read(address, data);
   }
@@ -93,9 +93,9 @@ auto CPU::write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
   }
 
   if(address >= 0xc00000 && address <= 0xdfffff) {
-    if(address.bits( 5, 7)) return;  //should deadlock the machine
-    if(address.bits(16,18)) return;  //should deadlock the machine
-    address.bits(8,15) = 0;  //mirrors
+    if(address.bit(5,7)) return;  //should deadlock the machine
+    if(address.bit(16,18)) return;  //should deadlock the machine
+    address.bit(8,15) = 0;  //mirrors
     if(address.bit(4)) {
       if(!lower) return;  //byte writes to even PSG registers has no effect
       return psg.write(data.byte(0));

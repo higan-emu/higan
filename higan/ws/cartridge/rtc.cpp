@@ -142,7 +142,7 @@ auto Cartridge::rtcWrite(uint8 data) -> void {
   //SET_ALRM
   if(rtc.command == 0x18) {
     switch(rtc.index) {
-    case 0: rtc.alarmHour = decode(data.bits(0,6)); break;
+    case 0: rtc.alarmHour = decode(data.bit(0,6)); break;
     case 1: rtc.alarmMinute = decode(data); break;
     }
     if(++rtc.index >= 2) rtc.command = 0;

@@ -42,7 +42,7 @@ auto M68K::writeSR(uint16 sr) -> void {
   //when entering or exiting supervisor mode; swap SSP and USP into A7
   if(r.s != sr.bit(13)) swap(r.a[7], r.sp);
 
-  r.i = sr.bits(8,10);
+  r.i = sr.bit(8,10);
   r.s = sr.bit(13);
   r.t = sr.bit(15);
 }

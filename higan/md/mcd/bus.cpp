@@ -1,5 +1,5 @@
 auto MCD::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 {
-  address.bits(20,23) = 0;  //mirroring
+  address.bit(20,23) = 0;  //mirroring
 
   if(address >= 0x000000 && address <= 0x07ffff) {
     return pram[address >> 1];
@@ -33,7 +33,7 @@ auto MCD::read(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint16 
 }
 
 auto MCD::write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void {
-  address.bits(20,23) = 0;  //mirroring
+  address.bit(20,23) = 0;  //mirroring
 
   if(address >= 0x000000 && address <= 0x07ffff) {
     if(upper) pram[address >> 1].byte(1) = data.byte(1);

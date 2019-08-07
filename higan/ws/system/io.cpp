@@ -24,10 +24,10 @@ auto System::portRead(uint16 addr) -> uint8 {
 auto System::portWrite(uint16 addr, uint8 data) -> void {
   //DISP_MODE
   if(addr == 0x0060) {
-    r.unknown = data.bits(0,4) & 0b01011;
-    r.format  = data.bit (5);
-    r.depth   = data.bit (6);
-    r.color   = data.bit (7);
+    r.unknown = data.bit(0,4) & 0b01011;
+    r.format  = data.bit(5);
+    r.depth   = data.bit(6);
+    r.color   = data.bit(7);
     return;
   }
 

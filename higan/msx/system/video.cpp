@@ -24,7 +24,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Video::colorMSX(uint32 color) -> uint64 {
-  switch(color.bits(0,3)) {
+  switch(color.bit(0,3)) {
   case  0: return 0x0000'0000'0000ull;  //transparent
   case  1: return 0x0000'0000'0000ull;  //black
   case  2: return 0x2121'c8c8'4242ull;  //medium green
@@ -46,9 +46,9 @@ auto System::Video::colorMSX(uint32 color) -> uint64 {
 }
 
 auto System::Video::colorMSX2(uint32 color) -> uint64 {
-  uint3 B = color.bits(0,2);
-  uint3 R = color.bits(3,5);
-  uint3 G = color.bits(6,8);
+  uint3 B = color.bit(0,2);
+  uint3 R = color.bit(3,5);
+  uint3 G = color.bit(6,8);
 
   uint64 r = image::normalize(R, 3, 16);
   uint64 g = image::normalize(G, 3, 16);

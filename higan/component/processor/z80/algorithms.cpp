@@ -61,7 +61,7 @@ auto Z80::DEC(uint8 x) -> uint8 {
   NF = 1;
   VF = z == 0x7f;
   XF = z.bit(3);
-  HF = z.bits(0,3) == 0x0f;
+  HF = z.bit(0,3) == 0x0f;
   YF = z.bit(5);
   ZF = z == 0;
   SF = z.bit(7);
@@ -87,7 +87,7 @@ auto Z80::INC(uint8 x) -> uint8 {
   NF = 0;
   VF = z == 0x80;
   XF = z.bit(3);
-  HF = z.bits(0,3) == 0x00;
+  HF = z.bit(0,3) == 0x00;
   YF = z.bit(5);
   ZF = z == 0;
   SF = z.bit(7);

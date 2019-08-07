@@ -304,8 +304,8 @@ template<uint Size> auto M68K::disassembleEXT(DataRegister with) -> string {
 }
 
 auto M68K::disassembleILLEGAL(uint16 code) -> string {
-  if(code.bits(12,15) == 0xa) return {"linea   $", hex(code.bits(0,11), 3L)};
-  if(code.bits(12,15) == 0xf) return {"linef   $", hex(code.bits(0,11), 3L)};
+  if(code.bit(12,15) == 0xa) return {"linea   $", hex(code.bit(0,11), 3L)};
+  if(code.bit(12,15) == 0xf) return {"linef   $", hex(code.bit(0,11), 3L)};
   return {"illegal "};
 }
 

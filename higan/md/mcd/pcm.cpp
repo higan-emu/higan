@@ -86,9 +86,9 @@ auto MCD::PCM::write(uint13 address, uint8 data) -> void {
 
   case 0x7: {  //CTRL
     if(data.bit(6)) {
-      io.channel = data.bits(0,2);
+      io.channel = data.bit(0,2);
     } else {
-      io.bank = data.bits(0,3);
+      io.bank = data.bit(0,3);
     }
     io.enable = data.bit(7);
   } break;

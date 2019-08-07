@@ -36,7 +36,7 @@ auto FDSAudio::Modulator::clockModulator() -> bool {
 
 auto FDSAudio::Modulator::updateOutput(uint16 pitch) -> void {
   output = counter * gain;
-  integer remainder = output.bits(0,3);
+  integer remainder = output.bit(0,3);
   output >>= 4;
   if(remainder > 0 && !output.bit(7)) output += counter < 0 ? -1 : 2;
 
@@ -47,7 +47,7 @@ auto FDSAudio::Modulator::updateOutput(uint16 pitch) -> void {
   }
 
   output *= pitch;
-  remainder = output.bits(0,5);
+  remainder = output.bit(0,5);
   output >>= 6;
   if(remainder >= 32) output++;
 }
@@ -104,18 +104,18 @@ auto FDSAudio::read(uint16 address, uint8 data) -> uint8 {
   if(!enable) return data;
 
   if(address >= 0x4040 && address <= 0x407f) {
-    data.bits(0,5) = waveform.data[(uint6)address];
+    data.bit(0,5) = waveform.data[(uint6)address];
     return data;
   }
 
   switch(address) {
 
   case 0x4090:
-    data.bits(0,5) = carrier.gain;
+    data.bit(0,5) = carrier.gain;
     return data;
 
   case 0x4092:
-    data.bits(0,5) = modulator.gain;
+    data.bit(0,5) = modulator.gain;
     return data;
 
   }
@@ -127,7 +127,7 @@ auto FDSAudio::write(uint16 address, uint8 data) -> void {
   if(!enable && address != 0x4025) return;
 
   if(address >= 0x4040 && address <= 0x407f && waveform.writable) {
-    waveform.data[(uint6)address] = data.bits(0,5);
+    waveform.data[(uint6)address] = data.bit(0,5);
     return;
   }
 
@@ -138,7 +138,7 @@ auto FDSAudio::write(uint16 address, uint8 data) -> void {
     return;
 
   case 0x4080:
-    carrier.speed = data.bits(0,5);
+    carrier.speed = data.bit(0,5);
     carrier.direction = data.bit(6);
     carrier.envelope = !data.bit(7);
     if(!carrier.envelope) carrier.gain = carrier.speed;
@@ -146,11 +146,11 @@ auto FDSAudio::write(uint16 address, uint8 data) -> void {
     return;
 
   case 0x4082:
-    carrier.frequency.bits(0,7) = data.bits(0,7);
+    carrier.frequency.bit(0,7) = data.bit(0,7);
     return;
 
   case 0x4083:
-    carrier.frequency.bits(8,11) = data.bits(0,3);
+    carrier.frequency.bit(8,11) = data.bit(0,3);
     envelopes = !data.bit(6);
     waveform.halt = data.bit(7);
     if(!envelopes) {
@@ -160,7 +160,7 @@ auto FDSAudio::write(uint16 address, uint8 data) -> void {
     return;
 
   case 0x4084:
-    modulator.speed = data.bits(0,5);
+    modulator.speed = data.bit(0,5);
     modulator.direction = data.bit(6);
     modulator.envelope = !data.bit(7);
     if(!modulator.envelope) modulator.gain = modulator.speed;
@@ -168,15 +168,15 @@ auto FDSAudio::write(uint16 address, uint8 data) -> void {
     return;
 
   case 0x4085:
-    modulator.updateCounter(data.bits(0,6));
+    modulator.updateCounter(data.bit(0,6));
     return;
 
   case 0x4086:
-    modulator.frequency.bits(0,7) = data.bits(0,7);
+    modulator.frequency.bit(0,7) = data.bit(0,7);
     return;
 
   case 0x4087:
-    modulator.frequency.bits(8,11) = data.bits(0,3);
+    modulator.frequency.bit(8,11) = data.bit(0,3);
     modulator.disabled = data.bit(7);
     if(modulator.disabled) modulator.overflow = 0;
     modulator.reloadPeriod();
@@ -184,12 +184,12 @@ auto FDSAudio::write(uint16 address, uint8 data) -> void {
 
   case 0x4088:
     if(!modulator.disabled) return;
-    modulator.table.data[modulator.table.index++] = data.bits(0,2);
-    modulator.table.data[modulator.table.index++] = data.bits(0,2);
+    modulator.table.data[modulator.table.index++] = data.bit(0,2);
+    modulator.table.data[modulator.table.index++] = data.bit(0,2);
     return;
 
   case 0x4089:
-    masterVolume = data.bits(0,1);
+    masterVolume = data.bit(0,1);
     waveform.writable = data.bit(7);
     return;
 
