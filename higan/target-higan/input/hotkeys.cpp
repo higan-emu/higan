@@ -49,13 +49,16 @@ Hotkeys::Hotkeys() {
     if(!interface) return;
     fastForwardVideoBlocking = videoInstance.blocking();
     fastForwardAudioBlocking = audioInstance.blocking();
+    fastForwardAudioDynamic = audioInstance.dynamic();
     videoInstance.setBlocking(false);
     audioInstance.setBlocking(false);
+    audioInstance.setDynamic(false);
   };
   fastForward.onRelease = [&] {
     if(!interface) return;
     videoInstance.setBlocking(fastForwardVideoBlocking);
     audioInstance.setBlocking(fastForwardAudioBlocking);
+    audioInstance.setDynamic(fastForwardAudioDynamic);
   };
   hotkeys.append(&fastForward);
 
@@ -80,6 +83,11 @@ Hotkeys::Hotkeys() {
     else stateSlot = 5;
   };
   hotkeys.append(&decrementStateSlot);
+
+  quitEmulator.onPress = [&] {
+    emulator.quit();
+  };
+  hotkeys.append(&quitEmulator);
 }
 
 auto Hotkeys::poll() -> void {

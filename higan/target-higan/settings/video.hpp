@@ -17,9 +17,12 @@ struct VideoSettings : Panel {
   Label settingsHeader{&layout, Size{~0, 0}};
   VerticalLayout settingsLayout{&layout, Size{~0, 0}};
   HorizontalLayout optionsLayout{&settingsLayout, Size{~0, 0}};
+    Label monitorLabel{&optionsLayout, Size{0, 0}};
+    ComboButton monitorOption{&optionsLayout, Size{0, 0}};
     Label formatLabel{&optionsLayout, Size{0, 0}};
     ComboButton formatOption{&optionsLayout, Size{0, 0}};
   HorizontalLayout togglesLayout{&settingsLayout, Size{~0, 0}};
+    CheckLabel exclusiveOption{&togglesLayout, Size{0, 0}};
     CheckLabel blockingOption{&togglesLayout, Size{0, 0}};
     CheckLabel flushOption{&togglesLayout, Size{0, 0}};
 

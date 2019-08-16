@@ -58,12 +58,12 @@ ifeq ($(platform),macos)
 endif
 
 ifeq ($(platform),linux)
-  ruby.options += -lX11 -lXext
+  ruby.options += -lX11 -lXext -lXrandr
   ruby.options += $(if $(findstring audio.openal,$(ruby)),-lopenal)
 endif
 
 ifeq ($(platform),bsd)
-  ruby.options += -lX11 -lXext
+  ruby.options += -lX11 -lXext -lXrandr
   ruby.options += $(if $(findstring audio.openal,$(ruby)),-lopenal)
 endif
 

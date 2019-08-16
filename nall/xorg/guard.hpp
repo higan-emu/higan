@@ -3,6 +3,7 @@
 
 #define Atom XlibAtom
 #define Display XlibDisplay
+#define Font XlibFont
 #define Screen XlibScreen
 #define Window XlibWindow
 
@@ -11,6 +12,7 @@
 
 #undef Atom
 #undef Display
+#undef Font
 #undef Screen
 #undef Window
 

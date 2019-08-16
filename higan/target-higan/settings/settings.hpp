@@ -5,7 +5,9 @@ struct Settings {
 
   struct {
     string driver = Video::safestDriver();
+    string monitor = "Primary";
     string format = "ARGB24";
+    bool exclusive = false;
     bool blocking = false;
     bool flush = false;
     double luminance = 1.0;

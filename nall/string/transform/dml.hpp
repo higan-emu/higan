@@ -215,12 +215,13 @@ inline auto DML::markup(const string& s) -> string {
 
   natural link, linkBase;
   natural embed, embedBase;
+  natural iframe, iframeBase;
 
   for(uint n = 0; n < s.size();) {
     char a = s[n];
     char b = s[n + 1];
 
-    if(!link && !embed) {
+    if(!link && !embed && !iframe) {
       if(a == '*' && b == '*') { t.append(strong.flip() ? "<strong>" : "</strong>"); n += 2; continue; }
       if(a == '/' && b == '/') { t.append(emphasis.flip() ? "<em>" : "</em>"); n += 2; continue; }
       if(a == '_' && b == '_') { t.append(insertion.flip() ? "<ins>" : "</ins>"); n += 2; continue; }
@@ -228,6 +229,9 @@ inline auto DML::markup(const string& s) -> string {
       if(a == '|' && b == '|') { t.append(code.flip() ? "<code>" : "</code>"); n += 2; continue; }
       if(a =='\\' && b =='\\') { t.append("<br>"); n += 2; continue; }
     }
+
+    if(iframe == 0 && a == '<' && b == '<') { t.append("<iframe width='772' height='434' src=\""); iframe = 1; iframeBase = n += 2; continue; }
+    if(iframe != 0 && a == '>' && b == '>') { t.append("\" frameborder='0' allowfullscreen></iframe>"); iframe = 0; n += 2; continue; }
 
     if(!embed) {
       if(link == 0 && a == '[' && b == '[') { t.append("<a href=\""); link = 1; linkBase = n += 2; continue; }

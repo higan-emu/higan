@@ -19,7 +19,9 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
     if(mode == 0) document[string{#name}.trimRight(".identifier", 1L).transform(".", "/")].value(name); \
     if(mode == 1) document(string{#name}.trimRight(".identifier", 1L).transform(".", "/")).setValue(name);
   s(video.driver)
+  s(video.monitor)
   s(video.format)
+  s(video.exclusive)
   s(video.blocking)
   s(video.flush)
   s(video.luminance)
@@ -54,5 +56,6 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(hotkeys.loadState.identifier)
   s(hotkeys.incrementStateSlot.identifier)
   s(hotkeys.decrementStateSlot.identifier)
+  s(hotkeys.quitEmulator.identifier)
   #undef s
 }

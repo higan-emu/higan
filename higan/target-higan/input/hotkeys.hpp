@@ -33,6 +33,7 @@ struct Hotkeys {
   InputHotkey loadState{"Load State"};
   InputHotkey incrementStateSlot{"Increment State Slot"};
   InputHotkey decrementStateSlot{"Decrement State Slot"};
+  InputHotkey quitEmulator{"Quit Emulator"};
 
   vector<InputHotkey*> hotkeys;
 
@@ -40,4 +41,5 @@ private:
   uint stateSlot = 1;
   bool fastForwardVideoBlocking = false;
   bool fastForwardAudioBlocking = false;
+  bool fastForwardAudioDynamic = false;
 };

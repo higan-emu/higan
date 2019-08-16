@@ -12,9 +12,18 @@ VideoSettings::VideoSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
 
   settingsHeader.setText("Driver Settings (activate driver to configure)").setFont(Font().setBold());
   settingsLayout.setEnabled(false);
+  monitorLabel.setText("Monitor:");
+  monitorOption.append(ComboButtonItem().setText(settings.video.monitor)).onChange([&] {
+    settings.video.monitor = monitorOption.selected().text();
+    refresh();
+  });
   formatLabel.setText("Format:");
   formatOption.append(ComboButtonItem().setText(settings.video.format)).onChange([&] {
     settings.video.format = formatOption.selected().text();
+    refresh();
+  });
+  exclusiveOption.setText("Exclusive").setChecked(settings.video.exclusive).onToggle([&] {
+    settings.video.exclusive = exclusiveOption.checked();
     refresh();
   });
   blockingOption.setText("Blocking").setChecked(settings.video.blocking).onToggle([&] {
@@ -64,6 +73,14 @@ auto VideoSettings::hide() -> void {
 auto VideoSettings::refresh() -> void {
   emulator.videoUpdate();
 
+  monitorOption.reset();
+  for(auto& monitor : Video::hasMonitors()) {
+    ComboButtonItem item{&monitorOption};
+    item.setText(monitor.name);
+    if(monitor.name == settings.video.monitor) item.setSelected();
+  }
+  monitorOption.setEnabled(monitorOption.itemCount() > 1);
+
   formatOption.reset();
   for(auto& format : videoInstance.hasFormats()) {
     ComboButtonItem item{&formatOption};
@@ -74,8 +91,9 @@ auto VideoSettings::refresh() -> void {
 
   optionsLayout.resize();
 
-  blockingOption.setEnabled(videoInstance.hasBlocking());
-  flushOption.setEnabled(videoInstance.hasFlush());
+  exclusiveOption.setEnabled(videoInstance.hasExclusive()).setChecked(videoInstance.exclusive());
+  blockingOption.setEnabled(videoInstance.hasBlocking()).setChecked(videoInstance.blocking());
+  flushOption.setEnabled(videoInstance.hasFlush()).setChecked(videoInstance.flush());
 }
 
 auto VideoSettings::eventActivate() -> void {
