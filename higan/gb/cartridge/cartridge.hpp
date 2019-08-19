@@ -36,6 +36,8 @@ struct Cartridge : Thread {
 
 private:
   struct Mapper {
+    virtual auto load(Node::Object, Node::Object) -> void {}
+    virtual auto unload() -> void {}
     virtual auto load(Markup::Node document) -> void {}
     virtual auto save(Markup::Node document) -> void {}
     virtual auto main() -> void;

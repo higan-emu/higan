@@ -28,30 +28,38 @@ auto Bus::power() -> void {
 }
 
 auto Bus::read(uint20 address) -> uint8 {
-  uint8 data = 0;
-  if(address.bit(16,19) == 0) data = iram.read(address);
-  if(address.bit(16,19) == 1) data = cartridge.ramRead(address);
-  if(address.bit(16,19) >= 2) data = cartridge.romRead(address);
-  return data;
-}
-
-auto Bus::write(uint20 address, uint8 data) -> void {
-  if(address.bit(16,19) == 0) iram.write(address, data);
-  if(address.bit(16,19) == 1) cartridge.ramWrite(address, data);
-  if(address.bit(16,19) >= 2) cartridge.romWrite(address, data);
-}
-
-auto Bus::map(IO* io, uint16_t lo, maybe<uint16_t> hi) -> void {
-  for(uint addr = lo; addr <= (hi ? hi() : lo); addr++) port[addr] = io;
-}
-
-auto Bus::portRead(uint16 addr) -> uint8 {
-  if(auto io = port[addr]) return io->portRead(addr);
+  uint4 bank = address.bit(16,19);
+  uint1 bootup = !cpu.r.cartridgeEnable;
+  if(bank == 0x0) return iram.read(address);
+  if(bank == 0x1) return cartridge.ramRead(address);
+  if(bank <= 0xe) return cartridge.romRead(address);
+  if(bootup == 1) return system.bootROM.read(address);
+  if(bank == 0xf) return cartridge.romRead(address);
   return 0x00;
 }
 
-auto Bus::portWrite(uint16 addr, uint8 data) -> void {
-  if(auto io = port[addr]) return io->portWrite(addr, data);
+auto Bus::write(uint20 address, uint8 data) -> void {
+//if(address==0x0626) print("* w0626=",hex(data),"\n");
+  uint4 bank = address.bit(16,19);
+  uint1 bootup = !cpu.r.cartridgeEnable;
+  if(bank == 0x0) return iram.write(address, data);
+  if(bank == 0x1) return cartridge.ramWrite(address, data);
+  if(bank <= 0xe) return cartridge.romWrite(address, data);
+  if(bootup == 1) return system.bootROM.write(address, data);
+  if(bank == 0xf) return cartridge.romWrite(address, data);
+}
+
+auto Bus::map(IO* io, uint16_t lo, maybe<uint16_t> hi) -> void {
+  for(uint address = lo; address <= (hi ? hi() : lo); address++) port[address] = io;
+}
+
+auto Bus::portRead(uint16 address) -> uint8 {
+  if(auto io = port[address]) return io->portRead(address);
+  return 0x00;
+}
+
+auto Bus::portWrite(uint16 address, uint8 data) -> void {
+  if(auto io = port[address]) return io->portWrite(address, data);
 }
 
 }

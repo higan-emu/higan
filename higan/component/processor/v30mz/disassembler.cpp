@@ -16,8 +16,9 @@ auto V30MZ::disassemble(uint16 cs, uint16 ip) -> string {
 
   auto modRM = [&](uint offset = 1) -> uint {
     auto modRM = read(offset++);
-    if((modRM & 0xc0) == 0x40) offset += 1;
-    if((modRM & 0xc0) == 0x80) offset += 2;
+    if((modRM & 0xc7) == 0x06) return offset + 2;
+    if((modRM & 0xc0) == 0x40) return offset + 1;
+    if((modRM & 0xc0) == 0x80) return offset + 2;
     return offset;
   };
 
@@ -103,8 +104,11 @@ auto V30MZ::disassemble(uint16 cs, uint16 ip) -> string {
 
   auto memoryByte = [&](uint offset = 1) -> string {
     auto modRM = read(offset);
-    if(modRM >= 0xc0) return registerByte(modRM & 7);
-    if((modRM & 0xc7) == 0x06) return {"byte[", segment("ds"), immediateByte(), "]"};
+    if(modRM >= 0xc0) {
+      static const string reg[] = {"al", "cl", "dl", "bl", "ah", "ch", "dh", "bh"};
+      return reg[modRM & 7];
+    }
+    if((modRM & 0xc7) == 0x06) return {"byte[", segment("ds"), immediateWord(offset + 1), "]"};
     static const string seg[] = {"ds", "ds", "ss", "ss", "ds", "ds", "ss", "ds"};
     static const string mem[] = {"bx+si", "bx+di", "bp+si", "bp+di", "si", "di", "bp", "bx"};
     if((modRM & 0xc0) == 0x40) return {"byte[", segment(seg[modRM & 7]), mem[modRM & 7], "+", adjustByte(), "]"};
@@ -114,8 +118,11 @@ auto V30MZ::disassemble(uint16 cs, uint16 ip) -> string {
 
   auto memoryWord = [&](uint offset = 1) -> string {
     auto modRM = read(offset);
-    if(modRM >= 0xc0) return registerWord(modRM & 7);
-    if((modRM & 0xc7) == 0x06) return {"word[", segment("ds"), immediateWord(), "]"};
+    if(modRM >= 0xc0) {
+      static const string reg[] = {"ax", "cx", "dx", "bx", "sp", "bp", "si", "di"};
+      return reg[modRM & 7];
+    }
+    if((modRM & 0xc7) == 0x06) return {"word[", segment("ds"), immediateWord(offset + 1), "]"};
     static const string seg[] = {"ds", "ds", "ss", "ss", "ds", "ds", "ss", "ds"};
     static const string mem[] = {"bx+si", "bx+di", "bp+si", "bp+di", "si", "di", "bp", "bx"};
     if((modRM & 0xc0) == 0x40) return {"word[", segment(seg[modRM & 7]), mem[modRM & 7], adjustByte(), "]"};

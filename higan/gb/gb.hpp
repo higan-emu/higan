@@ -6,6 +6,7 @@
 #include <emulator/emulator.hpp>
 
 #include <component/processor/sm83/sm83.hpp>
+#include <component/eeprom/m93lcx6/m93lcx6.hpp>
 
 namespace higan::GameBoy {
   #include <emulator/inline.hpp>

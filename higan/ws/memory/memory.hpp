@@ -42,8 +42,8 @@ struct Bus {
   auto write(uint20 address, uint8 data) -> void;
 
   auto map(IO* io, uint16_t lo, maybe<uint16_t> hi = nothing) -> void;
-  auto portRead(uint16 addr) -> uint8;
-  auto portWrite(uint16 addr, uint8 data) -> void;
+  auto portRead(uint16 address) -> uint8;
+  auto portWrite(uint16 address, uint8 data) -> void;
 
 private:
   IO* port[64 * 1024] = {nullptr};

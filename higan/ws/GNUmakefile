@@ -1,4 +1,4 @@
-components += v30mz
+components += v30mz m93lcx6
 
 objects += ws-interface ws-system
 objects += ws-memory ws-eeprom ws-cartridge

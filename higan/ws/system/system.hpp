@@ -1,6 +1,12 @@
 struct System : IO {
   Node::Object node;
-  enum class Model : uint { WonderSwan, WonderSwanColor, SwanCrystal, PocketChallengeV2 };
+  enum class Model : uint {
+    WonderSwan,
+    WonderSwanColor,
+    SwanCrystal,
+    PocketChallengeV2,
+    MamaMitte,
+  };
 
   struct Controls {
     Node::Object node;
@@ -32,6 +38,7 @@ struct System : IO {
     auto color(uint32) -> uint64;
   } video;
 
+  inline auto abstract() const -> bool { return information.abstract; }
   inline auto model() const -> Model { return information.model; }
   inline auto color() const -> bool { return r.color; }
   inline auto planar() const -> bool { return r.format == 0; }
@@ -48,8 +55,8 @@ struct System : IO {
   auto power() -> void;
 
   //io.cpp
-  auto portRead(uint16 addr) -> uint8 override;
-  auto portWrite(uint16 addr, uint8 data) -> void override;
+  auto portRead(uint16 address) -> uint8 override;
+  auto portWrite(uint16 address, uint8 data) -> void override;
 
   //serialization.cpp
   auto serializeInit() -> void;
@@ -59,10 +66,12 @@ struct System : IO {
   auto serialize(serializer&) -> void;
 
   struct Information {
+    bool abstract = false;
     Model model = Model::WonderSwan;
     uint serializeSize = 0;
   } information;
 
+  Memory::Readable<uint8> bootROM;
   EEPROM eeprom;
 
 private:
@@ -81,3 +90,4 @@ auto Model::WonderSwan() -> bool { return system.model() == System::Model::Wonde
 auto Model::WonderSwanColor() -> bool { return system.model() == System::Model::WonderSwanColor; }
 auto Model::SwanCrystal() -> bool { return system.model() == System::Model::SwanCrystal; }
 auto Model::PocketChallengeV2() -> bool { return system.model() == System::Model::PocketChallengeV2; }
+auto Model::MamaMitte() -> bool { return system.model() == System::Model::MamaMitte; }

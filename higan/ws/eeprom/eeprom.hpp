@@ -1,10 +1,4 @@
-//93LC46 (  64x16-bit) [ 128 bytes]
-//93LC56 ( 128x16-bit) [ 256 bytes]
-//93LC66 ( 256x16-bit) [ 512 bytes]
-//93LC76 ( 512x16-bit) [1024 bytes]
-//93LC86 (1024x16-bit) [2048 bytes]
-
-struct EEPROM {
+struct EEPROM : M93LCx6 {
   enum : uint {
     DataLo,
     DataHi,
@@ -14,39 +8,27 @@ struct EEPROM {
     Command = Status,
   };
 
-  auto data() -> uint16*;
-  auto size() const -> uint;
-
-  auto setName(string name) -> void;
-  auto setSize(uint size) -> void;
-
-  auto erase() -> void;
+  //eeprom.cpp
   auto power() -> void;
-  auto read(uint) -> uint8;
-  auto write(uint, uint8) -> void;
-
-  auto operator[](uint10 addr) -> uint16&;
+  auto read(uint port) -> uint8;
+  auto write(uint port, uint8 data) -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
 private:
-  auto execute() -> void;
-
-  uint16 _data[1024];
-  uint _size = 0;  //in words
-
   struct Registers {
-    uint16 latch;
+    uint16 data;
     uint16 address;
 
-    bool unknown;
-    bool writeRequested;
-    bool readRequested;
-
-    bool writeCompleted;
-    bool readCompleted;
-
-    bool writeProtect;
+    //note: timing is not yet emulated; ready bits always remain set.
+     uint1 readReady = 1;
+     uint1 writeReady = 1;
+     uint1 eraseReady = 1;
+     uint1 resetReady = 1;
+     uint1 readPending;
+     uint1 writePending;
+     uint1 erasePending;
+     uint1 resetPending;
   } r;
 };

@@ -7,6 +7,7 @@ auto CPU::serialize(serializer& s) -> void {
 
   s.integer(status.clock);
   s.integer(status.interruptLatch);
+  s.integer(status.hblankPending);
 
   s.integer(status.joyp);
   s.integer(status.p14);

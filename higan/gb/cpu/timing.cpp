@@ -79,6 +79,10 @@ auto CPU::timer1024hz() -> void {
 }
 
 auto CPU::hblank() -> void {
+  status.hblankPending = 1;
+}
+
+auto CPU::hblankTrigger() -> void {
   if(status.dmaMode == 1 && status.dmaLength && ppu.status.ly < 144) {
     for(uint n : range(16)) {
       writeDMA(status.dmaTarget++, readDMA(status.dmaSource++, 0xff));

@@ -10,7 +10,10 @@ CPU cpu;
 
 auto CPU::main() -> void {
   poll();
-//static uint c=0;if(auto d = disassemble()) if(++c<60) print(d, "\n");
+//if(auto d=disassemble()){
+//static uint c=0;
+//if(++c<35000)print(d,"\n");
+//}
   exec();
 }
 
@@ -52,6 +55,9 @@ auto CPU::power() -> void {
   }
 
   r = {};
+
+  //necessary hack until all boot ROMs have been dumped.
+  if(!system.bootROM) r.cartridgeEnable = 1;
 }
 
 }

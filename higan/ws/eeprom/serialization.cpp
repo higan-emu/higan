@@ -1,12 +1,14 @@
 auto EEPROM::serialize(serializer& s) -> void {
-  s.array(_data);
+  M93LCx6::serialize(s);
 
-  s.integer(r.latch);
+  s.integer(r.data);
   s.integer(r.address);
-  s.integer(r.unknown);
-  s.integer(r.writeRequested);
-  s.integer(r.readRequested);
-  s.integer(r.writeCompleted);
-  s.integer(r.readCompleted);
-  s.integer(r.writeProtect);
+  s.integer(r.readReady);
+  s.integer(r.writeReady);
+  s.integer(r.eraseReady);
+  s.integer(r.resetReady);
+  s.integer(r.readPending);
+  s.integer(r.writePending);
+  s.integer(r.erasePending);
+  s.integer(r.resetPending);
 }

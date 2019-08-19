@@ -88,6 +88,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
     }
   }
 
+  mapper->load(node, with);
   mapper->load(document);
 
   power();
@@ -95,6 +96,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
 auto Cartridge::disconnect() -> void {
   if(!node) return;
+  mapper->unload();
   rom.reset();
   ram.reset();
   rtc.reset();

@@ -1,4 +1,4 @@
-components += sm83
+components += sm83 m93lcx6
 
 objects += gb-interface gb-system
 objects += gb-bus gb-cartridge

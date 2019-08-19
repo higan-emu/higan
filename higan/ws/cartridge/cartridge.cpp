@@ -64,10 +64,9 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   }
 
   if(auto memory = document["game/board/memory(type=EEPROM,content=Save)"]) {
-    eeprom.setSize(memory["size"].natural() / sizeof(uint16));
-    eeprom.erase();
+    eeprom.allocate(memory["size"].natural(), 16);
     if(auto fp = platform->open(node, "save.eeprom", File::Read)) {
-      fp->read(eeprom.data(), eeprom.size());
+      fp->read(eeprom.data, eeprom.size);
     }
   }
 
@@ -124,7 +123,7 @@ auto Cartridge::save() -> void {
 
   if(auto memory = document["game/board/memory(type=EEPROM,content=Save)"]) {
     if(auto fp = platform->open(node, "save.eeprom", File::Write)) {
-      fp->write(eeprom.data(), eeprom.size());
+      fp->write(eeprom.data, eeprom.size);
     }
   }
 

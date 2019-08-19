@@ -48,6 +48,11 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto CPU::main() -> void {
+  if(status.hblankPending) {
+    status.hblankPending = 0;
+    hblankTrigger();
+  }
+
   //are interrupts enabled?
   if(r.ime) {
     //are any interrupts pending?

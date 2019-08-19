@@ -6,6 +6,7 @@
 #include <emulator/emulator.hpp>
 
 #include <component/processor/v30mz/v30mz.hpp>
+#include <component/eeprom/m93lcx6/m93lcx6.hpp>
 
 namespace higan::WonderSwan {
   #include <emulator/inline.hpp>
@@ -13,10 +14,11 @@ namespace higan::WonderSwan {
   enum : uint { Byte = 1, Word = 2, Long = 4 };
 
   struct Model {
-    inline static auto WonderSwan() -> bool;         //SW-001 (ASWAN)
-    inline static auto WonderSwanColor() -> bool;    //WSC-001 (SPHINX)
-    inline static auto SwanCrystal() -> bool;        //SCT-001 (SPHINX2)
-    inline static auto PocketChallengeV2() -> bool;  //(ASWAN)
+    inline static auto WonderSwan() -> bool;         //Bandai  (ASWAN   SW-001)
+    inline static auto WonderSwanColor() -> bool;    //Bandai  (SPHINX  WSC-001)
+    inline static auto SwanCrystal() -> bool;        //Bandai  (SPHINX2 SCT-001)
+    inline static auto PocketChallengeV2() -> bool;  //Benesse (ASWAN)
+    inline static auto MamaMitte() -> bool;          //Tanita  (SPHINX2)
   };
 
   #include <ws/memory/memory.hpp>

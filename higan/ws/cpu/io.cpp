@@ -38,131 +38,141 @@ auto CPU::keypadRead() -> uint4 {
   return data;
 }
 
-auto CPU::portRead(uint16 addr) -> uint8 {
+auto CPU::portRead(uint16 address) -> uint8 {
+  uint8 data;
+
   //DMA_SRC
-  if(addr == 0x0040) return r.dmaSource.byte(0);
-  if(addr == 0x0041) return r.dmaSource.byte(1);
-  if(addr == 0x0042) return r.dmaSource.byte(2);
+  if(address == 0x0040) return r.dmaSource.byte(0);
+  if(address == 0x0041) return r.dmaSource.byte(1);
+  if(address == 0x0042) return r.dmaSource.byte(2);
 
   //DMA_DST
-  if(addr == 0x0044) return r.dmaTarget.byte(0);
-  if(addr == 0x0045) return r.dmaTarget.byte(1);
+  if(address == 0x0044) return r.dmaTarget.byte(0);
+  if(address == 0x0045) return r.dmaTarget.byte(1);
 
   //DMA_LEN
-  if(addr == 0x0046) return r.dmaLength.byte(0);
-  if(addr == 0x0047) return r.dmaLength.byte(1);
+  if(address == 0x0046) return r.dmaLength.byte(0);
+  if(address == 0x0047) return r.dmaLength.byte(1);
 
   //DMA_CTRL
-  if(addr == 0x0048) return r.dmaMode << 0 | r.dmaEnable << 7;
+  if(address == 0x0048) {
+    data.bit(0) = r.dmaMode;
+    data.bit(7) = r.dmaEnable;
+    return data;
+  }
 
   //WSC_SYSTEM
-  if(addr == 0x0062) return (
-    Model::SwanCrystal() << 7
-  );
+  if(address == 0x0062) {
+    data.bit(7) = Model::SwanCrystal() || Model::MamaMitte();
+    return data;
+  }
 
   //HW_FLAGS
-  if(addr == 0x00a0) {
-    bool color = Model::WonderSwanColor() || Model::SwanCrystal();
-    return (
-      1     << 0  //0 = BIOS mapped; 1 = cartridge mapped
-    | color << 1  //0 = WonderSwan or Pocket Challenge V2; 1 = WonderSwan Color or SwanCrystal
-    | 1     << 2  //0 = 8-bit bus width; 1 = 16-bit bus width
-    | 1     << 7  //1 = built-in self-test passed
-    );
+  if(address == 0x00a0) {
+    data.bit(0) = r.cartridgeEnable;
+    data.bit(1) = Model::WonderSwanColor() || Model::SwanCrystal() || Model::MamaMitte();
+    data.bit(2) = 1;  //0 = 8-bit bus width; 1 = 16-bit bus width
+    data.bit(7) = 1;  //1 = built-in self-test passed
+    return data;
   }
 
   //INT_BASE
-  if(addr == 0x00b0) return (
-    r.interruptBase | (Model::WonderSwan() || Model::PocketChallengeV2() ? 3 : 0)
-  );
+  if(address == 0x00b0) {
+    data  = r.interruptBase;
+    data |= Model::WonderSwan() || Model::PocketChallengeV2() ? 3 : 0;
+    return data;
+  }
 
   //SER_DATA
-  if(addr == 0x00b1) return r.serialData;
+  if(address == 0x00b1) return r.serialData;
 
   //INT_ENABLE
-  if(addr == 0x00b2) return r.interruptEnable;
+  if(address == 0x00b2) return r.interruptEnable;
 
   //SER_STATUS
-  if(addr == 0x00b3) return (
-    1                << 2  //hack: always report send buffer as empty
-  | r.serialBaudRate << 6
-  | r.serialEnable   << 7
-  );
+  if(address == 0x00b3) {
+    data.bit(2) = 1;  //hack: always report send buffer as empty
+    data.bit(6) = r.serialBaudRate;
+    data.bit(7) = r.serialEnable;
+    return data;
+  }
 
   //INT_STATUS
-  if(addr == 0x00b4) return r.interruptStatus;
+  if(address == 0x00b4) return r.interruptStatus;
 
   //KEYPAD
-  if(addr == 0x00b5) return (
-    keypadRead()   << 0
-  | r.ypadEnable   << 4
-  | r.xpadEnable   << 5
-  | r.buttonEnable << 6
-  );
+  if(address == 0x00b5) {
+    data.bit(0,3) = keypadRead();
+    data.bit(4)   = r.ypadEnable;
+    data.bit(5)   = r.xpadEnable;
+    data.bit(6)   = r.buttonEnable;
+    return data;
+  }
 
-  return 0x00;
+  return data;
 }
 
-auto CPU::portWrite(uint16 addr, uint8 data) -> void {
+auto CPU::portWrite(uint16 address, uint8 data) -> void {
   //DMA_SRC
-  if(addr == 0x0040) r.dmaSource.byte(0) = data & ~1;
-  if(addr == 0x0041) r.dmaSource.byte(1) = data;
-  if(addr == 0x0042) r.dmaSource.byte(2) = data;
+  if(address == 0x0040) r.dmaSource.byte(0) = data & ~1;
+  if(address == 0x0041) r.dmaSource.byte(1) = data;
+  if(address == 0x0042) r.dmaSource.byte(2) = data;
 
   //DMA_DST
-  if(addr == 0x0044) r.dmaTarget.byte(0) = data & ~1;
-  if(addr == 0x0045) r.dmaTarget.byte(1) = data;
+  if(address == 0x0044) r.dmaTarget.byte(0) = data & ~1;
+  if(address == 0x0045) r.dmaTarget.byte(1) = data;
 
   //DMA_LEN
-  if(addr == 0x0046) r.dmaLength.byte(0) = data & ~1;
-  if(addr == 0x0047) r.dmaLength.byte(1) = data;
+  if(address == 0x0046) r.dmaLength.byte(0) = data & ~1;
+  if(address == 0x0047) r.dmaLength.byte(1) = data;
 
   //DMA_CTRL
-  if(addr == 0x0048) {
+  if(address == 0x0048) {
     r.dmaMode   = data.bit(6);
     r.dmaEnable = data.bit(7);
     if(r.dmaEnable) dmaTransfer();
   }
 
   //WSC_SYSTEM
-  if(addr == 0x0062) {
+  if(address == 0x0062) {
     //todo: d0 = 1 powers off system
   }
 
   //HW_FLAGS
-  if(addr == 0x00a0) {
+  if(address == 0x00a0) {
     //todo: d2 (bus width) bit is writable; but ... it will do very bad things
+    r.cartridgeEnable |= data.bit(0);  //bit can never be unset (boot ROM lockout)
   }
 
   //INT_BASE
-  if(addr == 0x00b0) {
+  if(address == 0x00b0) {
     r.interruptBase = Model::WonderSwan() || Model::PocketChallengeV2() ? data & ~7 : data & ~1;
   }
 
   //SER_DATA
-  if(addr == 0x00b1) r.serialData = data;
+  if(address == 0x00b1) r.serialData = data;
 
   //INT_ENABLE
-  if(addr == 0x00b2) {
+  if(address == 0x00b2) {
     r.interruptEnable = data;
     r.interruptStatus &= ~r.interruptEnable;
   }
 
   //SER_STATUS
-  if(addr == 0x00b3) {
+  if(address == 0x00b3) {
     r.serialBaudRate = data.bit(6);
     r.serialEnable   = data.bit(7);
   }
 
   //KEYPAD
-  if(addr == 0x00b5) {
+  if(address == 0x00b5) {
     r.ypadEnable   = data.bit(4);
     r.xpadEnable   = data.bit(5);
     r.buttonEnable = data.bit(6);
   }
 
   //INT_ACK
-  if(addr == 0x00b6) {
+  if(address == 0x00b6) {
     //acknowledge only edge-sensitive interrupts
     r.interruptStatus &= ~(data & 0b11110010);
   }

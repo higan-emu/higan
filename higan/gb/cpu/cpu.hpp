@@ -51,10 +51,12 @@ struct CPU : SM83, Thread {
   auto timer4096hz() -> void;
   auto timer1024hz() -> void;
   auto hblank() -> void;
+  auto hblankTrigger() -> void;
 
   struct Status {
     uint22 clock;
      uint8 interruptLatch;
+     uint1 hblankPending;
 
     //$ff00  JOYP
     uint4 joyp;

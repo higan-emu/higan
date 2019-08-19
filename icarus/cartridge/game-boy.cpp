@@ -39,6 +39,7 @@ auto GameBoy::heuristics(vector<uint8_t>& data, string location) -> string {
   uint romSize = 0;
   uint ramSize = 0;
   uint eepromSize = 0;
+  uint eepromWidth = 0;
   uint flashSize = 0;
   uint rtcSize = 0;
 
@@ -252,7 +253,8 @@ auto GameBoy::heuristics(vector<uint8_t>& data, string location) -> string {
   //Kirby Tilt 'n' Tumble: EEPROM = 256 bytes
   //Korokoro Kirby:        EEPROM = 256 bytes
   if(mapper == "MBC7" && eeprom) {
-    eepromSize = 256;  //fallback guess; supported values are 128, 256, 512
+    eepromSize = 256;  //fallback guess; supported values are 128, 256, 512, 1024, 2048
+    eepromWidth = 16;  //93LCx6 supports 8-bit mode, but no licensed games use it
     if(title == "CMASTER"     && serial == "KCEJ") eepromSize = 512;
     if(title == "KIRBY TNT"   && serial == "KTNE") eepromSize = 256;
     if(title == "KORO2 KIRBY" && serial == "KKKJ") eepromSize = 256;
@@ -288,6 +290,7 @@ auto GameBoy::heuristics(vector<uint8_t>& data, string location) -> string {
     s += "    memory\n";
     s += "      type: EEPROM\n";
     s +={"      size: 0x", hex(eepromSize), "\n"};
+    s +={"      width: ", eepromWidth, "\n"};
     s += "      content: Save\n";
   }
 

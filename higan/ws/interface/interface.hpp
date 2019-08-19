@@ -34,6 +34,10 @@ struct PocketChallengeV2Interface : AbstractInterface {
   auto name() -> string override { return "Pocket Challenge V2"; }
 };
 
+struct MamaMitteInterface : AbstractInterface {
+  auto name() -> string override { return "Mama Mitte"; }
+};
+
 }
 
 #endif
