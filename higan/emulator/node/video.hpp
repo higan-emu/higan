@@ -14,6 +14,7 @@ struct Video : Object {
     output.append(depth, "  aspectX: ", aspectX, "\n");
     output.append(depth, "  aspectY: ", aspectY, "\n");
     output.append(depth, "  colors: ", colors, "\n");
+    output.append(depth, "  rotation: ", rotation, "\n");
   }
 
   auto unserialize(Markup::Node node) -> void override {
@@ -26,6 +27,7 @@ struct Video : Object {
     aspectX = node["aspectX"].real();
     aspectY = node["aspectY"].real();
     colors = node["colors"].natural();
+    rotation = node["rotation"].natural();
   }
 
   string type;  //"CRT", "LCD"
@@ -36,6 +38,7 @@ struct Video : Object {
   double aspectX = 1.0;
   double aspectY = 1.0;
   uint colors = 0;
+  uint rotation = 0;
 
   function<uint64 (uint32)> color;
 };

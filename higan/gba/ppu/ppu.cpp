@@ -101,7 +101,7 @@ auto PPU::main() -> void {
 }
 
 auto PPU::frame() -> void {
-  scheduler.exit(Scheduler::Event::Frame);
+  scheduler.exit(Event::Frame);
 }
 
 auto PPU::refresh() -> void {

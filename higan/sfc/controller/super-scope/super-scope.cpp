@@ -21,7 +21,7 @@ SuperScope::SuperScope(Node::Port parent, Node::Peripheral with) {
   pause   = Node::append<Node::Button>(node, with, "Pause");
 
   sprite.create(32, 32);
-  sprite.setPixels(Resource::Sprite::CrosshairGreen);
+  sprite.setPixels(Resource::Sprite::SuperFamicom::CrosshairGreen);
   ppu.display.append(sprite);
 
   Thread::create(system.cpuFrequency(), {&SuperScope::main, this});
@@ -70,7 +70,10 @@ auto SuperScope::data() -> uint2 {
     bool turboNew = turbo->value;
     if(turboNew && !turboOld) {
       turboEdge = !turboEdge;  //toggle state
-      sprite.setPixels(turboEdge ? (image)Resource::Sprite::CrosshairRed : (image)Resource::Sprite::CrosshairGreen);
+      sprite.setPixels(turboEdge
+      ? (image)Resource::Sprite::SuperFamicom::CrosshairRed
+      : (image)Resource::Sprite::SuperFamicom::CrosshairGreen
+      );
     }
     turboOld = turboNew;
 

@@ -21,6 +21,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 
   orientation = Node::append<Node::String>(parent, from, "Orientation", "Horizontal", [&](auto value) {
     ppu.display.setRotateLeft(value == "Vertical");
+    node->rotation = (value == "Vertical" ? 90 : 0);
   });
   orientation->dynamic = true;
   orientation->setAllowedValues({"Horizontal", "Vertical"});

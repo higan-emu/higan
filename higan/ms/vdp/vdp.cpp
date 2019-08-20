@@ -57,7 +57,7 @@ auto VDP::main() -> void {
   }
   step(172);
 
-  if(io.vcounter == 240) scheduler.exit(Scheduler::Event::Frame);
+  if(io.vcounter == 240) scheduler.exit(Event::Frame);
 }
 
 auto VDP::step(uint clocks) -> void {

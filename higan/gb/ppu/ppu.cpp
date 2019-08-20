@@ -21,7 +21,7 @@ auto PPU::main() -> void {
   if(!status.displayEnable) {
     for(uint n : range(160 * 144)) screen[n] = Model::GameBoyColor() ? 0x7fff : 0;
     step(154 * 456);
-    scheduler.exit(Scheduler::Event::Frame);
+    scheduler.exit(Event::Frame);
     return;
   }
 
@@ -71,7 +71,7 @@ auto PPU::main() -> void {
 
   if(status.ly == 144) {
     cpu.raise(CPU::Interrupt::VerticalBlank);
-    scheduler.exit(Scheduler::Event::Frame);
+    scheduler.exit(Event::Frame);
   }
 
   if(status.ly == 154) {

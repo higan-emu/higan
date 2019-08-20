@@ -44,7 +44,7 @@ auto VCE::main() -> void {
 
   if(++timing.vclock == 262) {
     timing.vclock = 0;
-    scheduler.exit(Scheduler::Event::Frame);
+    scheduler.exit(Event::Frame);
   }
 }
 

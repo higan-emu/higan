@@ -78,7 +78,7 @@ auto CPU::main() -> void {
   instruction();
 
   if(Model::SuperGameBoy()) {
-    scheduler.exit(Scheduler::Event::Step);
+    scheduler.exit(Event::Step);
   }
 }
 

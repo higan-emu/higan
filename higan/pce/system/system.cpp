@@ -8,7 +8,7 @@ System system;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) vce.refresh();
+  if(scheduler.enter() == Event::Frame) vce.refresh();
 }
 
 auto System::runToSave() -> void {

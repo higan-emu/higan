@@ -1,4 +1,6 @@
 auto Cartridge::portRead(uint16 address) -> uint8 {
+  uint8 data;
+
   //BANK_ROM2
   if(address == 0x00c0) return r.romBank2;
 
@@ -34,7 +36,7 @@ auto Cartridge::portRead(uint16 address) -> uint8 {
   //GPO_DATA
   if(address == 0x00cd) return r.gpoData;
 
-  return 0x00;
+  return data;
 }
 
 auto Cartridge::portWrite(uint16 address, uint8 data) -> void {

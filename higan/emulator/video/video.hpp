@@ -86,16 +86,20 @@ private:
 };
 
 struct Sprite {
+  using type = Sprite;
+
   Sprite() = default;
   Sprite(const Sprite&) = delete;
   auto operator=(const Sprite&) = delete;
 
-  auto create(uint width, uint height) -> void;
-  auto destroy() -> void;
+  auto create(uint width, uint height) -> type&;
+  auto destroy() -> type&;
 
-  auto setPixels(const nall::image& image) -> void;
-  auto setVisible(bool visible) -> void;
-  auto setPosition(int x, int y) -> void;
+  auto setPixels(const nall::image& image) -> type&;
+  auto setVisible(bool visible) -> type&;
+  auto setPosition(int x, int y) -> type&;
+
+  auto invert() -> type&;
 
 private:
   uint width;

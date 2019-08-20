@@ -11,11 +11,11 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
   start2   = Node::append<Node::Button>(node, with, "Player 2: Start");
 
   sprite1.create(32, 32);
-  sprite1.setPixels(Resource::Sprite::CrosshairGreen);
+  sprite1.setPixels(Resource::Sprite::SuperFamicom::CrosshairGreen);
   ppu.display.append(sprite1);
 
   sprite2.create(32, 32);
-  sprite2.setPixels(Resource::Sprite::CrosshairRed);
+  sprite2.setPixels(Resource::Sprite::SuperFamicom::CrosshairRed);
   ppu.display.append(sprite2);
 
   Thread::create(system.cpuFrequency(), {&Justifiers::main, this});

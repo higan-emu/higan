@@ -1,14 +1,14 @@
 auto CPU::stop() -> void {
   idle();
   if(Model::SuperGameBoy()) {
-    scheduler.exit(Scheduler::Event::Step);
+    scheduler.exit(Event::Step);
   }
 }
 
 auto CPU::halt() -> void {
   idle();
   if(Model::SuperGameBoy()) {
-    scheduler.exit(Scheduler::Event::Step);
+    scheduler.exit(Event::Step);
   }
 }
 

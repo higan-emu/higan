@@ -34,7 +34,7 @@ auto AbstractInterface::power() -> void {
 }
 
 auto AbstractInterface::run() -> void {
-  system.run();
+  return system.run();
 }
 
 auto AbstractInterface::serialize() -> serializer {

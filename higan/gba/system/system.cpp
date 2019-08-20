@@ -10,7 +10,7 @@ System system;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
+  if(scheduler.enter() == Event::Frame) ppu.refresh();
   if(GameBoyAdvance::Model::GameBoyPlayer()) player.frame();
 }
 

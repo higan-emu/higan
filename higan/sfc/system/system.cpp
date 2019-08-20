@@ -10,7 +10,7 @@ System system;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) {
+  if(scheduler.enter() == higan::Event::Frame) {
     ppu.refresh();
 
     auto reset = controls.reset->value;

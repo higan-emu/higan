@@ -5,7 +5,9 @@ auto APU::serialize(serializer& s) -> void {
   s.integer(r.waveBase);
   s.integer(r.speakerEnable);
   s.integer(r.speakerShift);
-  s.integer(r.headphoneEnable);
+  s.integer(r.headphonesEnable);
+  s.integer(r.headphonesConnected);
+  s.integer(r.masterVolume);
 
   s.integer(dma.s.clock);
   s.integer(dma.s.source);

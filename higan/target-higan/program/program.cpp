@@ -111,12 +111,13 @@ auto ProgramWindow::adaptiveResize() -> void {
       width  = video->width  * video->scaleX;
       height = video->height * video->scaleY;
       if(settings.video.aspectCorrection) width *= video->aspectX / video->aspectY;
+    //if(video->rotation == 90 || video->rotation == 270) swap(width, height);
     }
   }
 
   uint multiplierX = ceil(640.0 / width);
   uint multiplierY = ceil(480.0 / height);
-  uint multiplier  = max(multiplierX, multiplierY);
+  uint multiplier  = min(multiplierX, multiplierY);
 
   width  *= multiplier;
   height *= multiplier;

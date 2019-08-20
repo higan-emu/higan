@@ -6,7 +6,7 @@ auto VDP::scanline() -> void {
     sprite.scanline(state.vcounter);
   }
 
-  if(state.vcounter == 240) scheduler.exit(Scheduler::Event::Frame);
+  if(state.vcounter == 240) scheduler.exit(Event::Frame);
 
   state.output = output + (state.vcounter * 2 + 0) * 1280;
 }

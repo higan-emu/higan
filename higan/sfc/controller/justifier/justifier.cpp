@@ -7,7 +7,7 @@ Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
   start   = Node::append<Node::Button>(node, with, "Start");
 
   sprite.create(32, 32);
-  sprite.setPixels(Resource::Sprite::CrosshairGreen);
+  sprite.setPixels(Resource::Sprite::SuperFamicom::CrosshairGreen);
   ppu.display.append(sprite);
 
   Thread::create(system.cpuFrequency(), {&Justifier::main, this});

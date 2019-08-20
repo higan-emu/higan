@@ -132,18 +132,6 @@ auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void
     }
   }
 
-  if(rotateLeft) {
-    for(uint y : range(height)) {
-      auto source = output + y * width;
-      for(uint x : range(width)) {
-        auto target = rotate.data() + (width - 1 - x) * height + y;
-        *target = *source++;
-      }
-    }
-    output = rotate.data();
-    swap(width, height);
-  }
-
   for(auto& sprite : sprites) {
     if(!sprite->visible) continue;
 
@@ -157,9 +145,21 @@ auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void
         if(pixelX < 0 || pixelX >= width) continue;
 
         auto pixel = sprite->pixels[y * sprite->width + x];
-        if(pixel) output[pixelY * width + pixelX] = alpha | pixel;
+        if(pixel >> 24) output[pixelY * width + pixelX] = alpha | pixel;
       }
     }
+  }
+
+  if(rotateLeft) {
+    for(uint y : range(height)) {
+      auto source = output + y * width;
+      for(uint x : range(width)) {
+        auto target = rotate.data() + (width - 1 - x) * height + y;
+        *target = *source++;
+      }
+    }
+    output = rotate.data();
+    swap(width, height);
   }
 
   platform->video(node, (const uint32_t*)output, width * sizeof(uint32), width, height);

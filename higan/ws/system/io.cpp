@@ -3,23 +3,44 @@ auto System::portRead(uint16 address) -> uint8 {
 
   //DISP_MODE
   if(address == 0x0060) {
-    data.bit(0) = r.unknown;
-    data.bit(5) = r.format;
-    data.bit(6) = r.depth;
-    data.bit(7) = r.color;
+    data.bit(0) = io.unknown0;
+    data.bit(1) = io.unknown1;
+    data.bit(3) = io.unknown3;
+    data.bit(5) = io.format;
+    data.bit(6) = io.depth;
+    data.bit(7) = io.color;
     return data;
   }
 
-  //IEEP_DATA
-  if(address == 0x00ba) return eeprom.read(EEPROM::DataLo);
-  if(address == 0x00bb) return eeprom.read(EEPROM::DataHi);
+  //IEEP_DATALO
+  if(address == 0x00ba) {
+    data = eeprom.read(EEPROM::DataLo);
+    return data;
+  }
 
-  //IEEP_ADDR
-  if(address == 0x00bc) return eeprom.read(EEPROM::AddressLo);
-  if(address == 0x00bd) return eeprom.read(EEPROM::AddressHi);
+  //IEEP_DATAHI
+  if(address == 0x00bb) {
+    data = eeprom.read(EEPROM::DataHi);
+    return data;
+  }
+
+  //IEEP_ADDRLO
+  if(address == 0x00bc) {
+    data = eeprom.read(EEPROM::AddressLo);
+    return data;
+  }
+
+  //IEEP_ADDRHI
+  if(address == 0x00bd) {
+    data = eeprom.read(EEPROM::AddressHi);
+    return data;
+  }
 
   //IEEP_STATUS
-  if(address == 0x00be) return eeprom.read(EEPROM::Status);
+  if(address == 0x00be) {
+    data = eeprom.read(EEPROM::Status);
+    return data;
+  }
 
   return data;
 }
@@ -27,21 +48,42 @@ auto System::portRead(uint16 address) -> uint8 {
 auto System::portWrite(uint16 address, uint8 data) -> void {
   //DISP_MODE
   if(address == 0x0060) {
-    r.unknown = data.bit(0,4) & 0b01011;
-    r.format  = data.bit(5);
-    r.depth   = data.bit(6);
-    r.color   = data.bit(7);
+    io.unknown0 = data.bit(0);
+    io.unknown1 = data.bit(1);
+    io.unknown3 = data.bit(3);
+    io.format   = data.bit(5);
+    io.depth    = data.bit(6);
+    io.color    = data.bit(7);
     return;
   }
 
-  //IEEP_DATA
-  if(address == 0x00ba) return eeprom.write(EEPROM::DataLo, data);
-  if(address == 0x00bb) return eeprom.write(EEPROM::DataHi, data);
+  //IEEP_DATALO
+  if(address == 0x00ba) {
+    eeprom.write(EEPROM::DataLo, data);
+    return;
+  }
 
-  //IEEP_ADDR
-  if(address == 0x00bc) return eeprom.write(EEPROM::AddressLo, data);
-  if(address == 0x00bd) return eeprom.write(EEPROM::AddressHi, data);
+  //IEEP_DATAHI
+  if(address == 0x00bb) {
+    eeprom.write(EEPROM::DataHi, data);
+    return;
+  }
+
+  //IEEP_ADDRLO
+  if(address == 0x00bc) {
+    eeprom.write(EEPROM::AddressLo, data);
+    return;
+  }
+
+  //IEEP_ADDRHI
+  if(address == 0x00bd) {
+    eeprom.write(EEPROM::AddressHi, data);
+    return;
+  }
 
   //IEEP_CMD
-  if(address == 0x00be) return eeprom.write(EEPROM::Command, data);
+  if(address == 0x00be) {
+    eeprom.write(EEPROM::Command, data);
+    return;
+  }
 }

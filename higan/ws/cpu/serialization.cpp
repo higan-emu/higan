@@ -13,7 +13,5 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(r.serialBaudRate);
   s.integer(r.serialEnable);
   s.integer(r.interruptStatus);
-  s.integer(r.ypadEnable);
-  s.integer(r.xpadEnable);
-  s.integer(r.buttonEnable);
+  s.integer(r.keypadMatrix);
 }

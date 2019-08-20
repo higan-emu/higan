@@ -37,7 +37,7 @@ auto APU::dacRun() -> void {
   if(channel2.r.enable) left += channel2.o.left;
   if(channel3.r.enable) left += channel3.o.left;
   if(channel4.r.enable) left += channel4.o.left;
-  if(channel5.r.enable) left += channel5.o.left;
+  if(channel5.r.enable) left += channel5.o.left * r.headphonesConnected;
   left = sclamp<16>(left << 5);
 
   int right = 0;
@@ -45,15 +45,25 @@ auto APU::dacRun() -> void {
   if(channel2.r.enable) right += channel2.o.right;
   if(channel3.r.enable) right += channel3.o.right;
   if(channel4.r.enable) right += channel4.o.right;
-  if(channel5.r.enable) right += channel5.o.right;
+  if(channel5.r.enable) right += channel5.o.right * r.headphonesConnected;
   right = sclamp<16>(right << 5);
 
-  if(!r.headphoneEnable) {
-    left = 0;
-    right = 0;
+  if(!r.headphonesConnected) {
+    left = right = (left + right) / 2 >> 3 - r.speakerShift;  //monaural output
+    if(!r.speakerEnable) {
+      left = 0;
+      right = 0;
+    }
+  } else {
+    if(!r.headphonesEnable) {
+      left = 0;
+      right = 0;
+    }
   }
 
-  stream.sample(left / 32768.0, right / 32768.0);
+  //ASWAN has three volume steps (0%, 50%, 100%); SPHINX and SPHINX2 have four (0%, 33%, 66%, 100%)
+  double amplitude = 1.0 / (SoC::ASWAN() ? 2.0 : 3.0) * r.masterVolume;
+  stream.sample(left / 32768.0 * amplitude, right / 32768.0 * amplitude);
 }
 
 auto APU::step(uint clocks) -> void {
@@ -71,12 +81,15 @@ auto APU::power() -> void {
   bus.map(this, 0x0052);
   bus.map(this, 0x006a, 0x006b);
   bus.map(this, 0x0080, 0x0095);
+  bus.map(this, 0x009e);
 
   s.sweepClock = 0;
   r.waveBase = 0;
   r.speakerEnable = 0;
   r.speakerShift = 0;
-  r.headphoneEnable = 0;
+  r.headphonesEnable = 0;
+  r.headphonesConnected = system.audio.headphones->value();
+  r.masterVolume = SoC::ASWAN() ? 2 : 3;
 
   dma.s.clock = 0;
   dma.s.source = 0;

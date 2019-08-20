@@ -1,4 +1,4 @@
-auto PPU::renderFetch(uint10 tile, uint3 y, uint3 x) -> uint4 {
+auto PPU::renderFetch(uint10 tile, uint3 x, uint3 y) -> uint4 {
   uint16 offset = 0x200 + tile << (4 + system.depth());
   uint4 color = 0;
 
@@ -67,7 +67,7 @@ auto PPU::renderScreenOne(uint8 x, uint8 y) -> void {
   uint16 tile = iram.read16(tilemapOffset);
   uint3 tileY = scrollY ^ tile.bit(15) * 7;
   uint3 tileX = scrollX ^ tile.bit(14) * 7;
-  uint4 tileColor = renderFetch((tile.bit(13) & system.depth()) << 9 | tile.bit(0,8), tileY, tileX);
+  uint4 tileColor = renderFetch((tile.bit(13) & system.depth()) << 9 | tile.bit(0,8), tileX, tileY);
   if(renderTransparent(tile.bit(11), tileColor)) return;
 
   s.pixel = {Pixel::Source::ScreenOne, renderPalette(tile.bit(9,12), tileColor)};
@@ -89,7 +89,7 @@ auto PPU::renderScreenTwo(uint8 x, uint8 y) -> void {
   uint16 tile = iram.read16(tilemapOffset);
   uint3 tileY = scrollY ^ tile.bit(15) * 7;
   uint3 tileX = scrollX ^ tile.bit(14) * 7;
-  uint4 tileColor = renderFetch((tile.bit(13) & system.depth()) << 9 | tile.bit(0,8), tileY, tileX);
+  uint4 tileColor = renderFetch((tile.bit(13) & system.depth()) << 9 | tile.bit(0,8), tileX, tileY);
   if(renderTransparent(tile.bit(11), tileColor)) return;
 
   s.pixel = {Pixel::Source::ScreenTwo, renderPalette(tile.bit(9,12), tileColor)};
@@ -105,7 +105,7 @@ auto PPU::renderSprite(uint8 x, uint8 y) -> void {
 
     uint3 tileY = (y - sprite.bit(16,23)) ^ sprite.bit(15) * 7;
     uint3 tileX = (x - sprite.bit(24,31)) ^ sprite.bit(14) * 7;
-    uint4 tileColor = renderFetch(sprite.bit(0,8), tileY, tileX);
+    uint4 tileColor = renderFetch(sprite.bit(0,8), tileX, tileY);
     if(renderTransparent(sprite.bit(11), tileColor)) continue;
     if(!sprite.bit(13) && s.pixel.source == Pixel::Source::ScreenTwo) continue;
 

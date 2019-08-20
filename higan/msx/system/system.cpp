@@ -9,7 +9,7 @@ System system;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) vdp.refresh();
+  if(scheduler.enter() == Event::Frame) vdp.refresh();
 }
 
 auto System::runToSave() -> void {

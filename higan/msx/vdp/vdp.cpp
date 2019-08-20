@@ -23,7 +23,7 @@ auto VDP::irq(bool line) -> void {
 }
 
 auto VDP::frame() -> void {
-  scheduler.exit(Scheduler::Event::Frame);
+  scheduler.exit(Event::Frame);
 }
 
 auto VDP::refresh() -> void {

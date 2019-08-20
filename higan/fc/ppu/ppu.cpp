@@ -51,7 +51,7 @@ auto PPU::scanline() -> void {
 
 auto PPU::frame() -> void {
   io.field++;
-  scheduler.exit(Scheduler::Event::Frame);
+  scheduler.exit(Event::Frame);
 }
 
 auto PPU::refresh() -> void {

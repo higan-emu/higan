@@ -71,9 +71,7 @@ struct CPU : V30MZ, Thread, IO {
     uint8 interruptStatus;
 
     //$00b5  KEYPAD
-    uint1 ypadEnable;
-    uint1 xpadEnable;
-    uint1 buttonEnable;
+    uint3 keypadMatrix;
   } r;
 };
 

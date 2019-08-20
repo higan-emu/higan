@@ -18,7 +18,7 @@ auto PPU::main() -> void {
   screen.scanline();
 
   if(vcounter() == 240) {
-    scheduler.exit(Scheduler::Event::Frame);
+    scheduler.exit(higan::Event::Frame);
   }
 
   if(vcounter() > 240) {

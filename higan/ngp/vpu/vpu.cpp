@@ -68,7 +68,7 @@ auto VPU::main() -> void {
   if(io.vcounter == 152) {
     io.vblankActive = 1;
     cpu.int4.set(!io.vblankEnableIRQ);
-    scheduler.exit(Scheduler::Event::Frame);
+    scheduler.exit(Event::Frame);
   }
   if(io.vcounter == io.vlines) {
     io.hblankActive = 1;

@@ -62,12 +62,12 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(r.lcdEnable);
   s.integer(r.lcdContrast);
   s.integer(r.lcdUnknown);
-  s.integer(r.iconSleep);
-  s.integer(r.iconVertical);
-  s.integer(r.iconHorizontal);
-  s.integer(r.iconAux1);
-  s.integer(r.iconAux2);
-  s.integer(r.iconAux3);
+  s.integer(r.icon.sleeping);
+  s.integer(r.icon.orientation1);
+  s.integer(r.icon.orientation0);
+  s.integer(r.icon.auxiliary0);
+  s.integer(r.icon.auxiliary1);
+  s.integer(r.icon.auxiliary2);
   s.integer(r.vtotal);
   s.integer(r.vsync);
   s.array(r.pool);

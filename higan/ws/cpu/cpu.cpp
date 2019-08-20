@@ -10,10 +10,6 @@ CPU cpu;
 
 auto CPU::main() -> void {
   poll();
-//if(auto d=disassemble()){
-//static uint c=0;
-//if(++c<35000)print(d,"\n");
-//}
   exec();
 }
 

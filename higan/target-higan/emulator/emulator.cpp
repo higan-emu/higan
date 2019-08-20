@@ -84,6 +84,7 @@ auto Emulator::main() -> void {
     usleep(20 * 1000);
   } else {
     interface->run();
+    if(events.power) power(false);  //system powered itself off
   }
 }
 
@@ -110,6 +111,7 @@ auto Emulator::power(bool on) -> void {
     programWindow.setTitle(interface->game());
     videoUpdateColors();
     audioUpdateEffects();
+    events = {};
     interface->power();
     //powering on the system latches static settings
     nodeManager.refreshSettings();

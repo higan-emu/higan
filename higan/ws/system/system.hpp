@@ -1,5 +1,12 @@
 struct System : IO {
   Node::Object node;
+
+  enum class SoC : uint {
+    ASWAN,
+    SPHINX,
+    SPHINX2,
+  };
+
   enum class Model : uint {
     WonderSwan,
     WonderSwanColor,
@@ -10,6 +17,8 @@ struct System : IO {
 
   struct Controls {
     Node::Object node;
+
+    //WonderSwan, WonderSwan Color, SwanCrystal, mamaMitte
     Node::Button y1;
     Node::Button y2;
     Node::Button y3;
@@ -21,10 +30,29 @@ struct System : IO {
     Node::Button b;
     Node::Button a;
     Node::Button start;
+    Node::Button volume;
+
+    //Pocket Challenge V2
+    Node::Button up;
+    Node::Button down;
+    Node::Button left;
+    Node::Button right;
+    Node::Button pass;
+    Node::Button circle;
+    Node::Button clear;
+    Node::Button view;
+    Node::Button escape;
+
+    //all models
+    Node::Button power;
 
     //controls.cpp
     auto load(Node::Object, Node::Object) -> void;
     auto poll() -> void;
+
+    bool xHold = 0;
+    bool leftLatch = 0;
+    bool rightLatch = 0;
   } controls;
 
   struct Video {
@@ -32,18 +60,29 @@ struct System : IO {
     Node::Boolean colorEmulation;
     Node::Boolean interframeBlending;
     Node::String orientation;
+    Node::Boolean showIcons;
 
     //video.cpp
     auto load(Node::Object, Node::Object) -> void;
     auto color(uint32) -> uint64;
   } video;
 
+  struct Audio {
+    Node::Audio node;
+    Node::Boolean headphones;
+
+    //audio.cpp
+    auto load(Node::Object, Node::Object) -> void;
+  } audio;
+
   inline auto abstract() const -> bool { return information.abstract; }
   inline auto model() const -> Model { return information.model; }
-  inline auto color() const -> bool { return r.color; }
-  inline auto planar() const -> bool { return r.format == 0; }
-  inline auto packed() const -> bool { return r.format == 1; }
-  inline auto depth() const -> bool { return r.color && r.depth == 1; }
+  inline auto soc() const -> SoC { return information.soc; }
+
+  inline auto color() const -> bool { return io.color; }
+  inline auto planar() const -> bool { return io.format == 0; }
+  inline auto packed() const -> bool { return io.format == 1; }
+  inline auto depth() const -> bool { return io.color && io.depth; }
 
   //system.cpp
   auto run() -> void;
@@ -67,6 +106,7 @@ struct System : IO {
 
   struct Information {
     bool abstract = false;
+    SoC soc = SoC::ASWAN;
     Model model = Model::WonderSwan;
     uint serializeSize = 0;
   } information;
@@ -77,14 +117,20 @@ struct System : IO {
 private:
   struct Registers {
     //$0060  DISP_MODE
-    uint5 unknown;
+    uint1 unknown0;
+    uint1 unknown1;
+    uint1 unknown3;
     uint1 format;
     uint1 depth;
     uint1 color;
-  } r;
+  } io;
 };
 
 extern System system;
+
+auto SoC::ASWAN() -> bool { return system.soc() == System::SoC::ASWAN; }
+auto SoC::SPHINX() -> bool { return system.soc() == System::SoC::SPHINX; }
+auto SoC::SPHINX2() -> bool { return system.soc() == System::SoC::SPHINX2; }
 
 auto Model::WonderSwan() -> bool { return system.model() == System::Model::WonderSwan; }
 auto Model::WonderSwanColor() -> bool { return system.model() == System::Model::WonderSwanColor; }

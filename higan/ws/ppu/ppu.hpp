@@ -1,5 +1,24 @@
 struct PPU : Thread, IO {
   Screen screen;
+  struct Icon {
+    Sprite auxiliary0;
+    Sprite auxiliary1;
+    Sprite auxiliary2;
+    Sprite headphones;
+    Sprite initialized;
+    Sprite lowBattery;
+    Sprite orientation0;
+    Sprite orientation1;
+    Sprite poweredOn;
+    Sprite sleeping;
+    Sprite volumeA0;
+    Sprite volumeA1;
+    Sprite volumeA2;
+    Sprite volumeB0;
+    Sprite volumeB1;
+    Sprite volumeB2;
+    Sprite volumeB3;
+  } icon;
 
   //ppu.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -11,10 +30,11 @@ struct PPU : Thread, IO {
   auto refresh() -> void;
   auto step(uint clocks) -> void;
   auto power() -> void;
+  auto updateIcons() -> void;
 
   //io.cpp
-  auto portRead(uint16 addr) -> uint8 override;
-  auto portWrite(uint16 addr, uint8 data) -> void override;
+  auto portRead(uint16 address) -> uint8 override;
+  auto portWrite(uint16 address, uint8 data) -> void override;
 
   //latch.cpp
   auto latchRegisters() -> void;
@@ -22,7 +42,7 @@ struct PPU : Thread, IO {
   auto latchOAM() -> void;
 
   //render.cpp
-  auto renderFetch(uint10 tile, uint3 y, uint3 x) -> uint4;
+  auto renderFetch(uint10 tile, uint3 x, uint3 y) -> uint4;
   auto renderTransparent(bool palette, uint4 color) -> bool;
   auto renderPalette(uint4 palette, uint4 color) -> uint12;
   auto renderBack() -> void;
@@ -40,7 +60,7 @@ struct PPU : Thread, IO {
     uint12 color;
   };
 
-  uint32 output[224 * 144];
+  uint32 output[(224 + 13) * (144 * 13)];
 
   struct State {
     uint1 field = 0;
@@ -149,17 +169,19 @@ struct PPU : Thread, IO {
     uint8 scrollTwoY;
 
     //$0014  LCD_CTRL
-    uint1 lcdEnable = 1;
-    uint1 lcdContrast;  //WSC only
-    uint6 lcdUnknown;
+    uint1 lcdEnable;
+    uint1 lcdContrast;  //0 = low, 1 = high (WonderSwan Color only)
+    uint8 lcdUnknown;
 
     //$0015  LCD_ICON
-    uint1 iconSleep;
-    uint1 iconVertical;
-    uint1 iconHorizontal;
-    uint1 iconAux1;
-    uint1 iconAux2;
-    uint1 iconAux3;
+    struct Icon {
+      uint1 sleeping;
+      uint1 orientation1;
+      uint1 orientation0;
+      uint1 auxiliary0;
+      uint1 auxiliary1;
+      uint1 auxiliary2;
+    } icon;
 
     //$0016  LCD_VTOTAL
     uint8 vtotal = 158;

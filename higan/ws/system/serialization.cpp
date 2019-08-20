@@ -58,8 +58,10 @@ auto System::serializeAll(serializer& s) -> void {
 auto System::serialize(serializer& s) -> void {
   eeprom.serialize(s);
 
-  s.integer(r.unknown);
-  s.integer(r.format);
-  s.integer(r.depth);
-  s.integer(r.color);
+  s.integer(io.unknown0);
+  s.integer(io.unknown1);
+  s.integer(io.unknown3);
+  s.integer(io.format);
+  s.integer(io.depth);
+  s.integer(io.color);
 }

@@ -9,7 +9,7 @@ System system;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) {
+  if(scheduler.enter() == Event::Frame) {
     vdp.refresh();
     controls.poll();
   }

@@ -5,15 +5,22 @@ namespace higan {
 
 #include "serialization.cpp"
 
+M93LCx6::operator bool() const {
+  return size;
+}
+
 auto M93LCx6::reset() -> void {
   size = 0;
 }
 
-auto M93LCx6::allocate(uint size, uint width) -> bool {
+auto M93LCx6::allocate(uint size, uint width, uint8 fill) -> bool {
+  if(size != 128 && size != 256 && size != 512 && size != 1024 && size != 2048) return false;
+  if(width != 8 && width != 16) return false;
+
   this->size  = size;
   this->width = width;
 
-  for(auto& byte : data) byte = 0x00;
+  for(auto& byte : data) byte = fill;
 
   input.addressLength = 0;
   input.dataLength = width;
@@ -25,7 +32,12 @@ auto M93LCx6::allocate(uint size, uint width) -> bool {
   if(size == 1024) input.addressLength = width == 16 ? 10 : 11;  //93LC76
   if(size == 2048) input.addressLength = width == 16 ? 10 : 11;  //93LC86
 
-  return (bool)input.addressLength;
+  return true;
+}
+
+//used externally to program initial state values for uninitialized EEPROMs
+auto M93LCx6::program(uint11 address, uint8 value) -> void {
+  data[address] = value;
 }
 
 //1ms frequency

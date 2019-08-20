@@ -11,8 +11,10 @@ namespace higan {
 
 struct M93LCx6 {
   //m93lcx6.cpp
+  explicit operator bool() const;
   auto reset() -> void;
-  auto allocate(uint size, uint width) -> bool;
+  auto allocate(uint size, uint width, uint8 fill = 0xff) -> bool;
+  auto program(uint11 address, uint8 data) -> void;
   auto clock() -> void;
   auto power() -> void;
   auto edge() -> void;

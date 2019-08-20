@@ -8,13 +8,6 @@ struct Scheduler {
     SerializeAuxiliary,
   };
 
-  enum class Event : uint {
-    None,
-    Step,
-    Frame,
-    Serialize,
-  };
-
   Scheduler() = default;
   Scheduler(const Scheduler&) = delete;
   auto operator=(const Scheduler&) = delete;

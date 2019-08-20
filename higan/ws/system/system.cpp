@@ -4,13 +4,19 @@ namespace higan::WonderSwan {
 
 Scheduler scheduler;
 System system;
+#define Model higan::WonderSwan::Model
+#define SoC higan::WonderSwan::SoC
 #include "controls.cpp"
 #include "video.cpp"
+#include "audio.cpp"
+#undef Model
+#undef SoC
 #include "io.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Scheduler::Event::Frame) ppu.refresh();
+  auto event = scheduler.enter();
+  if(event == Event::Frame) ppu.refresh();
   controls.poll();
 }
 
@@ -24,23 +30,39 @@ auto System::load(Node::Object from) -> void {
   information = {};
   information.abstract = !(bool)from;
 
-  if(interface->name() == "WonderSwan"         ) information.model = Model::WonderSwan;
-  if(interface->name() == "WonderSwan Color"   ) information.model = Model::WonderSwanColor;
-  if(interface->name() == "SwanCrystal"        ) information.model = Model::SwanCrystal;
-  if(interface->name() == "Pocket Challenge V2") information.model = Model::PocketChallengeV2;
-  if(interface->name() == "mamaMitte"          ) information.model = Model::MamaMitte;
+  if(interface->name() == "WonderSwan"         ) information.soc = SoC::ASWAN,   information.model = Model::WonderSwan;
+  if(interface->name() == "WonderSwan Color"   ) information.soc = SoC::SPHINX,  information.model = Model::WonderSwanColor;
+  if(interface->name() == "SwanCrystal"        ) information.soc = SoC::SPHINX2, information.model = Model::SwanCrystal;
+  if(interface->name() == "Pocket Challenge V2") information.soc = SoC::ASWAN,   information.model = Model::PocketChallengeV2;
+  if(interface->name() == "mamaMitte"          ) information.soc = SoC::SPHINX2, information.model = Model::MamaMitte;
 
   higan::video.reset(interface);
   higan::audio.reset(interface);
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
 
+  //the EEPROMs come factory-programmed to contain various model names and settings.
+  //the model names are confirmed from video recordings of real hardware booting.
+  //the other settings bytes are based on how the IPLROMs configure the EEPROMs after changing settings.
+  //none of this can be considered 100% verified; direct EEPROM dumps from new-old stock would be required.
+  auto initializeName = [&](string name) {
+    //16-character limit, 'A'-'Z' only!
+    for(uint index : range(name.size())) {
+      eeprom.program(0x60 + index, name[index] - 'A' + 0x0b);
+    }
+  };
+
   if(WonderSwan::Model::WonderSwan()) {
     if(auto fp = platform->open(node, "boot.rom", File::Read)) {
       bootROM.allocate(4_KiB);
       bootROM.load(fp);
     }
-    eeprom.allocate(128, 16);
+    eeprom.allocate(128, 16, 0x00);
+    eeprom.program(0x76, 0x01);
+    eeprom.program(0x77, 0x00);
+    eeprom.program(0x78, 0x24);
+    eeprom.program(0x7c, 0x01);
+    initializeName("WONDERSWAN");  //verified
   }
 
   if(WonderSwan::Model::WonderSwanColor()) {
@@ -48,7 +70,16 @@ auto System::load(Node::Object from) -> void {
       bootROM.allocate(8_KiB);
       bootROM.load(fp);
     }
-    eeprom.allocate(2048, 16);
+    eeprom.allocate(2048, 16, 0x00);
+    eeprom.program(0x76, 0x01);
+    eeprom.program(0x77, 0x01);
+    eeprom.program(0x78, 0x27);
+    eeprom.program(0x7c, 0x01);
+    eeprom.program(0x80, 0x01);
+    eeprom.program(0x81, 0x01);
+    eeprom.program(0x82, 0x27);
+    eeprom.program(0x83, 0x03);  //d0-d1 = volume (0-3); d6 = contrast (0=low, 1=high)
+    initializeName("WONDERSWANCOLOR");  //verified
   }
 
   if(WonderSwan::Model::SwanCrystal()) {
@@ -56,15 +87,23 @@ auto System::load(Node::Object from) -> void {
       bootROM.allocate(8_KiB);
       bootROM.load(fp);
     }
-    eeprom.allocate(2048, 16);
+    eeprom.allocate(2048, 16, 0x00);
+    //unverified; based on WonderSwan Color IPLROM
+    eeprom.program(0x76, 0x01);
+    eeprom.program(0x77, 0x01);
+    eeprom.program(0x78, 0x27);
+    eeprom.program(0x7c, 0x01);
+    eeprom.program(0x80, 0x01);
+    eeprom.program(0x81, 0x01);
+    eeprom.program(0x82, 0x27);
+    eeprom.program(0x83, 0x03);  //d0-d1 = volume (0-3)
+    initializeName("SWANCRYSTAL");  //verified
   }
 
   if(WonderSwan::Model::PocketChallengeV2()) {
-    if(auto fp = platform->open(node, "boot.rom", File::Read)) {
-      bootROM.allocate(4_KiB);
-      bootROM.load(fp);
-    }
-    eeprom.allocate(128, 16);
+    //the boot ROM is bypassed by grounding pin 84 on the ASWAN SoC.
+    //when the boot ROM is re-enabled by floating pin 84, the standard WonderSwan IPLROM loads.
+    //the internal EEPROM has been removed from the board.
   }
 
   if(WonderSwan::Model::MamaMitte()) {
@@ -72,7 +111,17 @@ auto System::load(Node::Object from) -> void {
       bootROM.allocate(8_KiB);
       bootROM.load(fp);
     }
-    eeprom.allocate(2048, 16);
+    eeprom.allocate(2048, 16, 0x00);
+    //unverified; based on WonderSwan Color IPLROM
+    eeprom.program(0x76, 0x01);
+    eeprom.program(0x77, 0x01);
+    eeprom.program(0x78, 0x27);
+    eeprom.program(0x7c, 0x01);
+    eeprom.program(0x80, 0x01);
+    eeprom.program(0x81, 0x01);
+    eeprom.program(0x82, 0x27);
+    eeprom.program(0x83, 0x03);  //d0-d1 = volume (0-3)
+    initializeName("SWANCRYSTAL");  //verified
   }
 
   if(!abstract()) {
@@ -84,6 +133,7 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   controls.load(node, from);
   video.load(node, from);
+  audio.load(node, from);
   ppu.load(node, from);
   cartridge.load(node, from);
 }
@@ -128,10 +178,7 @@ auto System::power() -> void {
   bus.map(this, 0x0060);
   bus.map(this, 0x00ba, 0x00be);
 
-  r.unknown = 0;
-  r.format = 0;
-  r.depth = 0;
-  r.color = 0;
+  io = {};
 }
 
 }

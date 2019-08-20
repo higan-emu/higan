@@ -65,6 +65,7 @@ auto Scheduler::enter(Mode mode) -> Event {
     _mode = mode;
     _host = co_active();
     co_switch(_resume);
+    platform->event(_event);
     return _event;
   }
 
@@ -74,7 +75,10 @@ auto Scheduler::enter(Mode mode) -> Event {
       if(thread->handle() == _primary) {
         _mode = Mode::SerializePrimary;
         _host = co_active();
-        do { co_switch(_resume); } while(_event != Event::Serialize);
+        do {
+          co_switch(_resume);
+          platform->event(_event);
+        } while(_event != Event::Serialize);
       }
     }
     for(auto& thread : _threads) {
@@ -82,7 +86,10 @@ auto Scheduler::enter(Mode mode) -> Event {
         _mode = Mode::SerializeAuxiliary;
         _host = co_active();
         _resume = thread->handle();
-        do { co_switch(_resume); } while(_event != Event::Serialize);
+        do {
+          co_switch(_resume);
+          platform->event(_event);
+        } while(_event != Event::Serialize);
       }
     }
     return Event::Serialize;

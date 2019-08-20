@@ -39,7 +39,6 @@ auto Bus::read(uint20 address) -> uint8 {
 }
 
 auto Bus::write(uint20 address, uint8 data) -> void {
-//if(address==0x0626) print("* w0626=",hex(data),"\n");
   uint4 bank = address.bit(16,19);
   uint1 bootup = !cpu.r.cartridgeEnable;
   if(bank == 0x0) return iram.write(address, data);

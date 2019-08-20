@@ -55,12 +55,22 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
   return {};
 }
 
+auto Emulator::event(higan::Event event) -> void {
+  if(event == higan::Event::Power) {
+    events.power = true;
+  }
+}
+
 auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
   uint videoWidth = node->width * node->scaleX;
   uint videoHeight = node->height * node->scaleY;
 
   if(settings.video.aspectCorrection) {
     videoWidth = videoWidth * node->aspectX / node->aspectY;
+  }
+
+  if(node->rotation == 90 || node->rotation == 270) {
+    swap(videoWidth, videoHeight);
   }
 
   auto [viewportWidth, viewportHeight] = videoInstance.size();

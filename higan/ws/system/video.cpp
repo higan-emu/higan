@@ -3,8 +3,8 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   from = Node::scan(parent = node, from);
 
   node->type   = "LCD";
-  node->width  = 224;
-  node->height = 144;
+  node->width  = 224 + (Model::WonderSwanColor() || Model::SwanCrystal() || Model::MamaMitte() ? 13 : 0);
+  node->height = 144 + (Model::WonderSwan() ? 13 : 0);
   node->scaleX = 1.0;
   node->scaleY = 1.0;
   node->colors = 1 << 12;
@@ -22,9 +22,19 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
 
   orientation = Node::append<Node::String>(parent, from, "Orientation", "Horizontal", [&](auto value) {
     ppu.screen.setRotateLeft(value == "Vertical");
+    node->rotation = (value == "Vertical" ? 90 : 0);
   });
   orientation->dynamic = true;
   orientation->setAllowedValues({"Horizontal", "Vertical"});
+
+  if(!Model::PocketChallengeV2()) {
+    showIcons = Node::append<Node::Boolean>(parent, from, "Show Icons", true, [&](auto value) {
+      ppu.updateIcons();
+    });
+    showIcons->dynamic = true;
+  } else {
+    showIcons = {};
+  }
 }
 
 auto System::Video::color(uint32 color) -> uint64 {
