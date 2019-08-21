@@ -39,6 +39,9 @@ auto CPU::keypadRead() -> uint4 {
   }
 
   if(Model::PocketChallengeV2()) {
+    //this pin is always forced to logic high, which has the practical effect of bypassing the IPLROM.
+    data.bit(1) = 1;
+
     if(r.keypadMatrix.bit(0)) {  //d4
       data.bit(0) = system.controls.clear->value;
       data.bit(2) = system.controls.circle->value;

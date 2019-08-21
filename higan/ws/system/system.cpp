@@ -102,9 +102,11 @@ auto System::load(Node::Object from) -> void {
     }
 
     if(WonderSwan::Model::PocketChallengeV2()) {
-      //the boot ROM is bypassed by grounding pin 84 on the ASWAN SoC.
-      //when the boot ROM is re-enabled by floating pin 84, the standard WonderSwan IPLROM loads.
-      //the internal EEPROM has been removed from the board.
+      if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
+        bootROM.allocate(4_KiB);
+        bootROM.load(fp);
+      }
+      //the internal EEPROM has been removed from the Pocket Challenge V2 PCB.
     }
 
     if(WonderSwan::Model::MamaMitte()) {
