@@ -14,7 +14,7 @@ auto PPU::portRead(uint16 address) -> uint8 {
 
   //BACK_COLOR
   if(address == 0x0001) {
-    if(!system.color()) {
+    if(grayscale()) {
       data.bit(0,2) = r.backColor.bit(0,2);
     } else {
       data.bit(0,7) = r.backColor.bit(0,7);
@@ -35,7 +35,7 @@ auto PPU::portRead(uint16 address) -> uint8 {
 
   //SPR_BASE
   if(address == 0x0004) {
-    if(!system.depth()) {
+    if(depth() == 2) {
       data.bit(0,4) = r.spriteBase.bit(0,4);
     } else {
       data.bit(0,5) = r.spriteBase.bit(0,5);
@@ -55,7 +55,7 @@ auto PPU::portRead(uint16 address) -> uint8 {
 
   //MAP_BASE
   if(address == 0x0007) {
-    if(!system.depth()) {
+    if(depth() == 2) {
       data.bit(0,2) = r.screenOneMapBase.bit(0,2);
       data.bit(4,6) = r.screenTwoMapBase.bit(0,2);
     } else {
@@ -348,6 +348,7 @@ auto PPU::portWrite(uint16 address, uint8 data) -> void {
     r.icon.auxiliary1   = data.bit(4);
     r.icon.auxiliary2   = data.bit(5);
     updateIcons();
+    updateOrientation();
     return;
   }
 

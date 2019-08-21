@@ -40,7 +40,7 @@ auto PPU::latchSprites(uint8 y) -> void {
 auto PPU::latchOAM() -> void {
   uint7 spriteIndex = r.spriteFirst;
   uint8 spriteCount = min(128, (uint)r.spriteCount);
-  uint16 spriteBase = r.spriteBase.bit(0, 4 + system.depth()) << 9;
+  uint16 spriteBase = r.spriteBase.bit(0, depth() == 2 ? 4 : 5) << 9;
   l.oamCount = spriteCount;
   for(uint index : range(spriteCount)) {
     l.oam[s.field][index] = iram.read32(spriteBase + (spriteIndex++ << 2));

@@ -204,4 +204,16 @@ auto PPU::updateIcons() -> void {
   icon.headphones.setVisible(headphones & visible);
 }
 
+auto PPU::updateOrientation() -> void {
+  auto orientation = system.video.orientation->value();
+  if(orientation == "Horizontal" || (orientation == "Automatic" && r.icon.orientation0)) {
+    screen.setRotateLeft(false);
+    system.video.node->rotation = 0;
+  }
+  if(orientation == "Vertical" || (orientation == "Automatic" && r.icon.orientation1)) {
+    screen.setRotateLeft(true);
+    system.video.node->rotation = 90;
+  }
+}
+
 }

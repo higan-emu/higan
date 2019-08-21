@@ -6,9 +6,9 @@ auto System::portRead(uint16 address) -> uint8 {
     data.bit(0) = io.unknown0;
     data.bit(1) = io.unknown1;
     data.bit(3) = io.unknown3;
-    data.bit(5) = io.format;
-    data.bit(6) = io.depth;
-    data.bit(7) = io.color;
+    data.bit(5) = io.mode.bit(0);
+    data.bit(6) = io.mode.bit(1);
+    data.bit(7) = io.mode.bit(2);
     return data;
   }
 
@@ -51,9 +51,7 @@ auto System::portWrite(uint16 address, uint8 data) -> void {
     io.unknown0 = data.bit(0);
     io.unknown1 = data.bit(1);
     io.unknown3 = data.bit(3);
-    io.format   = data.bit(5);
-    io.depth    = data.bit(6);
-    io.color    = data.bit(7);
+    io.mode     = data.bit(5,7);
     return;
   }
 

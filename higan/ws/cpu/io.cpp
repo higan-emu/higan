@@ -1,9 +1,10 @@
 auto CPU::keypadRead() -> uint4 {
   uint4 data;
+  bool horizontal = system.video.node->rotation == 0;
 
   if(Model::WonderSwan() || Model::WonderSwanColor() || Model::SwanCrystal() || Model::PocketChallengeV2()) {
     if(r.keypadMatrix.bit(0)) {  //d4
-      if(system.video.orientation->value() == "Horizontal") {
+      if(horizontal) {
         data.bit(0) = system.controls.y1->value;
         data.bit(1) = system.controls.y2->value;
         data.bit(2) = system.controls.y3->value;
@@ -17,7 +18,7 @@ auto CPU::keypadRead() -> uint4 {
     }
 
     if(r.keypadMatrix.bit(1)) {  //d5
-      if(system.video.orientation->value() == "Horizontal") {
+      if(horizontal) {
         data.bit(0) = system.controls.x1->value;
         data.bit(1) = system.controls.x2->value;
         data.bit(2) = system.controls.x3->value;

@@ -78,11 +78,20 @@ struct System : IO {
   inline auto abstract() const -> bool { return information.abstract; }
   inline auto model() const -> Model { return information.model; }
   inline auto soc() const -> SoC { return information.soc; }
+  inline auto mode() const -> uint3 { return io.mode; }
+  inline auto memory() const -> uint { return io.mode.bit(2) == 0 ? 16_KiB : 64_KiB; }
 
-  inline auto color() const -> bool { return io.color; }
-  inline auto planar() const -> bool { return io.format == 0; }
-  inline auto packed() const -> bool { return io.format == 1; }
-  inline auto depth() const -> bool { return io.color && io.depth; }
+  //mode:
+  //xx0 => planar tiledata
+  //xx1 => packed tiledata
+  //x0x =>  512 tiles
+  //x1x => 1024 tiles
+  //0xx => 16 KiB memory mode
+  //1xx => 64 KiB memory mode
+  //00x => 2bpp, grayscale
+  //01x => 2bpp, color
+  //10x => 2bpp, color
+  //11x => 4bpp, color
 
   //system.cpp
   auto run() -> void;
@@ -120,9 +129,7 @@ private:
     uint1 unknown0;
     uint1 unknown1;
     uint1 unknown3;
-    uint1 format;
-    uint1 depth;
-    uint1 color;
+    uint3 mode;
   } io;
 };
 

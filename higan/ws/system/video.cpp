@@ -20,20 +20,22 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   });
   interframeBlending->dynamic = true;
 
-  orientation = Node::append<Node::String>(parent, from, "Orientation", "Horizontal", [&](auto value) {
-    ppu.screen.setRotateLeft(value == "Vertical");
-    node->rotation = (value == "Vertical" ? 90 : 0);
-  });
-  orientation->dynamic = true;
-  orientation->setAllowedValues({"Horizontal", "Vertical"});
-
   if(!Model::PocketChallengeV2()) {
+    orientation = Node::append<Node::String>(parent, from, "Orientation", "Automatic", [&](auto value) {
+      ppu.updateOrientation();
+    });
+    orientation->dynamic = true;
+    orientation->setAllowedValues({"Automatic", "Horizontal", "Vertical"});
+
     showIcons = Node::append<Node::Boolean>(parent, from, "Show Icons", true, [&](auto value) {
       ppu.updateIcons();
     });
     showIcons->dynamic = true;
   } else {
-    showIcons = {};
+    //the Pocket Challenge V2 has no portrait-oriented software, and lacks an icon indicator strip.
+    //create empty nodes, so that they are not null if accessed, but their values will not be used.
+    orientation = Node::String();
+    showIcons = Node::Boolean();
   }
 }
 

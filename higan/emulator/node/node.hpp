@@ -76,6 +76,7 @@ namespace higan::Node {
 
   static inline auto unserialize(string markup) -> Object {
     auto document = BML::unserialize(markup);
+    if(!document) return {};
     auto node = Core::Class::create(document["node"].text());
     node->unserialize(document["node"]);
     return node;

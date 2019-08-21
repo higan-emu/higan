@@ -1,30 +1,28 @@
 auto PPU::renderFetch(uint10 tile, uint3 x, uint3 y) -> uint4 {
-  uint16 offset = 0x200 + tile << (4 + system.depth());
-  uint4 color = 0;
+  uint4 color;
 
-  if(system.planar()) {
-    if(!system.depth()) {
-      uint16 data = iram.read16(offset + (y << 1));
-      color |= data.bit( 7 - x) << 0;
-      color |= data.bit(15 - x) << 1;
-    } else {
-      uint32 data = iram.read32(offset + (y << 2));
-      color |= data.bit( 7 - x) << 0;
-      color |= data.bit(15 - x) << 1;
-      color |= data.bit(23 - x) << 2;
-      color |= data.bit(31 - x) << 3;
-    }
+  if(planar() && depth() == 2) {
+    uint16 data = iram.read16(0x2000 + (tile << 4) + (y << 1));
+    color.bit(0) = data.bit( 7 - x);
+    color.bit(1) = data.bit(15 - x);
   }
 
-  if(system.packed()) {
-    if(!system.depth()) {
-      uint8 data = iram.read8(offset + (y << 1) + (x >> 2));
-      color = data >> (6 - (x.bit(0,1) << 1));
-      color = color.bit(0,1);
-    } else {
-      uint8 data = iram.read8(offset + (y << 2) + (x >> 1));
-      color = data >> (4 - (x.bit(0) << 2));
-    }
+  if(planar() && depth() == 4) {
+    uint32 data = iram.read32(0x4000 + (tile << 5) + (y << 2));
+    color.bit(0) = data.bit( 7 - x);
+    color.bit(1) = data.bit(15 - x);
+    color.bit(2) = data.bit(23 - x);
+    color.bit(3) = data.bit(31 - x);
+  }
+
+  if(packed() && depth() == 2) {
+    uint8 data = iram.read8(0x2000 + (tile << 4) + (y << 1) + (x >> 2));
+    color.bit(0,1) = data >> 6 - (x.bit(0,1) << 1);
+  }
+
+  if(packed() && depth() == 4) {
+    uint8 data = iram.read8(0x4000 + (tile << 5) + (y << 2) + (x >> 1));
+    color.bit(0,3) = data >> 4 - (x.bit(0) << 2);
   }
 
   return color;
@@ -32,12 +30,12 @@ auto PPU::renderFetch(uint10 tile, uint3 x, uint3 y) -> uint4 {
 
 auto PPU::renderTransparent(bool palette, uint4 color) -> bool {
   if(color) return false;
-  if(!system.depth() && !palette) return false;
+  if(depth() == 2 && !palette) return false;
   return true;
 }
 
 auto PPU::renderPalette(uint4 palette, uint4 color) -> uint12 {
-  if(!system.color()) {
+  if(grayscale()) {
     uint3 paletteColor = r.palette[palette].color[color.bit(0,1)];
     uint4 poolColor = 15 - r.pool[paletteColor];
     return poolColor << 0 | poolColor << 4 | poolColor << 8;
@@ -47,7 +45,7 @@ auto PPU::renderPalette(uint4 palette, uint4 color) -> uint12 {
 }
 
 auto PPU::renderBack() -> void {
-  if(!system.color()) {
+  if(grayscale()) {
     uint4 poolColor = 15 - r.pool[l.backColor.bit(0,2)];
     s.pixel = {Pixel::Source::Back, poolColor << 0 | poolColor << 4 | poolColor << 8};
   } else {
@@ -60,17 +58,18 @@ auto PPU::renderScreenOne(uint8 x, uint8 y) -> void {
   uint8 scrollY = y + l.scrollOneY;
   uint8 scrollX = x + l.scrollOneX;
 
-  uint16 tilemapOffset = l.screenOneMapBase.bit(0, 2 + system.depth()) << 11;
+  uint16 tilemapOffset = l.screenOneMapBase.bit(0, depth() == 2 ? 2 : 3) << 11;
   tilemapOffset += (scrollY >> 3) << 6;
   tilemapOffset += (scrollX >> 3) << 1;
 
-  uint16 tile = iram.read16(tilemapOffset);
-  uint3 tileY = scrollY ^ tile.bit(15) * 7;
-  uint3 tileX = scrollX ^ tile.bit(14) * 7;
-  uint4 tileColor = renderFetch((tile.bit(13) & system.depth()) << 9 | tile.bit(0,8), tileX, tileY);
-  if(renderTransparent(tile.bit(11), tileColor)) return;
+  uint16 attributes = iram.read16(tilemapOffset);
+  uint10 tile = attributes.bit(13) << 9 | attributes.bit(0,8);
+  uint3 tileX = scrollX ^ attributes.bit(14) * 7;
+  uint3 tileY = scrollY ^ attributes.bit(15) * 7;
+  uint4 tileColor = renderFetch(tile & tilemask(), tileX, tileY);
+  if(renderTransparent(attributes.bit(11), tileColor)) return;
 
-  s.pixel = {Pixel::Source::ScreenOne, renderPalette(tile.bit(9,12), tileColor)};
+  s.pixel = {Pixel::Source::ScreenOne, renderPalette(attributes.bit(9,12), tileColor)};
 }
 
 auto PPU::renderScreenTwo(uint8 x, uint8 y) -> void {
@@ -82,17 +81,18 @@ auto PPU::renderScreenTwo(uint8 x, uint8 y) -> void {
   uint8 scrollY = y + l.scrollTwoY;
   uint8 scrollX = x + l.scrollTwoX;
 
-  uint16 tilemapOffset = l.screenTwoMapBase.bit(0, 2 + system.depth()) << 11;
+  uint16 tilemapOffset = l.screenTwoMapBase.bit(0, depth() == 2 ? 2 : 3) << 11;
   tilemapOffset += (scrollY >> 3) << 6;
   tilemapOffset += (scrollX >> 3) << 1;
 
-  uint16 tile = iram.read16(tilemapOffset);
-  uint3 tileY = scrollY ^ tile.bit(15) * 7;
-  uint3 tileX = scrollX ^ tile.bit(14) * 7;
-  uint4 tileColor = renderFetch((tile.bit(13) & system.depth()) << 9 | tile.bit(0,8), tileX, tileY);
-  if(renderTransparent(tile.bit(11), tileColor)) return;
+  uint16 attributes = iram.read16(tilemapOffset);
+  uint10 tile = attributes.bit(13) << 9 | attributes.bit(0,8);
+  uint3 tileX = scrollX ^ attributes.bit(14) * 7;
+  uint3 tileY = scrollY ^ attributes.bit(15) * 7;
+  uint4 tileColor = renderFetch(tile & tilemask(), tileX, tileY);
+  if(renderTransparent(attributes.bit(11), tileColor)) return;
 
-  s.pixel = {Pixel::Source::ScreenTwo, renderPalette(tile.bit(9,12), tileColor)};
+  s.pixel = {Pixel::Source::ScreenTwo, renderPalette(attributes.bit(9,12), tileColor)};
 }
 
 auto PPU::renderSprite(uint8 x, uint8 y) -> void {

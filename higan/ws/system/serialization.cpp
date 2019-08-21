@@ -61,7 +61,5 @@ auto System::serialize(serializer& s) -> void {
   s.integer(io.unknown0);
   s.integer(io.unknown1);
   s.integer(io.unknown3);
-  s.integer(io.format);
-  s.integer(io.depth);
-  s.integer(io.color);
+  s.integer(io.mode);
 }

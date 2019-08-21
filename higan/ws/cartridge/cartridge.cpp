@@ -30,7 +30,10 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, interface->name());
+  string name = interface->name();
+  if(Model::SwanCrystal()) name = "WonderSwan Color";
+
+  node = Node::append<Node::Peripheral>(port, with, name);
 
   information = {};
 

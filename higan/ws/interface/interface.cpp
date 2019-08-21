@@ -18,7 +18,7 @@ auto AbstractInterface::root() -> Node::Object {
 
 auto AbstractInterface::load(string tree) -> void {
   interface = this;
-  system.load(tree ? Node::unserialize(tree) : Node::Object());
+  system.load(Node::unserialize(tree));
 }
 
 auto AbstractInterface::unload() -> void {

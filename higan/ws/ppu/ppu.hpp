@@ -20,6 +20,12 @@ struct PPU : Thread, IO {
     Sprite volumeB3;
   } icon;
 
+  inline auto planar() const -> bool { return system.mode().bit(0) == 0; }
+  inline auto packed() const -> bool { return system.mode().bit(0) == 1; }
+  inline auto depth() const -> uint { return system.mode().bit(1,2) != 3 ? 2 : 4; }
+  inline auto grayscale() const -> bool { return system.mode().bit(1,2) == 0; }
+  inline auto tilemask() const -> uint { return 1023 >> !system.mode().bit(2); }
+
   //ppu.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto unload() -> void;
@@ -31,6 +37,7 @@ struct PPU : Thread, IO {
   auto step(uint clocks) -> void;
   auto power() -> void;
   auto updateIcons() -> void;
+  auto updateOrientation() -> void;
 
   //io.cpp
   auto portRead(uint16 address) -> uint8 override;
