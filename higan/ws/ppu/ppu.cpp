@@ -205,6 +205,8 @@ auto PPU::updateIcons() -> void {
 }
 
 auto PPU::updateOrientation() -> void {
+  if(Model::PocketChallengeV2()) return;
+
   auto orientation = system.video.orientation->value();
   if(orientation == "Horizontal" || (orientation == "Automatic" && r.icon.orientation0)) {
     screen.setRotateLeft(false);

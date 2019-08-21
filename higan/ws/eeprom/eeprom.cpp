@@ -11,7 +11,7 @@ auto EEPROM::power() -> void {
 
 auto EEPROM::read(uint port) -> uint8 {
   uint8 data;
-  if(!size) return data;
+  if(!size) return data = 0xff;
 
   if(port == DataLo) return r.data.byte(0);
   if(port == DataHi) return r.data.byte(1);
