@@ -17,14 +17,14 @@ struct Board {
 
   static auto mirror(uint addr, uint size) -> uint;
 
-  Board(Markup::Node& document);
+  Board(Markup::Node document = {});
   auto save() -> void;
 
   virtual auto main() -> void;
   virtual auto tick() -> void;
 
-  virtual auto readPRG(uint addr) -> uint8 = 0;
-  virtual auto writePRG(uint addr, uint8 data) -> void = 0;
+  virtual auto readPRG(uint addr) -> uint8 { return 0x00; }
+  virtual auto writePRG(uint addr, uint8 data) -> void {}
 
   virtual auto readCHR(uint addr) -> uint8;
   virtual auto writeCHR(uint addr, uint8 data) -> void;

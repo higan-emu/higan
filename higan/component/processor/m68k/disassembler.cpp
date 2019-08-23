@@ -30,7 +30,7 @@ auto M68K::_readIndex(uint32 base) -> uint32 {
   auto index = extension & 0x8000
   ? read(AddressRegister{extension >> 12})
   : read(DataRegister{extension >> 12});
-  if(extension & 0x800) index = (int16)index;
+  if(!(extension & 0x800)) index = (int16)index;
   return base + index + (int8)extension;
 }
 
@@ -47,10 +47,14 @@ template<uint Size> auto M68K::_immediate() -> string {
 }
 
 template<uint Size> auto M68K::_address(EffectiveAddress& ea) -> string {
-  if(ea.mode == 7) return {"$", hex((int16)_readPC<Word>(), 6L)};
-  if(ea.mode == 8) return {"$", hex(_readPC<Long>(), 6L)};
-  if(ea.mode == 9) return {"$", hex(_pc + (int16)_readPC(), 6L)};
-  return "???";
+  if(ea.mode ==  2) return {_addressRegister(AddressRegister{ea.reg})};
+  if(ea.mode ==  5) return {"$", hex(_readDisplacement(read(AddressRegister{ea.reg})), 6L)};
+  if(ea.mode ==  6) return {"$", hex(_readIndex(read(AddressRegister{ea.reg})), 6L)};
+  if(ea.mode ==  7) return {"$", hex((int16)_readPC<Word>(), 6L)};
+  if(ea.mode ==  8) return {"$", hex(_readPC<Long>(), 6L)};
+  if(ea.mode ==  9) return {"$", hex(_pc + (int16)_readPC(), 6L)};
+  if(ea.mode == 10) return {"$", hex(_readIndex(_pc), 6L)};
+  return "???";  //should never occur (modes 0, 1, 3, 4, 11 are not valid for LEA)
 }
 
 template<uint Size> auto M68K::_effectiveAddress(EffectiveAddress& ea) -> string {

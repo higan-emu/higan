@@ -6,6 +6,10 @@ struct VRC7 : YM2413, Chip {
   VRC7(Board& board) : Chip(board) {
   }
 
+  ~VRC7() {
+    stream.destroy();
+  }
+
   auto main() -> void {
     if(irqEnable) {
       if(irqMode == 0) {

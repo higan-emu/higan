@@ -97,6 +97,7 @@ auto FDS::disconnect() -> void {
     disk2.sideB.save(fp);
   }
 
+  audio.disconnect();
   node = {};
 }
 

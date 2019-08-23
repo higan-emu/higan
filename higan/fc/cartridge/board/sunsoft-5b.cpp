@@ -6,6 +6,10 @@ struct Sunsoft5B : YM2149, Board {
   Sunsoft5B(Markup::Node& document) : Board(document) {
   }
 
+  ~Sunsoft5B() {
+    stream.destroy();
+  }
+
   auto main() -> void {
     if(irqCounterEnable) {
       if(--irqCounter == 0xffff) {

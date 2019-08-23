@@ -82,6 +82,13 @@ auto System::Controls::poll() -> void {
     } else if(!xHold) {
       xHold = 1, swap(leftLatch, rightLatch);
     }
+
+    if(up->value || down->value || leftLatch || rightLatch
+    || pass->value || circle->value || clear->value
+    || view->value || escape->value
+    ) {
+      cpu.raise(CPU::Interrupt::Input);
+    }
   }
 
   bool powerValue = power->value;

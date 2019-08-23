@@ -1,10 +1,7 @@
 //external interrupt line changed.
 auto CPU::irq(bool line) -> void {
   WDC65816::irq(line);
-  if(line) {
-    status.irqTransition = 1;
-    r.wai = 0;
-  }
+  if(line) status.irqTransition = 1;
 }
 
 //called once every four clock cycles;
@@ -16,7 +13,6 @@ auto CPU::pollInterrupts() -> void {
   //NMI hold
   if(status.nmiHold.lower() && io.nmiEnable) {
     status.nmiTransition = 1;
-    r.wai = 0;
   }
 
   //NMI test
@@ -28,7 +24,6 @@ auto CPU::pollInterrupts() -> void {
   status.irqHold = 0;
   if(status.irqLine && io.irqEnable) {
     status.irqTransition = 1;
-    r.wai = 0;
   }
 
   //IRQ test
@@ -46,7 +41,6 @@ auto CPU::nmitimenUpdate(uint8 data) -> void {
 
   if(io.virqEnable && !io.hirqEnable && status.irqLine) {
     status.irqTransition = 1;
-    r.wai = 0;
   } else if(!io.irqEnable) {
     status.irqLine = 0;
     status.irqTransition = 0;
@@ -54,7 +48,6 @@ auto CPU::nmitimenUpdate(uint8 data) -> void {
 
   if(io.nmiEnable.raise(data.bit(7)) && status.nmiLine) {
     status.nmiTransition = 1;
-    r.wai = 0;
   }
 
   status.irqLock = 1;
@@ -80,12 +73,14 @@ auto CPU::timeup() -> bool {
 auto CPU::nmiTest() -> bool {
   if(!status.nmiTransition) return 0;
   status.nmiTransition = 0;
+  r.wai = 0;
   return 1;
 }
 
 auto CPU::irqTest() -> bool {
   if(!status.irqTransition) return 0;
   status.irqTransition = 0;
+  r.wai = 0;
   return !r.p.i;
 }
 

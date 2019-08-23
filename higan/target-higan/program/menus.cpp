@@ -169,6 +169,8 @@ ToolsMenu::ToolsMenu(MenuBar* parent) : Menu(parent) {
   loadState3.setText("Slot 3").onActivate([&] { emulator.loadState(3); });
   loadState4.setText("Slot 4").onActivate([&] { emulator.loadState(4); });
   loadState5.setText("Slot 5").onActivate([&] { emulator.loadState(5); });
+
+  pauseEmulation.setText("Pause Emulation");
 }
 
 //

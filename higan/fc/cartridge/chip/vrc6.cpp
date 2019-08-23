@@ -4,6 +4,10 @@ struct VRC6 : Chip {
   VRC6(Board& board) : Chip(board) {
   }
 
+  ~VRC6() {
+    stream.destroy();
+  }
+
   struct Pulse {
     auto clock() -> void {
       if(--divider == 0) {

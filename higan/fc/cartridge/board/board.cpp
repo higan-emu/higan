@@ -20,7 +20,7 @@
 #include "nes-uxrom.cpp"
 #include "sunsoft-5b.cpp"
 
-Board::Board(Markup::Node& document) {
+Board::Board(Markup::Node document) {
   cartridge.board = this;
   information.type = document["game/board"].text();
 

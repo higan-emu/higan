@@ -11,7 +11,7 @@ struct Video {
   Video(const Video&) = delete;
   auto operator=(const Video&) = delete;
 
-  auto reset(Interface* interface) -> void;
+  auto reset(Interface* interface = nullptr) -> void;
   auto append(Screen& screen) -> void;
   auto remove(Screen& screen) -> void;
 

@@ -84,6 +84,12 @@ Hotkeys::Hotkeys() {
   };
   hotkeys.append(&decrementStateSlot);
 
+  pauseEmulation.onPress = [&] {
+    if(!interface) return;
+    toolsMenu.pauseEmulation.setChecked(!toolsMenu.pauseEmulation.checked());
+  };
+  hotkeys.append(&pauseEmulation);
+
   quitEmulator.onPress = [&] {
     emulator.quit();
   };

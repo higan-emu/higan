@@ -103,8 +103,8 @@ auto PPU::renderSprite(uint8 x, uint8 y) -> void {
     if(l.spriteWindowEnable && sprite.bit(12) == windowInside) continue;
     if((uint8)(x - sprite.bit(24,31)) > 7) continue;
 
-    uint3 tileY = (y - sprite.bit(16,23)) ^ sprite.bit(15) * 7;
     uint3 tileX = (x - sprite.bit(24,31)) ^ sprite.bit(14) * 7;
+    uint3 tileY = (y - sprite.bit(16,23)) ^ sprite.bit(15) * 7;
     uint4 tileColor = renderFetch(sprite.bit(0,8), tileX, tileY);
     if(renderTransparent(sprite.bit(11), tileColor)) continue;
     if(!sprite.bit(13) && s.pixel.source == Pixel::Source::ScreenTwo) continue;

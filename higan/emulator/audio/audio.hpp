@@ -15,7 +15,7 @@ struct Audio {
   Audio(const Audio&) = delete;
   auto operator=(const Audio&) = delete;
 
-  auto reset(Interface* interface) -> void;
+  auto reset(Interface* interface = nullptr) -> void;
   auto append(Stream& stream) -> void;
   auto remove(Stream& stream) -> void;
 

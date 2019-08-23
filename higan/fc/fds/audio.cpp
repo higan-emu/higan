@@ -63,6 +63,10 @@ auto FDSAudio::Modulator::updateCounter(int8 value) -> void {
 
 //
 
+auto FDSAudio::disconnect() -> void {
+  stream.destroy();
+}
+
 auto FDSAudio::clock() -> void {
   if(!enable) return stream.sample(0.0);
 

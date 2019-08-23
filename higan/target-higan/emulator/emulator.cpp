@@ -34,6 +34,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
   nodeManager.bind(root);
   systemMenu.setText(system.name);
+  toolsMenu.pauseEmulation.setChecked(false);
   programWindow.adaptiveResize();
   programWindow.show(home);
   programWindow.show(nodeManager);
@@ -80,7 +81,10 @@ auto Emulator::main() -> void {
 
   if(!interface) return (void)usleep(20 * 1000);
 
-  if(!system.power || (!programWindow.viewport.focused() && settings.input.unfocused == "Pause")) {
+  if(!system.power
+  || programWindow.toolsMenu.pauseEmulation.checked()
+  || (!programWindow.viewport.focused() && settings.input.unfocused == "Pause")
+  ) {
     usleep(20 * 1000);
   } else {
     interface->run();

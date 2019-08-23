@@ -63,8 +63,8 @@ AudioSettings::AudioSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
   }).doChange();
   balanceLabel.setText("Balance:");
   balanceValue.setAlignment(0.5);
-  balanceSlider.setLength(101).setPosition(settings.audio.balance * 100.0).onChange([&] {
-    settings.audio.balance = balanceSlider.position() / 100.0;
+  balanceSlider.setLength(101).setPosition((settings.audio.balance * 50.0) + 50).onChange([&] {
+    settings.audio.balance = ((int)balanceSlider.position() - 50) / 50.0;
     balanceValue.setText({balanceSlider.position(), "%"});
     emulator.audioUpdateEffects();
   }).doChange();

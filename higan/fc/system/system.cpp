@@ -59,6 +59,9 @@ auto System::unload() -> void {
   controllerPort2.port = {};
   ppu.unload();
   node = {};
+
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::save() -> void {

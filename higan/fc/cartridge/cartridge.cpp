@@ -31,7 +31,8 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   information.name = document["game/label"].text();
   information.region = document["game/region"].text();
 
-  Board::load(information.manifest);  //this call will set Cartridge::board if successful
+  Board::load(information.manifest);  //this call sets Cartridge::board internally
+
   power();
   if(fds.present) {
     fds.load(node, with);
@@ -56,6 +57,7 @@ auto Cartridge::save() -> void {
 
 auto Cartridge::power() -> void {
   Thread::create(system.frequency(), {&Cartridge::main, this});
+  if(!board) board = new Board;  //fallback for no cartridge inserted or unsupported mapper
   board->power();
 }
 

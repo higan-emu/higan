@@ -1,6 +1,8 @@
 struct FDSAudio {
   Stream stream;
 
+  auto disconnect() -> void;
+
   auto clock() -> void;
   auto updateOutput() -> void;
   auto read(uint16 address, uint8 data) -> uint8;

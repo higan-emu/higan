@@ -1283,12 +1283,14 @@ auto M68K::instructionTAS(EffectiveAddress with) -> void {
 
 auto M68K::instructionTRAP(uint4 vector) -> void {
   idle(6);
+  prefetched();
   return exception(Exception::Trap, 32 + vector, r.i);
 }
 
 auto M68K::instructionTRAPV() -> void {
   if(r.v) {
     idle(6);
+    prefetched();
     return exception(Exception::Overflow, Vector::Overflow);
   }
   prefetch();

@@ -29,7 +29,7 @@ struct Settings {
     bool dynamic = false;
     int skew = 0;
     double volume = 1.0;
-    double balance = 0.5;
+    double balance = 0.0;
     bool mute = false;
   } audio;
 
