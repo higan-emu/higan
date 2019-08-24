@@ -1,6 +1,9 @@
 //Motorola 68000
 
 struct CPU : M68K, Thread {
+  shared_pointer<Tracer> tracer;
+  shared_pointer<Notification> onInterrupt;
+
   enum class Interrupt : uint {
     Reset,
     HorizontalBlank,
@@ -8,6 +11,9 @@ struct CPU : M68K, Thread {
   };
 
   //cpu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   inline auto step(uint clocks) -> void;
   auto idle(uint clocks) -> void override;

@@ -224,7 +224,9 @@ struct Z80 {
   auto serialize(serializer&) -> void;
 
   //disassembler.cpp
-  auto disassemble(uint16 pc) -> string;
+  auto disassembleInstruction(uint16 pc) -> string;
+  auto disassembleContext() -> string;
+
   auto disassemble(uint16 pc, uint8 prefix, uint8 code) -> string;
   auto disassembleCB(uint16 pc, uint8 prefix, uint8 code) -> string;
   auto disassembleCBd(uint16 pc, uint8 prefix, int8 d, uint8 code) -> string;

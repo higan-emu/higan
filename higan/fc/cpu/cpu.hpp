@@ -1,7 +1,13 @@
 struct CPU : MOS6502, Thread {
+  shared_pointer<Tracer> tracer;
+  shared_pointer<Notification> onInterrupt;
+
   inline auto rate() const -> uint { return Region::PAL() ? 16 : 12; }
 
   //cpu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void;
 

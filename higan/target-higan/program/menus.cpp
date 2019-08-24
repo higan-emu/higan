@@ -171,6 +171,13 @@ ToolsMenu::ToolsMenu(MenuBar* parent) : Menu(parent) {
   loadState5.setText("Slot 5").onActivate([&] { emulator.loadState(5); });
 
   pauseEmulation.setText("Pause Emulation");
+
+  logger.setText("Logger ...").setIcon(Icon::Emblem::Text).onActivate([&] {
+    programWindow.showPanels();
+    programWindow.show(logSettings);
+    systemManager.systemList.selectNone();
+    nodeManager.nodeList.selectNone();
+  });
 }
 
 //

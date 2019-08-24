@@ -92,15 +92,30 @@ auto M68K::_condition(uint4 condition) -> string {
   return conditions[condition];
 }
 
-auto M68K::disassemble(uint32 pc) -> string {
-  uint16 opcode;
-  return {hex(_pc = pc, 6L), "  ", hex(opcode = _readPC(), 4L), "  ", disassembleTable[opcode]()};
+auto M68K::disassembleInstruction(uint32 pc) -> string {
+  _pc = pc;
+  return pad(disassembleTable[_readPC()](), -60);  //todo: exact maximum length unknown (and sub-optimal)
 }
 
-auto M68K::disassembleRegisters() -> string {
+auto M68K::disassembleContext() -> string {
   return {
-    hex(r.d[0], 8L), " ", hex(r.d[1], 8L), " ", hex(r.d[2], 8L), " ", hex(r.d[3], 8L), " ",
-    hex(r.d[4], 8L), " ", hex(r.d[5], 8L), " ", hex(r.d[6], 8L), " ", hex(r.d[7], 8L), " ",
+    "d0:", hex(r.d[0], 8L), " ",
+    "d1:", hex(r.d[1], 8L), " ",
+    "d2:", hex(r.d[2], 8L), " ",
+    "d3:", hex(r.d[3], 8L), " ",
+    "d4:", hex(r.d[4], 8L), " ",
+    "d5:", hex(r.d[5], 8L), " ",
+    "d6:", hex(r.d[6], 8L), " ",
+    "d7:", hex(r.d[7], 8L), " ",
+    "a0:", hex(r.a[0], 8L), " ",
+    "a1:", hex(r.a[1], 8L), " ",
+    "a2:", hex(r.a[2], 8L), " ",
+    "a3:", hex(r.a[3], 8L), " ",
+    "a4:", hex(r.a[4], 8L), " ",
+    "a5:", hex(r.a[5], 8L), " ",
+    "a6:", hex(r.a[6], 8L), " ",
+    "a7:", hex(r.a[7], 8L), " ",
+    "sp:", hex(r.sp,   8L), " ",
     r.t ? "T" : "t",
     r.s ? "S" : "s",
     (uint)r.i,
@@ -108,9 +123,7 @@ auto M68K::disassembleRegisters() -> string {
     r.v ? "V" : "v",
     r.z ? "Z" : "z",
     r.n ? "N" : "n",
-    r.x ? "X" : "x", "\n",
-    hex(r.a[0], 8L), " ", hex(r.a[1], 8L), " ", hex(r.a[2], 8L), " ", hex(r.a[3], 8L), " ",
-    hex(r.a[4], 8L), " ", hex(r.a[5], 8L), " ", hex(r.a[6], 8L), " ", hex(r.a[7], 8L), " ", hex(r.sp, 8L)
+    r.x ? "X" : "x", " ",
   };
 }
 

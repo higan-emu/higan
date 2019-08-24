@@ -88,7 +88,8 @@ struct MOS6502 {
   auto serialize(serializer&) -> void;
 
   //disassembler.cpp
-  auto disassemble(uint16 pc) -> string;
+  noinline auto disassembleInstruction(maybe<uint16> pc = {}) -> string;
+  noinline auto disassembleContext() -> string;
 
   //set to false to disable BCD mode in ADC, SBC instructions
   bool BCD = true;

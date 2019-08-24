@@ -41,7 +41,6 @@ struct CPU : WDC65816, Thread, PPUcounter {
   auto writeDMA(uint24 address, uint8 data) -> void;
 
   //timing.cpp
-  inline auto dmaClocks() const -> uint;
   inline auto dmaCounter() const -> uint;
   inline auto joypadCounter() const -> uint;
 

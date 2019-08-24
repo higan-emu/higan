@@ -7,8 +7,30 @@ CPU cpu;
 #include "timing.cpp"
 #include "serialization.cpp"
 
+auto CPU::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("cpu");
+  tracer->setAddressBits(16);
+
+  logger.attach(onInterrupt);
+  onInterrupt->setSource("cpu");
+  onInterrupt->setName("interrupt");
+}
+
+auto CPU::unload() -> void {
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+}
+
 auto CPU::main() -> void {
-  if(io.interruptPending) return interrupt();
+  if(io.interruptPending) {
+    if(onInterrupt->enabled()) onInterrupt->event("IRQ");
+    return interrupt();
+  }
+
+  if(tracer->enabled() && tracer->address(r.pc)) {
+    tracer->instruction(disassembleInstruction(), disassembleContext());
+  }
   instruction();
 }
 

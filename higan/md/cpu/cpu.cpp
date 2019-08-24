@@ -7,6 +7,21 @@ CPU cpu;
 #include "io.cpp"
 #include "serialization.cpp"
 
+auto CPU::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("cpu");
+  tracer->setAddressBits(24);
+
+  logger.attach(onInterrupt);
+  onInterrupt->setSource("cpu");
+  onInterrupt->setName("interrupt");
+}
+
+auto CPU::unload() -> void {
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+}
+
 auto CPU::main() -> void {
   if(state.interruptPending) {
     if(state.interruptPending.bit((uint)Interrupt::Reset)) {
@@ -32,15 +47,9 @@ auto CPU::main() -> void {
     }
   }
 
-#if 0
-static uint ctr=0;
-static vector<bool> mask;
-if(!mask) mask.resize(1<<24);
-if(!mask[(uint24)r.pc]) {
-  mask[(uint24)r.pc]=1;
-  print("CPU ", pad(ctr++, 8), "  ", disassemble(r.pc - 4), "\n");
-}
-#endif
+  if(tracer->enabled() && tracer->address(r.pc - 4)) {
+    tracer->instruction(disassembleInstruction(r.pc - 4), disassembleContext());
+  }
 
   instruction();
 }

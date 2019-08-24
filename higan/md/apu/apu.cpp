@@ -6,6 +6,21 @@ APU apu;
 #include "bus.cpp"
 #include "serialization.cpp"
 
+auto APU::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("apu");
+  tracer->setAddressBits(24);  //really 16; used for alignment with 68K CPUs
+
+  logger.attach(onInterrupt);
+  onInterrupt->setSource("apu");
+  onInterrupt->setName("interrupt");
+}
+
+auto APU::unload() -> void {
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+}
+
 auto APU::main() -> void {
   if(!state.enabled) {
     return step(1);
@@ -19,6 +34,10 @@ auto APU::main() -> void {
   if(state.intLine) {
     //level-sensitive
     irq(1, 0x0038, 0xff);
+  }
+
+  if(tracer->enabled() && tracer->address(r.pc)) {
+    tracer->instruction(disassembleInstruction(r.pc), disassembleContext());
   }
 
   instruction();

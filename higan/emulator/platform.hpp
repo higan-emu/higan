@@ -15,6 +15,7 @@ struct Platform {
   virtual auto detach(Node::Object) -> void {}
   virtual auto open(Node::Object, string name, vfs::file::mode mode, bool required = false) -> shared_pointer<vfs::file> { return {}; }
   virtual auto event(Event) -> void {}
+  virtual auto log(string_view message) -> void {}
   virtual auto video(Node::Video, const uint32_t* data, uint pitch, uint width, uint height) -> void {}
   virtual auto audio(Node::Audio, const double* samples, uint channels) -> void {}
   virtual auto input(Node::Input) -> void {}

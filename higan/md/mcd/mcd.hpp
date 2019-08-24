@@ -1,6 +1,9 @@
 //Mega CD
 
 struct MCD : M68K, Thread {
+  shared_pointer<Tracer> tracer;
+  shared_pointer<Notification> onInterrupt;
+
   Node::Port tray;
   Node::Peripheral disc;
   shared_pointer<vfs::file> fd;

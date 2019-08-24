@@ -12,6 +12,7 @@
 #include "../settings/audio.cpp"
 #include "../settings/input.cpp"
 #include "../settings/hotkeys.cpp"
+#include "../tools/logger.cpp"
 
 namespace Instances { Instance<ProgramWindow> programWindow; }
 ProgramWindow& programWindow = Instances::programWindow();
@@ -32,6 +33,7 @@ VideoSettings& videoSettings = programWindow.videoSettings;
 AudioSettings& audioSettings = programWindow.audioSettings;
 InputSettings& inputSettings = programWindow.inputSettings;
 HotkeySettings& hotkeySettings = programWindow.hotkeySettings;
+LogSettings& logSettings = programWindow.logSettings;
 
 ProgramWindow::ProgramWindow() {
   viewport.setFocusable();

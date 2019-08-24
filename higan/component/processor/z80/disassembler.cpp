@@ -1,6 +1,5 @@
-auto Z80::disassemble(uint16 pc) -> string {
+auto Z80::disassembleInstruction(uint16 pc) -> string {
   string s, output;
-  s.append(hex(pc, 4L), "  ");
 
   uint8 prefix = 0x00;
   auto code = bus->read(pc++);
@@ -34,10 +33,14 @@ auto Z80::disassemble(uint16 pc) -> string {
     output = disassemble(pc, prefix, code);
   }
 
-  s.append(pad(output, -18L, ' '));
+finish:
+  return pad(output, -18L);
+}
 
-  finish:
-  s.append(" AF:", hex(r.af.word, 4L));
+auto Z80::disassembleContext() -> string {
+  string s;
+
+  s.append( "AF:", hex(r.af.word, 4L));
   s.append(" BC:", hex(r.bc.word, 4L));
   s.append(" DE:", hex(r.de.word, 4L));
   s.append(" HL:", hex(r.hl.word, 4L));

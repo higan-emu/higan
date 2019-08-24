@@ -61,6 +61,10 @@ auto Emulator::event(higan::Event event) -> void {
   }
 }
 
+auto Emulator::log(string_view message) -> void {
+  print(message, "\n");
+}
+
 auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
   uint videoWidth = node->width * node->scaleX;
   uint videoHeight = node->height * node->scaleY;

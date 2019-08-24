@@ -20,6 +20,14 @@ MCD mcd;
 #include "serialization.cpp"
 
 auto MCD::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("mcd");
+  tracer->setAddressBits(24);
+
+  logger.attach(onInterrupt);
+  onInterrupt->setSource("mcd");
+  onInterrupt->setName("interrupt");
+
   tray = Node::append<Node::Port>(parent, from, "Disc Tray", "Mega CD");
   tray->hotSwappable = true;
   tray->allocate = [&] { return Node::Peripheral::create("Mega CD"); };
@@ -58,6 +66,9 @@ auto MCD::disconnect() -> void {
 }
 
 auto MCD::unload() -> void {
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+
   if(expansion.node) {
     if(auto fp = platform->open(expansion.node, "backup.ram", File::Write)) {
       bram.save(fp);
@@ -91,15 +102,9 @@ auto MCD::main() -> void {
     }
   }
 
-#if 0
-static uint ctr=0;
-static vector<bool> mask;
-if(!mask) mask.resize(1<<24);
-if(!mask[(uint24)r.pc]) {
-  mask[(uint24)r.pc]=1;
-  print("MCD ", pad(ctr++, 8), "  ", disassemble(r.pc - 4), "\n");
-}
-#endif
+  if(tracer->enabled() && tracer->address(r.pc - 4)) {
+    tracer->instruction(disassembleInstruction(r.pc - 4), disassembleContext());
+  }
 
   instruction();
 }

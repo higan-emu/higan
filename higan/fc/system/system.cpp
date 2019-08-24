@@ -26,6 +26,7 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
 
+  higan::logger.reset(interface);
   higan::video.reset(interface);
   higan::audio.reset(interface);
 
@@ -45,6 +46,7 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   controls.load(node, from);
   video.load(node, from);
+  cpu.load(node, from);
   ppu.load(node, from);
   cartridge.load(node, from);
   controllerPort1.load(node, from);
@@ -54,12 +56,14 @@ auto System::load(Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
+  cpu.unload();
   cartridge.unload();
   controllerPort1.port = {};
   controllerPort2.port = {};
   ppu.unload();
   node = {};
 
+  higan::logger.reset();
   higan::video.reset();
   higan::audio.reset();
 }

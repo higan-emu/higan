@@ -1,5 +1,6 @@
-auto MOS6502::disassemble(uint16 pc) -> string {
-  string s{hex(pc, 4L), "  "};
+auto MOS6502::disassembleInstruction(maybe<uint16> _pc) -> string {
+  uint16 pc = _pc ? *_pc : r.pc;
+  string s;
 
   auto absolute = [&]() -> string {
     return {"$", hex(readDebugger(pc + 2), 2L), hex(readDebugger(pc + 1), 2L)};
@@ -213,14 +214,17 @@ auto MOS6502::disassemble(uint16 pc) -> string {
 
   #undef op
 
-  s.append("                    ");
-  s.resize(20);
+  return pad(s, -11);
+}
 
-  s.append(" A:", hex(A, 2L));
-  s.append(" X:", hex(X, 2L));
-  s.append(" Y:", hex(Y, 2L));
-  s.append(" S:", hex(S, 2L));
-  s.append(" ");
+auto MOS6502::disassembleContext() -> string {
+  string s;
+
+  s.append("A:", hex(A, 2L), " ");
+  s.append("X:", hex(X, 2L), " ");
+  s.append("Y:", hex(Y, 2L), " ");
+  s.append("S:", hex(S, 2L), " ");
+
   s.append(N ? "N" : "n");
   s.append(V ? "V" : "v");
   s.append("-");

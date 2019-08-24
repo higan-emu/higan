@@ -14,6 +14,7 @@ auto CPU::hdmaActive() -> bool {
 }
 
 auto CPU::dmaRun() -> void {
+  counter.dma += 8;
   step(8);
   dmaEdge();
   for(auto& channel : channels) channel.dmaRun();
@@ -25,12 +26,14 @@ auto CPU::hdmaReset() -> void {
 }
 
 auto CPU::hdmaSetup() -> void {
+  counter.dma += 8;
   step(8);
   for(auto& channel : channels) channel.hdmaSetup();
   status.irqLock = true;
 }
 
 auto CPU::hdmaRun() -> void {
+  counter.dma += 8;
   step(8);
   for(auto& channel : channels) channel.hdmaTransfer();
   for(auto& channel : channels) channel.hdmaAdvance();
@@ -39,8 +42,14 @@ auto CPU::hdmaRun() -> void {
 
 //
 
-auto CPU::Channel::step(uint clocks) -> void { return cpu.step(clocks); }
-auto CPU::Channel::edge() -> void { return cpu.dmaEdge(); }
+auto CPU::Channel::step(uint clocks) -> void {
+  cpu.counter.dma += clocks;
+  cpu.step(clocks);
+}
+
+auto CPU::Channel::edge() -> void {
+  cpu.dmaEdge();
+}
 
 auto CPU::Channel::validA(uint24 address) -> bool {
   //A-bus cannot access the B-bus or CPU I/O registers

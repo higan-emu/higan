@@ -268,8 +268,8 @@ struct M68K {
   auto serialize(serializer&) -> void;
 
   //disassembler.cpp
-  auto disassemble(uint32 pc) -> string;
-  auto disassembleRegisters() -> string;
+  auto disassembleInstruction(uint32 pc) -> string;
+  auto disassembleContext() -> string;
 
   struct Registers {
     uint32 d[8];  //data registers

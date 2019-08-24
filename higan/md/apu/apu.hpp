@@ -1,8 +1,13 @@
 //Zilog Z80
 
 struct APU : Z80, Z80::Bus, Thread {
+  shared_pointer<Tracer> tracer;
+  shared_pointer<Notification> onInterrupt;
+
   //z80.cpp
-  static auto Enter() -> void;
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void override;
   auto serializing() const -> bool override;
