@@ -51,6 +51,8 @@ auto System::load(Node::Object from) -> void {
   cpu.load(node, from);
   apu.load(node, from);
   vdp.load(node, from);
+  psg.load(node, from);
+  ym2612.load(node, from);
   cartridge.load(node, from);
   expansion.load(node, from);
   controllerPort1.load(node, from);
@@ -69,6 +71,8 @@ auto System::unload() -> void {
   cpu.unload();
   apu.unload();
   vdp.unload();
+  psg.unload();
+  ym2612.unload();
   mcd.unload();
   node = {};
 

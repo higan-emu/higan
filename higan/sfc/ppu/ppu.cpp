@@ -28,11 +28,11 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   output = new uint32[512 * 512];
   output += 16 * 512;  //overscan offset
 
-  display.create(system.video.node);
+  video.attach(display, system.video.node);
 }
 
 auto PPU::unload() -> void {
-  display.destroy();
+  video.detach(display);
 
   output -= 16 * 512;
   delete[] output;
@@ -169,17 +169,17 @@ auto PPU::power(bool reset) -> void {
 
 auto PPU::refresh() -> void {
   auto data = output;
-  display.setColorBleed(system.video.colorBleed->value());
+  display->setColorBleed(system.video.colorBleed->value());
 
   if(system.video.display->value() == "NTSC") {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
-    display.refresh(data, 512 * sizeof(uint32), 512, 448);
+    display->refresh(data, 512 * sizeof(uint32), 512, 448);
   }
 
   if(system.video.display->value() == "PAL") {
     if(!overscan()) data -= 14 * 512;
-    display.refresh(data, 512 * sizeof(uint32), 512, 480);
+    display->refresh(data, 512 * sizeof(uint32), 512, 480);
   }
 }
 

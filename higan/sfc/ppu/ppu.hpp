@@ -1,5 +1,5 @@
 struct PPU : Thread, PPUcounter {
-  higan::Screen display;
+  Shared::Screen display;
   Node::Component node;
   Node::Natural versionPPU1;
   Node::Natural versionPPU2;

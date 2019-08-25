@@ -9,13 +9,20 @@ auto Video::reset(Interface* interface) -> void {
   screens.reset();
 }
 
-auto Video::append(Screen& screen) -> void {
-  if(screens.find(&screen)) return;
-  screens.append(&screen);
+auto Video::attached(shared_pointer<Screen>& screen) const -> bool {
+  return (bool)screens.find(screen);
 }
 
-auto Video::remove(Screen& screen) -> void {
-  screens.removeByValue(&screen);
+auto Video::attach(shared_pointer<Screen>& screen, Node::Video node) -> void {
+  if(attached(screen)) return;
+  screen = shared_pointer<Screen>{new Screen{node}};
+  screens.append(screen);
+}
+
+auto Video::detach(shared_pointer<Screen>& screen) -> void {
+  if(!attached(screen)) return;
+  screens.removeByValue(screen);
+  screen.reset();
 }
 
 auto Video::setPalette() -> void {

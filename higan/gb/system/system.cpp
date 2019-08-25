@@ -31,8 +31,9 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
 
   if(!GameBoy::Model::SuperGameBoy()) {
-    ::higan::video.reset(interface);  //todo: no :: prefix
-    ::higan::audio.reset(interface);  //todo: no :: prefix
+    logger.reset(interface);
+    ::higan::video.reset(interface);   //todo: no :: prefix
+    ::higan::audio.reset(interface);   //todo: no :: prefix
   }
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
@@ -42,6 +43,7 @@ auto System::load(Node::Object from) -> void {
   video.load(node, from);
   cpu.load(node, from);
   ppu.load(node, from);
+  apu.load(node, from);
   cartridge.load(node, from);
 }
 
@@ -54,9 +56,15 @@ auto System::unload() -> void {
   if(!node) return;
   save();
   cartridge.port = {};
+  cpu.unload();
   ppu.unload();
+  apu.unload();
   bootROM.reset();
   node = {};
+
+  logger.reset();
+  ::higan::video.reset();  //todo: no :: prefix
+  ::higan::audio.reset();  //todo: no :: prefix
 }
 
 auto System::power() -> void {

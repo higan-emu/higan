@@ -3,9 +3,9 @@
 namespace higan::SuperFamicom {
 
 #include <sfc/coprocessor/armdsp/armdsp.cpp>
+#include <sfc/coprocessor/competition/competition.cpp>
 #include <sfc/coprocessor/dip/dip.cpp>
 #include <sfc/coprocessor/epsonrtc/epsonrtc.cpp>
-#include <sfc/coprocessor/event/event.cpp>
 #include <sfc/coprocessor/hitachidsp/hitachidsp.cpp>
 #include <sfc/coprocessor/icd/icd.cpp>
 #include <sfc/coprocessor/mcc/mcc.cpp>

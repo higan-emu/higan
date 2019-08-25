@@ -8,10 +8,23 @@ SMP smp;
 #include "timing.cpp"
 #include "serialization.cpp"
 
+auto SMP::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("smp");
+  tracer->setAddressBits(24);  //should be 16; use 24 to align with CPU instructions
+}
+
+auto SMP::unload() -> void {
+  logger.detach(tracer);
+}
+
 auto SMP::main() -> void {
   if(r.wait) return instructionWait();
   if(r.stop) return instructionStop();
 
+  if(tracer->enabled() && tracer->address(r.pc.w)) {
+    tracer->instruction(disassembleInstruction(), disassembleContext());
+  }
   instruction();
 }
 

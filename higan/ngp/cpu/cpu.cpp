@@ -13,6 +13,48 @@ CPU cpu;
 #include "watchdog.cpp"
 #include "serialization.cpp"
 
+auto CPU::load(Node::Object parent, Node::Object with) -> void {
+  ram.allocate(12_KiB, 0x00);
+  if(auto fp = platform->open(system.node, "cpu.ram", File::Read)) {
+    ram.load(fp);
+
+    //hack: the BIOS checks (0x6c14) to determine if the setup menu needs to be executed.
+    //for unknown reasons, the BIOS from (0xffff00) only writes 0x00dc.
+    //it is not updated when language/color choices are made.
+    //to prevent the setup from being run every boot, manually calculate and set this value.
+    uint16 data;
+    data += ram[0x2f87];  //language: Japanese, English
+    for(uint address = 0x2c25; address <= 0x2c2b; address++) data += ram[address];  //always 0x00dc
+    if(Model::NeoGeoPocketColor()) {
+      data += ram[0x2f94];  //K1GE color mode: Black & White, Blue, Green, Red, Classic
+    }
+    ram[0x2c14] = data.byte(0);
+    ram[0x2c15] = data.byte(1);
+
+    //signature check
+    ram[0x2e96] = 'N';  //'N'eo Geo
+    ram[0x2e95] = 'P';  //'P'ocket
+
+    //this byte seems to indicate system state (0x00 = BIOS UI, 0x10 = setup, 0x40 = game playing)
+    //for unknown reasons, sometimes d4 gets set, which re-enters the BIOS setup again.
+    ram[0x2f83].bit(4) = 0;
+
+    //this setting gets erased sometimes for unknown reasons, preventing games from booting.
+    ram[0x2f91] = Model::NeoGeoPocketColor() ? 0x10 : 0x00;
+    ram[0x2f95] = ram[0x2f91];
+  }
+}
+
+auto CPU::save() -> void {
+  if(auto fp = platform->open(system.node, "cpu.ram", File::Write)) {
+    ram.save(fp);
+  }
+}
+
+auto CPU::unload() -> void {
+  ram.reset();
+}
+
 auto CPU::main() -> void {
   if(interrupts.fire()) r.halted = false;
   if(r.halted) return step(16);
@@ -371,48 +413,6 @@ auto CPU::fastBoot() -> void {
   ram[0x2f92] = ram[0x2c58];
   ram[0x2f93] = ram[0x2c59];
   ram[0x2f95] = ram[0x2f91];
-}
-
-auto CPU::load() -> void {
-  ram.allocate(12_KiB, 0x00);
-  if(auto fp = platform->open(system.node, "cpu.ram", File::Read)) {
-    ram.load(fp);
-
-    //hack: the BIOS checks (0x6c14) to determine if the setup menu needs to be executed.
-    //for unknown reasons, the BIOS from (0xffff00) only writes 0x00dc.
-    //it is not updated when language/color choices are made.
-    //to prevent the setup from being run every boot, manually calculate and set this value.
-    uint16 data;
-    data += ram[0x2f87];  //language: Japanese, English
-    for(uint address = 0x2c25; address <= 0x2c2b; address++) data += ram[address];  //always 0x00dc
-    if(Model::NeoGeoPocketColor()) {
-      data += ram[0x2f94];  //K1GE color mode: Black & White, Blue, Green, Red, Classic
-    }
-    ram[0x2c14] = data.byte(0);
-    ram[0x2c15] = data.byte(1);
-
-    //signature check
-    ram[0x2e96] = 'N';  //'N'eo Geo
-    ram[0x2e95] = 'P';  //'P'ocket
-
-    //this byte seems to indicate system state (0x00 = BIOS UI, 0x10 = setup, 0x40 = game playing)
-    //for unknown reasons, sometimes d4 gets set, which re-enters the BIOS setup again.
-    ram[0x2f83].bit(4) = 0;
-
-    //this setting gets erased sometimes for unknown reasons, preventing games from booting.
-    ram[0x2f91] = Model::NeoGeoPocketColor() ? 0x10 : 0x00;
-    ram[0x2f95] = ram[0x2f91];
-  }
-}
-
-auto CPU::save() -> void {
-  if(auto fp = platform->open(system.node, "cpu.ram", File::Write)) {
-    ram.save(fp);
-  }
-}
-
-auto CPU::unload() -> void {
-  ram.reset();
 }
 
 }

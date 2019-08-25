@@ -1,8 +1,12 @@
 struct MSU1 : Thread {
-  Stream stream;
+  Shared::Stream stream;
+  Shared::File dataFile;
+  Shared::File audioFile;
+
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
 
   auto main() -> void;
-  auto unload() -> void;
   auto power() -> void;
 
   auto dataOpen() -> void;
@@ -14,9 +18,6 @@ struct MSU1 : Thread {
   auto serialize(serializer&) -> void;
 
 private:
-  shared_pointer<vfs::file> dataFile;
-  shared_pointer<vfs::file> audioFile;
-
   enum Flag : uint {
     Revision       = 0x02,  //max: 0x07
     AudioError     = 0x08,

@@ -15,10 +15,12 @@ auto FDS::load(Node::Object parent, Node::Object from) -> void {
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
   port->scan(from);
+  audio.load(parent, from);
   power();
 }
 
 auto FDS::unload() -> void {
+  audio.unload();
   disconnect();
   port = {};
   disk1.sideA.reset();
@@ -97,7 +99,6 @@ auto FDS::disconnect() -> void {
     disk2.sideB.save(fp);
   }
 
-  audio.disconnect();
   node = {};
 }
 

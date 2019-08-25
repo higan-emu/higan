@@ -35,8 +35,8 @@ auto PPU::Background::runMode7() -> void {
   int originX = (a * clip(hoffset - hcenter) & ~63) + (b * clip(voffset - vcenter) & ~63) + (b * y & ~63) + (hcenter << 8);
   int originY = (c * clip(hoffset - hcenter) & ~63) + (d * clip(voffset - vcenter) & ~63) + (d * y & ~63) + (vcenter << 8);
 
-  uint10 pixelX = originX + a * x >> 8;
-  uint10 pixelY = originY + c * x >> 8;
+  int pixelX = originX + a * x >> 8;
+  int pixelY = originY + c * x >> 8;
   uint16 paletteAddress = (uint3)pixelY << 3 | (uint3)pixelX;
 
   uint7 tileX = pixelX >> 3;

@@ -936,6 +936,7 @@ struct Window : sWindow {
   auto setFrameSize(Size size) { return self().setFrameSize(size), *this; }
   auto setFullScreen(bool fullScreen = true) { return self().setFullScreen(fullScreen), *this; }
   auto setGeometry(Geometry geometry) { return self().setGeometry(geometry), *this; }
+  auto setGeometry(Alignment alignment, Size size) { return self().setGeometry(alignment, size), *this; }
   auto setMaximized(bool maximized) { return self().setMaximized(maximized), *this; }
   auto setMaximumSize(Size size = {}) { return self().setMaximumSize(size), *this; }
   auto setMinimized(bool minimized) { return self().setMinimized(minimized), *this; }

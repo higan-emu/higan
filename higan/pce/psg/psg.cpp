@@ -7,6 +7,17 @@ PSG psg;
 #include "channel.cpp"
 #include "serialization.cpp"
 
+auto PSG::load(Node::Object parent, Node::Object with) -> void {
+  audio.attach(stream);
+  stream->setChannels(2);
+  stream->setFrequency(system.colorburst());
+  stream->addHighPassFilter(20.0, Filter::Order::First);
+}
+
+auto PSG::unload() -> void {
+  audio.detach(stream);
+}
+
 auto PSG::main() -> void {
   static const uint5 volumeScale[16] = {
     0x00, 0x03, 0x05, 0x07, 0x09, 0x0b, 0x0d, 0x0f,
@@ -36,7 +47,7 @@ auto PSG::main() -> void {
     }
   }
 
-  stream.sample(sclamp<16>(outputLeft) / 32768.0, sclamp<16>(outputRight) / 32768.0);
+  stream->sample(sclamp<16>(outputLeft) / 32768.0, sclamp<16>(outputRight) / 32768.0);
   step(1);
 }
 
@@ -47,8 +58,6 @@ auto PSG::step(uint clocks) -> void {
 
 auto PSG::power() -> void {
   Thread::create(system.colorburst(), {&PSG::main, this});
-  stream.create(2, frequency());
-  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   io = {};
   for(auto C : range(6)) channel[C].power(C);

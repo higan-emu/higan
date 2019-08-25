@@ -1,23 +1,23 @@
 struct PPU : Thread, IO {
-  Screen screen;
+  Shared::Screen screen;
   struct Icon {
-    Sprite auxiliary0;
-    Sprite auxiliary1;
-    Sprite auxiliary2;
-    Sprite headphones;
-    Sprite initialized;
-    Sprite lowBattery;
-    Sprite orientation0;
-    Sprite orientation1;
-    Sprite poweredOn;
-    Sprite sleeping;
-    Sprite volumeA0;
-    Sprite volumeA1;
-    Sprite volumeA2;
-    Sprite volumeB0;
-    Sprite volumeB1;
-    Sprite volumeB2;
-    Sprite volumeB3;
+    Shared::Sprite auxiliary0;
+    Shared::Sprite auxiliary1;
+    Shared::Sprite auxiliary2;
+    Shared::Sprite headphones;
+    Shared::Sprite initialized;
+    Shared::Sprite lowBattery;
+    Shared::Sprite orientation0;
+    Shared::Sprite orientation1;
+    Shared::Sprite poweredOn;
+    Shared::Sprite sleeping;
+    Shared::Sprite volumeA0;
+    Shared::Sprite volumeA1;
+    Shared::Sprite volumeA2;
+    Shared::Sprite volumeB0;
+    Shared::Sprite volumeB1;
+    Shared::Sprite volumeB2;
+    Shared::Sprite volumeB3;
   } icon;
 
   inline auto planar() const -> bool { return system.mode().bit(0) == 0; }

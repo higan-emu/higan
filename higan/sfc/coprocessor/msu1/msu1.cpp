@@ -1,6 +1,22 @@
 MSU1 msu1;
 #include "serialization.cpp"
 
+auto MSU1::load(Node::Object parent, Node::Object from) -> void {
+  audio.attach(stream);
+  stream->setChannels(2);
+  stream->setFrequency(44100);
+}
+
+auto MSU1::unload() -> void {
+  audio.detach(stream);
+
+  dataFile.reset();
+  audioFile.reset();
+
+  cpu.coprocessors.removeByValue(this);
+  Thread::destroy();
+}
+
 auto MSU1::main() -> void {
   double left  = 0.0;
   double right = 0.0;
@@ -25,22 +41,13 @@ auto MSU1::main() -> void {
     }
   }
 
-  stream.sample(left, right);
+  stream->sample(left, right);
   Thread::step(1);
   Thread::synchronize(cpu);
 }
 
-auto MSU1::unload() -> void {
-  dataFile.reset();
-  audioFile.reset();
-
-  cpu.coprocessors.removeByValue(this);
-  Thread::destroy();
-}
-
 auto MSU1::power() -> void {
   Thread::create(44100, {&MSU1::main, this});
-  stream.create(2, 44100);
   cpu.coprocessors.append(this);
 
   io.dataSeekOffset = 0;

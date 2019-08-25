@@ -10,7 +10,7 @@ System system;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == higan::Event::Frame) {
+  if(scheduler.enter() == Event::Frame) {
     ppu.refresh();
 
     auto reset = controls.reset->value;
@@ -28,6 +28,7 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
 
+  higan::logger.reset(interface);
   higan::video.reset(interface);
   higan::audio.reset(interface);
 
@@ -46,6 +47,8 @@ auto System::load(Node::Object from) -> void {
   controls.load(node, from);
   video.load(node, from);
   cpu.load(node, from);
+  smp.load(node, from);
+  dsp.load(node, from);
   ppu.load(node, from);
   cartridgePort.load(node, from);
   controllerPort1.load(node, from);
@@ -60,8 +63,15 @@ auto System::unload() -> void {
   controllerPort1.port.reset();
   controllerPort2.port.reset();
   expansionPort.port.reset();
+  cpu.unload();
+  smp.unload();
+  dsp.unload();
   ppu.unload();
   node.reset();
+
+  higan::logger.reset();
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::save() -> void {

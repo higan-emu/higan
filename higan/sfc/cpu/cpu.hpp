@@ -1,4 +1,6 @@
 struct CPU : WDC65816, Thread, PPUcounter {
+  Shared::Tracer tracer;
+  Shared::Notification onInterrupt;
   Node::Component node;
   Node::Natural version;
 
@@ -9,6 +11,8 @@ struct CPU : WDC65816, Thread, PPUcounter {
 
   //cpu.cpp
   auto load(Node::Object parent, Node::Object from) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto map() -> void;
   auto power(bool reset) -> void;
@@ -51,7 +55,6 @@ struct CPU : WDC65816, Thread, PPUcounter {
   alwaysinline auto dmaEdge() -> void;
 
   //irq.cpp
-  auto irq(bool line) -> void override;
   alwaysinline auto pollInterrupts() -> void;
   auto nmitimenUpdate(uint8 data) -> void;
   auto rdnmi() -> bool;

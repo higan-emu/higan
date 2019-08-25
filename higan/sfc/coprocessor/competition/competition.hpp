@@ -13,8 +13,8 @@
 //None of the SNES-EVENT games have had their uPD78214 firmware dumped.
 //As such, our only option is very basic high-level emulation, provided here.
 
-struct Event : Thread {
-  //event.cpp
+struct Competition : Thread {
+  //competition.cpp
   auto main() -> void;
   auto unload() -> void;
   auto power() -> void;
@@ -45,4 +45,4 @@ private:
   uint scoreSecondsRemaining;
 };
 
-extern Event event;
+extern Competition competition;

@@ -6,11 +6,11 @@ VDP vdp;
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  display.create(system.video.node);
+  video.attach(display, system.video.node);
 }
 
 auto VDP::unload() -> void {
-  display.destroy();
+  video.detach(display);
 }
 
 auto VDP::step(uint clocks) -> void {
@@ -28,11 +28,11 @@ auto VDP::frame() -> void {
 
 auto VDP::refresh() -> void {
   if(Model::MSX()) {
-    display.refresh(TMS9918::buffer, 256 * sizeof(uint32), 256, 192);
+    display->refresh(TMS9918::buffer, 256 * sizeof(uint32), 256, 192);
   }
 
   if(Model::MSX2()) {
-    display.refresh(V9938::buffer, 512 * sizeof(uint32), 512, 424);
+    display->refresh(V9938::buffer, 512 * sizeof(uint32), 512, 424);
   }
 }
 

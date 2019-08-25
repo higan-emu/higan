@@ -7,6 +7,28 @@ SA1 sa1;
 #include "io.cpp"
 #include "serialization.cpp"
 
+auto SA1::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("sa1");
+  tracer->setAddressBits(24);
+
+  logger.attach(onInterrupt);
+  onInterrupt->setSource("sa1");
+  onInterrupt->setName("interrupt");
+}
+
+auto SA1::unload() -> void {
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+
+  rom.reset();
+  iram.reset();
+  bwram.reset();
+
+  cpu.coprocessors.removeByValue(this);
+  Thread::destroy();
+}
+
 auto SA1::main() -> void {
   if(r.wai) return instructionWait();
   if(r.stp) return instructionStop();
@@ -19,11 +41,14 @@ auto SA1::main() -> void {
 
   if(status.interruptPending) {
     status.interruptPending = false;
+    if(onInterrupt->enabled()) onInterrupt->event("IRQ");
     interrupt();
     return;
   }
 
-//print(disassemble(), "\n");
+  if(tracer->enabled() && tracer->address(r.pc.d)) {
+    tracer->instruction(disassembleInstruction(), disassembleContext());
+  }
   instruction();
 }
 
@@ -111,15 +136,6 @@ auto SA1::step() -> void {
 auto SA1::triggerIRQ() -> void {
   io.timer_irqfl = true;
   if(io.timer_irqen) io.timer_irqcl = 0;
-}
-
-auto SA1::unload() -> void {
-  rom.reset();
-  iram.reset();
-  bwram.reset();
-
-  cpu.coprocessors.removeByValue(this);
-  Thread::destroy();
 }
 
 auto SA1::power() -> void {

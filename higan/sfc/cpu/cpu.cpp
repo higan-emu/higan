@@ -11,6 +11,14 @@ CPU cpu;
 #include "serialization.cpp"
 
 auto CPU::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("cpu");
+  tracer->setAddressBits(24);
+
+  logger.attach(onInterrupt);
+  onInterrupt->setSource("cpu");
+  onInterrupt->setName("interrupt");
+
   node = Node::append<Node::Component>(parent, from, "CPU");
   from = Node::scan(parent = node, from);
 
@@ -18,20 +26,35 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
   version->setAllowedValues({1, 2});
 }
 
+auto CPU::unload() -> void {
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+}
+
 auto CPU::main() -> void {
   if(r.wai) return instructionWait();
   if(r.stp) return instructionStop();
-  if(!status.interruptPending) return instruction();
+
+  if(!status.interruptPending) {
+    if(tracer->enabled() && tracer->address(r.pc.d)) {
+      tracer->instruction(disassembleInstruction(), disassembleContext(), {
+        "V:", pad(vcounter(), 3L), " ", "H:", pad(hcounter(), 4L), " I:", (uint)field()
+      });
+    }
+    return instruction();
+  }
 
   if(status.nmiPending) {
     status.nmiPending = 0;
     r.vector = r.e ? 0xfffa : 0xffea;
+    if(onInterrupt->enabled()) onInterrupt->event("NMI");
     return interrupt();
   }
 
   if(status.irqPending) {
     status.irqPending = 0;
     r.vector = r.e ? 0xfffe : 0xffee;
+    if(onInterrupt->enabled()) onInterrupt->event("IRQ");
     return interrupt();
   }
 
@@ -39,6 +62,7 @@ auto CPU::main() -> void {
     status.resetPending = 0;
     step(132);
     r.vector = 0xfffc;
+    if(onInterrupt->enabled()) onInterrupt->event("reset");
     return interrupt();  //H=186
   }
 

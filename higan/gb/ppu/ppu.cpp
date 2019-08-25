@@ -10,11 +10,11 @@ PPU ppu;
 #include "serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  display.create(system.video.node);
+  video.attach(display, system.video.node);
 }
 
 auto PPU::unload() -> void {
-  display.destroy();
+  video.detach(display);
 }
 
 auto PPU::main() -> void {
@@ -110,7 +110,7 @@ auto PPU::coincidence() -> bool {
 
 auto PPU::refresh() -> void {
   if(!Model::SuperGameBoy()) {
-    display.refresh(screen, 160 * sizeof(uint32), 160, 144);
+    display->refresh(screen, 160 * sizeof(uint32), 160, 144);
   }
 }
 

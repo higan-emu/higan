@@ -28,7 +28,8 @@ struct SM83 {
 
   //disassembler.cpp
   virtual auto readDebugger(uint16 address) -> uint8 { return 0; }
-  auto disassemble(uint16 pc) -> string;
+  noinline auto disassembleInstruction(maybe<uint16> pc = {}) -> string;
+  noinline auto disassembleContext() -> string;
 
   //memory.cpp
   auto operand() -> uint8;

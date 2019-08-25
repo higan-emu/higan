@@ -1,7 +1,7 @@
 #include <sfc/coprocessor/armdsp/armdsp.hpp>
+#include <sfc/coprocessor/competition/competition.hpp>
 #include <sfc/coprocessor/dip/dip.hpp>
 #include <sfc/coprocessor/epsonrtc/epsonrtc.hpp>
-#include <sfc/coprocessor/event/event.hpp>
 #include <sfc/coprocessor/hitachidsp/hitachidsp.hpp>
 #include <sfc/coprocessor/icd/icd.hpp>
 #include <sfc/coprocessor/mcc/mcc.hpp>

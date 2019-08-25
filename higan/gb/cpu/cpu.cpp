@@ -12,6 +12,16 @@ namespace higan::GameBoy {
 CPU cpu;
 
 auto CPU::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource(!Model::SuperGameBoy() ? "cpu" : "sgb");
+  tracer->setAddressBits(!Model::SuperGameBoy() ? 16 : 24);  //24 to align with SNES bus width
+
+  logger.attach(onInterrupt);
+  onInterrupt->setSource(!Model::SuperGameBoy() ? "cpu" : "sgb");
+  onInterrupt->setName("interrupt");
+
+  if(Model::SuperGameBoy()) return;
+
   node = Node::append<Node::Component>(parent, from, "CPU");
   from = Node::scan(parent = node, from);
 
@@ -47,6 +57,11 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
   }
 }
 
+auto CPU::unload() -> void {
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+}
+
 auto CPU::main() -> void {
   if(status.hblankPending) {
     status.hblankPending = 0;
@@ -57,6 +72,8 @@ auto CPU::main() -> void {
   if(r.ime) {
     //are any interrupts pending?
     if(status.interruptLatch) {
+      if(onInterrupt->enabled()) onInterrupt->event("IRQ");
+
       idle();
       idle();
       idle();
@@ -75,6 +92,9 @@ auto CPU::main() -> void {
     }
   }
 
+  if(tracer->enabled() && tracer->address(PC)) {
+    tracer->instruction(disassembleInstruction(), disassembleContext());
+  }
   instruction();
 
   if(Model::SuperGameBoy()) {

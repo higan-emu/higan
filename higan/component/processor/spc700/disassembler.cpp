@@ -1,4 +1,4 @@
-auto SPC700::disassemble(uint16 addr, uint1 p) -> string {
+auto SPC700::disassembleInstruction(uint16 addr, uint1 p) -> string {
   auto read = [&](uint16 addr) -> uint8 {
     return readDisassembler(addr);
   };
@@ -279,12 +279,15 @@ auto SPC700::disassemble(uint16 addr, uint1 p) -> string {
     throw;
   };
 
-  string output = {"..", hex(addr, 4L), " ", mnemonic()};
+  return pad(mnemonic(), -16);
+}
 
-  uint length = output.length();
-  while(length++ < 30) output.append(" ");
+auto SPC700::disassembleInstruction() -> string {
+  return disassembleInstruction(r.pc.w, r.p.p);
+}
 
-  output.append(
+auto SPC700::disassembleContext() -> string {
+  return {
     "YA:", hex(YA, 4L),
     " A:", hex(A,  2L),
     " X:", hex(X,  2L),
@@ -299,7 +302,5 @@ auto SPC700::disassemble(uint16 addr, uint1 p) -> string {
     IF ? "I" : "i",
     ZF ? "Z" : "z",
     CF ? "C" : "c"
-  );
-
-  return output;
+  };
 }

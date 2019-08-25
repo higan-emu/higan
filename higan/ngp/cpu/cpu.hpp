@@ -18,16 +18,16 @@ struct CPU : TLCS900H, Thread {
   }
 
   //cpu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto save() -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto idle(uint clocks) -> void override;
   auto pollPowerButton() -> void;
   auto power() -> void;
   auto fastBoot() -> void;
-
-  auto load() -> void;
-  auto save() -> void;
-  auto unload() -> void;
 
   //memory.cpp
   auto width(uint24 address) -> uint override;

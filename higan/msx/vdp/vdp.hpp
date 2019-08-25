@@ -1,5 +1,5 @@
 struct VDP : TMS9918, V9938, Thread {
-  higan::Screen display;
+  Shared::Screen display;
 
   //vdp.cpp
   auto load(Node::Object, Node::Object) -> void;

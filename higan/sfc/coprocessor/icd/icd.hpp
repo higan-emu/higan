@@ -1,18 +1,18 @@
 #if defined(CORE_GB)
 
 struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
-  Stream stream;
+  Shared::Stream stream;
   Node::Port port;
   Node::Peripheral node;
 
   //icd.cpp
-  auto name() const -> string;
-  auto main() -> void;
-
   auto load(Node::Peripheral, Node::Peripheral) -> void;
   auto unload() -> void;
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
+
+  auto name() const -> string;
+  auto main() -> void;
   auto power(bool reset = false) -> void;
 
   //interface.cpp

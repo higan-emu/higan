@@ -6,10 +6,31 @@ SuperFX superfx;
 #include "timing.cpp"
 #include "serialization.cpp"
 
+auto SuperFX::load(Node::Object parent, Node::Object from) -> void {
+  logger.attach(tracer);
+  tracer->setSource("sfx");
+  tracer->setAddressBits(24);
+}
+
+auto SuperFX::unload() -> void {
+  logger.detach(tracer);
+
+  rom.reset();
+  ram.reset();
+  bram.reset();
+
+  cpu.coprocessors.removeByValue(this);
+  Thread::destroy();
+}
+
 auto SuperFX::main() -> void {
   if(regs.sfr.g == 0) return step(6);
 
-  instruction(peekpipe());
+  auto opcode = peekpipe();
+  if(tracer->enabled() && tracer->address(regs.r[15])) {
+    tracer->instruction(disassembleInstruction(), disassembleContext());
+  }
+  instruction(opcode);
 
   if(regs.r[14].modified) {
     regs.r[14].modified = false;
@@ -21,15 +42,6 @@ auto SuperFX::main() -> void {
   } else {
     regs.r[15]++;
   }
-}
-
-auto SuperFX::unload() -> void {
-  rom.reset();
-  ram.reset();
-  bram.reset();
-
-  cpu.coprocessors.removeByValue(this);
-  Thread::destroy();
 }
 
 auto SuperFX::power() -> void {

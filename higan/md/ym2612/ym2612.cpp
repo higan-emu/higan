@@ -9,6 +9,18 @@ YM2612 ym2612;
 #include "constants.cpp"
 #include "serialization.cpp"
 
+auto YM2612::load(Node::Object parent, Node::Object from) -> void {
+  audio.attach(stream);
+  stream->setChannels(2);
+  stream->setFrequency(system.frequency() / 7.0 / 144.0);
+  stream->addHighPassFilter(  20.0, Filter::Order::First);
+  stream->addLowPassFilter (2840.0, Filter::Order::First);
+}
+
+auto YM2612::unload() -> void {
+  audio.detach(stream);
+}
+
 auto YM2612::main() -> void {
   sample();
 
@@ -141,7 +153,7 @@ auto YM2612::sample() -> void {
     if(channel.rightEnable) right += voiceData;
   }
 
-  stream.sample(sclamp<16>(left) / 32768.0, sclamp<16>(right) / 32768.0);
+  stream->sample(sclamp<16>(left) / 32768.0, sclamp<16>(right) / 32768.0);
 }
 
 auto YM2612::step(uint clocks) -> void {
@@ -151,9 +163,6 @@ auto YM2612::step(uint clocks) -> void {
 
 auto YM2612::power(bool reset) -> void {
   Thread::create(system.frequency() / 7.0, {&YM2612::main, this});
-  stream.create(2, frequency() / 144.0);
-  stream.addHighPassFilter(  20.0, Filter::Order::First);
-  stream.addLowPassFilter (2840.0, Filter::Order::First);
 
   io = {};
   lfo = {};

@@ -33,7 +33,10 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   controls.load(node, from);
   video.load(node, from);
+  cpu.load(node, from);
+  apu.load(node, from);
   vpu.load(node, from);
+  psg.load(node, from);
   cartridge.load(node, from);
 }
 
@@ -44,6 +47,7 @@ auto System::unload() -> void {
   cpu.unload();
   apu.unload();
   vpu.unload();
+  psg.unload();
   node = {};
 }
 
@@ -61,8 +65,6 @@ auto System::power() -> void {
   if(auto fp = platform->open(node, "bios.rom", File::Read, File::Required)) {
     bios.load(fp);
   }
-  cpu.load();
-  apu.load();
 
   cartridge.power();
   cpu.power();

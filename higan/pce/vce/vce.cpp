@@ -8,11 +8,11 @@ VCE vce;
 #include "serialization.cpp"
 
 auto VCE::load(Node::Object parent, Node::Object from) -> void {
-  screen.create(system.video.node);
+  video.attach(screen, system.video.node);
 }
 
 auto VCE::unload() -> void {
-  screen.destroy();
+  video.detach(screen);
 }
 
 auto VCE::main() -> void {
@@ -58,7 +58,7 @@ auto VCE::step(uint clocks) -> void {
 }
 
 auto VCE::refresh() -> void {
-  screen.refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
+  screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
 }
 
 auto VCE::power() -> void {

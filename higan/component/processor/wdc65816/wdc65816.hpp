@@ -20,7 +20,7 @@ struct WDC65816 {
   virtual auto readDisassembler(uint24 addr) -> uint8 { return 0; }
 
   inline auto irq() const -> bool { return r.irq; }
-  virtual inline auto irq(bool line) -> void { r.irq = line; }
+  inline auto irq(bool line) -> void { r.irq = line; }
 
   using r8 = uint8;
 
@@ -234,8 +234,9 @@ struct WDC65816 {
   auto serialize(serializer&) -> void;
 
   //disassembler.cpp
-  auto disassemble() -> string;
-  auto disassemble(uint24 addr, bool e, bool m, bool x) -> string;
+  noinline auto disassembleInstruction(uint24 address, bool e, bool m, bool x) -> string;
+  noinline auto disassembleInstruction() -> string;
+  noinline auto disassembleContext(maybe<bool> e = {}) -> string;
 
   struct f8 {
     bool c = 0;  //carry

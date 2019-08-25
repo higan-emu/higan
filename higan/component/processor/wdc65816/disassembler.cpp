@@ -1,13 +1,7 @@
-auto WDC65816::disassemble() -> string {
-  return disassemble(r.pc.d, r.e, r.p.m, r.p.x);
-}
-
-auto WDC65816::disassemble(uint24 address, bool e, bool m, bool x) -> string {
+auto WDC65816::disassembleInstruction(uint24 address, bool e, bool m, bool x) -> string {
   string s;
 
   uint24 pc = address;
-  s = {hex(pc, 6), "  "};
-
   string name;
   string operand;
   maybe<uint24> effective;
@@ -446,27 +440,45 @@ auto WDC65816::disassemble(uint24 address, bool e, bool m, bool x) -> string {
   while(s.size() < 23) s.append(" ");
   if(effective) s.append("[", hex(*effective, 6L), "]");
   while(s.size() < 31) s.append(" ");
+  return s;
+}
 
-  s.append(" A:", hex(r.a.w, 4L));
-  s.append(" X:", hex(r.x.w, 4L));
-  s.append(" Y:", hex(r.y.w, 4L));
-  s.append(" S:", hex(r.s.w, 4L));
-  s.append(" D:", hex(r.d.w, 4L));
-  s.append(" B:", hex(r.b  , 2L));
+auto WDC65816::disassembleInstruction() -> string {
+  return disassembleInstruction(r.pc.d, r.e, r.p.m, r.p.x);
+}
 
-  if(e) {
-    s.append(' ',
-      r.p.n ? 'N' : 'n', r.p.v ? 'V' : 'v',
-      r.p.m ? '1' : '0', r.p.x ? 'B' : 'b',
-      r.p.d ? 'D' : 'd', r.p.i ? 'I' : 'i',
-      r.p.z ? 'Z' : 'z', r.p.c ? 'C' : 'c'
+auto WDC65816::disassembleContext(maybe<bool> e) -> string {
+  string s;
+
+  s.append("A:", hex(r.a.w, 4L), " ");
+  s.append("X:", hex(r.x.w, 4L), " ");
+  s.append("Y:", hex(r.y.w, 4L), " ");
+  s.append("S:", hex(r.s.w, 4L), " ");
+  s.append("D:", hex(r.d.w, 4L), " ");
+  s.append("B:", hex(r.b  , 2L), " ");
+
+  if(!e) e = r.e;
+  if(*e) {
+    s.append(
+      r.p.n ? 'N' : 'n',
+      r.p.v ? 'V' : 'v',
+      r.p.m ? '1' : '0',
+      r.p.x ? 'B' : 'b',
+      r.p.d ? 'D' : 'd',
+      r.p.i ? 'I' : 'i',
+      r.p.z ? 'Z' : 'z',
+      r.p.c ? 'C' : 'c'
     );
   } else {
-    s.append(' ',
-      r.p.n ? 'N' : 'n', r.p.v ? 'V' : 'v',
-      r.p.m ? 'M' : 'm', r.p.x ? 'X' : 'x',
-      r.p.d ? 'D' : 'd', r.p.i ? 'I' : 'i',
-      r.p.z ? 'Z' : 'z', r.p.c ? 'C' : 'c'
+    s.append(
+      r.p.n ? 'N' : 'n',
+      r.p.v ? 'V' : 'v',
+      r.p.m ? 'M' : 'm',
+      r.p.x ? 'X' : 'x',
+      r.p.d ? 'D' : 'd',
+      r.p.i ? 'I' : 'i',
+      r.p.z ? 'Z' : 'z',
+      r.p.c ? 'C' : 'c'
     );
   }
 

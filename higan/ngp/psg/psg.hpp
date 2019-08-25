@@ -1,7 +1,10 @@
 struct PSG : T6W28, Thread {
-  Stream stream;
+  Shared::Stream stream;
 
   //psg.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void;
   auto enablePSG() -> void;

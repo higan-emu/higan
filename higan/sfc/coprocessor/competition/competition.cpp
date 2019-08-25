@@ -1,7 +1,7 @@
-Event event;
+Competition competition;
 #include "serialization.cpp"
 
-auto Event::main() -> void {
+auto Competition::main() -> void {
   if(scoreActive && scoreSecondsRemaining) {
     if(--scoreSecondsRemaining == 0) {
       scoreActive = false;
@@ -21,7 +21,7 @@ auto Event::main() -> void {
   Thread::synchronize(cpu);
 }
 
-auto Event::unload() -> void {
+auto Competition::unload() -> void {
   rom[0].reset();
   rom[1].reset();
   rom[2].reset();
@@ -30,8 +30,8 @@ auto Event::unload() -> void {
   Thread::destroy();
 }
 
-auto Event::power() -> void {
-  Thread::create(1, {&Event::main, this});
+auto Competition::power() -> void {
+  Thread::create(1, {&Competition::main, this});
   cpu.coprocessors.append(this);
 
   //DIP switches 0-3 control the time: 3 minutes + 0-15 extra minutes
@@ -47,7 +47,7 @@ auto Event::power() -> void {
   scoreSecondsRemaining = 0;
 }
 
-auto Event::mcuRead(uint24 addr, uint8 data) -> uint8 {
+auto Competition::mcuRead(uint24 addr, uint8 data) -> uint8 {
   if(board == Board::CampusChallenge92) {
     uint id = 0;
     if(select == 0x09) id = 1;
@@ -83,17 +83,17 @@ auto Event::mcuRead(uint24 addr, uint8 data) -> uint8 {
   return data;
 }
 
-auto Event::mcuWrite(uint24 addr, uint8 data) -> void {
+auto Competition::mcuWrite(uint24 addr, uint8 data) -> void {
 }
 
-auto Event::read(uint24 addr, uint8 data) -> uint8 {
+auto Competition::read(uint24 addr, uint8 data) -> uint8 {
   if(addr == 0x106000 || addr == 0xc00000) {
     return status;
   }
   return data;
 }
 
-auto Event::write(uint24 addr, uint8 data) -> void {
+auto Competition::write(uint24 addr, uint8 data) -> void {
   if(addr == 0x206000 || addr == 0xe00000) {
     select = data;
     if(timer && data == 0x09) {

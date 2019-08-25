@@ -16,12 +16,12 @@ struct GSU {
   virtual auto syncROMBuffer() -> void = 0;
   virtual auto readROMBuffer() -> uint8 = 0;
   virtual auto syncRAMBuffer() -> void = 0;
-  virtual auto readRAMBuffer(uint16 addr) -> uint8 = 0;
-  virtual auto writeRAMBuffer(uint16 addr, uint8 data) -> void = 0;
+  virtual auto readRAMBuffer(uint16 address) -> uint8 = 0;
+  virtual auto writeRAMBuffer(uint16 address, uint8 data) -> void = 0;
   virtual auto flushCache() -> void = 0;
 
-  virtual auto read(uint24 addr, uint8 data = 0x00) -> uint8 = 0;
-  virtual auto write(uint24 addr, uint8 data) -> void = 0;
+  virtual auto read(uint24 address, uint8 data = 0x00) -> uint8 = 0;
+  virtual auto write(uint24 address, uint8 data) -> void = 0;
 
   //gsu.cpp
   auto power() -> void;
@@ -75,6 +75,9 @@ struct GSU {
   auto serialize(serializer&) -> void;
 
   //disassembler.cpp
+  noinline auto disassembleInstruction() -> string;
+  noinline auto disassembleContext() -> string;
+
   auto disassembleOpcode(char* output) -> void;
   auto disassembleALT0(char* output) -> void;
   auto disassembleALT1(char* output) -> void;

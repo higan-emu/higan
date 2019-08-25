@@ -20,6 +20,7 @@ auto Logger::attach(shared_pointer<Notification>& notification) -> void {
 }
 
 auto Logger::detach(shared_pointer<Notification>& notification) -> void {
+  if(!attached(notification)) return;
   notifications.removeByValue(notification);
   notification.reset();
 }
@@ -39,6 +40,7 @@ auto Logger::attach(shared_pointer<Tracer>& tracer) -> void {
 }
 
 auto Logger::detach(shared_pointer<Tracer>& tracer) -> void {
+  if(!attached(tracer)) return;
   tracers.removeByValue(tracer);
   tracer.reset();
 }

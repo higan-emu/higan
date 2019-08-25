@@ -30,6 +30,7 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   video.load(node, from);
   vce.load(node, from);
+  psg.load(node, from);
   cartridge.load(node, from);
   controllerPort.load(node, from);
 }
@@ -40,6 +41,7 @@ auto System::unload() -> void {
   cartridge.port = {};
   controllerPort.port = {};
   vce.unload();
+  psg.unload();
   node = {};
 }
 

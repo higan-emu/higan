@@ -133,7 +133,33 @@ auto SA1::readVBR(uint24 address, uint8 data) -> uint8 {
 }
 
 auto SA1::readDisassembler(uint24 address) -> uint8 {
-  //TODO: this is a hack; SA1::read() advances the clock; whereas Bus::read() does not.
-  //the CPU and SA1 bus are identical for ROM, but have differences in BWRAM and IRAM.
-  return bus.read(address, r.mdr);
+  uint8 data = r.mdr;
+
+  if((address & 0x40fe00) == 0x002200  //00-3f,80-bf:2200-23ff
+  ) {
+    return 0x00;  //do not read I/O registers from disassembler
+  }
+
+  if((address & 0x408000) == 0x008000  //00-3f,80-bf:8000-ffff
+  || (address & 0xc00000) == 0xc00000  //c0-ff:0000-ffff
+  ) {
+    return rom.readSA1(address, data);
+  }
+
+  if((address & 0x40e000) == 0x006000  //00-3f,80-bf:6000-7fff
+  || (address & 0xf00000) == 0x400000  //40-4f:0000-ffff
+  || (address & 0xf00000) == 0x600000  //60-6f:0000-ffff
+  ) {
+    if(address.bit(22) && address.bit(21)) return bwram.readBitmap(address, data);
+    if(address.bit(22)) return bwram.readLinear(address, data);
+    return bwram.readSA1(address, data);
+  }
+
+  if((address & 0x40f800) == 0x000000  //00-3f,80-bf:0000-07ff
+  || (address & 0x40f800) == 0x003000  //00-3f,80-bf:3000-37ff
+  ) {
+    return iram.readSA1(address, data);
+  }
+
+  return data;
 }

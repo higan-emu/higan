@@ -8,11 +8,11 @@ PPU ppu;
 #include "serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  screen.create(system.video.node);
+  video.attach(screen, system.video.node);
 }
 
 auto PPU::unload() -> void {
-  screen.destroy();
+  video.detach(screen);
 }
 
 auto PPU::main() -> void {
@@ -56,11 +56,11 @@ auto PPU::frame() -> void {
 
 auto PPU::refresh() -> void {
   if(system.video.display->value() == "NTSC") {
-    screen.refresh(buffer + 8 * 256, 256 * sizeof(uint32), 256, 224);
+    screen->refresh(buffer + 8 * 256, 256 * sizeof(uint32), 256, 224);
   }
 
   if(system.video.display->value() == "PAL") {
-    screen.refresh(buffer, 256 * sizeof(uint32), 256, 240);
+    screen->refresh(buffer, 256 * sizeof(uint32), 256, 240);
   }
 }
 

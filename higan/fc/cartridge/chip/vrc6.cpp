@@ -1,11 +1,14 @@
 struct VRC6 : Chip {
-  Stream stream;
+  shared_pointer<Stream> stream;
 
   VRC6(Board& board) : Chip(board) {
+    audio.attach(stream);
+    stream->setChannels(1);
+    stream->setFrequency(uint(system.frequency() + 0.5) / cartridge.rate());
   }
 
   ~VRC6() {
-    stream.destroy();
+    audio.detach(stream);
   }
 
   struct Pulse {
@@ -112,7 +115,7 @@ struct VRC6 : Chip {
     pulse2.clock();
     sawtooth.clock();
     double output = (pulse1.output + pulse2.output + sawtooth.output) / 61.0 * 0.25;
-    stream.sample(-output);
+    stream->sample(-output);
 
     tick();
   }
@@ -235,8 +238,6 @@ struct VRC6 : Chip {
   }
 
   auto power() -> void {
-    stream.create(1, system.frequency() / cartridge.rate());
-
     prgBank[0] = 0;
     prgBank[1] = 0;
     chrBank[0] = 0;

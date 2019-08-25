@@ -1,5 +1,7 @@
-auto uPD96050::disassemble(uint14 ip) -> string {
-  string output = {hex(ip, 4L), "  "};
+auto uPD96050::disassembleInstruction(maybe<uint14> _ip) -> string {
+  uint14 ip = _ip ? *_ip : (uint14)regs.pc;
+
+  string output;
   uint24 opcode = programROM[ip];
   uint2 type = opcode >> 22;
 
@@ -46,7 +48,7 @@ auto uPD96050::disassemble(uint14 ip) -> string {
     case 1: output.append("b"); break;
     }
 
-    output.append("\n      mov     ");
+    output.append("; mov     ");
 
     switch(src) {
     case  0: output.append("trb," ); break;
@@ -88,23 +90,23 @@ auto uPD96050::disassemble(uint14 ip) -> string {
 
     if(dpl) {
       switch(dpl) {
-      case 0: output.append("\n      dpnop"); break;
-      case 1: output.append("\n      dpinc"); break;
-      case 2: output.append("\n      dpdec"); break;
-      case 3: output.append("\n      dpclr"); break;
+      case 0: output.append("; dpnop"); break;
+      case 1: output.append("; dpinc"); break;
+      case 2: output.append("; dpdec"); break;
+      case 3: output.append("; dpclr"); break;
       }
     }
 
     if(dphm) {
-      output.append("\n      m", hex(dphm, 1L));
+      output.append("; m", hex(dphm, 1L));
     }
 
     if(rpdcr == 1) {
-      output.append("\n      rpdec");
+      output.append("; rpdec");
     }
 
     if(type == 1) {
-      output.append("\n      ret");
+      output.append("; ret");
     }
   }
 
@@ -189,4 +191,8 @@ auto uPD96050::disassemble(uint14 ip) -> string {
   }
 
   return output;
+}
+
+auto uPD96050::disassembleContext() -> string {
+  return "...";  //todo
 }

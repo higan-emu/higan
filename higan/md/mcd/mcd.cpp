@@ -40,13 +40,34 @@ auto MCD::load(Node::Object parent, Node::Object from) -> void {
   wram.allocate  (256_KiB >> 1);
   bram.allocate  (  8_KiB);
   cdc.ram.allocate(16_KiB >> 1);
-  pcm.ram.allocate(64_KiB);
 
   if(expansion.node) {
     if(auto fp = platform->open(expansion.node, "backup.ram", File::Read)) {
       bram.load(fp);
     }
   }
+
+  cdd.load(parent, from);
+  pcm.load(parent, from);
+}
+
+auto MCD::unload() -> void {
+  if(expansion.node) {
+    if(auto fp = platform->open(expansion.node, "backup.ram", File::Write)) {
+      bram.save(fp);
+    }
+  }
+
+  logger.detach(tracer);
+  logger.detach(onInterrupt);
+  cdd.unload();
+  pcm.unload();
+
+  bios.reset();
+  pram.reset();
+  wram.reset();
+  bram.reset();
+  cdc.ram.reset();
 }
 
 auto MCD::connect(Node::Peripheral with) -> void {
@@ -63,24 +84,6 @@ auto MCD::disconnect() -> void {
   cdd.eject();
   disc = {};
   fd = {};
-}
-
-auto MCD::unload() -> void {
-  logger.detach(tracer);
-  logger.detach(onInterrupt);
-
-  if(expansion.node) {
-    if(auto fp = platform->open(expansion.node, "backup.ram", File::Write)) {
-      bram.save(fp);
-    }
-  }
-
-  bios.reset();
-  pram.reset();
-  wram.reset();
-  bram.reset();
-  cdc.ram.reset();
-  pcm.ram.reset();
 }
 
 auto MCD::main() -> void {

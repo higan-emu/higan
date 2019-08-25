@@ -48,7 +48,7 @@ auto System::serializeAll(serializer& s) -> void {
   if(cartridge.has.ICD) icd.serialize(s);
   if(cartridge.has.MCC) mcc.serialize(s);
   if(cartridge.has.DIP) dip.serialize(s);
-  if(cartridge.has.Event) event.serialize(s);
+  if(cartridge.has.Competition) competition.serialize(s);
   if(cartridge.has.SA1) sa1.serialize(s);
   if(cartridge.has.SuperFX) superfx.serialize(s);
   if(cartridge.has.ARMDSP) armdsp.serialize(s);

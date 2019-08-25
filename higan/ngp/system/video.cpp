@@ -18,7 +18,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   }
 
   interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
-    vpu.display.setInterframeBlending(value);
+    if(vpu.display) vpu.display->setInterframeBlending(value);
   });
   interframeBlending->dynamic = true;
 }

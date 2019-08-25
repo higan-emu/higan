@@ -1,7 +1,7 @@
 //Sony CXD1222Q-1
 
 struct DSP : Thread {
-  Stream stream;
+  Shared::Stream stream;
 
   uint8 apuram[64 * 1024];
   uint8 registers[128];
@@ -9,6 +9,9 @@ struct DSP : Thread {
   inline auto mute() const -> bool { return master.mute; }
 
   //dsp.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto power(bool reset) -> void;
 

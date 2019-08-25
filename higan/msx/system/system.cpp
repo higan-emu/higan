@@ -40,6 +40,7 @@ auto System::load(Node::Object from) -> void {
   video.load(node, from);
   keyboard.load(node, from);
   vdp.load(node, from);
+  psg.load(node, from);
   cartridge.load(node, from);
   expansion.load(node, from);
   controllerPort1.load(node, from);
@@ -54,6 +55,7 @@ auto System::unload() -> void {
   controllerPort1.port = {};
   controllerPort2.port = {};
   vdp.unload();
+  psg.unload();
   node = {};
   rom.bios.reset();
   rom.sub.reset();

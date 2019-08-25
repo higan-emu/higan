@@ -1,7 +1,13 @@
 //Super Accelerator (SA-1)
 
 struct SA1 : WDC65816, Thread {
+  Shared::Tracer tracer;
+  Shared::Notification onInterrupt;
+
   //sa1.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step() -> void;
   auto interrupt() -> void override;
@@ -11,7 +17,6 @@ struct SA1 : WDC65816, Thread {
   alwaysinline auto interruptPending() const -> bool override;
   auto serializing() const -> bool override;
 
-  auto unload() -> void;
   auto power() -> void;
 
   //dma.cpp

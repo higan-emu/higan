@@ -137,6 +137,7 @@ auto System::load(Node::Object from) -> void {
   video.load(node, from);
   audio.load(node, from);
   ppu.load(node, from);
+  apu.load(node, from);
   cartridge.load(node, from);
 }
 
@@ -160,6 +161,7 @@ auto System::unload() -> void {
   eeprom.reset();
   cartridge.port = {};
   ppu.unload();
+  apu.unload();
   node = {};
 }
 

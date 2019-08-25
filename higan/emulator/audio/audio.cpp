@@ -9,6 +9,24 @@ auto Audio::reset(Interface* interface) -> void {
   channels = 0;
 }
 
+auto Audio::attached(shared_pointer<Stream>& stream) const -> bool {
+  return (bool)streams.find(stream);
+}
+
+auto Audio::attach(shared_pointer<Stream>& stream) -> void {
+  if(attached(stream)) return;
+  stream = shared_pointer_make<Stream>();
+  streams.append(stream);
+  synchronize();
+}
+
+auto Audio::detach(shared_pointer<Stream>& stream) -> void {
+  if(!attached(stream)) return;
+  streams.removeByValue(stream);
+  stream.reset();
+  synchronize();
+}
+
 auto Audio::setFrequency(double frequency) -> void {
   this->frequency = frequency;
   for(auto& stream : streams) {
@@ -22,17 +40,6 @@ auto Audio::setVolume(double volume) -> void {
 
 auto Audio::setBalance(double balance) -> void {
   this->balance = balance;
-}
-
-auto Audio::append(Stream& stream) -> void {
-  if(streams.find(&stream)) return;
-  streams.append(&stream);
-  synchronize();
-}
-
-auto Audio::remove(Stream& stream) -> void {
-  streams.removeByValue(&stream);
-  synchronize();
 }
 
 auto Audio::synchronize() -> void {

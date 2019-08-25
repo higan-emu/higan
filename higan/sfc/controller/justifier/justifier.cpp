@@ -6,9 +6,8 @@ Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
   trigger = Node::append<Node::Button>(node, with, "Trigger");
   start   = Node::append<Node::Button>(node, with, "Start");
 
-  sprite.create(32, 32);
-  sprite.setPixels(Resource::Sprite::SuperFamicom::CrosshairGreen);
-  ppu.display.append(sprite);
+  ppu.display->attach(sprite, 32, 32);
+  sprite->setPixels(Resource::Sprite::SuperFamicom::CrosshairGreen);
 
   Thread::create(system.cpuFrequency(), {&Justifier::main, this});
   cpu.peripherals.append(this);
@@ -16,7 +15,7 @@ Justifier::Justifier(Node::Port parent, Node::Peripheral with) {
 
 Justifier::~Justifier() {
   cpu.peripherals.removeByValue(this);
-  ppu.display.remove(sprite);
+  ppu.display->detach(sprite);
 }
 
 auto Justifier::main() -> void {
@@ -42,8 +41,8 @@ auto Justifier::main() -> void {
     int ny = y->value + cy;
     cx = max(-16, min(256 + 16, nx));
     cy = max(-16, min(240 + 16, ny));
-    sprite.setPosition(cx * 2 - 16, cy * 2 -16);
-    sprite.setVisible(true);
+    sprite->setPosition(cx * 2 - 16, cy * 2 -16);
+    sprite->setVisible(true);
   }
 
   previous = next;

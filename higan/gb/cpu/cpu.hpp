@@ -1,4 +1,6 @@
 struct CPU : SM83, Thread {
+  Shared::Tracer tracer;
+  Shared::Notification onInterrupt;
   Node::Component node;
   Node::String version;
 
@@ -15,6 +17,8 @@ struct CPU : SM83, Thread {
 
   //cpu.cpp
   auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto raised(uint interrupt) const -> bool;
   auto raise(uint interrupt) -> void;

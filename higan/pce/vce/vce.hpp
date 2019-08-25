@@ -1,7 +1,7 @@
 //HuC6260 -- Video Color Encoder
 
 struct VCE : Thread {
-  Screen screen;
+  Shared::Screen screen;
 
   inline auto clock() const -> uint { return io.clock; }
 

@@ -1,5 +1,5 @@
 struct PPU : Thread {
-  Screen display;
+  Shared::Screen display;
 
   //ppu.cpp
   auto load(Node::Object, Node::Object) -> void;

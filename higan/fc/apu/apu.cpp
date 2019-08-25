@@ -34,6 +34,19 @@ APU::APU() {
   }
 }
 
+auto APU::load(Node::Object parent, Node::Object from) -> void {
+  audio.attach(stream);
+  stream->setChannels(1);
+  stream->setFrequency(uint(system.frequency() + 0.5) / rate());
+  stream->addHighPassFilter(   90.0, Filter::Order::First);
+  stream->addHighPassFilter(  440.0, Filter::Order::First);
+  stream->addLowPassFilter (14000.0, Filter::Order::First);
+}
+
+auto APU::unload() -> void {
+  audio.detach(stream);
+}
+
 auto APU::main() -> void {
   uint pulse_output, triangle_output, noise_output, dmc_output;
 
@@ -48,7 +61,7 @@ auto APU::main() -> void {
   int output = 0;
   output += pulseDAC[pulse_output];
   output += dmcTriangleNoiseDAC[dmc_output][triangle_output][noise_output];
-  stream.sample(sclamp<16>(output) / 32768.0);
+  stream->sample(sclamp<16>(output) / 32768.0);
 
   tick();
 }
@@ -64,10 +77,6 @@ auto APU::setIRQ() -> void {
 
 auto APU::power(bool reset) -> void {
   Thread::create(system.frequency(), {&APU::main, this});
-  stream.create(1, frequency() / rate());
-  stream.addHighPassFilter(   90.0, Filter::Order::First);
-  stream.addHighPassFilter(  440.0, Filter::Order::First);
-  stream.addLowPassFilter (14000.0, Filter::Order::First);
 
   pulse[0].power();
   pulse[1].power();

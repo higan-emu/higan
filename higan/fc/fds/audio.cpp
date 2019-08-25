@@ -63,12 +63,18 @@ auto FDSAudio::Modulator::updateCounter(int8 value) -> void {
 
 //
 
-auto FDSAudio::disconnect() -> void {
-  stream.destroy();
+auto FDSAudio::load(Node::Object parent, Node::Object with) -> void {
+  audio.attach(stream);
+  stream->setChannels(1);
+  stream->setFrequency(uint(system.frequency() + 0.5) / cpu.rate());
+}
+
+auto FDSAudio::unload() -> void {
+  audio.detach(stream);
 }
 
 auto FDSAudio::clock() -> void {
-  if(!enable) return stream.sample(0.0);
+  if(!enable) return stream->sample(0.0);
 
   int frequency = carrier.frequency;
   if(envelopes && !waveform.halt) {
@@ -101,7 +107,7 @@ auto FDSAudio::updateOutput() -> void {
   integer level = min(carrier.gain, 32) * lookup[masterVolume];
 
   uint8 output = waveform.data[waveform.index] * level / 1152;
-  stream.sample(output / 255.0 * 0.5);
+  stream->sample(output / 255.0 * 0.5);
 }
 
 auto FDSAudio::read(uint16 address, uint8 data) -> uint8 {
@@ -206,8 +212,6 @@ auto FDSAudio::write(uint16 address, uint8 data) -> void {
 }
 
 auto FDSAudio::power() -> void {
-  stream.create(1, system.frequency() / cpu.rate());
-
   enable = 0;
   envelopes = 0;
   masterVolume = 0;

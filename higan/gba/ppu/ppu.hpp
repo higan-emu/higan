@@ -1,5 +1,5 @@
 struct PPU : Thread, IO {
-  higan::Screen display;
+  Shared::Screen display;
 
   inline auto blank() -> bool;
 

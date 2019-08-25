@@ -1,13 +1,7 @@
-auto Sprite::create(uint width, uint height) -> type& {
+Sprite::Sprite(uint width, uint height) {
   this->width = width;
   this->height = height;
-  pixels = new uint32[width * height]();
-  return *this;
-}
-
-auto Sprite::destroy() -> type& {
-  pixels = {};
-  return *this;
+  pixels = new uint32[width * height];
 }
 
 auto Sprite::setPixels(const nall::image& image) -> type& {

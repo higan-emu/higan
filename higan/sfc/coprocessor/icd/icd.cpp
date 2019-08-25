@@ -6,22 +6,14 @@ ICD icd;
 #include "io.cpp"
 #include "serialization.cpp"
 
-auto ICD::name() const -> string {
-  return GameBoy::interface->game();
-}
-
-auto ICD::main() -> void {
-  if(r6003.bit(7)) {
-    GameBoy::system.run();
-    Thread::step(GameBoy::system.clocksExecuted());
-  } else {  //DMG halted
-    stream.sample(0.0, 0.0);
-    Thread::step(2);  //two clocks per audio sample
-  }
-  Thread::synchronize(cpu);
-}
-
 auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
+  auto frequency = (Frequency ? Frequency : system.cpuFrequency()) / 5.0;
+
+  higan::audio.attach(stream);
+  stream->setChannels(2);
+  stream->setFrequency(frequency / 2.0);
+  stream->addHighPassFilter(20.0, Filter::Order::First);
+
   port = Node::append<Node::Port>(parent, from, "Game Boy Cartridge Slot", "Game Boy Cartridge");
   port->allocate = [&] { return Node::Peripheral::create("Game Boy"); };
   port->attach = [&](auto node) { connect(node); };
@@ -34,11 +26,17 @@ auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   GameBoy::cpu.version->setLatch();
   GameBoy::cartridge.port = port;
   port->scan(from);
+
+  GameBoy::cpu.load(parent, from);
 }
 
 auto ICD::unload() -> void {
+  higan::audio.detach(stream);
+
   disconnect();
   port = {};
+
+  GameBoy::cpu.unload();
 }
 
 auto ICD::connect(Node::Peripheral with) -> void {
@@ -57,6 +55,21 @@ auto ICD::disconnect() -> void {
   node = {};
 }
 
+auto ICD::name() const -> string {
+  return GameBoy::interface->game();
+}
+
+auto ICD::main() -> void {
+  if(r6003.bit(7)) {
+    GameBoy::system.run();
+    Thread::step(GameBoy::system.clocksExecuted());
+  } else {  //DMG halted
+    stream->sample(0.0, 0.0);
+    Thread::step(2);  //two clocks per audio sample
+  }
+  Thread::synchronize(cpu);
+}
+
 auto ICD::power(bool reset) -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
   Thread::create((Frequency ? Frequency : system.cpuFrequency()) / 5.0, [&] {
@@ -67,11 +80,6 @@ auto ICD::power(bool reset) -> void {
     }
   });
   cpu.coprocessors.append(this);
-
-  if(!reset) {
-    stream.create(2, frequency() / 2.0);
-    stream.addHighPassFilter(20.0, Filter::Order::First);
-  }
 
   for(auto& packet : this->packet) packet = {};
   packetSize = 0;

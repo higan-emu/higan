@@ -1,3 +1,21 @@
+auto GSU::disassembleInstruction() -> string {
+  char s[256];
+  disassembleOpcode(s);
+  return pad(s, -14);
+}
+
+auto GSU::disassembleContext() -> string {
+  string s;
+
+  for(uint n : range(16)) {
+    s.append("r", n, ":", hex(regs.r[n].data, 4L), " ");
+  }
+
+  s.append("...");  //todo: add SFR flags
+
+  return s;
+}
+
 auto GSU::disassembleOpcode(char* output) -> void {
   *output = 0;
 

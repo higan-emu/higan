@@ -13,6 +13,17 @@ APU apu;
 #include "fifo.cpp"
 #include "serialization.cpp"
 
+auto APU::load(Node::Object parent, Node::Object from) -> void {
+  audio.attach(stream);
+  stream->setChannels(2);
+  stream->setFrequency(system.frequency() / 64.0);
+  stream->addHighPassFilter(20.0, Filter::Order::First);
+}
+
+auto APU::unload() -> void {
+  audio.detach(stream);
+}
+
 auto APU::main() -> void {
   //GBA clock runs at 16777216hz
   //GBA PSG channels run at 2097152hz
@@ -62,7 +73,7 @@ auto APU::main() -> void {
   if(regs.bias.amplitude == 3) lsample &= ~7, rsample &= ~7;  //6-bit
 
   if(cpu.stopped()) lsample = 0, rsample = 0;
-  stream.sample((lsample << 5) / 32768.0, (rsample << 5) / 32768.0);
+  stream->sample((lsample << 5) / 32768.0, (rsample << 5) / 32768.0);
 }
 
 auto APU::step(uint clocks) -> void {
@@ -72,8 +83,6 @@ auto APU::step(uint clocks) -> void {
 
 auto APU::power() -> void {
   Thread::create(system.frequency(), {&APU::main, this});
-  stream.create(2, frequency() / 64.0);
-  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   clock = 0;
   square1.power();

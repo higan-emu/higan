@@ -35,7 +35,6 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   nodeManager.bind(root);
   systemMenu.setText(system.name);
   toolsMenu.pauseEmulation.setChecked(false);
-  programWindow.adaptiveResize();
   programWindow.show(home);
   programWindow.show(nodeManager);
   programWindow.setTitle(system.name);
@@ -67,7 +66,6 @@ auto Emulator::unload() -> void {
   interface->unload();
   interface.reset();
 
-  programWindow.adaptiveResize();
   programWindow.setTitle({"higan v", higan::Version});
   systemMenu.setText("System");
   setCaption();

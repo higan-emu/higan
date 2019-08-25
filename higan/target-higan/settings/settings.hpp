@@ -15,7 +15,7 @@ struct Settings {
     double gamma = 1.0;
     string output = "Center";
     bool aspectCorrection = true;
-    bool adaptiveSizing = true;
+    uint scale = 2;
     string shader = "Blur";
   } video;
 

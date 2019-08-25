@@ -1,7 +1,11 @@
 //Yamaha YM2612
 
 struct YM2612 : Thread {
-  Stream stream;
+  Shared::Stream stream;
+
+  //ym2612.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
 
   auto main() -> void;
   auto sample() -> void;

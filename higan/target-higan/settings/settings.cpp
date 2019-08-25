@@ -29,7 +29,7 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(video.gamma)
   s(video.output)
   s(video.aspectCorrection)
-  s(video.adaptiveSizing)
+  s(video.scale)
   s(video.shader)
   s(audio.driver)
   s(audio.device)

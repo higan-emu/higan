@@ -12,11 +12,11 @@ VDP vdp;
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  screen.create(system.video.node);
+  video.attach(screen, system.video.node);
 }
 
 auto VDP::unload() -> void {
-  screen.destroy();
+  video.detach(screen);
 }
 
 auto VDP::main() -> void {
@@ -83,12 +83,12 @@ auto VDP::refresh() -> void {
 
   if(system.video.display->value() == "NTSC") {
     if(latch.overscan) data += 16 * 1280;
-    screen.refresh(data, 1280 * sizeof(uint32), 1280, 448);
+    screen->refresh(data, 1280 * sizeof(uint32), 1280, 448);
   }
 
   if(system.video.display->value() == "PAL") {
     if(!latch.overscan) data -= 16 * 1280;
-    screen.refresh(data, 1280 * sizeof(uint32), 1280, 480);
+    screen->refresh(data, 1280 * sizeof(uint32), 1280, 480);
   }
 }
 

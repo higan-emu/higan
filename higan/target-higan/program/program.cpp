@@ -87,13 +87,9 @@ ProgramWindow::ProgramWindow() {
 
   show(home);
   show(systemManager);
+  resize();
 
   setTitle({"higan v", higan::Version});
-  setSize({640_sx, 480_sy
-  + (settings.interface.showStatusBar ? statusHeight : 0)
-  + (settings.interface.showSystemPanels ? panelsHeight : 0)
-  });
-  setAlignment(Alignment::Center);
   setVisible();
 
   //start the ruby input driver at program startup rather than after emulator instance creation.
@@ -102,32 +98,13 @@ ProgramWindow::ProgramWindow() {
   inputSettings.eventActivate();
 }
 
-auto ProgramWindow::adaptiveResize() -> void {
-  if(!settings.video.adaptiveSizing) return;
-
-  uint width  = 640;
-  uint height = 480;
-
-  if(emulator.root) {
-    if(auto video = emulator.root->find<higan::Node::Video>(0)) {
-      width  = video->width  * video->scaleX;
-      height = video->height * video->scaleY;
-      if(settings.video.aspectCorrection) width *= video->aspectX / video->aspectY;
-    //if(video->rotation == 90 || video->rotation == 270) swap(width, height);
-    }
-  }
-
-  uint multiplierX = ceil(640.0 / width);
-  uint multiplierY = ceil(480.0 / height);
-  uint multiplier  = min(multiplierX, multiplierY);
-
-  width  *= multiplier;
-  height *= multiplier;
-
-  if(statusLayout.visible()) height += statusHeight;
-  if(panels.visible()) height += panelsHeight;
-
-  setSize({width, height});
+auto ProgramWindow::resize() -> void {
+  uint scale  = max(2, min(4, settings.video.scale));
+  uint width  = 320_sx * scale;
+  uint height = 240_sx * scale;
+  if(settings.interface.showStatusBar) height += statusHeight;
+  if(settings.interface.showSystemPanels) height += panelsHeight;
+  setGeometry(Alignment::Center, {width, height});
 }
 
 auto ProgramWindow::show(Panel& panel) -> void {

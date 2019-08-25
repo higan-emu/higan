@@ -6,14 +6,21 @@ struct Video;
 struct Screen;
 struct Sprite;
 
+namespace Shared {
+  using Screen = shared_pointer<higan::Screen>;
+  using Sprite = shared_pointer<higan::Sprite>;
+}
+
 struct Video {
   Video() = default;
   Video(const Video&) = delete;
   auto operator=(const Video&) = delete;
 
   auto reset(Interface* interface = nullptr) -> void;
-  auto append(Screen& screen) -> void;
-  auto remove(Screen& screen) -> void;
+
+  auto attached(shared_pointer<Screen>&) const -> bool;
+  auto attach(shared_pointer<Screen>&, Node::Video) -> void;
+  auto detach(shared_pointer<Screen>&) -> void;
 
   auto setPalette() -> void;
   auto setFormat(uint32 red, uint32 green, uint32 blue) -> void;
@@ -24,22 +31,22 @@ struct Video {
   auto setInterframeBlending(bool interframeBlending) -> void;
   auto setRotateLeft(bool rotateLeft) -> void;
 
-  vector<Screen*> screens;
+  vector<shared_pointer<Screen>> screens;
 
 private:
   Interface* interface = nullptr;
 };
 
 struct Screen {
-  Screen() = default;
+  Screen(Node::Video);
   Screen(const Screen&) = delete;
   auto operator=(const Screen&) = delete;
 
-  auto create(Node::Video) -> void;
-  auto destroy() -> void;
+  auto reset() -> void;
 
-  auto append(Sprite& sprite) -> void;
-  auto remove(Sprite& sprite) -> void;
+  auto attached(shared_pointer<Sprite>&) const -> bool;
+  auto attach(shared_pointer<Sprite>&, uint width, uint height) -> void;
+  auto detach(shared_pointer<Sprite>&) -> void;
 
   auto setPalette() -> void;
   auto setFormat(uint32 red, uint32 green, uint32 blue) -> void;
@@ -58,7 +65,7 @@ private:
   unique_pointer<uint32[]> buffer;
   unique_pointer<uint32[]> rotate;
   unique_pointer<uint32[]> palette;
-  vector<Sprite*> sprites;
+  vector<shared_pointer<Sprite>> sprites;
 
   struct Channel {
     uint count;
@@ -88,12 +95,9 @@ private:
 struct Sprite {
   using type = Sprite;
 
-  Sprite() = default;
+  Sprite(uint width, uint height);
   Sprite(const Sprite&) = delete;
   auto operator=(const Sprite&) = delete;
-
-  auto create(uint width, uint height) -> type&;
-  auto destroy() -> type&;
 
   auto setPixels(const nall::image& image) -> type&;
   auto setVisible(bool visible) -> type&;

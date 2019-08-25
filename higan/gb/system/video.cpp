@@ -16,12 +16,12 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   }
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
-    ppu.display.setPalette();
+    if(ppu.display) ppu.display->setPalette();
   });
   colorEmulation->dynamic = true;
 
   interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
-    ppu.display.setInterframeBlending(value);
+    if(ppu.display) ppu.display->setInterframeBlending(value);
   });
   interframeBlending->dynamic = true;
 }

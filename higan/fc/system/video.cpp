@@ -20,7 +20,7 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   display->dynamic = true;
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
-    ppu.screen.setPalette();
+    if(ppu.screen) ppu.screen->setPalette();
   });
   colorEmulation->dynamic = true;
 }

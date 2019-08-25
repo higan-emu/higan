@@ -5,6 +5,17 @@ namespace higan::NeoGeoPocket {
 PSG psg;
 #include "serialization.cpp"
 
+auto PSG::load(Node::Object parent, Node::Object with) -> void {
+  audio.attach(stream);
+  stream->setChannels(2);
+  stream->setFrequency(system.frequency() / 32.0);
+  stream->addHighPassFilter(20.0, Filter::Order::First);
+}
+
+auto PSG::unload() -> void {
+  audio.detach(stream);
+}
+
 auto PSG::main() -> void {
   double left  = 0.0;
   double right = 0.0;
@@ -26,7 +37,7 @@ auto PSG::main() -> void {
     right += dac.right / 255.0;
   }
 
-  stream.sample(left, right);
+  stream->sample(left, right);
   step(1);
 }
 
@@ -54,9 +65,6 @@ auto PSG::writeRightDAC(uint8 data) -> void {
 
 auto PSG::power() -> void {
   Thread::create(system.frequency() / 32.0, {&PSG::main, this});
-
-  stream.create(2, frequency());
-  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   psg = {};
   dac = {};

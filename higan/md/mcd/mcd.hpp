@@ -1,12 +1,12 @@
 //Mega CD
 
 struct MCD : M68K, Thread {
-  shared_pointer<Tracer> tracer;
-  shared_pointer<Notification> onInterrupt;
+  Shared::Tracer tracer;
+  Shared::Notification onInterrupt;
+  Shared::File fd;
 
   Node::Port tray;
   Node::Peripheral disc;
-  shared_pointer<vfs::file> fd;
 
   Memory::Readable<uint16> bios;  //BIOS ROM
   Memory::Writable<uint16> pram;  //program RAM
@@ -50,7 +50,7 @@ struct MCD : M68K, Thread {
      uint1 halt = 1;
 
     uint16 wramLatch;
-     uint1 wramMode;     //MODE: 0 = 2mbit mode, 1 = 1mbit mode
+     uint1 wramMode;  //MODE: 0 = 2mbit mode, 1 = 1mbit mode
      uint1 wramSwitch;
      uint1 wramSelect;
      uint2 wramPriority;
@@ -263,6 +263,9 @@ struct MCD : M68K, Thread {
     };};
 
     //cdd.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto unload() -> void;
+
     auto clock() -> void;
     auto advance() -> void;
     auto sample() -> void;
@@ -282,9 +285,12 @@ struct MCD : M68K, Thread {
     uint16 counter;
 
     struct DAC {
-      Stream stream;
+      Shared::Stream stream;
 
       //cdd-dac.cpp
+      auto load(Node::Object, Node::Object) -> void;
+      auto unload() -> void;
+
       auto sample(int16 left, int16 right) -> void;
       auto reconfigure() -> void;
       auto power(bool reset) -> void;
@@ -376,10 +382,13 @@ struct MCD : M68K, Thread {
   } gpu;
 
   struct PCM {
-    Stream stream;
+    Shared::Stream stream;
     Memory::Writable<uint8> ram;
 
     //pcm.cpp
+    auto load(Node::Object, Node::Object) -> void;
+    auto unload() -> void;
+
     auto clock() -> void;
     auto read(uint13 address, uint8 data) -> uint8;
     auto write(uint13 address, uint8 data) -> void;

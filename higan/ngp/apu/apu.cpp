@@ -6,6 +6,23 @@ APU apu;
 #include "memory.cpp"
 #include "serialization.cpp"
 
+auto APU::load(Node::Object parent, Node::Object with) -> void {
+  ram.allocate(4_KiB, 0x00);
+  if(auto fp = platform->open(system.node, "apu.ram", File::Read)) {
+    ram.load(fp);
+  }
+}
+
+auto APU::save() -> void {
+  if(auto fp = platform->open(system.node, "apu.ram", File::Write)) {
+    ram.save(fp);
+  }
+}
+
+auto APU::unload() -> void {
+  ram.reset();
+}
+
 auto APU::main() -> void {
   if(!io.enable) return step(16);
 
@@ -53,23 +70,6 @@ auto APU::enable() -> void {
 
 auto APU::disable() -> void {
   io.enable = false;
-}
-
-auto APU::load() -> void {
-  ram.allocate(4_KiB, 0x00);
-  if(auto fp = platform->open(system.node, "apu.ram", File::Read)) {
-    ram.load(fp);
-  }
-}
-
-auto APU::save() -> void {
-  if(auto fp = platform->open(system.node, "apu.ram", File::Write)) {
-    ram.save(fp);
-  }
-}
-
-auto APU::unload() -> void {
-  ram.reset();
 }
 
 }

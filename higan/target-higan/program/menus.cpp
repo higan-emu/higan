@@ -46,11 +46,19 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   if(settings.video.output == "Stretch") outputStretch.setChecked();
   aspectCorrection.setText("Aspect Correction").setChecked(settings.video.aspectCorrection).onToggle([&] {
     settings.video.aspectCorrection = aspectCorrection.checked();
-    programWindow.adaptiveResize();
   });
-  adaptiveSizing.setText("Adaptive Sizing").setChecked(settings.video.adaptiveSizing).onToggle([&] {
-    settings.video.adaptiveSizing = adaptiveSizing.checked();
-    programWindow.adaptiveResize();
+  scaleMenu.setText("Scale").setIcon(Icon::Emblem::Image);
+  scale2x.setText("640x480").onActivate([&] {
+    settings.video.scale = 2;
+    programWindow.resize();
+  });
+  scale3x.setText("960x720").onActivate([&] {
+    settings.video.scale = 3;
+    programWindow.resize();
+  });
+  scale4x.setText("1280x960").onActivate([&] {
+    settings.video.scale = 4;
+    programWindow.resize();
   });
   shaderMenu.setText("Shader").setIcon(Icon::Emblem::Image).setEnabled(false);
   video.setText("Video").setIcon(Icon::Device::Display).onActivate([&] {

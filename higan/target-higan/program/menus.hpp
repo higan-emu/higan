@@ -25,7 +25,10 @@ struct SettingsMenu : Menu {
     Group videoOutputGroup{&outputCenter, &outputScale, &outputStretch};
     MenuSeparator outputSeparator{&outputMenu};
     MenuCheckItem aspectCorrection{&outputMenu};
-    MenuCheckItem adaptiveSizing{&outputMenu};
+  Menu scaleMenu{this};
+    MenuItem scale2x{&scaleMenu};
+    MenuItem scale3x{&scaleMenu};
+    MenuItem scale4x{&scaleMenu};
   Menu shaderMenu{this};
   MenuSeparator separator{this};
   MenuItem video{this};

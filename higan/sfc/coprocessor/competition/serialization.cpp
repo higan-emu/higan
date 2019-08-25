@@ -1,4 +1,4 @@
-auto Event::serialize(serializer& s) -> void {
+auto Competition::serialize(serializer& s) -> void {
   Thread::serialize(s);
   s.integer(status);
   s.integer(select);

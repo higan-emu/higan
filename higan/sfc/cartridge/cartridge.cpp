@@ -23,6 +23,10 @@ auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
   }
 
   loadCartridge(information.document);
+  if(has.SA1) sa1.load(node, with);
+  if(has.SuperFX) superfx.load(node, with);
+  if(has.NECDSP) necdsp.load(node, with);
+  if(has.MSU1) msu1.load(node, with);
   if(has.GameBoySlot) icd.load(node, with);
   if(has.BSMemorySlot) bsmemory.load(node, with);
   if(has.SufamiTurboSlotA) sufamiturboA.load(node, with);
@@ -39,7 +43,7 @@ auto Cartridge::disconnect() -> void {
 
   if(has.ICD) icd.unload();
   if(has.MCC) mcc.unload();
-  if(has.Event) event.unload();
+  if(has.Competition) competition.unload();
   if(has.SA1) sa1.unload();
   if(has.SuperFX) superfx.unload();
   if(has.ARMDSP) armdsp.unload();
@@ -65,7 +69,7 @@ auto Cartridge::power(bool reset) -> void {
   if(has.ICD) icd.power();
   if(has.MCC) mcc.power();
   if(has.DIP) dip.power();
-  if(has.Event) event.power();
+  if(has.Competition) competition.power();
   if(has.SA1) sa1.power();
   if(has.SuperFX) superfx.power();
   if(has.ARMDSP) armdsp.power();

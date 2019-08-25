@@ -12,6 +12,17 @@ APU apu;
 #include "channel5.cpp"
 #include "serialization.cpp"
 
+auto APU::load(Node::Object parent, Node::Object from) -> void {
+  audio.attach(stream);
+  stream->setChannels(2);
+  stream->setFrequency(3'072'000);
+  stream->addHighPassFilter(20.0, Filter::Order::First);
+}
+
+auto APU::unload() -> void {
+  audio.detach(stream);
+}
+
 auto APU::main() -> void {
   dma.run();
   channel1.run();
@@ -63,7 +74,7 @@ auto APU::dacRun() -> void {
 
   //ASWAN has three volume steps (0%, 50%, 100%); SPHINX and SPHINX2 have four (0%, 33%, 66%, 100%)
   double amplitude = 1.0 / (SoC::ASWAN() ? 2.0 : 3.0) * r.masterVolume;
-  stream.sample(left / 32768.0 * amplitude, right / 32768.0 * amplitude);
+  stream->sample(left / 32768.0 * amplitude, right / 32768.0 * amplitude);
 }
 
 auto APU::step(uint clocks) -> void {
@@ -73,8 +84,6 @@ auto APU::step(uint clocks) -> void {
 
 auto APU::power() -> void {
   Thread::create(3'072'000, {&APU::main, this});
-  stream.create(2, frequency());
-  stream.addHighPassFilter(20.0, Filter::Order::First);
 
   bus.map(this, 0x004a, 0x004c);
   bus.map(this, 0x004e, 0x0050);

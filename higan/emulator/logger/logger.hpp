@@ -6,6 +6,11 @@ struct Logger;
 struct Notification;
 struct Tracer;
 
+namespace Shared {
+  using Notification = shared_pointer<higan::Notification>;
+  using Tracer = shared_pointer<higan::Tracer>;
+}
+
 struct Logger {
   Logger() = default;
   Logger(const Logger&) = delete;

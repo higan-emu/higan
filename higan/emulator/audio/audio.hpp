@@ -10,20 +10,26 @@ struct Audio;
 struct Filter;
 struct Stream;
 
+namespace Shared {
+  using Stream = shared_pointer<higan::Stream>;
+}
+
 struct Audio {
   Audio() = default;
   Audio(const Audio&) = delete;
   auto operator=(const Audio&) = delete;
 
   auto reset(Interface* interface = nullptr) -> void;
-  auto append(Stream& stream) -> void;
-  auto remove(Stream& stream) -> void;
+
+  auto attached(shared_pointer<Stream>&) const -> bool;
+  auto attach(shared_pointer<Stream>&) -> void;
+  auto detach(shared_pointer<Stream>&) -> void;
 
   auto setFrequency(double frequency) -> void;
   auto setVolume(double volume) -> void;
   auto setBalance(double balance) -> void;
 
-  vector<Stream*> streams;
+  vector<shared_pointer<Stream>> streams;
 
 private:
   auto synchronize() -> void;
@@ -53,9 +59,6 @@ struct Stream {
   Stream() = default;
   Stream(const Stream&) = delete;
   auto operator=(const Stream&) = delete;
-
-  auto create(uint channels, double frequency) -> void;
-  auto destroy() -> void;
 
   auto setChannels(uint channels) -> void;
   auto setFrequency(double inputFrequency, maybe<double> outputFrequency = {}) -> void;

@@ -1,5 +1,9 @@
 struct APU : Thread, IO {
-  Stream stream;
+  Shared::Stream stream;
+
+  //apu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
 
   auto main() -> void;
   auto sample(uint channel, uint5 index) -> uint4;

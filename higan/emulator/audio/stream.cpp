@@ -1,16 +1,7 @@
-auto Stream::create(uint channels, double frequency) -> void {
-  setChannels(channels);
-  setFrequency(frequency, audio.frequency);
-  audio.append(*this);
-}
-
-auto Stream::destroy() -> void {
-  audio.remove(*this);
-}
-
 auto Stream::setChannels(uint channelCount) -> void {
   channels.reset();
   channels.resize(channelCount);
+  audio.synchronize();
 }
 
 auto Stream::setFrequency(double inputFrequency, maybe<double> outputFrequency) -> void {

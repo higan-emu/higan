@@ -43,6 +43,8 @@ auto System::load(Node::Object from) -> void {
   controls.load(node, from);
   video.load(node, from);
   vdp.load(node, from);
+  psg.load(node, from);
+  opll.load(node, from);
   cartridge.load(node, from);
   if(!MasterSystem::Model::GameGear()) {
     controllerPort1.load(node, from);
@@ -64,6 +66,8 @@ auto System::unload() -> void {
     controllerPort2.port = {};
   }
   vdp.unload();
+  psg.unload();
+  opll.unload();
   node = {};
 }
 

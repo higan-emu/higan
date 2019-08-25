@@ -1,7 +1,7 @@
 //Texas Instruments TMS9918A (derivative)
 
 struct VDP : Thread {
-  Screen screen;
+  Shared::Screen screen;
 
   //vdp.cpp
   auto load(Node::Object, Node::Object) -> void;

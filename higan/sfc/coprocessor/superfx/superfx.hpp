@@ -1,11 +1,14 @@
 struct SuperFX : GSU, Thread {
+  Shared::Tracer tracer;
   ReadableMemory rom;
   WritableMemory ram;
   WritableMemory bram;
 
   //superfx.cpp
-  auto main() -> void;
+  auto load(Node::Object, Node::Object) -> void;
   auto unload() -> void;
+
+  auto main() -> void;
   auto power() -> void;
 
   //bus.cpp

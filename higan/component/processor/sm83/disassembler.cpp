@@ -1,8 +1,11 @@
-auto SM83::disassemble(uint16 pc) -> string {
+auto SM83::disassembleInstruction(maybe<uint16> _pc) -> string {
+  auto pc = _pc ? *_pc : PC;
+  return pad(disassembleOpcode(pc), -16, ' ');
+}
+
+auto SM83::disassembleContext() -> string {
   return {
-    hex(pc, 4L), "  ",
-    pad(disassembleOpcode(pc), -16, ' '), "  ",
-    " AF:", hex(AF, 4L),
+     "AF:", hex(AF, 4L),
     " BC:", hex(BC, 4L),
     " DE:", hex(DE, 4L),
     " HL:", hex(HL, 4L),

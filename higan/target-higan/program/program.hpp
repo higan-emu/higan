@@ -23,7 +23,7 @@ using View = HorizontalLayout;
 
 struct ProgramWindow : Window {
   ProgramWindow();
-  auto adaptiveResize() -> void;
+  auto resize() -> void;
   auto show(Panel&) -> void;
   auto hide(Panel&) -> void;
   auto showStatus() -> void;

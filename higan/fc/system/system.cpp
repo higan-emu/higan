@@ -47,6 +47,7 @@ auto System::load(Node::Object from) -> void {
   controls.load(node, from);
   video.load(node, from);
   cpu.load(node, from);
+  apu.load(node, from);
   ppu.load(node, from);
   cartridge.load(node, from);
   controllerPort1.load(node, from);
@@ -57,10 +58,11 @@ auto System::unload() -> void {
   if(!node) return;
   save();
   cpu.unload();
+  apu.unload();
+  ppu.unload();
   cartridge.unload();
   controllerPort1.port = {};
   controllerPort2.port = {};
-  ppu.unload();
   node = {};
 
   higan::logger.reset();

@@ -4,15 +4,15 @@ struct APU : Z80, Z80::Bus, Thread {
   inline auto serializing() const -> bool override { return scheduler.serializing(); }
 
   //apu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto save() -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void override;
   auto power() -> void;
   auto enable() -> void;
   auto disable() -> void;
-
-  auto load() -> void;
-  auto save() -> void;
-  auto unload() -> void;
 
   //memory.cpp
   auto read(uint16 address) -> uint8 override;

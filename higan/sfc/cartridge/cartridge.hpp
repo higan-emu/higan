@@ -34,7 +34,7 @@ struct Cartridge {
     boolean ICD;
     boolean MCC;
     boolean DIP;
-    boolean Event;
+    boolean Competition;
     boolean SA1;
     boolean SuperFX;
     boolean ARMDSP;
@@ -71,7 +71,7 @@ private:
   auto loadSufamiTurboA(Markup::Node) -> void;
   auto loadSufamiTurboB(Markup::Node) -> void;
   auto loadDIP(Markup::Node) -> void;
-  auto loadEvent(Markup::Node) -> void;
+  auto loadCompetition(Markup::Node) -> void;
   auto loadSA1(Markup::Node) -> void;
   auto loadSuperFX(Markup::Node) -> void;
   auto loadARMDSP(Markup::Node) -> void;

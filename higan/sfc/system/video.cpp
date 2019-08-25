@@ -20,12 +20,12 @@ auto System::Video::load(Node::Object parent, Node::Object from) -> void {
   display->dynamic = true;
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
-    ppu.display.setPalette();
+    if(ppu.display) ppu.display->setPalette();
   });
   colorEmulation->dynamic = true;
 
   colorBleed = Node::append<Node::Boolean>(parent, from, "Color Bleed", true, [&](auto value) {
-    ppu.display.setColorBleed(value);
+    if(ppu.display) ppu.display->setColorBleed(value);
   });
   colorBleed->dynamic = true;
 }

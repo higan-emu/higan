@@ -57,7 +57,7 @@ auto Cartridge::loadCartridge(Markup::Node node) -> void {
   if(auto node = board["slot(type=SufamiTurbo)[0]"]) loadSufamiTurboA(node);
   if(auto node = board["slot(type=SufamiTurbo)[1]"]) loadSufamiTurboB(node);
   if(auto node = board["dip"]) loadDIP(node);
-  if(auto node = board["processor(architecture=uPD78214)"]) loadEvent(node);
+  if(auto node = board["processor(architecture=uPD78214)"]) loadCompetition(node);
   if(auto node = board["processor(architecture=W65C816S)"]) loadSA1(node);
   if(auto node = board["processor(architecture=GSU)"]) loadSuperFX(node);
   if(auto node = board["processor(architecture=ARM6)"]) loadARMDSP(node);
@@ -214,31 +214,31 @@ auto Cartridge::loadDIP(Markup::Node node) -> void {
 }
 
 //processor(architecture=uPD78214)
-auto Cartridge::loadEvent(Markup::Node node) -> void {
-  has.Event = true;
-  event.board = Event::Board::Unknown;
-  if(node["identifier"].text() == "Campus Challenge '92") event.board = Event::Board::CampusChallenge92;
-  if(node["identifier"].text() == "PowerFest '94") event.board = Event::Board::PowerFest94;
+auto Cartridge::loadCompetition(Markup::Node node) -> void {
+  has.Competition = true;
+  competition.board = Competition::Board::Unknown;
+  if(node["identifier"].text() == "Campus Challenge '92") competition.board = Competition::Board::CampusChallenge92;
+  if(node["identifier"].text() == "PowerFest '94") competition.board = Competition::Board::PowerFest94;
 
   for(auto map : node.find("map")) {
-    loadMap(map, {&Event::read, &event}, {&Event::write, &event});
+    loadMap(map, {&Competition::read, &competition}, {&Competition::write, &competition});
   }
 
   if(auto mcu = node["mcu"]) {
     for(auto map : mcu.find("map")) {
-      loadMap(map, {&Event::mcuRead, &event}, {&Event::mcuWrite, &event});
+      loadMap(map, {&Competition::mcuRead, &competition}, {&Competition::mcuWrite, &competition});
     }
     if(auto memory = mcu["memory(type=ROM,content=Program)"]) {
-      loadMemory(event.rom[0], memory, File::Required);
+      loadMemory(competition.rom[0], memory, File::Required);
     }
     if(auto memory = mcu["memory(type=ROM,content=Level-1)"]) {
-      loadMemory(event.rom[1], memory, File::Required);
+      loadMemory(competition.rom[1], memory, File::Required);
     }
     if(auto memory = mcu["memory(type=ROM,content=Level-2)"]) {
-      loadMemory(event.rom[2], memory, File::Required);
+      loadMemory(competition.rom[2], memory, File::Required);
     }
     if(auto memory = mcu["memory(type=ROM,content=Level-3)"]) {
-      loadMemory(event.rom[3], memory, File::Required);
+      loadMemory(competition.rom[3], memory, File::Required);
     }
   }
 }

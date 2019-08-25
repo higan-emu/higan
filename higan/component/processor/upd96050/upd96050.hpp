@@ -24,7 +24,9 @@ struct uPD96050 {
   auto readDP(uint12 addr) -> uint8;
   auto writeDP(uint12 addr, uint8 data) -> void;
 
-  auto disassemble(uint14 ip) -> string;
+  //disassembler.cpp
+  noinline auto disassembleInstruction(maybe<uint14> ip = {}) -> string;
+  noinline auto disassembleContext() -> string;
 
   enum class Revision : uint { uPD7725, uPD96050 } revision;
   uint24 programROM[16384];

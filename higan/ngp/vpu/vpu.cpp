@@ -10,11 +10,11 @@ VPU vpu;
 #include "serialization.cpp"
 
 auto VPU::load(Node::Object parent, Node::Object from) -> void {
-  display.create(system.video.node);
+  video.attach(display, system.video.node);
 }
 
 auto VPU::unload() -> void {
-  display.destroy();
+  video.detach(display);
 }
 
 auto VPU::main() -> void {
@@ -92,7 +92,7 @@ auto VPU::step(uint clocks) -> void {
 }
 
 auto VPU::refresh() -> void {
-  display.refresh(buffer, 160 * sizeof(uint32), 160, 152);
+  display->refresh(buffer, 160 * sizeof(uint32), 160, 152);
 }
 
 auto VPU::power() -> void {
