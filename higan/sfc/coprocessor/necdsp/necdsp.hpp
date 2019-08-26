@@ -1,5 +1,6 @@
 struct NECDSP : uPD96050, Thread {
-  Shared::Tracer tracer;
+  Node::Component node;
+  Node::Instruction eventInstruction;
   uint Frequency = 0;
 
   //necdsp.cpp

@@ -105,7 +105,8 @@ struct HuC6280 {
   auto instructionZeroPageWrite(uint8, uint8 = 0) -> void;
 
   //disassembler.cpp
-  auto disassemble(uint16 pc) -> string;
+  auto disassembleInstruction() -> string;
+  auto disassembleContext() -> string;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

@@ -29,10 +29,16 @@ auto System::load(Node::Object from) -> void {
 
   scheduler.reset();
   video.load(node, from);
+  cpu.load(node, from);
   vce.load(node, from);
   psg.load(node, from);
   cartridge.load(node, from);
   controllerPort.load(node, from);
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
 }
 
 auto System::unload() -> void {
@@ -40,14 +46,13 @@ auto System::unload() -> void {
   save();
   cartridge.port = {};
   controllerPort.port = {};
+  cpu.unload();
   vce.unload();
   psg.unload();
   node = {};
-}
 
-auto System::save() -> void {
-  if(!node) return;
-  cartridge.save();
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::power() -> void {

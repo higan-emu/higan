@@ -34,23 +34,28 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   controls.load(node, from);
   video.load(node, from);
+  cpu.load(node, from);
   ppu.load(node, from);
   apu.load(node, from);
   cartridge.load(node, from);
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
 }
 
 auto System::unload() -> void {
   if(!node) return;
   save();
   cartridge.port = {};
+  cpu.unload();
   ppu.unload();
   apu.unload();
   node = {};
-}
 
-auto System::save() -> void {
-  if(!node) return;
-  cartridge.save();
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::power() -> void {

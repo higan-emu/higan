@@ -8,28 +8,29 @@ CPU cpu;
 #include "serialization.cpp"
 
 auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  logger.attach(tracer);
-  tracer->setSource("cpu");
-  tracer->setAddressBits(16);
+  node = Node::append<Node::Component>(parent, from, "CPU");
+  from = Node::scan(parent = node, from);
 
-  logger.attach(onInterrupt);
-  onInterrupt->setSource("cpu");
-  onInterrupt->setName("interrupt");
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
+  eventInstruction->setAddressBits(16);
+
+  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
 }
 
 auto CPU::unload() -> void {
-  logger.detach(tracer);
-  logger.detach(onInterrupt);
+  eventInstruction = {};
+  eventInterrupt = {};
+  node = {};
 }
 
 auto CPU::main() -> void {
   if(io.interruptPending) {
-    if(onInterrupt->enabled()) onInterrupt->event("IRQ");
+    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
     return interrupt();
   }
 
-  if(tracer->enabled() && tracer->address(r.pc)) {
-    tracer->instruction(disassembleInstruction(), disassembleContext());
+  if(eventInstruction->enabled() && eventInstruction->address(r.pc)) {
+    eventInstruction->notify(disassembleInstruction(), disassembleContext());
   }
   instruction();
 }

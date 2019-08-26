@@ -8,18 +8,19 @@ SA1 sa1;
 #include "serialization.cpp"
 
 auto SA1::load(Node::Object parent, Node::Object from) -> void {
-  logger.attach(tracer);
-  tracer->setSource("sa1");
-  tracer->setAddressBits(24);
+  node = Node::append<Node::Component>(parent, from, "SA1");
+  from = Node::scan(parent = node, from);
 
-  logger.attach(onInterrupt);
-  onInterrupt->setSource("sa1");
-  onInterrupt->setName("interrupt");
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "SA1");
+  eventInstruction->setAddressBits(24);
+
+  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "SA1");
 }
 
 auto SA1::unload() -> void {
-  logger.detach(tracer);
-  logger.detach(onInterrupt);
+  eventInstruction = {};
+  eventInterrupt = {};
+  node = {};
 
   rom.reset();
   iram.reset();
@@ -41,13 +42,13 @@ auto SA1::main() -> void {
 
   if(status.interruptPending) {
     status.interruptPending = false;
-    if(onInterrupt->enabled()) onInterrupt->event("IRQ");
+    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
     interrupt();
     return;
   }
 
-  if(tracer->enabled() && tracer->address(r.pc.d)) {
-    tracer->instruction(disassembleInstruction(), disassembleContext());
+  if(eventInstruction->enabled() && eventInstruction->address(r.pc.d)) {
+    eventInstruction->notify(disassembleInstruction(), disassembleContext());
   }
   instruction();
 }

@@ -1,12 +1,15 @@
 struct HitachiDSP : HG51B, Thread {
+  Node::Component node;
   ReadableMemory rom;
   WritableMemory ram;
 
   //hitachidsp.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto step(uint clocks) -> void override;
   auto halt() -> void override;
 
-  auto unload() -> void;
   auto power() -> void;
 
   auto isROM(uint24 address) -> bool override;

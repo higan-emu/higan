@@ -1,4 +1,7 @@
 struct CPU : ARM7TDMI, Thread, IO {
+  Node::Component node;
+  Node::Instruction eventInstruction;
+
   struct Interrupt { enum : uint {
     VBlank       = 0x0001,
     HBlank       = 0x0002,
@@ -21,11 +24,11 @@ struct CPU : ARM7TDMI, Thread, IO {
   inline auto stopped() const -> bool { return context.stopped; }
 
   //cpu.cpp
-  static auto Enter() -> void;
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
-
   auto step(uint clocks) -> void override;
-
   auto power() -> void;
 
   //prefetch.cpp

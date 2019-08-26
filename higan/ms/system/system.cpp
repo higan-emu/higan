@@ -42,6 +42,7 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   controls.load(node, from);
   video.load(node, from);
+  cpu.load(node, from);
   vdp.load(node, from);
   psg.load(node, from);
   opll.load(node, from);
@@ -65,10 +66,14 @@ auto System::unload() -> void {
     controllerPort1.port = {};
     controllerPort2.port = {};
   }
+  cpu.unload();
   vdp.unload();
   psg.unload();
   opll.unload();
   node = {};
+
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::power() -> void {

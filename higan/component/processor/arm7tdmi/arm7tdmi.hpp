@@ -115,8 +115,8 @@ struct ARM7TDMI {
   auto serialize(serializer&) -> void;
 
   //disassembler.cpp
-  auto disassemble(maybe<uint32> pc = nothing, maybe<boolean> thumb = nothing) -> string;
-  auto disassembleRegisters() -> string;
+  auto disassembleInstruction(maybe<uint32> pc = {}, maybe<boolean> thumb = {}) -> string;
+  auto disassembleContext() -> string;
 
   struct GPR {
     inline operator uint32_t() const { return data; }
@@ -226,8 +226,8 @@ struct ARM7TDMI {
   boolean carry;
   boolean irq;
 
-  function<auto (uint32 opcode) -> void> armInstruction[4096];
-  function<auto () -> void> thumbInstruction[65536];
+  function<void (uint32 opcode)> armInstruction[4096];
+  function<void ()> thumbInstruction[65536];
 
   //disassembler.cpp
   auto armDisassembleBranch(int24, uint1) -> string;
@@ -275,8 +275,8 @@ struct ARM7TDMI {
   auto thumbDisassembleStackMultiple(uint8, uint1, uint1) -> string;
   auto thumbDisassembleUndefined() -> string;
 
-  function<auto (uint32 opcode) -> string> armDisassemble[4096];
-  function<auto () -> string> thumbDisassemble[65536];
+  function<string (uint32 opcode)> armDisassemble[4096];
+  function<string ()> thumbDisassemble[65536];
 
   uint32 _pc;
   string _c;

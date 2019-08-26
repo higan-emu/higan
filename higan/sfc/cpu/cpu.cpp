@@ -11,24 +11,23 @@ CPU cpu;
 #include "serialization.cpp"
 
 auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  logger.attach(tracer);
-  tracer->setSource("cpu");
-  tracer->setAddressBits(24);
-
-  logger.attach(onInterrupt);
-  onInterrupt->setSource("cpu");
-  onInterrupt->setName("interrupt");
-
   node = Node::append<Node::Component>(parent, from, "CPU");
   from = Node::scan(parent = node, from);
 
   version = Node::append<Node::Natural>(parent, from, "Version", 2);
   version->setAllowedValues({1, 2});
+
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
+  eventInstruction->setAddressBits(24);
+
+  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
 }
 
 auto CPU::unload() -> void {
-  logger.detach(tracer);
-  logger.detach(onInterrupt);
+  version = {};
+  eventInstruction = {};
+  eventInterrupt = {};
+  node = {};
 }
 
 auto CPU::main() -> void {
@@ -36,8 +35,8 @@ auto CPU::main() -> void {
   if(r.stp) return instructionStop();
 
   if(!status.interruptPending) {
-    if(tracer->enabled() && tracer->address(r.pc.d)) {
-      tracer->instruction(disassembleInstruction(), disassembleContext(), {
+    if(eventInstruction->enabled() && eventInstruction->address(r.pc.d)) {
+      eventInstruction->notify(disassembleInstruction(), disassembleContext(), {
         "V:", pad(vcounter(), 3L), " ", "H:", pad(hcounter(), 4L), " I:", (uint)field()
       });
     }
@@ -47,14 +46,14 @@ auto CPU::main() -> void {
   if(status.nmiPending) {
     status.nmiPending = 0;
     r.vector = r.e ? 0xfffa : 0xffea;
-    if(onInterrupt->enabled()) onInterrupt->event("NMI");
+    if(eventInterrupt->enabled()) eventInterrupt->notify("NMI");
     return interrupt();
   }
 
   if(status.irqPending) {
     status.irqPending = 0;
     r.vector = r.e ? 0xfffe : 0xffee;
-    if(onInterrupt->enabled()) onInterrupt->event("IRQ");
+    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
     return interrupt();
   }
 
@@ -62,7 +61,7 @@ auto CPU::main() -> void {
     status.resetPending = 0;
     step(132);
     r.vector = 0xfffc;
-    if(onInterrupt->enabled()) onInterrupt->event("reset");
+    if(eventInterrupt->enabled()) eventInterrupt->notify("Reset");
     return interrupt();  //H=186
   }
 

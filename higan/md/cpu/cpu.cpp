@@ -8,18 +8,19 @@ CPU cpu;
 #include "serialization.cpp"
 
 auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  logger.attach(tracer);
-  tracer->setSource("cpu");
-  tracer->setAddressBits(24);
+  node = Node::append<Node::Component>(parent, from, "CPU");
+  from = Node::scan(parent = node, from);
 
-  logger.attach(onInterrupt);
-  onInterrupt->setSource("cpu");
-  onInterrupt->setName("interrupt");
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
+  eventInstruction->setAddressBits(24);
+
+  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
 }
 
 auto CPU::unload() -> void {
-  logger.detach(tracer);
-  logger.detach(onInterrupt);
+  eventInstruction = {};
+  eventInterrupt = {};
+  node = {};
 }
 
 auto CPU::main() -> void {
@@ -30,11 +31,13 @@ auto CPU::main() -> void {
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
       prefetch();
       prefetch();
+      if(eventInterrupt->enabled()) eventInterrupt->notify("Reset");
     }
 
     if(state.interruptPending.bit((uint)Interrupt::HorizontalBlank)) {
       if(4 > r.i) {
         state.interruptPending.bit((uint)Interrupt::HorizontalBlank) = 0;
+        if(eventInterrupt->enabled()) eventInterrupt->notify("Hblank");
         return interrupt(Vector::Level4, 4);
       }
     }
@@ -42,15 +45,15 @@ auto CPU::main() -> void {
     if(state.interruptPending.bit((uint)Interrupt::VerticalBlank)) {
       if(6 > r.i) {
         state.interruptPending.bit((uint)Interrupt::VerticalBlank) = 0;
+        if(eventInterrupt->enabled()) eventInterrupt->notify("Vblank");
         return interrupt(Vector::Level6, 6);
       }
     }
   }
 
-  if(tracer->enabled() && tracer->address(r.pc - 4)) {
-    tracer->instruction(disassembleInstruction(r.pc - 4), disassembleContext());
+  if(eventInstruction->enabled() && eventInstruction->address(r.pc - 4)) {
+    eventInstruction->notify(disassembleInstruction(r.pc - 4), disassembleContext());
   }
-
   instruction();
 }
 

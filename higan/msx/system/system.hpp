@@ -29,8 +29,9 @@ struct System {
   auto runToSave() -> void;
 
   auto load(Node::Object) -> void;
-  auto unload() -> void;
   auto save() -> void;
+  auto unload() -> void;
+
   auto power() -> void;
 
   //serialization.cpp

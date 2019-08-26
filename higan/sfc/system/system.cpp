@@ -28,7 +28,6 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
 
-  higan::logger.reset(interface);
   higan::video.reset(interface);
   higan::audio.reset(interface);
 
@@ -69,7 +68,6 @@ auto System::unload() -> void {
   ppu.unload();
   node.reset();
 
-  higan::logger.reset();
   higan::video.reset();
   higan::audio.reset();
 }

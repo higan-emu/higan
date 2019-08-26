@@ -12,6 +12,19 @@ CPU cpu;
 #include "keypad.cpp"
 #include "serialization.cpp"
 
+auto CPU::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Component>(parent, from, "CPU");
+  from = Node::scan(parent = node, from);
+
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
+  eventInstruction->setAddressBits(32);
+}
+
+auto CPU::unload() -> void {
+  node = {};
+  eventInstruction = {};
+}
+
 auto CPU::main() -> void {
   ARM7TDMI::irq = irq.ime && (irq.enable & irq.flag);
 
@@ -30,6 +43,9 @@ auto CPU::main() -> void {
     context.halted = false;
   }
 
+  if(eventInstruction->enabled() && eventInstruction->address(pipeline.execute.address)) {
+    eventInstruction->notify(disassembleInstruction(), disassembleContext());
+  }
   instruction();
 }
 

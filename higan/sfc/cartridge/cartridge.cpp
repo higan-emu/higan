@@ -25,6 +25,8 @@ auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
   loadCartridge(information.document);
   if(has.SA1) sa1.load(node, with);
   if(has.SuperFX) superfx.load(node, with);
+  if(has.ARMDSP) armdsp.load(node, with);
+  if(has.HitachiDSP) hitachidsp.load(node, with);
   if(has.NECDSP) necdsp.load(node, with);
   if(has.MSU1) msu1.load(node, with);
   if(has.GameBoySlot) icd.load(node, with);

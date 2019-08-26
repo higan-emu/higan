@@ -1,4 +1,7 @@
 struct APU : Z80, Z80::Bus, Thread {
+  Node::Component node;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
   Memory::Writable<uint8> ram;
 
   inline auto serializing() const -> bool override { return scheduler.serializing(); }

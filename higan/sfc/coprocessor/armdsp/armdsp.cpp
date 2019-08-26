@@ -1,6 +1,23 @@
 ArmDSP armdsp;
 #include "memory.cpp"
+#include "io.cpp"
 #include "serialization.cpp"
+
+auto ArmDSP::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Component>(parent, from, "ARM");
+  from = Node::scan(parent = node, from);
+
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "ARM");
+  eventInstruction->setAddressBits(32);
+}
+
+auto ArmDSP::unload() -> void {
+  eventInstruction = {};
+  node = {};
+
+  cpu.coprocessors.removeByValue(this);
+  Thread::destroy();
+}
 
 auto ArmDSP::boot() -> void {
   //reset hold delay
@@ -18,6 +35,9 @@ auto ArmDSP::boot() -> void {
 
 auto ArmDSP::main() -> void {
   processor.cpsr.t = 0;  //force ARM mode
+  if(eventInstruction->enabled() && eventInstruction->address(pipeline.execute.address)) {
+    eventInstruction->notify(disassembleInstruction(), disassembleContext());
+  }
   instruction();
 }
 
@@ -25,56 +45,6 @@ auto ArmDSP::step(uint clocks) -> void {
   if(bridge.timer && --bridge.timer == 0);
   Thread::step(clocks);
   Thread::synchronize(cpu);
-}
-
-//MMIO: 00-3f,80-bf:3800-38ff
-//3800-3807 mirrored throughout
-//a0 ignored
-
-auto ArmDSP::read(uint24 address, uint8) -> uint8 {
-  cpu.synchronize(*this);
-
-  uint8 data = 0x00;
-  address &= 0xff06;
-
-  if(address == 0x3800) {
-    if(bridge.armtocpu.ready) {
-      bridge.armtocpu.ready = false;
-      data = bridge.armtocpu.data;
-    }
-  }
-
-  if(address == 0x3802) {
-    bridge.signal = false;
-  }
-
-  if(address == 0x3804) {
-    data = bridge.status();
-  }
-
-  return data;
-}
-
-auto ArmDSP::write(uint24 address, uint8 data) -> void {
-  cpu.synchronize(*this);
-
-  address &= 0xff06;
-
-  if(address == 0x3802) {
-    bridge.cputoarm.ready = true;
-    bridge.cputoarm.data = data;
-  }
-
-  if(address == 0x3804) {
-    data &= 1;
-    if(!bridge.reset && data) reset();
-    bridge.reset = data;
-  }
-}
-
-auto ArmDSP::unload() -> void {
-  cpu.coprocessors.removeByValue(this);
-  Thread::destroy();
 }
 
 auto ArmDSP::power() -> void {

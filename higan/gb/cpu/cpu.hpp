@@ -1,8 +1,8 @@
 struct CPU : SM83, Thread {
-  Shared::Tracer tracer;
-  Shared::Notification onInterrupt;
   Node::Component node;
   Node::String version;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
 
   struct Interrupt { enum : uint {
     /* 0 */ VerticalBlank,

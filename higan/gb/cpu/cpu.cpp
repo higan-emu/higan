@@ -12,16 +12,6 @@ namespace higan::GameBoy {
 CPU cpu;
 
 auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  logger.attach(tracer);
-  tracer->setSource(!Model::SuperGameBoy() ? "cpu" : "sgb");
-  tracer->setAddressBits(!Model::SuperGameBoy() ? 16 : 24);  //24 to align with SNES bus width
-
-  logger.attach(onInterrupt);
-  onInterrupt->setSource(!Model::SuperGameBoy() ? "cpu" : "sgb");
-  onInterrupt->setName("interrupt");
-
-  if(Model::SuperGameBoy()) return;
-
   node = Node::append<Node::Component>(parent, from, "CPU");
   from = Node::scan(parent = node, from);
 
@@ -55,11 +45,20 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
       "CPU CGB E",
     });
   }
+
+  string origin = Model::SuperGameBoy() ? "SGB" : "CPU";
+
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", origin);
+  eventInstruction->setAddressBits(16);
+
+  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", origin);
 }
 
 auto CPU::unload() -> void {
-  logger.detach(tracer);
-  logger.detach(onInterrupt);
+  node = {};
+  version = {};
+  eventInstruction = {};
+  eventInterrupt = {};
 }
 
 auto CPU::main() -> void {
@@ -72,7 +71,7 @@ auto CPU::main() -> void {
   if(r.ime) {
     //are any interrupts pending?
     if(status.interruptLatch) {
-      if(onInterrupt->enabled()) onInterrupt->event("IRQ");
+      if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
 
       idle();
       idle();
@@ -92,8 +91,8 @@ auto CPU::main() -> void {
     }
   }
 
-  if(tracer->enabled() && tracer->address(PC)) {
-    tracer->instruction(disassembleInstruction(), disassembleContext());
+  if(eventInstruction->enabled() && eventInstruction->address(PC)) {
+    eventInstruction->notify(disassembleInstruction(), disassembleContext());
   }
   instruction();
 

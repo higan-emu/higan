@@ -136,6 +136,7 @@ auto System::load(Node::Object from) -> void {
   controls.load(node, from);
   video.load(node, from);
   audio.load(node, from);
+  cpu.load(node, from);
   ppu.load(node, from);
   apu.load(node, from);
   cartridge.load(node, from);
@@ -160,9 +161,13 @@ auto System::unload() -> void {
   bootROM.reset();
   eeprom.reset();
   cartridge.port = {};
+  cpu.unload();
   ppu.unload();
   apu.unload();
   node = {};
+
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::power() -> void {

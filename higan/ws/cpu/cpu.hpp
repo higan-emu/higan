@@ -1,4 +1,7 @@
 struct CPU : V30MZ, Thread, IO {
+  Node::Component node;
+  Node::Instruction eventInstruction;
+
   enum class Interrupt : uint {
     SerialSend,
     Input,
@@ -9,6 +12,10 @@ struct CPU : V30MZ, Thread, IO {
     Vblank,
     HblankTimer,
   };
+
+  //cpu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
 
   auto main() -> void;
   auto step(uint clocks) -> void;

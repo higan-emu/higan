@@ -20,13 +20,13 @@ MCD mcd;
 #include "serialization.cpp"
 
 auto MCD::load(Node::Object parent, Node::Object from) -> void {
-  logger.attach(tracer);
-  tracer->setSource("mcd");
-  tracer->setAddressBits(24);
+  node = Node::append<Node::Component>(parent, from, "Mega CD");
+  from = Node::scan(parent = node, from);
 
-  logger.attach(onInterrupt);
-  onInterrupt->setSource("mcd");
-  onInterrupt->setName("interrupt");
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "MCD");
+  eventInstruction->setAddressBits(24);
+
+  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "MCD");
 
   tray = Node::append<Node::Port>(parent, from, "Disc Tray", "Mega CD");
   tray->hotSwappable = true;
@@ -58,8 +58,6 @@ auto MCD::unload() -> void {
     }
   }
 
-  logger.detach(tracer);
-  logger.detach(onInterrupt);
   cdd.unload();
   pcm.unload();
 
@@ -68,6 +66,11 @@ auto MCD::unload() -> void {
   wram.reset();
   bram.reset();
   cdc.ram.reset();
+
+  node = {};
+  eventInstruction = {};
+  eventInterrupt = {};
+  tray = {};
 }
 
 auto MCD::connect(Node::Peripheral with) -> void {
@@ -90,13 +93,32 @@ auto MCD::main() -> void {
   if(io.halt) return wait(16);
 
   if(irq.pending) {
-    if(1 > r.i && gpu.irq.lower())      return interrupt(Vector::Level1, 1);
-    if(2 > r.i && external.irq.lower()) return interrupt(Vector::Level2, 2);
-    if(3 > r.i && timer.irq.lower())    return interrupt(Vector::Level3, 3);
-    if(4 > r.i && cdd.irq.lower())      return interrupt(Vector::Level4, 4);
-    if(5 > r.i && cdc.irq.lower())      return interrupt(Vector::Level5, 5);
-    if(6 > r.i && irq.subcode.lower())  return interrupt(Vector::Level6, 6);
+    if(1 > r.i && gpu.irq.lower()) {
+      if(eventInterrupt->enabled()) eventInterrupt->notify("GPU");
+      return interrupt(Vector::Level1, 1);
+    }
+    if(2 > r.i && external.irq.lower()) {
+      if(eventInterrupt->enabled()) eventInterrupt->notify("External");
+      return interrupt(Vector::Level2, 2);
+    }
+    if(3 > r.i && timer.irq.lower()) {
+      if(eventInterrupt->enabled()) eventInterrupt->notify("Timer");
+      return interrupt(Vector::Level3, 3);
+    }
+    if(4 > r.i && cdd.irq.lower()) {
+      if(eventInterrupt->enabled()) eventInterrupt->notify("CDD");
+      return interrupt(Vector::Level4, 4);
+    }
+    if(5 > r.i && cdc.irq.lower()) {
+      if(eventInterrupt->enabled()) eventInterrupt->notify("CDC");
+      return interrupt(Vector::Level5, 5);
+    }
+    if(6 > r.i && irq.subcode.lower()) {
+      if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
+      return interrupt(Vector::Level6, 6);
+    }
     if(irq.reset.lower()) {
+      if(eventInterrupt->enabled()) eventInterrupt->notify("Reset");
       r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
       prefetch();
@@ -105,10 +127,9 @@ auto MCD::main() -> void {
     }
   }
 
-  if(tracer->enabled() && tracer->address(r.pc - 4)) {
-    tracer->instruction(disassembleInstruction(r.pc - 4), disassembleContext());
+  if(eventInstruction->enabled() && eventInstruction->address(r.pc - 4)) {
+    eventInstruction->notify(disassembleInstruction(r.pc - 4), disassembleContext());
   }
-
   instruction();
 }
 

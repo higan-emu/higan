@@ -3,21 +3,24 @@ NECDSP necdsp;
 #include "serialization.cpp"
 
 auto NECDSP::load(Node::Object parent, Node::Object from) -> void {
-  logger.attach(tracer);
-  tracer->setSource("nec");
-  tracer->setAddressBits(24);  //14-bits; use 24-bits to match CPU bus width
+  node = Node::append<Node::Component>(parent, from, "NEC");
+  from = Node::scan(parent = node, from);
+
+  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "NEC");
+  eventInstruction->setAddressBits(14);
 }
 
 auto NECDSP::unload() -> void {
-  logger.detach(tracer);
+  eventInstruction = {};
+  node = {};
 
   cpu.coprocessors.removeByValue(this);
   Thread::destroy();
 }
 
 auto NECDSP::main() -> void {
-  if(tracer->enabled() && tracer->address(regs.pc)) {
-    tracer->instruction(disassembleInstruction(), disassembleContext());
+  if(eventInstruction->enabled() && eventInstruction->address(regs.pc)) {
+    eventInstruction->notify(disassembleInstruction(), disassembleContext());
   }
   exec();
 

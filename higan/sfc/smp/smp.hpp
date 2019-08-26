@@ -1,7 +1,8 @@
 //Sony CXP1100Q-1
 
 struct SMP : SPC700, Thread {
-  Shared::Tracer tracer;
+  Node::Component node;
+  Node::Instruction eventInstruction;
 
   inline auto serializing() const -> bool override { return scheduler.serializing(); }
 

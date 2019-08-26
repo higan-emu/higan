@@ -1,8 +1,16 @@
 //Hudson Soft HuC6280
 
 struct CPU : HuC6280, Thread {
+  Node::Component node;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
+  Memory::Writable<uint8> ram;   //PC Engine = 8KB, SuperGrafx = 32KB
+  Memory::Writable<uint8> bram;  //PC Engine CD-ROM Backup RAM = 2KB
+
   //cpu.cpp
-  CPU();
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void override;
   auto power() -> void;
@@ -18,9 +26,6 @@ struct CPU : HuC6280, Thread {
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
-
-  Memory::Writable<uint8> ram;   //PC Engine = 8KB, SuperGrafx = 32KB
-  Memory::Writable<uint8> bram;  //PC Engine CD-ROM Backup RAM = 2KB
 
 private:
   struct IRQ {

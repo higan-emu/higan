@@ -1,8 +1,9 @@
 //Motorola 68000
 
 struct CPU : M68K, Thread {
-  Shared::Tracer tracer;
-  Shared::Notification onInterrupt;
+  Node::Component node;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
 
   enum class Interrupt : uint {
     Reset,

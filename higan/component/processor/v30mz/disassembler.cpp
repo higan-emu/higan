@@ -1,14 +1,9 @@
-auto V30MZ::disassemble() -> string {
-  return disassemble(r.cs, r.ip);
-}
-
-auto V30MZ::disassemble(uint16 cs, uint16 ip) -> string {
+auto V30MZ::disassembleInstruction(uint16 cs, uint16 ip) -> string {
   //hack: prefixes execute as separate instructions; combine them instead
   static uint32 suppress = 0xffffffff;
   if((cs << 16 | ip) == suppress) return {};
 
   string output, repeat, prefix;
-  output.append(hex(r.cs * 16 + r.ip, 5L), "  ");
 
   auto read = [&](uint offset) -> uint8 {
     return V30MZ::read(Byte, cs, ip + offset);
@@ -431,9 +426,16 @@ auto V30MZ::disassemble(uint16 cs, uint16 ip) -> string {
 
   #undef op
 
-  output.size(-48);  //todo: determine the minimum value that will never clip here
-  output.append(" ",
-    " ax:", hex(r.ax, 4L),
+  return pad(output, -36);  //todo: determine the minimum value that will never clip here
+}
+
+auto V30MZ::disassembleInstruction() -> string {
+  return disassembleInstruction(r.cs, r.ip);
+}
+
+auto V30MZ::disassembleContext() -> string {
+  return {
+     "ax:", hex(r.ax, 4L),
     " bx:", hex(r.bx, 4L),
     " cx:", hex(r.cx, 4L),
     " dx:", hex(r.dx, 4L),
@@ -456,7 +458,5 @@ auto V30MZ::disassemble(uint16 cs, uint16 ip) -> string {
     r.f.h ? "H" : "h",
     r.f.p ? "P" : "p",
     r.f.c ? "C" : "c"
-  );
-
-  return output;
+  };
 }

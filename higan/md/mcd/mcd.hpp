@@ -1,13 +1,12 @@
 //Mega CD
 
 struct MCD : M68K, Thread {
-  Shared::Tracer tracer;
-  Shared::Notification onInterrupt;
-  Shared::File fd;
-
+  Node::Component node;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
   Node::Port tray;
   Node::Peripheral disc;
-
+  Shared::File fd;
   Memory::Readable<uint16> bios;  //BIOS ROM
   Memory::Writable<uint16> pram;  //program RAM
   Memory::Writable<uint16> wram;  //work RAM

@@ -31,7 +31,6 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
 
   if(!GameBoy::Model::SuperGameBoy()) {
-    logger.reset(interface);
     ::higan::video.reset(interface);   //todo: no :: prefix
     ::higan::audio.reset(interface);   //todo: no :: prefix
   }
@@ -62,7 +61,6 @@ auto System::unload() -> void {
   bootROM.reset();
   node = {};
 
-  logger.reset();
   ::higan::video.reset();  //todo: no :: prefix
   ::higan::audio.reset();  //todo: no :: prefix
 }

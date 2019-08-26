@@ -1,7 +1,14 @@
 struct CPU : Z80, Z80::Bus, Thread {
+  Node::Component node;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
+
   inline auto serializing() const -> bool override { return scheduler.serializing(); }
 
   //cpu.cpp
+  auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
+
   auto main() -> void;
   auto step(uint clocks) -> void override;
 

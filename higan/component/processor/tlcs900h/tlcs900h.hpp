@@ -287,7 +287,8 @@ struct TLCS900H {
 
   //disassembler.cpp
   virtual auto disassembleRead(uint24 address) -> uint8 { return read(Byte, address); }
-  auto disassemble() -> string;
+  noinline auto disassembleInstruction() -> string;
+  noinline auto disassembleContext() -> string;
 };
 
 }

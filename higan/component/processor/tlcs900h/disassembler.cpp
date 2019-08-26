@@ -1,9 +1,7 @@
-auto TLCS900H::disassemble() -> string {
+auto TLCS900H::disassembleInstruction() -> string {
   string output;
 
   auto pc = r.pc.l.l0;
-  output.append(hex(pc, 6L), "  ");
-
   uint8 op[8] = {}, ops = 0;
 
   auto  read8 = [&]() ->  uint8 { return op[ops++] = disassembleRead(pc++); };
@@ -713,9 +711,11 @@ auto TLCS900H::disassemble() -> string {
     output.trimRight(",", 1L);
   }
 
-//for(auto byte : range(ops)) print("0x", hex(op[byte], 2L), " "); print("\n");
+  return pad(output, -48);
+}
 
-  output.size(-48);
+auto TLCS900H::disassembleContext() -> string {
+  string output;
   output.append("XWA:", hex(r.xwa[r.rfp].l.l0, 8L), " ");
   output.append("XBC:", hex(r.xbc[r.rfp].l.l0, 8L), " ");
   output.append("XDE:", hex(r.xde[r.rfp].l.l0, 8L), " ");

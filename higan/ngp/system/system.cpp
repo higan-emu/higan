@@ -40,6 +40,13 @@ auto System::load(Node::Object from) -> void {
   cartridge.load(node, from);
 }
 
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
+  cpu.save();
+  apu.save();
+}
+
 auto System::unload() -> void {
   if(!node) return;
   bios.reset();
@@ -49,13 +56,9 @@ auto System::unload() -> void {
   vpu.unload();
   psg.unload();
   node = {};
-}
 
-auto System::save() -> void {
-  if(!node) return;
-  cartridge.save();
-  cpu.save();
-  apu.save();
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::power() -> void {

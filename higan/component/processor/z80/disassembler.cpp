@@ -1,4 +1,5 @@
-auto Z80::disassembleInstruction(uint16 pc) -> string {
+auto Z80::disassembleInstruction(maybe<uint16> _pc) -> string {
+  auto pc = _pc ? *_pc : r.pc;
   string s, output;
 
   uint8 prefix = 0x00;

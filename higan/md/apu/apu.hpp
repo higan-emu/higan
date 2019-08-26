@@ -1,8 +1,9 @@
 //Zilog Z80
 
 struct APU : Z80, Z80::Bus, Thread {
-  shared_pointer<Tracer> tracer;
-  shared_pointer<Notification> onInterrupt;
+  Node::Component node;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
 
   //z80.cpp
   auto load(Node::Object, Node::Object) -> void;

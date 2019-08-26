@@ -1,8 +1,9 @@
-auto HuC6280::disassemble(uint16 pc) -> string {
+auto HuC6280::disassembleInstruction() -> string {
+  uint16 pc = r.pc;
   uint8 bank = r.mpr[pc.bit(13,15)];
   uint13 address = pc.bit(0,12);
 
-  string s{hex(bank, 2L), ":", hex(address, 4L), "  "};
+  string s;
 
   auto readByte = [&]() -> uint8 {
     return read(bank, address++);
@@ -333,14 +334,19 @@ U op(0xfc, "nop", "$fc")
   #undef U
 
   if(!o) o = {"??? (", hex(opcode, 2L), ")"};
-  s.append(pad(o, -22L, ' '));
+  s.append(pad(o, -12L, ' '));
   #undef op
 
-  s.append(" A:", hex(r.a, 2L));
+  return s;
+}
+
+auto HuC6280::disassembleContext() -> string {
+  string s;
+  s.append( "A:", hex(r.a, 2L));
   s.append(" X:", hex(r.x, 2L));
   s.append(" Y:", hex(r.y, 2L));
   s.append(" S:", hex(r.s, 2L));
-  s.append(" PC:", hex(pc, 4L));
+  s.append(" PC:", hex(r.pc, 4L));
   s.append(" ");
   s.append(r.p.n ? "N" : "n");
   s.append(r.p.v ? "V" : "v");
@@ -351,6 +357,5 @@ U op(0xfc, "nop", "$fc")
   s.append(r.p.z ? "Z" : "z");
   s.append(r.p.c ? "C" : "c");
   s.append(r.cs == 3 ? "+" : "-");
-
   return s;
 }

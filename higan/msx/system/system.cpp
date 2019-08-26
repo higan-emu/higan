@@ -39,12 +39,19 @@ auto System::load(Node::Object from) -> void {
   scheduler.reset();
   video.load(node, from);
   keyboard.load(node, from);
+  cpu.load(node, from);
   vdp.load(node, from);
   psg.load(node, from);
   cartridge.load(node, from);
   expansion.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
+}
+
+auto System::save() -> void {
+  if(!node) return;
+  cartridge.save();
+  expansion.save();
 }
 
 auto System::unload() -> void {
@@ -54,17 +61,15 @@ auto System::unload() -> void {
   expansion.port = {};
   controllerPort1.port = {};
   controllerPort2.port = {};
+  cpu.unload();
   vdp.unload();
   psg.unload();
   node = {};
   rom.bios.reset();
   rom.sub.reset();
-}
 
-auto System::save() -> void {
-  if(!node) return;
-  cartridge.save();
-  expansion.save();
+  higan::video.reset();
+  higan::audio.reset();
 }
 
 auto System::power() -> void {

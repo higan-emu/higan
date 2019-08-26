@@ -1,8 +1,9 @@
 //Super Accelerator (SA-1)
 
 struct SA1 : WDC65816, Thread {
-  Shared::Tracer tracer;
-  Shared::Notification onInterrupt;
+  Node::Component node;
+  Node::Instruction eventInstruction;
+  Node::Notification eventInterrupt;
 
   //sa1.cpp
   auto load(Node::Object, Node::Object) -> void;

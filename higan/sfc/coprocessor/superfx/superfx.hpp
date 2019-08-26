@@ -1,5 +1,6 @@
 struct SuperFX : GSU, Thread {
-  Shared::Tracer tracer;
+  Node::Component node;
+  Node::Instruction eventInstruction;
   ReadableMemory rom;
   WritableMemory ram;
   WritableMemory bram;

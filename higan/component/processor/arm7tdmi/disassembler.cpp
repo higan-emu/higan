@@ -11,7 +11,7 @@ static const string _conditions[] = {
 #define _comp(mode) (mode >=  8 && mode <= 11)
 #define _math(mode) (mode <=  7 || mode == 12 || mode == 14)
 
-auto ARM7TDMI::disassemble(maybe<uint32> pc, maybe<boolean> thumb) -> string {
+auto ARM7TDMI::disassembleInstruction(maybe<uint32> pc, maybe<boolean> thumb) -> string {
   if(!pc) pc = pipeline.execute.address;
   if(!thumb) thumb = cpsr().t;
 
@@ -20,14 +20,14 @@ auto ARM7TDMI::disassemble(maybe<uint32> pc, maybe<boolean> thumb) -> string {
     uint32 opcode = read(Word | Nonsequential, _pc & ~3);
     uint12 index = (opcode & 0x0ff00000) >> 16 | (opcode & 0x000000f0) >> 4;
     _c = _conditions[opcode >> 28];
-    return {hex(_pc, 8L), "  ", armDisassemble[index](opcode)};
+    return pad(armDisassemble[index](opcode), -40);
   } else {
     uint16 opcode = read(Half | Nonsequential, _pc & ~1);
-    return {hex(_pc, 8L), "  ", thumbDisassemble[opcode]()};
+    return pad(thumbDisassemble[opcode](), -40);
   }
 }
 
-auto ARM7TDMI::disassembleRegisters() -> string {
+auto ARM7TDMI::disassembleContext() -> string {
   string output;
   for(uint n : range(16)) {
     output.append(_r[n], ":", hex(r(n), 8L), " ");

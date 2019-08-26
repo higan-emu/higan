@@ -1,47 +1,53 @@
 namespace higan::Core {
-struct Object;
-  struct System;
-  struct Component;
-  struct RealTimeClock;
-  struct Video;
-  struct Audio;
-  struct Peripheral;
-  struct Port;
-  struct Input;
-    struct Button;
-    struct Axis;
-    struct Trigger;
-    struct Rumble;
-  struct Settings;
-  struct Setting;
-    struct Boolean;
-    struct Natural;
-    struct Integer;
-    struct Real;
-    struct String;
+  struct Object;
+    struct System;
+    struct Component;
+    struct RealTimeClock;
+    struct Video;
+    struct Audio;
+    struct Peripheral;
+    struct Port;
+    struct Input;
+      struct Button;
+      struct Axis;
+      struct Trigger;
+      struct Rumble;
+    struct Settings;
+    struct Setting;
+      struct Boolean;
+      struct Natural;
+      struct Integer;
+      struct Real;
+      struct String;
+    struct Event;
+      struct Notification;
+      struct Instruction;
 }
 
 namespace higan::Node {
-using Object          = shared_pointer<Core::Object>;
-  using System        = shared_pointer<Core::System>;
-  using Component     = shared_pointer<Core::Component>;
-  using RealTimeClock = shared_pointer<Core::RealTimeClock>;
-  using Video         = shared_pointer<Core::Video>;
-  using Audio         = shared_pointer<Core::Audio>;
-  using Peripheral    = shared_pointer<Core::Peripheral>;
-  using Port          = shared_pointer<Core::Port>;
-  using Input         = shared_pointer<Core::Input>;
-    using Button      = shared_pointer<Core::Button>;
-    using Axis        = shared_pointer<Core::Axis>;
-    using Trigger     = shared_pointer<Core::Trigger>;
-    using Rumble      = shared_pointer<Core::Rumble>;
-  using Settings      = shared_pointer<Core::Settings>;
-  using Setting       = shared_pointer<Core::Setting>;
-    using Boolean     = shared_pointer<Core::Boolean>;
-    using Natural     = shared_pointer<Core::Natural>;
-    using Integer     = shared_pointer<Core::Integer>;
-    using Real        = shared_pointer<Core::Real>;
-    using String      = shared_pointer<Core::String>;
+  using Object           = shared_pointer<Core::Object>;
+    using System         = shared_pointer<Core::System>;
+    using Component      = shared_pointer<Core::Component>;
+    using RealTimeClock  = shared_pointer<Core::RealTimeClock>;
+    using Video          = shared_pointer<Core::Video>;
+    using Audio          = shared_pointer<Core::Audio>;
+    using Peripheral     = shared_pointer<Core::Peripheral>;
+    using Port           = shared_pointer<Core::Port>;
+    using Input          = shared_pointer<Core::Input>;
+      using Button       = shared_pointer<Core::Button>;
+      using Axis         = shared_pointer<Core::Axis>;
+      using Trigger      = shared_pointer<Core::Trigger>;
+      using Rumble       = shared_pointer<Core::Rumble>;
+    using Settings       = shared_pointer<Core::Settings>;
+    using Setting        = shared_pointer<Core::Setting>;
+      using Boolean      = shared_pointer<Core::Boolean>;
+      using Natural      = shared_pointer<Core::Natural>;
+      using Integer      = shared_pointer<Core::Integer>;
+      using Real         = shared_pointer<Core::Real>;
+      using String       = shared_pointer<Core::String>;
+    using Event          = shared_pointer<Core::Event>;
+      using Notification = shared_pointer<Core::Notification>;
+      using Instruction  = shared_pointer<Core::Instruction>;
 }
 
 namespace higan::Core {
@@ -62,6 +68,9 @@ namespace higan::Core {
 #include <emulator/node/port.hpp>
 #include <emulator/node/input.hpp>
 #include <emulator/node/setting.hpp>
+#include <emulator/node/event/event.hpp>
+#include <emulator/node/event/notification.hpp>
+#include <emulator/node/event/instruction.hpp>
 
 namespace higan::Node {
   static inline auto create(string identifier) -> Object {
