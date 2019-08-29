@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Settings : Object {
   DeclareClass(Settings, "Settings")
   using Object::Object;
@@ -145,5 +143,3 @@ struct String : Abstract<String, string> {
   DeclareClass(String, "String")
   using Abstract::Abstract;
 };
-
-}

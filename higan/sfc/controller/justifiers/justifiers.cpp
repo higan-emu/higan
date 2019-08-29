@@ -10,11 +10,13 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
   trigger2 = Node::append<Node::Button>(node, with, "Player 2: Trigger");
   start2   = Node::append<Node::Button>(node, with, "Player 2: Start");
 
-  ppu.display->attach(sprite1, 32, 32);
-  sprite1->setPixels(Resource::Sprite::SuperFamicom::CrosshairGreen);
+  sprite1 = Node::append<Node::Sprite>(node, with, "Crosshair - Player 1");
+  sprite1->setImage(Resource::Sprite::SuperFamicom::CrosshairGreen);
+  ppu.screen_->attach(sprite1);
 
-  ppu.display->attach(sprite2, 32, 32);
-  sprite2->setPixels(Resource::Sprite::SuperFamicom::CrosshairRed);
+  sprite2 = Node::append<Node::Sprite>(node, with, "Crosshair - Player 2");
+  sprite2->setImage(Resource::Sprite::SuperFamicom::CrosshairRed);
+  ppu.screen_->attach(sprite2);
 
   Thread::create(system.cpuFrequency(), {&Justifiers::main, this});
   cpu.peripherals.append(this);
@@ -22,8 +24,8 @@ Justifiers::Justifiers(Node::Port parent, Node::Peripheral with) {
 
 Justifiers::~Justifiers() {
   cpu.peripherals.removeByValue(this);
-  ppu.display->detach(sprite1);
-  ppu.display->detach(sprite2);
+  ppu.screen_->detach(sprite1);
+  ppu.screen_->detach(sprite2);
 }
 
 auto Justifiers::main() -> void {

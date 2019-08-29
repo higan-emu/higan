@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 //horrible implementation of run-time introspection:
 //allow converting a unique class string to a derived Node type.
 
@@ -34,5 +32,3 @@ struct Class {
     Register() { Class::register<T>(); }
   };
 };
-
-}

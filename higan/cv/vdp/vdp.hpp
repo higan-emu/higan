@@ -1,5 +1,6 @@
 struct VDP : TMS9918, Thread {
-  Shared::Screen screen;
+  Node::Component node;
+  Node::Screen screen;
 
   //vdp.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -10,6 +11,9 @@ struct VDP : TMS9918, Thread {
   auto frame() -> void override;
   auto refresh() -> void;
   auto power() -> void;
+
+  //color.cpp
+  auto color(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

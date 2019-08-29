@@ -5,7 +5,6 @@ namespace higan::MSX {
 Scheduler scheduler;
 ROM rom;
 System system;
-#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -23,7 +22,6 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "MSX" ) information.model = Model::MSX;
   if(interface->name() == "MSX2") information.model = Model::MSX2;
 
-  higan::video.reset(interface);
   higan::audio.reset(interface);
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
@@ -37,7 +35,6 @@ auto System::load(Node::Object from) -> void {
   });
 
   scheduler.reset();
-  video.load(node, from);
   keyboard.load(node, from);
   cpu.load(node, from);
   vdp.load(node, from);
@@ -68,7 +65,6 @@ auto System::unload() -> void {
   rom.bios.reset();
   rom.sub.reset();
 
-  higan::video.reset();
   higan::audio.reset();
 }
 

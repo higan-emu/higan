@@ -1,6 +1,6 @@
 auto CPU::keypadRead() -> uint4 {
   uint4 data;
-  bool horizontal = system.video.node->rotation == 0;
+  bool horizontal = ppu.screen->rotation() == 0;
 
   if(Model::WonderSwan() || Model::WonderSwanColor() || Model::SwanCrystal() || Model::PocketChallengeV2()) {
     if(r.keypadMatrix.bit(0)) {  //d4

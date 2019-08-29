@@ -50,15 +50,12 @@ auto Emulator::videoUpdate() -> void {
 }
 
 auto Emulator::videoUpdateColors() -> void {
-  higan::video.setFormat(255 << 16, 255 << 8, 255 << 0);  //ARGB24 fallback
-  if(settings.video.format == "ARGB24") higan::video.setFormat( 255 << 16,  255 <<  8,  255 << 0);
-  if(settings.video.format == "RGBA24") higan::video.setFormat( 255 << 24,  255 << 16,  255 << 8);
-  if(settings.video.format == "ARGB30") higan::video.setFormat(1023 << 20, 1023 << 10, 1023 << 0);
-  if(settings.video.format == "RGBA30") higan::video.setFormat(1023 << 22, 1023 << 12, 1023 << 2);
-  higan::video.setLuminance(settings.video.luminance);
-  higan::video.setSaturation(settings.video.saturation);
-  higan::video.setGamma(settings.video.gamma);
-  higan::video.setPalette();
+  if(!root) return;
+  for(auto screen : root->find<higan::Node::Screen>()) {
+    screen->setLuminance(settings.video.luminance);
+    screen->setSaturation(settings.video.saturation);
+    screen->setGamma(settings.video.gamma);
+  }
 }
 
 auto Emulator::videoUpdateShader() -> void {

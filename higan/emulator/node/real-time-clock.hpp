@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct RealTimeClock : Object {
   DeclareClass(RealTimeClock, "Real Time Clock")
   using Object::Object;
@@ -24,5 +22,3 @@ struct RealTimeClock : Object {
 
   function<void ()> update;
 };
-
-}

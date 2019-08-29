@@ -1,14 +1,6 @@
 struct System {
   Node::Object node;
 
-  struct Video {
-    Node::Video node;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto color(uint32) -> uint64;
-  } video;
-
   enum class Model : uint { PCEngine, SuperGrafx };
 
   inline auto model() const -> Model { return information.model; }

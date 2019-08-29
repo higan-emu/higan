@@ -1,5 +1,8 @@
 struct PPU : Thread {
-  Shared::Screen screen;
+  Node::Component node;
+  Node::Screen screen;
+  Node::String region;
+  Node::Boolean colorEmulation;
 
   inline auto rate() const -> uint { return Region::PAL() ? 5 : 4; }
   inline auto vlines() const -> uint { return Region::PAL() ? 312 : 262; }
@@ -34,6 +37,9 @@ struct PPU : Thread {
   auto renderPixel() -> void;
   auto renderSprite() -> void;
   auto renderScanline() -> void;
+
+  //color.cpp
+  auto color(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

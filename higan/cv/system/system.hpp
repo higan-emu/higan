@@ -11,14 +11,6 @@ struct System {
     auto poll() -> void;
   } controls;
 
-  struct Video {
-    Node::Video node;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto color(uint32) -> uint64;
-  } video;
-
   enum class Model : uint { ColecoVision, ColecoAdam };
   enum class Region : uint { NTSC, PAL };
 

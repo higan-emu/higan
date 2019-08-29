@@ -1,5 +1,9 @@
 struct PPU : Thread {
-  Shared::Screen display;
+  Node::Component node;
+  Node::Screen screen;
+  Node::String colorEmulationDMG;
+  Node::Boolean colorEmulationCGB;
+  Node::Boolean interframeBlending;
 
   //ppu.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -13,6 +17,8 @@ struct PPU : Thread {
   auto step(uint clocks) -> void;
 
   auto hflip(uint data) const -> uint;
+
+  auto power() -> void;
 
   //timing.cpp
   auto canAccessVRAM() const -> bool;
@@ -40,8 +46,11 @@ struct PPU : Thread {
   auto runWindowCGB() -> void;
   auto runObjectsCGB() -> void;
 
-  auto power() -> void;
+  //color.cpp
+  auto colorGameBoy(uint32) -> uint64;
+  auto colorGameBoyColor(uint32) -> uint64;
 
+  //serialization.cpp
   auto serialize(serializer&) -> void;
 
   uint8 vram[16384];  //GB = 8192, GBC = 16384
@@ -121,7 +130,7 @@ struct PPU : Thread {
     uint10 mode;  //5 x 2-bit
   } history;
 
-  uint32 screen[160 * 144];
+  uint32 output[160 * 144];
 
   struct Pixel {
     uint16 color;

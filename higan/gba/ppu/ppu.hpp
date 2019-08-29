@@ -1,5 +1,9 @@
 struct PPU : Thread, IO {
-  Shared::Screen display;
+  Node::Component node;
+  Node::Screen screen_;
+  Node::Boolean colorEmulation;
+  Node::Boolean interframeBlending;
+  Node::String rotation;
 
   inline auto blank() -> bool;
 
@@ -28,6 +32,10 @@ struct PPU : Thread, IO {
 
   auto readObjectVRAM(uint addr) const -> uint8;
 
+  //color.cpp
+  auto color(uint32) -> uint64;
+
+  //serialization.cpp
   auto serialize(serializer&) -> void;
 
    uint8 vram[96_KiB];

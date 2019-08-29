@@ -65,15 +65,15 @@ auto Emulator::log(string_view message) -> void {
   print(message, "\n");
 }
 
-auto Emulator::video(higan::Node::Video node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
-  uint videoWidth = node->width * node->scaleX;
-  uint videoHeight = node->height * node->scaleY;
+auto Emulator::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
+  uint videoWidth = node->width() * node->scaleX();
+  uint videoHeight = node->height() * node->scaleY();
 
   if(settings.video.aspectCorrection) {
-    videoWidth = videoWidth * node->aspectX / node->aspectY;
+    videoWidth = videoWidth * node->aspectX() / node->aspectY();
   }
 
-  if(node->rotation == 90 || node->rotation == 270) {
+  if(node->rotation() == 90 || node->rotation() == 270) {
     swap(videoWidth, videoHeight);
   }
 

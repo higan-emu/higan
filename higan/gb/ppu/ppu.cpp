@@ -7,19 +7,65 @@ PPU ppu;
 #include "io.cpp"
 #include "dmg.cpp"
 #include "cgb.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(display, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "PPU");
+  from = Node::scan(parent = node, from);
+
+  if(Model::GameBoy() || Model::GameBoyColor()) {
+    screen = Node::append<Node::Screen>(parent, from, "Screen");
+    from = Node::scan(parent = screen, from);
+
+    if(Model::GameBoy()) {
+      screen->colors(1 << 2, {&PPU::colorGameBoy, this});
+      screen->setSize(160, 144);
+      screen->setScale(1.0, 1.0);
+      screen->setAspect(1.0, 1.0);
+
+      colorEmulationDMG = Node::append<Node::String>(parent, from, "Color Emulation", "Game Boy", [&](auto value) {
+        screen->resetPalette();
+      });
+      colorEmulationDMG->setAllowedValues({"Game Boy", "Game Boy Pocket", "RGB"});
+      colorEmulationDMG->dynamic = true;
+
+      interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+        screen->setInterframeBlending(value);
+      });
+      interframeBlending->dynamic = true;
+    }
+
+    if(Model::GameBoyColor()) {
+      screen->colors(1 << 15, {&PPU::colorGameBoyColor, this});
+      screen->setSize(160, 144);
+      screen->setScale(1.0, 1.0);
+      screen->setAspect(1.0, 1.0);
+
+      colorEmulationCGB = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+        screen->resetPalette();
+      });
+      colorEmulationCGB->dynamic = true;
+
+      interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+        screen->setInterframeBlending(value);
+      });
+      interframeBlending->dynamic = true;
+    }
+  }
 }
 
 auto PPU::unload() -> void {
-  video.detach(display);
+  node = {};
+  screen = {};
+  colorEmulationDMG = {};
+  colorEmulationCGB = {};
+  interframeBlending = {};
 }
 
 auto PPU::main() -> void {
   if(!status.displayEnable) {
-    for(uint n : range(160 * 144)) screen[n] = Model::GameBoyColor() ? 0x7fff : 0;
+    for(uint n : range(160 * 144)) output[n] = Model::GameBoyColor() ? 0x7fff : 0;
     step(154 * 456);
     scheduler.exit(Event::Frame);
     return;
@@ -110,7 +156,7 @@ auto PPU::coincidence() -> bool {
 
 auto PPU::refresh() -> void {
   if(!Model::SuperGameBoy()) {
-    display->refresh(screen, 160 * sizeof(uint32), 160, 144);
+    screen->refresh(output, 160 * sizeof(uint32), 160, 144);
   }
 }
 
@@ -174,7 +220,7 @@ auto PPU::power() -> void {
   latch = {};
   history = {};
 
-  for(auto& n : screen) n = 0;
+  for(auto& n : output) n = 0;
 
   bg.color = 0;
   bg.palette = 0;

@@ -1,6 +1,6 @@
 struct Justifiers : Controller, Thread {
-  Shared::Sprite sprite1;
-  Shared::Sprite sprite2;
+  Node::Sprite sprite1;
+  Node::Sprite sprite2;
   Node::Axis x1;
   Node::Axis y1;
   Node::Button trigger1;

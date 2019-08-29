@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Property {
   Property(const string& name, const any& value = {}) : name(name), value(value) {}
   auto operator==(const Property& source) const -> bool { return name == source.name; }
@@ -8,5 +6,3 @@ struct Property {
   string name;
   any value;
 };
-
-}

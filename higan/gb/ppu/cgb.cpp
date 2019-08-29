@@ -86,7 +86,7 @@ auto PPU::runCGB() -> void {
     color = bg.color;
   }
 
-  uint32* output = screen + status.ly * 160 + px++;
+  uint32* output = this->output + status.ly * 160 + px++;
   *output = color;
 }
 

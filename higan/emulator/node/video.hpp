@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Video : Object {
   DeclareClass(Video, "Video")
   using Object::Object;
@@ -42,5 +40,3 @@ struct Video : Object {
 
   function<uint64 (uint32)> color;
 };
-
-}

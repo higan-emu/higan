@@ -4,7 +4,6 @@ namespace higan::PCEngine {
 
 Scheduler scheduler;
 System system;
-#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -22,13 +21,11 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "PC Engine" ) information.model = Model::PCEngine;
   if(interface->name() == "SuperGrafx") information.model = Model::SuperGrafx;
 
-  higan::video.reset(interface);
   higan::audio.reset(interface);
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
 
   scheduler.reset();
-  video.load(node, from);
   cpu.load(node, from);
   vce.load(node, from);
   psg.load(node, from);
@@ -51,7 +48,6 @@ auto System::unload() -> void {
   psg.unload();
   node = {};
 
-  higan::video.reset();
   higan::audio.reset();
 }
 

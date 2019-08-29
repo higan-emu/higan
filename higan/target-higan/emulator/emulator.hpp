@@ -17,7 +17,7 @@ struct Emulator : higan::Platform {
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto event(higan::Event) -> void override;
   auto log(string_view message) -> void override;
-  auto video(higan::Node::Video, const uint32_t* data, uint pitch, uint width, uint height) -> void override;
+  auto video(higan::Node::Screen, const uint32_t* data, uint pitch, uint width, uint height) -> void override;
   auto audio(higan::Node::Audio, const double* samples, uint channels) -> void override;
   auto input(higan::Node::Input) -> void override;
 

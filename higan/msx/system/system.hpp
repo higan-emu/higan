@@ -7,16 +7,6 @@ struct System {
   Node::Object node;
   Node::String regionNode;
 
-  struct Video {
-    Node::Video node;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto unload() -> void;
-    auto colorMSX(uint32) -> uint64;
-    auto colorMSX2(uint32) -> uint64;
-  } video;
-
   enum class Model : uint { MSX, MSX2 };
   enum class Region : uint { NTSC, PAL };
 

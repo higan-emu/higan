@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Event : Object {
   DeclareClass(Event, "Event")
 
@@ -29,5 +27,3 @@ protected:
   string _component;
   bool _enabled = false;
 };
-
-}

@@ -41,6 +41,7 @@ auto NodeManager::refresh() -> void {
 
 auto NodeManager::refresh(higan::Node::Object node, uint depth) -> void {
   if(node->is<higan::Node::Input>()) return;
+  if(node->is<higan::Node::Sprite>()) return;
   if(node->is<higan::Node::Component>() && !settings.interface.advancedMode) return;
 
   ListViewItem item{&nodeList};

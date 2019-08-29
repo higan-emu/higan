@@ -29,16 +29,6 @@ struct System {
     bool rightLatch = 0;
   } controls;
 
-  struct Video {
-    Node::Video node;
-    Node::Boolean interframeBlending;  //Game Gear only
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto colorMasterSystem(uint32) -> uint64;
-    auto colorGameGear(uint32) -> uint64;
-  } video;
-
   enum class Model : uint { MasterSystem, GameGear };
   enum class Region : uint { NTSC, PAL };
 

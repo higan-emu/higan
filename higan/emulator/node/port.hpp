@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Port : Object {
   DeclareClass(Port, "Port")
 
@@ -58,5 +56,3 @@ struct Port : Object {
   function<void (Node::Peripheral)> attach;
   function<void (Node::Peripheral)> detach;
 };
-
-}

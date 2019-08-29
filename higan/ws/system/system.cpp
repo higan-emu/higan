@@ -7,7 +7,6 @@ System system;
 #define Model higan::WonderSwan::Model
 #define SoC higan::WonderSwan::SoC
 #include "controls.cpp"
-#include "video.cpp"
 #include "audio.cpp"
 #undef Model
 #undef SoC
@@ -36,7 +35,6 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Pocket Challenge V2") information.soc = SoC::ASWAN,   information.model = Model::PocketChallengeV2;
   if(interface->name() == "mamaMitte"          ) information.soc = SoC::SPHINX2, information.model = Model::MamaMitte;
 
-  higan::video.reset(interface);
   higan::audio.reset(interface);
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
@@ -134,7 +132,6 @@ auto System::load(Node::Object from) -> void {
 
   scheduler.reset();
   controls.load(node, from);
-  video.load(node, from);
   audio.load(node, from);
   cpu.load(node, from);
   ppu.load(node, from);
@@ -166,7 +163,6 @@ auto System::unload() -> void {
   apu.unload();
   node = {};
 
-  higan::video.reset();
   higan::audio.reset();
 }
 

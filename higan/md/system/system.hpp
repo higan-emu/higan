@@ -14,15 +14,6 @@ struct System {
     auto poll() -> void;
   } controls;
 
-  struct Video {
-    Node::Video node;
-    Node::String display;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto color(uint32) -> uint64;
-  } video;
-
   enum class Region : uint { NTSCJ, NTSCU, PAL };
 
   inline auto region() const -> Region { return information.region; }

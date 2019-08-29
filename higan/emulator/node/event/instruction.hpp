@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Instruction : Event {
   DeclareClass(Instruction, "Instruction")
 
@@ -78,5 +76,3 @@ protected:
   uint64 _omitted = 0;
   vector<uint64> _history;
 };
-
-}

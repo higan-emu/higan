@@ -2,7 +2,9 @@
 //K2GE: K2 Graphics Engine (Neo Geo Pocket Color)
 
 struct VPU : Thread {
-  Shared::Screen display;
+  Node::Component node;
+  Node::Screen screen_;
+  Node::Boolean interframeBlending;
 
   //vpu.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -37,6 +39,10 @@ struct VPU : Thread {
   //sprite.cpp
   auto cacheSprites(uint8 y) -> void;
   auto renderSprite(uint8 x) -> bool;
+
+  //color.cpp
+  auto colorNeoGeoPocket(uint32) -> uint64;
+  auto colorNeoGeoPocketColor(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

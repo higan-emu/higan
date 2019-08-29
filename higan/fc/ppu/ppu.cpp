@@ -5,14 +5,38 @@ namespace higan::Famicom {
 PPU ppu;
 #include "memory.cpp"
 #include "render.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(screen, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "PPU");
+  from = Node::scan(parent = node, from);
+
+  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen->colors(1 << 9, {&PPU::color, this});
+  screen->setSize(256, 240);
+  screen->setScale(1.0, 1.0);
+  screen->setAspect(8.0, 7.0);
+  from = Node::scan(parent = screen, from);
+
+  region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
+    if(region == "NTSC") screen->setSize(256, 224);
+    if(region == "PAL" ) screen->setSize(256, 240);
+  });
+  region->setAllowedValues({"NTSC", "PAL"});
+  region->dynamic = true;
+
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    screen->resetPalette();
+  });
+  colorEmulation->dynamic = true;
 }
 
 auto PPU::unload() -> void {
-  video.detach(screen);
+  node = {};
+  screen = {};
+  region = {};
+  colorEmulation = {};
 }
 
 auto PPU::main() -> void {
@@ -55,11 +79,11 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  if(system.video.display->value() == "NTSC") {
+  if(region->value() == "NTSC") {
     screen->refresh(buffer + 8 * 256, 256 * sizeof(uint32), 256, 224);
   }
 
-  if(system.video.display->value() == "PAL") {
+  if(region->value() == "PAL") {
     screen->refresh(buffer, 256 * sizeof(uint32), 256, 240);
   }
 }

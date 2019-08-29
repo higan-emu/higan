@@ -1,5 +1,5 @@
 struct Justifier : Controller, Thread {
-  Shared::Sprite sprite;
+  Node::Sprite sprite;
   Node::Axis x;
   Node::Axis y;
   Node::Button trigger;

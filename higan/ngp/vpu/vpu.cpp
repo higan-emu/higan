@@ -7,14 +7,31 @@ VPU vpu;
 #include "window.cpp"
 #include "plane.cpp"
 #include "sprite.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto VPU::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(display, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "VPU");
+  from = Node::scan(parent = node, from);
+
+  screen_ = Node::append<Node::Screen>(parent, from, "Screen");
+  if(Model::NeoGeoPocket()) screen_->colors(1 << 3, {&VPU::colorNeoGeoPocket, this});
+  if(Model::NeoGeoPocketColor()) screen_->colors(1 << 12, {&VPU::colorNeoGeoPocketColor, this});
+  screen_->setSize(160, 152);
+  screen_->setScale(1.0, 1.0);
+  screen_->setAspect(1.0, 1.0);
+  from = Node::scan(parent = screen_, from);
+
+  interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+    screen_->setInterframeBlending(value);
+  });
+  interframeBlending->dynamic = true;
 }
 
 auto VPU::unload() -> void {
-  video.detach(display);
+  node = {};
+  screen = {};
+  interframeBlending = {};
 }
 
 auto VPU::main() -> void {
@@ -92,7 +109,7 @@ auto VPU::step(uint clocks) -> void {
 }
 
 auto VPU::refresh() -> void {
-  display->refresh(buffer, 160 * sizeof(uint32), 160, 152);
+  screen_->refresh(buffer, 160 * sizeof(uint32), 160, 152);
 }
 
 auto VPU::power() -> void {

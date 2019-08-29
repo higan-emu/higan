@@ -1,9 +1,12 @@
 struct PPU : Thread, PPUcounter {
-  Shared::Screen display;
   Node::Component node;
   Node::Natural versionPPU1;
   Node::Natural versionPPU2;
   Node::Natural vramSize;
+  Node::Screen screen_;
+  Node::String region;
+  Node::Boolean colorEmulation;
+  Node::Boolean colorBleed;
 
   inline auto interlace() const -> bool { return self.interlace; }
   inline auto overscan() const -> bool { return self.overscan; }
@@ -12,6 +15,7 @@ struct PPU : Thread, PPUcounter {
   //ppu.cpp
   auto load(Node::Object parent, Node::Object from) -> void;
   auto unload() -> void;
+
   auto map() -> void;
   auto power(bool reset) -> void;
   auto refresh() -> void;
@@ -26,6 +30,9 @@ struct PPU : Thread, PPUcounter {
 
   //io.cpp
   auto latchCounters() -> void;
+
+  //color.cpp
+  auto color(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Input : Object {
   DeclareClass(Input, "Input")
   using Object::Object;
@@ -36,5 +34,3 @@ struct Rumble : Input {
 
   boolean enable;
 };
-
-}

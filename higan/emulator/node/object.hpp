@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 //identifier is static, allowing template<typename T> to access via T::identifier
 //identity() is virtual, allowing T* to access via T->identity()
 
@@ -176,5 +174,3 @@ struct Object : shared_pointer_this<Object> {
 private:
   vector<Node::Object> nodes;
 };
-
-}

@@ -29,17 +29,6 @@ struct System {
     bool rightLatch = 0;
   } controls;
 
-  struct Video {
-    Node::Video node;
-    Node::Boolean colorEmulation;
-    Node::Boolean interframeBlending;
-    Node::String orientation;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto color(uint32) -> uint64;
-  } video;
-
   enum class Model : uint { GameBoyAdvance, GameBoyPlayer };
 
   inline auto model() const -> Model { return information.model; }

@@ -32,12 +32,11 @@ using namespace nall;
 #include <emulator/memory/readable.hpp>
 #include <emulator/memory/writable.hpp>
 #include <emulator/audio/audio.hpp>
-#include <emulator/video/video.hpp>
 #include <emulator/resource/resource.hpp>
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.204";
+  static const string Version = "106.205";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";

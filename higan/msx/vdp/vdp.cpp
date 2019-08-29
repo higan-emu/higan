@@ -3,14 +3,35 @@
 namespace higan::MSX {
 
 VDP vdp;
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(display, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "VDP");
+  from = Node::scan(parent = node, from);
+
+  if(Model::MSX()) {
+    screen_ = Node::append<Node::Screen>(parent, from, "Screen");
+    screen_->colors(1 << 4, {&VDP::colorMSX, this});
+    screen_->setSize(256, 192);
+    screen_->setScale(1.0, 1.0);
+    screen_->setAspect(1.0, 1.0);
+    from = Node::scan(parent = screen_, from);
+  }
+
+  if(Model::MSX2()) {
+    screen_ = Node::append<Node::Screen>(parent, from, "Screen");
+    screen_->colors(1 << 9, {&VDP::colorMSX2, this});
+    screen_->setSize(512, 424);
+    screen_->setScale(0.5, 0.5);
+    screen_->setAspect(1.0, 1.0);
+    from = Node::scan(parent = screen_, from);
+  }
 }
 
 auto VDP::unload() -> void {
-  video.detach(display);
+  node = {};
+  screen_ = {};
 }
 
 auto VDP::step(uint clocks) -> void {
@@ -28,11 +49,11 @@ auto VDP::frame() -> void {
 
 auto VDP::refresh() -> void {
   if(Model::MSX()) {
-    display->refresh(TMS9918::buffer, 256 * sizeof(uint32), 256, 192);
+    screen_->refresh(TMS9918::buffer, 256 * sizeof(uint32), 256, 192);
   }
 
   if(Model::MSX2()) {
-    display->refresh(V9938::buffer, 512 * sizeof(uint32), 512, 424);
+    screen_->refresh(V9938::buffer, 512 * sizeof(uint32), 512, 424);
   }
 }
 

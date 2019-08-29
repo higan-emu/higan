@@ -55,8 +55,6 @@ auto PPU::serialize(serializer& s) -> void {
 
   s.integer(history.mode);
 
-  s.array(screen);
-
   s.integer(bg.color);
   s.integer(bg.palette);
   s.integer(bg.priority);

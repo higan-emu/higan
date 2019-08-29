@@ -5,7 +5,6 @@ namespace higan::GameBoy {
 Scheduler scheduler;
 System system;
 #include "controls.cpp"
-#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -31,7 +30,6 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
 
   if(!GameBoy::Model::SuperGameBoy()) {
-    ::higan::video.reset(interface);   //todo: no :: prefix
     ::higan::audio.reset(interface);   //todo: no :: prefix
   }
 
@@ -39,7 +37,6 @@ auto System::load(Node::Object from) -> void {
 
   scheduler.reset();
   controls.load(node, from);
-  video.load(node, from);
   cpu.load(node, from);
   ppu.load(node, from);
   apu.load(node, from);
@@ -61,7 +58,6 @@ auto System::unload() -> void {
   bootROM.reset();
   node = {};
 
-  ::higan::video.reset();  //todo: no :: prefix
   ::higan::audio.reset();  //todo: no :: prefix
 }
 

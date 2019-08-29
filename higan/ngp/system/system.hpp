@@ -26,16 +26,6 @@ struct System {
     bool rightLatch = 0;
   } controls;
 
-  struct Video {
-    Node::Video node;
-    Node::Boolean interframeBlending;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto colorNeoGeoPocket(uint32) -> uint64;
-    auto colorNeoGeoPocketColor(uint32) -> uint64;
-  } video;
-
   enum class Model : uint { NeoGeoPocket, NeoGeoPocketColor };
   Memory::Readable<uint8> bios;
 

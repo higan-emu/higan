@@ -4,7 +4,6 @@ namespace higan::ColecoVision {
 
 Scheduler scheduler;
 System system;
-#include "video.cpp"
 #include "controls.cpp"
 #include "serialization.cpp"
 
@@ -26,7 +25,6 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "ColecoVision") information.model = Model::ColecoVision;
   if(interface->name() == "ColecoAdam"  ) information.model = Model::ColecoAdam;
 
-  higan::video.reset(interface);
   higan::audio.reset(interface);
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
@@ -41,7 +39,6 @@ auto System::load(Node::Object from) -> void {
 
   scheduler.reset();
   controls.load(node, from);
-  video.load(node, from);
   cpu.load(node, from);
   vdp.load(node, from);
   psg.load(node, from);
@@ -66,7 +63,6 @@ auto System::unload() -> void {
   controllerPort2.port = {};
   node = {};
 
-  higan::video.reset();
   higan::audio.reset();
 }
 

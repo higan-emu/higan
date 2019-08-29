@@ -1,7 +1,9 @@
 //Texas Instruments TMS9918A (derivative)
 
 struct VDP : Thread {
-  Shared::Screen screen;
+  Node::Component node;
+  Node::Screen screen;
+  Node::Boolean interframeBlending;  //Game Gear
 
   //vdp.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -72,6 +74,10 @@ struct VDP : Thread {
     array<Object[8]> objects;
     uint objectsValid;
   } sprite;
+
+  //color.cpp
+  auto colorMasterSystem(uint32) -> uint64;
+  auto colorGameGear(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

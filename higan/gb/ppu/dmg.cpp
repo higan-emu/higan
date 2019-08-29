@@ -73,7 +73,7 @@ auto PPU::runDMG() -> void {
     color = bg.color;
   }
 
-  uint32* output = screen + status.ly * 160 + px++;
+  uint32* output = this->output + status.ly * 160 + px++;
   *output = color;
   if(Model::SuperGameBoy()) superGameBoy->ppuWrite(color);
 }

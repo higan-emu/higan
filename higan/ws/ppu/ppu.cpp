@@ -6,64 +6,110 @@ PPU ppu;
 #include "io.cpp"
 #include "latch.cpp"
 #include "render.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(screen, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "PPU");
+  from = Node::scan(parent = node, from);
 
-  screen->attach(icon.auxiliary0,   13, 13);
-  screen->attach(icon.auxiliary1,   13, 13);
-  screen->attach(icon.auxiliary2,   13, 13);
-  screen->attach(icon.headphones,   13, 13);
-  screen->attach(icon.initialized,  13, 13);
-  screen->attach(icon.lowBattery,   13, 13);
-  screen->attach(icon.orientation0, 13, 13);
-  screen->attach(icon.orientation1, 13, 13);
-  screen->attach(icon.poweredOn,    13, 13);
-  screen->attach(icon.sleeping,     13, 13);
-  screen->attach(icon.volumeA0,     13, 13);
-  screen->attach(icon.volumeA1,     13, 13);
-  screen->attach(icon.volumeA2,     13, 13);
-  screen->attach(icon.volumeB0,     13, 13);
-  screen->attach(icon.volumeB1,     13, 13);
-  screen->attach(icon.volumeB2,     13, 13);
-  screen->attach(icon.volumeB3,     13, 13);
+  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen->colors(1 << 12, {&PPU::color, this});
+  screen->setSize(224 + (SoC::ASWAN() ? 0 : 13), 144 + (Model::WonderSwan() ? 13 : 0));
+  screen->setScale(1.0, 1.0);
+  screen->setAspect(1.0, 1.0);
+  from = Node::scan(parent = screen, from);
 
-  icon.auxiliary0->setPixels(Resource::Sprite::WonderSwan::Auxiliary0);
-  icon.auxiliary1->setPixels(Resource::Sprite::WonderSwan::Auxiliary1);
-  icon.auxiliary2->setPixels(Resource::Sprite::WonderSwan::Auxiliary2);
-  icon.headphones->setPixels(Resource::Sprite::WonderSwan::Headphones);
-  icon.initialized->setPixels(Resource::Sprite::WonderSwan::Initialized);
-  icon.lowBattery->setPixels(Resource::Sprite::WonderSwan::LowBattery);
-  icon.orientation0->setPixels(Resource::Sprite::WonderSwan::Orientation0);
-  icon.orientation1->setPixels(Resource::Sprite::WonderSwan::Orientation1);
-  icon.poweredOn->setPixels(Resource::Sprite::WonderSwan::PoweredOn);
-  icon.sleeping->setPixels(Resource::Sprite::WonderSwan::Sleeping);
-  icon.volumeA0->setPixels(Resource::Sprite::WonderSwan::VolumeA0);
-  icon.volumeA1->setPixels(Resource::Sprite::WonderSwan::VolumeA1);
-  icon.volumeA2->setPixels(Resource::Sprite::WonderSwan::VolumeA2);
-  icon.volumeB0->setPixels(Resource::Sprite::WonderSwan::VolumeB0);
-  icon.volumeB1->setPixels(Resource::Sprite::WonderSwan::VolumeB1);
-  icon.volumeB2->setPixels(Resource::Sprite::WonderSwan::VolumeB2);
-  icon.volumeB3->setPixels(Resource::Sprite::WonderSwan::VolumeB3);
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    screen->resetPalette();
+  });
+  colorEmulation->dynamic = true;
 
-  if(Model::WonderSwan()) {
-    icon.poweredOn->setPosition   (  0, 144).invert();
-    icon.initialized->setPosition ( 13, 144).invert();
-    icon.sleeping->setPosition    ( 26, 144).invert();
-    icon.lowBattery->setPosition  ( 39, 144).invert();
-    icon.volumeA2->setPosition    ( 52, 144).invert();
-    icon.volumeA1->setPosition    ( 52, 144).invert();
-    icon.volumeA0->setPosition    ( 52, 144).invert();
-    icon.headphones->setPosition  ( 65, 144).invert();
-    icon.orientation1->setPosition( 78, 144).invert();
-    icon.orientation0->setPosition( 91, 144).invert();
-    icon.auxiliary2->setPosition  (104, 144).invert();
-    icon.auxiliary1->setPosition  (117, 144).invert();
-    icon.auxiliary0->setPosition  (130, 144).invert();
+  interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+    screen->setInterframeBlending(value);
+  });
+  interframeBlending->dynamic = true;
+
+  if(!Model::PocketChallengeV2()) {
+    orientation = Node::append<Node::String>(parent, from, "Orientation", "Automatic", [&](auto value) {
+      updateOrientation();
+    });
+    orientation->dynamic = true;
+    orientation->setAllowedValues({"Automatic", "Horizontal", "Vertical"});
+
+    showIcons = Node::append<Node::Boolean>(parent, from, "Show Icons", true, [&](auto value) {
+      updateIcons();
+    });
+    showIcons->dynamic = true;
   }
 
-  if(Model::WonderSwanColor() || Model::SwanCrystal() || Model::MamaMitte()) {
+  if(!Model::PocketChallengeV2()) {
+    icon.auxiliary0   = Node::append<Node::Sprite>(parent, from, "Auxiliary - Small Icon");
+    icon.auxiliary1   = Node::append<Node::Sprite>(parent, from, "Auxiliary - Medium Icon");
+    icon.auxiliary2   = Node::append<Node::Sprite>(parent, from, "Auxiliary - Large Icon");
+    icon.headphones   = Node::append<Node::Sprite>(parent, from, "Headphones");
+    icon.initialized  = Node::append<Node::Sprite>(parent, from, "Initialized");
+    icon.lowBattery   = Node::append<Node::Sprite>(parent, from, "Low Battery");
+    icon.orientation0 = Node::append<Node::Sprite>(parent, from, "Orientation - Horizontal");
+    icon.orientation1 = Node::append<Node::Sprite>(parent, from, "Orientation - Vertical");
+    icon.poweredOn    = Node::append<Node::Sprite>(parent, from, "Powered On");
+    icon.sleeping     = Node::append<Node::Sprite>(parent, from, "Sleeping");
+  }
+  if(Model::WonderSwan()) {
+    icon.volumeA0     = Node::append<Node::Sprite>(parent, from, "Volume - 0%");
+    icon.volumeA1     = Node::append<Node::Sprite>(parent, from, "Volume - 50%");
+    icon.volumeA2     = Node::append<Node::Sprite>(parent, from, "Volume - 100%");
+  }
+  if(!SoC::ASWAN()) {
+    icon.volumeB0     = Node::append<Node::Sprite>(parent, from, "Volume - 0%");
+    icon.volumeB1     = Node::append<Node::Sprite>(parent, from, "Volume - 33%");
+    icon.volumeB2     = Node::append<Node::Sprite>(parent, from, "Volume - 66%");
+    icon.volumeB3     = Node::append<Node::Sprite>(parent, from, "Volume - 100%");
+  }
+
+  bool invert = SoC::ASWAN();
+
+  if(!Model::PocketChallengeV2()) {
+    icon.auxiliary0->setImage(Resource::Sprite::WonderSwan::Auxiliary0, invert);
+    icon.auxiliary1->setImage(Resource::Sprite::WonderSwan::Auxiliary1, invert);
+    icon.auxiliary2->setImage(Resource::Sprite::WonderSwan::Auxiliary2, invert);
+    icon.headphones->setImage(Resource::Sprite::WonderSwan::Headphones, invert);
+    icon.initialized->setImage(Resource::Sprite::WonderSwan::Initialized, invert);
+    icon.lowBattery->setImage(Resource::Sprite::WonderSwan::LowBattery, invert);
+    icon.orientation0->setImage(Resource::Sprite::WonderSwan::Orientation0, invert);
+    icon.orientation1->setImage(Resource::Sprite::WonderSwan::Orientation1, invert);
+    icon.poweredOn->setImage(Resource::Sprite::WonderSwan::PoweredOn, invert);
+    icon.sleeping->setImage(Resource::Sprite::WonderSwan::Sleeping, invert);
+  }
+  if(Model::WonderSwan()) {
+    icon.volumeA0->setImage(Resource::Sprite::WonderSwan::VolumeA0, invert);
+    icon.volumeA1->setImage(Resource::Sprite::WonderSwan::VolumeA1, invert);
+    icon.volumeA2->setImage(Resource::Sprite::WonderSwan::VolumeA2, invert);
+  }
+  if(!SoC::ASWAN()) {
+    icon.volumeB0->setImage(Resource::Sprite::WonderSwan::VolumeB0, invert);
+    icon.volumeB1->setImage(Resource::Sprite::WonderSwan::VolumeB1, invert);
+    icon.volumeB2->setImage(Resource::Sprite::WonderSwan::VolumeB2, invert);
+    icon.volumeB3->setImage(Resource::Sprite::WonderSwan::VolumeB3, invert);
+  }
+
+  if(Model::WonderSwan()) {
+    icon.poweredOn->setPosition   (  0, 144);
+    icon.initialized->setPosition ( 13, 144);
+    icon.sleeping->setPosition    ( 26, 144);
+    icon.lowBattery->setPosition  ( 39, 144);
+    icon.volumeA2->setPosition    ( 52, 144);
+    icon.volumeA1->setPosition    ( 52, 144);
+    icon.volumeA0->setPosition    ( 52, 144);
+    icon.headphones->setPosition  ( 65, 144);
+    icon.orientation1->setPosition( 78, 144);
+    icon.orientation0->setPosition( 91, 144);
+    icon.auxiliary2->setPosition  (104, 144);
+    icon.auxiliary1->setPosition  (117, 144);
+    icon.auxiliary0->setPosition  (130, 144);
+  }
+
+  if(!SoC::ASWAN()) {
     icon.auxiliary0->setPosition  (224,   0);
     icon.auxiliary1->setPosition  (224,  13);
     icon.auxiliary2->setPosition  (224,  26);
@@ -79,10 +125,43 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
     icon.initialized->setPosition (224, 117);
     icon.poweredOn->setPosition   (224, 130);
   }
+
+  if(!Model::PocketChallengeV2()) {
+    screen->attach(icon.auxiliary0);
+    screen->attach(icon.auxiliary1);
+    screen->attach(icon.auxiliary2);
+    screen->attach(icon.headphones);
+    screen->attach(icon.initialized);
+    screen->attach(icon.lowBattery);
+    screen->attach(icon.orientation0);
+    screen->attach(icon.orientation1);
+    screen->attach(icon.poweredOn);
+    screen->attach(icon.sleeping);
+  }
+  if(Model::WonderSwan()) {
+    screen->attach(icon.volumeA0);
+    screen->attach(icon.volumeA1);
+    screen->attach(icon.volumeA2);
+  }
+  if(!SoC::ASWAN()) {
+    screen->attach(icon.volumeB0);
+    screen->attach(icon.volumeB1);
+    screen->attach(icon.volumeB2);
+    screen->attach(icon.volumeB3);
+  }
+
+  updateOrientation();
+  updateIcons();
 }
 
 auto PPU::unload() -> void {
-  video.detach(screen);
+  node = {};
+  screen = {};
+  colorEmulation = {};
+  interframeBlending = {};
+  orientation = {};
+  showIcons = {};
+  icon = {};
 }
 
 auto PPU::main() -> void {
@@ -162,8 +241,8 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  uint width  = system.video.node->width;
-  uint height = system.video.node->height;
+  uint width  = screen->width();
+  uint height = screen->height();
   screen->refresh(output, (224 + 13) * sizeof(uint32), width, height);
 }
 
@@ -189,9 +268,9 @@ auto PPU::power() -> void {
 }
 
 auto PPU::updateIcons() -> void {
-  if(Model::PocketChallengeV2()) return;
+  if(Model::PocketChallengeV2() || !showIcons) return;
 
-  bool visible = system.video.showIcons->value();
+  bool visible = showIcons->value();
 
   icon.poweredOn->setVisible(visible);
 
@@ -223,16 +302,17 @@ auto PPU::updateIcons() -> void {
 }
 
 auto PPU::updateOrientation() -> void {
-  if(Model::PocketChallengeV2()) return;
+  if(Model::PocketChallengeV2() || !orientation) return;
 
-  auto orientation = system.video.orientation->value();
-  if(orientation == "Horizontal" || (orientation == "Automatic" && r.icon.orientation0)) {
-    screen->setRotateLeft(false);
-    system.video.node->rotation = 0;
+  if(r.icon.orientation1) l.orientation = 1;
+  if(r.icon.orientation0) l.orientation = 0;
+
+  auto orientation = this->orientation->value();
+  if(orientation == "Horizontal" || (orientation == "Automatic" && l.orientation == 0)) {
+    screen->setRotation(0);
   }
-  if(orientation == "Vertical" || (orientation == "Automatic" && r.icon.orientation1)) {
-    screen->setRotateLeft(true);
-    system.video.node->rotation = 90;
+  if(orientation == "Vertical" || (orientation == "Automatic" && l.orientation == 1)) {
+    screen->setRotation(90);
   }
 }
 

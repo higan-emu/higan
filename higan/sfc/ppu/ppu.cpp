@@ -9,6 +9,7 @@ PPU ppu;
 #include "object.cpp"
 #include "window.cpp"
 #include "screen.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 #include "counter/serialization.cpp"
 
@@ -25,14 +26,43 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   vramSize = Node::append<Node::Natural>(parent, from, "VRAM", 64_KiB);
   vramSize->setAllowedValues({64_KiB, 128_KiB});
 
+  screen_ = Node::append<Node::Screen>(parent, from, "Screen");
+  screen_->colors(1 << 19, {&PPU::color, this});
+  screen_->setSize(512, 480);
+  screen_->setScale(0.5, 0.5);
+  screen_->setAspect(8.0, 7.0);
+  from = Node::scan(parent = node, from);
+
+  region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
+    if(region == "NTSC") screen_->setSize(512, 448);
+    if(region == "PAL" ) screen_->setSize(512, 480);
+  });
+  region->setAllowedValues({"NTSC", "PAL"});
+  region->dynamic = true;
+
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    screen_->resetPalette();
+  });
+  colorEmulation->dynamic = true;
+
+  colorBleed = Node::append<Node::Boolean>(parent, from, "Color Bleed", true, [&](auto value) {
+    screen_->setColorBleed(value);
+  });
+  colorBleed->dynamic = true;
+
   output = new uint32[512 * 512];
   output += 16 * 512;  //overscan offset
-
-  video.attach(display, system.video.node);
 }
 
 auto PPU::unload() -> void {
-  video.detach(display);
+  node = {};
+  versionPPU1 = {};
+  versionPPU2 = {};
+  vramSize = {};
+  screen = {};
+  region = {};
+  colorEmulation = {};
+  colorBleed = {};
 
   output -= 16 * 512;
   delete[] output;
@@ -169,17 +199,16 @@ auto PPU::power(bool reset) -> void {
 
 auto PPU::refresh() -> void {
   auto data = output;
-  display->setColorBleed(system.video.colorBleed->value());
 
-  if(system.video.display->value() == "NTSC") {
+  if(region->value() == "NTSC") {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
-    display->refresh(data, 512 * sizeof(uint32), 512, 448);
+    screen_->refresh(data, 512 * sizeof(uint32), 512, 448);
   }
 
-  if(system.video.display->value() == "PAL") {
+  if(region->value() == "PAL") {
     if(!overscan()) data -= 14 * 512;
-    display->refresh(data, 512 * sizeof(uint32), 512, 480);
+    screen_->refresh(data, 512 * sizeof(uint32), 512, 480);
   }
 }
 

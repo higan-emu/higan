@@ -9,14 +9,32 @@ VDP vdp;
 #include "render.cpp"
 #include "background.cpp"
 #include "sprite.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(screen, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "VDP");
+  from = Node::scan(parent = node, from);
+
+  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen->colors(3 * (1 << 9), {&VDP::color, this});
+  screen->setSize(1280, 480);
+  screen->setScale(0.25, 0.50);
+  screen->setAspect(1.0, 1.0);
+  from = Node::scan(parent = screen, from);
+
+  region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
+    if(region == "NTSC") screen->setSize(1280, 448);
+    if(region == "PAL" ) screen->setSize(1280, 480);
+  });
+  region->dynamic = true;
+  region->setAllowedValues({"NTSC", "PAL"});
 }
 
 auto VDP::unload() -> void {
-  video.detach(screen);
+  node = {};
+  screen = {};
+  region = {};
 }
 
 auto VDP::main() -> void {
@@ -81,12 +99,12 @@ auto VDP::step(uint clocks) -> void {
 auto VDP::refresh() -> void {
   auto data = output;
 
-  if(system.video.display->value() == "NTSC") {
+  if(region->value() == "NTSC") {
     if(latch.overscan) data += 16 * 1280;
     screen->refresh(data, 1280 * sizeof(uint32), 1280, 448);
   }
 
-  if(system.video.display->value() == "PAL") {
+  if(region->value() == "PAL") {
     if(!latch.overscan) data -= 16 * 1280;
     screen->refresh(data, 1280 * sizeof(uint32), 1280, 480);
   }

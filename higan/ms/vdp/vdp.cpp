@@ -6,14 +6,39 @@ VDP vdp;
 #include "io.cpp"
 #include "background.cpp"
 #include "sprite.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(screen, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "VDP");
+  from = Node::scan(parent = node, from);
+
+  screen = Node::append<Node::Screen>(parent, from, "Screen");
+
+  if(Model::MasterSystem()) {
+    screen->colors(1 << 6, {&VDP::colorMasterSystem, this});
+    screen->setSize(256, 240);
+    screen->setScale(1.0, 1.0);
+    screen->setAspect(8.0, 7.0);
+  }
+
+  if(Model::GameGear()) {
+    screen->colors(1 << 12, {&VDP::colorGameGear, this});
+    screen->setSize(160, 144);
+    screen->setScale(1.0, 1.0);
+    screen->setAspect(1.0, 1.0);
+
+    interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+      screen->setInterframeBlending(value);
+    });
+    interframeBlending->dynamic = true;
+  }
 }
 
 auto VDP::unload() -> void {
-  video.detach(screen);
+  node = {};
+  screen = {};
+  interframeBlending = {};
 }
 
 auto VDP::main() -> void {

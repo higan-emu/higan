@@ -19,14 +19,46 @@ PPU ppu;
 #include "screen.cpp"
 #include "io.cpp"
 #include "memory.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(display, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "PPU");
+  from = Node::scan(parent = node, from);
+
+  screen_ = Node::append<Node::Screen>(parent, from, "Screen");
+  screen_->colors(1 << 15, {&PPU::color, this});
+  screen_->setSize(240, 160);
+  screen_->setScale(1.0, 1.0);
+  screen_->setAspect(1.0, 1.0);
+  from = Node::scan(parent = screen_, from);
+
+  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+    screen_->resetPalette();
+  });
+  colorEmulation->dynamic = true;
+
+  interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+    screen_->setInterframeBlending(value);
+  });
+  interframeBlending->dynamic = true;
+
+  rotation = Node::append<Node::String>(parent, from, "Orientation", "0°", [&](auto value) {
+    if(value ==   "0°") screen_->setRotation(  0);
+    if(value ==  "90°") screen_->setRotation( 90);
+    if(value == "180°") screen_->setRotation(180);
+    if(value == "270°") screen_->setRotation(270);
+  });
+  rotation->dynamic = true;
+  rotation->setAllowedValues({"0°", "90°", "180°", "270°"});
 }
 
 auto PPU::unload() -> void {
-  video.detach(display);
+  node = {};
+  screen_ = {};
+  colorEmulation = {};
+  interframeBlending = {};
+  rotation = {};
 }
 
 auto PPU::blank() -> bool {
@@ -105,7 +137,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  display->refresh(output, 240 * sizeof(uint32), 240, 160);
+  screen_->refresh(output, 240 * sizeof(uint32), 240, 160);
 }
 
 auto PPU::power() -> void {

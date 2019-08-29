@@ -5,14 +5,24 @@ namespace higan::PCEngine {
 VCE vce;
 #include "memory.cpp"
 #include "io.cpp"
+#include "color.cpp"
 #include "serialization.cpp"
 
 auto VCE::load(Node::Object parent, Node::Object from) -> void {
-  video.attach(screen, system.video.node);
+  node = Node::append<Node::Component>(parent, from, "VCE");
+  from = Node::scan(parent = node, from);
+
+  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen->colors(1 << 9, {&VCE::color, this});
+  screen->setSize(1120, 240);
+  screen->setScale(0.25, 1.0);
+  screen->setAspect(8.0, 7.0);
+  from = Node::scan(parent = screen, from);
 }
 
 auto VCE::unload() -> void {
-  video.detach(screen);
+  node = {};
+  screen = {};
 }
 
 auto VCE::main() -> void {

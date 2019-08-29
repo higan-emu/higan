@@ -13,17 +13,6 @@ struct System {
     auto poll() -> void;
   } controls;
 
-  struct Video {
-    Node::Video node;
-    Node::String display;
-    Node::Boolean colorEmulation;
-    Node::Boolean colorBleed;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto color(uint32) -> uint64;
-  } video;
-
   enum class Region : uint { NTSC, PAL };
 
   inline auto region() const -> Region { return information.region; }

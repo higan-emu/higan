@@ -1,23 +1,28 @@
 struct PPU : Thread, IO {
-  Shared::Screen screen;
+  Node::Component node;
+  Node::Screen screen;
+  Node::Boolean colorEmulation;
+  Node::Boolean interframeBlending;
+  Node::String orientation;
+  Node::Boolean showIcons;
   struct Icon {
-    Shared::Sprite auxiliary0;
-    Shared::Sprite auxiliary1;
-    Shared::Sprite auxiliary2;
-    Shared::Sprite headphones;
-    Shared::Sprite initialized;
-    Shared::Sprite lowBattery;
-    Shared::Sprite orientation0;
-    Shared::Sprite orientation1;
-    Shared::Sprite poweredOn;
-    Shared::Sprite sleeping;
-    Shared::Sprite volumeA0;
-    Shared::Sprite volumeA1;
-    Shared::Sprite volumeA2;
-    Shared::Sprite volumeB0;
-    Shared::Sprite volumeB1;
-    Shared::Sprite volumeB2;
-    Shared::Sprite volumeB3;
+    Node::Sprite auxiliary0;
+    Node::Sprite auxiliary1;
+    Node::Sprite auxiliary2;
+    Node::Sprite headphones;
+    Node::Sprite initialized;
+    Node::Sprite lowBattery;
+    Node::Sprite orientation0;
+    Node::Sprite orientation1;
+    Node::Sprite poweredOn;
+    Node::Sprite sleeping;
+    Node::Sprite volumeA0;
+    Node::Sprite volumeA1;
+    Node::Sprite volumeA2;
+    Node::Sprite volumeB0;
+    Node::Sprite volumeB1;
+    Node::Sprite volumeB2;
+    Node::Sprite volumeB3;
   } icon;
 
   inline auto planar() const -> bool { return system.mode().bit(0) == 0; }
@@ -56,6 +61,9 @@ struct PPU : Thread, IO {
   auto renderScreenOne(uint8 x, uint8 y) -> void;
   auto renderScreenTwo(uint8 x, uint8 y) -> void;
   auto renderSprite(uint8 x, uint8 y) -> void;
+
+  //color.cpp
+  auto color(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -109,6 +117,9 @@ struct PPU : Thread, IO {
     //latchOAM()
     uint32 oam[2][128];
     uint oamCount = 0;
+
+    //updateOrientation()
+    uint1 orientation;
   } l;
 
   struct Registers {

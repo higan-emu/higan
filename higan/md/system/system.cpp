@@ -6,7 +6,6 @@ Random random;
 Scheduler scheduler;
 System system;
 #include "controls.cpp"
-#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -26,7 +25,6 @@ auto System::load(Node::Object from) -> void {
 
   information = {};
 
-  higan::video.reset(interface);
   higan::audio.reset(interface);
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
@@ -46,7 +44,6 @@ auto System::load(Node::Object from) -> void {
 
   scheduler.reset();
   controls.load(node, from);
-  video.load(node, from);
   cpu.load(node, from);
   apu.load(node, from);
   vdp.load(node, from);
@@ -75,7 +72,6 @@ auto System::unload() -> void {
   mcd.unload();
   node = {};
 
-  higan::video.reset();
   higan::audio.reset();
 }
 

@@ -1,7 +1,9 @@
 //Yamaha YM7101
 
 struct VDP : Thread {
-  Shared::Screen screen;
+  Node::Component node;
+  Node::Screen screen;
+  Node::String region;
 
   //vdp.cpp
   auto load(Node::Object, Node::Object) -> void;
@@ -152,6 +154,9 @@ struct VDP : Thread {
     adaptive_array<Object, 20> objects;
   };
   Sprite sprite;
+
+  //color.cpp
+  auto color(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

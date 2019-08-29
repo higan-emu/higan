@@ -1,5 +1,3 @@
-namespace higan::Core {
-
 struct Notification : Event {
   DeclareClass(Notification, "Notification")
 
@@ -16,5 +14,3 @@ struct Notification : Event {
 
 protected:
 };
-
-}

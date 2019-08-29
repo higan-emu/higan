@@ -6,7 +6,6 @@ Scheduler scheduler;
 System system;
 #include "bios.cpp"
 #include "controls.cpp"
-#include "video.cpp"
 #include "serialization.cpp"
 
 auto System::run() -> void {
@@ -25,7 +24,6 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Game Boy Advance") information.model = Model::GameBoyAdvance;
   if(interface->name() == "Game Boy Player" ) information.model = Model::GameBoyPlayer;
 
-  higan::video.reset(interface);
   higan::audio.reset(interface);
 
   node = Node::System::create(interface->name());
@@ -33,7 +31,6 @@ auto System::load(Node::Object from) -> void {
 
   scheduler.reset();
   controls.load(node, from);
-  video.load(node, from);
   cpu.load(node, from);
   ppu.load(node, from);
   apu.load(node, from);
@@ -54,7 +51,6 @@ auto System::unload() -> void {
   apu.unload();
   node = {};
 
-  higan::video.reset();
   higan::audio.reset();
 }
 

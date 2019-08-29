@@ -22,6 +22,9 @@ namespace higan::Core {
     struct Event;
       struct Notification;
       struct Instruction;
+  //struct Video;
+      struct Sprite;
+      struct Screen;
 }
 
 namespace higan::Node {
@@ -48,29 +51,34 @@ namespace higan::Node {
     using Event          = shared_pointer<Core::Event>;
       using Notification = shared_pointer<Core::Notification>;
       using Instruction  = shared_pointer<Core::Instruction>;
+  //using Video;
+      using Sprite       = shared_pointer<Core::Sprite>;
+      using Screen       = shared_pointer<Core::Screen>;
 }
 
 namespace higan::Core {
   // <emulator/platform.hpp> forward declarations (dependent on <emulator/node.hpp>)
   static auto PlatformAttach(Node::Object) -> void;
   static auto PlatformDetach(Node::Object) -> void;
-}
 
-#include <emulator/node/property.hpp>
-#include <emulator/node/class.hpp>
-#include <emulator/node/object.hpp>
-#include <emulator/node/system.hpp>
-#include <emulator/node/component.hpp>
-#include <emulator/node/real-time-clock.hpp>
-#include <emulator/node/video.hpp>
-#include <emulator/node/audio.hpp>
-#include <emulator/node/peripheral.hpp>
-#include <emulator/node/port.hpp>
-#include <emulator/node/input.hpp>
-#include <emulator/node/setting.hpp>
-#include <emulator/node/event/event.hpp>
-#include <emulator/node/event/notification.hpp>
-#include <emulator/node/event/instruction.hpp>
+  #include <emulator/node/property.hpp>
+  #include <emulator/node/class.hpp>
+  #include <emulator/node/object.hpp>
+  #include <emulator/node/system.hpp>
+  #include <emulator/node/component.hpp>
+  #include <emulator/node/real-time-clock.hpp>
+  #include <emulator/node/video.hpp>
+  #include <emulator/node/audio.hpp>
+  #include <emulator/node/peripheral.hpp>
+  #include <emulator/node/port.hpp>
+  #include <emulator/node/input.hpp>
+  #include <emulator/node/setting.hpp>
+  #include <emulator/node/event/event.hpp>
+  #include <emulator/node/event/notification.hpp>
+  #include <emulator/node/event/instruction.hpp>
+  #include <emulator/node/video/sprite.hpp>
+  #include <emulator/node/video/screen.hpp>
+}
 
 namespace higan::Node {
   static inline auto create(string identifier) -> Object {

@@ -34,6 +34,8 @@ auto PPU::serialize(serializer& s) -> void {
   for(uint n : range(2)) s.array(l.oam[n]);
   s.integer(l.oamCount);
 
+  s.integer(l.orientation);
+
   s.integer(r.screenOneEnable);
   s.integer(r.screenTwoEnable);
   s.integer(r.spriteEnable);

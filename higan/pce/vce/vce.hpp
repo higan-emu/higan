@@ -1,7 +1,8 @@
 //HuC6260 -- Video Color Encoder
 
 struct VCE : Thread {
-  Shared::Screen screen;
+  Node::Component node;
+  Node::Screen screen;
 
   inline auto clock() const -> uint { return io.clock; }
 
@@ -17,6 +18,9 @@ struct VCE : Thread {
   //io.cpp
   auto read(uint3 address) -> uint8;
   auto write(uint3 address, uint8 data) -> void;
+
+  //color.cpp
+  auto color(uint32) -> uint64;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;

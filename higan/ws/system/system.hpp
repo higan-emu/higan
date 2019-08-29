@@ -55,18 +55,6 @@ struct System : IO {
     bool rightLatch = 0;
   } controls;
 
-  struct Video {
-    Node::Video node;
-    Node::Boolean colorEmulation;
-    Node::Boolean interframeBlending;
-    Node::String orientation;
-    Node::Boolean showIcons;
-
-    //video.cpp
-    auto load(Node::Object, Node::Object) -> void;
-    auto color(uint32) -> uint64;
-  } video;
-
   struct Audio {
     Node::Audio node;
     Node::Boolean headphones;
