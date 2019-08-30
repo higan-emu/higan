@@ -7,7 +7,6 @@ System system;
 #define Model higan::WonderSwan::Model
 #define SoC higan::WonderSwan::SoC
 #include "controls.cpp"
-#include "audio.cpp"
 #undef Model
 #undef SoC
 #include "io.cpp"
@@ -23,7 +22,7 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
@@ -35,9 +34,14 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Pocket Challenge V2") information.soc = SoC::ASWAN,   information.model = Model::PocketChallengeV2;
   if(interface->name() == "mamaMitte"          ) information.soc = SoC::SPHINX2, information.model = Model::MamaMitte;
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
+
+  headphones = Node::append<Node::Boolean>(node, from, "Headphones", true, [&](auto value) {
+    apu.r.headphonesConnected = value;
+    ppu.updateIcons();
+  });
+  headphones->dynamic = true;
 
   //the EEPROMs come factory-programmed to contain various model names and settings.
   //the model names are confirmed from video recordings of real hardware booting.
@@ -132,7 +136,6 @@ auto System::load(Node::Object from) -> void {
 
   scheduler.reset();
   controls.load(node, from);
-  audio.load(node, from);
   cpu.load(node, from);
   ppu.load(node, from);
   apu.load(node, from);
@@ -162,8 +165,7 @@ auto System::unload() -> void {
   ppu.unload();
   apu.unload();
   node = {};
-
-  higan::audio.reset();
+  headphones = {};
 }
 
 auto System::power() -> void {

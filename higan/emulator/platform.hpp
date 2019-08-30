@@ -17,7 +17,7 @@ struct Platform {
   virtual auto event(Event) -> void {}
   virtual auto log(string_view message) -> void {}
   virtual auto video(Node::Screen, const uint32_t* data, uint pitch, uint width, uint height) -> void {}
-  virtual auto audio(Node::Audio, const double* samples, uint channels) -> void {}
+  virtual auto audio(Node::Stream) -> void {}
   virtual auto input(Node::Input) -> void {}
 };
 

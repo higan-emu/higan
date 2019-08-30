@@ -21,7 +21,7 @@ auto System::clocksExecuted() -> uint {
   return clocks;
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
@@ -29,11 +29,8 @@ auto System::load(Node::Object from) -> void {
   if(interface->name() == "Super Game Boy") information.model = Model::SuperGameBoy;
   if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
 
-  if(!GameBoy::Model::SuperGameBoy()) {
-    ::higan::audio.reset(interface);   //todo: no :: prefix
-  }
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   scheduler.reset();
   controls.load(node, from);
@@ -57,8 +54,6 @@ auto System::unload() -> void {
   apu.unload();
   bootROM.reset();
   node = {};
-
-  ::higan::audio.reset();  //todo: no :: prefix
 }
 
 auto System::power() -> void {

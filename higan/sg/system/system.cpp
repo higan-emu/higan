@@ -18,16 +18,15 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
   if(interface->name() == "SG-1000") information.model = Model::SG1000;
   if(interface->name() == "SC-3000") information.model = Model::SC3000;
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
   regionNode->setAllowedValues({
@@ -63,8 +62,6 @@ auto System::unload() -> void {
   controllerPort2.port = {};
   vdp.unload();
   node = {};
-
-  higan::audio.reset();
 }
 
 auto System::power() -> void {

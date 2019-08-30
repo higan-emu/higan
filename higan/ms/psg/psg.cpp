@@ -5,15 +5,19 @@ namespace higan::MasterSystem {
 PSG psg;
 #include "serialization.cpp"
 
-auto PSG::load(Node::Object parent, Node::Object with) -> void {
-  audio.attach(stream);
+auto PSG::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Component>(parent, from, "PSG");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(Model::MasterSystem() ? 1 : 2);
   stream->setFrequency(system.colorburst() / 16.0);
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream->addHighPassFilter(20.0, 1);
 }
 
 auto PSG::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto PSG::main() -> void {

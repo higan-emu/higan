@@ -9,10 +9,10 @@ ICD icd;
 auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   auto frequency = (Frequency ? Frequency : system.cpuFrequency()) / 5.0;
 
-  higan::audio.attach(stream);
+  stream = Node::append<Node::Stream>(parent, from, "SGB Stream");
   stream->setChannels(2);
   stream->setFrequency(frequency / 2.0);
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream->addHighPassFilter(20.0, 1);
 
   port = Node::append<Node::Port>(parent, from, "Game Boy Cartridge Slot", "Game Boy Cartridge");
   port->allocate = [&] { return Node::Peripheral::create("Game Boy"); };
@@ -31,7 +31,7 @@ auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
 }
 
 auto ICD::unload() -> void {
-  higan::audio.detach(stream);
+  stream = {};
 
   disconnect();
   port = {};

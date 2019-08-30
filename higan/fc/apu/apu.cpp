@@ -11,7 +11,17 @@ APU apu;
 #include "dmc.cpp"
 #include "serialization.cpp"
 
-APU::APU() {
+auto APU::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Component>(parent, from, "APU");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
+  stream->setChannels(1);
+  stream->setFrequency(uint(system.frequency() + 0.5) / rate());
+  stream->addHighPassFilter(   90.0, 1);
+  stream->addHighPassFilter(  440.0, 1);
+  stream->addLowPassFilter (14000.0, 1);
+
   for(uint amp : range(32)) {
     if(amp == 0) {
       pulseDAC[amp] = 0;
@@ -34,17 +44,9 @@ APU::APU() {
   }
 }
 
-auto APU::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
-  stream->setChannels(1);
-  stream->setFrequency(uint(system.frequency() + 0.5) / rate());
-  stream->addHighPassFilter(   90.0, Filter::Order::First);
-  stream->addHighPassFilter(  440.0, Filter::Order::First);
-  stream->addLowPassFilter (14000.0, Filter::Order::First);
-}
-
 auto APU::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto APU::main() -> void {

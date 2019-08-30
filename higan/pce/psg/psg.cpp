@@ -7,15 +7,19 @@ PSG psg;
 #include "channel.cpp"
 #include "serialization.cpp"
 
-auto PSG::load(Node::Object parent, Node::Object with) -> void {
-  audio.attach(stream);
+auto PSG::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Component>(parent, from, "PSG");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(2);
   stream->setFrequency(system.colorburst());
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream->addHighPassFilter(20.0, 1);
 }
 
 auto PSG::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto PSG::main() -> void {

@@ -20,9 +20,9 @@ auto MegaDriveInterface::root() -> Node::Object {
   return system.node;
 }
 
-auto MegaDriveInterface::load(string tree) -> void {
+auto MegaDriveInterface::load(Node::Object& root, string tree) -> void {
   interface = this;
-  system.load(Node::unserialize(tree));
+  system.load(root, Node::unserialize(tree));
 }
 
 auto MegaDriveInterface::unload() -> void {

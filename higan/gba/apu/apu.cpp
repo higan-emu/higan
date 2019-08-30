@@ -14,14 +14,18 @@ APU apu;
 #include "serialization.cpp"
 
 auto APU::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
+  node = Node::append<Node::Component>(parent, from, "APU");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(2);
   stream->setFrequency(system.frequency() / 64.0);
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream->addHighPassFilter(20.0, 1);
 }
 
 auto APU::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto APU::main() -> void {

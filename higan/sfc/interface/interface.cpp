@@ -36,9 +36,9 @@ auto SuperFamicomInterface::root() -> Node::Object {
   return system.node;
 }
 
-auto SuperFamicomInterface::load(string tree) -> void {
+auto SuperFamicomInterface::load(Node::Object& root, string tree) -> void {
   interface = this;
-  system.load(Node::unserialize(tree));
+  system.load(root, Node::unserialize(tree));
 }
 
 auto SuperFamicomInterface::unload() -> void {

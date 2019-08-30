@@ -1,13 +1,13 @@
 //Sanyo LC7883KM
 
 auto MCD::CDD::DAC::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
+  stream = Node::append<Node::Stream>(parent, from, "DAC Stream");
   stream->setChannels(2);
   stream->setFrequency(44100);
 }
 
 auto MCD::CDD::DAC::unload() -> void {
-  audio.detach(stream);
+  stream = {};
 }
 
 auto MCD::CDD::DAC::sample(int16 left, int16 right) -> void {
@@ -29,7 +29,7 @@ auto MCD::CDD::DAC::reconfigure() -> void {
   if(deemphasis == 2) inputFrequency = 32000.0;  //unverified behavior
   if(deemphasis == 3) inputFrequency = 48000.0;  //unverified behavior
   //todo: this should be a first-order filter, but nall/dsp lacks a first-order high-shelf filter
-  stream->addHighShelfFilter((10000.0 + 3100.0) / 2.0, Filter::Order::Second, -9.477, 0.5);
+  stream->addHighShelfFilter((10000.0 + 3100.0) / 2.0, 2, -9.477, 0.5);
 }
 
 auto MCD::CDD::DAC::power(bool reset) -> void {

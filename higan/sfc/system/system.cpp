@@ -22,14 +22,13 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
   regionNode->setAllowedValues({
@@ -64,8 +63,6 @@ auto System::unload() -> void {
   dsp.unload();
   ppu.unload();
   node.reset();
-
-  higan::audio.reset();
 }
 
 auto System::save() -> void {

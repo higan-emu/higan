@@ -13,14 +13,18 @@ APU apu;
 #include "serialization.cpp"
 
 auto APU::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
+  node = Node::append<Node::Component>(parent, from, "APU");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(2);
   stream->setFrequency(3'072'000);
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream->addHighPassFilter(20.0, 1);
 }
 
 auto APU::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto APU::main() -> void {
@@ -97,7 +101,7 @@ auto APU::power() -> void {
   r.speakerEnable = 0;
   r.speakerShift = 0;
   r.headphonesEnable = 0;
-  r.headphonesConnected = system.audio.headphones->value();
+  r.headphonesConnected = system.headphones->value();
   r.masterVolume = SoC::ASWAN() ? 2 : 3;
 
   dma.s.clock = 0;

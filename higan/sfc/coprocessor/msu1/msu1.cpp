@@ -2,16 +2,15 @@ MSU1 msu1;
 #include "serialization.cpp"
 
 auto MSU1::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
+  stream = Node::append<Node::Stream>(parent, from, "MSU1 Stream");
   stream->setChannels(2);
   stream->setFrequency(44100);
 }
 
 auto MSU1::unload() -> void {
-  audio.detach(stream);
-
-  dataFile.reset();
-  audioFile.reset();
+  stream = {};
+  dataFile = {};
+  audioFile = {};
 
   cpu.coprocessors.removeByValue(this);
   Thread::destroy();

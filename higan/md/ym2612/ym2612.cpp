@@ -10,15 +10,19 @@ YM2612 ym2612;
 #include "serialization.cpp"
 
 auto YM2612::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
+  node = Node::append<Node::Component>(parent, from, "YM2612");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(2);
   stream->setFrequency(system.frequency() / 7.0 / 144.0);
-  stream->addHighPassFilter(  20.0, Filter::Order::First);
-  stream->addLowPassFilter (2840.0, Filter::Order::First);
+  stream->addHighPassFilter(  20.0, 1);
+  stream->addLowPassFilter (2840.0, 1);
 }
 
 auto YM2612::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto YM2612::main() -> void {

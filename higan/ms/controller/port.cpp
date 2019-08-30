@@ -5,11 +5,15 @@ ControllerPort::ControllerPort(string_view name) : name(name) {
 }
 
 auto ControllerPort::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Controller");
+  port = Node::append<Node::Port>(parent, from, name, "Controller");
   port->hotSwappable = true;
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
   port->scan(from);
+}
+
+auto ControllerPort::unload() -> void {
+  port = {};
 }
 
 auto ControllerPort::connect(Node::Peripheral node) -> void {

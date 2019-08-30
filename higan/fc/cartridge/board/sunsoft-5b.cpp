@@ -1,16 +1,16 @@
 //SUNSOFT-5B
 
 struct Sunsoft5B : YM2149, Board {
-  shared_pointer<Stream> stream;
+  Node::Stream stream;
 
   Sunsoft5B(Markup::Node& document) : Board(document) {
-    audio.attach(stream);
+    stream = Node::append<Node::Stream>(cartridge.node, {}, "Stream");
     stream->setChannels(1);
     stream->setFrequency(uint(system.frequency() + 0.5) / cartridge.rate() / 16);
   }
 
   ~Sunsoft5B() {
-    audio.detach(stream);
+    stream = {};
   }
 
   auto main() -> void {

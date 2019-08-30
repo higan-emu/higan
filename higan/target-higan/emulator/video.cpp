@@ -50,7 +50,7 @@ auto Emulator::videoUpdate() -> void {
 }
 
 auto Emulator::videoUpdateColors() -> void {
-  if(!root) return;
+  if(!interface) return;
   for(auto screen : root->find<higan::Node::Screen>()) {
     screen->setLuminance(settings.video.luminance);
     screen->setSaturation(settings.video.saturation);

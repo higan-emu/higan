@@ -49,9 +49,8 @@ auto Emulator::audioUpdate() -> void {
 }
 
 auto Emulator::audioUpdateEffects() -> void {
-  if(interface) {
-    higan::audio.setFrequency(settings.audio.frequency + settings.audio.skew);
-    higan::audio.setVolume(!settings.audio.mute ? settings.audio.volume : 0.0);
-    higan::audio.setBalance(settings.audio.balance);
+  if(!interface) return;
+  for(auto stream : root->find<higan::Node::Stream>()) {
+    stream->setResamplerFrequency(settings.audio.frequency + settings.audio.skew);
   }
 }

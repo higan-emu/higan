@@ -14,7 +14,7 @@ auto FDS::load(Node::Object parent, Node::Object from) -> void {
   port->allocate = [&] { return Node::Peripheral::create("Famicom Disk"); };
   port->attach = [&](auto node) { connect(node); };
   port->detach = [&](auto node) { disconnect(); };
-  port->scan(from);
+  from = Node::scan(parent = port, from);
   audio.load(parent, from);
   power();
 }

@@ -29,8 +29,8 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   for(auto node : document) validateConfiguration(node, document);
   configuration = BML::serialize(document);
 
-  interface->load(configuration);
-  root = interface->root();
+  streams.reset();
+  interface->load(root, configuration);
 
   nodeManager.bind(root);
   systemMenu.setText(system.name);

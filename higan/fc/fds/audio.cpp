@@ -63,14 +63,14 @@ auto FDSAudio::Modulator::updateCounter(int8 value) -> void {
 
 //
 
-auto FDSAudio::load(Node::Object parent, Node::Object with) -> void {
-  audio.attach(stream);
+auto FDSAudio::load(Node::Object parent, Node::Object from) -> void {
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(1);
   stream->setFrequency(uint(system.frequency() + 0.5) / cpu.rate());
 }
 
 auto FDSAudio::unload() -> void {
-  audio.detach(stream);
+  stream = {};
 }
 
 auto FDSAudio::clock() -> void {

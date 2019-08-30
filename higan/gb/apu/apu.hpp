@@ -1,5 +1,6 @@
 struct APU : Thread {
-  Shared::Stream stream;
+  Node::Component node;
+  Node::Stream stream;
 
   //apu.cpp
   auto load(Node::Object, Node::Object) -> void;

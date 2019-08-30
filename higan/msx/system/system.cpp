@@ -15,16 +15,15 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
   if(interface->name() == "MSX" ) information.model = Model::MSX;
   if(interface->name() == "MSX2") information.model = Model::MSX2;
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
   regionNode->setAllowedValues({
@@ -64,8 +63,6 @@ auto System::unload() -> void {
   node = {};
   rom.bios.reset();
   rom.sub.reset();
-
-  higan::audio.reset();
 }
 
 auto System::power() -> void {

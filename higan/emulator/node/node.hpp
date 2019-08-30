@@ -3,8 +3,6 @@ namespace higan::Core {
     struct System;
     struct Component;
     struct RealTimeClock;
-    struct Video;
-    struct Audio;
     struct Peripheral;
     struct Port;
     struct Input;
@@ -25,6 +23,8 @@ namespace higan::Core {
   //struct Video;
       struct Sprite;
       struct Screen;
+  //struct Audio;
+      struct Stream;
 }
 
 namespace higan::Node {
@@ -32,8 +32,6 @@ namespace higan::Node {
     using System         = shared_pointer<Core::System>;
     using Component      = shared_pointer<Core::Component>;
     using RealTimeClock  = shared_pointer<Core::RealTimeClock>;
-    using Video          = shared_pointer<Core::Video>;
-    using Audio          = shared_pointer<Core::Audio>;
     using Peripheral     = shared_pointer<Core::Peripheral>;
     using Port           = shared_pointer<Core::Port>;
     using Input          = shared_pointer<Core::Input>;
@@ -54,6 +52,8 @@ namespace higan::Node {
   //using Video;
       using Sprite       = shared_pointer<Core::Sprite>;
       using Screen       = shared_pointer<Core::Screen>;
+  //using Audio;
+      using Stream       = shared_pointer<Core::Stream>;
 }
 
 namespace higan::Core {
@@ -67,8 +67,6 @@ namespace higan::Core {
   #include <emulator/node/system.hpp>
   #include <emulator/node/component.hpp>
   #include <emulator/node/real-time-clock.hpp>
-  #include <emulator/node/video.hpp>
-  #include <emulator/node/audio.hpp>
   #include <emulator/node/peripheral.hpp>
   #include <emulator/node/port.hpp>
   #include <emulator/node/input.hpp>
@@ -78,6 +76,7 @@ namespace higan::Core {
   #include <emulator/node/event/instruction.hpp>
   #include <emulator/node/video/sprite.hpp>
   #include <emulator/node/video/screen.hpp>
+  #include <emulator/node/audio/stream.hpp>
 }
 
 namespace higan::Node {

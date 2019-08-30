@@ -1,17 +1,17 @@
 //Konami VRC7
 
 struct VRC7 : YM2413, Chip {
-  shared_pointer<Stream> stream;
+  Node::Stream stream;
 
   VRC7(Board& board) : Chip(board) {
-    audio.attach(stream);
+    stream = Node::append<Node::Stream>(cartridge.node, {}, "Stream");
     stream->setChannels(1);
     stream->setFrequency(uint(system.frequency() + 0.5) / cartridge.rate() / 36);
-    stream->addLowPassFilter(2280.0, Filter::Order::First);
+    stream->addLowPassFilter(2280.0, 1);
   }
 
   ~VRC7() {
-    audio.detach(stream);
+    stream = {};
   }
 
   auto main() -> void {

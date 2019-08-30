@@ -20,14 +20,13 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   tmss = Node::append<Node::Boolean>(node, from, "TMSS", false);
 
@@ -61,9 +60,9 @@ auto System::unload() -> void {
   save();
   cartridge.port = {};
   expansion.port = {};
-  controllerPort1.port = {};
-  controllerPort2.port = {};
-  extensionPort.port = {};
+  controllerPort1.unload();
+  controllerPort2.unload();
+  extensionPort.unload();
   cpu.unload();
   apu.unload();
   vdp.unload();
@@ -71,8 +70,6 @@ auto System::unload() -> void {
   ym2612.unload();
   mcd.unload();
   node = {};
-
-  higan::audio.reset();
 }
 
 auto System::save() -> void {

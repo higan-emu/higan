@@ -14,13 +14,17 @@ DSP dsp;
 #include "serialization.cpp"
 
 auto DSP::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
+  node = Node::append<Node::Component>(parent, from, "DSP");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(2);
   stream->setFrequency(system.apuFrequency() / 768.0);
 }
 
 auto DSP::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto DSP::main() -> void {

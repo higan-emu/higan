@@ -1,7 +1,7 @@
 #if defined(CORE_GB)
 
 struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
-  Shared::Stream stream;
+  Node::Stream stream;
   Node::Port port;
   Node::Peripheral node;
 

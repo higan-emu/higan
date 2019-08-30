@@ -21,6 +21,9 @@
 #include <nall/vector.hpp>
 #include <nall/vfs.hpp>
 #include <nall/cd.hpp>
+#include <nall/dsp/iir/one-pole.hpp>
+#include <nall/dsp/iir/biquad.hpp>
+#include <nall/dsp/resampler/cubic.hpp>
 #include <nall/hash/crc32.hpp>
 #include <nall/hash/sha256.hpp>
 using namespace nall;
@@ -31,12 +34,11 @@ using namespace nall;
 #include <emulator/interface.hpp>
 #include <emulator/memory/readable.hpp>
 #include <emulator/memory/writable.hpp>
-#include <emulator/audio/audio.hpp>
 #include <emulator/resource/resource.hpp>
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.205";
+  static const string Version = "106.206";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";

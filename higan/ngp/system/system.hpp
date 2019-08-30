@@ -36,7 +36,7 @@ struct System {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Node::Object) -> void;
+  auto load(Node::Object&, Node::Object) -> void;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;

@@ -1,14 +1,14 @@
 struct VRC6 : Chip {
-  shared_pointer<Stream> stream;
+  Node::Stream stream;
 
   VRC6(Board& board) : Chip(board) {
-    audio.attach(stream);
+    stream = Node::append<Node::Stream>(cartridge.node, {}, "Stream");
     stream->setChannels(1);
     stream->setFrequency(uint(system.frequency() + 0.5) / cartridge.rate());
   }
 
   ~VRC6() {
-    audio.detach(stream);
+    stream = {};
   }
 
   struct Pulse {

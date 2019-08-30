@@ -1,5 +1,6 @@
 struct System : IO {
   Node::Object node;
+  Node::Boolean headphones;
 
   enum class SoC : uint {
     ASWAN,
@@ -55,14 +56,6 @@ struct System : IO {
     bool rightLatch = 0;
   } controls;
 
-  struct Audio {
-    Node::Audio node;
-    Node::Boolean headphones;
-
-    //audio.cpp
-    auto load(Node::Object, Node::Object) -> void;
-  } audio;
-
   inline auto abstract() const -> bool { return information.abstract; }
   inline auto model() const -> Model { return information.model; }
   inline auto soc() const -> SoC { return information.soc; }
@@ -85,7 +78,7 @@ struct System : IO {
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Node::Object) -> void;
+  auto load(Node::Object&, Node::Object) -> void;
   auto unload() -> void;
   auto save() -> void;
   auto power() -> void;

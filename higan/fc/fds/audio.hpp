@@ -1,5 +1,5 @@
 struct FDSAudio {
-  Shared::Stream stream;
+  Node::Stream stream;
 
   auto load(Node::Object, Node::Object) -> void;
   auto unload() -> void;

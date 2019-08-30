@@ -1,5 +1,6 @@
 struct PSG : T6W28, Thread {
-  Shared::Stream stream;
+  Node::Component node;
+  Node::Stream stream;
 
   //psg.cpp
   auto load(Node::Object, Node::Object) -> void;

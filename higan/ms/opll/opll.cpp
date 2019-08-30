@@ -5,15 +5,19 @@ namespace higan::MasterSystem {
 OPLL opll;
 #include "serialization.cpp"
 
-auto OPLL::load(Node::Object parent, Node::Object with) -> void {
-  audio.attach(stream);
+auto OPLL::load(Node::Object parent, Node::Object from) -> void {
+  node = Node::append<Node::Component>(parent, from, "OPLL");
+  from = Node::scan(parent = node, from);
+
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
   stream->setChannels(1);
   stream->setFrequency(system.colorburst() / 72.0);
-  stream->addHighPassFilter(20.0, Filter::Order::First);
+  stream->addHighPassFilter(20.0, 1);
 }
 
 auto OPLL::unload() -> void {
-  audio.detach(stream);
+  node = {};
+  stream = {};
 }
 
 auto OPLL::main() -> void {

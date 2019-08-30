@@ -14,16 +14,15 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
   if(interface->name() == "PC Engine" ) information.model = Model::PCEngine;
   if(interface->name() == "SuperGrafx") information.model = Model::SuperGrafx;
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   scheduler.reset();
   cpu.load(node, from);
@@ -47,8 +46,6 @@ auto System::unload() -> void {
   vce.unload();
   psg.unload();
   node = {};
-
-  higan::audio.reset();
 }
 
 auto System::power() -> void {

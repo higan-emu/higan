@@ -284,7 +284,7 @@ struct MCD : M68K, Thread {
     uint16 counter;
 
     struct DAC {
-      Shared::Stream stream;
+      Node::Stream stream;
 
       //cdd-dac.cpp
       auto load(Node::Object, Node::Object) -> void;
@@ -381,7 +381,7 @@ struct MCD : M68K, Thread {
   } gpu;
 
   struct PCM {
-    Shared::Stream stream;
+    Node::Stream stream;
     Memory::Writable<uint8> ram;
 
     //pcm.cpp

@@ -15,16 +15,15 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
   if(interface->name() == "Neo Geo Pocket"      ) information.model = Model::NeoGeoPocket;
   if(interface->name() == "Neo Geo Pocket Color") information.model = Model::NeoGeoPocketColor;
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   fastBoot = Node::append<Node::Boolean>(node, from, "Fast Boot", false);
 
@@ -53,8 +52,6 @@ auto System::unload() -> void {
   vpu.unload();
   psg.unload();
   node = {};
-
-  higan::audio.reset();
 }
 
 auto System::power() -> void {

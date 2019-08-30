@@ -150,7 +150,10 @@ auto nall::main(Arguments arguments) -> void {
   #endif
 
   higan::platform = &emulator;
-  for(auto& interface : interfaces) interface->load();
+  for(auto& interface : interfaces) {
+    higan::Node::Object root;
+    interface->load(root);
+  }
 
   Instances::programWindow.construct();
   emulator.inputUpdate();

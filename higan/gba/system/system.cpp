@@ -17,17 +17,15 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
   if(interface->name() == "Game Boy Advance") information.model = Model::GameBoyAdvance;
   if(interface->name() == "Game Boy Player" ) information.model = Model::GameBoyPlayer;
 
-  higan::audio.reset(interface);
-
-  node = Node::System::create(interface->name());
-  node->load(from);
+  node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   scheduler.reset();
   controls.load(node, from);
@@ -50,8 +48,6 @@ auto System::unload() -> void {
   ppu.unload();
   apu.unload();
   node = {};
-
-  higan::audio.reset();
 }
 
 auto System::power() -> void {

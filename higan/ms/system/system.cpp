@@ -18,16 +18,15 @@ auto System::runToSave() -> void {
   scheduler.enter(Scheduler::Mode::Serialize);
 }
 
-auto System::load(Node::Object from) -> void {
+auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
   if(interface->name() == "Master System") information.model = Model::MasterSystem;
   if(interface->name() == "Game Gear"    ) information.model = Model::GameGear;
 
-  higan::audio.reset(interface);
-
   node = Node::append<Node::System>(nullptr, from, interface->name());
+  root = node;
 
   regionNode = Node::append<Node::String>(node, from, "Region", "NTSC → PAL");
   regionNode->setAllowedValues({
@@ -60,16 +59,14 @@ auto System::unload() -> void {
   save();
   cartridge.port = {};
   if(!MasterSystem::Model::GameGear()) {
-    controllerPort1.port = {};
-    controllerPort2.port = {};
+    controllerPort1.unload();
+    controllerPort2.unload();
   }
   cpu.unload();
   vdp.unload();
   psg.unload();
   opll.unload();
   node = {};
-
-  higan::audio.reset();
 }
 
 auto System::power() -> void {

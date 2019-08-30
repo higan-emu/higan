@@ -19,12 +19,13 @@ struct System {
   inline auto region() const -> Region { return information.region; }
   inline auto frequency() const -> double { return information.frequency; }
 
+  //system.cpp
   auto run() -> void;
   auto runToSave() -> void;
 
-  auto load(Node::Object) -> void;
-  auto unload() -> void;
+  auto load(Node::Object&, Node::Object) -> void;
   auto save() -> void;
+  auto unload() -> void;
   auto power(bool reset) -> void;
 
   //serialization.cpp

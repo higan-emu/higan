@@ -13,6 +13,10 @@ auto ControllerPort::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto ControllerPort::unload() -> void {
+  port = {};
+}
+
 auto ControllerPort::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {

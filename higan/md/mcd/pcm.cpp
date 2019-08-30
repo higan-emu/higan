@@ -1,7 +1,7 @@
 //Ricoh RF5C164
 
 auto MCD::PCM::load(Node::Object parent, Node::Object from) -> void {
-  audio.attach(stream);
+  stream = Node::append<Node::Stream>(parent, from, "PCM Stream");
   stream->setChannels(2);
   stream->setFrequency(12'500'000 / 384.0);
 
@@ -9,7 +9,7 @@ auto MCD::PCM::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto MCD::PCM::unload() -> void {
-  audio.detach(stream);
+  stream = {};
 
   ram.reset();
 }

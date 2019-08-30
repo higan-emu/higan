@@ -39,7 +39,7 @@ struct System {
   auto runToSave() -> void;
   auto clocksExecuted() -> uint;
 
-  auto load(Node::Object) -> void;
+  auto load(Node::Object&, Node::Object) -> void;
   auto unload() -> void;
   auto save() -> void;
   auto power() -> void;
