@@ -315,7 +315,9 @@ auto Famicom::heuristicsUNIF(vector<uint8_t>& data, string location) -> string {
   uint characterRAM = 0;
 
   if(board == "KONAMI-QTAI") {
-    programRAM = 8_KiB;
+    board = "KONAMI-VRC-5";
+    programRAM = 8_KiB + 8_KiB;
+    characterRAM = 8_KiB;
   }
 
   //ensure required chucks were found

@@ -13,8 +13,10 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
 
   eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
   eventInstruction->setAddressBits(16);
+//eventInstruction->setEnabled(true);
 
   eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
+//eventInterrupt->setEnabled(true);
 }
 
 auto CPU::unload() -> void {

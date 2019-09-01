@@ -4,6 +4,7 @@
 #include "konami-vrc2.cpp"
 #include "konami-vrc3.cpp"
 #include "konami-vrc4.cpp"
+#include "konami-vrc5.cpp"
 #include "konami-vrc6.cpp"
 #include "konami-vrc7.cpp"
 #include "nes-axrom.cpp"
@@ -144,6 +145,7 @@ auto Board::load(string manifest) -> Board* {
   if(type == "KONAMI-VRC-2") return new KonamiVRC2(document);
   if(type == "KONAMI-VRC-3") return new KonamiVRC3(document);
   if(type == "KONAMI-VRC-4") return new KonamiVRC4(document);
+  if(type == "KONAMI-VRC-5") return new KonamiVRC5(document);
   if(type == "KONAMI-VRC-6") return new KonamiVRC6(document);
   if(type == "KONAMI-VRC-7") return new KonamiVRC7(document);
 
