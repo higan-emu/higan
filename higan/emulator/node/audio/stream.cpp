@@ -118,5 +118,7 @@ auto Stream::write(const double samples[]) -> void {
     _channels[c].resampler.write(sample);
   }
 
-  platform->audio(shared());
+  //if there are samples pending, then alert the frontend to possibly process them.
+  //this will generally happen when every audio stream has pending samples to be mixed.
+  if(pending()) platform->audio(shared());
 }

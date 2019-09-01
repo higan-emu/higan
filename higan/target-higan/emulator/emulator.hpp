@@ -53,6 +53,7 @@ struct Emulator : higan::Platform {
     bool power = false;
   } events;
 
+  vector<higan::Node::Screen> screens;
   vector<higan::Node::Stream> streams;
 };
 

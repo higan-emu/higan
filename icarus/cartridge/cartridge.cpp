@@ -43,6 +43,10 @@ auto Cartridge::import(string location) -> string {
   location = {pathname, Location::prefix(location), "/"};
   if(!directory::create(location)) return "output directory not writable";
 
+  if(settings.createManifests) {
+    file::write({location, "manifest.bml"}, manifest);
+  }
+
   auto buffer = array_view<uint8_t>{data};
   for(auto memory : document.find("game/board/memory")) {
     auto type = memory["type"].text();

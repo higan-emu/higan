@@ -87,7 +87,9 @@ auto VideoSettings::refresh() -> void {
     item.setText(format);
     if(format == settings.video.format) item.setSelected();
   }
-  formatOption.setEnabled(formatOption.itemCount() > 1);
+//formatOption.setEnabled(formatOption.itemCount() > 1);
+//temporarily disabled; Emulator::Node::Sprite needs to be able to handle non-ARGB8888 formats first.
+  formatOption.setEnabled(false);
 
   optionsLayout.resize();
 

@@ -1,10 +1,18 @@
 auto Emulator::attach(higan::Node::Object node) -> void {
+  if(interface && node->is<higan::Node::Screen>()) {
+    screens = root->find<higan::Node::Screen>();
+  }
+
   if(interface && node->is<higan::Node::Stream>()) {
     streams = root->find<higan::Node::Stream>();
   }
 }
 
 auto Emulator::detach(higan::Node::Object node) -> void {
+  if(interface && node->is<higan::Node::Screen>()) {
+    screens = root->find<higan::Node::Screen>();
+  }
+
   if(interface && node->is<higan::Node::Stream>()) {
     streams = root->find<higan::Node::Stream>();
   }
