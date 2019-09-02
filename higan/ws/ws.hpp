@@ -24,7 +24,6 @@ namespace higan::WonderSwan {
     inline static auto WonderSwanColor() -> bool;    //Bandai  (SPHINX)  [WSC-001]
     inline static auto SwanCrystal() -> bool;        //Bandai  (SPHINX2) [SCT-001]
     inline static auto PocketChallengeV2() -> bool;  //Benesse (ASWAN)   [3AA902]
-    inline static auto MamaMitte() -> bool;          //Tanita  (SPHINX2)
   };
 
   #include <ws/memory/memory.hpp>

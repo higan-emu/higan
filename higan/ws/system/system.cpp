@@ -32,7 +32,6 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
   if(interface->name() == "WonderSwan Color"   ) information.soc = SoC::SPHINX,  information.model = Model::WonderSwanColor;
   if(interface->name() == "SwanCrystal"        ) information.soc = SoC::SPHINX2, information.model = Model::SwanCrystal;
   if(interface->name() == "Pocket Challenge V2") information.soc = SoC::ASWAN,   information.model = Model::PocketChallengeV2;
-  if(interface->name() == "mamaMitte"          ) information.soc = SoC::SPHINX2, information.model = Model::MamaMitte;
 
   node = Node::append<Node::System>(nullptr, from, interface->name());
   root = node;
@@ -86,7 +85,7 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
     }
 
     if(WonderSwan::Model::SwanCrystal()) {
-      if(auto fp = platform->open(node, "boot.rom", File::Read)) {  //currently undumped
+      if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
         bootROM.allocate(8_KiB);
         bootROM.load(fp);
       }
@@ -109,24 +108,6 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
         bootROM.load(fp);
       }
       //the internal EEPROM has been removed from the Pocket Challenge V2 PCB.
-    }
-
-    if(WonderSwan::Model::MamaMitte()) {
-      if(auto fp = platform->open(node, "boot.rom", File::Read)) {  //currently undumped
-        bootROM.allocate(8_KiB);
-        bootROM.load(fp);
-      }
-      eeprom.allocate(2048, 16, 0x00);
-      //unverified; based on WonderSwan Color IPLROM
-      eeprom.program(0x76, 0x01);
-      eeprom.program(0x77, 0x01);
-      eeprom.program(0x78, 0x27);
-      eeprom.program(0x7c, 0x01);
-      eeprom.program(0x80, 0x01);
-      eeprom.program(0x81, 0x01);
-      eeprom.program(0x82, 0x27);
-      eeprom.program(0x83, 0x03);  //d0-d1 = volume (0-3)
-      initializeName("SWANCRYSTAL");  //verified
     }
 
     if(auto fp = platform->open(node, "save.eeprom", File::Read)) {

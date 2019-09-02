@@ -289,7 +289,7 @@ auto PPU::updateIcons() -> void {
     icon.volumeA2->setVisible(volume == 2 & visible);
   }
 
-  if(Model::WonderSwanColor() || Model::SwanCrystal() || Model::MamaMitte()) {
+  if(Model::WonderSwanColor() || Model::SwanCrystal()) {
     icon.volumeB0->setVisible(volume == 0 & visible);
     icon.volumeB1->setVisible(volume == 1 & visible);
     icon.volumeB2->setVisible(volume == 2 & visible);

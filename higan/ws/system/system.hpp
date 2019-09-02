@@ -13,13 +13,12 @@ struct System : IO {
     WonderSwanColor,
     SwanCrystal,
     PocketChallengeV2,
-    MamaMitte,
   };
 
   struct Controls {
     Node::Object node;
 
-    //WonderSwan, WonderSwan Color, SwanCrystal, mamaMitte
+    //WonderSwan, WonderSwan Color, SwanCrystal
     Node::Button y1;
     Node::Button y2;
     Node::Button y3;
@@ -124,4 +123,3 @@ auto Model::WonderSwan() -> bool { return system.model() == System::Model::Wonde
 auto Model::WonderSwanColor() -> bool { return system.model() == System::Model::WonderSwanColor; }
 auto Model::SwanCrystal() -> bool { return system.model() == System::Model::SwanCrystal; }
 auto Model::PocketChallengeV2() -> bool { return system.model() == System::Model::PocketChallengeV2; }
-auto Model::MamaMitte() -> bool { return system.model() == System::Model::MamaMitte; }
