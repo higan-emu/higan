@@ -85,8 +85,7 @@ auto ICD::power(bool reset) -> void {
   packetSize = 0;
 
   joypID = 3;
-  joyp14Lock = 0;
-  joyp15Lock = 0;
+  joypLock = 1;
   pulseLock = 1;
   strobeLock = 0;
   packetLock = 0;

@@ -20,7 +20,6 @@ auto PPU::Background::runMode7() -> void {
   int hoffset = (int13)latch.hoffset;
   int voffset = (int13)latch.voffset;
 
-  if(Background::x++ & ~255) return;
   uint x = mosaic.hoffset;
   uint y = ppu.bg1.mosaic.voffset;  //BG2 vertical mosaic uses BG1 mosaic size
 
@@ -59,14 +58,14 @@ auto PPU::Background::runMode7() -> void {
   if(palette == 0) return;
 
   if(io.aboveEnable) {
-    output.above.palette = palette;
     output.above.priority = priority;
-    output.above.tile = 0;
+    output.above.palette = palette;
+    output.above.paletteGroup = 0;
   }
 
   if(io.belowEnable) {
-    output.below.palette = palette;
     output.below.priority = priority;
-    output.below.tile = 0;
+    output.below.palette = palette;
+    output.below.paletteGroup = 0;
   }
 }
