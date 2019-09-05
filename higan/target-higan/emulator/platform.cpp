@@ -81,6 +81,11 @@ auto Emulator::log(string_view message) -> void {
 }
 
 auto Emulator::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
+  if(requests.captureScreenshot) {
+    requests.captureScreenshot = false;
+    captureScreenshot(data, pitch, width, height);
+  }
+
   uint videoWidth = node->width() * node->scaleX();
   uint videoHeight = node->height() * node->scaleY();
 

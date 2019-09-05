@@ -28,11 +28,8 @@ struct System {
   auto power() -> void;
 
   //serialization.cpp
-  auto serializeInit() -> void;
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
-  auto serializeAll(serializer&) -> void;
-  auto serialize(serializer&) -> void;
 
   uint8 bios[0x2000];
 
@@ -41,8 +38,13 @@ private:
     Model model = Model::ColecoVision;
     Region region = Region::NTSC;
     double colorburst = Constants::Colorburst::NTSC;
-    uint serializeSize = 0;
+    uint32 serializeSize;
   } information;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+  auto serializeAll(serializer&) -> void;
+  auto serializeInit() -> void;
 };
 
 extern System system;

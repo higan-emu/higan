@@ -5,6 +5,7 @@
 #include "input.cpp"
 #include "states.cpp"
 #include "status.cpp"
+#include "utility.cpp"
 
 Emulator emulator;
 
@@ -73,6 +74,7 @@ auto Emulator::unload() -> void {
 }
 
 auto Emulator::main() -> void {
+  updateMessage();
   if(Application::modal()) return (void)usleep(20 * 1000);
 
   inputManager.poll();

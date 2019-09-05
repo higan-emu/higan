@@ -58,6 +58,7 @@ struct ToolsMenu : Menu {
     MenuItem loadState4{&loadStateMenu};
     MenuItem loadState5{&loadStateMenu};
   MenuSeparator stateSeparator{this};
+  MenuItem captureScreenshot{this};
   MenuCheckItem pauseEmulation{this};
 };
 

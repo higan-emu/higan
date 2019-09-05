@@ -48,15 +48,16 @@ struct System {
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
 
+  struct Information {
+    Model model = Model::GameBoy;
+    uint32 serializeSize;
+    uint32 clocksExecuted;
+  } information;
+
+  //serialization.cpp
   auto serialize(serializer&) -> void;
   auto serializeAll(serializer&) -> void;
   auto serializeInit() -> void;
-
-  struct Information {
-    Model model = Model::GameBoy;
-    uint serializeSize = 0;
-    uint clocksExecuted = 0;
-  } information;
 };
 
 #include <gb/interface/interface.hpp>

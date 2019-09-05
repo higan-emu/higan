@@ -29,19 +29,21 @@ struct System {
   auto power(bool reset) -> void;
 
   //serialization.cpp
-  auto serializeInit() -> void;
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
-  auto serializeAll(serializer&) -> void;
-  auto serialize(serializer&) -> void;
 
 private:
   struct Information {
     Region region = Region::NTSCJ;
     bool megaCD = false;
     double frequency = Constants::Colorburst::NTSC * 15.0;
-    uint serializeSize = 0;
+    uint32 serializeSize;
   } information;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+  auto serializeAll(serializer&) -> void;
+  auto serializeInit() -> void;
 };
 
 extern System system;

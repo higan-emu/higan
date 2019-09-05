@@ -5,6 +5,7 @@
 #include <nall/platform.hpp>
 #include <nall/adaptive-array.hpp>
 #include <nall/any.hpp>
+#include <nall/array.hpp>
 #include <nall/chrono.hpp>
 #include <nall/dl.hpp>
 #include <nall/endian.hpp>
@@ -38,13 +39,13 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.209";
+  static const string Version = "106.210";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";
 
   //incremented only when serialization format changes
-  static const string SerializerVersion = "106";
+  static const string SerializerVersion = "106.210";
 
   namespace Constants {
     namespace Colorburst {

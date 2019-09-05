@@ -32,16 +32,17 @@ struct System {
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
 
-  auto serialize(serializer&) -> void;
-  auto serializeAll(serializer&) -> void;
-  auto serializeInit() -> void;
-
 private:
   struct Information {
     Region region = Region::NTSCJ;
     double frequency = Constants::Colorburst::NTSC * 6.0;
-    uint serializeSize = 0;
+    uint32 serializeSize;
   } information;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+  auto serializeAll(serializer&) -> void;
+  auto serializeInit() -> void;
 };
 
 extern System system;

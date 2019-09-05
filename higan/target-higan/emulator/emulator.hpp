@@ -39,8 +39,12 @@ struct Emulator : higan::Platform {
   auto loadState(uint slot) -> bool;
 
   //status.cpp
-  auto setMessage(const string& message = {}) -> void;
+  auto updateMessage() -> void;
+  auto showMessage(const string& message = {}) -> void;
   auto setCaption(const string& caption = {}) -> void;
+
+  //utility.cpp
+  auto captureScreenshot(const uint32_t* data, uint pitch, uint width, uint height) -> void;
 
   struct System {
     string name;
@@ -52,6 +56,17 @@ struct Emulator : higan::Platform {
   struct Events {
     bool power = false;
   } events;
+
+  struct Requests {
+    bool captureScreenshot = false;
+  } requests;
+
+  struct State {
+    struct Message {
+      uint64_t timestamp = 0;
+      string text;
+    } message;
+  } state;
 
   vector<higan::Node::Screen> screens;
   vector<higan::Node::Stream> streams;

@@ -1,5 +1,5 @@
 auto System::serialize() -> serializer {
-  serializer s(serializeSize);
+  serializer s(information.serializeSize);
 
   uint signature = 0x31545342;
   char version[16] = {};
@@ -9,12 +9,16 @@ auto System::serialize() -> serializer {
   s.integer(signature);
   s.array(version);
   s.array(description);
-
   serializeAll(s);
+  s.integer(information.serializeSize);
   return s;
 }
 
 auto System::unserialize(serializer& s) -> bool {
+  array_view<uint8_t> view{s.data() + s.capacity() - 4, 4};
+  auto size = view.readl(4);
+  if(size != information.serializeSize) return false;
+
   uint signature = 0;
   char version[16] = {};
   char description[512] = {};
@@ -83,7 +87,7 @@ auto System::serializeInit() -> void {
   s.integer(signature);
   s.array(version);
   s.array(description);
-
   serializeAll(s);
-  serializeSize = s.size();
+  information.serializeSize = s.size() + 4;
+  s.integer(information.serializeSize);
 }

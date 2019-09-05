@@ -16,18 +16,20 @@ struct System {
   auto power() -> void;
 
   //serialization.cpp
-  auto serializeInit() -> void;
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
-  auto serializeAll(serializer&) -> void;
-  auto serialize(serializer&) -> void;
 
 private:
   struct Information {
     Model model = Model::PCEngine;
     double colorburst = Constants::Colorburst::NTSC;
-    uint serializeSize = 0;
+    uint32 serializeSize;
   } information;
+
+  //serialization.cpp
+  auto serializeInit() -> void;
+  auto serializeAll(serializer&) -> void;
+  auto serialize(serializer&) -> void;
 };
 
 extern System system;

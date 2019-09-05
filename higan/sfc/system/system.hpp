@@ -36,10 +36,10 @@ private:
     Region region = Region::NTSC;
     double cpuFrequency = Constants::Colorburst::NTSC * 6.0;
     double apuFrequency = 32040.0 * 768.0;
+    uint32 serializeSize;
   } information;
 
-  uint serializeSize = 0;
-
+  //serialization.cpp
   auto serialize(serializer&) -> void;
   auto serializeAll(serializer&) -> void;
   auto serializeInit() -> void;

@@ -42,17 +42,19 @@ struct System {
   auto power() -> void;
 
   //serialization.cpp
-  auto serializeInit() -> void;
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
-  auto serializeAll(serializer&) -> void;
-  auto serialize(serializer&) -> void;
 
 private:
   struct Information {
     Model model = Model::NeoGeoPocket;
-    natural serializeSize;
+    uint32 serializeSize;
   } information;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+  auto serializeAll(serializer&) -> void;
+  auto serializeInit() -> void;
 };
 
 extern System system;

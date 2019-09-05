@@ -46,19 +46,21 @@ struct System {
   auto power() -> void;
 
   //serialization.cpp
-  auto serializeInit() -> void;
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
-  auto serializeAll(serializer&) -> void;
-  auto serialize(serializer&) -> void;
 
 private:
   struct Information {
     Model model = Model::MasterSystem;
     Region region = Region::NTSC;
     double colorburst = Constants::Colorburst::NTSC;
-    uint serializeSize = 0;
+    uint32 serializeSize;
   } information;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+  auto serializeInit() -> void;
+  auto serializeAll(serializer&) -> void;
 };
 
 extern System system;

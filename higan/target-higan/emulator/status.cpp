@@ -1,4 +1,11 @@
-auto Emulator::setMessage(const string& message) -> void {
+auto Emulator::updateMessage() -> void {
+  if(chrono::millisecond() - state.message.timestamp >= 2000) {
+    programWindow.statusMessage.setText(state.message.text);
+  }
+}
+
+auto Emulator::showMessage(const string& message) -> void {
+  state.message.timestamp = chrono::millisecond();
   programWindow.statusMessage.setText(message);
 }
 

@@ -178,6 +178,10 @@ ToolsMenu::ToolsMenu(MenuBar* parent) : Menu(parent) {
   loadState4.setText("Slot 4").onActivate([&] { emulator.loadState(4); });
   loadState5.setText("Slot 5").onActivate([&] { emulator.loadState(5); });
 
+  captureScreenshot.setIcon(Icon::Emblem::Image).setText("Capture Screenshot").onActivate([&] {
+    emulator.requests.captureScreenshot = true;
+  });
+
   pauseEmulation.setText("Pause Emulation");
 }
 

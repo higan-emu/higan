@@ -87,17 +87,14 @@ struct System : IO {
   auto portWrite(uint16 address, uint8 data) -> void override;
 
   //serialization.cpp
-  auto serializeInit() -> void;
   auto serialize() -> serializer;
   auto unserialize(serializer&) -> bool;
-  auto serializeAll(serializer&) -> void;
-  auto serialize(serializer&) -> void;
 
   struct Information {
     bool abstract = false;
     SoC soc = SoC::ASWAN;
     Model model = Model::WonderSwan;
-    uint serializeSize = 0;
+    uint32 serializeSize;
   } information;
 
   Memory::Readable<uint8> bootROM;
@@ -111,6 +108,11 @@ private:
     uint1 unknown3;
     uint3 mode;
   } io;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+  auto serializeAll(serializer&) -> void;
+  auto serializeInit() -> void;
 };
 
 extern System system;
