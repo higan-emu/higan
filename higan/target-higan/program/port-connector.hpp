@@ -2,6 +2,7 @@ struct PortConnector : Panel {
   PortConnector(View*);
   auto show() -> void override;
   auto hide() -> void override;
+  auto isIcarusType() const -> bool;
   auto refresh(higan::Node::Port port) -> void;
 
   auto eventImport() -> void;

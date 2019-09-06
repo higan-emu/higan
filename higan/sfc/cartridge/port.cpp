@@ -4,14 +4,17 @@ CartridgePort::CartridgePort(string_view name) : name(name) {
 }
 
 auto CartridgePort::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, name, "Cartridge");
-  port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
+  port = Node::append<Node::Port>(parent, from, name);
+  port->setFamily("Super Famicom");
+  port->setType("Cartridge");
+  port->setAllocate([&] { return Node::Peripheral::create(interface->name()); });
+  port->setAttach([&](auto node) { connect(node); });
+  port->setDetach([&](auto node) { disconnect(); });
   port->scan(from);
 }
 
 auto CartridgePort::unload() -> void {
+  disconnect();
   port = {};
 }
 

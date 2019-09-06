@@ -40,7 +40,7 @@ struct Instruction : Event {
 
   auto notify(string_view instruction, string_view context, string_view extra = {}) -> void {
     if(_omitted) {
-      print(_component, " [Omitted: ", _omitted, "]\n");
+      PlatformLog({_component, " [Omitted: ", _omitted, "]\n"});
       _omitted = 0;
     }
 
@@ -51,7 +51,7 @@ struct Instruction : Event {
       context, "  ",
       extra
     };
-    print(output.strip(), "\n");
+    PlatformLog({output.strip(), "\n"});
   }
 
   auto serialize(string& output, string depth) -> void override {

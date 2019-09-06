@@ -5,10 +5,12 @@ SufamiTurboCartridge sufamiturboB;
 
 auto SufamiTurboCartridge::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   bool portID = this == &sufamiturboB;
-  port = Node::append<Node::Port>(parent, from, string{"Sufami Turbo Cartridge Slot ", !portID ? "A" : "B"}, "Sufami Turbo Cartridge");
-  port->allocate = [&] { return Node::Peripheral::create("Sufami Turbo"); };
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
+  port = Node::append<Node::Port>(parent, from, string{"Cartridge Slot ", !portID ? "A" : "B"});
+  port->setFamily("Sufami Turbo");
+  port->setType("Cartridge");
+  port->setAllocate([&] { return Node::Peripheral::create("Sufami Turbo"); });
+  port->setAttach([&](auto node) { connect(node); });
+  port->setDetach([&](auto node) { disconnect(); });
   port->scan(from);
 }
 

@@ -18,7 +18,7 @@ PortConnector::PortConnector(View* parent) : Panel(parent, Size{~0, ~0}) {
 }
 
 auto PortConnector::show() -> void {
-  importButton.setVisible(port->type == "Cartridge");
+  importButton.setVisible(isIcarusType());
   setVisible(true);
 }
 
@@ -27,22 +27,44 @@ auto PortConnector::hide() -> void {
   port = {};
 }
 
+auto PortConnector::isIcarusType() const -> bool {
+  if(!port) return false;  //should never occur
+  if(port->type() == "Cartridge") return true;
+  if(port->type() == "Floppy Disk") return true;
+  if(port->type() == "Compact Disc") return true;
+  return false;
+}
+
 auto PortConnector::refresh(higan::Node::Port port) -> void {
   this->port = port;
 
   auto path = port->property("path");
-  if(!path) path = {emulator.system.data, port->type, "/"};
-  if(path.beginsWith(Path::user())) {
-    path.trimLeft(Path::user(), 1L);
-    path.prepend("~/");
+  //is this the first time refreshing this port?
+  if(!path) {
+    //see if there's a shared icarus path for it
+    if(isIcarusType()) {
+      path = {Path::user(), "Emulation/", port->family(), "/"};
+    }
+    //if not, use a local path for it
+    if(!directory::exists(path)) {
+      path = {emulator.system.data, port->family(), " ", port->type(), "/"};
+    }
+    port->setProperty("path", path);
   }
-  locationLabel.setText(path);
+
+  //if this is a user path, replace the home directory with ~ for brevity
+  if(path.beginsWith(Path::user())) {
+    locationLabel.setText(string{path}.trimLeft(Path::user(), 1L).prepend("~/"));
+  } else {
+    locationLabel.setText(path);
+  }
+
   peripheralList.reset();
   ListViewItem item{&peripheralList};
   item.setProperty("type", "nothing");
   item.setIcon(Icon::Action::Remove).setText("Nothing");
 
-  if(string location = {emulator.system.templates, port->type, "/"}) {
+  if(string location = {emulator.system.templates, port->type(), "/"}) {  //TODO
     for(auto& name : directory::folders(location)) {
       ListViewItem item{&peripheralList};
       item.setProperty("type", "template");
@@ -53,17 +75,13 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
     }
   }
 
-  auto location = port->property("path");
-  if(!location) location = {emulator.system.data, port->type, "/"};
-  if(location) {
-    for(auto& name : directory::folders(location)) {
-      ListViewItem item{&peripheralList};
-      item.setProperty("type", "peripheral");
-      item.setProperty("location", {location, name});
-      item.setProperty("path", location);
-      item.setProperty("name", name.trimRight("/", 1L));
-      item.setIcon(Icon::Emblem::Folder).setText(name);
-    }
+  for(auto& name : directory::folders(path)) {
+    ListViewItem item{&peripheralList};
+    item.setProperty("type", "peripheral");
+    item.setProperty("location", {path, name});
+    item.setProperty("path", path);
+    item.setProperty("name", name.trimRight("/", 1L));
+    item.setIcon(Icon::Emblem::Folder).setText(name);
   }
 
   peripheralList.doChange();
@@ -77,7 +95,7 @@ auto PortConnector::eventImport() -> void {
 
 auto PortConnector::eventActivate() -> void {
   if(auto item = peripheralList.selected()) {
-    if(!port->hotSwappable && emulator.system.power) {
+    if(!port->hotSwappable() && emulator.system.power) {
       auto response = MessageDialog()
       .setText("The peripheral currently connected to this port isn't hot-swappable.\n"
                "Removing it anyway may crash the emulated system.\n"
@@ -102,7 +120,7 @@ auto PortConnector::eventActivate() -> void {
       if(!label) return;
 
       auto source = item.property("location");
-      auto target = string{emulator.system.data, port->type, "/", label, "/"};
+      auto target = string{emulator.system.data, port->family(), " ", port->type(), "/", label, "/"};
       if(directory::exists(target)) return (void)MessageDialog()
       .setText("A directory by this name already exists.")
       .setTitle("Error").setAlignment(programWindow).error();
@@ -172,10 +190,9 @@ auto PortConnector::eventContext() -> void {
 
 auto PortConnector::eventBrowse() -> void {
   auto path = port->property("path");
-  if(!path) path = {emulator.system.data, port->type, "/"};
   if(auto location = BrowserDialog()
   .setTitle({port->name, " Location"})
-  .setPath(path)
+  .setPath(path ? path : Path::user())
   .setAlignment(programWindow).selectFolder()
   ) {
     port->setProperty("path", location);
@@ -225,7 +242,7 @@ auto PortConnector::eventRemove() -> void {
       auto location = item.property("location");
       auto connected = emulator.connected(location);
 
-      if(!port->hotSwappable && emulator.system.power && emulator.connected(location)) return (void)MessageDialog()
+      if(!port->hotSwappable() && emulator.system.power && emulator.connected(location)) return (void)MessageDialog()
       .setText({"This peripheral is not hot-swappable and is already connected to a port:\n\n", connected->name})
       .setTitle("Error").setAlignment(programWindow).error();
 

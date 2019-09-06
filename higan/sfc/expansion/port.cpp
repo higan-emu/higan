@@ -4,9 +4,11 @@ ExpansionPort::ExpansionPort(string_view name) : name(name) {
 }
 
 auto ExpansionPort::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, name, "Expansion");
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
+  port = Node::append<Node::Port>(parent, from, name);
+  port->setFamily("Super Famicom");
+  port->setType("Expansion");
+  port->setAttach([&](auto node) { connect(node); });
+  port->setDetach([&](auto node) { disconnect(); });
   port->scan(from);
 }
 

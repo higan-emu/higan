@@ -14,10 +14,12 @@ auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   stream->setFrequency(frequency / 2.0);
   stream->addHighPassFilter(20.0, 1);
 
-  port = Node::append<Node::Port>(parent, from, "Game Boy Cartridge Slot", "Game Boy Cartridge");
-  port->allocate = [&] { return Node::Peripheral::create("Game Boy"); };
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
+  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
+  port->setFamily("Game Boy");
+  port->setType("Cartridge");
+  port->setAllocate([&] { return Node::Peripheral::create("Game Boy"); });
+  port->setAttach([&](auto node) { connect(node); });
+  port->setDetach([&](auto node) { disconnect(); });
   GameBoy::superGameBoy = this;
   GameBoy::system.node = parent;
   GameBoy::system.information.model = GameBoy::System::Model::SuperGameBoy;

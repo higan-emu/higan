@@ -6,10 +6,12 @@ Expansion expansion;
 #include "serialization.cpp"
 
 auto Expansion::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Expansion Port", "Cartridge");
-  port->allocate = [&] { return Node::Peripheral::create(interface->name()); };
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
+  port = Node::append<Node::Port>(parent, from, "Expansion Port");
+  port->setFamily("Mega Drive");
+  port->setType("Cartridge");  //not technically a cartridge, but pin-compatible with one
+  port->setAllocate([&] { return Node::Peripheral::create(interface->name()); });
+  port->setAttach([&](auto node) { connect(node); });
+  port->setDetach([&](auto node) { disconnect(); });
   port->scan(from);
 }
 

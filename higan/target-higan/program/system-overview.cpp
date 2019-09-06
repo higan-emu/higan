@@ -15,9 +15,10 @@ auto SystemOverview::refresh() -> void {
   auto location = systemManager.systemList.selected().property("location");
   nodeList.reset();
   auto manifest = BML::unserialize(file::read({location, "manifest.bml"}));
-  auto root = higan::Node::unserialize(file::read({location, "settings.bml"}));
   nodeList.append(ListViewItem().setText(manifest["system"].text()));
-  for(auto& node : *root) scan(node);
+  if(auto root = higan::Node::unserialize(file::read({location, "settings.bml"}))) {
+    for(auto& node : *root) scan(node);
+  }
 }
 
 auto SystemOverview::scan(higan::Node::Object node, uint depth) -> void {

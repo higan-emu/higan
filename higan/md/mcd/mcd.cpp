@@ -28,11 +28,13 @@ auto MCD::load(Node::Object parent, Node::Object from) -> void {
 
   eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "MCD");
 
-  tray = Node::append<Node::Port>(parent, from, "Disc Tray", "Mega CD");
-  tray->hotSwappable = true;
-  tray->allocate = [&] { return Node::Peripheral::create("Mega CD"); };
-  tray->attach = [&](auto node) { connect(node); };
-  tray->detach = [&](auto node) { disconnect(); };
+  tray = Node::append<Node::Port>(parent, from, "Disc Tray");
+  tray->setFamily("Mega CD");
+  tray->setType("Compact Disc");
+  tray->setHotSwappable(true);
+  tray->setAllocate([&] { return Node::Peripheral::create("Mega CD"); });
+  tray->setAttach([&](auto node) { connect(node); });
+  tray->setDetach([&](auto node) { disconnect(); });
   tray->scan(from);
 
   bios.allocate  (128_KiB >> 1);

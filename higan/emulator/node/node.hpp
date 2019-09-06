@@ -60,6 +60,7 @@ namespace higan::Core {
   // <emulator/platform.hpp> forward declarations (dependent on <emulator/node.hpp>)
   static auto PlatformAttach(Node::Object) -> void;
   static auto PlatformDetach(Node::Object) -> void;
+  static auto PlatformLog(string_view) -> void;
 
   #include <emulator/node/property.hpp>
   #include <emulator/node/class.hpp>

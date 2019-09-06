@@ -6,10 +6,12 @@ Keyboard keyboard;
 #include "serialization.cpp"
 
 auto Keyboard::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Keyboard", "Keyboard");
-  port->hotSwappable = true;
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
+  port = Node::append<Node::Port>(parent, from, "Keyboard");
+  port->setFamily("MSX");
+  port->setType("Keyboard");
+  port->setHotSwappable(true);
+  port->setAttach([&](auto node) { connect(node); });
+  port->setDetach([&](auto node) { disconnect(); });
   port->scan(from);
 }
 

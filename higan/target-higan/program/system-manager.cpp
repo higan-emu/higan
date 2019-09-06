@@ -88,6 +88,9 @@ auto SystemManager::eventContext() -> void {
 }
 
 auto SystemManager::eventCreate() -> void {
+  //clear the current selection to indicate that creation affects the entire list,
+  //and not just whatever may be currently selected.
+  systemList.selectNone();
   programWindow.show(systemCreation);
 }
 

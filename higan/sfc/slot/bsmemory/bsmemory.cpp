@@ -2,10 +2,12 @@ BSMemory bsmemory;
 #include "serialization.cpp"
 
 auto BSMemory::load(Node::Peripheral parent, Node::Peripheral from) -> void {
-  port = Node::append<Node::Port>(parent, from, "BS Memory Cartridge Slot", "BS Memory Cartridge");
-  port->allocate = [&] { return Node::Peripheral::create("BS Memory"); };
-  port->attach = [&](auto node) { connect(node); };
-  port->detach = [&](auto node) { disconnect(); };
+  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
+  port->setFamily("BS Memory");
+  port->setType("Cartridge");
+  port->setAllocate([&] { return Node::Peripheral::create("BS Memory"); });
+  port->setAttach([&](auto node) { connect(node); });
+  port->setDetach([&](auto node) { disconnect(); });
   port->scan(from);
 }
 
@@ -22,8 +24,6 @@ BSMemory::BSMemory() {
 }
 
 auto BSMemory::main() -> void {
-  if(ROM) return step(1'000'000);  //1 second
-
   for(uint6 id : range(block.count())) {
     if(block(id).erasing) return block(id).erase();
     block(id).status.ready = 1;
@@ -110,30 +110,33 @@ auto BSMemory::connect(Node::Peripheral with) -> void {
 
 auto BSMemory::disconnect() -> void {
   if(!node) return;
-  if(ROM) return memory.reset();
 
-  if(auto fp = platform->open(node, "flash.bml", File::Write, File::Optional)) {
-    string manifest;
-    manifest.append("flash\n");
-    manifest.append("  vendor: 0x", hex(chip.vendor,  4L), "\n");
-    manifest.append("  device: 0x", hex(chip.device,  4L), "\n");
-    manifest.append("  serial: 0x", hex(chip.serial, 12L), "\n");
-    for(uint6 id : range(block.count())) {
-      manifest.append("  block\n");
-      manifest.append("    id: ", id, "\n");
-      manifest.append("    erased: ", (uint)block(id).erased, "\n");
-      manifest.append("    locked: ", (bool)block(id).locked, "\n");
+  if(!ROM) {
+    if(auto fp = platform->open(node, "flash.bml", File::Write, File::Optional)) {
+      string manifest;
+      manifest.append("flash\n");
+      manifest.append("  vendor: 0x", hex(chip.vendor,  4L), "\n");
+      manifest.append("  device: 0x", hex(chip.device,  4L), "\n");
+      manifest.append("  serial: 0x", hex(chip.serial, 12L), "\n");
+      for(uint6 id : range(block.count())) {
+        manifest.append("  block\n");
+        manifest.append("    id: ", id, "\n");
+        manifest.append("    erased: ", (uint)block(id).erased, "\n");
+        manifest.append("    locked: ", (bool)block(id).locked, "\n");
+      }
+      fp->writes(manifest);
     }
-    fp->writes(manifest);
+    cpu.coprocessors.removeByValue(this);
+    Thread::destroy();
   }
 
   memory.reset();
-
-  cpu.coprocessors.removeByValue(this);
-  Thread::destroy();
+  node = {};
 }
 
 auto BSMemory::power() -> void {
+  if(ROM) return;
+
   Thread::create(1'000'000, {&BSMemory::main, this});  //microseconds
   cpu.coprocessors.append(this);
 

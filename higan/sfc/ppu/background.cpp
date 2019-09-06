@@ -202,7 +202,7 @@ auto PPU::Background::run(bool screen) -> void {
   if(io.mode >= Mode::BPP2) color.bit(0,1) = tile.data[0] & 3; tile.data[0] >>= 2;
   if(io.mode >= Mode::BPP4) color.bit(2,3) = tile.data[1] & 3; tile.data[1] >>= 2;
   if(io.mode >= Mode::BPP8) color.bit(4,5) = tile.data[2] & 3; tile.data[2] >>= 2;
-  if(io.mode >= Mode::BPP8) color.bit(6,7) = tile.data[3] & 3; tile.data[3] >>= 3;
+  if(io.mode >= Mode::BPP8) color.bit(6,7) = tile.data[3] & 3; tile.data[3] >>= 2;
 
   Pixel pixel;
   pixel.priority = tile.priority;
