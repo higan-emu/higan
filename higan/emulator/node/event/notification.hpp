@@ -6,9 +6,9 @@ struct Notification : Event {
 
   auto notify(string_view message = {}) -> void {
     if(message) {
-      PlatformLog({_component, " [", name, ": ", message, "]\n"});
+      PlatformLog({_component, " [", _name, ": ", message, "]\n"});
     } else {
-      PlatformLog({_component, " [", name, "]\n"});
+      PlatformLog({_component, " [", _name, "]\n"});
     }
   }
 

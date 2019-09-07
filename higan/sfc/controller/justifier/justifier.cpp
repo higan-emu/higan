@@ -22,8 +22,8 @@ Justifier::~Justifier() {
 auto Justifier::main() -> void {
   uint next = cpu.vcounter() * 1364 + cpu.hcounter();
 
-  int px = active == 0 ? (int)x->value : -1;
-  int py = active == 0 ? (int)y->value : -1;
+  int px = active == 0 ? (int)x->value() : -1;
+  int py = active == 0 ? (int)y->value() : -1;
   bool offscreen = px < 0 || py < 0 || px >= 256 || py >= ppu.vdisp();
 
   if(!offscreen) {
@@ -38,8 +38,8 @@ auto Justifier::main() -> void {
   if(next < previous) {
     platform->input(x);
     platform->input(y);
-    int nx = x->value + cx;
-    int ny = y->value + cy;
+    int nx = x->value() + cx;
+    int ny = y->value() + cy;
     cx = max(-16, min(256 + 16, nx));
     cy = max(-16, min(240 + 16, ny));
     sprite->setPosition(cx * 2 - 16, cy * 2 -16);
@@ -85,9 +85,9 @@ auto Justifier::data() -> uint2 {
   case 22: return 0;
   case 23: return 1;
 
-  case 24: return trigger->value;
+  case 24: return trigger->value();
   case 25: return 0;
-  case 26: return start->value;
+  case 26: return start->value();
   case 27: return 0;
   case 28: return active;
   case 29: return 0;

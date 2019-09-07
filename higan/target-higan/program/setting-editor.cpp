@@ -21,8 +21,8 @@ auto SettingEditor::refresh(higan::Node::Setting setting) -> void {
   } else {
     setting = this->setting;  //refreshing an existing setting in the editor
   }
-  nameLabel.setText(setting->name);
-  latchedLayout.setVisible(!setting->dynamic);
+  nameLabel.setText(setting->name());
+  latchedLayout.setVisible(!setting->dynamic());
   latchedValue.setText(setting->readLatch());
   valueList.reset();
   for(auto& value : setting->readAllowedValues()) {

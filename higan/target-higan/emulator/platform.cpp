@@ -27,7 +27,7 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
 
   if(name == "manifest.bml") {
     if(!file::exists({location, name}) && directory::exists(location)) {
-      if(auto manifest = execute("icarus", "--system", node->name, "--manifest", location).output) {
+      if(auto manifest = execute("icarus", "--system", node->name(), "--manifest", location).output) {
         return vfs::memory::file::open(manifest.data<uint8_t>(), manifest.size());
       }
     }
@@ -187,16 +187,16 @@ auto Emulator::input(higan::Node::Input input) -> void {
   if(videoInstance.exclusive()) allow = true;
 
   if(auto button = input->cast<higan::Node::Button>()) {
-    button->value = 0;
+    button->setValue(0);
     if(auto instance = button->property<shared_pointer<InputButton>>("instance")) {
-      button->value = allow ? instance->value() : 0;
+      if(allow) button->setValue(instance->value());
     }
   }
 
   if(auto axis = input->cast<higan::Node::Axis>()) {
-    axis->value = 0;
+    axis->setValue(0);
     if(auto instance = axis->property<shared_pointer<InputAxis>>("instance")) {
-      axis->value = allow ? instance->value() : 0;
+      if(allow) axis->setValue(instance->value());
     }
   }
 }

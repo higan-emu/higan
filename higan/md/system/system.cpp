@@ -11,9 +11,9 @@ System system;
 auto System::run() -> void {
   if(scheduler.enter() == Event::Frame) vdp.refresh();
 
-  auto reset = controls.reset->value;
+  auto reset = controls.reset->value();
   controls.poll();
-  if(!reset && controls.reset->value) power(true);
+  if(!reset && controls.reset->value()) power(true);
 }
 
 auto System::runToSave() -> void {

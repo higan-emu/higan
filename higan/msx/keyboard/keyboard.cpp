@@ -19,7 +19,7 @@ auto Keyboard::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {
     string name{"Layout"};
-    if(node) name = node->name;
+    if(node) name = node->name();
     layout = Node::append<Node::Peripheral>(port, node, name);
     Markup::Node document;
     if(auto fp = platform->open(layout, "layout.bml", File::Read)) {
@@ -57,7 +57,7 @@ auto Keyboard::read() -> uint8 {
     for(uint row : range(8)) {
       if(auto node = matrix[column][row]) {
         platform->input(node);
-        data.bit(row) = !node->value;
+        data.bit(row) = !node->value();
       }
     }
   }

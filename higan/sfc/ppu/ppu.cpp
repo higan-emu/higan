@@ -38,17 +38,17 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
     if(region == "PAL" ) screen_->setSize(512, 480);
   });
   region->setAllowedValues({"NTSC", "PAL"});
-  region->dynamic = true;
+  region->setDynamic(true);
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
     screen_->resetPalette();
   });
-  colorEmulation->dynamic = true;
+  colorEmulation->setDynamic(true);
 
   colorBleed = Node::append<Node::Boolean>(parent, from, "Color Bleed", true, [&](auto value) {
     screen_->setColorBleed(value);
   });
-  colorBleed->dynamic = true;
+  colorBleed->setDynamic(true);
 
   output = new uint32[512 * 512];
   output += 16 * 512;  //overscan offset

@@ -36,12 +36,12 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
     screen_->resetPalette();
   });
-  colorEmulation->dynamic = true;
+  colorEmulation->setDynamic(true);
 
   interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
     screen_->setInterframeBlending(value);
   });
-  interframeBlending->dynamic = true;
+  interframeBlending->setDynamic(true);
 
   rotation = Node::append<Node::String>(parent, from, "Orientation", "0°", [&](auto value) {
     if(value ==   "0°") screen_->setRotation(  0);
@@ -49,7 +49,7 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
     if(value == "180°") screen_->setRotation(180);
     if(value == "270°") screen_->setRotation(270);
   });
-  rotation->dynamic = true;
+  rotation->setDynamic(true);
   rotation->setAllowedValues({"0°", "90°", "180°", "270°"});
 }
 

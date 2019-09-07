@@ -16,6 +16,7 @@ auto FDS::load(Node::Object parent, Node::Object from) -> void {
   port->setAllocate([&] { return Node::Peripheral::create("Famicom Disk"); });
   port->setAttach([&](auto node) { connect(node); });
   port->setDetach([&](auto node) { disconnect(); });
+  port->scan(from);
   from = Node::scan(parent = port, from);
   audio.load(parent, from);
   power();
@@ -37,8 +38,9 @@ auto FDS::unload() -> void {
 auto FDS::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, "Famicom Disk");
 
-  state = Node::append<Node::String>(node, with, "State", "Ejected");
-  state->modify = [&](auto value) { change(value); };
+  state = Node::append<Node::String>(node, with, "State", "Ejected", [&](auto value) {
+    change(value);
+  });
   vector<string> states = {"Ejected"};
 
   information = {};
@@ -106,7 +108,7 @@ auto FDS::disconnect() -> void {
 
 auto FDS::change(string value) -> void {
   //this setting can be changed even when the system is not powered on
-  state->setLatch();
+  if(state) state->setLatch();
 
   inserting.reset();
   if(value == "Disk 1: Side A") inserting = disk1.sideA;

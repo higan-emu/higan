@@ -23,8 +23,8 @@ auto Mouse::data() -> uint2 {
   case  6: return 0;
   case  7: return 0;
 
-  case  8: return right->value;
-  case  9: return left->value;
+  case  8: return right->value();
+  case  9: return left->value();
   case 10: return speed.bit(1);
   case 11: return speed.bit(0);
 
@@ -66,8 +66,8 @@ auto Mouse::latch(bool data) -> void {
   platform->input(left);
   platform->input(right);
 
-  cx = x->value;
-  cy = y->value;
+  cx = x->value();
+  cy = y->value();
 
   dx = cx < 0;  //0 = right, 1 = left
   dy = cy < 0;  //0 = down,  1 = up

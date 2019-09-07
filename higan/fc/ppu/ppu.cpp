@@ -24,12 +24,12 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
     if(region == "PAL" ) screen->setSize(256, 240);
   });
   region->setAllowedValues({"NTSC", "PAL"});
-  region->dynamic = true;
+  region->setDynamic(true);
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
     screen->resetPalette();
   });
-  colorEmulation->dynamic = true;
+  colorEmulation->setDynamic(true);
 }
 
 auto PPU::unload() -> void {

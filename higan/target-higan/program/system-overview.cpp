@@ -29,7 +29,7 @@ auto SystemOverview::scan(higan::Node::Object node, uint depth) -> void {
   ListViewItem item{&nodeList};
   string name;
   for(uint n : range(depth)) name.append("   ");
-  name.append(node->property("name") ? node->property("name") : node->name);
+  name.append(node->property("name") ? node->property("name") : node->name());
   if(auto setting = node->cast<higan::Node::Setting>()) {
     name.append(": ", setting->readValue());
   }

@@ -31,43 +31,46 @@ NTTDataKeypad::NTTDataKeypad(Node::Port parent, Node::Peripheral with) {
 }
 
 auto NTTDataKeypad::data() -> uint2 {
-  if(latched == 1) return platform->input(b), b->value;
+  if(latched == 1) {
+    platform->input(b);
+    return b->value();
+  }
 
   switch(counter++) {
-  case  0: return b->value;
-  case  1: return y->value;
-  case  2: return back->value;
-  case  3: return next->value;
+  case  0: return b->value();
+  case  1: return y->value();
+  case  2: return back->value();
+  case  3: return next->value();
   case  4: return upLatch;
   case  5: return downLatch;
   case  6: return leftLatch;
   case  7: return rightLatch;
-  case  8: return a->value;
-  case  9: return x->value;
-  case 10: return l->value;
-  case 11: return r->value;
+  case  8: return a->value();
+  case  9: return x->value();
+  case 10: return l->value();
+  case 11: return r->value();
 
   case 12: return 1;  //4-bit device signature
   case 13: return 0;
   case 14: return 1;
   case 15: return 1;
 
-  case 16: return zero->value;
-  case 17: return one->value;
-  case 18: return two->value;
-  case 19: return three->value;
-  case 20: return four->value;
-  case 21: return five->value;
-  case 22: return six->value;
-  case 23: return seven->value;
-  case 24: return eight->value;
-  case 25: return nine->value;
-  case 26: return star->value;
-  case 27: return pound->value;
-  case 28: return point->value;
-  case 29: return clear->value;
+  case 16: return zero->value();
+  case 17: return one->value();
+  case 18: return two->value();
+  case 19: return three->value();
+  case 20: return four->value();
+  case 21: return five->value();
+  case 22: return six->value();
+  case 23: return seven->value();
+  case 24: return eight->value();
+  case 25: return nine->value();
+  case 26: return star->value();
+  case 27: return pound->value();
+  case 28: return point->value();
+  case 29: return clear->value();
   case 30: return 0;  //unverified (likely correct)
-  case 31: return end->value;
+  case 31: return end->value();
   }
 
   counter = 32;
@@ -108,14 +111,14 @@ auto NTTDataKeypad::latch(bool data) -> void {
     platform->input(clear);
     platform->input(end);
 
-    if(!(up->value & down->value)) {
-      yHold = 0, upLatch = up->value, downLatch = down->value;
+    if(!(up->value() & down->value())) {
+      yHold = 0, upLatch = up->value(), downLatch = down->value();
     } else if(!yHold) {
       yHold = 1, swap(upLatch, downLatch);
     }
 
-    if(!(left->value & right->value)) {
-      xHold = 0, leftLatch = left->value, rightLatch = right->value;
+    if(!(left->value() & right->value())) {
+      xHold = 0, leftLatch = left->value(), rightLatch = right->value();
     } else if(!xHold) {
       xHold = 1, swap(leftLatch, rightLatch);
     }

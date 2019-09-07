@@ -12,9 +12,9 @@ auto System::run() -> void {
   if(scheduler.enter() == Event::Frame) {
     ppu.refresh();
 
-    auto reset = controls.reset->value;
+    auto reset = controls.reset->value();
     controls.poll();
-    if(!reset && controls.reset->value) power(true);
+    if(!reset && controls.reset->value()) power(true);
   }
 }
 

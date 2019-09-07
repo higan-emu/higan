@@ -21,7 +21,7 @@ auto CPU::in(uint16 address) -> uint8 {
   case 0: {
     if(Model::GameGear()) {
       platform->input(system.controls.start);
-      bool start = !system.controls.start->value;
+      bool start = !system.controls.start->value();
       return start << 7 | 0x7f;
     }
 
@@ -41,7 +41,7 @@ auto CPU::in(uint16 address) -> uint8 {
 
     if(Model::MasterSystem()) {
       platform->input(system.controls.reset);
-      bool reset = !system.controls.reset->value;
+      bool reset = !system.controls.reset->value();
       auto port1 = controllerPort1.read();
       auto port2 = controllerPort2.read();
       if(address.bit(0) == 0) {
@@ -58,8 +58,8 @@ auto CPU::in(uint16 address) -> uint8 {
         bool down  = !system.controls.downLatch;
         bool left  = !system.controls.leftLatch;
         bool right = !system.controls.rightLatch;
-        bool one   = !system.controls.one->value;
-        bool two   = !system.controls.two->value;
+        bool one   = !system.controls.one->value();
+        bool two   = !system.controls.two->value();
         return up << 0 | down << 1 | left << 2 | right << 3 | one << 4 | two << 5 | 1 << 6 | 1 << 7;
       } else {
         return 0xff;

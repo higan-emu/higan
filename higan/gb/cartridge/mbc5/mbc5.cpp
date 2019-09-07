@@ -38,7 +38,7 @@ auto Cartridge::MBC5::write(uint16 address, uint8 data) -> void {
   if((address & 0xe000) == 0x4000) {  //$4000-5fff
     if(cartridge.rumble) {
       //todo: add rumble timeout?
-      rumble->enable = data.bit(3);
+      rumble->setEnable(data.bit(3));
       platform->input(rumble);
     }
     io.ram.bank = data.bit(0,3);

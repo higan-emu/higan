@@ -41,39 +41,39 @@ auto Gamepad::read() -> uint8 {
   platform->input(zero);
   platform->input(pound);
 
-  if(!(up->value & down->value)) {
-    yHold = 0, upLatch = up->value, downLatch = down->value;
+  if(!(up->value() & down->value())) {
+    yHold = 0, upLatch = up->value(), downLatch = down->value();
   } else if(!yHold) {
     yHold = 1, swap(upLatch, downLatch);
   }
 
-  if(!(left->value & right->value)) {
-    xHold = 0, leftLatch = left->value, rightLatch = right->value;
+  if(!(left->value() & right->value())) {
+    xHold = 0, leftLatch = left->value(), rightLatch = right->value();
   } else if(!xHold) {
     xHold = 1, swap(leftLatch, rightLatch);
   }
 
   uint8 data = 0xff;
   if(select == 0) {
-         if(one->value  ) data.bit(0,3) = 0b1101;
-    else if(two->value  ) data.bit(0,3) = 0b0111;
-    else if(three->value) data.bit(0,3) = 0b1100;
-    else if(four->value ) data.bit(0,3) = 0b0010;
-    else if(five->value ) data.bit(0,3) = 0b0011;
-    else if(six->value  ) data.bit(0,3) = 0b1110;
-    else if(seven->value) data.bit(0,3) = 0b0101;
-    else if(eight->value) data.bit(0,3) = 0b0001;
-    else if(nine->value ) data.bit(0,3) = 0b1011;
-    else if(star->value ) data.bit(0,3) = 0b1001;
-    else if(zero->value ) data.bit(0,3) = 0b1010;
-    else if(pound->value) data.bit(0,3) = 0b0110;
-    data.bit(6) = !r->value;
+         if(one->value  ()) data.bit(0,3) = 0b1101;
+    else if(two->value  ()) data.bit(0,3) = 0b0111;
+    else if(three->value()) data.bit(0,3) = 0b1100;
+    else if(four->value ()) data.bit(0,3) = 0b0010;
+    else if(five->value ()) data.bit(0,3) = 0b0011;
+    else if(six->value  ()) data.bit(0,3) = 0b1110;
+    else if(seven->value()) data.bit(0,3) = 0b0101;
+    else if(eight->value()) data.bit(0,3) = 0b0001;
+    else if(nine->value ()) data.bit(0,3) = 0b1011;
+    else if(star->value ()) data.bit(0,3) = 0b1001;
+    else if(zero->value ()) data.bit(0,3) = 0b1010;
+    else if(pound->value()) data.bit(0,3) = 0b0110;
+    data.bit(6) = !r->value();
   } else {
     data.bit(0) = !upLatch;
     data.bit(1) = !rightLatch;
     data.bit(2) = !downLatch;
     data.bit(3) = !leftLatch;
-    data.bit(6) = !l->value;
+    data.bit(6) = !l->value();
   }
   return data;
 }

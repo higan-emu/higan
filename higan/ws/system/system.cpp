@@ -40,7 +40,7 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
     apu.r.headphonesConnected = value;
     ppu.updateIcons();
   });
-  headphones->dynamic = true;
+  headphones->setDynamic(true);
 
   //the EEPROMs come factory-programmed to contain various model names and settings.
   //the model names are confirmed from video recordings of real hardware booting.

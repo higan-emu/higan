@@ -49,8 +49,8 @@ auto SuperScope::main() -> void {
     //Vcounter wrapped back to zero; update cursor coordinates for start of new frame
     platform->input(x);
     platform->input(y);
-    int nx = x->value + cx;
-    int ny = y->value + cy;
+    int nx = x->value() + cx;
+    int ny = y->value() + cy;
     cx = max(-16, min(256 + 16, nx));
     cy = max(-16, min(240 + 16, ny));
     offscreen = (cx < 0 || cy < 0 || cx >= 256 || cy >= ppu.vdisp());
@@ -67,7 +67,7 @@ auto SuperScope::data() -> uint2 {
   if(counter == 0) {
     //turbo is a switch; toggle is edge sensitive
     platform->input(turbo);
-    bool turboNew = turbo->value;
+    bool turboNew = turbo->value();
     if(turboNew && !turboOld) {
       turboEdge = !turboEdge;  //toggle state
       sprite->setImage(turboEdge
@@ -81,7 +81,7 @@ auto SuperScope::data() -> uint2 {
     //if turbo is active, trigger is level sensitive; otherwise, it is edge sensitive
     triggerValue = false;
     platform->input(trigger);
-    bool triggerNew = trigger->value;
+    bool triggerNew = trigger->value();
     if(triggerNew && (turboEdge || !triggerLock)) {
       triggerValue = true;
       triggerLock = true;
@@ -95,7 +95,7 @@ auto SuperScope::data() -> uint2 {
     //pause is a button; it is always edge sensitive
     pauseEdge = false;
     platform->input(pause);
-    bool pauseNew = pause->value;
+    bool pauseNew = pause->value();
     if(pauseNew && !pauseLock) {
       pauseEdge = true;
       pauseLock = true;
@@ -108,7 +108,7 @@ auto SuperScope::data() -> uint2 {
 
   switch(counter++) {
   case 0: return triggerValue & !offscreen;
-  case 1: return cursor->value;
+  case 1: return cursor->value();
   case 2: return turboEdge;
   case 3: return pauseEdge;
   case 4: return 0;

@@ -1,5 +1,5 @@
 database
-  revision: 2019-07-03
+  revision: 2019-09-07
 
 //Boards (Production)
 
@@ -578,7 +578,7 @@ board: SHVC-YJ0N-01
 //Boards (Generic)
 
 database
-  revision: 2019-07-02
+  revision: 2019-09-07
 
 board: ARM-LOROM-RAM
   memory type=ROM content=Program
@@ -714,13 +714,13 @@ board: EXHIROM-RAM-SHARPRTC
 
 board: EXLOROM
   memory type=ROM content=Program
-    map address=00-7d:8000-ffff mask=0x8000 base=0x400000
-    map address=80-ff:8000-ffff mask=0x8000 base=0x000000
+    map address=00-7d:8000-ffff mask=0x808000 base=0x400000
+    map address=80-ff:8000-ffff mask=0x808000 base=0x000000
 
 board: EXLOROM-RAM
   memory type=ROM content=Program
-    map address=00-7d:8000-ffff mask=0x8000 base=0x400000
-    map address=80-ff:8000-ffff mask=0x8000 base=0x000000
+    map address=00-7d:8000-ffff mask=0x808000 base=0x400000
+    map address=80-ff:8000-ffff mask=0x808000 base=0x000000
   memory type=RAM content=Save
     map address=70-7d,f0-ff:0000-7fff mask=0x8000
 

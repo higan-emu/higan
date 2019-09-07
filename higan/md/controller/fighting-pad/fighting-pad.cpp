@@ -41,14 +41,14 @@ auto FightingPad::readData() -> uint8 {
   platform->input(mode);
   platform->input(start);
 
-  if(!(up->value & down->value)) {
-    yHold = 0, upLatch = up->value, downLatch = down->value;
+  if(!(up->value() & down->value())) {
+    yHold = 0, upLatch = up->value(), downLatch = down->value();
   } else if(!yHold) {
     yHold = 1, swap(upLatch, downLatch);
   }
 
-  if(!(left->value & right->value)) {
-    xHold = 0, leftLatch = left->value, rightLatch = right->value;
+  if(!(left->value() & right->value())) {
+    xHold = 0, leftLatch = left->value(), rightLatch = right->value();
   } else if(!xHold) {
     xHold = 1, swap(leftLatch, rightLatch);
   }
@@ -70,23 +70,23 @@ auto FightingPad::readData() -> uint8 {
       data.bit(0,3) = 0;
     }
 
-    data.bit(4) = a->value;
-    data.bit(5) = start->value;
+    data.bit(4) = a->value();
+    data.bit(5) = start->value();
   } else {
     if(counter == 0 || counter == 1 || counter == 2 || counter == 4) {
       data.bit(0) = upLatch;
       data.bit(1) = downLatch;
       data.bit(2) = leftLatch;
       data.bit(3) = rightLatch;
-      data.bit(4) = b->value;
-      data.bit(5) = c->value;
+      data.bit(4) = b->value();
+      data.bit(5) = c->value();
     }
 
     if(counter == 3) {
-      data.bit(0) = z->value;
-      data.bit(1) = y->value;
-      data.bit(2) = x->value;
-      data.bit(3) = mode->value;
+      data.bit(0) = z->value();
+      data.bit(1) = y->value();
+      data.bit(2) = x->value();
+      data.bit(3) = mode->value();
       data.bit(4,5) = 0;
     }
   }

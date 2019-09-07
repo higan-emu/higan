@@ -16,7 +16,7 @@ auto CPU::readIO(uint16 addr) -> uint8 {
     platform->input(system.controls.microphone);
     data.bit(0) = poll.bit(0);
     data.bit(1) = 0;
-    data.bit(2) = system.controls.microphone->value ? random().bit(0) : 0;
+    data.bit(2) = system.controls.microphone->value() ? random().bit(0) : 0;
     data.bit(3) = poll.bit(1);
     data.bit(4) = poll.bit(2);
     return data;

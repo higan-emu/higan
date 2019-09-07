@@ -46,16 +46,16 @@ auto System::Controls::poll() -> void {
     platform->input(a);
     platform->input(start);
 
-    if(y1->value || y2->value || y3->value || y4->value
-    || x1->value || x2->value || x3->value || x4->value
-    || b->value || a->value || start->value
+    if(y1->value() || y2->value() || y3->value() || y4->value()
+    || x1->value() || x2->value() || x3->value() || x4->value()
+    || b->value() || a->value() || start->value()
     ) {
       cpu.raise(CPU::Interrupt::Input);
     }
 
-    bool volumeValue = volume->value;
+    bool volumeValue = volume->value();
     platform->input(volume);
-    if(!volumeValue && volume->value) {
+    if(!volumeValue && volume->value()) {
       //lower volume by one step. 0 wraps to 3 here (uint2 type.)
       apu.r.masterVolume--;
       //ASWAN has three volume steps; SPHINX and SPHINX2 have four.
@@ -77,23 +77,23 @@ auto System::Controls::poll() -> void {
 
     //the Y-axis acts as independent buttons.
     //the X-axis has a rocker, which prevents both keys from being pressed at the same time.
-    if(!(left->value & right->value)) {
-      xHold = 0, leftLatch = left->value, rightLatch = right->value;
+    if(!(left->value() & right->value())) {
+      xHold = 0, leftLatch = left->value(), rightLatch = right->value();
     } else if(!xHold) {
       xHold = 1, swap(leftLatch, rightLatch);
     }
 
-    if(up->value || down->value || leftLatch || rightLatch
-    || pass->value || circle->value || clear->value
-    || view->value || escape->value
+    if(up->value() || down->value() || leftLatch || rightLatch
+    || pass->value() || circle->value() || clear->value()
+    || view->value() || escape->value()
     ) {
       cpu.raise(CPU::Interrupt::Input);
     }
   }
 
-  bool powerValue = power->value;
+  bool powerValue = power->value();
   platform->input(power);
-  if(!powerValue && power->value) {
+  if(!powerValue && power->value()) {
     scheduler.exit(Event::Power);
   }
 }

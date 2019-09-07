@@ -104,7 +104,7 @@ auto CPU::idle(uint clocks) -> void {
 
 auto CPU::pollPowerButton() -> void {
 //platform->input(system.controls.power);
-  nmi.set(!system.controls.power->value);
+  nmi.set(!system.controls.power->value());
 }
 
 auto CPU::power() -> void {

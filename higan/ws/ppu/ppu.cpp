@@ -23,24 +23,24 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
     screen->resetPalette();
   });
-  colorEmulation->dynamic = true;
+  colorEmulation->setDynamic(true);
 
   interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
     screen->setInterframeBlending(value);
   });
-  interframeBlending->dynamic = true;
+  interframeBlending->setDynamic(true);
 
   if(!Model::PocketChallengeV2()) {
     orientation = Node::append<Node::String>(parent, from, "Orientation", "Automatic", [&](auto value) {
       updateOrientation();
     });
-    orientation->dynamic = true;
+    orientation->setDynamic(true);
     orientation->setAllowedValues({"Automatic", "Horizontal", "Vertical"});
 
     showIcons = Node::append<Node::Boolean>(parent, from, "Show Icons", true, [&](auto value) {
       updateIcons();
     });
-    showIcons->dynamic = true;
+    showIcons->setDynamic(true);
   }
 
   if(!Model::PocketChallengeV2()) {

@@ -19,10 +19,10 @@ auto CPU::joypPoll() -> void {
     dpad.bit(3) = !system.controls.downLatch;
 
     uint4 button;
-    button.bit(0) = !system.controls.a->value;
-    button.bit(1) = !system.controls.b->value;
-    button.bit(2) = !system.controls.select->value;
-    button.bit(3) = !system.controls.start->value;
+    button.bit(0) = !system.controls.a->value();
+    button.bit(1) = !system.controls.b->value();
+    button.bit(2) = !system.controls.select->value();
+    button.bit(3) = !system.controls.start->value();
 
     status.joyp = 0xf;
     if(status.p14 == 0) status.joyp &= dpad;

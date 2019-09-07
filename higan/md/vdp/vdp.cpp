@@ -27,7 +27,7 @@ auto VDP::load(Node::Object parent, Node::Object from) -> void {
     if(region == "NTSC") screen->setSize(1280, 448);
     if(region == "PAL" ) screen->setSize(1280, 480);
   });
-  region->dynamic = true;
+  region->setDynamic(true);
   region->setAllowedValues({"NTSC", "PAL"});
 }
 

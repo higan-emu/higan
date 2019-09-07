@@ -28,12 +28,12 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
         screen->resetPalette();
       });
       colorEmulationDMG->setAllowedValues({"Game Boy", "Game Boy Pocket", "RGB"});
-      colorEmulationDMG->dynamic = true;
+      colorEmulationDMG->setDynamic(true);
 
       interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
         screen->setInterframeBlending(value);
       });
-      interframeBlending->dynamic = true;
+      interframeBlending->setDynamic(true);
     }
 
     if(Model::GameBoyColor()) {
@@ -45,12 +45,12 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
       colorEmulationCGB = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
         screen->resetPalette();
       });
-      colorEmulationCGB->dynamic = true;
+      colorEmulationCGB->setDynamic(true);
 
       interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
         screen->setInterframeBlending(value);
       });
-      interframeBlending->dynamic = true;
+      interframeBlending->setDynamic(true);
     }
   }
 }

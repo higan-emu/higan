@@ -49,10 +49,10 @@ auto NodeManager::refresh(higan::Node::Object node, uint depth) -> void {
   item.setProperty<uint>("depth", depth);
   string name;
   for(uint n : range(depth)) name.append("   ");
-  name.append(node->property("name") ? node->property("name") : node->name);
+  name.append(node->property("name") ? node->property("name") : node->name());
   if(auto setting = node->cast<higan::Node::Setting>()) {
     name.append(": ", setting->readValue());
-    if(!setting->dynamic && setting->readLatch() != setting->readValue()) {
+    if(!setting->dynamic() && setting->readLatch() != setting->readValue()) {
       name.append(" (", setting->readLatch(), ")");
     }
   }
@@ -68,9 +68,9 @@ auto NodeManager::refreshSettings() -> void {
       auto depth = item.property<uint>("depth");
       string name;
       for(uint n : range(depth)) name.append("   ");
-      name.append(node->property("name") ? node->property("name") : node->name);
+      name.append(node->property("name") ? node->property("name") : node->name());
       name.append(": ", setting->readValue());
-      if(!setting->dynamic && setting->readLatch() != setting->readValue()) {
+      if(!setting->dynamic() && setting->readLatch() != setting->readValue()) {
         name.append(" (", setting->readLatch(), ")");
       }
       item.setText(name);
@@ -97,7 +97,7 @@ auto NodeManager::eventChange() -> void {
     }
 
     if(auto inputs = node->find<higan::Node::Input>()) {
-      if(inputs.first()->parent == node) {
+      if(inputs.first()->parent() == node) {
         inputMapper.refresh(node);
         return programWindow.show(inputMapper);
       }

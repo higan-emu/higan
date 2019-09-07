@@ -10,13 +10,18 @@
 struct Object : shared_pointer_this<Object> {
   DeclareClass(Object, "Object")
 
-  Object(string name = {}) : name(name) {}
+  Object(string name = {}) : _name(name) {}
   virtual ~Object() = default;
+
+  inline auto name() const -> string { return _name; }
+  inline auto parent() const -> shared_pointer_weak<Object> { return _parent; }
+
+  auto setName(string_view name) -> void { _name = name; }
 
   auto prepend(Node::Object node) -> Node::Object {
     if(auto found = find(node)) return found;
-    nodes.prepend(node);
-    node->parent = shared();
+    _nodes.prepend(node);
+    node->_parent = shared();
     PlatformAttach(node);
     return node;
   }
@@ -29,8 +34,8 @@ struct Object : shared_pointer_this<Object> {
 
   auto append(Node::Object node) -> Node::Object {
     if(auto found = find(node)) return found;
-    nodes.append(node);
-    node->parent = shared();
+    _nodes.append(node);
+    node->_parent = shared();
     PlatformAttach(node);
     return node;
   }
@@ -42,21 +47,21 @@ struct Object : shared_pointer_this<Object> {
   }
 
   auto remove(Node::Object node) -> void {
-    if(auto index = nodes.find(node)) {
+    if(auto index = _nodes.find(node)) {
       PlatformDetach(node);
       node->reset();
-      node->parent.reset();
-      nodes.remove(*index);
+      node->_parent.reset();
+      _nodes.remove(*index);
     }
   }
 
   auto reset() -> void {
-    for(auto& node : nodes) {
+    for(auto& node : _nodes) {
       PlatformDetach(node);
       node->reset();
-      node->parent.reset();
+      node->_parent.reset();
     }
-    nodes.reset();
+    _nodes.reset();
   }
 
   template<typename T>
@@ -76,7 +81,7 @@ struct Object : shared_pointer_this<Object> {
     if(dynamic_cast<typename T::type*>(this)) {
       if(auto instance = shared()) result.append(instance);
     }
-    for(auto& node : nodes) result.append(node->find<T>());
+    for(auto& node : _nodes) result.append(node->find<T>());
     return result;
   }
 
@@ -89,8 +94,8 @@ struct Object : shared_pointer_this<Object> {
 
   auto find(Node::Object source) -> Node::Object {
     if(!source) return {};
-    for(auto& node : nodes) {
-      if(node->identity() == source->identity() && node->name == source->name) return node;
+    for(auto& node : _nodes) {
+      if(node->identity() == source->identity() && node->_name == source->_name) return node;
     }
     return {};
   }
@@ -98,15 +103,15 @@ struct Object : shared_pointer_this<Object> {
   template<typename T = Node::Object>
   auto find(string name) -> Node::Object {
     using Type = typename T::type;
-    for(auto& node : nodes) {
-      if(node->identity() == Type::identifier && node->name == name) return node;
+    for(auto& node : _nodes) {
+      if(node->identity() == Type::identifier && node->_name == name) return node;
     }
     return {};
   }
 
   template<typename T = string>
   auto property(const string& name) const -> T {
-    if(auto property = properties.find(name)) {
+    if(auto property = _properties.find(name)) {
       if(property->value.is<T>()) return property->value.get<T>();
     }
     return {};
@@ -115,17 +120,17 @@ struct Object : shared_pointer_this<Object> {
   template<typename T = string, typename U = string>
   auto setProperty(const string& name, const U& value = {}) -> void {
     if constexpr(is_same_v<T, string> && !is_same_v<U, string>) return setProperty(name, string{value});
-    if(auto property = properties.find(name)) {
+    if(auto property = _properties.find(name)) {
       if((const T&)value) property->value = (const T&)value;
-      else properties.remove(*property);
+      else _properties.remove(*property);
     } else {
-      if((const T&)value) properties.insert({name, (const T&)value});
+      if((const T&)value) _properties.insert({name, (const T&)value});
     }
   }
 
   virtual auto load(Node::Object source) -> bool {
-    if(!source || identity() != source->identity() || name != source->name) return false;
-    properties = source->properties;
+    if(!source || identity() != source->identity() || _name != source->_name) return false;
+    _properties = source->_properties;
     return true;
   }
 
@@ -137,25 +142,25 @@ struct Object : shared_pointer_this<Object> {
 
   virtual auto serialize(string& output, string depth) -> void {
     output.append(depth, "node: ", identity(), "\n");
-    output.append(depth, "  name: ", name, "\n");
-    for(auto& property : properties) {
+    output.append(depth, "  name: ", _name, "\n");
+    for(auto& property : _properties) {
       if(!property.value.is<string>()) continue;
       output.append(depth, "  property\n");
       output.append(depth, "    name: ", property.name, "\n");
       output.append(depth, "    value: ", property.value.get<string>(), "\n");
     }
     depth.append("  ");
-    for(auto& node : nodes) {
+    for(auto& node : _nodes) {
       node->serialize(output, depth);
     }
   }
 
   virtual auto unserialize(Markup::Node markup) -> void {
     if(!markup) return;
-    name = markup["name"].text();
-    properties.reset();
+    _name = markup["name"].text();
+    _properties.reset();
     for(auto& property : markup.find("property")) {
-      properties.insert({property["name"].text(), property["value"].text()});
+      _properties.insert({property["name"].text(), property["value"].text()});
     }
     for(auto& leaf : markup.find("node")) {
       auto node = Class::create(leaf.text());
@@ -164,13 +169,12 @@ struct Object : shared_pointer_this<Object> {
     }
   }
 
-  auto begin() { return nodes.begin(); }
-  auto end() { return nodes.end(); }
+  auto begin() { return _nodes.begin(); }
+  auto end() { return _nodes.end(); }
 
-  string name;
-  set<Property> properties;
-  shared_pointer_weak<Object> parent;
-
-private:
-  vector<Node::Object> nodes;
+protected:
+  string _name;
+  set<Property> _properties;
+  shared_pointer_weak<Object> _parent;
+  vector<Node::Object> _nodes;
 };

@@ -31,7 +31,7 @@ auto VDP::load(Node::Object parent, Node::Object from) -> void {
     interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
       screen->setInterframeBlending(value);
     });
-    interframeBlending->dynamic = true;
+    interframeBlending->setDynamic(true);
   }
 }
 

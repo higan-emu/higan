@@ -5,36 +5,36 @@ auto CPU::keypadRead() -> uint4 {
   if(Model::WonderSwan() || Model::WonderSwanColor() || Model::SwanCrystal() || Model::PocketChallengeV2()) {
     if(r.keypadMatrix.bit(0)) {  //d4
       if(horizontal) {
-        data.bit(0) = system.controls.y1->value;
-        data.bit(1) = system.controls.y2->value;
-        data.bit(2) = system.controls.y3->value;
-        data.bit(3) = system.controls.y4->value;
+        data.bit(0) = system.controls.y1->value();
+        data.bit(1) = system.controls.y2->value();
+        data.bit(2) = system.controls.y3->value();
+        data.bit(3) = system.controls.y4->value();
       } else {
-        data.bit(0) = system.controls.x4->value;
-        data.bit(1) = system.controls.x1->value;
-        data.bit(2) = system.controls.x2->value;
-        data.bit(3) = system.controls.x3->value;
+        data.bit(0) = system.controls.x4->value();
+        data.bit(1) = system.controls.x1->value();
+        data.bit(2) = system.controls.x2->value();
+        data.bit(3) = system.controls.x3->value();
       }
     }
 
     if(r.keypadMatrix.bit(1)) {  //d5
       if(horizontal) {
-        data.bit(0) = system.controls.x1->value;
-        data.bit(1) = system.controls.x2->value;
-        data.bit(2) = system.controls.x3->value;
-        data.bit(3) = system.controls.x4->value;
+        data.bit(0) = system.controls.x1->value();
+        data.bit(1) = system.controls.x2->value();
+        data.bit(2) = system.controls.x3->value();
+        data.bit(3) = system.controls.x4->value();
       } else {
-        data.bit(0) = system.controls.y4->value;
-        data.bit(1) = system.controls.y1->value;
-        data.bit(2) = system.controls.y2->value;
-        data.bit(3) = system.controls.y3->value;
+        data.bit(0) = system.controls.y4->value();
+        data.bit(1) = system.controls.y1->value();
+        data.bit(2) = system.controls.y2->value();
+        data.bit(3) = system.controls.y3->value();
       }
     }
 
     if(r.keypadMatrix.bit(2)) {  //d6
-      data.bit(1) = system.controls.start->value;
-      data.bit(2) = system.controls.a->value;
-      data.bit(3) = system.controls.b->value;
+      data.bit(1) = system.controls.start->value();
+      data.bit(2) = system.controls.a->value();
+      data.bit(3) = system.controls.b->value();
     }
   }
 
@@ -43,21 +43,21 @@ auto CPU::keypadRead() -> uint4 {
     data.bit(1) = 1;
 
     if(r.keypadMatrix.bit(0)) {  //d4
-      data.bit(0) = system.controls.clear->value;
-      data.bit(2) = system.controls.circle->value;
-      data.bit(3) = system.controls.pass->value;
+      data.bit(0) = system.controls.clear->value();
+      data.bit(2) = system.controls.circle->value();
+      data.bit(3) = system.controls.pass->value();
     }
 
     if(r.keypadMatrix.bit(1)) {  //d5
-      data.bit(0) = system.controls.view->value;
-      data.bit(2) = system.controls.escape->value;
+      data.bit(0) = system.controls.view->value();
+      data.bit(2) = system.controls.escape->value();
       data.bit(3) = system.controls.rightLatch;
     }
 
     if(r.keypadMatrix.bit(2)) {  //d6
       data.bit(0) = system.controls.leftLatch;
-      data.bit(2) = system.controls.down->value;
-      data.bit(3) = system.controls.up->value;
+      data.bit(2) = system.controls.down->value();
+      data.bit(3) = system.controls.up->value();
     }
   }
 

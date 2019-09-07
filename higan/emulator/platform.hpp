@@ -26,7 +26,7 @@ extern Platform* platform;
 }
 
 namespace higan::Core {
-  auto PlatformAttach(Node::Object node) -> void { if(platform && node->name) platform->attach(node); }
-  auto PlatformDetach(Node::Object node) -> void { if(platform && node->name) platform->detach(node); }
+  auto PlatformAttach(Node::Object node) -> void { if(platform && node->name()) platform->attach(node); }
+  auto PlatformDetach(Node::Object node) -> void { if(platform && node->name()) platform->detach(node); }
   auto PlatformLog(string_view text) -> void { if(platform) platform->log(text); }
 }

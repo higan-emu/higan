@@ -26,16 +26,16 @@ auto InputMapper::hide() -> void {
 auto InputMapper::refresh(higan::Node::Object node) -> void {
   this->node = node;
 
-  nameLabel.setText(node->name);
+  nameLabel.setText(node->name());
   inputList.reset().setEnabled();
   inputList.append(TableViewColumn().setText("Name"));
   inputList.append(TableViewColumn().setText("Mapping").setExpandable());
   for(auto& node : node->find<higan::Node::Input>()) {
-    if(node->parent != this->node) continue;
+    if(node->parent() != this->node) continue;
     TableViewItem item{&inputList};
     item.setProperty<higan::Node::Input>("node", node);
     TableViewCell name{&item};
-    name.setText(node->name).setFont(Font().setBold());
+    name.setText(node->name()).setFont(Font().setBold());
     TableViewCell value{&item};
   }
   update();

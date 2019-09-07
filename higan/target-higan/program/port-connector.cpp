@@ -64,7 +64,7 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
   item.setProperty("type", "nothing");
   item.setIcon(Icon::Action::Remove).setText("Nothing");
 
-  if(string location = {emulator.system.templates, port->type(), "/"}) {  //TODO
+  if(string location = {emulator.system.templates, port->type(), "/"}) {
     for(auto& name : directory::folders(location)) {
       ListViewItem item{&peripheralList};
       item.setProperty("type", "template");
@@ -127,7 +127,7 @@ auto PortConnector::eventActivate() -> void {
 
       if(directory::copy(source, target)) {
         auto peripheral = port->allocate();
-        peripheral->name = name;
+        peripheral->setName(name);
         peripheral->setProperty("location", target);
         peripheral->setProperty("name", label);
         port->connect(peripheral);
@@ -144,7 +144,7 @@ auto PortConnector::eventActivate() -> void {
       if(connected && connected == port) return programWindow.show(home);
 
       if(connected) return (void)MessageDialog()
-      .setText({"This peripheral is already connected to another port:\n\n", connected->name})
+      .setText({"This peripheral is already connected to another port:\n\n", connected->name()})
       .setTitle("Error").setAlignment(programWindow).error();
 
       auto peripheral = port->allocate();
@@ -191,7 +191,7 @@ auto PortConnector::eventContext() -> void {
 auto PortConnector::eventBrowse() -> void {
   auto path = port->property("path");
   if(auto location = BrowserDialog()
-  .setTitle({port->name, " Location"})
+  .setTitle({port->name(), " Location"})
   .setPath(path ? path : Path::user())
   .setAlignment(programWindow).selectFolder()
   ) {
@@ -243,7 +243,7 @@ auto PortConnector::eventRemove() -> void {
       auto connected = emulator.connected(location);
 
       if(!port->hotSwappable() && emulator.system.power && emulator.connected(location)) return (void)MessageDialog()
-      .setText({"This peripheral is not hot-swappable and is already connected to a port:\n\n", connected->name})
+      .setText({"This peripheral is not hot-swappable and is already connected to a port:\n\n", connected->name()})
       .setTitle("Error").setAlignment(programWindow).error();
 
       if(MessageDialog()

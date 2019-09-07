@@ -6,11 +6,14 @@ TwinTap::TwinTap(Node::Port parent, Node::Peripheral with) {
 }
 
 auto TwinTap::data() -> uint2 {
-  if(latched == 1) return platform->input(two), two->value;  //unconfirmed
+  if(latched == 1) {
+    platform->input(two);
+    return two->value();  //unconfirmed
+  }
 
   switch(counter++) {
-  case 0: return two->value;
-  case 1: return one->value;
+  case 0: return two->value();
+  case 1: return one->value();
   }
   if(counter < 24) return 0;  //unconfirmed
   counter = 24;  //unconfirmed

@@ -7,6 +7,12 @@ struct Setting : Object {
   DeclareClass(Setting, "Setting")
   using Object::Object;
 
+  inline auto dynamic() const -> bool { return _dynamic; }
+
+  auto setDynamic(bool dynamic) -> void {
+    _dynamic = dynamic;
+  }
+
   virtual auto setLatch() -> void {}
 
   virtual auto readValue() const -> string { return {}; }
@@ -16,52 +22,53 @@ struct Setting : Object {
 
   auto serialize(string& output, string depth) -> void override {
     Object::serialize(output, depth);
-    output.append(depth, "  dynamic: ", dynamic, "\n");
+    output.append(depth, "  dynamic: ", _dynamic, "\n");
   }
 
   auto unserialize(Markup::Node node) -> void override {
     Object::unserialize(node);
-    dynamic = node["dynamic"].boolean();
+    _dynamic = node["dynamic"].boolean();
   }
 
-  bool dynamic = false;
+protected:
+  bool _dynamic = false;
 };
 
 template<typename Cast, typename Type> struct Abstract : Setting {
   using Setting::Setting;
 
-  Abstract(string name = {}, Type value = {}, function<void (Type)> modify = {}) : Setting(name), defaultValue(value) {
-    this->currentValue = value;
-    this->latchedValue = value;
-    if constexpr(is_same_v<Type, boolean>) this->allowedValues = {false, true};
-    this->modify = modify;
+  Abstract(string name = {}, Type value = {}, function<void (Type)> modify = {}) : Setting(name), _defaultValue(value) {
+    _currentValue = value;
+    _latchedValue = value;
+    if constexpr(is_same_v<Type, boolean>) _allowedValues = {false, true};
+    _modify = modify;
   }
 
-  auto value() const -> Type {
-    return currentValue;
-  }
+  inline auto modify(Type value) const -> void { if(_modify) return _modify(value); }
+  inline auto value() const -> Type { return _currentValue; }
+  inline auto latch() const -> Type { return _latchedValue; }
 
-  auto latch() const -> Type {
-    return latchedValue;
+  auto setModify(function<void (Type)> modify) {
+    _modify = modify;
   }
 
   auto setValue(Type value) -> void {
-    if(allowedValues && !allowedValues.find(value)) return;
-    currentValue = value;
-    if(dynamic) latchedValue = currentValue;
-    if(modify) modify(value);
+    if(_allowedValues && !_allowedValues.find(value)) return;
+    _currentValue = value;
+    if(_dynamic) _latchedValue = _currentValue;
+    modify(value);
   }
 
   auto setLatch() -> void override {
-    latchedValue = currentValue;
+    _latchedValue = _currentValue;
   }
 
-  auto setAllowedValues(vector<Type> setAllowedValues) -> void {
-    allowedValues = setAllowedValues;
+  auto setAllowedValues(vector<Type> allowedValues) -> void {
+    _allowedValues = allowedValues;
     //if the current setting isn't an allowed value, change it to the first allowed value
-    if(allowedValues && !allowedValues.find(currentValue)) {
-      currentValue = allowedValues.first();
-      latchedValue = currentValue;
+    if(_allowedValues && !_allowedValues.find(_currentValue)) {
+      _currentValue = _allowedValues.first();
+      _latchedValue = _currentValue;
     }
   }
 
@@ -69,28 +76,28 @@ template<typename Cast, typename Type> struct Abstract : Setting {
   auto readLatch() const -> string override { return latch(); }
   auto readAllowedValues() const -> vector<string> override {
     vector<string> values;
-    for(auto& value : allowedValues) values.append(value);
+    for(auto& value : _allowedValues) values.append(value);
     return values;
   }
 
   auto writeValue(string value) -> void override {
-    if(allowedValues && !readAllowedValues().find(value)) return;
-    if constexpr(is_same_v<Type, boolean>) currentValue = value.boolean();
-    if constexpr(is_same_v<Type, natural>) currentValue = value.natural();
-    if constexpr(is_same_v<Type, integer>) currentValue = value.integer();
-    if constexpr(is_same_v<Type, real   >) currentValue = value.real();
-    if constexpr(is_same_v<Type, string >) currentValue = value;
-    if(dynamic) latchedValue = currentValue;
-    if(modify) modify(currentValue);
+    if(_allowedValues && !readAllowedValues().find(value)) return;
+    if constexpr(is_same_v<Type, boolean>) _currentValue = value.boolean();
+    if constexpr(is_same_v<Type, natural>) _currentValue = value.natural();
+    if constexpr(is_same_v<Type, integer>) _currentValue = value.integer();
+    if constexpr(is_same_v<Type, real   >) _currentValue = value.real();
+    if constexpr(is_same_v<Type, string >) _currentValue = value;
+    if(_dynamic) _latchedValue = _currentValue;
+    modify(_currentValue);
   }
 
   auto load(Node::Object source) -> bool override {
     if(!Setting::load(source)) return false;
     if(auto setting = source->cast<shared_pointer<Cast>>()) {
-      if(!allowedValues || allowedValues.find(setting->currentValue)) {
-        currentValue = setting->currentValue;
-        latchedValue = currentValue;
-        if(modify) modify(currentValue);
+      if(!_allowedValues || _allowedValues.find(setting->_currentValue)) {
+        _currentValue = setting->_currentValue;
+        _latchedValue = _currentValue;
+        modify(_currentValue);
       }
     }
     return true;
@@ -98,25 +105,25 @@ template<typename Cast, typename Type> struct Abstract : Setting {
 
   auto serialize(string& output, string depth) -> void override {
     Setting::serialize(output, depth);
-    output.append(depth, "  value: ", currentValue, "\n");
-    if(latchedValue) output.append(depth, "  latch: ", latchedValue, "\n");
+    output.append(depth, "  value: ", _currentValue, "\n");
+    if(_latchedValue) output.append(depth, "  latch: ", _latchedValue, "\n");
   }
 
   auto unserialize(Markup::Node node) -> void override {
     Setting::unserialize(node);
-    if constexpr(is_same_v<Type, boolean>) currentValue = node["value"].boolean(), latchedValue = node["latch"].boolean();
-    if constexpr(is_same_v<Type, natural>) currentValue = node["value"].natural(), latchedValue = node["latch"].natural();
-    if constexpr(is_same_v<Type, integer>) currentValue = node["value"].integer(), latchedValue = node["latch"].integer();
-    if constexpr(is_same_v<Type, real>)    currentValue = node["value"].real(),    latchedValue = node["latch"].real();
-    if constexpr(is_same_v<Type, string>)  currentValue = node["value"].text(),    latchedValue = node["latch"].text();
+    if constexpr(is_same_v<Type, boolean>) _currentValue = node["value"].boolean(), _latchedValue = node["latch"].boolean();
+    if constexpr(is_same_v<Type, natural>) _currentValue = node["value"].natural(), _latchedValue = node["latch"].natural();
+    if constexpr(is_same_v<Type, integer>) _currentValue = node["value"].integer(), _latchedValue = node["latch"].integer();
+    if constexpr(is_same_v<Type, real>)    _currentValue = node["value"].real(),    _latchedValue = node["latch"].real();
+    if constexpr(is_same_v<Type, string>)  _currentValue = node["value"].text(),    _latchedValue = node["latch"].text();
   }
 
-  const Type defaultValue;
-  Type currentValue;
-  Type latchedValue;
-  vector<Type> allowedValues;
-
-  function<void (Type)> modify;
+protected:
+  function<void (Type)> _modify;
+  const Type _defaultValue;
+  Type _currentValue;
+  Type _latchedValue;
+  vector<Type> _allowedValues;
 };
 
 struct Boolean : Abstract<Boolean, boolean> {

@@ -100,8 +100,8 @@ namespace higan::Node {
   }
 
   static inline auto parent(Object child) -> Object {
-    if(!child || !child->parent) return {};
-    if(auto parent = child->parent.acquire()) return parent;
+    if(!child || !child->parent()) return {};
+    if(auto parent = child->parent().acquire()) return parent;
     return {};
   }
 

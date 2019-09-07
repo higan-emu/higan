@@ -23,14 +23,14 @@ auto System::Controls::poll() -> void {
   platform->input(option);
   platform->input(debug);
 
-  if(!(up->value & down->value)) {
-    yHold = 0, upLatch = up->value, downLatch = down->value;
+  if(!(up->value() & down->value())) {
+    yHold = 0, upLatch = up->value(), downLatch = down->value();
   } else if(!yHold) {
     yHold = 1, swap(upLatch, downLatch);
   }
 
-  if(!(left->value & right->value)) {
-    xHold = 0, leftLatch = left->value, rightLatch = right->value;
+  if(!(left->value() & right->value())) {
+    xHold = 0, leftLatch = left->value(), rightLatch = right->value();
   } else if(!xHold) {
     xHold = 1, swap(leftLatch, rightLatch);
   }

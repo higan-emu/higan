@@ -12,13 +12,16 @@ Gamepad::Gamepad(Node::Port parent, Node::Peripheral with) {
 }
 
 auto Gamepad::data() -> uint3 {
-  if(latched == 1) return platform->input(a), a->value;
+  if(latched == 1) {
+    platform->input(a);
+    return a->value();
+  }
 
   switch(counter++) {
-  case 0: return a->value;
-  case 1: return b->value;
-  case 2: return select->value;
-  case 3: return start->value;
+  case 0: return a->value();
+  case 1: return b->value();
+  case 2: return select->value();
+  case 3: return start->value();
   case 4: return upLatch;
   case 5: return downLatch;
   case 6: return leftLatch;
@@ -44,14 +47,14 @@ auto Gamepad::latch(uint1 data) -> void {
     platform->input(left);
     platform->input(right);
 
-    if(!(up->value & down->value)) {
-      yHold = 0, upLatch = up->value, downLatch = down->value;
+    if(!(up->value() & down->value())) {
+      yHold = 0, upLatch = up->value(), downLatch = down->value();
     } else if(!yHold) {
       yHold = 1, swap(upLatch, downLatch);
     }
 
-    if(!(left->value & right->value)) {
-      xHold = 0, leftLatch = left->value, rightLatch = right->value;
+    if(!(left->value() & right->value())) {
+      xHold = 0, leftLatch = left->value(), rightLatch = right->value();
     } else if(!xHold) {
       xHold = 1, swap(leftLatch, rightLatch);
     }

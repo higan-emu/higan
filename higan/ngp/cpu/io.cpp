@@ -462,15 +462,15 @@ auto CPU::readIO(uint8 address) -> uint8 {
     data.bit(1) = system.controls.downLatch;
     data.bit(2) = system.controls.leftLatch;
     data.bit(3) = system.controls.rightLatch;
-    data.bit(4) = system.controls.a->value;
-    data.bit(5) = system.controls.b->value;
-    data.bit(6) = system.controls.option->value;
-    data.bit(7) = system.controls.debug->value;
+    data.bit(4) = system.controls.a->value();
+    data.bit(5) = system.controls.b->value();
+    data.bit(6) = system.controls.option->value();
+    data.bit(7) = system.controls.debug->value();
     return data;
 
   case 0xb1:
     //power button polled in CPU::pollPowerButton()
-    data.bit(0) = !system.controls.power->value;
+    data.bit(0) = !system.controls.power->value();
     data.bit(1) = 1;  //sub battery (CR2032)
     return data;
 

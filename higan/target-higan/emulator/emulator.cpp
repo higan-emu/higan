@@ -20,7 +20,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   string configuration = file::read({location, "settings.bml"});
   if(!configuration) {
     auto system = higan::Node::System::create();
-    system->name = interface->name();
+    system->setName(interface->name());
     system->setProperty("location", location);
     configuration = higan::Node::serialize(system);
   }
@@ -137,7 +137,9 @@ auto Emulator::power(bool on) -> void {
 //used to prevent connecting the same (emulated) physical device to multiple ports simultaneously
 auto Emulator::connected(string location) -> higan::Node::Port {
   for(auto& peripheral : root->find<higan::Node::Peripheral>()) {
-    if(location == peripheral->property("location")) return peripheral->parent.acquire();
+    if(location == peripheral->property("location")) {
+      if(auto parent = peripheral->parent()) return parent.acquire();
+    }
   }
   return {};
 }

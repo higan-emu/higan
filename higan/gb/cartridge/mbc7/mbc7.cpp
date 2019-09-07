@@ -79,8 +79,8 @@ auto Cartridge::MBC7::write(uint16 address, uint8 data) -> void {
       if(data != 0xaa) break;
       platform->input(x);
       platform->input(y);
-      io.accelerometer.x = Center - x->value;
-      io.accelerometer.y = Center + y->value;
+      io.accelerometer.x = Center - x->value();
+      io.accelerometer.y = Center + y->value();
       break;
     }
 

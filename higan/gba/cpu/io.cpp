@@ -70,10 +70,10 @@ auto CPU::readIO(uint32 addr) -> uint8 {
     }
     system.controls.poll();
     uint8 result;
-    result.bit(0) = !system.controls.a->value;
-    result.bit(1) = !system.controls.b->value;
-    result.bit(2) = !system.controls.select->value;
-    result.bit(3) = !system.controls.start->value;
+    result.bit(0) = !system.controls.a->value();
+    result.bit(1) = !system.controls.b->value();
+    result.bit(2) = !system.controls.select->value();
+    result.bit(3) = !system.controls.start->value();
     if(ppu.rotation->value() == "0°") {
       result.bit(4) = !system.controls.rightLatch;
       result.bit(5) = !system.controls.leftLatch;
@@ -106,8 +106,8 @@ auto CPU::readIO(uint32 addr) -> uint8 {
     }
     system.controls.poll();
     uint8 result;
-    result.bit(0) = !system.controls.r->value;
-    result.bit(1) = !system.controls.l->value;
+    result.bit(0) = !system.controls.r->value();
+    result.bit(1) = !system.controls.l->value();
     return result;
   }
 

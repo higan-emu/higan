@@ -31,8 +31,8 @@ Justifiers::~Justifiers() {
 auto Justifiers::main() -> void {
   uint next = cpu.vcounter() * 1364 + cpu.hcounter();
 
-  int px = active == 0 ? x1->value : x2->value;
-  int py = active == 0 ? y1->value : y2->value;
+  int px = active == 0 ? x1->value() : x2->value();
+  int py = active == 0 ? y1->value() : y2->value();
   bool offscreen = px < 0 || py < 0 || px >= 256 || py >= ppu.vdisp();
 
   if(!offscreen) {
@@ -47,8 +47,8 @@ auto Justifiers::main() -> void {
   if(next < previous) {
     platform->input(x1);
     platform->input(y1);
-    int nx1 = x1->value + cx1;
-    int ny1 = y1->value + cy1;
+    int nx1 = x1->value() + cx1;
+    int ny1 = y1->value() + cy1;
     cx1 = max(-16, min(256 + 16, nx1));
     cy1 = max(-16, min(240 + 16, ny1));
     sprite1->setPosition(cx1 * 2 - 16, cy1 * 2 - 16);
@@ -56,8 +56,8 @@ auto Justifiers::main() -> void {
 
     platform->input(x2);
     platform->input(y2);
-    int nx2 = x2->value + cx2;
-    int ny2 = y2->value + cy2;
+    int nx2 = x2->value() + cx2;
+    int ny2 = y2->value() + cy2;
     cx2 = max(-16, min(256 + 16, nx2));
     cy2 = max(-16, min(240 + 16, ny2));
     sprite2->setPosition(cx2 * 2 - 16, cy2 * 2 - 16);
@@ -106,10 +106,10 @@ auto Justifiers::data() -> uint2 {
   case 22: return 0;
   case 23: return 1;
 
-  case 24: return trigger1->value;
-  case 25: return trigger2->value;
-  case 26: return start1->value;
-  case 27: return start2->value;
+  case 24: return trigger1->value();
+  case 25: return trigger2->value();
+  case 26: return start1->value();
+  case 27: return start2->value();
   case 28: return active;
   case 29: return 0;
   case 30: return 0;

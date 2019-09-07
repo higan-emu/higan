@@ -6,7 +6,7 @@ auto System::Controls::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto System::Controls::poll() -> void {
-  auto value = reset->value;
+  auto value = reset->value();
   platform->input(reset);
-  if(!value && reset->value) system.power();  //todo: implement soft reset
+  if(!value && reset->value()) system.power();  //todo: implement soft reset
 }

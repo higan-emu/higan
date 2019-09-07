@@ -37,11 +37,11 @@ auto MCD::load(Node::Object parent, Node::Object from) -> void {
   tray->setDetach([&](auto node) { disconnect(); });
   tray->scan(from);
 
-  bios.allocate  (128_KiB >> 1);
-  pram.allocate  (512_KiB >> 1);
-  wram.allocate  (256_KiB >> 1);
-  bram.allocate  (  8_KiB);
-  cdc.ram.allocate(16_KiB >> 1);
+  bios.allocate   (128_KiB >> 1);
+  pram.allocate   (512_KiB >> 1);
+  wram.allocate   (256_KiB >> 1);
+  bram.allocate   (  8_KiB >> 0);
+  cdc.ram.allocate( 16_KiB >> 1);
 
   if(expansion.node) {
     if(auto fp = platform->open(expansion.node, "backup.ram", File::Read)) {
