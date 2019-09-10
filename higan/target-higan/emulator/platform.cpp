@@ -17,13 +17,13 @@ auto Emulator::detach(higan::Node::Object node) -> void {
     streams = root->find<higan::Node::Stream>();
   }
 
-  if(auto location = node->property("location")) {
+  if(auto location = node->attribute("location")) {
     file::write({location, "settings.bml"}, node->save());
   }
 }
 
 auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
-  auto location = node->property("location");
+  auto location = node->attribute("location");
 
   if(name == "manifest.bml") {
     if(!file::exists({location, name}) && directory::exists(location)) {
@@ -188,14 +188,14 @@ auto Emulator::input(higan::Node::Input input) -> void {
 
   if(auto button = input->cast<higan::Node::Button>()) {
     button->setValue(0);
-    if(auto instance = button->property<shared_pointer<InputButton>>("instance")) {
+    if(auto instance = button->attribute<shared_pointer<InputButton>>("instance")) {
       if(allow) button->setValue(instance->value());
     }
   }
 
   if(auto axis = input->cast<higan::Node::Axis>()) {
     axis->setValue(0);
-    if(auto instance = axis->property<shared_pointer<InputAxis>>("instance")) {
+    if(auto instance = axis->attribute<shared_pointer<InputAxis>>("instance")) {
       if(allow) axis->setValue(instance->value());
     }
   }

@@ -62,7 +62,7 @@ namespace higan::Core {
   static auto PlatformDetach(Node::Object) -> void;
   static auto PlatformLog(string_view) -> void;
 
-  #include <emulator/node/property.hpp>
+  #include <emulator/node/attribute.hpp>
   #include <emulator/node/class.hpp>
   #include <emulator/node/object.hpp>
   #include <emulator/node/system.hpp>

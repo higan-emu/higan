@@ -38,7 +38,7 @@ auto PortConnector::isIcarusType() const -> bool {
 auto PortConnector::refresh(higan::Node::Port port) -> void {
   this->port = port;
 
-  auto path = port->property("path");
+  auto path = port->attribute("path");
   //is this the first time refreshing this port?
   if(!path) {
     //see if there's a shared icarus path for it
@@ -49,7 +49,7 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
     if(!directory::exists(path)) {
       path = {emulator.system.data, port->family(), " ", port->type(), "/"};
     }
-    port->setProperty("path", path);
+    port->setAttribute("path", path);
   }
 
   //if this is a user path, replace the home directory with ~ for brevity
@@ -61,26 +61,26 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
 
   peripheralList.reset();
   ListViewItem item{&peripheralList};
-  item.setProperty("type", "nothing");
+  item.setAttribute("type", "nothing");
   item.setIcon(Icon::Action::Remove).setText("Nothing");
 
   if(string location = {emulator.system.templates, port->type(), "/"}) {
     for(auto& name : directory::folders(location)) {
       ListViewItem item{&peripheralList};
-      item.setProperty("type", "template");
-      item.setProperty("location", {location, name});
-      item.setProperty("path", location);
-      item.setProperty("name", name.trimRight("/", 1L));
+      item.setAttribute("type", "template");
+      item.setAttribute("location", {location, name});
+      item.setAttribute("path", location);
+      item.setAttribute("name", name.trimRight("/", 1L));
       item.setIcon(Icon::Action::Add).setText(name);
     }
   }
 
   for(auto& name : directory::folders(path)) {
     ListViewItem item{&peripheralList};
-    item.setProperty("type", "peripheral");
-    item.setProperty("location", {path, name});
-    item.setProperty("path", path);
-    item.setProperty("name", name.trimRight("/", 1L));
+    item.setAttribute("type", "peripheral");
+    item.setAttribute("location", {path, name});
+    item.setAttribute("path", path);
+    item.setAttribute("name", name.trimRight("/", 1L));
     item.setIcon(Icon::Emblem::Folder).setText(name);
   }
 
@@ -105,21 +105,21 @@ auto PortConnector::eventActivate() -> void {
       if(response == "Power Off") emulator.power(false);
     }
 
-    auto name = item.property("name");
+    auto name = item.attribute("name");
 
-    if(item.property("type") == "nothing") {
+    if(item.attribute("type") == "nothing") {
       port->disconnect();
       nodeManager.refresh();
     }
 
-    else if(item.property("type") == "template") {
+    else if(item.attribute("type") == "template") {
       auto label = NameDialog()
       .setTitle({"Create New ", name})
       .setAlignment(programWindow)
       .create(item.text());
       if(!label) return;
 
-      auto source = item.property("location");
+      auto source = item.attribute("location");
       auto target = string{emulator.system.data, port->family(), " ", port->type(), "/", label, "/"};
       if(directory::exists(target)) return (void)MessageDialog()
       .setText("A directory by this name already exists.")
@@ -128,16 +128,16 @@ auto PortConnector::eventActivate() -> void {
       if(directory::copy(source, target)) {
         auto peripheral = port->allocate();
         peripheral->setName(name);
-        peripheral->setProperty("location", target);
-        peripheral->setProperty("name", label);
+        peripheral->setAttribute("location", target);
+        peripheral->setAttribute("name", label);
         port->connect(peripheral);
         inputManager.bind();  //bind any inputs this peripheral may contain
         nodeManager.refresh();
       }
     }
 
-    else if(item.property("type") == "peripheral") {
-      auto location = item.property("location");
+    else if(item.attribute("type") == "peripheral") {
+      auto location = item.attribute("location");
       auto connected = emulator.connected(location);
 
       //treat selecting the already-connected device as a no-op that aborts the port connection dialog
@@ -151,8 +151,8 @@ auto PortConnector::eventActivate() -> void {
       if(auto markup = file::read({location, "settings.bml"})) {
         peripheral = higan::Node::unserialize(markup);
       }
-      peripheral->setProperty("location", location);
-      peripheral->setProperty("name", item.property("name"));
+      peripheral->setAttribute("location", location);
+      peripheral->setAttribute("name", item.attribute("name"));
       port->connect(peripheral);
       inputManager.bind();  //bind any inputs this peripheral may contain
       nodeManager.refresh();
@@ -164,15 +164,15 @@ auto PortConnector::eventChange() -> void {
   acceptButton.setVisible(false);
 
   if(auto item = peripheralList.selected()) {
-    if(item.property("type") == "nothing") {
+    if(item.attribute("type") == "nothing") {
       acceptButton.setText("Disconnect").setVisible();
     }
 
-    else if(item.property("type") == "template") {
+    else if(item.attribute("type") == "template") {
       acceptButton.setText("Create").setVisible();
     }
 
-    else if(item.property("type") == "peripheral") {
+    else if(item.attribute("type") == "peripheral") {
       acceptButton.setText("Connect").setVisible();
     }
   }
@@ -182,30 +182,30 @@ auto PortConnector::eventChange() -> void {
 
 auto PortConnector::eventContext() -> void {
   if(auto item = peripheralList.selected()) {
-    if(item.property("type") == "peripheral") {
+    if(item.attribute("type") == "peripheral") {
       contextMenu.setVisible();
     }
   }
 }
 
 auto PortConnector::eventBrowse() -> void {
-  auto path = port->property("path");
+  auto path = port->attribute("path");
   if(auto location = BrowserDialog()
   .setTitle({port->name(), " Location"})
   .setPath(path ? path : Path::user())
   .setAlignment(programWindow).selectFolder()
   ) {
-    port->setProperty("path", location);
+    port->setAttribute("path", location);
     refresh(port);
   }
 }
 
 auto PortConnector::eventRename() -> void {
   if(auto item = peripheralList.selected()) {
-    if(item.property("type") == "peripheral") {
-      auto location = item.property("location");
-      auto path = item.property("path");
-      auto name = item.property("name");
+    if(item.attribute("type") == "peripheral") {
+      auto location = item.attribute("location");
+      auto path = item.attribute("path");
+      auto name = item.attribute("name");
       if(auto rename = NameDialog()
       .setAlignment(programWindow)
       .rename(name)
@@ -223,8 +223,8 @@ auto PortConnector::eventRename() -> void {
         //the location must be updated if this peripheral is already connected ...
         if(auto connector = emulator.connected(location)) {
           if(auto connected = connector->connected()) {
-            connected->setProperty("location", {path, rename, "/"});
-            connected->setProperty("name", rename);
+            connected->setAttribute("location", {path, rename, "/"});
+            connected->setAttribute("name", rename);
             //the name will be updated in the node manager, so it must be refreshed:
             nodeManager.refresh();
           }
@@ -238,8 +238,8 @@ auto PortConnector::eventRename() -> void {
 
 auto PortConnector::eventRemove() -> void {
   if(auto item = peripheralList.selected()) {
-    if(item.property("type") == "peripheral") {
-      auto location = item.property("location");
+    if(item.attribute("type") == "peripheral") {
+      auto location = item.attribute("location");
       auto connected = emulator.connected(location);
 
       if(!port->hotSwappable() && emulator.system.power && emulator.connected(location)) return (void)MessageDialog()

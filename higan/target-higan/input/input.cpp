@@ -45,11 +45,11 @@ auto InputManager::bind(maybe<higan::Node::Object> newRoot) -> void {
 
   for(auto& input : root->find<higan::Node::Input>()) {
     //not strictly necessary; but release any shared_pointer instances to free up the allocated memory
-    input->setProperty<shared_pointer<InputButton>>("instance");
+    input->setAttribute<shared_pointer<InputButton>>("instance");
 
-    auto _pathID = input->property("pathID"); if(!_pathID) continue;
-    auto _vendorID = input->property("vendorID"); if(!_vendorID) continue;
-    auto _productID = input->property("productID"); if(!_productID) continue;
+    auto _pathID = input->attribute("pathID"); if(!_pathID) continue;
+    auto _vendorID = input->attribute("vendorID"); if(!_vendorID) continue;
+    auto _productID = input->attribute("productID"); if(!_productID) continue;
 
     auto pathID = _pathID.natural();
     auto vendorID = _vendorID.natural();
@@ -63,20 +63,20 @@ auto InputManager::bind(maybe<higan::Node::Object> newRoot) -> void {
       if(input->cast<higan::Node::Button>()) {
         auto instance = shared_pointer_make<InputButton>();
         instance->device = device;
-        instance->groupID = input->property("groupID").natural();
-        instance->inputID = input->property("inputID").natural();
-        if(input->property("qualifier") == "Lo") instance->qualifier = InputButton::Qualifier::Lo;
-        if(input->property("qualifier") == "Hi") instance->qualifier = InputButton::Qualifier::Hi;
-        input->setProperty<shared_pointer<InputButton>>("instance", instance);
+        instance->groupID = input->attribute("groupID").natural();
+        instance->inputID = input->attribute("inputID").natural();
+        if(input->attribute("qualifier") == "Lo") instance->qualifier = InputButton::Qualifier::Lo;
+        if(input->attribute("qualifier") == "Hi") instance->qualifier = InputButton::Qualifier::Hi;
+        input->setAttribute<shared_pointer<InputButton>>("instance", instance);
         break;
       }
 
       if(input->cast<higan::Node::Axis>()) {
         auto instance = shared_pointer_make<InputAxis>();
         instance->device = device;
-        instance->groupID = input->property("groupID").natural();
-        instance->inputID = input->property("inputID").natural();
-        input->setProperty<shared_pointer<InputAxis>>("instance", instance);
+        instance->groupID = input->attribute("groupID").natural();
+        instance->inputID = input->attribute("inputID").natural();
+        input->setAttribute<shared_pointer<InputAxis>>("instance", instance);
         break;
       }
     }

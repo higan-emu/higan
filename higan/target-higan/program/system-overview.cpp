@@ -12,7 +12,7 @@ auto SystemOverview::hide() -> void {
 }
 
 auto SystemOverview::refresh() -> void {
-  auto location = systemManager.systemList.selected().property("location");
+  auto location = systemManager.systemList.selected().attribute("location");
   nodeList.reset();
   auto manifest = BML::unserialize(file::read({location, "manifest.bml"}));
   nodeList.append(ListViewItem().setText(manifest["system"].text()));
@@ -29,7 +29,7 @@ auto SystemOverview::scan(higan::Node::Object node, uint depth) -> void {
   ListViewItem item{&nodeList};
   string name;
   for(uint n : range(depth)) name.append("   ");
-  name.append(node->property("name") ? node->property("name") : node->name());
+  name.append(node->attribute("name") ? node->attribute("name") : node->name());
   if(auto setting = node->cast<higan::Node::Setting>()) {
     name.append(": ", setting->readValue());
   }

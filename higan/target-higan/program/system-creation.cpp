@@ -21,7 +21,7 @@ auto SystemCreation::refresh() -> void {
   systemList.reset();
   for(auto& interface : interfaces) {
     ListViewItem item{&systemList};
-    item.setProperty<shared_pointer<higan::Interface>>("interface", interface);
+    item.setAttribute<shared_pointer<higan::Interface>>("interface", interface);
     item.setText(interface->name());
   }
   systemList.doChange();
@@ -29,7 +29,7 @@ auto SystemCreation::refresh() -> void {
 
 auto SystemCreation::eventChange() -> void {
   if(auto item = systemList.selected()) {
-    if(auto interface = item.property<shared_pointer<higan::Interface>>("interface")) {
+    if(auto interface = item.attribute<shared_pointer<higan::Interface>>("interface")) {
       nameValue.setText(interface->name());
       nameLabel.setVisible(true);
       nameValue.setVisible(true);
@@ -67,7 +67,7 @@ auto SystemCreation::eventAccept() -> void {
     .setText("Failed to create directory. Either the location is read-only, or the name contains invalid characters.")
     .setAlignment(programWindow).error();
 
-  if(auto interface = systemList.selected().property<shared_pointer<higan::Interface>>("interface")) {
+  if(auto interface = systemList.selected().attribute<shared_pointer<higan::Interface>>("interface")) {
     file::write({location, name, "manifest.bml"}, string{
       "system: ", interface->name(), "\n"
     });

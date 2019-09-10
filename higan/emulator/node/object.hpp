@@ -110,27 +110,27 @@ struct Object : shared_pointer_this<Object> {
   }
 
   template<typename T = string>
-  auto property(const string& name) const -> T {
-    if(auto property = _properties.find(name)) {
-      if(property->value.is<T>()) return property->value.get<T>();
+  auto attribute(const string& name) const -> T {
+    if(auto attribute = _attributes.find(name)) {
+      if(attribute->value.is<T>()) return attribute->value.get<T>();
     }
     return {};
   }
 
   template<typename T = string, typename U = string>
-  auto setProperty(const string& name, const U& value = {}) -> void {
-    if constexpr(is_same_v<T, string> && !is_same_v<U, string>) return setProperty(name, string{value});
-    if(auto property = _properties.find(name)) {
-      if((const T&)value) property->value = (const T&)value;
-      else _properties.remove(*property);
+  auto setAttribute(const string& name, const U& value = {}) -> void {
+    if constexpr(is_same_v<T, string> && !is_same_v<U, string>) return setAttribute(name, string{value});
+    if(auto attribute = _attributes.find(name)) {
+      if((const T&)value) attribute->value = (const T&)value;
+      else _attributes.remove(*attribute);
     } else {
-      if((const T&)value) _properties.insert({name, (const T&)value});
+      if((const T&)value) _attributes.insert({name, (const T&)value});
     }
   }
 
   virtual auto load(Node::Object source) -> bool {
     if(!source || identity() != source->identity() || _name != source->_name) return false;
-    _properties = source->_properties;
+    _attributes = source->_attributes;
     return true;
   }
 
@@ -143,11 +143,11 @@ struct Object : shared_pointer_this<Object> {
   virtual auto serialize(string& output, string depth) -> void {
     output.append(depth, "node: ", identity(), "\n");
     output.append(depth, "  name: ", _name, "\n");
-    for(auto& property : _properties) {
-      if(!property.value.is<string>()) continue;
-      output.append(depth, "  property\n");
-      output.append(depth, "    name: ", property.name, "\n");
-      output.append(depth, "    value: ", property.value.get<string>(), "\n");
+    for(auto& attribute : _attributes) {
+      if(!attribute.value.is<string>()) continue;
+      output.append(depth, "  attribute\n");
+      output.append(depth, "    name: ", attribute.name, "\n");
+      output.append(depth, "    value: ", attribute.value.get<string>(), "\n");
     }
     depth.append("  ");
     for(auto& node : _nodes) {
@@ -158,9 +158,9 @@ struct Object : shared_pointer_this<Object> {
   virtual auto unserialize(Markup::Node markup) -> void {
     if(!markup) return;
     _name = markup["name"].text();
-    _properties.reset();
-    for(auto& property : markup.find("property")) {
-      _properties.insert({property["name"].text(), property["value"].text()});
+    _attributes.reset();
+    for(auto& attribute : markup.find("attribute")) {
+      _attributes.insert({attribute["name"].text(), attribute["value"].text()});
     }
     for(auto& leaf : markup.find("node")) {
       auto node = Class::create(leaf.text());
@@ -174,7 +174,7 @@ struct Object : shared_pointer_this<Object> {
 
 protected:
   string _name;
-  set<Property> _properties;
+  set<Attribute> _attributes;
   shared_pointer_weak<Object> _parent;
   vector<Node::Object> _nodes;
 };

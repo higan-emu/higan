@@ -25,7 +25,7 @@ auto HotkeySettings::refresh() -> void {
   hotkeyList.append(TableViewColumn().setText("Mapping").setExpandable());
   for(auto& hotkey : hotkeys.hotkeys) {
     TableViewItem item{&hotkeyList};
-    item.setProperty<InputHotkey*>("hotkey", hotkey);
+    item.setAttribute<InputHotkey*>("hotkey", hotkey);
     TableViewCell name{&item};
     name.setText(hotkey->name).setFont(Font().setBold());
     TableViewCell value{&item};
@@ -37,7 +37,7 @@ auto HotkeySettings::refresh() -> void {
 auto HotkeySettings::update() -> void {
   for(auto& item : hotkeyList.items()) {
     auto value = item.cell(1);
-    auto hotkey = item.property<InputHotkey*>("hotkey");
+    auto hotkey = item.attribute<InputHotkey*>("hotkey");
     if(hotkey->device) {
       auto device = hotkey->device->name();
       if(device == "Keyboard") value.setIcon(Icon::Device::Keyboard);
@@ -74,7 +74,7 @@ auto HotkeySettings::eventAssignNext() -> void {
   auto item = assigningQueue.takeFirst();
   hotkeyList.selectNone();
   item.setSelected().setFocused();
-  auto hotkey = item.property<InputHotkey*>("hotkey");
+  auto hotkey = item.attribute<InputHotkey*>("hotkey");
   item.cell(1).setIcon(Icon::Go::Right).setText("(assign)");
   assigning = *hotkey;
   eventChange();
@@ -83,7 +83,7 @@ auto HotkeySettings::eventAssignNext() -> void {
 auto HotkeySettings::eventClear() -> void {
   if(auto batched = hotkeyList.batched()) {
     for(auto& item : batched) {
-      auto hotkey = item.property<InputHotkey*>("hotkey");
+      auto hotkey = item.attribute<InputHotkey*>("hotkey");
       hotkey->identifier = {};
     }
     hotkeys.bind();

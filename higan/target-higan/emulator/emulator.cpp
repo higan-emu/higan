@@ -21,7 +21,7 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   if(!configuration) {
     auto system = higan::Node::System::create();
     system->setName(interface->name());
-    system->setProperty("location", location);
+    system->setAttribute("location", location);
     configuration = higan::Node::serialize(system);
   }
 
@@ -58,7 +58,7 @@ auto Emulator::unload() -> void {
 
   power(false);
 
-  if(auto location = root->property("location")) {
+  if(auto location = root->attribute("location")) {
     file::write({location, "settings.bml"}, higan::Node::serialize(root));
   }
 
@@ -137,7 +137,7 @@ auto Emulator::power(bool on) -> void {
 //used to prevent connecting the same (emulated) physical device to multiple ports simultaneously
 auto Emulator::connected(string location) -> higan::Node::Port {
   for(auto& peripheral : root->find<higan::Node::Peripheral>()) {
-    if(location == peripheral->property("location")) {
+    if(location == peripheral->attribute("location")) {
       if(auto parent = peripheral->parent()) return parent.acquire();
     }
   }
@@ -145,9 +145,9 @@ auto Emulator::connected(string location) -> higan::Node::Port {
 }
 
 auto Emulator::validateConfiguration(Markup::Node node, Markup::Node parent) -> void {
-  for(auto property : node.find("property")) {
-    if(property["name"].text() != "location") continue;
-    auto location = property["value"].text();
+  for(auto attribute : node.find("attribute")) {
+    if(attribute["name"].text() != "location") continue;
+    auto location = attribute["value"].text();
     //if the peripheral is missing, remove it from the tree
     if(!directory::exists(location)) parent.remove(node);
   }

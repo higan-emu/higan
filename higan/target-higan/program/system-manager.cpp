@@ -30,10 +30,10 @@ auto SystemManager::refresh() -> void {
     auto system = document["system"].text();
 
     ListViewItem item{&systemList};
-    item.setProperty("location", {location, name});
-    item.setProperty("path", location);
-    item.setProperty("name", name.trimRight("/", 1L));
-    item.setProperty("system", system);
+    item.setAttribute("location", {location, name});
+    item.setAttribute("path", location);
+    item.setAttribute("name", name.trimRight("/", 1L));
+    item.setAttribute("system", system);
     item.setText(name);
 
     //highlight any systems found that have not been compiled into this binary.
@@ -57,9 +57,9 @@ auto SystemManager::deselect() -> void {
 
 auto SystemManager::eventActivate() -> void {
   if(auto item = systemList.selected()) {
-    if(auto system = item.property("system")) {
+    if(auto system = item.attribute("system")) {
       if(auto index = interfaces.find([&](auto interface) { return interface->name() == system; })) {
-        emulator.create(interfaces[*index], {item.property("path"), item.property("name"), "/"});
+        emulator.create(interfaces[*index], {item.attribute("path"), item.attribute("name"), "/"});
       }
     }
   }
@@ -67,7 +67,7 @@ auto SystemManager::eventActivate() -> void {
 
 auto SystemManager::eventChange() -> void {
   if(auto item = systemList.selected()) {
-    if(auto system = item.property("system")) {
+    if(auto system = item.attribute("system")) {
       actionMenu.rename.setEnabled(true);
       actionMenu.remove.setEnabled(true);
       systemOverview.refresh();
@@ -96,8 +96,8 @@ auto SystemManager::eventCreate() -> void {
 
 auto SystemManager::eventRename() -> void {
   if(auto item = systemList.selected()) {
-    auto path = item.property("path");
-    auto from = item.property("name");
+    auto path = item.attribute("path");
+    auto from = item.attribute("name");
     if(auto name = NameDialog()
     .setAlignment(programWindow)
     .rename(from)
@@ -122,12 +122,12 @@ auto SystemManager::eventRename() -> void {
 auto SystemManager::eventRemove() -> void {
   if(auto item = systemList.selected()) {
     if(MessageDialog()
-    .setTitle({"Delete ", item.property("name")})
+    .setTitle({"Delete ", item.attribute("name")})
     .setText("Are you sure you want to delete the selected item?\n"
              "All of its contents will be permanently lost!")
     .setAlignment(programWindow)
     .question() == "No") return;
-    auto location = string{item.property("path"), item.property("name"), "/"};
+    auto location = string{item.attribute("path"), item.attribute("name"), "/"};
     if(!directory::remove(location)) return (void)MessageDialog()
     .setTitle("Error")
     .setText("Failed to delete directory.")

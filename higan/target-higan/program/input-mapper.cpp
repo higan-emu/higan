@@ -33,7 +33,7 @@ auto InputMapper::refresh(higan::Node::Object node) -> void {
   for(auto& node : node->find<higan::Node::Input>()) {
     if(node->parent() != this->node) continue;
     TableViewItem item{&inputList};
-    item.setProperty<higan::Node::Input>("node", node);
+    item.setAttribute<higan::Node::Input>("node", node);
     TableViewCell name{&item};
     name.setText(node->name()).setFont(Font().setBold());
     TableViewCell value{&item};
@@ -45,17 +45,17 @@ auto InputMapper::refresh(higan::Node::Object node) -> void {
 auto InputMapper::update() -> void {
   for(auto& item : inputList.items()) {
     auto value = item.cell(1);
-    auto node = item.property<higan::Node::Input>("node");
-    if(auto name = node->property("inputName")) {
-      auto device = node->property("deviceName");
+    auto node = item.attribute<higan::Node::Input>("node");
+    if(auto name = node->attribute("inputName")) {
+      auto device = node->attribute("deviceName");
       if(device == "Keyboard") value.setIcon(Icon::Device::Keyboard);
       else if(device == "Mouse") value.setIcon(Icon::Device::Mouse);
       else if(device == "Joypad") value.setIcon(Icon::Device::Joypad);
       else value.setIcon(Icon::Action::Close);
       string label;
-      if(label == "Joypad") label.append(node->property("groupName"), ".");
-      label.append(node->property("inputName"));
-      if(auto qualifier = node->property("qualifier")) label.append(".", qualifier);
+      if(label == "Joypad") label.append(node->attribute("groupName"), ".");
+      label.append(node->attribute("inputName"));
+      if(auto qualifier = node->attribute("qualifier")) label.append(".", qualifier);
       value.setText(label);
     } else {
       value.setIcon(Icon::Action::Close);
@@ -71,7 +71,7 @@ auto InputMapper::eventAssignMouse(uint groupID, uint inputID) -> void {
   if(batched.size() != 1) return;
   for(auto& device : inputManager.devices) {
     if(!device->isMouse()) continue;
-    assigning = batched.first().property<higan::Node::Input>("node");
+    assigning = batched.first().attribute<higan::Node::Input>("node");
     eventInput(device, groupID, inputID, 0, 1, true);
     return;
   }
@@ -99,7 +99,7 @@ auto InputMapper::eventAssignNext() -> void {
   auto item = assigningQueue.takeFirst();
   inputList.selectNone();
   item.setSelected().setFocused();  //scroll the current assigning mapping into view
-  auto input = item.property<higan::Node::Input>("node");
+  auto input = item.attribute<higan::Node::Input>("node");
   item.cell(1).setIcon(Icon::Go::Right).setText("(assign)");
   assigning = input;
   eventChange();
@@ -111,16 +111,16 @@ auto InputMapper::eventClear() -> void {
   if(!batched) return;  //no inputs to clear
 
   for(auto& item : batched) {
-    auto input = item.property<higan::Node::Input>("node");
-    input->setProperty("pathID");
-    input->setProperty("vendorID");
-    input->setProperty("productID");
-    input->setProperty("groupID");
-    input->setProperty("inputID");
-    input->setProperty("deviceName");
-    input->setProperty("groupName");
-    input->setProperty("inputName");
-    input->setProperty("qualifier");
+    auto input = item.attribute<higan::Node::Input>("node");
+    input->setAttribute("pathID");
+    input->setAttribute("vendorID");
+    input->setAttribute("productID");
+    input->setAttribute("groupID");
+    input->setAttribute("inputID");
+    input->setAttribute("deviceName");
+    input->setAttribute("groupName");
+    input->setAttribute("inputName");
+    input->setAttribute("qualifier");
   }
   inputManager.bind();
   update();
@@ -131,7 +131,7 @@ auto InputMapper::eventChange() -> void {
   bool showMouseAxes = false;
   bool showMouseButtons = false;
   if(batched.size() == 1 && assigning) {
-    if(auto node = batched.first().property<higan::Node::Input>("node")) {
+    if(auto node = batched.first().attribute<higan::Node::Input>("node")) {
       if(node->cast<higan::Node::Axis>()) showMouseAxes = true;
       if(node->cast<higan::Node::Button>()) showMouseButtons = true;
     }
@@ -183,25 +183,25 @@ auto InputMapper::eventInput(shared_pointer<HID::Device> device, uint group, uin
   if(!allow) return;
 
   if(device->group(group).input(input).name() == "Escape") {
-    assigning->setProperty("pathID");
-    assigning->setProperty("vendorID");
-    assigning->setProperty("productID");
-    assigning->setProperty("groupID");
-    assigning->setProperty("inputID");
-    assigning->setProperty("deviceName");
-    assigning->setProperty("groupName");
-    assigning->setProperty("inputName");
-    assigning->setProperty("qualifier");
+    assigning->setAttribute("pathID");
+    assigning->setAttribute("vendorID");
+    assigning->setAttribute("productID");
+    assigning->setAttribute("groupID");
+    assigning->setAttribute("inputID");
+    assigning->setAttribute("deviceName");
+    assigning->setAttribute("groupName");
+    assigning->setAttribute("inputName");
+    assigning->setAttribute("qualifier");
   } else {
-    assigning->setProperty("pathID", device->pathID());
-    assigning->setProperty("vendorID", device->vendorID());
-    assigning->setProperty("productID", device->productID());
-    assigning->setProperty("groupID", group);
-    assigning->setProperty("inputID", input);
-    assigning->setProperty("deviceName", device->name());
-    assigning->setProperty("groupName", device->group(group).name());
-    assigning->setProperty("inputName", device->group(group).input(input).name());
-    assigning->setProperty("qualifier", qualifier);
+    assigning->setAttribute("pathID", device->pathID());
+    assigning->setAttribute("vendorID", device->vendorID());
+    assigning->setAttribute("productID", device->productID());
+    assigning->setAttribute("groupID", group);
+    assigning->setAttribute("inputID", input);
+    assigning->setAttribute("deviceName", device->name());
+    assigning->setAttribute("groupName", device->group(group).name());
+    assigning->setAttribute("inputName", device->group(group).input(input).name());
+    assigning->setAttribute("qualifier", qualifier);
   }
   assigning.reset();
   inputManager.bind();
