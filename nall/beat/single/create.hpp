@@ -25,7 +25,10 @@ inline auto create(array_view<uint8_t> source, array_view<uint8_t> target, strin
   encode(source.size()), encode(target.size()), encode(manifest.size());
   for(auto& byte : manifest) write(byte);
 
-  auto sourceArray = SuffixArray(source).lrcp();
+  //generating lrcp() arrays for source requires O(4n) computations, and O(16m) memory,
+  //but it reduces find() complexity from O(n log m) to O(n + log m). and yet in practice,
+  //no matter how large n scales to, the O(n + log m) find() is paradoxically slower.
+  auto sourceArray = SuffixArray(source);
   auto targetArray = SuffixArray(target).lpf();
 
   enum : uint { SourceRead, TargetRead, SourceCopy, TargetCopy };
