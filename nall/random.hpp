@@ -63,6 +63,8 @@ namespace PRNG {
 
 //Galois linear feedback shift register using CRC64 polynomials
 struct LFSR : RNG<LFSR> {
+  LFSR() { seed(); }
+
   auto seed(maybe<uint64_t> seed = {}) -> void {
     lfsr = seed ? seed() : (uint64_t)randomSeed();
     for(uint n : range(8)) read();  //hide the CRC64 polynomial from initial output
@@ -84,6 +86,8 @@ private:
 };
 
 struct PCG : RNG<PCG> {
+  PCG() { seed(); }
+
   auto seed(maybe<uint32_t> seed = {}, maybe<uint32_t> sequence = {}) -> void {
     if(!seed) seed = (uint32_t)randomSeed();
     if(!sequence) sequence = 0;

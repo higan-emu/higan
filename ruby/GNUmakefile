@@ -13,7 +13,7 @@ ifeq ($(ruby),)
     ruby += input.sdl input.xlib input.udev
   else ifeq ($(platform),bsd)
     ruby += video.glx video.glx2 video.xvideo video.xshm
-    ruby += audio.oss
+    ruby += audio.oss #audio.pulseaudio
     ruby += input.sdl input.xlib
   endif
 endif

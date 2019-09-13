@@ -93,7 +93,7 @@ suffix_array_lpf:
 // suffix array via induced sorting
 // O(n)
 inline auto suffix_array(array_view<uint8_t> input) -> vector<int> {
-  return induced_sort(input.data(), input.size());
+  return induced_sort(input);
 }
 
 // inverse
@@ -181,6 +181,7 @@ inline auto suffix_array_plcp(array_view<int> lcp, array_view<int> sa) -> vector
   return plcp;
 }
 
+// TODO: this generates incorrect results in some cases; there is a bug somewhere in this function!
 // longest common prefixes - left + right
 // llcp[m] == lcp(l, m)
 // rlcp[m] == lcp(m, r)
@@ -274,6 +275,8 @@ inline auto suffix_array_find(int& length, int& offset, array_view<int> sa, arra
       if(k == match.size()) return true;
     }
 
+    if(k == match.size() || s + k == input.size()) k--;
+
     if(match[k] < input[s + k]) {
       r = m;
     } else {
@@ -304,6 +307,8 @@ inline auto suffix_array_find(int& length, int& offset, array_view<int> llcp, ar
       if(k == match.size()) return true;
     }
 
+    if(k == match.size() || s + k == input.size()) k--;
+
     if(match[k] < input[s + k]) {
       r = m;
       k = min(k, llcp[m]);
@@ -330,12 +335,13 @@ struct SuffixArray {
 
   //O(n)
   inline auto lrcp() -> type& {
+  //TODO: disabled due to a big in suffix_array_lrcp: uses O(n log m) find algorithm instead
   //if(!isa) isa = suffix_array_invert(sa);
   //if(!lcp) lcp = suffix_array_lcp(sa, isa, input);
-    if(!phi) phi = suffix_array_phi(sa);
-    if(!plcp) plcp = suffix_array_plcp(phi, input);
+  //if(!phi) phi = suffix_array_phi(sa);
+  //if(!plcp) plcp = suffix_array_plcp(phi, input);
   //if(!lcp) lcp = suffix_array_lcp(plcp, sa);
-    if(!llcp || !rlcp) suffix_array_lrcp(llcp, rlcp, lcp, plcp, sa, input);
+  //if(!llcp || !rlcp) suffix_array_lrcp(llcp, rlcp, lcp, plcp, sa, input);
     return *this;
   }
 

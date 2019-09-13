@@ -55,7 +55,7 @@ inline auto apply(array_view<uint8_t> source, array_view<uint8_t> beat, maybe<st
     if(mode == SourceRead) {
       while(length--) write(source[target.size()]);
     } else if(mode == TargetRead) {
-      while(length--) write(read());
+      while(length--)write(read());
     } else {
       int offset = decode();
       offset = offset & 1 ? -(offset >> 1) : (offset >> 1);

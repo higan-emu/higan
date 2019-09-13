@@ -29,7 +29,7 @@ auto GameImporter::import(string system, const vector<string>& files) -> void {
       } else {
         item.setIcon(Icon::Action::Close);
         item.setForegroundColor({192, 0, 0});
-        item.setProperty("error", error);
+        item.setAttribute("error", error);
       }
       item.setText(Location::file(file));
       importList.resizeColumn();
@@ -46,7 +46,7 @@ auto GameImporter::import(string system, const vector<string>& files) -> void {
 auto GameImporter::eventChange() -> void {
   if(processing) return;
   if(auto item = importList.selected()) {
-    if(auto error = item.property("error")) {
+    if(auto error = item.attribute("error")) {
       messageLabel.setText({"Error: ", error, "."});
     } else {
       messageLabel.setText("OK.");

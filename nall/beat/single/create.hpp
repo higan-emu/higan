@@ -39,12 +39,12 @@ inline auto create(array_view<uint8_t> source, array_view<uint8_t> target, strin
     while(targetReadLength) write(target[offset++]), targetReadLength--;
   };
 
-  uint longestSize = max(source.size(), target.size());
+  uint overlap = min(source.size(), target.size());
   while(outputOffset < target.size()) {
     uint mode = TargetRead, longestLength = 3, longestOffset = 0;
     int length = 0, offset = outputOffset;
 
-    while(offset < longestSize) {
+    while(offset < overlap) {
       if(source[offset] != target[offset]) break;
       length++, offset++;
     }
