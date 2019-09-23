@@ -1,7 +1,7 @@
 #pragma once
 
 /* Document Markup Language (DML) v1.0 parser
- * revision 0.04
+ * revision 0.05
  */
 
 #include <nall/location.hpp>
@@ -9,6 +9,11 @@
 namespace nall {
 
 struct DML {
+  inline auto title() const -> string { return state.title; }
+  inline auto subtitle() const -> string { return state.subtitle; }
+  inline auto description() const -> string { return state.description; }
+  inline auto content() const -> string { return state.output; }
+
   auto& setAllowHTML(bool allowHTML) { settings.allowHTML = allowHTML; return *this; }
   auto& setHost(const string& hostname) { settings.host = {hostname, "/"}; return *this; }
   auto& setPath(const string& pathname) { settings.path = pathname; return *this; }
@@ -28,6 +33,9 @@ private:
   } settings;
 
   struct State {
+    string title;
+    string subtitle;
+    string description;
     string output;
     uint sections = 0;
   } state;
@@ -41,12 +49,14 @@ private:
 };
 
 inline auto DML::parse(const string& filedata, const string& pathname) -> string {
+  state = {};
   settings.path = pathname;
   parseDocument(filedata, settings.path, 0);
   return state.output;
 }
 
 inline auto DML::parse(const string& filename) -> string {
+  state = {};
   if(!settings.path) settings.path = Location::path(filename);
   string document = settings.reader ? settings.reader(filename) : string::read(filename);
   parseDocument(document, settings.path, 0);
@@ -83,13 +93,21 @@ inline auto DML::parseBlock(string& block, const string& pathname, uint depth) -
 
   //title
   else if(block.beginsWith("! ")) {
-    auto name = lines.takeLeft().trimLeft("! ", 1L);
-    state.output.append("<h1>", markup(name));
+    state.title = lines.takeLeft().trimLeft("! ", 1L);
+    state.output.append("<h1>", markup(state.title));
     for(auto& line : lines) {
       if(!line.beginsWith("! ")) continue;
       state.output.append("<span>", markup(line.trimLeft("! ", 1L)), "</span>");
     }
     state.output.append("</h1>\n");
+  }
+
+  //description
+  else if(block.beginsWith("? ")) {
+    while(lines) {
+      state.description.append(lines.takeLeft().trimLeft("? ", 1L), " ");
+    }
+    state.description.strip();
   }
 
   //section
@@ -101,6 +119,7 @@ inline auto DML::parseBlock(string& block, const string& pathname, uint depth) -
     auto content = lines.takeLeft().trimLeft("# ", 1L).split("::", 1L).strip();
     auto data = markup(content[0]);
     auto name = escape(content(1, data.hash()));
+    state.subtitle = content[0];
     state.output.append("<h2 id=\"", name, "\">", data);
     for(auto& line : lines) {
       if(!line.beginsWith("# ")) continue;

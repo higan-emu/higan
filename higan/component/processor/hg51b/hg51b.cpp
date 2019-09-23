@@ -84,8 +84,9 @@ auto HG51B::cache() -> bool {
 
   io.cache.address[io.cache.page] = address;
   for(uint offset : range(256)) {
-    step(wait(address)); programRAM[io.cache.page][offset].byte(0) = read(address++);
-    step(wait(address)); programRAM[io.cache.page][offset].byte(1) = read(address++);
+    step(wait(address));
+    programRAM[io.cache.page][offset].byte(0) = read(address++);
+    programRAM[io.cache.page][offset].byte(1) = read(address++);
   }
   return io.cache.enable = 0, true;
 }
