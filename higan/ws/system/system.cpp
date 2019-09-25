@@ -100,6 +100,12 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
       eeprom.program(0x82, 0x27);
       eeprom.program(0x83, 0x03);  //d0-d1 = volume (0-3)
       initializeName("SWANCRYSTAL");  //verified
+
+      //Mama Mitte (used by the software to detect the specific Mama Mitte SwanCrystal hardware)
+      eeprom.program(0x7a, 0x7f);
+      eeprom.program(0x7b, 0x52);
+      eeprom.program(0x07fe, 0x34);
+      eeprom.program(0x07ff, 0x12);
     }
 
     if(WonderSwan::Model::PocketChallengeV2()) {

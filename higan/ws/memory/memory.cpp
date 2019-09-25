@@ -54,6 +54,7 @@ auto Bus::map(IO* io, uint16_t lo, maybe<uint16_t> hi) -> void {
 
 auto Bus::portRead(uint16 address) -> uint8 {
   if(auto io = port[address]) return io->portRead(address);
+  if(address == 0x00ca) return 0x80;  //Mama Mitte (unknown status bit)
   return 0x00;
 }
 
