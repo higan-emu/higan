@@ -5,6 +5,4 @@ program
   fragment: pixellate.fs
 
 output
-  width: 100%
-  height: 100%
   filter: nearest

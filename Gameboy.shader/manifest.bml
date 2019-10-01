@@ -30,7 +30,9 @@ program
   wrap: border
   vertex: pass3.vs
   fragment: pass3.fs
-intput
+output
+  width: 100%
+  height: 100%
   filter: nearest
   
   
