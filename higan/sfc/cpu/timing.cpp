@@ -9,7 +9,7 @@ auto CPU::joypadCounter() const -> uint {
 }
 
 auto CPU::step(uint clocks) -> void {
-  status.irqLock = false;
+  status.irqLock = 0;
   uint ticks = clocks >> 1;
   while(ticks--) {
     counter.cpu += 2;
@@ -28,6 +28,23 @@ auto CPU::step(uint clocks) -> void {
     status.dramRefresh = 1; step(6); status.dramRefresh = 2; step(2); aluEdge();
   }
 
+  if(!status.hdmaSetupTriggered && hcounter() >= status.hdmaSetupPosition) {
+    status.hdmaSetupTriggered = 1;
+    hdmaReset();
+    if(hdmaEnable()) {
+      status.hdmaPending = 1;
+      status.hdmaMode = 0;
+    }
+  }
+
+  if(!status.hdmaTriggered && hcounter() >= status.hdmaPosition) {
+    status.hdmaTriggered = 1;
+    if(hdmaActive()) {
+      status.hdmaPending = 1;
+      status.hdmaMode = 1;
+    }
+  }
+
   Thread::step(clocks);
   for(auto peripheral : peripherals) Thread::synchronize(*peripheral);
   for(auto coprocessor : coprocessors) Thread::synchronize(*coprocessor);
@@ -42,7 +59,7 @@ auto CPU::scanline() -> void {
   if(vcounter() == 0) {
     //HDMA setup triggers once every frame
     status.hdmaSetupPosition = (io.version == 1 ? 12 + 8 - dmaCounter() : 12 + dmaCounter());
-    status.hdmaSetupTriggered = false;
+    status.hdmaSetupTriggered = 0;
 
     status.autoJoypadCounter = 0;
   }
@@ -54,7 +71,7 @@ auto CPU::scanline() -> void {
   //HDMA triggers once every visible scanline
   if(vcounter() < ppu.vdisp()) {
     status.hdmaPosition = 1104;
-    status.hdmaTriggered = false;
+    status.hdmaTriggered = 0;
   }
 }
 
@@ -88,7 +105,7 @@ auto CPU::dmaEdge() -> void {
 
   if(status.dmaActive) {
     if(status.hdmaPending) {
-      status.hdmaPending = false;
+      status.hdmaPending = 0;
       if(hdmaEnable()) {
         if(!dmaEnable()) {
           step(counter.dma = 8 - dmaCounter());
@@ -96,42 +113,25 @@ auto CPU::dmaEdge() -> void {
         status.hdmaMode == 0 ? hdmaSetup() : hdmaRun();
         if(!dmaEnable()) {
           step(status.clockCount - counter.dma % status.clockCount);
-          status.dmaActive = false;
+          status.dmaActive = 0;
         }
       }
     }
 
     if(status.dmaPending) {
-      status.dmaPending = false;
+      status.dmaPending = 0;
       if(dmaEnable()) {
         step(counter.dma = 8 - dmaCounter());
         dmaRun();
         step(status.clockCount - counter.dma % status.clockCount);
-        status.dmaActive = false;
+        status.dmaActive = 0;
       }
-    }
-  }
-
-  if(!status.hdmaSetupTriggered && hcounter() >= status.hdmaSetupPosition) {
-    status.hdmaSetupTriggered = true;
-    hdmaReset();
-    if(hdmaEnable()) {
-      status.hdmaPending = true;
-      status.hdmaMode = 0;
-    }
-  }
-
-  if(!status.hdmaTriggered && hcounter() >= status.hdmaPosition) {
-    status.hdmaTriggered = true;
-    if(hdmaActive()) {
-      status.hdmaPending = true;
-      status.hdmaMode = 1;
     }
   }
 
   if(!status.dmaActive) {
     if(status.dmaPending || status.hdmaPending) {
-      status.dmaActive = true;
+      status.dmaActive = 1;
     }
   }
 }

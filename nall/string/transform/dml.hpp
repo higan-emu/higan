@@ -245,13 +245,14 @@ inline auto DML::markup(const string& s) -> string {
 
   natural link, linkBase;
   natural embed, embedBase;
+  natural photo, photoBase;
   natural iframe, iframeBase;
 
   for(uint n = 0; n < s.size();) {
     char a = s[n];
     char b = s[n + 1];
 
-    if(!link && !embed && !iframe) {
+    if(!link && !embed && !photo && !iframe) {
       if(a == '*' && b == '*') { t.append(strong.flip() ? "<strong>" : "</strong>"); n += 2; continue; }
       if(a == '/' && b == '/') { t.append(emphasis.flip() ? "<em>" : "</em>"); n += 2; continue; }
       if(a == '_' && b == '_') { t.append(insertion.flip() ? "<ins>" : "</ins>"); n += 2; continue; }
@@ -263,7 +264,15 @@ inline auto DML::markup(const string& s) -> string {
     if(iframe == 0 && a == '<' && b == '<') { t.append("<iframe width='772' height='434' src=\""); iframe = 1; iframeBase = n += 2; continue; }
     if(iframe != 0 && a == '>' && b == '>') { t.append("\" frameborder='0' allowfullscreen></iframe>"); iframe = 0; n += 2; continue; }
 
-    if(!embed) {
+    if(!embed && !link) {
+      if(photo == 0 && a == '[' && b == '{') { t.append("<a href=\""); photo = 1; photoBase = n += 2; continue; }
+      if(photo == 1 && a == '}' && b == ']') { t.append(slice(s, photoBase, n - photoBase).replace("@/", settings.host), "\"><img src=\"", slice(s, photoBase, n - photoBase).replace("@/", settings.host), "\" alt=\"\"></a>"); n += 2; photo = 0; continue; }
+      if(photo == 1 && a == ':' && b == ':') { t.append(slice(s, photoBase, n - photoBase).replace("@/", settings.host), "\"><img src=\"", slice(s, photoBase, n - photoBase).replace("@/", settings.host), "\" alt=\""); photo = 2; photoBase = n += 2; continue; }
+      if(photo == 2 && a == '}' && b == ']') { t.append(slice(s, photoBase, n - photoBase).replace("@/", settings.host), "\"></a>"); n += 2; photo = 0; continue; }
+      if(photo != 0) { n++; continue; }
+    }
+
+    if(!photo && !embed) {
       if(link == 0 && a == '[' && b == '[') { t.append("<a href=\""); link = 1; linkBase = n += 2; continue; }
       if(link == 1 && a == ':' && b == ':') { t.append("\">"); link = 2; n += 2; continue; }
       if(link == 1 && a == ']' && b == ']') { t.append("\">", slice(s, linkBase, n - linkBase), "</a>"); n += 2; link = 0; continue; }
@@ -271,7 +280,7 @@ inline auto DML::markup(const string& s) -> string {
       if(link == 1 && a == '@' && b == '/') { t.append(settings.host); n += 2; continue; }
     }
 
-    if(!link) {
+    if(!photo && !link) {
       if(embed == 0 && a == '{' && b == '{') { t.append("<img src=\""); embed = 1; embedBase = n += 2; continue; }
       if(embed == 1 && a == ':' && b == ':') { t.append("\" alt=\""); embed = 2; n += 2; continue; }
       if(embed != 0 && a == '}' && b == '}') { t.append("\">"); embed = 0; n += 2; continue; }
