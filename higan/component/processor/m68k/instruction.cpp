@@ -19,16 +19,16 @@ M68K::M68K() {
     std::integral_constant<uint16_t, bit::test(s)>::value
 
   //ABCD
-  for(uint3 xreg : range(8))
-  for(uint3 yreg : range(8)) {
-    auto opcode = pattern("1100 ---1 0000 ----") | xreg << 9 | yreg << 0;
+  for(uint3 treg : range(8))
+  for(uint3 sreg : range(8)) {
+    auto opcode = pattern("1100 ---1 0000 ----") | treg << 9 | sreg << 0;
 
-    EffectiveAddress dataWith{DataRegisterDirect, xreg};
-    EffectiveAddress dataFrom{DataRegisterDirect, yreg};
+    EffectiveAddress dataWith{DataRegisterDirect, treg};
+    EffectiveAddress dataFrom{DataRegisterDirect, sreg};
     bind(opcode | 0 << 3, ABCD, dataFrom, dataWith);
 
-    EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, xreg};
-    EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, yreg};
+    EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, treg};
+    EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, sreg};
     bind(opcode | 1 << 3, ABCD, addressFrom, addressWith);
   }
 
@@ -1094,16 +1094,16 @@ M68K::M68K() {
   }
 
   //SBCD
-  for(uint3 xreg : range(8))
-  for(uint3 yreg : range(8)) {
-    auto opcode = pattern("1000 ---1 0000 ----") | xreg << 9 | yreg << 0;
+  for(uint3 treg : range(8))
+  for(uint3 sreg : range(8)) {
+    auto opcode = pattern("1000 ---1 0000 ----") | treg << 9 | sreg << 0;
 
-    EffectiveAddress dataWith{DataRegisterDirect, xreg};
-    EffectiveAddress dataFrom{DataRegisterDirect, yreg};
-    bind(opcode | 0 << 3, SBCD, dataWith, dataFrom);
+    EffectiveAddress dataWith{DataRegisterDirect, treg};
+    EffectiveAddress dataFrom{DataRegisterDirect, sreg};
+    bind(opcode | 0 << 3, SBCD, dataFrom, dataWith);
 
-    EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, xreg};
-    EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, yreg};
+    EffectiveAddress addressWith{AddressRegisterIndirectWithPreDecrement, treg};
+    EffectiveAddress addressFrom{AddressRegisterIndirectWithPreDecrement, sreg};
     bind(opcode | 1 << 3, SBCD, addressFrom, addressWith);
   }
 

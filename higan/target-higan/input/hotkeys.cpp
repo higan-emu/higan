@@ -2,6 +2,16 @@ InputHotkey::InputHotkey(string_view name) : name(name) {
 }
 
 auto InputHotkey::poll() -> void {
+  //don't allow hotkeys to trigger while emulator is unfocused
+  if(!videoInstance.fullScreen()) {
+    if(!programWindow.focused()) return;
+  } else {
+    if(!videoInstance.focused()) return;
+  }
+
+  //don't allow hotkeys to trigger while mapping them
+  if(hotkeySettings.visible()) return;
+
   if(device && !hotkeySettings.visible()) {
     newValue = device->group(groupID).input(inputID).value();
     if(oldValue == 0 && newValue == 1 && onPress) onPress();

@@ -6,7 +6,7 @@ auto V9938::sprite2(uint8 voffset) -> void {
   sprite.last = 0;
 
   uint4 valid = 0;
-  uint4 sizeLimit = !sprite.size ? 7 : 15;
+  uint5 sizeLimit = (8 << sprite.size << sprite.magnify) - 1;
   for(uint index : range(8)) sprites[index].y = 0xd8;
 
   uint17 address = table.spriteAttribute & 0x1fe00;
@@ -49,7 +49,7 @@ auto V9938::sprite2(uint4& color, uint8 hoffset, uint8 voffset) -> void {
   if(sprite.disable) return;
 
   uint4 output;
-  uint4 sizeLimit = !sprite.size ? 7 : 15;
+  uint5 sizeLimit = (8 << sprite.size << sprite.magnify) - 1;
 
   for(uint index : range(8)) {
     auto& o = sprites[index];
@@ -57,11 +57,11 @@ auto V9938::sprite2(uint4& color, uint8 hoffset, uint8 voffset) -> void {
     if(hoffset < o.x) continue;
     if(hoffset > o.x + sizeLimit) continue;
 
-    uint4 x = hoffset - o.x;
-    uint4 y = voffset - o.y;
+    uint4 x = hoffset - o.x >> sprite.magnify;
+    uint4 y = voffset - o.y >> sprite.magnify;
 
     uint17 address = table.spritePatternGenerator;
-    address += (o.pattern << 3) + (x >> 3 << 4) + (y & sizeLimit);
+    address += (o.pattern << 3) + (x >> 3 << 4) + y;
 
     if(videoRAM.read(address).bit(~x & 7)) {
       if(output) { sprite.collision = 1; break; }

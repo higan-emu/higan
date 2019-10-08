@@ -3,8 +3,8 @@ auto TMS9918::sprite(uint8 voffset) -> void {
   io.spriteOverflow = false;
   io.spriteOverflowIndex = 0;
 
-  uint valid = 0;
-  uint limit = io.spriteSize ? 15 : 7;
+  uint8 valid = 0;
+  uint5 limit = (8 << io.spriteSize << io.spriteZoom) - 1;
   for(uint index : range(4)) sprites[index].y = 0xd0;
 
   uint14 attributeAddress;
@@ -36,7 +36,7 @@ auto TMS9918::sprite(uint8 voffset) -> void {
 
 auto TMS9918::sprite(uint8 hoffset, uint8 voffset) -> void {
   uint4 color;
-  uint limit = io.spriteSize ? 15 : 7;
+  uint5 limit = (8 << io.spriteSize << io.spriteZoom) - 1;
 
   for(uint n : range(4)) {
     auto& o = sprites[n];
@@ -44,11 +44,11 @@ auto TMS9918::sprite(uint8 hoffset, uint8 voffset) -> void {
     if(hoffset < o.x) continue;
     if(hoffset > o.x + limit) continue;
 
-    uint x = hoffset - o.x;
-    uint y = voffset - o.y;
+    uint x = hoffset - o.x >> io.spriteZoom;
+    uint y = voffset - o.y >> io.spriteZoom;
 
     uint14 address;
-    address.bit( 0,10) = (o.pattern << 3) + (x >> 3 << 4) + (y & limit);
+    address.bit( 0,10) = (o.pattern << 3) + (x >> 3 << 4) + y;
     address.bit(11,13) = io.spritePatternTableAddress;
 
     uint3 index = x ^ 7;
