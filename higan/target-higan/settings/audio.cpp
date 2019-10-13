@@ -1,4 +1,4 @@
-AudioSettings::AudioSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
+AudioSettings::AudioSettings(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
 
   driverHeader.setText("Audio Driver").setFont(Font().setBold());

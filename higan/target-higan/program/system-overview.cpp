@@ -1,9 +1,10 @@
-SystemOverview::SystemOverview(View* parent) : Panel(parent, Size{~0, ~0}) {
+SystemOverview::SystemOverview(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
   header.setText("Overview").setFont(Font().setBold());
 }
 
 auto SystemOverview::show() -> void {
+  refresh();
   setVisible(true);
 }
 
@@ -12,7 +13,7 @@ auto SystemOverview::hide() -> void {
 }
 
 auto SystemOverview::refresh() -> void {
-  auto location = systemManager.systemList.selected().attribute("location");
+  auto location = systemManager.listView.selected().attribute("location");
   nodeList.reset();
   auto manifest = BML::unserialize(file::read({location, "manifest.bml"}));
   nodeList.append(ListViewItem().setText(manifest["system"].text()));

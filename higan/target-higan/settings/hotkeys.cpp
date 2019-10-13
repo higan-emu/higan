@@ -1,4 +1,4 @@
-HotkeySettings::HotkeySettings(View* parent) : Panel(parent, Size{~0, ~0}) {
+HotkeySettings::HotkeySettings(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
 
   headerLabel.setText("Hotkeys").setFont(Font().setBold());

@@ -1,4 +1,4 @@
-struct Home : Panel {
+struct Home : PanelItem {
   Home(View*);
   auto show() -> void override;
   auto hide() -> void override;

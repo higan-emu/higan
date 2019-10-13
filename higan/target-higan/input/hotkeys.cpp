@@ -31,7 +31,7 @@ Hotkeys::Hotkeys() {
   hotkeys.append(&toggleStatus);
 
   togglePanels.onPress = [&] {
-    if(programWindow.panels.visible()) {
+    if(programWindow.panelLayout.visible()) {
       programWindow.hidePanels();
     } else {
       programWindow.showPanels();

@@ -1,7 +1,4 @@
 #include "../higan.hpp"
-#include "menus.cpp"
-#include "system-manager.cpp"
-#include "node-manager.cpp"
 #include "home.cpp"
 #include "system-creation.cpp"
 #include "system-overview.cpp"
@@ -12,6 +9,9 @@
 #include "../settings/audio.cpp"
 #include "../settings/input.cpp"
 #include "../settings/hotkeys.cpp"
+#include "../panel-lists/settings-manager.cpp"
+#include "../panel-lists/system-manager.cpp"
+#include "../panel-lists/node-manager.cpp"
 
 namespace Instances { Instance<ProgramWindow> programWindow; }
 ProgramWindow& programWindow = Instances::programWindow();
@@ -20,6 +20,7 @@ SystemMenu& systemMenu = programWindow.systemMenu;
 SettingsMenu& settingsMenu = programWindow.settingsMenu;
 ToolsMenu& toolsMenu = programWindow.toolsMenu;
 HelpMenu& helpMenu = programWindow.helpMenu;
+SettingsManager& settingsManager = programWindow.settingsManager;
 SystemManager& systemManager = programWindow.systemManager;
 NodeManager& nodeManager = programWindow.nodeManager;
 Home& home = programWindow.home;
@@ -32,6 +33,14 @@ VideoSettings& videoSettings = programWindow.videoSettings;
 AudioSettings& audioSettings = programWindow.audioSettings;
 InputSettings& inputSettings = programWindow.inputSettings;
 HotkeySettings& hotkeySettings = programWindow.hotkeySettings;
+
+auto panelGroup() -> ComboButton& {
+  return programWindow.panelGroup;
+}
+
+auto panelItems() -> ListView& {
+  return programWindow.panelItems;
+}
 
 ProgramWindow::ProgramWindow() {
   viewport.setFocusable();
@@ -50,41 +59,48 @@ ProgramWindow::ProgramWindow() {
   statusCaption.setForegroundColor(foreground).setBackgroundColor(background);
   statusAfter.setForegroundColor(foreground).setBackgroundColor(background);
 
-  panelsHeight = 7 + 250_sy;
-  verticalResizeGrip.setCollapsible().setVisible(settings.interface.showSystemPanels);
-  panels.setCollapsible().setVisible(settings.interface.showSystemPanels);
-  panels.setPadding({5_sx, 0_sy, 5_sx, 5_sy});
+  panelGroup.onChange([&] {
+    if(auto item = panelGroup.selected()) {
+      if(auto list = item.attribute<PanelList*>("panelList")) {
+        setPanelList(*list);
+      }
+    }
+  });
 
-  for(auto& cell : panels.cells()) cell.setSpacing(0);
+  panelHeight = 7 + 250_sy;
+  verticalResizeGrip.setCollapsible().setVisible(settings.interface.showSystemPanels);
+  panelLayout.setCollapsible().setVisible(settings.interface.showSystemPanels);
+  panelLayout.setPadding({5_sx, 0_sy, 5_sx, 5_sy});
+
+  for(auto& cell : panelLayout.cells()) cell.setSpacing(0);
 
   verticalResizeGrip.onActivate([&] {
-    verticalResizeHeight = layout.cell(*panels).size().height();
+    verticalResizeHeight = layout.cell(panelLayout).size().height();
   }).onResize([&](auto offset) {
     float min = 128_sy, max = geometry().height() - 128_sy;
     float height = verticalResizeHeight - offset;
     height = height < min ? min : height > max ? max : height;
-    if(layout.cell(*panels).size().height() != height) {
-      layout.cell(*panels).setSize({~0, height});
+    if(layout.cell(panelLayout).size().height() != height) {
+      layout.cell(panelLayout).setSize({~0, height});
       layout.resize();
     }
   });
 
   horizontalResizeGrip.onActivate([&] {
-    horizontalResizeWidth = panels.cell(*primaryPanel).size().width();
+    horizontalResizeWidth = panelLayout.cell(panelBlock).size().width();
   }).onResize([&](auto offset) {
-    float min = 128_sx, max = panels.geometry().width() - 128_sx;
+    float min = 128_sx, max = panelLayout.geometry().width() - 128_sx;
     float width = horizontalResizeWidth + offset;
     width = width < min ? min : width > max ? max : width;
-    if(panels.cell(*primaryPanel).size().width() != width) {
-      panels.cell(*primaryPanel).setSize({width, ~0});
-      panels.resize();
+    if(panelLayout.cell(panelBlock).size().width() != width) {
+      panelLayout.cell(panelBlock).setSize({width, ~0});
+      panelLayout.resize();
     }
   });
 
   onClose([&] { emulator.quit(); });
 
-  show(home);
-  show(systemManager);
+  setOverviewMode();
   resize();
 
   setTitle({"higan v", higan::Version});
@@ -101,40 +117,61 @@ auto ProgramWindow::resize() -> void {
   uint width  = 320_sx * scale;
   uint height = 240_sx * scale;
   if(settings.interface.showStatusBar) height += statusHeight;
-  if(settings.interface.showSystemPanels) height += panelsHeight;
+  if(settings.interface.showSystemPanels) height += panelHeight;
   setGeometry(Alignment::Center, {width, height});
 }
 
-auto ProgramWindow::show(Panel& panel) -> void {
-  if(&panel == &systemManager || &panel == &nodeManager) {
-    if(primaryPanel && *primaryPanel == panel) return;
-    if(primaryPanel) panels.cell(*panel).setSize(panels.cell(*primaryPanel).size());
-    if(primaryPanel) primaryPanel->hide();
-    primaryPanel = panel;
-    primaryPanel->show();
-    if(&panel == &systemManager) {
-      systemMenu.setVisible(false);
-      toolsMenu.setVisible(false);
-      //todo: if test shouldn't be necessary ... works around a hiro/GTK bug ...
-      if(!actionMenu.visible()) actionMenu.setVisible(true);
-    }
-    if(&panel == &nodeManager) {
-      actionMenu.setVisible(false);
-      systemMenu.setVisible(true);
-      toolsMenu.setVisible(true);
-    }
-    return (void)panels.resize();
-  }
+auto ProgramWindow::setOverviewMode() -> void {
+  if(panelGroup.attribute("mode") == "overview") return;
+  panelGroup.setAttribute("mode", "overview");
+  panelGroup.reset();
+  panelGroup.append(ComboButtonItem().setText("Systems").setAttribute<PanelList*>("panelList", &systemManager));
+  panelGroup.append(ComboButtonItem().setText("Settings").setAttribute<PanelList*>("panelList", &settingsManager));
+  setPanelList(systemManager);
+  setPanelItem(home);
 
-  if(secondaryPanel && *secondaryPanel == panel) return;
-  if(secondaryPanel) secondaryPanel->hide();
-  secondaryPanel = panel;
-  secondaryPanel->show();
-  panels.resize();
+  systemMenu.setVisible(false);
+  toolsMenu.setVisible(false);
+  //todo: if test shouldn't be necessary ... works around a hiro/GTK bug ...
+  if(!actionMenu.visible()) actionMenu.setVisible(true);
 }
 
-auto ProgramWindow::hide(Panel& panel) -> void {
-  show(home);
+auto ProgramWindow::setEmulatorMode() -> void {
+  if(panelGroup.attribute("mode") == "emulator") return;
+  panelGroup.setAttribute("mode", "emulator");
+  panelGroup.reset();
+  panelGroup.append(ComboButtonItem().setText(emulator.system.name).setAttribute<PanelList*>("panelList", &nodeManager));
+  panelGroup.append(ComboButtonItem().setText("Settings").setAttribute<PanelList*>("panelList", &settingsManager));
+  setPanelList(nodeManager);
+  setPanelItem(home);
+
+  actionMenu.setVisible(false);
+  systemMenu.setVisible(true);
+  toolsMenu.setVisible(true);
+}
+
+auto ProgramWindow::setPanelList(PanelList& panelList) -> void {
+  if(activePanelList && activePanelList() == panelList) return;
+  if(activePanelList) activePanelList().hide();
+  setPanelItem(home);
+  activePanelList = panelList;
+  activePanelList().show();
+  panelBlock.resize();
+
+  //update the panel group selection as well
+  for(auto item : panelGroup.items()) {
+    if(item.attribute<PanelList*>("panelList") == &panelList) {
+      item.setSelected();
+    }
+  }
+}
+
+auto ProgramWindow::setPanelItem(PanelItem& panelItem) -> void {
+  if(activePanelItem && activePanelItem() == panelItem) return;
+  if(activePanelItem) activePanelItem().hide();
+  activePanelItem = panelItem;
+  activePanelItem().show();
+  panelLayout.resize();
 }
 
 auto ProgramWindow::showStatus() -> void {
@@ -154,20 +191,20 @@ auto ProgramWindow::hideStatus() -> void {
 }
 
 auto ProgramWindow::showPanels() -> void {
-  if(panels.visible()) return;
+  if(panelLayout.visible()) return;
   verticalResizeGrip.setVisible(true);
-  panels.setVisible(true);
-  if(!maximized()) setSize({geometry().width(), geometry().height() + panelsHeight});
+  panelLayout.setVisible(true);
+  if(!maximized()) setSize({geometry().width(), geometry().height() + panelHeight});
   layout.resize();
   settingsMenu.showSystemPanels.setChecked(true);
 }
 
 auto ProgramWindow::hidePanels() -> void {
-  if(!panels.visible()) return;
-  panelsHeight = 7 + panels.geometry().height();
+  if(!panelLayout.visible()) return;
+  panelHeight = 7 + panelLayout.geometry().height();
   verticalResizeGrip.setVisible(false);
-  panels.setVisible(false);
-  if(!maximized()) setSize({geometry().width(), geometry().height() - panelsHeight});
+  panelLayout.setVisible(false);
+  if(!maximized()) setSize({geometry().width(), geometry().height() - panelHeight});
   layout.resize();
   settingsMenu.showSystemPanels.setChecked(false);
 }

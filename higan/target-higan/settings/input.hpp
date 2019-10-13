@@ -1,4 +1,4 @@
-struct InputSettings : Panel {
+struct InputSettings : PanelItem {
   InputSettings(View*);
   auto show() -> void override;
   auto hide() -> void override;

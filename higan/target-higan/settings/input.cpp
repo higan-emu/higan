@@ -1,4 +1,4 @@
-InputSettings::InputSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
+InputSettings::InputSettings(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
 
   driverHeader.setText("Input Settings").setFont(Font().setBold());

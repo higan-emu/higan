@@ -1,4 +1,4 @@
-VideoSettings::VideoSettings(View* parent) : Panel(parent, Size{~0, ~0}) {
+VideoSettings::VideoSettings(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
 
   driverHeader.setText("Video Driver").setFont(Font().setBold());

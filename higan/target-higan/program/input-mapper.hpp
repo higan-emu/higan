@@ -1,4 +1,4 @@
-struct InputMapper : Panel {
+struct InputMapper : PanelItem {
   InputMapper(View*);
   auto show() -> void override;
   auto hide() -> void override;

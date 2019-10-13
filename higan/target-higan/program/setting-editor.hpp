@@ -1,4 +1,4 @@
-struct SettingEditor : Panel {
+struct SettingEditor : PanelItem {
   SettingEditor(View*);
   auto show() -> void override;
   auto hide() -> void override;

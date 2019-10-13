@@ -1,4 +1,4 @@
-struct VideoSettings : Panel {
+struct VideoSettings : PanelItem {
   VideoSettings(View*);
   auto show() -> void override;
   auto hide() -> void override;

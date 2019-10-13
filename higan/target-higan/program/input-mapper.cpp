@@ -1,4 +1,4 @@
-InputMapper::InputMapper(View* view) : Panel(view, Size{~0, ~0}) {
+InputMapper::InputMapper(View* view) : PanelItem(view, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
   nameLabel.setFont(Font().setBold());
   inputList.setBatchable();

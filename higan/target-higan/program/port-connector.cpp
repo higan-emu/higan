@@ -1,4 +1,4 @@
-PortConnector::PortConnector(View* parent) : Panel(parent, Size{~0, ~0}) {
+PortConnector::PortConnector(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
 
   renameAction.setIcon(Icon::Application::TextEditor).setText("Rename ...").onActivate([&] { eventRename(); });
@@ -141,7 +141,7 @@ auto PortConnector::eventActivate() -> void {
       auto connected = emulator.connected(location);
 
       //treat selecting the already-connected device as a no-op that aborts the port connection dialog
-      if(connected && connected == port) return programWindow.show(home);
+      if(connected && connected == port) return programWindow.setPanelItem(home);
 
       if(connected) return (void)MessageDialog()
       .setText({"This peripheral is already connected to another port:\n\n", connected->name()})

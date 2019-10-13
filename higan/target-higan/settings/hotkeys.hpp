@@ -1,6 +1,6 @@
 struct InputHotkey;
 
-struct HotkeySettings : Panel {
+struct HotkeySettings : PanelItem {
   HotkeySettings(View*);
   auto show() -> void override;
   auto hide() -> void override;

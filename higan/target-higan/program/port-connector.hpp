@@ -1,4 +1,4 @@
-struct PortConnector : Panel {
+struct PortConnector : PanelItem {
   PortConnector(View*);
   auto show() -> void override;
   auto hide() -> void override;

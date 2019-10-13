@@ -21,6 +21,7 @@ extern Audio audioInstance;
 extern Input inputInstance;
 
 #include "resource/resource.hpp"
+#include "menus/menus.hpp"
 #include "program/program.hpp"
 #include "settings/settings.hpp"
 #include "input/input.hpp"

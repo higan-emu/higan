@@ -1,4 +1,4 @@
-SettingEditor::SettingEditor(View* view) : Panel(view, Size{~0, ~0}) {
+SettingEditor::SettingEditor(View* view) : PanelItem(view, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
   nameLabel.setFont(Font().setBold());
   latchedLayout.setCollapsible();

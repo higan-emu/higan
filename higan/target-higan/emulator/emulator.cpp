@@ -34,11 +34,9 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   streams.reset();
   interface->load(root, configuration);
 
-  nodeManager.bind(root);
   systemMenu.setText(system.name);
   toolsMenu.pauseEmulation.setChecked(false);
-  programWindow.show(home);
-  programWindow.show(nodeManager);
+  programWindow.setEmulatorMode();
   programWindow.setTitle(system.name);
   programWindow.setFocused();
 

@@ -1,4 +1,4 @@
-struct SystemCreation : Panel {
+struct SystemCreation : PanelItem {
   SystemCreation(View*);
   auto show() -> void override;
   auto hide() -> void override;

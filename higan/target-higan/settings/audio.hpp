@@ -1,4 +1,4 @@
-struct AudioSettings : Panel {
+struct AudioSettings : PanelItem {
   AudioSettings(View*);
   auto show() -> void override;
   auto hide() -> void override;

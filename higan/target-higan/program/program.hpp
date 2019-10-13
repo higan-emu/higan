@@ -1,14 +1,18 @@
-struct Panel : VerticalLayout {
+struct PanelList : VerticalLayout {
   using VerticalLayout::VerticalLayout;
   virtual auto show() -> void = 0;
   virtual auto hide() -> void = 0;
 };
 
+struct PanelItem : VerticalLayout {
+  using VerticalLayout::VerticalLayout;
+  virtual auto show() -> void = 0;
+  virtual auto hide() -> void = 0;
+  virtual auto refresh() -> void {}
+};
+
 using View = HorizontalLayout;
 
-#include "menus.hpp"
-#include "system-manager.hpp"
-#include "node-manager.hpp"
 #include "home.hpp"
 #include "system-creation.hpp"
 #include "system-overview.hpp"
@@ -19,12 +23,20 @@ using View = HorizontalLayout;
 #include "../settings/audio.hpp"
 #include "../settings/input.hpp"
 #include "../settings/hotkeys.hpp"
+#include "../panel-lists/settings-manager.hpp"
+#include "../panel-lists/system-manager.hpp"
+#include "../panel-lists/node-manager.hpp"
+
+auto panelGroup() -> ComboButton&;
+auto panelItems() -> ListView&;
 
 struct ProgramWindow : Window {
   ProgramWindow();
   auto resize() -> void;
-  auto show(Panel&) -> void;
-  auto hide(Panel&) -> void;
+  auto setOverviewMode() -> void;
+  auto setEmulatorMode() -> void;
+  auto setPanelList(PanelList&) -> void;
+  auto setPanelItem(PanelItem&) -> void;
   auto showStatus() -> void;
   auto hideStatus() -> void;
   auto showPanels() -> void;
@@ -45,27 +57,32 @@ struct ProgramWindow : Window {
       Label statusCaption{&statusLayout, Size{100_sx, ~0}, 0};
       Label statusAfter{&statusLayout, Size{8_sx, ~0}, 0};
     VerticalResizeGrip verticalResizeGrip{&layout, Size{~0, 7}, 0};
-    HorizontalLayout panels{&layout, Size{~0, 250}, 0};
-      SystemManager systemManager{&panels};
-      NodeManager nodeManager{&panels};
-      HorizontalResizeGrip horizontalResizeGrip{&panels, Size{7, ~0}};
-      Home home{&panels};
-      SystemCreation systemCreation{&panels};
-      SystemOverview systemOverview{&panels};
-      PortConnector portConnector{&panels};
-      InputMapper inputMapper{&panels};
-      SettingEditor settingEditor{&panels};
-      VideoSettings videoSettings{&panels};
-      AudioSettings audioSettings{&panels};
-      InputSettings inputSettings{&panels};
-      HotkeySettings hotkeySettings{&panels};
+    HorizontalLayout panelLayout{&layout, Size{~0, 250_sy}, 0};
+      VerticalLayout panelBlock{&panelLayout, Size{200_sx, ~0}};
+        ComboButton panelGroup{&panelBlock, Size{~0, 0}};
+        HorizontalLayout panelLists{&panelBlock, Size{~0, ~0}};
+          SettingsManager settingsManager{&panelLists};
+          SystemManager systemManager{&panelLists};
+          NodeManager nodeManager{&panelLists};
+        ListView panelItems;
+      HorizontalResizeGrip horizontalResizeGrip{&panelLayout, Size{7, ~0}};
+      Home home{&panelLayout};
+      SystemCreation systemCreation{&panelLayout};
+      SystemOverview systemOverview{&panelLayout};
+      PortConnector portConnector{&panelLayout};
+      InputMapper inputMapper{&panelLayout};
+      SettingEditor settingEditor{&panelLayout};
+      VideoSettings videoSettings{&panelLayout};
+      AudioSettings audioSettings{&panelLayout};
+      InputSettings inputSettings{&panelLayout};
+      HotkeySettings hotkeySettings{&panelLayout};
 
 private:
-  maybe<Panel&> primaryPanel;
-  maybe<Panel&> secondaryPanel;
+  maybe<PanelList&> activePanelList;
+  maybe<PanelItem&> activePanelItem;
   float verticalResizeHeight = 0;
   float horizontalResizeWidth = 0;
-  float panelsHeight = 0;
+  float panelHeight = 0;
   float statusHeight = 0;
 };
 
@@ -76,6 +93,7 @@ extern SystemMenu& systemMenu;
 extern SettingsMenu& settingsMenu;
 extern ToolsMenu& toolsMenu;
 extern HelpMenu& helpMenu;
+extern SettingsManager& settingsManager;
 extern SystemManager& systemManager;
 extern NodeManager& nodeManager;
 extern Home& home;

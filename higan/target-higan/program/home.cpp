@@ -1,4 +1,4 @@
-Home::Home(View* parent) : Panel(parent, Size{~0, ~0}) {
+Home::Home(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
   image icon{Resource::Icon};
   icon.shrink();

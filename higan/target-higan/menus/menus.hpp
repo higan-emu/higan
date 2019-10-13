@@ -31,11 +31,6 @@ struct SettingsMenu : Menu {
     MenuItem scale4x{&scaleMenu};
   Menu shaderMenu{this};
   MenuSeparator separator{this};
-  MenuItem video{this};
-  MenuItem audio{this};
-  MenuItem input{this};
-  MenuItem hotkeys{this};
-  MenuSeparator panelSeparator{this};
   MenuCheckItem muteAudio{this};
   MenuCheckItem showStatusBar{this};
   MenuCheckItem showSystemPanels{this};

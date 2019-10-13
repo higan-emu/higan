@@ -1,4 +1,4 @@
-SystemCreation::SystemCreation(View* parent) : Panel(parent, Size{~0, ~0}) {
+SystemCreation::SystemCreation(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
   header.setText("Create").setFont(Font().setBold());
   systemList.onActivate([&] { eventAccept(); });
@@ -74,5 +74,5 @@ auto SystemCreation::eventAccept() -> void {
   }
 
   systemManager.refresh();
-  programWindow.hide(*this);
+  programWindow.setPanelItem(home);
 }
