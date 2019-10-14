@@ -47,9 +47,9 @@ auto Thread::setClock(uintmax clock) -> void {
 
 auto Thread::create(double frequency, function<void ()> entryPoint) -> void {
   if(!_handle) {
-    _handle = co_create(64 * 1024 * sizeof(void*), &Thread::Enter);
+    _handle = co_create(Thread::Size, &Thread::Enter);
   } else {
-    co_derive(_handle, 64 * 1024 * sizeof(void*), &Thread::Enter);
+    co_derive(_handle, Thread::Size, &Thread::Enter);
   }
   EntryPoints().append({_handle, entryPoint});
   setFrequency(frequency);

@@ -100,7 +100,7 @@ auto PortConnector::eventActivate() -> void {
       .setText("The peripheral currently connected to this port isn't hot-swappable.\n"
                "Removing it anyway may crash the emulated system.\n"
                "What would you like to do?")
-      .setTitle("Warning").setAlignment(programWindow).question({"Force", "Power Off", "Cancel"});
+      .setTitle("Warning").setAlignment(program).question({"Force", "Power Off", "Cancel"});
       if(response == "Cancel") return;
       if(response == "Power Off") emulator.power(false);
     }
@@ -109,13 +109,13 @@ auto PortConnector::eventActivate() -> void {
 
     if(item.attribute("type") == "nothing") {
       port->disconnect();
-      nodeManager.refresh();
+      program.refreshPanelList();
     }
 
     else if(item.attribute("type") == "template") {
       auto label = NameDialog()
       .setTitle({"Create New ", name})
-      .setAlignment(programWindow)
+      .setAlignment(program)
       .create(item.text());
       if(!label) return;
 
@@ -123,7 +123,7 @@ auto PortConnector::eventActivate() -> void {
       auto target = string{emulator.system.data, port->family(), " ", port->type(), "/", label, "/"};
       if(directory::exists(target)) return (void)MessageDialog()
       .setText("A directory by this name already exists.")
-      .setTitle("Error").setAlignment(programWindow).error();
+      .setTitle("Error").setAlignment(program).error();
 
       if(directory::copy(source, target)) {
         auto peripheral = port->allocate();
@@ -132,7 +132,7 @@ auto PortConnector::eventActivate() -> void {
         peripheral->setAttribute("name", label);
         port->connect(peripheral);
         inputManager.bind();  //bind any inputs this peripheral may contain
-        nodeManager.refresh();
+        program.refreshPanelList();
       }
     }
 
@@ -141,11 +141,11 @@ auto PortConnector::eventActivate() -> void {
       auto connected = emulator.connected(location);
 
       //treat selecting the already-connected device as a no-op that aborts the port connection dialog
-      if(connected && connected == port) return programWindow.setPanelItem(home);
+      if(connected && connected == port) return program.setPanelItem(home);
 
       if(connected) return (void)MessageDialog()
       .setText({"This peripheral is already connected to another port:\n\n", connected->name()})
-      .setTitle("Error").setAlignment(programWindow).error();
+      .setTitle("Error").setAlignment(program).error();
 
       auto peripheral = port->allocate();
       if(auto markup = file::read({location, "settings.bml"})) {
@@ -155,7 +155,7 @@ auto PortConnector::eventActivate() -> void {
       peripheral->setAttribute("name", item.attribute("name"));
       port->connect(peripheral);
       inputManager.bind();  //bind any inputs this peripheral may contain
-      nodeManager.refresh();
+      program.refreshPanelList();
     }
   }
 }
@@ -193,7 +193,7 @@ auto PortConnector::eventBrowse() -> void {
   if(auto location = BrowserDialog()
   .setTitle({port->name(), " Location"})
   .setPath(path ? path : Path::user())
-  .setAlignment(programWindow).selectFolder()
+  .setAlignment(program).selectFolder()
   ) {
     port->setAttribute("path", location);
     refresh(port);
@@ -207,26 +207,26 @@ auto PortConnector::eventRename() -> void {
       auto path = item.attribute("path");
       auto name = item.attribute("name");
       if(auto rename = NameDialog()
-      .setAlignment(programWindow)
+      .setAlignment(program)
       .rename(name)
       ) {
         if(name == rename) return;
 
         if(directory::exists({path, rename})) return (void)MessageDialog()
         .setText("A directory by this name already exists.")
-        .setTitle("Error").setAlignment(programWindow).error();
+        .setTitle("Error").setAlignment(program).error();
 
         if(!directory::rename({path, name}, {path, rename})) return (void)MessageDialog()
         .setText("Failed to rename directory.")
-        .setTitle("Error").setAlignment(programWindow).error();
+        .setTitle("Error").setAlignment(program).error();
 
         //the location must be updated if this peripheral is already connected ...
         if(auto connector = emulator.connected(location)) {
           if(auto connected = connector->connected()) {
             connected->setAttribute("location", {path, rename, "/"});
             connected->setAttribute("name", rename);
-            //the name will be updated in the node manager, so it must be refreshed:
-            nodeManager.refresh();
+            //the name will be updated in the system tree, so it must be refreshed:
+            program.refreshPanelList();
           }
         }
 
@@ -244,23 +244,23 @@ auto PortConnector::eventRemove() -> void {
 
       if(!port->hotSwappable() && emulator.system.power && emulator.connected(location)) return (void)MessageDialog()
       .setText({"This peripheral is not hot-swappable and is already connected to a port:\n\n", connected->name()})
-      .setTitle("Error").setAlignment(programWindow).error();
+      .setTitle("Error").setAlignment(program).error();
 
       if(MessageDialog()
       .setText("Are you really sure you want to delete this peripheral?\n"
                "All data will be permanently lost!")
-      .setTitle("Warning").setAlignment(programWindow).question() == "No"
+      .setTitle("Warning").setAlignment(program).question() == "No"
       ) return;
 
       //must disconnect device before removing it, as disconnect will attempt to save data to disk
       if(connected) {
         port->disconnect();
-        nodeManager.refresh();
+        program.refreshPanelList();
       }
 
       if(!directory::remove(location)) return (void)MessageDialog()
       .setText("Failed to remove directory.")
-      .setTitle("Error").setAlignment(programWindow).error();
+      .setTitle("Error").setAlignment(program).error();
 
       refresh(port);
     }

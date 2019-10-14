@@ -5,7 +5,7 @@ auto Emulator::videoUpdate() -> void {
 
   if(!videoInstance) {
     videoInstance.create(settings.video.driver);
-    videoInstance.setContext(programWindow.viewport.handle());
+    videoInstance.setContext(program.viewport.handle());
     if(!videoInstance.ready()) {
       videoInstance.reset();
       videoInstance.create(settings.video.driver = "None");
@@ -77,6 +77,6 @@ auto Emulator::videoToggleFullscreen() -> void {
   } else {
     videoInstance.setFullScreen(false);
     inputInstance.release();
-    programWindow.viewport.setFocused();
+    program.viewport.setFocused();
   }
 }

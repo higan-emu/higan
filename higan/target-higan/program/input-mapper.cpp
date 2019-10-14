@@ -95,7 +95,7 @@ auto InputMapper::eventAssignNext() -> void {
   }
 
   //use the viewport to sink inputs away from the table view during assignment
-  programWindow.viewport.setFocused();
+  program.viewport.setFocused();
   auto item = assigningQueue.takeFirst();
   inputList.selectNone();
   item.setSelected().setFocused();  //scroll the current assigning mapping into view

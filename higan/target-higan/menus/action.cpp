@@ -1,7 +1,7 @@
 ActionMenu::ActionMenu(MenuBar* parent) : Menu(parent) {
   setText("System");
   create.setIcon(Icon::Action::Add).setText("Create").onActivate([&] {
-    programWindow.setPanelList(systemManager);
+    program.setPanelList(systemManager);
     systemManager.doCreate();
   });
   rename.setIcon(Icon::Application::TextEditor).setText("Rename").setEnabled(false).onActivate([&] {

@@ -35,7 +35,7 @@ HelpMenu::HelpMenu(MenuBar* parent) : Menu(parent) {
     .setAuthor(higan::Author)
     .setLicense(higan::License)
     .setWebsite(higan::Website)
-    .setAlignment(programWindow, {0.5f, programWindow.panelLayout.visible() ? 0.32f : 0.5f})
+    .setAlignment(program, {0.5f, program.panelLayout.visible() ? 0.32f : 0.5f})
     .show();
   });
 }

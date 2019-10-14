@@ -55,17 +55,17 @@ auto SystemCreation::eventAccept() -> void {
       .setTitle("Warning")
       .setText("A directory by this name already exists.\n"
                "Do you wish to delete the existing directory and create a new one?")
-      .setAlignment(programWindow).question() == "No"
+      .setAlignment(program).question() == "No"
     ) return;
     if(!directory::remove({location, name})) return (void)MessageDialog()
       .setTitle("Error")
       .setText("Failed to remove previous directory. The location may be read-only.")
-      .setAlignment(programWindow).error();
+      .setAlignment(program).error();
   }
   if(!directory::create({location, name})) return (void)MessageDialog()
     .setTitle("Error")
     .setText("Failed to create directory. Either the location is read-only, or the name contains invalid characters.")
-    .setAlignment(programWindow).error();
+    .setAlignment(program).error();
 
   if(auto interface = systemList.selected().attribute<shared_pointer<higan::Interface>>("interface")) {
     file::write({location, name, "manifest.bml"}, string{
@@ -74,5 +74,5 @@ auto SystemCreation::eventAccept() -> void {
   }
 
   systemManager.refresh();
-  programWindow.setPanelItem(home);
+  program.setPanelItem(home);
 }

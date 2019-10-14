@@ -5,6 +5,7 @@ NodeManager::NodeManager(View* view) : PanelList(view, Size{~0, ~0}) {
 
 auto NodeManager::show() -> void {
   root = emulator.root;
+  listView.selectNone().doChange();
   refresh();
   setVisible(true);
 }
@@ -75,21 +76,21 @@ auto NodeManager::onChange() -> void {
   if(auto node = listView.selected().attribute<higan::Node::Object>("node")) {
     if(auto port = node->cast<higan::Node::Port>()) {
       portConnector.refresh(port);
-      return programWindow.setPanelItem(portConnector);
+      return program.setPanelItem(portConnector);
     }
 
     if(auto setting = node->cast<higan::Node::Setting>()) {
       settingEditor.refresh(setting);
-      return programWindow.setPanelItem(settingEditor);
+      return program.setPanelItem(settingEditor);
     }
 
     if(auto inputs = node->find<higan::Node::Input>()) {
       if(inputs.first()->parent() == node) {
         inputMapper.refresh(node);
-        return programWindow.setPanelItem(inputMapper);
+        return program.setPanelItem(inputMapper);
       }
     }
   }
 
-  programWindow.setPanelItem(home);
+  program.setPanelItem(home);
 }

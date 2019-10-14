@@ -5,7 +5,7 @@ auto Emulator::audioUpdate() -> void {
 
   if(!audioInstance) {
     audioInstance.create(settings.audio.driver);
-    audioInstance.setContext(programWindow.handle());
+    audioInstance.setContext(program.handle());
     if(!audioInstance.ready()) {
       audioInstance.create(settings.audio.driver = "None");
     }

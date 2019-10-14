@@ -2,6 +2,7 @@ struct PanelList : VerticalLayout {
   using VerticalLayout::VerticalLayout;
   virtual auto show() -> void = 0;
   virtual auto hide() -> void = 0;
+  virtual auto refresh() -> void {}
 };
 
 struct PanelItem : VerticalLayout {
@@ -26,17 +27,16 @@ using View = HorizontalLayout;
 #include "../panel-lists/settings-manager.hpp"
 #include "../panel-lists/system-manager.hpp"
 #include "../panel-lists/node-manager.hpp"
+#include "../panel-lists/port-manager.hpp"
 
-auto panelGroup() -> ComboButton&;
-auto panelItems() -> ListView&;
-
-struct ProgramWindow : Window {
-  ProgramWindow();
+struct Program : Window {
+  Program();
   auto resize() -> void;
   auto setOverviewMode() -> void;
   auto setEmulatorMode() -> void;
   auto setPanelList(PanelList&) -> void;
   auto setPanelItem(PanelItem&) -> void;
+  auto refreshPanelList() -> void;
   auto showStatus() -> void;
   auto hideStatus() -> void;
   auto showPanels() -> void;
@@ -64,7 +64,7 @@ struct ProgramWindow : Window {
           SettingsManager settingsManager{&panelLists};
           SystemManager systemManager{&panelLists};
           NodeManager nodeManager{&panelLists};
-        ListView panelItems;
+          PortManager portManager{&panelLists};
       HorizontalResizeGrip horizontalResizeGrip{&panelLayout, Size{7, ~0}};
       Home home{&panelLayout};
       SystemCreation systemCreation{&panelLayout};
@@ -86,8 +86,8 @@ private:
   float statusHeight = 0;
 };
 
-namespace Instances { extern Instance<ProgramWindow> programWindow; }
-extern ProgramWindow& programWindow;
+namespace Instances { extern Instance<Program> program; }
+extern Program& program;
 extern ActionMenu& actionMenu;
 extern SystemMenu& systemMenu;
 extern SettingsMenu& settingsMenu;
@@ -96,6 +96,7 @@ extern HelpMenu& helpMenu;
 extern SettingsManager& settingsManager;
 extern SystemManager& systemManager;
 extern NodeManager& nodeManager;
+extern PortManager& portManager;
 extern Home& home;
 extern SystemCreation& systemCreation;
 extern SystemOverview& systemOverview;

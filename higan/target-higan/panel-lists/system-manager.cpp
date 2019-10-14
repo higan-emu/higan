@@ -9,6 +9,7 @@ SystemManager::SystemManager(View* view) : PanelList(view, Size{~0, ~0}) {
 }
 
 auto SystemManager::show() -> void {
+  listView.selectNone().doChange();
   refresh();
   setVisible(true);
 }
@@ -58,11 +59,11 @@ auto SystemManager::onActivate() -> void {
 auto SystemManager::onChange() -> void {
   if(auto item = listView.selected()) {
     systemOverview.refresh();
-    programWindow.setPanelItem(systemOverview);
+    program.setPanelItem(systemOverview);
     actionMenu.rename.setEnabled(true);
     actionMenu.remove.setEnabled(true);
   } else {
-    programWindow.setPanelItem(home);
+    program.setPanelItem(home);
     actionMenu.rename.setEnabled(false);
     actionMenu.remove.setEnabled(false);
   }
@@ -78,7 +79,7 @@ auto SystemManager::onContext() -> void {
 auto SystemManager::doCreate() -> void {
   //clear the current selection to indicate that creation isn't related to the currently selected system item
   listView.selectNone();
-  programWindow.setPanelItem(systemCreation);
+  program.setPanelItem(systemCreation);
 }
 
 auto SystemManager::doRename() -> void {
@@ -86,7 +87,7 @@ auto SystemManager::doRename() -> void {
     auto path = item.attribute("path");
     auto from = item.attribute("name");
     if(auto name = NameDialog()
-    .setAlignment(programWindow)
+    .setAlignment(program)
     .rename(from)
     ) {
       if(name == from) return;
@@ -94,12 +95,12 @@ auto SystemManager::doRename() -> void {
       .setTitle("Error")
       .setText("A directory with this name already exists.\n"
                "Please choose a unique name.")
-      .setAlignment(programWindow)
+      .setAlignment(program)
       .error();
       if(!directory::rename({path, from}, {path, name})) return (void)MessageDialog()
       .setTitle("Error")
       .setText("Failed to rename directory.")
-      .setAlignment(programWindow)
+      .setAlignment(program)
       .error();
       refresh();
     }
@@ -112,15 +113,15 @@ auto SystemManager::doRemove() -> void {
     .setTitle({"Delete ", item.attribute("name")})
     .setText("Are you sure you want to permanently delete the selected system?\n"
              "All of its contents will be permanently lost!")
-    .setAlignment(programWindow)
+    .setAlignment(program)
     .question() != "Yes") return;
     auto location = string{item.attribute("path"), item.attribute("name"), "/"};
     if(!directory::remove(location)) return (void)MessageDialog()
     .setTitle("Error")
     .setText("Failed to delete directory.")
-    .setAlignment(programWindow)
+    .setAlignment(program)
     .error();
-    programWindow.setPanelItem(home);  //hide the system overview for the now-deleted system
+    program.setPanelItem(home);  //hide the system overview for the now-deleted system
     refresh();
   }
 }

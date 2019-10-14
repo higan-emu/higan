@@ -2,6 +2,7 @@ struct Scheduler;
 
 struct Thread {
   enum : uintmax { Second = (uintmax)-1 >> 1 };
+  enum : uintmax { Size = 64 * 1024 * sizeof(void*) };
 
   struct EntryPoint {
     cothread_t handle = nullptr;

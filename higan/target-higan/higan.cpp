@@ -147,7 +147,7 @@ auto nall::main(Arguments arguments) -> void {
 
   higan::platform = &emulator;
 
-  Instances::programWindow.construct();
+  Instances::program.construct();
   emulator.inputUpdate();
   inputManager.poll();
   hotkeys.bind();
@@ -155,5 +155,5 @@ auto nall::main(Arguments arguments) -> void {
   Application::run();
 
   settings.save();
-  Instances::programWindow.destruct();
+  Instances::program.destruct();
 }

@@ -4,6 +4,7 @@ SettingsManager::SettingsManager(View* view) : PanelList(view, Size{~0, ~0}) {
 }
 
 auto SettingsManager::show() -> void {
+  listView.selectNone().doChange();
   refresh();
   setVisible(true);
 }
@@ -22,10 +23,10 @@ auto SettingsManager::refresh() -> void {
 
 auto SettingsManager::onChange() -> void {
   if(auto item = listView.selected()) {
-    if(item.text() == "Video") return programWindow.setPanelItem(videoSettings);
-    if(item.text() == "Audio") return programWindow.setPanelItem(audioSettings);
-    if(item.text() == "Input") return programWindow.setPanelItem(inputSettings);
-    if(item.text() == "Hotkeys") return programWindow.setPanelItem(hotkeySettings);
+    if(item.text() == "Video") return program.setPanelItem(videoSettings);
+    if(item.text() == "Audio") return program.setPanelItem(audioSettings);
+    if(item.text() == "Input") return program.setPanelItem(inputSettings);
+    if(item.text() == "Hotkeys") return program.setPanelItem(hotkeySettings);
   }
-  return programWindow.setPanelItem(home);
+  return program.setPanelItem(home);
 }

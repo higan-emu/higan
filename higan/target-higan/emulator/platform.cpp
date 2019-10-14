@@ -182,7 +182,7 @@ auto Emulator::audio(higan::Node::Stream) -> void {
 auto Emulator::input(higan::Node::Input input) -> void {
   inputManager.poll();
 
-  bool allow = programWindow.viewport.focused();
+  bool allow = program.viewport.focused();
   if(settings.input.unfocused == "Allow") allow = true;
   if(videoInstance.exclusive()) allow = true;
 

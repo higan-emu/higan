@@ -19,15 +19,15 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   scaleMenu.setText("Scale").setIcon(Icon::Emblem::Image);
   scale2x.setText("640x480").onActivate([&] {
     settings.video.scale = 2;
-    programWindow.resize();
+    program.resize();
   });
   scale3x.setText("960x720").onActivate([&] {
     settings.video.scale = 3;
-    programWindow.resize();
+    program.resize();
   });
   scale4x.setText("1280x960").onActivate([&] {
     settings.video.scale = 4;
-    programWindow.resize();
+    program.resize();
   });
   shaderMenu.setText("Shader").setIcon(Icon::Emblem::Image).setEnabled(false);
   muteAudio.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {
@@ -37,17 +37,17 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
   showStatusBar.setText("Show Status Bar").setChecked(settings.interface.showStatusBar).onToggle([&] {
     settings.interface.showStatusBar = showStatusBar.checked();
     if(showStatusBar.checked()) {
-      programWindow.showStatus();
+      program.showStatus();
     } else {
-      programWindow.hideStatus();
+      program.hideStatus();
     }
   });
   showSystemPanels.setText("Show System Panels").setChecked(settings.interface.showSystemPanels).onToggle([&] {
     settings.interface.showSystemPanels = showSystemPanels.checked();
     if(showSystemPanels.checked()) {
-      programWindow.showPanels();
+      program.showPanels();
     } else {
-      programWindow.hidePanels();
+      program.hidePanels();
     }
   });
   advancedMode.setText("Advanced Mode").setChecked(settings.interface.advancedMode).onToggle([&] {

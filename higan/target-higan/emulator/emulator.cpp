@@ -36,9 +36,9 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
 
   systemMenu.setText(system.name);
   toolsMenu.pauseEmulation.setChecked(false);
-  programWindow.setEmulatorMode();
-  programWindow.setTitle(system.name);
-  programWindow.setFocused();
+  program.setEmulatorMode();
+  program.setTitle(system.name);
+  program.setFocused();
 
   videoUpdate();
   audioUpdate();
@@ -66,7 +66,7 @@ auto Emulator::unload() -> void {
   interface->unload();
   interface.reset();
 
-  programWindow.setTitle({"higan v", higan::Version});
+  program.setTitle({"higan v", higan::Version});
   systemMenu.setText("System");
   setCaption();
 }
@@ -81,8 +81,8 @@ auto Emulator::main() -> void {
   if(!interface) return (void)usleep(20 * 1000);
 
   if(!system.power
-  || programWindow.toolsMenu.pauseEmulation.checked()
-  || (!programWindow.viewport.focused() && settings.input.unfocused == "Pause")
+  || program.toolsMenu.pauseEmulation.checked()
+  || (!program.viewport.focused() && settings.input.unfocused == "Pause")
   ) {
     usleep(20 * 1000);
   } else {
@@ -93,7 +93,7 @@ auto Emulator::main() -> void {
 
 auto Emulator::quit() -> void {
   //make quitting feel more responsive
-  programWindow.setVisible(false);
+  program.setVisible(false);
   Application::processEvents();
 
   //stop processing callbacks and timers
@@ -111,7 +111,7 @@ auto Emulator::quit() -> void {
 auto Emulator::power(bool on) -> void {
   if(system.power == on) return;
   if(system.power = on) {
-    programWindow.setTitle(interface->game());
+    program.setTitle(interface->game());
     videoUpdateColors();
     audioUpdateEffects();
     events = {};
@@ -119,9 +119,9 @@ auto Emulator::power(bool on) -> void {
     //powering on the system latches static settings
     nodeManager.refreshSettings();
     if(settingEditor.visible()) settingEditor.refresh();
-    programWindow.viewport.setFocused();
+    program.viewport.setFocused();
   } else {
-    programWindow.setTitle(system.name);
+    program.setTitle(system.name);
     setCaption();
     videoInstance.clear();
     audioInstance.clear();

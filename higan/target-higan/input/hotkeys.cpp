@@ -4,7 +4,7 @@ InputHotkey::InputHotkey(string_view name) : name(name) {
 auto InputHotkey::poll() -> void {
   //don't allow hotkeys to trigger while emulator is unfocused
   if(!videoInstance.fullScreen()) {
-    if(!programWindow.focused()) return;
+    if(!program.focused()) return;
   } else {
     if(!videoInstance.focused()) return;
   }
@@ -22,19 +22,19 @@ auto InputHotkey::poll() -> void {
 
 Hotkeys::Hotkeys() {
   toggleStatus.onPress = [&] {
-    if(programWindow.statusLayout.visible()) {
-      programWindow.hideStatus();
+    if(program.statusLayout.visible()) {
+      program.hideStatus();
     } else {
-      programWindow.showStatus();
+      program.showStatus();
     }
   };
   hotkeys.append(&toggleStatus);
 
   togglePanels.onPress = [&] {
-    if(programWindow.panelLayout.visible()) {
-      programWindow.hidePanels();
+    if(program.panelLayout.visible()) {
+      program.hidePanels();
     } else {
-      programWindow.showPanels();
+      program.showPanels();
     }
   };
   hotkeys.append(&togglePanels);

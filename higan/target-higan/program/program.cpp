@@ -12,37 +12,31 @@
 #include "../panel-lists/settings-manager.cpp"
 #include "../panel-lists/system-manager.cpp"
 #include "../panel-lists/node-manager.cpp"
+#include "../panel-lists/port-manager.cpp"
 
-namespace Instances { Instance<ProgramWindow> programWindow; }
-ProgramWindow& programWindow = Instances::programWindow();
-ActionMenu& actionMenu = programWindow.actionMenu;
-SystemMenu& systemMenu = programWindow.systemMenu;
-SettingsMenu& settingsMenu = programWindow.settingsMenu;
-ToolsMenu& toolsMenu = programWindow.toolsMenu;
-HelpMenu& helpMenu = programWindow.helpMenu;
-SettingsManager& settingsManager = programWindow.settingsManager;
-SystemManager& systemManager = programWindow.systemManager;
-NodeManager& nodeManager = programWindow.nodeManager;
-Home& home = programWindow.home;
-SystemCreation& systemCreation = programWindow.systemCreation;
-SystemOverview& systemOverview = programWindow.systemOverview;
-PortConnector& portConnector = programWindow.portConnector;
-InputMapper& inputMapper = programWindow.inputMapper;
-SettingEditor& settingEditor = programWindow.settingEditor;
-VideoSettings& videoSettings = programWindow.videoSettings;
-AudioSettings& audioSettings = programWindow.audioSettings;
-InputSettings& inputSettings = programWindow.inputSettings;
-HotkeySettings& hotkeySettings = programWindow.hotkeySettings;
+namespace Instances { Instance<Program> program; }
+Program& program = Instances::program();
+ActionMenu& actionMenu = program.actionMenu;
+SystemMenu& systemMenu = program.systemMenu;
+SettingsMenu& settingsMenu = program.settingsMenu;
+ToolsMenu& toolsMenu = program.toolsMenu;
+HelpMenu& helpMenu = program.helpMenu;
+SettingsManager& settingsManager = program.settingsManager;
+SystemManager& systemManager = program.systemManager;
+NodeManager& nodeManager = program.nodeManager;
+PortManager& portManager = program.portManager;
+Home& home = program.home;
+SystemCreation& systemCreation = program.systemCreation;
+SystemOverview& systemOverview = program.systemOverview;
+PortConnector& portConnector = program.portConnector;
+InputMapper& inputMapper = program.inputMapper;
+SettingEditor& settingEditor = program.settingEditor;
+VideoSettings& videoSettings = program.videoSettings;
+AudioSettings& audioSettings = program.audioSettings;
+InputSettings& inputSettings = program.inputSettings;
+HotkeySettings& hotkeySettings = program.hotkeySettings;
 
-auto panelGroup() -> ComboButton& {
-  return programWindow.panelGroup;
-}
-
-auto panelItems() -> ListView& {
-  return programWindow.panelItems;
-}
-
-ProgramWindow::ProgramWindow() {
+Program::Program() {
   viewport.setFocusable();
 
   statusHeight = Font().size(" ").height() + 8_sy;
@@ -112,7 +106,7 @@ ProgramWindow::ProgramWindow() {
   inputSettings.eventActivate();
 }
 
-auto ProgramWindow::resize() -> void {
+auto Program::resize() -> void {
   uint scale  = max(2, min(4, settings.video.scale));
   uint width  = 320_sx * scale;
   uint height = 240_sx * scale;
@@ -121,7 +115,7 @@ auto ProgramWindow::resize() -> void {
   setGeometry(Alignment::Center, {width, height});
 }
 
-auto ProgramWindow::setOverviewMode() -> void {
+auto Program::setOverviewMode() -> void {
   if(panelGroup.attribute("mode") == "overview") return;
   panelGroup.setAttribute("mode", "overview");
   panelGroup.reset();
@@ -136,11 +130,12 @@ auto ProgramWindow::setOverviewMode() -> void {
   if(!actionMenu.visible()) actionMenu.setVisible(true);
 }
 
-auto ProgramWindow::setEmulatorMode() -> void {
+auto Program::setEmulatorMode() -> void {
   if(panelGroup.attribute("mode") == "emulator") return;
   panelGroup.setAttribute("mode", "emulator");
   panelGroup.reset();
   panelGroup.append(ComboButtonItem().setText(emulator.system.name).setAttribute<PanelList*>("panelList", &nodeManager));
+  panelGroup.append(ComboButtonItem().setText("Ports").setAttribute<PanelList*>("panelList", &portManager));
   panelGroup.append(ComboButtonItem().setText("Settings").setAttribute<PanelList*>("panelList", &settingsManager));
   setPanelList(nodeManager);
   setPanelItem(home);
@@ -150,7 +145,7 @@ auto ProgramWindow::setEmulatorMode() -> void {
   toolsMenu.setVisible(true);
 }
 
-auto ProgramWindow::setPanelList(PanelList& panelList) -> void {
+auto Program::setPanelList(PanelList& panelList) -> void {
   if(activePanelList && activePanelList() == panelList) return;
   if(activePanelList) activePanelList().hide();
   setPanelItem(home);
@@ -166,7 +161,7 @@ auto ProgramWindow::setPanelList(PanelList& panelList) -> void {
   }
 }
 
-auto ProgramWindow::setPanelItem(PanelItem& panelItem) -> void {
+auto Program::setPanelItem(PanelItem& panelItem) -> void {
   if(activePanelItem && activePanelItem() == panelItem) return;
   if(activePanelItem) activePanelItem().hide();
   activePanelItem = panelItem;
@@ -174,7 +169,11 @@ auto ProgramWindow::setPanelItem(PanelItem& panelItem) -> void {
   panelLayout.resize();
 }
 
-auto ProgramWindow::showStatus() -> void {
+auto Program::refreshPanelList() -> void {
+  if(activePanelList) activePanelList().refresh();
+}
+
+auto Program::showStatus() -> void {
   if(statusLayout.visible()) return;
   statusLayout.setVisible(true);
   if(!maximized()) setSize({geometry().width(), geometry().height() + statusHeight});
@@ -182,7 +181,7 @@ auto ProgramWindow::showStatus() -> void {
   settingsMenu.showStatusBar.setChecked(true);
 }
 
-auto ProgramWindow::hideStatus() -> void {
+auto Program::hideStatus() -> void {
   if(!statusLayout.visible()) return;
   statusLayout.setVisible(false);
   if(!maximized()) setSize({geometry().width(), geometry().height() - statusHeight});
@@ -190,7 +189,7 @@ auto ProgramWindow::hideStatus() -> void {
   settingsMenu.showStatusBar.setChecked(false);
 }
 
-auto ProgramWindow::showPanels() -> void {
+auto Program::showPanels() -> void {
   if(panelLayout.visible()) return;
   verticalResizeGrip.setVisible(true);
   panelLayout.setVisible(true);
@@ -199,7 +198,7 @@ auto ProgramWindow::showPanels() -> void {
   settingsMenu.showSystemPanels.setChecked(true);
 }
 
-auto ProgramWindow::hidePanels() -> void {
+auto Program::hidePanels() -> void {
   if(!panelLayout.visible()) return;
   panelHeight = 7 + panelLayout.geometry().height();
   verticalResizeGrip.setVisible(false);
