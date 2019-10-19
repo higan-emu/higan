@@ -28,6 +28,7 @@ using View = HorizontalLayout;
 #include "../panel-lists/system-manager.hpp"
 #include "../panel-lists/node-manager.hpp"
 #include "../panel-lists/port-manager.hpp"
+#include "../panel-lists/event-manager.hpp"
 
 struct Program : Window {
   Program();
@@ -65,6 +66,7 @@ struct Program : Window {
           SystemManager systemManager{&panelLists};
           NodeManager nodeManager{&panelLists};
           PortManager portManager{&panelLists};
+          EventManager eventManager{&panelLists};
       HorizontalResizeGrip horizontalResizeGrip{&panelLayout, Size{7, ~0}};
       Home home{&panelLayout};
       SystemCreation systemCreation{&panelLayout};
@@ -97,6 +99,7 @@ extern SettingsManager& settingsManager;
 extern SystemManager& systemManager;
 extern NodeManager& nodeManager;
 extern PortManager& portManager;
+extern EventManager& eventManager;
 extern Home& home;
 extern SystemCreation& systemCreation;
 extern SystemOverview& systemOverview;

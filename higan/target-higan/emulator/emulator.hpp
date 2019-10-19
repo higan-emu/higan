@@ -51,6 +51,7 @@ struct Emulator : higan::Platform {
     string data;
     string templates;
     bool power = false;
+    file_buffer log;
   } system;
 
   struct Events {

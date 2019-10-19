@@ -13,6 +13,7 @@
 #include "../panel-lists/system-manager.cpp"
 #include "../panel-lists/node-manager.cpp"
 #include "../panel-lists/port-manager.cpp"
+#include "../panel-lists/event-manager.cpp"
 
 namespace Instances { Instance<Program> program; }
 Program& program = Instances::program();
@@ -25,6 +26,7 @@ SettingsManager& settingsManager = program.settingsManager;
 SystemManager& systemManager = program.systemManager;
 NodeManager& nodeManager = program.nodeManager;
 PortManager& portManager = program.portManager;
+EventManager& eventManager = program.eventManager;
 Home& home = program.home;
 SystemCreation& systemCreation = program.systemCreation;
 SystemOverview& systemOverview = program.systemOverview;
@@ -136,6 +138,7 @@ auto Program::setEmulatorMode() -> void {
   panelGroup.reset();
   panelGroup.append(ComboButtonItem().setText(emulator.system.name).setAttribute<PanelList*>("panelList", &nodeManager));
   panelGroup.append(ComboButtonItem().setText("Ports").setAttribute<PanelList*>("panelList", &portManager));
+  panelGroup.append(ComboButtonItem().setText("Events").setAttribute<PanelList*>("panelList", &eventManager));
   panelGroup.append(ComboButtonItem().setText("Settings").setAttribute<PanelList*>("panelList", &settingsManager));
   setPanelList(nodeManager);
   setPanelItem(home);

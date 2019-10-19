@@ -77,7 +77,12 @@ auto Emulator::event(higan::Event event) -> void {
 }
 
 auto Emulator::log(string_view message) -> void {
-  print(message, "\n");
+  if(!system.log) {
+    directory::create({system.data, "Logs/"});
+    string datetime = chrono::local::datetime().transform("-: ", "  _").replace(" ", "");
+    system.log.open({system.data, "Logs/event-", datetime, ".log"}, file::mode::write);
+  }
+  system.log.print(message, "\n");
 }
 
 auto Emulator::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {

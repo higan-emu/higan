@@ -55,6 +55,7 @@ auto Emulator::unload() -> void {
   if(!interface) return;
 
   power(false);
+  if(system.log) system.log.close();
 
   if(auto location = root->attribute("location")) {
     file::write({location, "settings.bml"}, higan::Node::serialize(root));
