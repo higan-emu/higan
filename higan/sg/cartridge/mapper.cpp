@@ -1,37 +1,9 @@
 auto Cartridge::read(uint16 addr) -> maybe<uint8> {
   if(!node) return nothing;
 
-  uint2 page = addr >> 14;
-  addr &= 0x3fff;
-
-  switch(page) {
-
-  case 0: {
-    if(addr <= 0x03ff) return rom.read(addr);
-    return rom.read(mapper.romPage0 << 14 | addr);
-  }
-
-  case 1: {
-    return rom.read(mapper.romPage1 << 14 | addr);
-  }
-
-  case 2: {
-    if(ram && mapper.ramEnablePage2) {
-      return ram.read(mapper.ramPage2 << 14 | addr);
-    }
-
-    return rom.read(mapper.romPage2 << 14 | addr);
-  }
-
-  case 3: {
-    if(ram && mapper.ramEnablePage3) {
-      return ram.read(addr);
-    }
-
-    return nothing;
-  }
-
-  }
+  if(addr < 0x8000) return rom.read(addr);
+  else if(addr >= 0x8000) return ram.read(addr & 0x7fff);
+  else return nothing;
 
   unreachable;
 }
@@ -39,58 +11,12 @@ auto Cartridge::read(uint16 addr) -> maybe<uint8> {
 auto Cartridge::write(uint16 addr, uint8 data) -> bool {
   if(!node) return false;
 
-  if(addr == 0xfffc) {
-    mapper.shift = data.bit(0,1);
-    mapper.ramPage2 = data.bit(2);
-    mapper.ramEnablePage2 = data.bit(3);
-    mapper.ramEnablePage3 = data.bit(4);
-    mapper.romWriteEnable = data.bit(7);
+  if(addr >= 0x8000)
+  {
+    ram.write(addr & 0x7fff, data);
+    return true;
   }
-
-  if(addr == 0xfffd) {
-    mapper.romPage0 = data;
-  }
-
-  if(addr == 0xfffe) {
-    mapper.romPage1 = data;
-  }
-
-  if(addr == 0xffff) {
-    mapper.romPage2 = data;
-  }
-
-  uint2 page = addr >> 14;
-  addr &= 0x3fff;
-
-  switch(page) {
-
-  case 0: {
-    return false;
-  }
-
-  case 1: {
-    return false;
-  }
-
-  case 2: {
-    if(ram && mapper.ramEnablePage2) {
-      ram.write(mapper.ramPage2 << 14 | addr, data);
-      return true;
-    }
-
-    return false;
-  }
-
-  case 3: {
-    if(ram && mapper.ramEnablePage3) {
-      ram.write(addr, data);
-      return true;
-    }
-
-    return false;
-  }
-
-  }
+  else return false;
 
   unreachable;
 }

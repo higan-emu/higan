@@ -30,24 +30,6 @@ struct Cartridge {
 
   Memory::Readable<uint8> rom;
   Memory::Writable<uint8> ram;
-
-  struct Mapper {
-    //$fffc
-    uint2 shift;
-    uint1 ramPage2;
-    uint1 ramEnablePage2;
-    uint1 ramEnablePage3;
-    uint1 romWriteEnable;
-
-    //$fffd
-    uint8 romPage0;
-
-    //$fffe
-    uint8 romPage1;
-
-    //$ffff
-    uint8 romPage2;
-  } mapper;
 };
 
 extern Cartridge cartridge;

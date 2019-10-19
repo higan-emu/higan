@@ -64,8 +64,10 @@ auto TMS9918::graphics2(uint8 hoffset, uint8 voffset) -> void {
   uint3 index = hoffset ^ 7;
   if(!vram.read(patternAddress).bit(index)) {
     output.color = color.bit(0,3);
+    if(!output.color) output.color = io.colorBackground;
   } else {
     output.color = color.bit(4,7);
+    if(!output.color) output.color = io.colorBackground;
   }
 }
 
