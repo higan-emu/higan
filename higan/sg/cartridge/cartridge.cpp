@@ -3,7 +3,6 @@
 namespace higan::SG1000 {
 
 Cartridge cartridge;
-#include "mapper.cpp"
 #include "serialization.cpp"
 
 auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
@@ -68,6 +67,34 @@ auto Cartridge::save() -> void {
 }
 
 auto Cartridge::power() -> void {
+}
+
+auto Cartridge::read(uint16 address) -> maybe<uint8> {
+  if(!node) return nothing;
+
+  if(address >= 0x0000 && address <= 0x7fff) {
+    return rom.read(address - 0x0000);
+  }
+
+  if(address >= 0x8000 && address <= 0xffff) {
+    return ram.read(address - 0x8000);
+  }
+
+  return nothing;
+}
+
+auto Cartridge::write(uint16 address, uint8 data) -> bool {
+  if(!node) return false;
+
+  if(address >= 0x0000 && address <= 0x7fff) {
+    return rom.write(address - 0x0000, data), true;
+  }
+
+  if(address >= 0x8000 && address <= 0xffff) {
+    return ram.write(address - 0x8000, data), true;
+  }
+
+  return false;
 }
 
 }

@@ -14,7 +14,6 @@ struct Cartridge {
   auto save() -> void;
   auto power() -> void;
 
-  //mapper.cpp
   auto read(uint16 address) -> maybe<uint8>;
   auto write(uint16 address, uint8 data) -> bool;
 

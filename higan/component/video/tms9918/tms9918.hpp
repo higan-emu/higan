@@ -43,9 +43,9 @@ protected:
     uint vcounter = 0;
     uint hcounter = 0;
 
-    uint1  controlLatch;
+     uint1 controlLatch;
     uint16 controlValue;
-    uint8  vramLatch;
+     uint8 vramLatch;
 
     uint5 spriteOverflowIndex;
     uint1 spriteCollision;

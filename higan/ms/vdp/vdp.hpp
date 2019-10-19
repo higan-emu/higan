@@ -86,8 +86,8 @@ private:
   auto palette(uint5 index) -> uint12;
 
   uint32 buffer[256 * 264];
-  uint8 vram[0x4000];
-  uint8 cram[0x40];  //SG + MS = 0x20, GG = 0x40
+   uint8 vram[0x4000];
+   uint8 cram[0x40];  //SG + MS = 0x20, GG = 0x40
 
   struct IO {
     uint vcounter = 0;  //vertical counter
@@ -95,64 +95,64 @@ private:
     uint lcounter = 0;  //line counter
 
     //interrupt flags
-    bool intLine = 0;
-    bool intFrame = 0;
+    uint1 intLine;
+    uint1 intFrame;
 
     //status flags
-    bool spriteOverflow = 0;
-    bool spriteCollision = 0;
+    uint1 spriteOverflow;
+    uint1 spriteCollision;
     uint5 fifthSprite;
 
     //latches
-    bool controlLatch = 0;
+     uint1 controlLatch;
     uint16 controlData;
-    uint2 code;
+     uint2 code;
     uint14 address;
 
     uint8 vramLatch;
 
-    //$00  mode control 1
-    bool externalSync = 0;
-    bool spriteShift = 0;
-    bool lineInterrupts = 0;
-    bool leftClip = 0;
-    bool horizontalScrollLock = 0;
-    bool verticalScrollLock = 0;
+    //$00 mode control 1
+    uint1 externalSync;
+    uint1 spriteShift;
+    uint1 lineInterrupts;
+    uint1 leftClip;
+    uint1 horizontalScrollLock;
+    uint1 verticalScrollLock;
 
-    //$01  mode control 2
-    bool spriteDouble = 0;
-    bool spriteTile = 0;
-    bool frameInterrupts = 0;
-    bool displayEnable = 0;
+    //$01 mode control 2
+    uint1 spriteDouble;
+    uint1 spriteTile;
+    uint1 frameInterrupts;
+    uint1 displayEnable;
 
     //$00 + $01
     uint4 mode;
 
-    //$02  name table base address
+    //$02 name table base address
     uint4 nameTableAddress;
 
-    //$03  color table base address
+    //$03 color table base address
     uint8 colorTableAddress;
 
-    //$04  pattern table base address
+    //$04 pattern table base address
     uint3 patternTableAddress;
 
-    //$05  sprite attribute table base address
+    //$05 sprite attribute table base address
     uint7 spriteAttributeTableAddress;
 
-    //$06  sprite pattern table base address
+    //$06 sprite pattern table base address
     uint3 spritePatternTableAddress;
 
-    //$07  backdrop color
+    //$07 backdrop color
     uint4 backdropColor;
 
-    //$08  horizontal scroll offset
+    //$08 horizontal scroll offset
     uint8 hscroll;
 
-    //$09  vertical scroll offset
+    //$09 vertical scroll offset
     uint8 vscroll;
 
-    //$0a  line counter
+    //$0a line counter
     uint8 lineCounter;
   } io;
 };
