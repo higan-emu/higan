@@ -247,10 +247,10 @@ auto Z80::instructionIM_o(uint2 code) -> void { Q = 0;
   IM = code;
 }
 
-auto Z80::instructionIN_a_in() -> void { Q = 1;
+auto Z80::instructionIN_a_in() -> void { Q = 0;
   WZL = operand();
   WZH = A;
-  A = IN(in(WZ++));
+  A = in(WZ++);
 }
 
 auto Z80::instructionIN_r_ic(uint8& x) -> void { Q = 1;
