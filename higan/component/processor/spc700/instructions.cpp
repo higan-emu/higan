@@ -420,9 +420,9 @@ auto SPC700::instructionIndexedIndirectWrite(uint8& data, uint8& index) -> void 
 
 auto SPC700::instructionIndirectIndexedRead(fpb op, uint8& index) -> void {
   uint8 indirect = fetch();
+  idle();
   uint16 address = load(indirect + 0);
   address |= load(indirect + 1) << 8;
-  idle();
   uint8 data = read(address + index);
   A = alu(A, data);
 }
