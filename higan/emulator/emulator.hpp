@@ -39,7 +39,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.225";
+  static const string Version = "106.226";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";
