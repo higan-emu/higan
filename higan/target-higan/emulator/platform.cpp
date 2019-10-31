@@ -82,7 +82,7 @@ auto Emulator::log(string_view message) -> void {
     string datetime = chrono::local::datetime().transform("-: ", "  _").replace(" ", "");
     system.log.open({system.data, "Logs/event-", datetime, ".log"}, file::mode::write);
   }
-  system.log.print(message, "\n");
+  system.log.print(message);
 }
 
 auto Emulator::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
