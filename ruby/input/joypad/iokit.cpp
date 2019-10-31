@@ -99,8 +99,6 @@ struct InputJoypadIOKit {
   }
 
   auto poll(vector<shared_pointer<HID::Device>>& devices) -> void {
-    detectDevices();  //hotplug support
-
     for(auto& jp : joypads) {
       IOHIDDeviceRef device = jp.device;
 
@@ -179,13 +177,13 @@ struct InputJoypadIOKit {
     IOHIDManagerSetDeviceMatchingMultiple(manager, matcher);
     IOHIDManagerRegisterDeviceMatchingCallback(manager, deviceMatchingCallback, this);
     IOHIDManagerRegisterDeviceRemovalCallback(manager, deviceRemovalCallback, this);
+    IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetCurrent(), kCFRunLoopDefaultMode);
 
     if(IOHIDManagerOpen(manager, kIOHIDOptionsTypeNone) != kIOReturnSuccess) {
       releaseManager();
       return false;
     }
 
-    detectDevices();
     return true;
   }
 
@@ -258,14 +256,6 @@ private:
     );
     CFRelease(pageNumber), CFRelease(usageNumber);
     return dict;
-  }
-
-  auto detectDevices() -> void {
-    CFRunLoopRef runLoop = CFRunLoopGetCurrent();
-    CFStringRef runLoopMode = CFSTR("rubyJoypadIOKit");
-    IOHIDManagerScheduleWithRunLoop(manager, runLoop, runLoopMode);
-    while(CFRunLoopRunInMode(runLoopMode, 0, true) == kCFRunLoopRunHandledSource);
-    IOHIDManagerUnscheduleFromRunLoop(manager, runLoop, runLoopMode);
   }
 };
 

@@ -10,18 +10,27 @@ auto SMP::writeRAM(uint16 address, uint8 data) -> void {
 }
 
 auto SMP::idle() -> void {
-  wait();
+  wait(0);
 }
 
 auto SMP::read(uint16 address) -> uint8 {
-  wait(address);
-  uint8 data = readRAM(address);
-  if((address & 0xfff0) == 0x00f0) data = readIO(address);
-  return data;
+  if((address & 0xfffc) == 0x00f4) {
+    //reads from $00f4-$00f7 require more time than internal reads
+    wait(1, address);
+    uint8 data = readRAM(address);
+    if((address & 0xfff0) == 0x00f0) data = readIO(address);
+    wait(1, address);
+    return data;
+  } else {
+    wait(0, address);
+    uint8 data = readRAM(address);
+    if((address & 0xfff0) == 0x00f0) data = readIO(address);
+    return data;
+  }
 }
 
 auto SMP::write(uint16 address, uint8 data) -> void {
-  wait(address);
+  wait(0, address);
   writeRAM(address, data);  //even IO writes affect underlying RAM
   if((address & 0xfff0) == 0x00f0) writeIO(address, data);
 }

@@ -96,7 +96,7 @@ private:
   Timer< 16> timer2;
 
   //timing.cpp
-  inline auto wait(maybe<uint16> address = nothing) -> void;
+  inline auto wait(bool halve, maybe<uint16> address = nothing) -> void;
   inline auto step(uint clocks) -> void;
   inline auto stepTimers(uint clocks) -> void;
 };

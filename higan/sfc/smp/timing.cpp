@@ -6,17 +6,17 @@
 //sometimes the SMP will run far slower than expected
 //other times (and more likely), the SMP will deadlock until the system is reset
 //the timers are not affected by this and advance by their expected values
-auto SMP::wait(maybe<uint16> addr) -> void {
+auto SMP::wait(bool halve, maybe<uint16> address) -> void {
   static const uint cycleWaitStates[4] = {2, 4, 10, 20};
   static const uint timerWaitStates[4] = {2, 4,  8, 16};
 
   uint waitStates = io.externalWaitStates;
-  if(!addr) waitStates = io.internalWaitStates;  //idle cycles
-  else if((*addr & 0xfff0) == 0x00f0) waitStates = io.internalWaitStates;  //IO registers
-  else if(*addr >= 0xffc0 && io.iplromEnable) waitStates = io.internalWaitStates;  //IPLROM
+  if(!address) waitStates = io.internalWaitStates;  //idle cycles
+  else if((*address & 0xfff0) == 0x00f0) waitStates = io.internalWaitStates;  //IO registers
+  else if(*address >= 0xffc0 && io.iplromEnable) waitStates = io.internalWaitStates;  //IPLROM
 
-  step(cycleWaitStates[waitStates]);
-  stepTimers(timerWaitStates[waitStates]);
+  step(cycleWaitStates[waitStates] >> halve);
+  stepTimers(timerWaitStates[waitStates] >> halve);
 }
 
 auto SMP::step(uint clocks) -> void {
