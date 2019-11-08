@@ -14,7 +14,7 @@ auto CPU::step(uint clocks) -> void {
   while(ticks--) {
     counter.cpu += 2;
     tick();
-    if(hcounter() & 2) pollInterrupts();
+    if(hcounter() & 2) nmiPoll(), irqPoll();
     if(joypadCounter() == 0) joypadEdge();
   }
 

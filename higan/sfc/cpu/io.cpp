@@ -171,20 +171,24 @@ auto CPU::writeCPU(uint24 address, uint8 data) -> void {
     io.htime = (io.htime >> 2) - 1;
     io.htime.bit(0,7) = data.bit(0,7);
     io.htime = (io.htime + 1) << 2;
+    irqPoll();
     return;
 
   case 0x4208:  //HTIMEH
     io.htime = (io.htime >> 2) - 1;
     io.htime.bit(8) = data.bit(0);
     io.htime = (io.htime + 1) << 2;
+    irqPoll();
     return;
 
   case 0x4209:  //VTIMEL
     io.vtime.bit(0,7) = data.bit(0,7);
+    irqPoll();
     return;
 
   case 0x420a:  //VTIMEH
     io.vtime.bit(8) = data.bit(0);
+    irqPoll();
     return;
 
   case 0x420b:  //DMAEN
