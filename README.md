@@ -1,6 +1,8 @@
 higan
 =====
 
+![higan icon © byuu](https://images.byuu.org/higan/icon-128.png)
+
 higan is a multi-system emulator with an uncompromising focus on accuracy and
 code readability.
 
@@ -45,3 +47,8 @@ Nightly Builds
   - ![Build status](https://api.cirrus-ci.com/github/byuu/higan.svg?task=macOS-x86_64-binaries)
   - ![Build status](https://api.cirrus-ci.com/github/byuu/higan.svg?task=linux-x86_64-binaries)
   - ![Build status](https://api.cirrus-ci.com/github/byuu/higan.svg?task=freebsd-x86_64-binaries)
+
+Preview
+-------
+
+![higan preview © byuu](https://images.byuu.org/higan/byuu-snes.png)
