@@ -86,6 +86,7 @@ namespace higan::Node {
   }
 
   static inline auto serialize(Object node) -> string {
+    if(!node) return {};
     string result;
     node->serialize(result, {});
     return result;

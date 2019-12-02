@@ -31,7 +31,7 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   screen_->setSize(512, 480);
   screen_->setScale(0.5, 0.5);
   screen_->setAspect(8.0, 7.0);
-  from = Node::scan(parent = node, from);
+  from = Node::scan(parent = screen_, from);
 
   region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
     if(region == "NTSC") screen_->setSize(512, 448);
@@ -70,7 +70,7 @@ auto PPU::unload() -> void {
 
 auto PPU::map() -> void {
   function<uint8 (uint24, uint8)> reader{&PPU::readIO, this};
-  function<void  (uint24, uint8)> writer{&PPU::writeIO, this};
+  function<void (uint24, uint8)> writer{&PPU::writeIO, this};
   bus.map(reader, writer, "00-3f,80-bf:2100-213f");
 }
 

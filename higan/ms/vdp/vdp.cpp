@@ -14,6 +14,7 @@ auto VDP::load(Node::Object parent, Node::Object from) -> void {
   from = Node::scan(parent = node, from);
 
   screen = Node::append<Node::Screen>(parent, from, "Screen");
+  from = Node::scan(parent = screen, from);
 
   if(Model::MasterSystem()) {
     screen->colors(1 << 6, {&VDP::colorMasterSystem, this});
