@@ -58,8 +58,6 @@ private:
 
   uint8 hcounter;
   uint8 vcounter;
-
-  Node::Object gameBoyRoot;
 };
 
 #else

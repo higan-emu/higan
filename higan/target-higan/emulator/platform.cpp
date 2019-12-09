@@ -44,8 +44,6 @@ auto Emulator::open(higan::Node::Object node, string name, vfs::file::mode mode,
       }
     }
 
-print(higan::Node::serialize(node), "\n");
-
     if(MessageDialog()
     .setTitle("Warning")
     .setText({"Missing required file:\n",

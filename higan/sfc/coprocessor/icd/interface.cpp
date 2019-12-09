@@ -19,10 +19,6 @@ auto ICD::ppuWrite(uint2 color) -> void {
   output[address + 1] = output[address + 1] << 1 | color.bit(1);
 }
 
-//auto ICD::apuWrite(double left, double right) -> void {
-//  stream->sample(left, right);
-//}
-
 auto ICD::joypWrite(uint1 p14, uint1 p15) -> void {
   //joypad handling
   if(p14 == 1 && p15 == 1) {
