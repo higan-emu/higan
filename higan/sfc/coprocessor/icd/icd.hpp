@@ -1,15 +1,9 @@
 #if defined(CORE_GB)
 
 struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
-  Node::Stream stream;
-  Node::Port port;
-  Node::Peripheral node;
-
   //icd.cpp
   auto load(Node::Peripheral, Node::Peripheral) -> void;
   auto unload() -> void;
-  auto connect(Node::Peripheral) -> void;
-  auto disconnect() -> void;
 
   auto name() const -> string;
   auto main() -> void;
@@ -19,7 +13,6 @@ struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   auto ppuHreset() -> void override;
   auto ppuVreset() -> void override;
   auto ppuWrite(uint2 color) -> void override;
-  auto apuWrite(double left, double right) -> void override;
   auto joypWrite(uint1 p14, uint1 p15) -> void override;
 
   //io.cpp
@@ -66,7 +59,7 @@ private:
   uint8 hcounter;
   uint8 vcounter;
 
-  GameBoy::GameBoyInterface gameBoyInterface;
+  Node::Object gameBoyRoot;
 };
 
 #else

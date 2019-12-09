@@ -7,54 +7,14 @@ ICD icd;
 #include "serialization.cpp"
 
 auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
-  auto frequency = (Frequency ? Frequency : system.cpuFrequency()) / 5.0;
-
-  stream = Node::append<Node::Stream>(parent, from, "SGB Stream");
-  stream->setChannels(2);
-  stream->setFrequency(frequency / 2.0);
-  stream->addHighPassFilter(20.0, 1);
-
-  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
-  port->setFamily("Game Boy");
-  port->setType("Cartridge");
-  port->setAllocate([&] { return Node::Peripheral::create("Game Boy"); });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
   GameBoy::superGameBoy = this;
-  GameBoy::system.node = parent;
-  GameBoy::system.information.model = GameBoy::System::Model::SuperGameBoy;
-  GameBoy::cpu.version->setAllowedValues({"SGB-CPU-01", "CPU SGB2"});
+  GameBoy::SuperGameBoyInterface::load((Node::Object&)parent, Node::serialize(from));
   GameBoy::cpu.version->setValue(!Frequency ? "SGB-CPU-01" : "CPU SGB2");
   GameBoy::cpu.version->setLatch();
-  GameBoy::cartridge.port = port;
-  port->scan(from);
-
-  GameBoy::cpu.load(parent, from);
 }
 
 auto ICD::unload() -> void {
-  stream = {};
-
-  disconnect();
-  port = {};
-
-  GameBoy::cpu.unload();
-}
-
-auto ICD::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, "Game Boy");
-
-  GameBoy::cartridge.node = node;
-  GameBoy::cartridge.connect(with);
-  power();
-}
-
-auto ICD::disconnect() -> void {
-  if(!node) return;
-  GameBoy::cartridge.disconnect();
-  cpu.coprocessors.removeByValue(this);
-  Thread::destroy();
-  node = {};
+  GameBoy::SuperGameBoyInterface::unload();
 }
 
 auto ICD::name() const -> string {
@@ -62,11 +22,20 @@ auto ICD::name() const -> string {
 }
 
 auto ICD::main() -> void {
+  #if 0
+  static uint n=0;
+  float x=sin((2*3.141592*(n++/64)*1000.0)/44100.0)*0.1;
+  GameBoy::apu.stream->sample(x, x);
+  Thread::step(2);
+  Thread::synchronize(cpu);
+  return;
+  #endif
+
   if(r6003.bit(7)) {
     GameBoy::system.run();
     Thread::step(GameBoy::system.clocksExecuted());
   } else {  //DMG halted
-    stream->sample(0.0, 0.0);
+    GameBoy::apu.stream->sample(0.0, 0.0);
     Thread::step(2);  //two clocks per audio sample
   }
   Thread::synchronize(cpu);

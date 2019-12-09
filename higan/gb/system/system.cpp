@@ -25,12 +25,20 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
   information = {};
-  if(interface->name() == "Game Boy"      ) information.model = Model::GameBoy;
-  if(interface->name() == "Super Game Boy") information.model = Model::SuperGameBoy;
-  if(interface->name() == "Game Boy Color") information.model = Model::GameBoyColor;
-
-  node = Node::append<Node::System>(nullptr, from, interface->name());
-  root = node;
+  if(interface->name() == "Game Boy") {
+    information.model = Model::GameBoy;
+    node = Node::append<Node::System>(nullptr, from, interface->name());
+    root = node;
+  }
+  if(interface->name() == "Super Game Boy") {
+    information.model = Model::SuperGameBoy;
+    node = root;
+  }
+  if(interface->name() == "Game Boy Color") {
+    information.model = Model::GameBoyColor;
+    node = Node::append<Node::System>(nullptr, from, interface->name());
+    root = node;
+  }
 
   scheduler.reset();
   controls.load(node, from);

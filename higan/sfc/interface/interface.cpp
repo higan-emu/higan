@@ -5,9 +5,11 @@ namespace higan::SuperFamicom {
 Interface* interface = nullptr;
 
 auto SuperFamicomInterface::game() -> string {
-  if(icd.node) {
-    return icd.name();
+  #if defined(CORE_GB)
+  if(cartridge.has.GameBoySlot && GameBoy::cartridge.node) {
+    return GameBoy::cartridge.name();
   }
+  #endif
 
   if(bsmemory.node) {
     return {cartridge.name(), " + ", bsmemory.name()};

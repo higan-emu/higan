@@ -21,15 +21,8 @@ auto SMP::wait(bool halve, maybe<uint16> address) -> void {
 
 auto SMP::step(uint clocks) -> void {
   Thread::step(clocks);
-  Thread::synchronize(dsp);
-
-  #if defined(DEBUGGER)
   Thread::synchronize(cpu);
-  #else
-  //forcefully sync S-SMP to S-CPU in case chips are not communicating
-  //sync if S-SMP is more than 1ms ahead of S-CPU
-  if(clock() - cpu.clock() > Thread::Second / 1'000) Thread::synchronize(cpu);
-  #endif
+  Thread::synchronize(dsp);
 }
 
 auto SMP::stepTimers(uint clocks) -> void {

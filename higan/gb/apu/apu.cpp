@@ -12,22 +12,18 @@ namespace higan::GameBoy {
 APU apu;
 
 auto APU::load(Node::Object parent, Node::Object from) -> void {
-  if(!Model::SuperGameBoy()) {
-    node = Node::append<Node::Component>(parent, from, "APU");
-    from = Node::scan(parent = node, from);
+  node = Node::append<Node::Component>(parent, from, "APU");
+  from = Node::scan(parent = node, from);
 
-    stream = Node::append<Node::Stream>(parent, from, "Stream");
-    stream->setChannels(2);
-    stream->setFrequency(2 * 1024 * 1024);
-    stream->addHighPassFilter(20.0, 1);
-  }
+  stream = Node::append<Node::Stream>(parent, from, "Stream");
+  stream->setChannels(2);
+  stream->setFrequency(2 * 1024 * 1024);
+  stream->addHighPassFilter(20.0, 1);
 }
 
 auto APU::unload() -> void {
-  if(!Model::SuperGameBoy()) {
-    node = {};
-    stream = {};
-  }
+  node = {};
+  stream = {};
 }
 
 auto APU::main() -> void {
@@ -36,12 +32,7 @@ auto APU::main() -> void {
   wave.run();
   noise.run();
   sequencer.run();
-
-  if(!Model::SuperGameBoy()) {
-    stream->sample(sequencer.left / 32768.0, sequencer.right / 32768.0);
-  } else {
-    superGameBoy->apuWrite(sequencer.left / 32768.0, sequencer.right / 32768.0);
-  }
+  stream->sample(sequencer.left / 32768.0, sequencer.right / 32768.0);
 
   if(cycle == 0) {  //512hz
     if(phase == 0 || phase == 2 || phase == 4 || phase == 6) {  //256hz

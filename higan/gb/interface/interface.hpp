@@ -26,11 +26,12 @@ struct GameBoyColorInterface : AbstractInterface {
   auto name() -> string override { return "Game Boy Color"; }
 };
 
-struct SuperGameBoyInterface {
+struct SuperGameBoyInterface : AbstractInterface {
+  auto name() -> string override { return "Super Game Boy"; }
+
   virtual auto ppuHreset() -> void = 0;
   virtual auto ppuVreset() -> void = 0;
   virtual auto ppuWrite(uint2 color) -> void = 0;
-  virtual auto apuWrite(double left, double right) -> void = 0;
   virtual auto joypWrite(uint1 p14, uint1 p15) -> void = 0;
 };
 
