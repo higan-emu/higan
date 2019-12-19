@@ -53,4 +53,4 @@ Preview
 
 ![higan user interface © byuu](https://byuu.org/images/higan/github/byuu-higan-user-interface.png)
 ![higan running Bahamut Lagoon (SNES) © byuu](https://byuu.org/images/higan/github/byuu-higan-bahamut-lagoon.png)
-![higan running Shining Force (Genesis) © byuu](https://byuu.org/images/higan/github/byuu-higan-shining-force.png)
+![higan running Riviera (GBA) © byuu](https://byuu.org/images/higan/github/byuu-higan-riviera.png)
