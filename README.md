@@ -1,7 +1,7 @@
 higan
 =====
 
-![higan icon © byuu](https://images.byuu.org/higan/icon-128.png)
+![higan logo © byuu](https://byuu.org/images/higan/github/byuu-higan-logo.png)
 
 higan is a multi-system emulator with an uncompromising focus on accuracy and
 code readability.
@@ -34,7 +34,7 @@ If stability is required, please download the latest stable release from the
 Links
 -----
 
-  - [Official website](https://higan.byuu.org)
+  - [Official website](https://byuu.org/higan)
   - [Official git repository](https://github.com/byuu/higan)
   - [Official documentation](https://higan.readthedocs.io)
   - [Donations](https://patreon.com/byuu)
@@ -51,4 +51,6 @@ Nightly Builds
 Preview
 -------
 
-![higan preview © byuu](https://images.byuu.org/higan/byuu-snes.png)
+![higan user interface © byuu](https://byuu.org/images/higan/github/byuu-higan-user-interface.png)
+![higan running Bahamut Lagoon (SNES) © byuu](https://byuu.org/images/higan/github/byuu-higan-bahamut-lagoon.png)
+![higan running Shining Force (Genesis) © byuu](https://byuu.org/images/higan/github/byuu-higan-shining-force.png)
