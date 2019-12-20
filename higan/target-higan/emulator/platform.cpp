@@ -150,38 +150,41 @@ auto Emulator::video(higan::Node::Screen node, const uint32_t* data, uint pitch,
 auto Emulator::audio(higan::Node::Stream) -> void {
   if(!streams) return;  //should never occur
 
-  //wait until every stream has pending samples to be mixed
-  for(auto stream : streams) {
-    if(!stream->pending()) return;
-  }
-
-  //mix all streams together
-  double samples[2] = {0.0, 0.0};
-  for(auto& stream : streams) {
-    double buffer[2];
-    uint channels = stream->read(buffer);
-    if(channels == 1) {
-      //monaural -> stereo mixing
-      samples[0] += buffer[0];
-      samples[1] += buffer[0];
-    } else {
-      //stereo mixing
-      samples[0] += buffer[0];
-      samples[1] += buffer[1];
+  //process all pending frames (there may be more than one waiting)
+  while(true) {
+    //only process a frame if all streams have at least one pending frame
+    for(auto& stream : streams) {
+      if(!stream->pending()) return;
     }
-  }
 
-  //apply volume, balance, and clamping to the output samples
-  double volume = !settings.audio.mute ? settings.audio.volume : 0.0;
-  double balance = settings.audio.balance;
-  for(uint c : range(2)) {
-    samples[c] = max(-1.0, min(+1.0, samples[c] * volume));
-    if(balance < 0.0) samples[1] *= 1.0 + balance;
-    if(balance > 0.0) samples[0] *= 1.0 - balance;
-  }
+    //mix all frames together
+    double samples[2] = {0.0, 0.0};
+    for(auto& stream : streams) {
+      double buffer[2];
+      uint channels = stream->read(buffer);
+      if(channels == 1) {
+        //monaural -> stereo mixing
+        samples[0] += buffer[0];
+        samples[1] += buffer[0];
+      } else {
+        //stereo mixing
+        samples[0] += buffer[0];
+        samples[1] += buffer[1];
+      }
+    }
 
-  //send samples to the audio output device
-  audioInstance.output(samples);
+    //apply volume, balance, and clamping to the output frame
+    double volume = !settings.audio.mute ? settings.audio.volume : 0.0;
+    double balance = settings.audio.balance;
+    for(uint c : range(2)) {
+      samples[c] = max(-1.0, min(+1.0, samples[c] * volume));
+      if(balance < 0.0) samples[1] *= 1.0 + balance;
+      if(balance > 0.0) samples[0] *= 1.0 - balance;
+    }
+
+    //send frame to the audio output device
+    audioInstance.output(samples);
+  }
 }
 
 auto Emulator::input(higan::Node::Input input) -> void {

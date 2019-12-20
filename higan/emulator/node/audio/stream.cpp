@@ -5,6 +5,7 @@ auto Stream::setChannels(uint channels) -> void {
 
 auto Stream::setFrequency(double frequency) -> void {
   _frequency = frequency;
+  setResamplerFrequency(_resamplerFrequency);
 }
 
 auto Stream::setResamplerFrequency(double resamplerFrequency) -> void {

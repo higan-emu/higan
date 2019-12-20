@@ -59,7 +59,8 @@ struct ToolsMenu : Menu {
 
 struct HelpMenu : Menu {
   HelpMenu(MenuBar*);
-  MenuItem documentation{this};
+  MenuItem webpage{this};
+  MenuItem userGuide{this};
   MenuSeparator separator{this};
   MenuItem about{this};
 };

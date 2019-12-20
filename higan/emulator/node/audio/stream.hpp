@@ -40,6 +40,6 @@ protected:
     DSP::Resampler::Cubic resampler;
   };
   vector<Channel> _channels;
-  double _frequency = 0;
-  double _resamplerFrequency = 0;
+  double _frequency = 48000.0;
+  double _resamplerFrequency = 48000.0;
 };

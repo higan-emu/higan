@@ -20,22 +20,3 @@ ToolsMenu::ToolsMenu(MenuBar* parent) : Menu(parent) {
 
   pauseEmulation.setText("Pause Emulation");
 }
-
-//
-
-HelpMenu::HelpMenu(MenuBar* parent) : Menu(parent) {
-  setText("Help");
-  documentation.setIcon(Icon::Application::Browser).setText("Documentation ...").onActivate([&] {
-    invoke("https://doc.byuu.org/higan");
-  });
-  about.setIcon(Icon::Prompt::Question).setText("About ...").onActivate([&] {
-    AboutDialog()
-    .setLogo(Resource::Logo)
-    .setVersion(higan::Version)
-    .setAuthor(higan::Author)
-    .setLicense(higan::License)
-    .setWebsite(higan::Website)
-    .setAlignment(program, {0.5f, program.panelLayout.visible() ? 0.32f : 0.5f})
-    .show();
-  });
-}

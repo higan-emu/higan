@@ -56,11 +56,13 @@ auto ICD::writeIO(uint24 address, uint8 data) -> void {
     }
     auto frequency = system.cpuFrequency();
     switch(data.bit(0,1)) {
-    case 0: Thread::setFrequency(frequency / 4); break;  //fast (glitchy, even on real hardware)
-    case 1: Thread::setFrequency(frequency / 5); break;  //normal
-    case 2: Thread::setFrequency(frequency / 7); break;  //slow
-    case 3: Thread::setFrequency(frequency / 9); break;  //very slow
+    case 0: frequency /= 4; break;  //fast (glitchy, even on real hardware)
+    case 1: frequency /= 5; break;  //normal
+    case 2: frequency /= 7; break;  //slow
+    case 3: frequency /= 9; break;  //very slow
     }
+    Thread::setFrequency(frequency);
+    GameBoy::apu.stream->setFrequency(frequency / 2.0);
     r6003 = data;
     return;
   }

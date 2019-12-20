@@ -53,6 +53,9 @@ inline auto timestamp() -> uint64_t {
 inline auto timestamp(const string& datetime) -> uint64_t {
   static const uint monthDays[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
   uint64_t timestamp = 0;
+  if(datetime.match("??????????")) {
+    return datetime.natural();
+  }
   if(datetime.match("????*")) {
     uint year = datetime.slice(0, 4).natural();
     if(year < 1970 || year > 2199) return 0;

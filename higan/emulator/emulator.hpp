@@ -39,13 +39,13 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "106.233";
+  static const string Version = "106.234";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";
 
   //incremented only when serialization format changes
-  static const string SerializerVersion = "106.210";
+  static const string SerializerVersion = "106.234";
 
   namespace Constants {
     namespace Colorburst {

@@ -2,10 +2,11 @@
 
 struct ICD : Platform, GameBoy::SuperGameBoyInterface, Thread {
   //icd.cpp
+  auto clockFrequency() const -> double;
+
   auto load(Node::Peripheral, Node::Peripheral) -> void;
   auto unload() -> void;
 
-  auto name() const -> string;
   auto main() -> void;
   auto power(bool reset = false) -> void;
 

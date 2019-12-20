@@ -6,6 +6,10 @@ ICD icd;
 #include "io.cpp"
 #include "serialization.cpp"
 
+auto ICD::clockFrequency() const -> double {
+  return Frequency ? Frequency : system.cpuFrequency();
+}
+
 auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   GameBoy::superGameBoy = this;
   GameBoy::SuperGameBoyInterface::load((Node::Object&)parent, Node::serialize(from));
@@ -15,16 +19,15 @@ auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
 
 auto ICD::unload() -> void {
   GameBoy::SuperGameBoyInterface::unload();
-}
 
-auto ICD::name() const -> string {
-  return GameBoy::interface->game();
+  cpu.coprocessors.removeByValue(this);
+  Thread::destroy();
 }
 
 auto ICD::main() -> void {
   #if 0
-  static uint n=0;
-  float x=sin((2*3.141592*(n++/64)*1000.0)/44100.0)*0.1;
+  static uint n = 0;
+  float x = sin((2*3.141592*(n++/64)*1000.0)/44100.0)*0.1;
   GameBoy::apu.stream->sample(x, x);
   Thread::step(2);
   Thread::synchronize(cpu);
@@ -43,7 +46,7 @@ auto ICD::main() -> void {
 
 auto ICD::power(bool reset) -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
-  Thread::create((Frequency ? Frequency : system.cpuFrequency()) / 5.0, [&] {
+  Thread::create(clockFrequency() / 5.0, [&] {
     while(true) {
       if(scheduler.serializing()) GameBoy::system.runToSave();
       scheduler.serialize();
@@ -82,6 +85,7 @@ auto ICD::power(bool reset) -> void {
   vcounter = 0;
 
   GameBoy::system.power();
+  GameBoy::apu.stream->setFrequency(clockFrequency() / 5.0 / 2.0);
 }
 
 #endif

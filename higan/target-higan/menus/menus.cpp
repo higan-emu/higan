@@ -3,3 +3,4 @@
 #include "system.cpp"
 #include "settings.cpp"
 #include "tools.cpp"
+#include "help.cpp"
