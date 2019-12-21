@@ -13,7 +13,7 @@ ifeq ($(ruby),)
     ruby += input.sdl input.xlib input.udev
   else ifeq ($(platform),bsd)
     ruby += video.glx video.glx2 video.xvideo video.xshm
-    ruby += audio.oss #audio.pulseaudio
+    ruby += audio.oss audio.openal #audio.pulseaudio
     ruby += input.sdl input.xlib
   endif
 endif
@@ -65,7 +65,8 @@ endif
 
 ifeq ($(platform),bsd)
   ruby.options += -lX11 -lXext -lXrandr
-  ruby.options += $(if $(findstring audio.openal,$(ruby)),-lopenal)
+  ruby.options += $(if $(findstring audio.openal,$(ruby)),-lopenal -fuse-ld=bfd)
+  # -fuse-ld=bfd: see FreeBSD bug 219089
 endif
 
 ruby.objects := $(object.path)/ruby.o

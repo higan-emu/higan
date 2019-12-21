@@ -61,6 +61,7 @@ struct HelpMenu : Menu {
   HelpMenu(MenuBar*);
   MenuItem webpage{this};
   MenuItem userGuide{this};
+  MenuItem feedback{this};
   MenuSeparator separator{this};
   MenuItem about{this};
 };

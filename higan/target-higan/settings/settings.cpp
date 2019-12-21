@@ -16,8 +16,13 @@ auto Settings::save() -> void {
 
 auto Settings::properties(bool mode, Markup::Node document) -> void {
   #define s(name) \
-    if(mode == 0) document[string{#name}.trimRight(".identifier", 1L).transform(".", "/")].value(name); \
-    if(mode == 1) document(string{#name}.trimRight(".identifier", 1L).transform(".", "/")).setValue(name);
+    if(mode == 0 && document[string{#name}.trimRight(".identifier", 1L).transform(".", "/")]) { \
+      document[string{#name}.trimRight(".identifier", 1L).transform(".", "/")].value(name); \
+    } \
+    if(mode == 1) { \
+      document(string{#name}.trimRight(".identifier", 1L).transform(".", "/")).setValue(name); \
+    }
+  s(prototypeWarning)
   s(video.driver)
   s(video.monitor)
   s(video.format)

@@ -151,6 +151,25 @@ auto nall::main(Arguments arguments) -> void {
   emulator.inputUpdate();
   inputManager.poll();
   hotkeys.bind();
+
+  if(settings.prototypeWarning) {
+    MessageDialog dialog;
+    dialog.setTitle({"higan v", higan::Version, " (feedback prototype)"});
+    dialog.setText(
+      "Note: this is a prototype release meant for feedback; not general use.\n"
+      "Compared to higan v106, a new tree-based user interface has been designed.\n"
+      "Please go to 'Help -> User Guide' for an overview on how to use this program.\n\n"
+      "As this is exerpimental, the next release will likely be quite different as well.\n"
+      "If you're not interested in this experiment, please continue using v106 for now.\n"
+      "Otherwise, I would appreciate any feedback on how to improve higan's usability.\n"
+      "Please go to 'Help -> Feedback' for ways to send me feedback.\n\n"
+      "Thank you!"
+    );
+    dialog.setOption("Don't show this message again");
+    dialog.information();
+    if(dialog.checked()) settings.prototypeWarning = false;
+  }
+
   Application::onMain({&Emulator::main, &emulator});
   Application::run();
 

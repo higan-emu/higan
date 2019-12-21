@@ -25,15 +25,6 @@ auto ICD::unload() -> void {
 }
 
 auto ICD::main() -> void {
-  #if 0
-  static uint n = 0;
-  float x = sin((2*3.141592*(n++/64)*1000.0)/44100.0)*0.1;
-  GameBoy::apu.stream->sample(x, x);
-  Thread::step(2);
-  Thread::synchronize(cpu);
-  return;
-  #endif
-
   if(r6003.bit(7)) {
     GameBoy::system.run();
     Thread::step(GameBoy::system.clocksExecuted());
