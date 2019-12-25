@@ -35,6 +35,7 @@ auto NodeManager::refresh() -> void {
 }
 
 auto NodeManager::refresh(higan::Node::Object node, uint depth) -> void {
+  if(node->is<higan::Node::Event>()) return;
   if(node->is<higan::Node::Input>()) return;
   if(node->is<higan::Node::Sprite>()) return;
 
@@ -89,6 +90,11 @@ auto NodeManager::onChange() -> void {
         inputMapper.refresh(node);
         return program.setPanelItem(inputMapper);
       }
+    }
+
+    if(auto peripheral = node->cast<higan::Node::Peripheral>()) {
+      peripheralOverview.refresh(peripheral);
+      return program.setPanelItem(peripheralOverview);
     }
   }
 

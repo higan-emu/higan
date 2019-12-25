@@ -50,12 +50,6 @@ SettingsMenu::SettingsMenu(MenuBar* parent) : Menu(parent) {
       program.hidePanels();
     }
   });
-  advancedMode.setText("Advanced Mode").setChecked(settings.interface.advancedMode).onToggle([&] {
-    settings.interface.advancedMode = advancedMode.checked();
-    if(systemManager.visible()) systemManager.refresh();
-    if(nodeManager.visible()) nodeManager.refresh();
-    if(systemOverview.visible()) systemOverview.refresh();
-  });
 }
 
 auto SettingsMenu::updateShaders() -> void {

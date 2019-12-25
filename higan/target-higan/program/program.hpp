@@ -14,16 +14,17 @@ struct PanelItem : VerticalLayout {
 
 using View = HorizontalLayout;
 
-#include "home.hpp"
-#include "system-creation.hpp"
-#include "system-overview.hpp"
-#include "port-connector.hpp"
-#include "input-mapper.hpp"
-#include "setting-editor.hpp"
-#include "../settings/video.hpp"
-#include "../settings/audio.hpp"
-#include "../settings/input.hpp"
-#include "../settings/hotkeys.hpp"
+#include "../panel-items/home.hpp"
+#include "../panel-items/system-creation.hpp"
+#include "../panel-items/system-overview.hpp"
+#include "../panel-items/port-connector.hpp"
+#include "../panel-items/peripheral-overview.hpp"
+#include "../panel-items/input-mapper.hpp"
+#include "../panel-items/setting-editor.hpp"
+#include "../panel-items/video.hpp"
+#include "../panel-items/audio.hpp"
+#include "../panel-items/input.hpp"
+#include "../panel-items/hotkeys.hpp"
 #include "../panel-lists/settings-manager.hpp"
 #include "../panel-lists/system-manager.hpp"
 #include "../panel-lists/node-manager.hpp"
@@ -44,11 +45,11 @@ struct Program : Window {
   auto hidePanels() -> void;
 
   MenuBar menuBar{this};
-  ActionMenu actionMenu{&menuBar};
-  SystemMenu systemMenu{&menuBar};
-  SettingsMenu settingsMenu{&menuBar};
-  ToolsMenu toolsMenu{&menuBar};
-  HelpMenu helpMenu{&menuBar};
+    ActionMenu actionMenu{&menuBar};
+    SystemMenu systemMenu{&menuBar};
+    SettingsMenu settingsMenu{&menuBar};
+    ToolsMenu toolsMenu{&menuBar};
+    HelpMenu helpMenu{&menuBar};
 
   VerticalLayout layout{this};
     Viewport viewport{&layout, Size{~0, ~0}, 0};
@@ -72,6 +73,7 @@ struct Program : Window {
       SystemCreation systemCreation{&panelLayout};
       SystemOverview systemOverview{&panelLayout};
       PortConnector portConnector{&panelLayout};
+      PeripheralOverview peripheralOverview{&panelLayout};
       InputMapper inputMapper{&panelLayout};
       SettingEditor settingEditor{&panelLayout};
       VideoSettings videoSettings{&panelLayout};
@@ -104,6 +106,7 @@ extern Home& home;
 extern SystemCreation& systemCreation;
 extern SystemOverview& systemOverview;
 extern PortConnector& portConnector;
+extern PeripheralOverview& peripheralOverview;
 extern InputMapper& inputMapper;
 extern SettingEditor& settingEditor;
 extern VideoSettings& videoSettings;

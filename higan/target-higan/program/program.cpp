@@ -1,14 +1,15 @@
 #include "../higan.hpp"
-#include "home.cpp"
-#include "system-creation.cpp"
-#include "system-overview.cpp"
-#include "port-connector.cpp"
-#include "input-mapper.cpp"
-#include "setting-editor.cpp"
-#include "../settings/video.cpp"
-#include "../settings/audio.cpp"
-#include "../settings/input.cpp"
-#include "../settings/hotkeys.cpp"
+#include "../panel-items/home.cpp"
+#include "../panel-items/system-creation.cpp"
+#include "../panel-items/system-overview.cpp"
+#include "../panel-items/port-connector.cpp"
+#include "../panel-items/peripheral-overview.cpp"
+#include "../panel-items/input-mapper.cpp"
+#include "../panel-items/setting-editor.cpp"
+#include "../panel-items/video.cpp"
+#include "../panel-items/audio.cpp"
+#include "../panel-items/input.cpp"
+#include "../panel-items/hotkeys.cpp"
 #include "../panel-lists/settings-manager.cpp"
 #include "../panel-lists/system-manager.cpp"
 #include "../panel-lists/node-manager.cpp"
@@ -31,6 +32,7 @@ Home& home = program.home;
 SystemCreation& systemCreation = program.systemCreation;
 SystemOverview& systemOverview = program.systemOverview;
 PortConnector& portConnector = program.portConnector;
+PeripheralOverview& peripheralOverview = program.peripheralOverview;
 InputMapper& inputMapper = program.inputMapper;
 SettingEditor& settingEditor = program.settingEditor;
 VideoSettings& videoSettings = program.videoSettings;
@@ -39,7 +41,7 @@ InputSettings& inputSettings = program.inputSettings;
 HotkeySettings& hotkeySettings = program.hotkeySettings;
 
 Program::Program() {
-  viewport.setFocusable();
+  viewport.setCollapsible().setFocusable();
 
   statusHeight = Font().size(" ").height() + 8_sy;
   layout.cell(statusLayout).setSize({~0, statusHeight});

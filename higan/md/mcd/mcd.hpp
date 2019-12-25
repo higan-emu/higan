@@ -43,6 +43,10 @@ struct MCD : M68K, Thread {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
+  struct Information {
+    string manifest;
+  } information;
+
   struct IO {
      uint1 run;
      uint1 request;

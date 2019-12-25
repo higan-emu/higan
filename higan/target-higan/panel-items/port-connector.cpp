@@ -63,6 +63,7 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
   ListViewItem item{&peripheralList};
   item.setAttribute("type", "nothing");
   item.setIcon(Icon::Action::Remove).setText("Nothing");
+  if(!port->connected()) item.setSelected().setFocused();
 
   if(string location = {emulator.system.templates, port->type(), "/"}) {
     for(auto& name : directory::folders(location)) {
@@ -82,6 +83,12 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
     item.setAttribute("path", path);
     item.setAttribute("name", name.trimRight("/", 1L));
     item.setIcon(Icon::Emblem::Folder).setText(name);
+    //set a currently connected peripheral as the active item
+    if(auto peripheral = port->connected()) {
+      if(name == peripheral->attribute("name")) {
+        item.setSelected().setFocused();
+      }
+    }
   }
 
   peripheralList.doChange();
@@ -141,7 +148,7 @@ auto PortConnector::eventActivate() -> void {
       auto connected = emulator.connected(location);
 
       //treat selecting the already-connected device as a no-op that aborts the port connection dialog
-      if(connected && connected == port) return program.setPanelItem(home);
+      if(connected && connected == port) return;
 
       if(connected) return (void)MessageDialog()
       .setText({"This peripheral is already connected to another port:\n\n", connected->name()})
@@ -162,18 +169,28 @@ auto PortConnector::eventActivate() -> void {
 
 auto PortConnector::eventChange() -> void {
   acceptButton.setVisible(false);
+  acceptButton.setEnabled(true);
 
   if(auto item = peripheralList.selected()) {
     if(item.attribute("type") == "nothing") {
-      acceptButton.setText("Disconnect").setVisible();
+      if(!port->connected()) {
+        acceptButton.setText("Disconnect").setEnabled(false).setVisible();
+      } else {
+        acceptButton.setText("Disconnect").setVisible();
+      }
     }
 
-    else if(item.attribute("type") == "template") {
+    if(item.attribute("type") == "template") {
       acceptButton.setText("Create").setVisible();
     }
 
-    else if(item.attribute("type") == "peripheral") {
-      acceptButton.setText("Connect").setVisible();
+    if(item.attribute("type") == "peripheral") {
+      auto peripheral = port->connected();
+      if(peripheral && peripheral->attribute("name") == item.text()) {
+        acceptButton.setText("Connect").setEnabled(false).setVisible();
+      } else {
+        acceptButton.setText("Connect").setVisible();
+      }
     }
   }
 

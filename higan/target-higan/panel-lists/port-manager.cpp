@@ -55,11 +55,21 @@ auto PortManager::onChange() -> void {
       return program.setPanelItem(portConnector);
     }
 
+    if(auto setting = node->cast<higan::Node::Setting>()) {
+      settingEditor.refresh(setting);
+      return program.setPanelItem(settingEditor);
+    }
+
     if(auto inputs = node->find<higan::Node::Input>()) {
       if(inputs.first()->parent() == node) {
         inputMapper.refresh(node);
         return program.setPanelItem(inputMapper);
       }
+    }
+
+    if(auto peripheral = node->cast<higan::Node::Peripheral>()) {
+      peripheralOverview.refresh(peripheral);
+      return program.setPanelItem(peripheralOverview);
     }
   }
 

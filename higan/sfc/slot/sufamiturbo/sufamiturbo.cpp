@@ -21,6 +21,7 @@ auto SufamiTurboCartridge::unload() -> void {
 
 auto SufamiTurboCartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, "Sufami Turbo");
+  node->setManifest([&] { return information.manifest; });
 
   if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();

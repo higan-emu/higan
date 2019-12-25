@@ -1,6 +1,6 @@
 SystemOverview::SystemOverview(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
-  header.setText("Preview (read-only)").setFont(Font().setBold());
+  header.setText("Preview").setFont(Font().setBold());
 }
 
 auto SystemOverview::show() -> void {

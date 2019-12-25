@@ -3,8 +3,6 @@ struct Settings {
   auto save() -> void;
   auto properties(bool mode, Markup::Node document) -> void;
 
-  bool prototypeWarning = true;
-
   struct {
     string driver = Video::safestDriver();
     string monitor = "Primary";

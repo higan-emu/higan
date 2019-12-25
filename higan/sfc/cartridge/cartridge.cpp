@@ -10,6 +10,7 @@ Cartridge cartridge;
 
 auto Cartridge::connect(Node::Port parent, Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(parent, with, interface->name());
+  node->setManifest([&] { return information.manifest; });
 
   information = {};
   has = {};

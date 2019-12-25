@@ -79,6 +79,13 @@ auto MCD::connect(Node::Peripheral with) -> void {
   disconnect();
   if(with) {
     disc = Node::append<Node::Peripheral>(tray, with, "Mega CD");
+    disc->setManifest([&] { return information.manifest; });
+
+    information = {};
+    if(auto fp = platform->open(disc, "manifest.bml", File::Read, File::Required)) {
+      information.manifest = fp->reads();
+    }
+
     fd = platform->open(disc, "cd.rom", File::Read, File::Required);
     cdd.insert();
   }

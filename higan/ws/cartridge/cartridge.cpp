@@ -39,6 +39,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(Model::SwanCrystal()) name = "WonderSwan Color";
 
   node = Node::append<Node::Peripheral>(port, with, name);
+  node->setManifest([&] { return information.manifest; });
 
   information = {};
 

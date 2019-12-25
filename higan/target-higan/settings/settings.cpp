@@ -22,7 +22,6 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
     if(mode == 1) { \
       document(string{#name}.trimRight(".identifier", 1L).transform(".", "/")).setValue(name); \
     }
-  s(prototypeWarning)
   s(video.driver)
   s(video.monitor)
   s(video.format)

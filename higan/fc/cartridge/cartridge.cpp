@@ -24,6 +24,7 @@ auto Cartridge::unload() -> void {
 
 auto Cartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, interface->name());
+  node->setManifest([&] { return information.manifest; });
 
   information = {};
   if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {

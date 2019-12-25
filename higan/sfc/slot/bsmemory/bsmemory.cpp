@@ -41,6 +41,7 @@ auto BSMemory::step(uint clocks) -> void {
 
 auto BSMemory::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, "BS Memory");
+  node->setManifest([&] { return information.manifest; });
 
   if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {
     information.manifest = fp->reads();
