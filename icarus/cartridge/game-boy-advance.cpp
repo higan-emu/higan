@@ -49,34 +49,36 @@ auto GameBoyAdvance::heuristics(vector<uint8_t>& data, string location) -> strin
   s +={"      size: 0x", hex(data.size()), "\n"};
   s += "      content: Program\n";
 
-  if(list.first().beginsWith("SRAM_V") || list.first().beginsWith("SRAM_F_V")) {
-    s += "    memory\n";
-    s += "      type: RAM\n";
-    s += "      size: 0x8000\n";
-    s += "      content: Save\n";
-  }
+  if(list) {
+    if(list.first().beginsWith("SRAM_V") || list.first().beginsWith("SRAM_F_V")) {
+      s += "    memory\n";
+      s += "      type: RAM\n";
+      s += "      size: 0x8000\n";
+      s += "      content: Save\n";
+    }
 
-  if(list.first().beginsWith("EEPROM_V")) {
-    s += "    memory\n";
-    s += "      type: EEPROM\n";
-    s += "      size: 0x0\n";  //auto-detected
-    s += "      content: Save\n";
-  }
+    if(list.first().beginsWith("EEPROM_V")) {
+      s += "    memory\n";
+      s += "      type: EEPROM\n";
+      s += "      size: 0x0\n";  //auto-detected
+      s += "      content: Save\n";
+    }
 
-  if(list.first().beginsWith("FLASH_V") || list.first().beginsWith("FLASH512_V")) {
-    s += "    memory\n";
-    s += "      type: Flash\n";
-    s += "      size: 0x10000\n";
-    s += "      content: Save\n";
-    s += "      manufacturer: Macronix\n";
-  }
+    if(list.first().beginsWith("FLASH_V") || list.first().beginsWith("FLASH512_V")) {
+      s += "    memory\n";
+      s += "      type: Flash\n";
+      s += "      size: 0x10000\n";
+      s += "      content: Save\n";
+      s += "      manufacturer: Macronix\n";
+    }
 
-  if(list.first().beginsWith("FLASH1M_V")) {
-    s += "    memory\n";
-    s += "      type: Flash\n";
-    s += "      size: 0x20000\n";
-    s += "      content: Save\n";
-    s += "      manufacturer: Macronix\n";
+    if(list.first().beginsWith("FLASH1M_V")) {
+      s += "    memory\n";
+      s += "      type: Flash\n";
+      s += "      size: 0x20000\n";
+      s += "      content: Save\n";
+      s += "      manufacturer: Macronix\n";
+    }
   }
 
   return s;
