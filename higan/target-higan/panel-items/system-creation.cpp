@@ -1,6 +1,6 @@
 SystemCreation::SystemCreation(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
-  header.setText("Create").setFont(Font().setBold());
+  header.setText("Create New System").setFont(Font().setBold());
   systemList.onActivate([&] { eventAccept(); });
   systemList.onChange([&] { eventChange(); });
   nameLabel.setText("Name:");
@@ -31,17 +31,17 @@ auto SystemCreation::eventChange() -> void {
   if(auto item = systemList.selected()) {
     if(auto interface = item.attribute<shared_pointer<higan::Interface>>("interface")) {
       nameValue.setText(interface->name());
-      nameLabel.setVisible(true);
-      nameValue.setVisible(true);
-      createButton.setVisible(true);
+      nameLabel.setEnabled(true);
+      nameValue.setEnabled(true);
+      createButton.setEnabled(true);
       return;
     }
   }
 
   //nothing selected
-  nameLabel.setVisible(false);
-  nameValue.setVisible(false);
-  createButton.setVisible(false);
+  nameLabel.setEnabled(false);
+  nameValue.setEnabled(false).setText("");
+  createButton.setEnabled(false);
 }
 
 auto SystemCreation::eventAccept() -> void {

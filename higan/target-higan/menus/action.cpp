@@ -4,6 +4,9 @@ ActionMenu::ActionMenu(MenuBar* parent) : Menu(parent) {
     program.setPanelList(systemManager);
     systemManager.doCreate();
   });
+  launch.setIcon(Icon::Media::Play).setText("Launch").setEnabled(false).onActivate([&] {
+    systemManager.onActivate();
+  });
   rename.setIcon(Icon::Application::TextEditor).setText("Rename").setEnabled(false).onActivate([&] {
     systemManager.doRename();
   });

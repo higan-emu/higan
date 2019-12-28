@@ -18,7 +18,6 @@ PortConnector::PortConnector(View* parent) : PanelItem(parent, Size{~0, ~0}) {
 }
 
 auto PortConnector::show() -> void {
-  importButton.setVisible(isIcarusType());
   setVisible(true);
 }
 
@@ -37,6 +36,7 @@ auto PortConnector::isIcarusType() const -> bool {
 
 auto PortConnector::refresh(higan::Node::Port port) -> void {
   this->port = port;
+  importButton.setVisible(isIcarusType());
 
   auto path = port->attribute("path");
   //is this the first time refreshing this port?
@@ -140,6 +140,7 @@ auto PortConnector::eventActivate() -> void {
         port->connect(peripheral);
         inputManager.bind();  //bind any inputs this peripheral may contain
         program.refreshPanelList();
+        refresh(port);
       }
     }
 

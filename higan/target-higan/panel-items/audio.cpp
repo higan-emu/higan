@@ -11,9 +11,9 @@ AudioSettings::AudioSettings(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   driverOption.onChange([&] {
     settings.audio.driver = driverOption.selected().text();
   });
-  activateButton.setText("Activate").onActivate([&] { eventActivate(); });
+  changeButton.setText("Change").onActivate([&] { eventChange(); });
 
-  settingsHeader.setText("Driver Settings (activate driver to configure)").setFont(Font().setBold());
+  settingsHeader.setText("Driver Settings").setFont(Font().setBold());
   settingsLayout.setEnabled(false);
   deviceLabel.setText("Device:");
   deviceOption.append(ComboButtonItem().setText(settings.audio.device)).onChange([&] {
@@ -112,8 +112,7 @@ auto AudioSettings::refresh() -> void {
   dynamicOption.setEnabled(audioInstance.hasDynamic());
 }
 
-auto AudioSettings::eventActivate() -> void {
-  activateButton.setText("Change");
+auto AudioSettings::eventChange() -> void {
   settings.audio.driver = driverOption.selected().text();
   refresh();
   driverHeader.setText({"Audio Driver (", settings.audio.driver, ")"});

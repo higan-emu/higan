@@ -15,6 +15,7 @@ struct SystemManager : PanelList {
   ListView listView{this, Size{~0, ~0}};
     PopupMenu listMenu;
       MenuItem listCreate{&listMenu};
+      MenuItem listLaunch{&listMenu};
       MenuItem listRename{&listMenu};
       MenuItem listRemove{&listMenu};
 };

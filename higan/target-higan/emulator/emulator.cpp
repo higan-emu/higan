@@ -45,9 +45,6 @@ auto Emulator::create(shared_pointer<higan::Interface> instance, string location
   inputManager.bind(root);
   inputManager.poll();
 
-  videoSettings.eventActivate();
-  audioSettings.eventActivate();
-
   power(false);
 }
 

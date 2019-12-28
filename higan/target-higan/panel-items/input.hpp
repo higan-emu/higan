@@ -3,7 +3,7 @@ struct InputSettings : PanelItem {
   auto show() -> void override;
   auto hide() -> void override;
   auto refresh() -> void;
-  auto eventActivate() -> void;
+  auto eventChange() -> void;
 
   Frame frame{this, Size{~0, ~0}};
   VerticalLayout layout{&frame};
@@ -12,7 +12,7 @@ struct InputSettings : PanelItem {
   HorizontalLayout driverLayout{&layout, Size{~0, 0}};
     Label driverLabel{&driverLayout, Size{0, 0}};
     ComboButton driverOption{&driverLayout, Size{0, 0}};
-    Button activateButton{&driverLayout, Size{0, 0}};
+    Button changeButton{&driverLayout, Size{0, 0}};
 
   Label focusLossHeader{&layout, Size{~0, 0}};
   HorizontalLayout focusLossLayout{&layout, Size{~0, 0}};

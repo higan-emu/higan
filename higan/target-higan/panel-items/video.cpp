@@ -8,10 +8,9 @@ VideoSettings::VideoSettings(View* parent) : PanelItem(parent, Size{~0, ~0}) {
     item.setText(driver);
     if(driver == settings.video.driver) item.setSelected();
   }
-  activateButton.setText("Activate").onActivate([&] { eventActivate(); });
+  changeButton.setText("Change").onActivate([&] { eventChange(); });
 
-  settingsHeader.setText("Driver Settings (activate driver to configure)").setFont(Font().setBold());
-  settingsLayout.setEnabled(false);
+  settingsHeader.setText("Driver Settings").setFont(Font().setBold());
   monitorLabel.setText("Monitor:");
   monitorOption.append(ComboButtonItem().setText(settings.video.monitor)).onChange([&] {
     settings.video.monitor = monitorOption.selected().text();
@@ -98,10 +97,9 @@ auto VideoSettings::refresh() -> void {
   flushOption.setEnabled(videoInstance.hasFlush()).setChecked(videoInstance.flush());
 }
 
-auto VideoSettings::eventActivate() -> void {
-  activateButton.setText("Change");
+auto VideoSettings::eventChange() -> void {
   settings.video.driver = driverOption.selected().text();
   refresh();
-  settingsHeader.setText({"Driver Settings (", settings.video.driver, ")"});
+  driverHeader.setText({"Video Driver (", settings.video.driver, ")"});
   settingsLayout.setEnabled(true);
 }

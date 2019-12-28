@@ -1,6 +1,9 @@
 SystemOverview::SystemOverview(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
-  header.setText("Preview").setFont(Font().setBold());
+  header.setFont(Font().setBold());
+  removeButton.setText("Remove").onActivate([&] { systemManager.doRemove(); });
+  renameButton.setText("Rename").onActivate([&] { systemManager.doRename(); });
+  launchButton.setText("Launch").onActivate([&] { systemManager.onActivate(); });
 }
 
 auto SystemOverview::show() -> void {
@@ -16,7 +19,7 @@ auto SystemOverview::refresh() -> void {
   auto location = systemManager.listView.selected().attribute("location");
   nodeList.reset();
   auto manifest = BML::unserialize(file::read({location, "manifest.bml"}));
-  nodeList.append(ListViewItem().setText(manifest["system"].text()));
+  header.setText(manifest["system"].text());
   if(auto root = higan::Node::unserialize(file::read({location, "settings.bml"}))) {
     for(auto& node : *root) scan(node);
   }

@@ -1,6 +1,7 @@
 struct ActionMenu : Menu {
   ActionMenu(MenuBar*);
   MenuItem create{this};
+  MenuItem launch{this};
   MenuItem rename{this};
   MenuItem remove{this};
   MenuSeparator quitSeparator{this};

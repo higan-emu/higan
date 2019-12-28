@@ -104,10 +104,10 @@ Program::Program() {
   setTitle({"higan v", higan::Version});
   setVisible();
 
-  //start the ruby input driver at program startup rather than after emulator instance creation.
-  //the input driver is much less likely to crash, and is needed for hotkey support to work immediately.
   emulator.inputUpdate();
-  inputSettings.eventActivate();
+  videoSettings.eventChange();
+  audioSettings.eventChange();
+  inputSettings.eventChange();
 }
 
 auto Program::resize() -> void {

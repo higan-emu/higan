@@ -4,6 +4,7 @@ SystemManager::SystemManager(View* view) : PanelList(view, Size{~0, ~0}) {
   listView.onChange([&] { onChange(); });
   listView.onContext([&] { onContext(); });
   listCreate.setText("Create").setIcon(Icon::Action::Add).onActivate([&] { doCreate(); });
+  listLaunch.setText("Launch").setIcon(Icon::Media::Play).onActivate([&] { onActivate(); });
   listRename.setText("Rename").setIcon(Icon::Application::TextEditor).onActivate([&] { doRename(); });
   listRemove.setText("Remove").setIcon(Icon::Action::Remove).onActivate([&] { doRemove(); });
 }
@@ -24,6 +25,10 @@ auto SystemManager::refresh() -> void {
   listView.reset();
   listView.doChange();
 
+  ListViewItem item{&listView};
+  item.setIcon(Icon::Action::Add);
+  item.setText("Create New System");
+
   auto location = Path::data;
   for(auto& name : directory::folders(location)) {
     auto document = BML::unserialize(file::read({location, name, "/", "manifest.bml"}));
@@ -35,6 +40,7 @@ auto SystemManager::refresh() -> void {
     item.setAttribute("path", location);
     item.setAttribute("name", name.trimRight("/", 1L));
     item.setAttribute("system", system);
+    item.setIcon(Icon::Place::Server);
     item.setText(name);
 
     //hignlight any systems found that have not been compiled into this binary
@@ -57,13 +63,20 @@ auto SystemManager::onActivate() -> void {
 }
 
 auto SystemManager::onChange() -> void {
-  if(auto item = listView.selected()) {
+  auto item = listView.selected();
+  if(item && !item.attribute("location")) {
+    program.setPanelItem(systemCreation);
+  } else if(item) {
     systemOverview.refresh();
     program.setPanelItem(systemOverview);
+    actionMenu.create.setEnabled(false);
+    actionMenu.launch.setEnabled(true);
     actionMenu.rename.setEnabled(true);
     actionMenu.remove.setEnabled(true);
   } else {
     program.setPanelItem(home);
+    actionMenu.create.setEnabled(true);
+    actionMenu.launch.setEnabled(false);
     actionMenu.rename.setEnabled(false);
     actionMenu.remove.setEnabled(false);
   }
@@ -71,6 +84,8 @@ auto SystemManager::onChange() -> void {
 
 auto SystemManager::onContext() -> void {
   auto selected = (bool)listView.selected();
+  listCreate.setVisible(!selected);
+  listLaunch.setVisible(selected);
   listRename.setVisible(selected);
   listRemove.setVisible(selected);
   listMenu.setVisible();

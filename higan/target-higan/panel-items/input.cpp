@@ -11,7 +11,7 @@ InputSettings::InputSettings(View* parent) : PanelItem(parent, Size{~0, ~0}) {
   driverOption.onChange([&] {
     settings.input.driver = driverOption.selected().text();
   });
-  activateButton.setText("Activate").onActivate([&] { eventActivate(); });
+  changeButton.setText("Change").onActivate([&] { eventChange(); });
 
   focusLossHeader.setText("Focus Loss").setFont(Font().setBold());
   focusPause.setText("Pause emulation").onActivate([&] {
@@ -40,8 +40,7 @@ auto InputSettings::refresh() -> void {
   emulator.inputUpdate();
 }
 
-auto InputSettings::eventActivate() -> void {
-  activateButton.setText("Change");
+auto InputSettings::eventChange() -> void {
   settings.input.driver = driverOption.selected().text();
   refresh();
   driverHeader.setText({"Input Driver (", settings.input.driver, ")"});
