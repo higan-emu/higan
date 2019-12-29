@@ -172,6 +172,9 @@ auto Program::setPanelItem(PanelItem& panelItem) -> void {
   activePanelItem = panelItem;
   activePanelItem().show();
   panelLayout.resize();
+  //todo: this works around a Windows rendering issue on the audio settings panel, but should not be needed:
+  Application::processEvents();
+  panelLayout.resize();
 }
 
 auto Program::refreshPanelList() -> void {

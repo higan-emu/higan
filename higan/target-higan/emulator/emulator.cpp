@@ -71,7 +71,7 @@ auto Emulator::unload() -> void {
 
 auto Emulator::main() -> void {
   updateMessage();
-  if(Application::modal()) return (void)usleep(20 * 1000);
+  if(Application::modal()) return;  //modal loop calls usleep() internally
 
   inputManager.poll();
   hotkeys.poll();
