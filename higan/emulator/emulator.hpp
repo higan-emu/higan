@@ -66,3 +66,4 @@ namespace higan {
     using File = shared_pointer<vfs::file>;
   }
 }
+
