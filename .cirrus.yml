@@ -13,7 +13,7 @@ linux-x86_64-binaries_task:
     package_script:
         - mkdir higan-nightly
         - cp -a higan/out/higan higan-nightly/higan
-        - cp -a higan/System/ higan-nightly
+        - cp -a higan/System higan-nightly
         - cp -a icarus/out/icarus higan-nightly/icarus
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
@@ -39,7 +39,7 @@ freebsd-x86_64-binaries_task:
     package_script:
         - mkdir higan-nightly
         - cp -a higan/out/higan higan-nightly/higan
-        - cp -a higan/System/ higan-nightly
+        - cp -a higan/System higan-nightly
         - cp -a icarus/out/icarus higan-nightly/icarus
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
@@ -64,11 +64,14 @@ windows-x86_64-binaries_task:
     package_script:
         - mkdir higan-nightly
         - cp -a higan/out/higan higan-nightly/higan.exe
-        - cp -a higan/System/ higan-nightly
         - cp -a icarus/out/icarus higan-nightly/icarus.exe
+        - cp -a higan/System higan-nightly/Templates
+        - mkdir higan-nightly/Systems
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
         - cp -a GPLv3.txt higan-nightly
+        - echo "templates: ./Templates/" >> higan-nightly/paths.bml
+        - echo "data: ./Systems/" >> higan-nightly/paths.bml
         - zip -r higan-nightly.zip higan-nightly
 
     higan-nightly_artifacts:
@@ -85,7 +88,7 @@ macOS-x86_64-binaries_task:
     package_script:
         - mkdir higan-nightly
         - cp -a higan/out/higan.app higan-nightly
-        - cp -a higan/System/ higan-nightly
+        - cp -a higan/System higan-nightly
         - cp -a icarus/out/icarus.app higan-nightly
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
