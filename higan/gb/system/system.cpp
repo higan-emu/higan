@@ -80,18 +80,18 @@ auto System::power() -> void {
 
   if(GameBoy::Model::SuperGameBoy()) {
     bootROM.allocate(256);
-    if(cpu.version->latch() == "SGB-CPU-01") name = "sm83.boot.rom";
+    if(cpu.version->latch() == "SGB-CPU 01") name = "sm83.boot.rom";
     if(cpu.version->latch() == "CPU SGB2"  ) name = "sm83.boot.rom";
   }
 
   if(GameBoy::Model::GameBoyColor()) {
     bootROM.allocate(2048);
-    if(cpu.version->latch() == "CGB CPU"   ) name = "boot.cgb-0.rom";
-    if(cpu.version->latch() == "CGB CPU A" ) name = "boot.cgb-1.rom";
-    if(cpu.version->latch() == "CGB CPU B" ) name = "boot.cgb-1.rom";
-    if(cpu.version->latch() == "CGB CPU C" ) name = "boot.cgb-1.rom";
-    if(cpu.version->latch() == "CGB CPU D" ) name = "boot.cgb-1.rom";
-    if(cpu.version->latch() == "CGB CPU E" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CPU CGB"   ) name = "boot.cgb-0.rom";
+    if(cpu.version->latch() == "CPU CGB A" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CPU CGB B" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CPU CGB C" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CPU CGB D" ) name = "boot.cgb-1.rom";
+    if(cpu.version->latch() == "CPU CGB E" ) name = "boot.cgb-1.rom";
   }
 
   if(auto fp = platform->open(node, name, File::Read, File::Required)) {

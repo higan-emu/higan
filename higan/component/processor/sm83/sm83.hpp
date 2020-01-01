@@ -16,7 +16,7 @@ struct SM83 {
   virtual auto read(uint16 address) -> uint8 = 0;
   virtual auto write(uint16 address, uint8 data) -> void = 0;
 
-  //lr35902.cpp
+  //sm83.cpp
   auto power() -> void;
 
   //instruction.cpp

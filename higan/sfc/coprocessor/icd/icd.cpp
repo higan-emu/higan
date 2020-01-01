@@ -13,7 +13,7 @@ auto ICD::clockFrequency() const -> double {
 auto ICD::load(Node::Peripheral parent, Node::Peripheral from) -> void {
   GameBoy::superGameBoy = this;
   GameBoy::SuperGameBoyInterface::load((Node::Object&)parent, Node::serialize(from));
-  GameBoy::cpu.version->setValue(!Frequency ? "SGB-CPU-01" : "CPU SGB2");
+  GameBoy::cpu.version->setValue(!Frequency ? "SGB-CPU 01" : "CPU SGB2");
   GameBoy::cpu.version->setLatch();
 }
 

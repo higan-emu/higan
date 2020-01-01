@@ -1,10 +1,10 @@
 database
-  revision: 2019-11-01
+  revision: 2020-01-01
 
 //Boards (Production)
 
 database
-  revision: 2019-11-01
+  revision: 2020-01-01
 
 board: BANDAI-PT-923
   memory type=ROM content=Program
@@ -109,7 +109,7 @@ board: SGB-R-10
     map address=40-7d,c0-ff:0000-7fff mask=0x8000
   processor identifier=ICD revision=2
     map address=00-3f,80-bf:6000-67ff,7000-7fff
-    memory type=ROM content=Boot architecture=LR35902
+    memory type=ROM content=Boot architecture=SM83
     slot type=GameBoy
 
 board: SHVC-1A0N-(01,02,10,20,30)
@@ -561,7 +561,7 @@ board: SHVC-SGB2-01
     map address=40-7d,c0-ff:0000-7fff mask=0x8000
   processor identifier=ICD revision=2
     map address=00-3f,80-bf:6000-67ff,7000-7fff
-    memory type=ROM content=Boot architecture=LR35902
+    memory type=ROM content=Boot architecture=SM83
     oscillator
     slot type=GameBoy
 
@@ -578,7 +578,7 @@ board: SHVC-YJ0N-01
 //Boards (Generic)
 
 database
-  revision: 2019-11-01
+  revision: 2020-01-01
 
 board: ARM-LOROM-RAM
   memory type=ROM content=Program
@@ -758,7 +758,7 @@ board: GB-LOROM
     map address=40-7d,c0-ff:0000-7fff mask=0x8000
   processor identifier=ICD revision=2
     map address=00-3f,80-bf:6000-67ff,7000-7fff
-    memory type=ROM content=Boot architecture=LR35902
+    memory type=ROM content=Boot architecture=SM83
     oscillator
     slot type=GameBoy
 

@@ -27,9 +27,9 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
   }
 
   if(Model::SuperGameBoy()) {
-    version = Node::append<Node::String>(parent, from, "Version", "SGB-CPU-01");
+    version = Node::append<Node::String>(parent, from, "Version", "SGB-CPU 01");
     version->setAllowedValues({
-      "SGB-CPU-01",
+      "SGB-CPU 01",
       "CPU SGB2"
     });
   }
@@ -149,7 +149,7 @@ auto CPU::power() -> void {
   if(version->latch() == "DMG-CPU C" ) status.div = 0xffe6;
   if(version->latch() == "CPU MGB"   ) status.div = 0xffe6;
 
-  if(version->latch() == "SGB-CPU-01") status.div = 0xffe6;  //unconfirmed
+  if(version->latch() == "SGB-CPU 01") status.div = 0xffe6;  //unconfirmed
   if(version->latch() == "CPU SGB2"  ) status.div = 0xffe6;  //unconfirmed
 
   //0206~0209

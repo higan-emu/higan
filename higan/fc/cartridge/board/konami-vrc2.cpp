@@ -1,7 +1,7 @@
 struct KonamiVRC2 : Board {
   KonamiVRC2(Markup::Node& document) : Board(document), vrc2(*this) {
-    settings.pinout.a0 = 1 << document["board/chip/pinout/a0"].natural();
-    settings.pinout.a1 = 1 << document["board/chip/pinout/a1"].natural();
+    settings.pinout.a0 = 1 << document["game/board/chip/pinout/a0"].natural();
+    settings.pinout.a1 = 1 << document["game/board/chip/pinout/a1"].natural();
   }
 
   auto readPRG(uint addr) -> uint8 {

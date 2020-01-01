@@ -2,7 +2,7 @@
 
 struct NES_CNROM : Board {
   NES_CNROM(Markup::Node& document) : Board(document) {
-    settings.mirror = document["board/mirror/mode"].text() == "vertical" ? 1 : 0;
+    settings.mirror = document["game/board/mirror/mode"].text() == "vertical" ? 1 : 0;
   }
 
   auto readPRG(uint addr) -> uint8 {
