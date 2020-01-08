@@ -39,6 +39,11 @@ Links
   - [Official documentation](https://higan.readthedocs.io)
   - [Donations](https://patreon.com/byuu)
 
+Release Builds
+--------------
+
+  - [Windows binaries](https://byuu.itch.io/higan)
+
 Nightly Builds
 --------------
 
