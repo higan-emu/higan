@@ -69,6 +69,7 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(io.hcounter);
   s.integer(io.vcounter);
 
+  mosaic.serialize(s);
   bg1.serialize(s);
   bg2.serialize(s);
   bg3.serialize(s);
@@ -76,6 +77,11 @@ auto PPU::serialize(serializer& s) -> void {
   obj.serialize(s);
   window.serialize(s);
   screen.serialize(s);
+}
+
+auto PPU::Mosaic::serialize(serializer& s) -> void {
+  s.integer(size);
+  s.integer(vcounter);
 }
 
 auto PPU::Background::serialize(serializer& s) -> void {
@@ -101,11 +107,8 @@ auto PPU::Background::serialize(serializer& s) -> void {
   s.integer(output.below.palette);
   s.integer(output.below.paletteGroup);
 
-  s.integer(mosaic.size);
   s.integer(mosaic.enable);
-  s.integer(mosaic.vcounter);
   s.integer(mosaic.hcounter);
-  s.integer(mosaic.voffset);
   s.integer(mosaic.hoffset);
 
   s.integer(mosaic.pixel.priority);

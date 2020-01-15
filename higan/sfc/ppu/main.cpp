@@ -9,6 +9,7 @@ auto PPU::main() -> void {
     obj.frame();
   }
 
+  mosaic.scanline();
   bg1.scanline();
   bg2.scanline();
   bg3.scanline();

@@ -250,11 +250,16 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
 
   //MOSAIC
   case 0x2106: {
+    bool mosaicEnable = mosaic.enable();
     bg1.mosaic.enable = data.bit(0);
     bg2.mosaic.enable = data.bit(1);
     bg3.mosaic.enable = data.bit(2);
     bg4.mosaic.enable = data.bit(3);
-    Background::Mosaic::size = data.bit(4,7);
+    mosaic.size       = data.bit(4,7) + 1;
+    if(!mosaicEnable && mosaic.enable()) {
+      //mosaic vcounter is reloaded when mosaic becomes enabled
+      mosaic.vcounter = mosaic.size + 1;
+    }
     return;
   }
 
