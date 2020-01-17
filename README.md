@@ -3,8 +3,8 @@ higan
 
 ![higan logo © byuu](https://byuu.org/images/higan/github/byuu-higan-logo.png)
 
-higan is a multi-system emulator with an uncompromising focus on accuracy and
-code readability.
+higan is a multi-system emulator from [byuu](https://byuu.org/about) with an
+uncompromising focus on accuracy and code readability.
 
 It is a research project meant to improve all emulators through open source
 collaboration, and as such is not meant to be used as a standard emulator for
@@ -29,7 +29,7 @@ environment. higan is currently in the midst of a major redesign, so please
 expect rapid changes and some instabilities during this period.
 
 If stability is required, please download the latest stable release from the
-[official website.](https://higan.byuu.org)
+[official website.](https://byuu.org/higan)
 
 Links
 -----
