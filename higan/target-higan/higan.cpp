@@ -13,17 +13,17 @@ Video videoInstance;
 Audio audioInstance;
 Input inputInstance;
 
+#include <cv/interface/interface.hpp>
 #include <fc/interface/interface.hpp>
 #include <gb/interface/interface.hpp>
 #include <gba/interface/interface.hpp>
-#include <sg/interface/interface.hpp>
-#include <ms/interface/interface.hpp>
 #include <md/interface/interface.hpp>
+#include <ms/interface/interface.hpp>
 #include <msx/interface/interface.hpp>
-#include <cv/interface/interface.hpp>
 #include <ngp/interface/interface.hpp>
 #include <pce/interface/interface.hpp>
 #include <sfc/interface/interface.hpp>
+#include <sg/interface/interface.hpp>
 #include <ws/interface/interface.hpp>
 
 #include <nall/main.hpp>
@@ -69,16 +69,20 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::GameBoy::GameBoyInterface);
   #endif
 
-  #ifdef CORE_GBA
-  interfaces.append(new higan::GameBoyAdvance::GameBoyAdvanceInterface);
-  #endif
-
   #ifdef CORE_GB
   interfaces.append(new higan::GameBoy::GameBoyColorInterface);
   #endif
 
   #ifdef CORE_GBA
+  interfaces.append(new higan::GameBoyAdvance::GameBoyAdvanceInterface);
+  #endif
+
+  #ifdef CORE_GBA
   interfaces.append(new higan::GameBoyAdvance::GameBoyPlayerInterface);
+  #endif
+
+  #ifdef CORE_MD
+  interfaces.append(new higan::MegaDrive::MegaDriveInterface);
   #endif
 
   #ifdef CORE_MS
@@ -87,10 +91,6 @@ auto nall::main(Arguments arguments) -> void {
 
   #ifdef CORE_MS
   interfaces.append(new higan::MasterSystem::MasterSystemInterface);
-  #endif
-
-  #ifdef CORE_MD
-  interfaces.append(new higan::MegaDrive::MegaDriveInterface);
   #endif
 
   #ifdef CORE_MSX

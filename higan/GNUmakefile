@@ -1,4 +1,5 @@
 target := higan
+#target := byuu
 build := performance
 openmp := false
 local := true

@@ -180,7 +180,7 @@ private:
   friend class PPU::Window;
   friend class PPU::Screen;
   friend class System;
-  friend class PPUfast;
+  friend class SuperFamicomInterface;
 };
 
 extern PPU ppu;

@@ -61,6 +61,7 @@ auto Settings::properties(bool mode, Markup::Node document) -> void {
   s(hotkeys.incrementStateSlot.identifier)
   s(hotkeys.decrementStateSlot.identifier)
   s(hotkeys.pauseEmulation.identifier)
+  s(hotkeys.exportMemory.identifier)
   s(hotkeys.quitEmulator.identifier)
   #undef s
 }

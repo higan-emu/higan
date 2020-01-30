@@ -17,6 +17,8 @@ struct SuperFamicomInterface : Interface {
 
   auto serialize() -> serializer override;
   auto unserialize(serializer&) -> bool override;
+
+  auto exportMemory() -> bool override;
 };
 
 }

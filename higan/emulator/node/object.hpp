@@ -101,7 +101,7 @@ struct Object : shared_pointer_this<Object> {
   }
 
   template<typename T = Node::Object>
-  auto find(string name) -> Node::Object {
+  auto find(string name) -> T {
     using Type = typename T::type;
     for(auto& node : _nodes) {
       if(node->identity() == Type::identifier && node->_name == name) return node;

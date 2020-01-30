@@ -78,9 +78,9 @@ auto Emulator::event(higan::Event event) -> void {
 
 auto Emulator::log(string_view message) -> void {
   if(!system.log) {
-    directory::create({system.data, "Logs/"});
+    directory::create({"/tmpfs/Logs/", system.name, "/"});
     string datetime = chrono::local::datetime().transform("-: ", "  _").replace(" ", "");
-    system.log.open({system.data, "Logs/event-", datetime, ".log"}, file::mode::write);
+    system.log.open({"/tmpfs/Logs/", system.name, "/event-", datetime, ".log"}, file::mode::write);
   }
   system.log.print(message);
 }

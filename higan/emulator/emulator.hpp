@@ -7,6 +7,7 @@
 #include <nall/any.hpp>
 #include <nall/array.hpp>
 #include <nall/chrono.hpp>
+#include <nall/directory.hpp>
 #include <nall/dl.hpp>
 #include <nall/endian.hpp>
 #include <nall/image.hpp>
@@ -39,7 +40,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "107.6";
+  static const string Version = "107.7";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";

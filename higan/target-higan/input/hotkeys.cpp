@@ -100,6 +100,12 @@ Hotkeys::Hotkeys() {
   };
   hotkeys.append(&pauseEmulation);
 
+  exportMemory.onPress = [&] {
+    if(!interface) return;
+    interface->exportMemory();
+  };
+  hotkeys.append(&exportMemory);
+
   quitEmulator.onPress = [&] {
     emulator.quit();
   };

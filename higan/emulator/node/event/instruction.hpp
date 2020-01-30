@@ -40,12 +40,15 @@ struct Instruction : Event {
 
   auto notify(string_view instruction, string_view context, string_view extra = {}) -> void {
     if(_omitted) {
-      PlatformLog({_component, " [Omitted: ", _omitted, "]\n"});
+      PlatformLog({
+      //_component, " ",
+        "[Omitted: ", _omitted, "]\n"}
+      );
       _omitted = 0;
     }
 
     string output{
-      _component, "  ",
+    //_component, "  ",
       hex(_address, _addressBits + 3 >> 2), "  ",
       instruction, "  ",
       context, "  ",

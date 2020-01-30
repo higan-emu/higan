@@ -20,6 +20,9 @@ struct Interface {
   //state functions
   virtual auto serialize() -> serializer { return {}; }
   virtual auto unserialize(serializer&) -> bool { return false; }
+
+  //debugging functions
+  virtual auto exportMemory() -> bool { return false; }
 };
 
 }

@@ -34,6 +34,7 @@ struct Hotkeys {
   InputHotkey incrementStateSlot{"Increment State Slot"};
   InputHotkey decrementStateSlot{"Decrement State Slot"};
   InputHotkey pauseEmulation{"Pause Emulation"};
+  InputHotkey exportMemory{"Export Memory"};
   InputHotkey quitEmulator{"Quit Emulator"};
 
   vector<InputHotkey*> hotkeys;

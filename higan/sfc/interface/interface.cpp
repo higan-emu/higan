@@ -68,4 +68,11 @@ auto SuperFamicomInterface::unserialize(serializer& s) -> bool {
   return system.unserialize(s);
 }
 
+auto SuperFamicomInterface::exportMemory() -> bool {
+  directory::create("/tmpfs/Memory/Super Famicom/");
+  file::write("/tmpfs/Memory/Super Famicom/wram.bin", {cpu.wram, 128 * 1024});
+  file::write("/tmpfs/Memory/Super Famicom/vram.bin", {ppu.vram.data, 64 * 1024});
+  return true;
+}
+
 }

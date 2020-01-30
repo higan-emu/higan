@@ -1,10 +1,10 @@
 database
-  revision: 2020-01-01
+  revision: 2020-01-21
 
 //Boards (Production)
 
 database
-  revision: 2020-01-01
+  revision: 2020-01-21
 
 board: BANDAI-PT-923
   memory type=ROM content=Program
@@ -543,6 +543,15 @@ board: SHVC-LDH3C-01
   rtc manufacturer=Epson
     map address=00-3f,80-bf:4840-4842
     memory type=RTC content=Time manufacturer=Epson
+
+board: SHVC-LJ3M-01
+  memory type=ROM content=Program
+    map address=00-3f:8000-ffff base=0x400000
+    map address=40-7d:0000-ffff base=0x400000
+    map address=80-bf:8000-ffff mask=0xc00000
+    map address=c0-ff:0000-ffff mask=0xc00000
+  memory type=RAM content=Save
+    map address=80-bf:6000-7fff mask=0xe000
 
 board: SHVC-LN3B-01
   memory type=RAM content=Save
