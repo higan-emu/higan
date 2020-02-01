@@ -7,13 +7,16 @@ Program program;
 auto Program::create() -> void {
   higan::platform = this;
 
-  ruby::video.create(ruby::Video::optimalDriver());
+  ruby::video.create(settings.video.driver);
   ruby::video.setContext(presentation.viewport.handle());
+  ruby::video.setBlocking(false);
 
-  ruby::audio.create(ruby::Audio::optimalDriver());
+  ruby::audio.create(settings.audio.driver);
   ruby::audio.setContext(presentation.viewport.handle());
+  ruby::audio.setBlocking(true);
+  ruby::audio.setFrequency(48000.0);
 
-  ruby::input.create(ruby::Input::optimalDriver());
+  ruby::input.create(settings.input.driver);
   ruby::input.setContext(presentation.viewport.handle());
 }
 

@@ -26,6 +26,12 @@ auto Famicom::load() -> void {
     peripheral->setAttribute("location", game.name);
     port->connect(peripheral);
   }
+
+  if(auto port = root->find<higan::Node::Port>("Controller Port 1")) {
+    auto peripheral = port->allocate();
+    peripheral->setName("Gamepad");
+    port->connect(peripheral);
+  }
 }
 
 auto Famicom::load(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

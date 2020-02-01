@@ -6,15 +6,29 @@ namespace ruby {
   Input input;
 }
 
+auto locate(const string& name) -> string {
+  string location = {Path::program(), name};
+  if(inode::exists(location)) return location;
+
+  location = {Path::userData(), "byuu/", name};
+  if(inode::exists(location)) return location;
+
+  directory::create({Path::userSettings(), "byuu/"});
+  return {Path::userSettings(), "byuu/", name};
+}
+
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
   Application::setName("byuu");
   Application::setScreenSaver(false);
 
+  settings.load();
+
   Emulator::construct();
   Instances::presentation.construct();
+  Instances::settingsWindow.construct();
 
-  if(!Path::user().find("byuu")) {
+  if(!Path::user().endsWith("/byuu/")) {
     MessageDialog()
     .setTitle("byuu")
     .setText({
@@ -32,5 +46,8 @@ auto nall::main(Arguments arguments) -> void {
   Application::onMain({&Program::main, &program});
   Application::run();
 
+  settings.save();
+
   Instances::presentation.destruct();
+  Instances::settingsWindow.destruct();
 }

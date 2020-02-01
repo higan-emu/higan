@@ -5,7 +5,13 @@ struct Presentation : Window {
     Menu loadMenu{&menuBar};
     Menu systemMenu{&menuBar};
     Menu settingsMenu{&menuBar};
-      MenuItem configurationAction{&settingsMenu};
+      MenuCheckItem muteAudioSetting{&settingsMenu};
+      MenuSeparator settingsSeparator{&settingsMenu};
+      MenuItem videoSettingsAction{&settingsMenu};
+      MenuItem audioSettingsAction{&settingsMenu};
+      MenuItem inputSettingsAction{&settingsMenu};
+      MenuItem hotkeySettingsAction{&settingsMenu};
+      MenuItem driverSettingsAction{&settingsMenu};
     Menu helpMenu{&menuBar};
       MenuItem webpageAction{&helpMenu};
       MenuSeparator aboutSeparator{&helpMenu};

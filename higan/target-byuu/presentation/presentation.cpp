@@ -24,7 +24,24 @@ Presentation::Presentation() {
   systemMenu.setText("Nintendo");
 
   settingsMenu.setText("Settings");
-  configurationAction.setText("Configuration ...").setIcon(Icon::Action::Settings).setEnabled(false);
+  muteAudioSetting.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {
+    settings.audio.mute = muteAudioSetting.checked();
+  });
+  videoSettingsAction.setText("Video ...").setIcon(Icon::Device::Display).onActivate([&] {
+    settingsWindow.show("Video");
+  });
+  audioSettingsAction.setText("Audio ...").setIcon(Icon::Device::Speaker).onActivate([&] {
+    settingsWindow.show("Audio");
+  });
+  inputSettingsAction.setText("Input ...").setIcon(Icon::Device::Joypad).onActivate([&] {
+    settingsWindow.show("Input");
+  });
+  hotkeySettingsAction.setText("Hotkeys ...").setIcon(Icon::Device::Keyboard).onActivate([&] {
+    settingsWindow.show("Hotkeys");
+  });
+  driverSettingsAction.setText("Drivers ...").setIcon(Icon::Place::Settings).onActivate([&] {
+    settingsWindow.show("Drivers");
+  });
 
   helpMenu.setText("Help");
   webpageAction.setText("Webpage ...").setIcon(Icon::Application::Browser).onActivate([&] {
@@ -34,7 +51,7 @@ Presentation::Presentation() {
     AboutDialog()
     .setName("byuu")
     .setLogo(Resource::Logo)
-    .setVersion("0")
+    .setVersion("0.1")
     .setLicense("GPLv3")
     .setWebsite("https://byuu.org")
     .show();
@@ -46,7 +63,7 @@ Presentation::Presentation() {
     program.quit();
   });
 
-  setTitle("byuu v0");
+  setTitle("byuu v0.1");
   setBackgroundColor({0, 0, 0});
   setSize({640, 480});
   setAlignment(Alignment::Center);

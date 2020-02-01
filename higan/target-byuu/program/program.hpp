@@ -16,6 +16,9 @@ struct Program : higan::Platform {
   //load.cpp
   auto loadGame(shared_pointer<Emulator::Instance> emulator) -> void;
   auto unloadGame() -> void;
+
+  vector<higan::Node::Screen> screens;
+  vector<higan::Node::Stream> streams;
 };
 
 extern Program program;

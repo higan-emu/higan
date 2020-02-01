@@ -18,3 +18,6 @@ namespace ruby {
 #include "emulator/emulator.hpp"
 #include "program/program.hpp"
 #include "presentation/presentation.hpp"
+#include "settings/settings.hpp"
+
+auto locate(const string& name) -> string;

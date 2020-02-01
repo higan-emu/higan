@@ -1,4 +1,12 @@
 auto Program::attach(higan::Node::Object node) -> void {
+  if(auto screen = node->cast<higan::Node::Screen>()) {
+    screens = emulator->root->find<higan::Node::Screen>();
+  }
+
+  if(auto stream = node->cast<higan::Node::Stream>()) {
+    streams = emulator->root->find<higan::Node::Stream>();
+    stream->setResamplerFrequency(48000.0);
+  }
 }
 
 auto Program::detach(higan::Node::Object node) -> void {
@@ -26,6 +34,8 @@ auto Program::log(string_view message) -> void {
 }
 
 auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
+  if(!screens) return;
+
   pitch >>= 2;
   if(auto [output, length] = ruby::video.acquire(width, height); output) {
     length >>= 2;
@@ -48,7 +58,74 @@ auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, 
 }
 
 auto Program::audio(higan::Node::Stream node) -> void {
+  if(!streams) return;
+
+  //process all pending frames (there may be more than one waiting)
+  while(true) {
+    //only process a frame if all streams have at least one pending frame
+    for(auto& stream : streams) {
+      if(!stream->pending()) return;
+    }
+
+    //mix all frames together
+    double samples[2] = {0.0, 0.0};
+    for(auto& stream : streams) {
+      double buffer[2];
+      uint channels = stream->read(buffer);
+      if(channels == 1) {
+        //monaural -> stereo mixing
+        samples[0] += buffer[0];
+        samples[1] += buffer[0];
+      } else {
+        samples[0] += buffer[0];
+        samples[1] += buffer[1];
+      }
+    }
+
+    //apply volume, balance, and clamping to the output frame
+    //TODO
+    if(settings.audio.mute) {
+      samples[0] = 0.0;
+      samples[1] = 0.0;
+    }
+
+    //send frame to the audio output device
+    ruby::audio.output(samples);
+  }
 }
 
 auto Program::input(higan::Node::Input node) -> void {
+  static vector<shared_pointer<HID::Device>> devices;
+
+  static uint64_t timestamp = 0;
+  auto current = chrono::millisecond();
+  if(current - timestamp >= 5) {
+    timestamp = current;
+    devices = ruby::input.poll();
+  }
+
+  auto name = node->name();
+
+  for(auto device : devices) {
+    auto& buttons = device->group(0);
+    maybe<uint> id;
+
+    if(device->isKeyboard()) {
+      if(name == "Up") id = buttons.find("Up");
+      if(name == "Down") id = buttons.find("Down");
+      if(name == "Left") id = buttons.find("Left");
+      if(name == "Right") id = buttons.find("Right");
+      if(name == "B") id = buttons.find("Z");
+      if(name == "A") id = buttons.find("X");
+      if(name == "Select") id = buttons.find("Apostrophe");
+      if(name == "Start") id = buttons.find("Return");
+
+      if(id) {
+        auto value = buttons[*id].value();
+        if(auto button = node->cast<higan::Node::Button>()) {
+          button->setValue(value);
+        }
+      }
+    }
+  }
 }
