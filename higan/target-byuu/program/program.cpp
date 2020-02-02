@@ -18,10 +18,12 @@ auto Program::create() -> void {
 
   ruby::input.create(settings.input.driver);
   ruby::input.setContext(presentation.viewport.handle());
+  ruby::input.onChange({&InputManager::eventInput, &inputManager});
 }
 
 auto Program::main() -> void {
   if(Application::modal()) return;  //modal loop calls usleep() internally
+  inputManager.poll();
   if(!emulator) return (void)usleep(20 * 1000);
   emulator->interface->run();
 }

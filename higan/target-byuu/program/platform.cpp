@@ -95,37 +95,5 @@ auto Program::audio(higan::Node::Stream node) -> void {
 }
 
 auto Program::input(higan::Node::Input node) -> void {
-  static vector<shared_pointer<HID::Device>> devices;
-
-  static uint64_t timestamp = 0;
-  auto current = chrono::millisecond();
-  if(current - timestamp >= 5) {
-    timestamp = current;
-    devices = ruby::input.poll();
-  }
-
-  auto name = node->name();
-
-  for(auto device : devices) {
-    auto& buttons = device->group(0);
-    maybe<uint> id;
-
-    if(device->isKeyboard()) {
-      if(name == "Up") id = buttons.find("Up");
-      if(name == "Down") id = buttons.find("Down");
-      if(name == "Left") id = buttons.find("Left");
-      if(name == "Right") id = buttons.find("Right");
-      if(name == "B") id = buttons.find("Z");
-      if(name == "A") id = buttons.find("X");
-      if(name == "Select") id = buttons.find("Apostrophe");
-      if(name == "Start") id = buttons.find("Return");
-
-      if(id) {
-        auto value = buttons[*id].value();
-        if(auto button = node->cast<higan::Node::Button>()) {
-          button->setValue(value);
-        }
-      }
-    }
-  }
+  emulator->input(node);
 }

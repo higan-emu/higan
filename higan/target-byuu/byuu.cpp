@@ -22,9 +22,8 @@ auto nall::main(Arguments arguments) -> void {
   Application::setName("byuu");
   Application::setScreenSaver(false);
 
-  settings.load();
-
   Emulator::construct();
+  settings.load();
   Instances::presentation.construct();
   Instances::settingsWindow.construct();
 

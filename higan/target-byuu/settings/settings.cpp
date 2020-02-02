@@ -1,11 +1,17 @@
 #include "../byuu.hpp"
+#include "video.cpp"
+#include "audio.cpp"
 #include "input.cpp"
+#include "hotkeys.cpp"
 #include "drivers.cpp"
 
 Settings settings;
 namespace Instances { Instance<SettingsWindow> settingsWindow; }
 SettingsWindow& settingsWindow = Instances::settingsWindow();
+VideoSettings& videoSettings = settingsWindow.videoSettings;
+AudioSettings& audioSettings = settingsWindow.audioSettings;
 InputSettings& inputSettings = settingsWindow.inputSettings;
+HotkeySettings& hotkeySettings = settingsWindow.hotkeySettings;
 DriverSettings& driverSettings = settingsWindow.driverSettings;
 
 auto Settings::load() -> void {
@@ -41,6 +47,16 @@ auto Settings::process(bool load) -> void {
 
   bind(string,  "Input/Driver", input.driver);
 
+  for(auto& mapping : virtualPad.mappings) {
+    string name = {"VirtualPad/", mapping->name};
+    bind(string, name, mapping->assignment);
+  }
+
+  for(auto& emulator : emulators) {
+    string name = {emulator->name, "/Game/Path"};
+    bind(string, name, emulator->settings.gamePath);
+  }
+
   #undef bind
 }
 
@@ -56,7 +72,10 @@ SettingsWindow::SettingsWindow() {
   panelList.append(ListViewItem().setText("Drivers").setIcon(Icon::Place::Settings));
   panelList.onChange([&] { eventChange(); });
 
+  panelContainer.append(videoSettings, Size{~0, ~0});
+  panelContainer.append(audioSettings, Size{~0, ~0});
   panelContainer.append(inputSettings, Size{~0, ~0});
+  panelContainer.append(hotkeySettings, Size{~0, ~0});
   panelContainer.append(driverSettings, Size{~0, ~0});
 
   statusBar.setFont(Font().setBold());
@@ -80,11 +99,17 @@ auto SettingsWindow::show(const string& panel) -> void {
 }
 
 auto SettingsWindow::eventChange() -> void {
+  videoSettings.setVisible(false);
+  audioSettings.setVisible(false);
   inputSettings.setVisible(false);
+  hotkeySettings.setVisible(false);
   driverSettings.setVisible(false);
 
   if(auto item = panelList.selected()) {
+    if(item.text() == "Video") videoSettings.setVisible();
+    if(item.text() == "Audio") audioSettings.setVisible();
     if(item.text() == "Input") inputSettings.setVisible();
+    if(item.text() == "Hotkeys") hotkeySettings.setVisible();
     if(item.text() == "Drivers") driverSettings.setVisible();
   }
 

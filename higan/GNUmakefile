@@ -33,6 +33,10 @@ ifeq ($(target),higan)
   cores := fc sfc sg ms md pce msx cv gb gba ws ngp
 endif
 
+ifeq ($(target),byuu)
+  cores := fc
+endif
+
 ifneq ($(filter $(cores),fc),)
   include fc/GNUmakefile
 endif

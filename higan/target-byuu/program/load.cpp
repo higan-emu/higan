@@ -1,7 +1,10 @@
-auto Program::loadGame(shared_pointer<Emulator::Instance> emulator) -> void {
+auto Program::loadGame(shared_pointer<Emulator> emulator) -> void {
+  string location = emulator->settings.gamePath;
+  if(!location) location = Path::user();
+
   BrowserDialog dialog;
   dialog.setTitle({"Load ", emulator->name, " Game"});
-  dialog.setPath({Path::user(), "ROMs/Famicom/"});
+  dialog.setPath(location);
   dialog.setAlignment(presentation);
   string filters;  //{"*.zip:"};  //not supported by icarus --manifest yet ...
   for(auto& extension : emulator->extensions) {
@@ -34,6 +37,7 @@ auto Program::loadGame(shared_pointer<Emulator::Instance> emulator) -> void {
       unloadGame();
       ::emulator = emulator;
       emulator->load(filename, filedata);
+      presentation.loadEmulator();
     }
   }
 }
@@ -42,4 +46,8 @@ auto Program::unloadGame() -> void {
   if(!emulator) return;
 
   emulator.reset();
+  presentation.unloadEmulator();
+  presentation.statusBar.setText();
+  ruby::video.clear();
+  ruby::audio.clear();
 }

@@ -14,7 +14,7 @@ struct Program : higan::Platform {
   auto input(higan::Node::Input) -> void override;
 
   //load.cpp
-  auto loadGame(shared_pointer<Emulator::Instance> emulator) -> void;
+  auto loadGame(shared_pointer<Emulator> emulator) -> void;
   auto unloadGame() -> void;
 
   vector<higan::Node::Screen> screens;

@@ -1,5 +1,7 @@
 struct Presentation : Window {
   Presentation();
+  auto loadEmulator() -> void;
+  auto unloadEmulator() -> void;
 
   MenuBar menuBar{this};
     Menu loadMenu{&menuBar};

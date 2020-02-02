@@ -21,7 +21,7 @@ Presentation::Presentation() {
     });
   }
 
-  systemMenu.setText("Nintendo");
+  systemMenu.setVisible(false);
 
   settingsMenu.setText("Settings");
   muteAudioSetting.setText("Mute Audio").setChecked(settings.audio.mute).onToggle([&] {
@@ -49,11 +49,11 @@ Presentation::Presentation() {
   });
   aboutAction.setText("About byuu ...").setIcon(Icon::Prompt::Question).onActivate([&] {
     AboutDialog()
-    .setName("byuu")
+    .setName(Information::Name)
     .setLogo(Resource::Logo)
-    .setVersion("0.1")
-    .setLicense("GPLv3")
-    .setWebsite("https://byuu.org")
+    .setVersion(Information::Version)
+    .setLicense(Information::License)
+    .setWebsite(Information::Website)
     .show();
   });
 
@@ -63,9 +63,25 @@ Presentation::Presentation() {
     program.quit();
   });
 
-  setTitle("byuu v0.1");
+  setTitle({Information::Name, " v", Information::Version});
   setBackgroundColor({0, 0, 0});
   setSize({640, 480});
   setAlignment(Alignment::Center);
   setVisible();
+}
+
+auto Presentation::loadEmulator() -> void {
+  systemMenu.setText(emulator->name);
+  systemMenu.setVisible();
+
+  MenuItem unload{&systemMenu};
+  unload.setText("Unload").setIcon(Icon::Media::Eject).onActivate([&] {
+    program.unloadGame();
+  });
+}
+
+auto Presentation::unloadEmulator() -> void {
+  setTitle({Information::Name, " v", Information::Version});
+  systemMenu.setVisible(false);
+  systemMenu.reset();
 }

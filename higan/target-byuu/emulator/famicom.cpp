@@ -1,8 +1,6 @@
 #include <fc/interface/interface.hpp>
 
-namespace Emulator {
-
-Famicom::Famicom() {
+FamicomEmulator::FamicomEmulator() {
   interface = new higan::Famicom::FamicomInterface;
   name = "Nintendo";
   abbreviation = "NES";
@@ -19,7 +17,7 @@ Famicom::Famicom() {
   }
 }
 
-auto Famicom::load() -> void {
+auto FamicomEmulator::load() -> void {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     peripheral->setAttribute("id", "rom");
@@ -34,7 +32,7 @@ auto Famicom::load() -> void {
   }
 }
 
-auto Famicom::load(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
+auto FamicomEmulator::load(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   auto document = BML::unserialize(game.manifest);
   auto headerSize = document["game/board/memory(content=iNES,type=ROM)/size"].natural();
   auto programSize = document["game/board/memory(content=Program,type=ROM)/size"].natural();
@@ -53,4 +51,22 @@ auto Famicom::load(higan::Node::Object node, string name, vfs::file::mode mode, 
   return {};
 }
 
+auto FamicomEmulator::input(higan::Node::Input node) -> void {
+  auto name = node->name();
+  maybe<InputMapping&> mapping;
+  if(name == "Up") mapping = virtualPad.up;
+  if(name == "Down") mapping = virtualPad.down;
+  if(name == "Left") mapping = virtualPad.left;
+  if(name == "Right") mapping = virtualPad.right;
+  if(name == "B") mapping = virtualPad.a;
+  if(name == "A") mapping = virtualPad.b;
+  if(name == "Select") mapping = virtualPad.select;
+  if(name == "Start") mapping = virtualPad.start;
+
+  if(mapping) {
+    auto value = mapping->value();
+    if(auto button = node->cast<higan::Node::Button>()) {
+       button->setValue(value);
+    }
+  }
 }

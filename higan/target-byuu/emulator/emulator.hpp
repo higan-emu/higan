@@ -1,9 +1,9 @@
-namespace Emulator {
-
-struct Instance {
+struct Emulator {
+  static auto construct() -> void;
   auto load(const string& name, const vector<uint8_t>& data) -> void;
   virtual auto load() -> void = 0;
   virtual auto load(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> = 0;
+  virtual auto input(higan::Node::Input) -> void = 0;
 
   struct Port {
     string name;
@@ -23,17 +23,18 @@ struct Instance {
 
   higan::Node::Object root;
   Game game;
+
+  struct Settings {
+    string gamePath;
+  } settings;
 };
 
-auto construct() -> void;
-
-struct Famicom : Instance {
-  Famicom();
+struct FamicomEmulator : Emulator {
+  FamicomEmulator();
   auto load() -> void;
   auto load(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file>;
+  auto input(higan::Node::Input) -> void;
 };
 
-}
-
-extern vector<shared_pointer<Emulator::Instance>> emulators;
-extern shared_pointer<Emulator::Instance> emulator;
+extern vector<shared_pointer<Emulator>> emulators;
+extern shared_pointer<Emulator> emulator;

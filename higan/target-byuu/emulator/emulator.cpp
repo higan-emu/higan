@@ -1,18 +1,18 @@
 #include "../byuu.hpp"
 #include "famicom.cpp"
 
-vector<shared_pointer<Emulator::Instance>> emulators;
-shared_pointer<Emulator::Instance> emulator;
+vector<shared_pointer<Emulator>> emulators;
+shared_pointer<Emulator> emulator;
 
-namespace Emulator {
-
-auto construct() -> void {
+auto Emulator::construct() -> void {
   #ifdef CORE_FC
-  emulators.append(new Emulator::Famicom);
+  emulators.append(new FamicomEmulator);
   #endif
 }
 
-auto Instance::load(const string& name, const vector<uint8_t>& data) -> void {
+auto Emulator::load(const string& name, const vector<uint8_t>& data) -> void {
+  settings.gamePath = Location::dir(name);
+
   game.name = name;
   game.data = data;
 
@@ -23,6 +23,4 @@ auto Instance::load(const string& name, const vector<uint8_t>& data) -> void {
 
   load();
   interface->power();
-}
-
 }
