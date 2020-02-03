@@ -1,8 +1,9 @@
 struct Emulator {
   static auto construct() -> void;
   auto load(const string& name, const vector<uint8_t>& data) -> void;
+  auto unload() -> void;
   virtual auto load() -> void = 0;
-  virtual auto load(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> = 0;
+  virtual auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> = 0;
   virtual auto input(higan::Node::Input) -> void = 0;
 
   struct Port {
@@ -31,9 +32,9 @@ struct Emulator {
 
 struct FamicomEmulator : Emulator {
   FamicomEmulator();
-  auto load() -> void;
-  auto load(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file>;
-  auto input(higan::Node::Input) -> void;
+  auto load() -> void override;
+  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
+  auto input(higan::Node::Input) -> void override;
 };
 
 extern vector<shared_pointer<Emulator>> emulators;

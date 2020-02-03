@@ -21,6 +21,18 @@ struct InputButton : InputMapping {
   using InputMapping::InputMapping;
 };
 
+struct InputHotkey : InputMapping {
+  using InputMapping::InputMapping;
+  auto& onPress(function<void ()> press) { return this->press = press, *this; }
+  auto& onRelease(function<void ()> release) { return this->release = release, *this; }
+
+private:
+  function<void ()> press;
+  function<void ()> release;
+  int16_t state = 0;
+  friend class InputManager;
+};
+
 struct VirtualPad {
   VirtualPad();
 
@@ -34,11 +46,17 @@ struct VirtualPad {
 };
 
 struct InputManager {
+  auto create() -> void;
   auto bind() -> void;
   auto poll() -> void;
   auto eventInput(shared_pointer<HID::Device>, uint groupID, uint inputID, int16_t oldValue, int16_t newValue) -> void;
 
+  //hotkeys.cpp
+  auto createHotkeys() -> void;
+  auto pollHotkeys() -> void;
+
   vector<shared_pointer<HID::Device>> devices;
+  vector<InputHotkey> hotkeys;
 
   uint64_t pollFrequency = 5;
   uint64_t lastPoll = 0;

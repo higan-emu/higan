@@ -41,15 +41,37 @@ auto Settings::process(bool load) -> void {
     } \
 
   bind(string,  "Video/Driver", video.driver);
+  bind(string,  "Video/Monitor", video.monitor);
+  bind(string,  "Video/Format", video.format);
+  bind(boolean, "Video/Exclusive", video.exclusive);
+  bind(boolean, "Video/Blocking", video.blocking);
+  bind(boolean, "Video/Flush", video.flush);
+  bind(string,  "Video/Shader", video.shader);
+  bind(natural, "Video/Multiplier", video.multiplier);
+  bind(string,  "Video/Output", video.output);
+  bind(boolean, "Video/AspectCorrection", video.aspectCorrection);
 
   bind(string,  "Audio/Driver", audio.driver);
+  bind(string,  "Audio/Device", audio.device);
+  bind(natural, "Audio/Frequency", audio.frequency);
+  bind(natural, "Audio/Latency", audio.latency);
+  bind(boolean, "Audio/Exclusive", audio.exclusive);
+  bind(boolean, "Audio/Blocking", audio.blocking);
+  bind(boolean, "Audio/Dynamic", audio.dynamic);
   bind(boolean, "Audio/Mute", audio.mute);
 
   bind(string,  "Input/Driver", input.driver);
 
+  bind(boolean, "General/ShowStatusBar", general.showStatusBar);
+
   for(auto& mapping : virtualPad.mappings) {
     string name = {"VirtualPad/", mapping->name};
     bind(string, name, mapping->assignment);
+  }
+
+  for(auto& mapping : inputManager.hotkeys) {
+    string name = {"Hotkey/", string{mapping.name}.replace(" ", "")};
+    bind(string, name, mapping.assignment);
   }
 
   for(auto& emulator : emulators) {

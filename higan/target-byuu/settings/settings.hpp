@@ -7,16 +7,35 @@ struct Settings : Markup::Node {
 
   struct Video {
     string driver;
+    string monitor;
+    string format;
+    bool exclusive = false;
+    bool blocking = false;
+    bool flush = false;
+    string shader = "Blur";
+    uint multiplier = 2;
+    string output = "Scale";
+    bool aspectCorrection = true;
   } video;
 
   struct Audio {
     string driver;
+    string device;
+    uint frequency = 0;
+    uint latency = 0;
+    bool exclusive = false;
+    bool blocking = true;
+    bool dynamic = false;
     bool mute = false;
   } audio;
 
   struct Input {
     string driver;
   } input;
+
+  struct General {
+    bool showStatusBar = true;
+  } general;
 };
 
 struct VideoSettings : VerticalLayout {
@@ -69,30 +88,53 @@ struct HotkeySettings : VerticalLayout {
 
 struct DriverSettings : VerticalLayout {
   DriverSettings();
+  auto videoRefresh() -> void;
+  auto videoDriverUpdate() -> void;
+  auto audioRefresh() -> void;
+  auto audioDriverUpdate() -> void;
+  auto inputRefresh() -> void;
+  auto inputDriverUpdate() -> void;
 
   Label videoLabel{this, Size{~0, 0}, 2};
-  VerticalLayout videoLayout{this, Size{~0, 0}};
-    HorizontalLayout videoDriverLayout{&videoLayout, Size{~0, 0}};
-      Label videoDriverLabel{&videoDriverLayout, Size{0, 0}};
-      ComboButton videoDriverList{&videoDriverLayout, Size{0, 0}};
-      Button videoDriverUpdate{&videoDriverLayout, Size{0, 0}};
-      Label videoDriverActive{&videoDriverLayout, Size{0, 0}};
+  HorizontalLayout videoDriverLayout{this, Size{~0, 0}};
+    Label videoDriverLabel{&videoDriverLayout, Size{0, 0}};
+    ComboButton videoDriverList{&videoDriverLayout, Size{0, 0}};
+    Button videoDriverAssign{&videoDriverLayout, Size{0, 0}};
+    Label videoDriverActive{&videoDriverLayout, Size{0, 0}};
+  HorizontalLayout videoPropertyLayout{this, Size{~0, 0}};
+    Label videoMonitorLabel{&videoPropertyLayout, Size{0, 0}};
+    ComboButton videoMonitorList{&videoPropertyLayout, Size{0, 0}};
+    Label videoFormatLabel{&videoPropertyLayout, Size{0, 0}};
+    ComboButton videoFormatList{&videoPropertyLayout, Size{0, 0}};
+  HorizontalLayout videoToggleLayout{this, Size{~0, 0}};
+    CheckLabel videoExclusiveToggle{&videoToggleLayout, Size{0, 0}};
+    CheckLabel videoBlockingToggle{&videoToggleLayout, Size{0, 0}};
+    CheckLabel videoFlushToggle{&videoToggleLayout, Size{0, 0}};
   //
   Label audioLabel{this, Size{~0, 0}, 2};
-  VerticalLayout audioLayout{this, Size{~0, 0}};
-    HorizontalLayout audioDriverLayout{&audioLayout, Size{~0, 0}};
-      Label audioDriverLabel{&audioDriverLayout, Size{0, 0}};
-      ComboButton audioDriverList{&audioDriverLayout, Size{0, 0}};
-      Button audioDriverUpdate{&audioDriverLayout, Size{0, 0}};
-      Label audioDriverActive{&audioDriverLayout, Size{0, 0}};
+  HorizontalLayout audioDriverLayout{this, Size{~0, 0}};
+    Label audioDriverLabel{&audioDriverLayout, Size{0, 0}};
+    ComboButton audioDriverList{&audioDriverLayout, Size{0, 0}};
+    Button audioDriverAssign{&audioDriverLayout, Size{0, 0}};
+    Label audioDriverActive{&audioDriverLayout, Size{0, 0}};
+  HorizontalLayout audioPropertyLayout{this, Size{~0, 0}};
+    Label audioDeviceLabel{&audioPropertyLayout, Size{0, 0}};
+    ComboButton audioDeviceList{&audioPropertyLayout, Size{0, 0}};
+    Label audioFrequencyLabel{&audioPropertyLayout, Size{0, 0}};
+    ComboButton audioFrequencyList{&audioPropertyLayout, Size{0, 0}};
+    Label audioLatencyLabel{&audioPropertyLayout, Size{0, 0}};
+    ComboButton audioLatencyList{&audioPropertyLayout, Size{0, 0}};
+  HorizontalLayout audioToggleLayout{this, Size{~0, 0}};
+    CheckLabel audioExclusiveToggle{&audioToggleLayout, Size{0, 0}};
+    CheckLabel audioBlockingToggle{&audioToggleLayout, Size{0, 0}};
+    CheckLabel audioDynamicToggle{&audioToggleLayout, Size{0, 0}};
   //
   Label inputLabel{this, Size{~0, 0}, 2};
-  VerticalLayout inputLayout{this, Size{~0, 0}};
-    HorizontalLayout inputDriverLayout{&inputLayout, Size{~0, 0}};
-      Label inputDriverLabel{&inputDriverLayout, Size{0, 0}};
-      ComboButton inputDriverList{&inputDriverLayout, Size{0, 0}};
-      Button inputDriverUpdate{&inputDriverLayout, Size{0, 0}};
-      Label inputDriverActive{&inputDriverLayout, Size{0, 0}};
+  HorizontalLayout inputDriverLayout{this, Size{~0, 0}};
+    Label inputDriverLabel{&inputDriverLayout, Size{0, 0}};
+    ComboButton inputDriverList{&inputDriverLayout, Size{0, 0}};
+    Button inputDriverAssign{&inputDriverLayout, Size{0, 0}};
+    Label inputDriverActive{&inputDriverLayout, Size{0, 0}};
 };
 
 struct SettingsWindow : Window {

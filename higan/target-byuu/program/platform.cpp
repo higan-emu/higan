@@ -19,12 +19,11 @@ auto Program::open(higan::Node::Object node, string name, vfs::file::mode mode, 
     if(auto manifest = execute("icarus", "--system", node->name(), "--manifest", location).output) {
       emulator->game.manifest = manifest;
       auto document = BML::unserialize(manifest);
-      presentation.setTitle(Location::prefix(document["game/label"].string()));
       return vfs::memory::file::open(manifest.data<uint8_t>(), manifest.size());
     }
   }
 
-  return emulator->load(node, name, mode, required);
+  return emulator->open(node, name, mode, required);
 }
 
 auto Program::event(higan::Event event) -> void {
@@ -36,6 +35,33 @@ auto Program::log(string_view message) -> void {
 auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
   if(!screens) return;
 
+  uint videoWidth = node->width() * node->scaleX();
+  uint videoHeight = node->height() * node->scaleY();
+  if(settings.video.aspectCorrection) videoWidth = videoWidth * node->aspectX() / node->aspectY();
+  if(node->rotation() == 90 || node->rotation() == 270) swap(videoWidth, videoHeight);
+
+  auto [viewportWidth, viewportHeight] = ruby::video.size();
+  uint multiplierX = viewportWidth / videoHeight;
+  uint multiplierY = viewportHeight / videoHeight;
+  uint multiplier = min(multiplierX, multiplierY);
+
+  uint outputWidth = videoWidth * multiplier;
+  uint outputHeight = videoHeight * multiplier;
+
+  if(multiplier == 0 || settings.video.output == "Scale") {
+    float multiplierX = (float)viewportWidth / (float)videoWidth;
+    float multiplierY = (float)viewportHeight / (float)videoHeight;
+    float multiplier = min(multiplierX, multiplierY);
+
+    outputWidth = videoWidth * multiplier;
+    outputHeight = videoHeight * multiplier;
+  }
+
+  if(settings.video.output == "Stretch") {
+    outputWidth = viewportWidth;
+    outputHeight = viewportHeight;
+  }
+
   pitch >>= 2;
   if(auto [output, length] = ruby::video.acquire(width, height); output) {
     length >>= 2;
@@ -43,7 +69,7 @@ auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, 
       memory::copy<uint32_t>(output + y * length, data + y * pitch, width);
     }
     ruby::video.release();
-    ruby::video.output();
+    ruby::video.output(outputWidth, outputHeight);
   }
 
   static uint64_t frameCounter = 0, previous, current;
@@ -52,7 +78,7 @@ auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, 
   current = chrono::timestamp();
   if(current != previous) {
     previous = current;
-    presentation.statusBar.setText({"FPS: ", frameCounter});
+    message.text = {"FPS: ", frameCounter};
     frameCounter = 0;
   }
 }

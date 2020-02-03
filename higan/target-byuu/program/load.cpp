@@ -38,6 +38,8 @@ auto Program::loadGame(shared_pointer<Emulator> emulator) -> void {
       ::emulator = emulator;
       emulator->load(filename, filedata);
       presentation.loadEmulator();
+      state = {};  //reset hotkey state slot to 1
+      showMessage({"Loaded ", Location::prefix(emulator->game.name)});
     }
   }
 }
@@ -45,9 +47,11 @@ auto Program::loadGame(shared_pointer<Emulator> emulator) -> void {
 auto Program::unloadGame() -> void {
   if(!emulator) return;
 
+  showMessage({"Unloaded ", Location::prefix(emulator->game.name)});
+  emulator->unload();
   emulator.reset();
   presentation.unloadEmulator();
-  presentation.statusBar.setText();
+  message.text = "";
   ruby::video.clear();
   ruby::audio.clear();
 }

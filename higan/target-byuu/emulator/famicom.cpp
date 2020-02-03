@@ -32,7 +32,7 @@ auto FamicomEmulator::load() -> void {
   }
 }
 
-auto FamicomEmulator::load(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
+auto FamicomEmulator::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   auto document = BML::unserialize(game.manifest);
   auto headerSize = document["game/board/memory(content=iNES,type=ROM)/size"].natural();
   auto programSize = document["game/board/memory(content=Program,type=ROM)/size"].natural();
@@ -46,6 +46,11 @@ auto FamicomEmulator::load(higan::Node::Object node, string name, vfs::file::mod
   if(name == "character.rom") {
     uint address = headerSize + programSize;
     return vfs::memory::file::open(game.data.data() + address, characterSize);
+  }
+
+  if(name == "save.ram") {
+    string location = {Location::notsuffix(game.name), ".sav"};
+    if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
   return {};

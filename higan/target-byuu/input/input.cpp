@@ -1,4 +1,5 @@
 #include "../byuu.hpp"
+#include "hotkeys.cpp"
 
 VirtualPad virtualPad;
 InputManager inputManager;
@@ -80,8 +81,13 @@ VirtualPad::VirtualPad() {
 
 //
 
+auto InputManager::create() -> void {
+  createHotkeys();
+}
+
 auto InputManager::bind() -> void {
   for(auto& mapping : virtualPad.mappings) mapping->bind();
+  for(auto& mapping : hotkeys) mapping.bind();
 }
 
 auto InputManager::poll() -> void {

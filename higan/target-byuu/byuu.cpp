@@ -23,6 +23,7 @@ auto nall::main(Arguments arguments) -> void {
   Application::setScreenSaver(false);
 
   Emulator::construct();
+  inputManager.create();
   settings.load();
   Instances::presentation.construct();
   Instances::settingsWindow.construct();

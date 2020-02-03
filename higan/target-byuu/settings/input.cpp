@@ -48,6 +48,7 @@ auto InputSettings::eventClear() -> void {
       uint groupID = 0, inputID = 0;
       for(auto& input : device->group(groupID)) {
         if(input.name() == "Escape") return eventInput(device, groupID, inputID, 0, 1);
+        inputID++;
       }
     }
   }

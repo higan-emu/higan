@@ -24,3 +24,7 @@ auto Emulator::load(const string& name, const vector<uint8_t>& data) -> void {
   load();
   interface->power();
 }
+
+auto Emulator::unload() -> void {
+  interface->unload();
+}

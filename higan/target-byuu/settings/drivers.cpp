@@ -4,28 +4,165 @@ DriverSettings::DriverSettings() {
 
   videoLabel.setText("Video").setFont(Font().setBold());
   videoDriverLabel.setText("Driver:");
-  for(auto& driver : ruby::Video::hasDrivers()) {
+  videoDriverAssign.setText("Reload").onActivate([&] { videoDriverUpdate(); });
+  videoMonitorLabel.setText("Fullscreen monitor:");
+  videoMonitorList.onChange([&] {
+    settings.video.monitor = videoMonitorList.selected().text();
+    program.videoMonitorUpdate();
+    videoRefresh();
+  });
+  videoFormatLabel.setText("Format:");
+  videoFormatList.onChange([&] {
+    settings.video.format = videoFormatList.selected().text();
+    program.videoFormatUpdate();
+    videoRefresh();
+  });
+  videoExclusiveToggle.setText("Exclusive mode").onToggle([&] {
+    settings.video.exclusive = videoExclusiveToggle.checked();
+    ruby::video.setExclusive(settings.video.exclusive);
+  });
+  videoBlockingToggle.setText("Synchronize").onToggle([&] {
+    settings.video.blocking = videoBlockingToggle.checked();
+    ruby::video.setBlocking(settings.video.blocking);
+  });
+  videoFlushToggle.setText("GPU sync").onToggle([&] {
+    settings.video.flush = videoFlushToggle.checked();
+    ruby::video.setFlush(settings.video.flush);
+  });
+
+  audioLabel.setText("Audio").setFont(Font().setBold());
+  audioDriverLabel.setText("Driver:");
+  audioDriverAssign.setText("Reload").onActivate([&] { audioDriverUpdate(); });
+  audioDeviceLabel.setText("Output device:");
+  audioDeviceList.onChange([&] {
+    settings.audio.device = audioDeviceList.selected().text();
+    program.audioDeviceUpdate();
+    audioRefresh();
+  });
+  audioFrequencyLabel.setText("Frequency:");
+  audioFrequencyList.onChange([&] {
+    settings.audio.frequency = audioFrequencyList.selected().text().natural();
+    program.audioFrequencyUpdate();
+    audioRefresh();
+  });
+  audioLatencyLabel.setText("Latency:");
+  audioLatencyList.onChange([&] {
+    settings.audio.latency = audioLatencyList.selected().text().natural();
+    program.audioLatencyUpdate();
+    audioRefresh();
+  });
+  audioExclusiveToggle.setText("Exclusive mode").onToggle([&] {
+    settings.audio.exclusive = audioExclusiveToggle.checked();
+    ruby::audio.setExclusive(settings.audio.exclusive);
+  });
+  audioBlockingToggle.setText("Synchronize").onToggle([&] {
+    settings.audio.blocking = audioBlockingToggle.checked();
+    ruby::audio.setBlocking(settings.audio.blocking);
+  });
+  audioDynamicToggle.setText("Dynamic rate").onToggle([&] {
+    settings.audio.dynamic = audioDynamicToggle.checked();
+    ruby::audio.setDynamic(settings.audio.dynamic);
+  });
+
+  inputLabel.setText("Input").setFont(Font().setBold());
+  inputDriverLabel.setText("Driver:");
+  inputDriverAssign.setText("Reload").onActivate([&] { inputDriverUpdate(); });
+}
+
+auto DriverSettings::videoRefresh() -> void {
+  videoDriverList.reset();
+  for(auto& driver : ruby::video.hasDrivers()) {
     ComboButtonItem item{&videoDriverList};
     item.setText(driver);
     if(driver == ruby::video.driver()) item.setSelected();
   }
-  videoDriverUpdate.setText("Reload").onActivate([&] {});
+  videoMonitorList.reset();
+  for(auto& monitor : ruby::video.hasMonitors()) {
+    ComboButtonItem item{&videoMonitorList};
+    item.setText(monitor.name);
+    if(monitor.name == ruby::video.monitor()) item.setSelected();
+  }
+  videoFormatList.reset();
+  for(auto& format : ruby::video.hasFormats()) {
+    ComboButtonItem item{&videoFormatList};
+    item.setText(format);
+    if(format == ruby::video.format()) item.setSelected();
+  }
+  videoMonitorList.setEnabled(videoMonitorList.itemCount() > 1);
+  videoFormatList.setEnabled(0 && videoFormatList.itemCount() > 1);
+  videoExclusiveToggle.setChecked(ruby::video.exclusive()).setEnabled(ruby::video.hasExclusive());
+  videoBlockingToggle.setChecked(ruby::video.blocking()).setEnabled(ruby::video.hasBlocking());
+  videoFlushToggle.setChecked(ruby::video.flush()).setEnabled(ruby::video.hasFlush());
+  VerticalLayout::resize();
+}
 
-  audioLabel.setText("Audio").setFont(Font().setBold());
-  audioDriverLabel.setText("Driver:");
-  for(auto& driver : ruby::Audio::hasDrivers()) {
+auto DriverSettings::videoDriverUpdate() -> void {
+  auto driver = videoDriverList.selected().text();
+  settings.video.driver = driver;
+  if(emulator && driver != "None" && MessageDialog(
+    "Warning: incompatible drivers may cause this software to crash.\n"
+    "Are you sure you want to change this driver while a game is loaded?"
+  ).setAlignment(settingsWindow).question() != "Yes") return;
+  program.videoDriverUpdate();
+  videoRefresh();
+}
+
+auto DriverSettings::audioRefresh() -> void {
+  audioDriverList.reset();
+  for(auto& driver : ruby::audio.hasDrivers()) {
     ComboButtonItem item{&audioDriverList};
     item.setText(driver);
     if(driver == ruby::audio.driver()) item.setSelected();
   }
-  audioDriverUpdate.setText("Reload").onActivate([&] {});
+  audioDeviceList.reset();
+  for(auto& device : ruby::audio.hasDevices()) {
+    ComboButtonItem item{&audioDeviceList};
+    item.setText(device);
+    if(device == ruby::audio.device()) item.setSelected();
+  }
+  audioFrequencyList.reset();
+  for(auto& frequency : ruby::audio.hasFrequencies()) {
+    ComboButtonItem item{&audioFrequencyList};
+    item.setText(frequency);
+    if(frequency == ruby::audio.frequency()) item.setSelected();
+  }
+  audioLatencyList.reset();
+  for(auto& latency : ruby::audio.hasLatencies()) {
+    ComboButtonItem item{&audioLatencyList};
+    item.setText(latency);
+    if(latency == ruby::audio.latency()) item.setSelected();
+  }
+  audioDeviceList.setEnabled(audioDeviceList.itemCount() > 1);
+  audioExclusiveToggle.setChecked(ruby::audio.exclusive()).setEnabled(ruby::audio.hasExclusive());
+  audioBlockingToggle.setChecked(ruby::audio.blocking()).setEnabled(ruby::audio.hasBlocking());
+  audioDynamicToggle.setChecked(ruby::audio.dynamic()).setEnabled(ruby::audio.hasDynamic());
+  VerticalLayout::resize();
+}
 
-  inputLabel.setText("Input").setFont(Font().setBold());
-  inputDriverLabel.setText("Driver:");
-  for(auto& driver : ruby::Input::hasDrivers()) {
+auto DriverSettings::audioDriverUpdate() -> void {
+  auto driver = audioDriverList.selected().text();
+  settings.audio.driver = driver;
+  if(emulator && driver != "None" && MessageDialog(
+    "Warning: incompatible drivers may cause this software to crash.\n"
+    "Are you sure you want to change this driver while a game is loaded?"
+  ).setAlignment(settingsWindow).question() != "Yes") return;
+}
+
+auto DriverSettings::inputRefresh() -> void {
+  inputDriverList.reset();
+  for(auto& driver : ruby::input.hasDrivers()) {
     ComboButtonItem item{&inputDriverList};
     item.setText(driver);
     if(driver == ruby::input.driver()) item.setSelected();
   }
-  inputDriverUpdate.setText("Reload").onActivate([&] {});
+  VerticalLayout::resize();
+}
+
+auto DriverSettings::inputDriverUpdate() -> void {
+  auto driver = inputDriverList.selected().text();
+  settings.input.driver = driver;
+  if(emulator && driver != "None" && MessageDialog(
+    "Warning: incompatible drivers may cause this software to crash.\n"
+    "Are you sure you want to change this driver while a game is loaded?"
+  ).setAlignment(settingsWindow).question() != "Yes") return;
 }
