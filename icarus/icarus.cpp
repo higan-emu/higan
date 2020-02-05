@@ -1,4 +1,7 @@
 #include "icarus.hpp"
+
+namespace icarus {
+
 vector<shared_pointer<Media>> media;
 
 auto locate(string name) -> string {
@@ -9,6 +12,11 @@ auto locate(string name) -> string {
   return {Path::userData(), "icarus/", name};
 }
 
+auto operator+=(string& lhs, const string& rhs) -> string& {
+  lhs.append(rhs);
+  return lhs;
+}
+
 #include "settings/settings.cpp"
 #include "media/media.cpp"
 #include "cartridge/cartridge.cpp"
@@ -16,9 +24,7 @@ auto locate(string name) -> string {
 #include "floppy-disk/floppy-disk.cpp"
 #include "program/program.cpp"
 
-#include <nall/main.hpp>
-auto nall::main(Arguments arguments) -> void {
-  Application::setName("icarus");
+auto construct() -> void {
   media.append(new BSMemory);
   media.append(new ColecoVision);
   media.append(new Famicom);
@@ -44,6 +50,12 @@ auto nall::main(Arguments arguments) -> void {
   media.append(new WonderSwan);
   media.append(new WonderSwanColor);
   for(auto& medium : media) medium->construct();
+}
+
+auto main(Arguments arguments) -> void {
+  Application::setName("icarus");
+
+  construct();
 
   if(auto document = file::read({Path::userSettings(), "icarus/settings.bml"})) {
     settings.unserialize(document);
@@ -99,3 +111,14 @@ auto nall::main(Arguments arguments) -> void {
   directory::create({Path::userSettings(), "icarus/"});
   file::write({Path::userSettings(), "icarus/settings.bml"}, settings.serialize());
 }
+
+}
+
+#if !defined(ICARUS_LIBRARY)
+
+#include <nall/main.hpp>
+auto nall::main(Arguments arguments) -> void {
+  icarus::main(arguments);
+}
+
+#endif

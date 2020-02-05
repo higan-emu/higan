@@ -16,6 +16,10 @@ struct Settings : Markup::Node {
     uint multiplier = 2;
     string output = "Scale";
     bool aspectCorrection = true;
+
+    double luminance = 1.0;
+    double saturation = 1.0;
+    double gamma = 1.0;
   } video;
 
   struct Audio {
@@ -27,10 +31,14 @@ struct Settings : Markup::Node {
     bool blocking = true;
     bool dynamic = false;
     bool mute = false;
+
+    double volume = 1.0;
+    double balance = 0.0;
   } audio;
 
   struct Input {
     string driver;
+    string defocus = "Pause";
   } input;
 
   struct General {
@@ -42,12 +50,32 @@ struct VideoSettings : VerticalLayout {
   VideoSettings();
 
   Label colorAdjustmentLabel{this, Size{~0, 0}, 2};
+  TableLayout colorAdjustmentLayout{this, Size{~0, 0}};
+    Label luminanceLabel{&colorAdjustmentLayout, Size{0, 0}};
+    Label luminanceValue{&colorAdjustmentLayout, Size{50_sx, 0}};
+    HorizontalSlider luminanceSlider{&colorAdjustmentLayout, Size{~0, 0}};
+  //
+    Label saturationLabel{&colorAdjustmentLayout, Size{0, 0}};
+    Label saturationValue{&colorAdjustmentLayout, Size{50_sx, 0}};
+    HorizontalSlider saturationSlider{&colorAdjustmentLayout, Size{~0, 0}};
+  //
+    Label gammaLabel{&colorAdjustmentLayout, Size{0, 0}};
+    Label gammaValue{&colorAdjustmentLayout, Size{50_sx, 0}};
+    HorizontalSlider gammaSlider{&colorAdjustmentLayout, Size{~0, 0}};
 };
 
 struct AudioSettings : VerticalLayout {
   AudioSettings();
 
   Label effectsLabel{this, Size{~0, 0}, 2};
+  TableLayout effectsLayout{this, Size{~0, 0}};
+    Label volumeLabel{&effectsLayout, Size{0, 0}};
+    Label volumeValue{&effectsLayout, Size{50_sx, 0}};
+    HorizontalSlider volumeSlider{&effectsLayout, Size{~0, 0}};
+  //
+    Label balanceLabel{&effectsLayout, Size{0, 0}};
+    Label balanceValue{&effectsLayout, Size{50_sx, 0}};
+    HorizontalSlider balanceSlider{&effectsLayout, Size{~0, 0}};
 };
 
 struct InputSettings : VerticalLayout {
@@ -135,6 +163,12 @@ struct DriverSettings : VerticalLayout {
     ComboButton inputDriverList{&inputDriverLayout, Size{0, 0}};
     Button inputDriverAssign{&inputDriverLayout, Size{0, 0}};
     Label inputDriverActive{&inputDriverLayout, Size{0, 0}};
+  HorizontalLayout inputDefocusLayout{this, Size{~0, 0}};
+    Label inputDefocusLabel{&inputDefocusLayout, Size{0, 0}};
+    RadioLabel inputDefocusPause{&inputDefocusLayout, Size{0, 0}};
+    RadioLabel inputDefocusBlock{&inputDefocusLayout, Size{0, 0}};
+    RadioLabel inputDefocusAllow{&inputDefocusLayout, Size{0, 0}};
+    Group inputDefocusGroup{&inputDefocusPause, &inputDefocusBlock, &inputDefocusAllow};
 };
 
 struct SettingsWindow : Window {

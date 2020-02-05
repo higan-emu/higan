@@ -30,7 +30,6 @@ ProgramWindow::ProgramWindow() {
     AboutDialog()
     .setName("icarus")
     .setVersion(icarus::Version)
-    .setAuthor(icarus::Author)
     .setLicense(icarus::License)
     .setWebsite(icarus::Website)
     .setAlignment(*this)

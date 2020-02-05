@@ -67,6 +67,19 @@ DriverSettings::DriverSettings() {
   inputLabel.setText("Input").setFont(Font().setBold());
   inputDriverLabel.setText("Driver:");
   inputDriverAssign.setText("Reload").onActivate([&] { inputDriverUpdate(); });
+  inputDefocusLabel.setText("When focus is lost:");
+  inputDefocusPause.setText("Pause emulation").onActivate([&] {
+    settings.input.defocus = "Pause";
+  });
+  inputDefocusBlock.setText("Block input").onActivate([&] {
+    settings.input.defocus = "Block";
+  });
+  inputDefocusAllow.setText("Allow input").onActivate([&] {
+    settings.input.defocus = "Allow";
+  });
+  if(settings.input.defocus == "Pause") inputDefocusPause.setChecked();
+  if(settings.input.defocus == "Block") inputDefocusBlock.setChecked();
+  if(settings.input.defocus == "Allow") inputDefocusAllow.setChecked();
 }
 
 auto DriverSettings::videoRefresh() -> void {

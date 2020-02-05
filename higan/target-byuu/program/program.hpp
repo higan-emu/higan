@@ -25,6 +25,10 @@ struct Program : higan::Platform {
   auto updateMessage() -> void;
   auto showMessage(const string&) -> void;
 
+  //utility.cpp
+  auto pause(bool) -> void;
+  auto paletteUpdate() -> void;
+
   //drivers.cpp
   auto videoDriverUpdate() -> void;
   auto videoMonitorUpdate() -> void;
@@ -40,6 +44,8 @@ struct Program : higan::Platform {
 
   vector<higan::Node::Screen> screens;
   vector<higan::Node::Stream> streams;
+
+  bool paused = false;
 
   struct State {
     uint slot = 1;

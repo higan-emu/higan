@@ -102,6 +102,9 @@ Presentation::Presentation() {
       program.stateLoad(1 + slot);
     });
   }
+  pauseEmulation.setText("Pause Emulation").onToggle([&] {
+    program.pause(!program.paused);
+  });
 
   helpMenu.setText("Help");
   webpageAction.setText("Webpage ...").setIcon(Icon::Application::Browser).onActivate([&] {
@@ -198,12 +201,15 @@ auto Presentation::loadEmulator() -> void {
     program.showMessage("System reset");
   });
 
+  systemMenu.append(MenuSeparator());
+
   MenuItem unload{&systemMenu};
   unload.setText("Unload").setIcon(Icon::Media::Eject).onActivate([&] {
     program.unloadGame();
   });
 
   toolsMenu.setVisible(true);
+  pauseEmulation.setChecked(false);
 }
 
 auto Presentation::unloadEmulator() -> void {

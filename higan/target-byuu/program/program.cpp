@@ -3,6 +3,7 @@
 #include "load.cpp"
 #include "states.cpp"
 #include "status.cpp"
+#include "utility.cpp"
 #include "drivers.cpp"
 
 Program program;
@@ -24,7 +25,9 @@ auto Program::main() -> void {
   updateMessage();
   inputManager.poll();
   inputManager.pollHotkeys();
-  if(!emulator) return (void)usleep(20 * 1000);
+  bool defocused = driverSettings.inputDefocusPause.checked() && !ruby::video.fullScreen() && !presentation.focused();
+  if(emulator && defocused) message.text = "Paused";
+  if(!emulator || paused || defocused) return (void)usleep(20 * 1000);
   emulator->interface->run();
 }
 

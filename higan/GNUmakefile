@@ -34,7 +34,7 @@ ifeq ($(target),higan)
 endif
 
 ifeq ($(target),byuu)
-  cores := fc
+  cores := fc pce
 endif
 
 ifneq ($(filter $(cores),fc),)

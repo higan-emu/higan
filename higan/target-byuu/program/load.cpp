@@ -6,7 +6,7 @@ auto Program::loadGame(shared_pointer<Emulator> emulator) -> void {
   dialog.setTitle({"Load ", emulator->name, " Game"});
   dialog.setPath(location);
   dialog.setAlignment(presentation);
-  string filters;  //{"*.zip:"};  //not supported by icarus --manifest yet ...
+  string filters{"*.zip:"};
   for(auto& extension : emulator->extensions) {
     filters.append("*.", extension, ":");
   }
@@ -37,8 +37,10 @@ auto Program::loadGame(shared_pointer<Emulator> emulator) -> void {
       unloadGame();
       ::emulator = emulator;
       emulator->load(filename, filedata);
+      paletteUpdate();
       presentation.loadEmulator();
       state = {};  //reset hotkey state slot to 1
+      pause(false);
       showMessage({"Loaded ", Location::prefix(emulator->game.name)});
     }
   }

@@ -89,6 +89,18 @@ inline auto DML::parseBlock(string& block, const string& pathname, uint depth) -
     parseDocument(document, Location::path(filename), depth + 1);
   }
 
+  //attribute
+  else if(block.beginsWith("? ")) {
+    for(auto n : range(lines.size())) {
+      if(!lines[n].beginsWith("? ")) continue;
+      auto part = lines[n].trimLeft("? ", 1L).split(":", 1L);
+      if(part.size() != 2) continue;
+      auto name = part[0].strip();
+      auto value = part[1].strip();
+      attributes.append({name, value});
+    }
+  }
+
   //html
   else if(block.beginsWith("<html>\n") && settings.allowHTML) {
     for(auto n : range(lines.size())) {

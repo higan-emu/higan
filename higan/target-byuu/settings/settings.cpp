@@ -50,6 +50,9 @@ auto Settings::process(bool load) -> void {
   bind(natural, "Video/Multiplier", video.multiplier);
   bind(string,  "Video/Output", video.output);
   bind(boolean, "Video/AspectCorrection", video.aspectCorrection);
+  bind(real,    "Video/Luminance", video.luminance);
+  bind(real,    "Video/Saturation", video.saturation);
+  bind(real,    "Video/Gamma", video.gamma);
 
   bind(string,  "Audio/Driver", audio.driver);
   bind(string,  "Audio/Device", audio.device);
@@ -59,8 +62,11 @@ auto Settings::process(bool load) -> void {
   bind(boolean, "Audio/Blocking", audio.blocking);
   bind(boolean, "Audio/Dynamic", audio.dynamic);
   bind(boolean, "Audio/Mute", audio.mute);
+  bind(real,    "Audio/Volume", audio.volume);
+  bind(real,    "Audio/Balance", audio.balance);
 
   bind(string,  "Input/Driver", input.driver);
+  bind(string,  "Input/Defocus", input.defocus);
 
   bind(boolean, "General/ShowStatusBar", general.showStatusBar);
 
@@ -75,7 +81,7 @@ auto Settings::process(bool load) -> void {
   }
 
   for(auto& emulator : emulators) {
-    string name = {emulator->name, "/Game/Path"};
+    string name = {string{emulator->name}.replace(" ", ""), "/Game/Path"};
     bind(string, name, emulator->settings.gamePath);
   }
 
@@ -128,9 +134,9 @@ auto SettingsWindow::eventChange() -> void {
   driverSettings.setVisible(false);
 
   if(auto item = panelList.selected()) {
-    if(item.text() == "Video") videoSettings.setVisible();
-    if(item.text() == "Audio") audioSettings.setVisible();
-    if(item.text() == "Input") inputSettings.setVisible();
+    if(item.text() == "Video"  ) videoSettings.setVisible();
+    if(item.text() == "Audio"  ) audioSettings.setVisible();
+    if(item.text() == "Input"  ) inputSettings.setVisible();
     if(item.text() == "Hotkeys") hotkeySettings.setVisible();
     if(item.text() == "Drivers") driverSettings.setVisible();
   }

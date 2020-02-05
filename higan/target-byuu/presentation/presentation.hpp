@@ -30,6 +30,8 @@ struct Presentation : Window {
     Menu toolsMenu{&menuBar};
       Menu saveStateMenu{&toolsMenu};
       Menu loadStateMenu{&toolsMenu};
+      MenuSeparator stateMenuSeparator{&toolsMenu};
+      MenuCheckItem pauseEmulation{&toolsMenu};
     Menu helpMenu{&menuBar};
       MenuItem webpageAction{&helpMenu};
       MenuSeparator aboutSeparator{&helpMenu};

@@ -1,4 +1,5 @@
 name := byuu
+flags += -DICARUS_LIBRARY
 
 hiro.path := ../hiro
 hiro.resource := $(ui)/resource/byuu.rc
@@ -9,6 +10,7 @@ include $(ruby.path)/GNUmakefile
 
 objects += ui-byuu ui-resource ui-emulator ui-program ui-input
 objects += ui-presentation ui-settings
+objects += icarus icarus-resource
 objects := $(objects:%=obj/%.o)
 
 obj/ui-byuu.o: $(ui)/byuu.cpp
@@ -18,6 +20,8 @@ obj/ui-program.o: $(ui)/program/program.cpp
 obj/ui-input.o: $(ui)/input/input.cpp
 obj/ui-presentation.o: $(ui)/presentation/presentation.cpp
 obj/ui-settings.o: $(ui)/settings/settings.cpp
+obj/icarus.o: ../icarus/icarus.cpp
+obj/icarus-resource.o: ../icarus/resource/resource.cpp
 
 all: $(hiro.objects) $(ruby.objects) $(objects)
 	$(info Linking out/$(name) ...)

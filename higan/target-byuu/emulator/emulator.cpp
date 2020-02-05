@@ -1,12 +1,26 @@
 #include "../byuu.hpp"
-#include "famicom.cpp"
+#include <icarus/icarus.hpp>
+
+#ifdef CORE_FC
+  #include "famicom.cpp"
+#endif
+
+#ifdef CORE_PCE
+  #include "pc-engine.cpp"
+#endif
 
 vector<shared_pointer<Emulator>> emulators;
 shared_pointer<Emulator> emulator;
 
 auto Emulator::construct() -> void {
+  icarus::construct();
+
   #ifdef CORE_FC
-  emulators.append(new FamicomEmulator);
+  emulators.append(new Famicom);
+  #endif
+
+  #ifdef CORE_PCE
+  emulators.append(new PCEngine);
   #endif
 }
 

@@ -10,19 +10,16 @@ auto Program::attach(higan::Node::Object node) -> void {
 }
 
 auto Program::detach(higan::Node::Object node) -> void {
+  if(auto screen = node->cast<higan::Node::Screen>()) {
+    screens = emulator->root->find<higan::Node::Screen>();
+  }
+
+  if(auto stream = node->cast<higan::Node::Stream>()) {
+    streams = emulator->root->find<higan::Node::Stream>();
+  }
 }
 
 auto Program::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
-  auto location = node->attribute("location");
-
-  if(name == "manifest.bml") {
-    if(auto manifest = execute("icarus", "--system", node->name(), "--manifest", location).output) {
-      emulator->game.manifest = manifest;
-      auto document = BML::unserialize(manifest);
-      return vfs::memory::file::open(manifest.data<uint8_t>(), manifest.size());
-    }
-  }
-
   return emulator->open(node, name, mode, required);
 }
 
@@ -109,10 +106,12 @@ auto Program::audio(higan::Node::Stream node) -> void {
     }
 
     //apply volume, balance, and clamping to the output frame
-    //TODO
-    if(settings.audio.mute) {
-      samples[0] = 0.0;
-      samples[1] = 0.0;
+    double volume = !settings.audio.mute ? settings.audio.volume : 0.0;
+    double balance = settings.audio.balance;
+    for(uint c : range(2)) {
+      samples[c] = max(-1.0, min(+1.0, samples[c] * volume));
+      if(balance < 0.0) samples[1] *= 1.0 + balance;
+      if(balance > 0.0) samples[0] *= 1.0 - balance;
     }
 
     //send frame to the audio output device
@@ -121,5 +120,12 @@ auto Program::audio(higan::Node::Stream node) -> void {
 }
 
 auto Program::input(higan::Node::Input node) -> void {
+  if(!driverSettings.inputDefocusAllow.checked()) {
+    if(!ruby::video.fullScreen() && !presentation.focused()) {
+      //todo: set node->value() to zero here
+      return;
+    }
+  }
+
   emulator->input(node);
 }
