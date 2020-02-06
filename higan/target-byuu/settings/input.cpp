@@ -1,4 +1,4 @@
-InputSettings::InputSettings() {
+auto InputSettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 

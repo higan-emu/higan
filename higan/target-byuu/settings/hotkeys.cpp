@@ -1,4 +1,4 @@
-HotkeySettings::HotkeySettings() {
+auto HotkeySettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 

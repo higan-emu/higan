@@ -47,7 +47,7 @@ struct Settings : Markup::Node {
 };
 
 struct VideoSettings : VerticalLayout {
-  VideoSettings();
+  auto construct() -> void;
 
   Label colorAdjustmentLabel{this, Size{~0, 0}, 2};
   TableLayout colorAdjustmentLayout{this, Size{~0, 0}};
@@ -65,7 +65,7 @@ struct VideoSettings : VerticalLayout {
 };
 
 struct AudioSettings : VerticalLayout {
-  AudioSettings();
+  auto construct() -> void;
 
   Label effectsLabel{this, Size{~0, 0}, 2};
   TableLayout effectsLayout{this, Size{~0, 0}};
@@ -79,7 +79,7 @@ struct AudioSettings : VerticalLayout {
 };
 
 struct InputSettings : VerticalLayout {
-  InputSettings();
+  auto construct() -> void;
   auto reload() -> void;
   auto refresh() -> void;
   auto eventChange() -> void;
@@ -97,7 +97,7 @@ struct InputSettings : VerticalLayout {
 };
 
 struct HotkeySettings : VerticalLayout {
-  HotkeySettings();
+  auto construct() -> void;
   auto reload() -> void;
   auto refresh() -> void;
   auto eventChange() -> void;
@@ -115,7 +115,7 @@ struct HotkeySettings : VerticalLayout {
 };
 
 struct DriverSettings : VerticalLayout {
-  DriverSettings();
+  auto construct() -> void;
   auto videoRefresh() -> void;
   auto videoDriverUpdate() -> void;
   auto audioRefresh() -> void;

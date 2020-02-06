@@ -5,8 +5,16 @@
   #include "famicom.cpp"
 #endif
 
+#ifdef CORE_MS
+  #include "master-system.cpp"
+#endif
+
 #ifdef CORE_PCE
   #include "pc-engine.cpp"
+#endif
+
+#ifdef CORE_SFC
+  #include "super-famicom.cpp"
 #endif
 
 vector<shared_pointer<Emulator>> emulators;
@@ -19,16 +27,40 @@ auto Emulator::construct() -> void {
   emulators.append(new Famicom);
   #endif
 
+  #ifdef CORE_SFC
+  emulators.append(new SuperFamicom);
+  #endif
+
+  #ifdef CORE_MS
+  emulators.append(new MasterSystem);
+  #endif
+
   #ifdef CORE_PCE
   emulators.append(new PCEngine);
+  emulators.append(new SuperGrafx);
+  #endif
+
+  #ifdef CORE_MS
+  emulators.append(new GameGear);
   #endif
 }
 
-auto Emulator::load(const string& name, const vector<uint8_t>& data) -> void {
-  settings.gamePath = Location::dir(name);
+auto Emulator::manifest() -> shared_pointer<vfs::file> {
+  for(auto& media : icarus::media) {
+    if(media->name() != interface->name()) continue;
+    if(auto cartridge = media.cast<icarus::Cartridge>()) {
+      game.manifest = cartridge->manifest(game.image, game.location);
+      return vfs::memory::file::open(game.manifest.data<uint8_t>(), game.manifest.size());
+    }
+  }
+  return {};
+}
 
-  game.name = name;
-  game.data = data;
+auto Emulator::load(const string& location, const vector<uint8_t>& image) -> void {
+  settings.gamePath = Location::dir(location);
+
+  game.location = location;
+  game.image = image;
 
   auto system = higan::Node::System::create();
   system->setName(interface->name());

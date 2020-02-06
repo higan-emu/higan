@@ -1,4 +1,4 @@
-AudioSettings::AudioSettings() {
+auto AudioSettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 

@@ -28,34 +28,24 @@ auto Famicom::load() -> void {
 }
 
 auto Famicom::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
-  if(name == "manifest.bml") {
-    for(auto& media : icarus::media) {
-      if(media->name() != "Famicom") continue;
-      if(auto cartridge = media.cast<icarus::Cartridge>()) {
-        game.manifest = cartridge->manifest(game.data, game.name);
-        return vfs::memory::file::open(game.manifest.data<uint8_t>(), game.manifest.size());
-      }
-    }
-    return {};
-  }
+  if(name == "manifest.bml") return Emulator::manifest();
 
   auto document = BML::unserialize(game.manifest);
-  auto headerSize = document["game/board/memory(content=iNES,type=ROM)/size"].natural();
-  auto programSize = document["game/board/memory(content=Program,type=ROM)/size"].natural();
-  auto characterSize = document["game/board/memory(content=Character,type=ROM)/size"].natural();
+  auto iNESROMSize = document["game/board/memory(content=iNES,type=ROM)/size"].natural();
+  auto programROMSize = document["game/board/memory(content=Program,type=ROM)/size"].natural();
+  auto characterROMSize = document["game/board/memory(content=Character,type=ROM)/size"].natural();
+  auto programRAMSize = (bool)document["game/board/memory(content=Program,type=RAM)/volatile"];
 
   if(name == "program.rom") {
-    uint address = headerSize;
-    return vfs::memory::file::open(game.data.data() + address, programSize);
+    return vfs::memory::file::open(game.image.data() + iNESROMSize, programROMSize);
   }
 
   if(name == "character.rom") {
-    uint address = headerSize + programSize;
-    return vfs::memory::file::open(game.data.data() + address, characterSize);
+    return vfs::memory::file::open(game.image.data() + iNESROMSize + programROMSize, characterROMSize);
   }
 
-  if(name == "save.ram") {
-    string location = {Location::notsuffix(game.name), ".sav"};
+  if(name == "save.ram" && !programRAMSize) {
+    string location = {Location::notsuffix(game.location), ".sav"};
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 

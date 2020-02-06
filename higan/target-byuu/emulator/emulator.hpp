@@ -1,15 +1,16 @@
 struct Emulator {
   static auto construct() -> void;
-  auto load(const string& name, const vector<uint8_t>& data) -> void;
+  auto manifest() -> shared_pointer<vfs::file>;
+  auto load(const string& location, const vector<uint8_t>& image) -> void;
   auto unload() -> void;
   virtual auto load() -> void = 0;
   virtual auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> = 0;
   virtual auto input(higan::Node::Input) -> void = 0;
 
   struct Game {
-    string name;
+    string location;
     string manifest;
-    vector<uint8_t> data;
+    vector<uint8_t> image;
   };
 
   shared_pointer<higan::Interface> interface;

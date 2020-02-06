@@ -117,6 +117,7 @@ Presentation::Presentation() {
     .setVersion(Information::Version)
     .setLicense(Information::License)
     .setWebsite(Information::Website)
+    .setAlignment(presentation)
     .show();
   });
 

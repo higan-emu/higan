@@ -41,7 +41,7 @@ auto Program::loadGame(shared_pointer<Emulator> emulator) -> void {
       presentation.loadEmulator();
       state = {};  //reset hotkey state slot to 1
       pause(false);
-      showMessage({"Loaded ", Location::prefix(emulator->game.name)});
+      showMessage({"Loaded ", Location::prefix(emulator->game.location)});
     }
   }
 }
@@ -49,7 +49,7 @@ auto Program::loadGame(shared_pointer<Emulator> emulator) -> void {
 auto Program::unloadGame() -> void {
   if(!emulator) return;
 
-  showMessage({"Unloaded ", Location::prefix(emulator->game.name)});
+  showMessage({"Unloaded ", Location::prefix(emulator->game.location)});
   emulator->unload();
   emulator.reset();
   presentation.unloadEmulator();

@@ -106,6 +106,12 @@ SettingsWindow::SettingsWindow() {
   panelContainer.append(hotkeySettings, Size{~0, ~0});
   panelContainer.append(driverSettings, Size{~0, ~0});
 
+  videoSettings.construct();
+  audioSettings.construct();
+  inputSettings.construct();
+  hotkeySettings.construct();
+  driverSettings.construct();
+
   statusBar.setFont(Font().setBold());
 
   setDismissable();

@@ -1,4 +1,4 @@
-VideoSettings::VideoSettings() {
+auto VideoSettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 

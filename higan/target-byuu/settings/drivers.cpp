@@ -1,4 +1,4 @@
-DriverSettings::DriverSettings() {
+auto DriverSettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 

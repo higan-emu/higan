@@ -1,2 +1,5 @@
 namespace name=Resource
   binary name=Logo file=logo.png
+  namespace name=SuperFamicom
+    binary name=Boards file="../../System/Super Famicom/boards.bml"
+    binary name=IPLROM file="../../System/Super Famicom/ipl.rom"
