@@ -18,6 +18,14 @@ auto Program::create() -> void {
   driverSettings.videoRefresh();
   driverSettings.audioRefresh();
   driverSettings.inputRefresh();
+
+  if(startGameLoad) {
+    if(auto emulator = identify(startGameLoad)) {
+      if(load(emulator, startGameLoad)) {
+        if(startFullScreen) videoFullScreenToggle();
+      }
+    }
+  }
 }
 
 auto Program::main() -> void {
@@ -32,7 +40,7 @@ auto Program::main() -> void {
 }
 
 auto Program::quit() -> void {
-  unloadGame();
+  unload();
   presentation.setVisible(false);  //makes quitting the emulator feel more responsive
   Application::processEvents();
   Application::quit();

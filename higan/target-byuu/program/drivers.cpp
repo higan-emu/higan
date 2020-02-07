@@ -24,7 +24,7 @@ auto Program::videoFormatUpdate() -> void {
   ruby::video.setFormat(settings.video.format);
 }
 
-auto Program::videoFullscreenToggle() -> void {
+auto Program::videoFullScreenToggle() -> void {
   if(!ruby::video.hasFullScreen()) return;
 
   ruby::video.clear();

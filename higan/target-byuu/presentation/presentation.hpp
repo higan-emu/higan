@@ -17,6 +17,8 @@ struct Presentation : Window {
         Group videoOutputGroup{&videoOutputCenter, &videoOutputScale, &videoOutputStretch};
         MenuSeparator videoOutputSeparator{&videoOutputMenu};
         MenuCheckItem videoAspectCorrection{&videoOutputMenu};
+        MenuCheckItem videoAdaptiveSizing{&videoOutputMenu};
+        MenuCheckItem videoAutoCentering{&videoOutputMenu};
       Menu videoShaderMenu{&settingsMenu};
       MenuSeparator videoSettingsSeparatpr{&settingsMenu};
       MenuCheckItem muteAudioSetting{&settingsMenu};

@@ -22,6 +22,14 @@ auto nall::main(Arguments arguments) -> void {
   Application::setName("byuu");
   Application::setScreenSaver(false);
 
+  for(auto argument : arguments) {
+    if(argument == "--fullscreen") {
+      program.startFullScreen = true;
+    } else if(file::exists(argument)) {
+      program.startGameLoad = argument;
+    }
+  }
+
   Emulator::construct();
   inputManager.create();
   settings.load();

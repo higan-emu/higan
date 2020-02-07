@@ -14,8 +14,9 @@ struct Program : higan::Platform {
   auto input(higan::Node::Input) -> void override;
 
   //load.cpp
-  auto loadGame(shared_pointer<Emulator> emulator) -> void;
-  auto unloadGame() -> void;
+  auto identify(const string& filename) -> shared_pointer<Emulator>;
+  auto load(shared_pointer<Emulator> emulator, string filename = {}) -> bool;
+  auto unload() -> void;
 
   //states.cpp
   auto stateSave(uint slot) -> bool;
@@ -33,7 +34,7 @@ struct Program : higan::Platform {
   auto videoDriverUpdate() -> void;
   auto videoMonitorUpdate() -> void;
   auto videoFormatUpdate() -> void;
-  auto videoFullscreenToggle() -> void;
+  auto videoFullScreenToggle() -> void;
 
   auto audioDriverUpdate() -> void;
   auto audioDeviceUpdate() -> void;
@@ -41,6 +42,9 @@ struct Program : higan::Platform {
   auto audioLatencyUpdate() -> void;
 
   auto inputDriverUpdate() -> void;
+
+  bool startFullScreen = false;
+  string startGameLoad;
 
   vector<higan::Node::Screen> screens;
   vector<higan::Node::Stream> streams;

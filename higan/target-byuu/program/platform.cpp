@@ -38,7 +38,7 @@ auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, 
   if(node->rotation() == 90 || node->rotation() == 270) swap(videoWidth, videoHeight);
 
   auto [viewportWidth, viewportHeight] = ruby::video.size();
-  uint multiplierX = viewportWidth / videoHeight;
+  uint multiplierX = viewportWidth / videoWidth;
   uint multiplierY = viewportHeight / videoHeight;
   uint multiplier = min(multiplierX, multiplierY);
 

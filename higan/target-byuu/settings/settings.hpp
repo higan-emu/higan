@@ -16,6 +16,8 @@ struct Settings : Markup::Node {
     uint multiplier = 2;
     string output = "Scale";
     bool aspectCorrection = true;
+    bool adaptiveSizing = true;
+    bool autoCentering = true;
 
     double luminance = 1.0;
     double saturation = 1.0;

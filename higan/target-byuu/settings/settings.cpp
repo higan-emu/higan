@@ -50,6 +50,8 @@ auto Settings::process(bool load) -> void {
   bind(natural, "Video/Multiplier", video.multiplier);
   bind(string,  "Video/Output", video.output);
   bind(boolean, "Video/AspectCorrection", video.aspectCorrection);
+  bind(boolean, "Video/AdaptiveSizing", video.adaptiveSizing);
+  bind(boolean, "Video/AutoCentering", video.autoCentering);
   bind(real,    "Video/Luminance", video.luminance);
   bind(real,    "Video/Saturation", video.saturation);
   bind(real,    "Video/Gamma", video.gamma);

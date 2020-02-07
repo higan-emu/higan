@@ -4,7 +4,7 @@ auto InputManager::createHotkeys() -> void {
   static bool fastForwardAudioDynamic;
 
   hotkeys.append(InputHotkey("Toggle Fullscreen").onPress([&] {
-    program.videoFullscreenToggle();
+    program.videoFullScreenToggle();
   }));
 
   hotkeys.append(InputHotkey("Fast Forward").onPress([&] {

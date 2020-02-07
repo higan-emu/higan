@@ -1,5 +1,9 @@
 namespace name=Resource
   binary name=Logo file=logo.png
+  namespace name=GameBoy
+    binary name=BootDMG1 file="../../System/Game Boy/boot.dmg-1.rom"
+  namespace name=GameBoyColor
+    binary name=BootCGB0 file="../../System/Game Boy Color/boot.cgb-0.rom"
   namespace name=SuperFamicom
     binary name=Boards file="../../System/Super Famicom/boards.bml"
     binary name=IPLROM file="../../System/Super Famicom/ipl.rom"

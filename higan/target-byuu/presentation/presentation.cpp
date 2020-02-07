@@ -9,7 +9,7 @@ Presentation::Presentation() {
     item.setIcon(Icon::Place::Server);
     item.setText({emulator->name, " ..."});
     item.onActivate([=] {
-      program.loadGame(emulator);
+      program.load(emulator);
     });
   }
   { MenuSeparator separator{&loadMenu}; }
@@ -60,6 +60,13 @@ Presentation::Presentation() {
   if(settings.video.output == "Stretch") videoOutputStretch.setChecked();
   videoAspectCorrection.setText("Aspect Correction").setChecked(settings.video.aspectCorrection).onToggle([&] {
     settings.video.aspectCorrection = videoAspectCorrection.checked();
+    if(settings.video.adaptiveSizing) resizeWindow();
+  });
+  videoAdaptiveSizing.setText("Adaptive Sizing").setChecked(settings.video.adaptiveSizing).onToggle([&] {
+    if(settings.video.adaptiveSizing = videoAdaptiveSizing.checked()) resizeWindow();
+  });
+  videoAutoCentering.setText("Auto Centering").setChecked(settings.video.autoCentering).onToggle([&] {
+    if(settings.video.autoCentering = videoAutoCentering.checked()) resizeWindow();
   });
   videoShaderMenu.setText("Shader").setIcon(Icon::Emblem::Image);
   loadShaders();
@@ -121,6 +128,13 @@ Presentation::Presentation() {
     .show();
   });
 
+  viewport.setDroppable().onDrop([&](auto filenames) {
+    if(filenames.size() != 1) return;
+    if(auto emulator = program.identify(filenames.first())) {
+      program.load(emulator, filenames.first());
+    }
+  });
+
   statusBar.setFont(Font().setBold());
 
   onClose([&] {
@@ -139,11 +153,29 @@ auto Presentation::resizeWindow() -> void {
   if(maximized()) setMaximized(false);
 
   uint multiplier = max(2, settings.video.multiplier);
-  uint width = 320;
-  uint height = 240;
+  uint viewportWidth = 320 * multiplier;
+  uint viewportHeight = 240 * multiplier;
 
-  setMinimumSize({width * 2, height * 2});
-  setSize({width * multiplier, height * multiplier});
+  if(emulator && program.screens) {
+    auto& node = program.screens.first();
+    uint videoWidth = node->width() * node->scaleX();
+    uint videoHeight = node->height() * node->scaleY();
+    if(settings.video.aspectCorrection) videoWidth = videoWidth * node->aspectX() / node->aspectY();
+    if(node->rotation() == 90 || node->rotation() == 270) swap(videoWidth, videoHeight);
+
+    uint multiplierX = viewportWidth / videoWidth;
+    uint multiplierY = viewportHeight / videoHeight;
+    uint multiplier = min(multiplierX, multiplierY);
+
+    viewportWidth = videoWidth * multiplier;
+    viewportHeight = videoHeight * multiplier;
+  }
+
+  if(settings.video.autoCentering) {
+    setGeometry(Alignment::Center, {viewportWidth, viewportHeight});
+  } else {
+    setSize({viewportWidth, viewportHeight});
+  }
 }
 
 auto Presentation::loadShaders() -> void {
@@ -206,7 +238,8 @@ auto Presentation::loadEmulator() -> void {
 
   MenuItem unload{&systemMenu};
   unload.setText("Unload").setIcon(Icon::Media::Eject).onActivate([&] {
-    program.unloadGame();
+    program.unload();
+    if(settings.video.adaptiveSizing) resizeWindow();
   });
 
   toolsMenu.setVisible(true);

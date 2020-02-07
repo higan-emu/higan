@@ -5,6 +5,18 @@
   #include "famicom.cpp"
 #endif
 
+#ifdef CORE_GB
+  #include "game-boy.cpp"
+#endif
+
+#ifdef CORE_GBA
+  #include "game-boy-advance.cpp"
+#endif
+
+#ifdef CORE_MD
+  #include "mega-drive.cpp"
+#endif
+
 #ifdef CORE_MS
   #include "master-system.cpp"
 #endif
@@ -35,9 +47,22 @@ auto Emulator::construct() -> void {
   emulators.append(new MasterSystem);
   #endif
 
+  #ifdef CORE_MD
+  emulators.append(new MegaDrive);
+  #endif
+
   #ifdef CORE_PCE
   emulators.append(new PCEngine);
   emulators.append(new SuperGrafx);
+  #endif
+
+  #ifdef CORE_GB
+  emulators.append(new GameBoy);
+  emulators.append(new GameBoyColor);
+  #endif
+
+  #ifdef CORE_GBA
+  emulators.append(new GameBoyAdvance);
   #endif
 
   #ifdef CORE_MS
