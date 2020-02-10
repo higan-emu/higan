@@ -7,6 +7,7 @@ using namespace hiro;
 #include <emulator/emulator.hpp>
 
 #include <nall/instance.hpp>
+#include <nall/beat/single/apply.hpp>
 
 namespace ruby {
   extern Video video;
@@ -16,7 +17,7 @@ namespace ruby {
 
 namespace Information {
   static const string Name    = "byuu";
-  static const string Version = "0.7";
+  static const string Version = "0.8";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";
 }

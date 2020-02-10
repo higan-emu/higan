@@ -3,6 +3,7 @@ struct Emulator {
   auto manifest() -> shared_pointer<vfs::file>;
   auto load(const string& location, const vector<uint8_t>& image) -> void;
   auto unload() -> void;
+  auto error(const string& text) -> void;
   virtual auto load() -> void = 0;
   virtual auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> = 0;
   virtual auto input(higan::Node::Input) -> void = 0;
@@ -15,16 +16,16 @@ struct Emulator {
 
   shared_pointer<higan::Interface> interface;
   string name;
-  string abbreviation;
   vector<string> extensions;
 
   higan::Node::Object root;
   Game game;
 
-  struct Paths {
-    string game;
-    string bios;
-  } path;
+  struct Configuration {
+    bool visible = true;  //whether or not to show this emulator in the load menu
+    string game;          //the most recently used folder for games for each emulator core
+    string bios;          //the location of required BIOS files (for systems that have one)
+  } configuration;
 
   //some handheld screens can be rotated
   uint rotation = 0;

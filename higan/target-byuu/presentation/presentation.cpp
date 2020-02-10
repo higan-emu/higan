@@ -4,22 +4,6 @@ Presentation& presentation = Instances::presentation();
 
 Presentation::Presentation() {
   loadMenu.setText("Load");
-  for(auto& emulator : emulators) {
-    MenuItem item{&loadMenu};
-    item.setIcon(Icon::Place::Server);
-    item.setText({emulator->name, " ..."});
-    item.onActivate([=] {
-      program.load(emulator);
-    });
-  }
-  { MenuSeparator separator{&loadMenu}; }
-  { MenuItem quit{&loadMenu};
-    quit.setIcon(Icon::Action::Quit);
-    quit.setText("Quit");
-    quit.onActivate([&] {
-      program.quit();
-    });
-  }
 
   systemMenu.setVisible(false);
 
@@ -89,6 +73,9 @@ Presentation::Presentation() {
   });
   hotkeySettingsAction.setText("Hotkeys ...").setIcon(Icon::Device::Keyboard).onActivate([&] {
     settingsWindow.show("Hotkeys");
+  });
+  emulatorSettingsAction.setText("Emulators ...").setIcon(Icon::Place::Server).onActivate([&] {
+    settingsWindow.show("Emulators");
   });
   driverSettingsAction.setText("Drivers ...").setIcon(Icon::Place::Settings).onActivate([&] {
     settingsWindow.show("Drivers");
@@ -178,6 +165,119 @@ auto Presentation::resizeWindow() -> void {
   }
 }
 
+auto Presentation::loadEmulators() -> void {
+  loadMenu.reset();
+
+  //clean up the recent games history first
+  vector<string> recentGames;
+  for(uint index : range(9)) {
+    if(file::exists(settings.recent.game[index])) {  //remove missing files
+      if(!recentGames.find(settings.recent.game[index])) {  //remove duplicate entries
+        recentGames.append(settings.recent.game[index]);
+      }
+    }
+    settings.recent.game[index] = {};
+  }
+
+  //build recent games list
+  uint count = 0;
+  for(auto& game : recentGames) {
+    settings.recent.game[count++] = game;
+  }
+  { Menu recentGames{&loadMenu};
+    recentGames.setIcon(Icon::Action::Open);
+    recentGames.setText("Recent Game");
+    for(uint index : range(count)) {
+      MenuItem item{&recentGames};
+      auto location = settings.recent.game[index];
+      item.setIcon(Icon::Emblem::File);
+      item.setText(Location::prefix(location));
+      item.onActivate([=] {
+        if(auto emulator = program.identify(location)) {
+          program.load(emulator, location);
+        }
+      });
+    }
+    if(count > 0) {
+      recentGames.append(MenuSeparator());
+      MenuItem clearHistory{&recentGames};
+      clearHistory.setIcon(Icon::Edit::Clear);
+      clearHistory.setText("Clear History");
+      clearHistory.onActivate([&] {
+        for(uint index : range(9)) settings.recent.game[index] = {};
+        loadEmulators();
+      });
+    } else {
+      recentGames.setEnabled(false);
+    }
+  }
+  loadMenu.append(MenuSeparator());
+
+  //build emulator load list
+  uint enabled = 0;
+  for(auto& emulator : emulators) {
+    MenuItem item{&loadMenu};
+    item.setIcon(Icon::Place::Server);
+    item.setText({emulator->name, " ..."});
+    item.setVisible(emulator->configuration.visible);
+    item.onActivate([=] {
+      program.load(emulator);
+    });
+    if(emulator->configuration.visible) enabled++;
+  }
+  if(enabled == 0) {
+    //if the user disables every system, give an indication for how to re-add systems to the load menu
+    MenuItem item{&loadMenu};
+    item.setIcon(Icon::Action::Add);
+    item.setText("Add Systems ...");
+    item.onActivate([&] {
+      settingsWindow.show("Emulators");
+    });
+  }
+  loadMenu.append(MenuSeparator());
+
+  { MenuItem quit{&loadMenu};
+    quit.setIcon(Icon::Action::Quit);
+    quit.setText("Quit");
+    quit.onActivate([&] {
+      program.quit();
+    });
+  }
+}
+
+auto Presentation::loadEmulator() -> void {
+  setTitle(Location::prefix(emulator->interface->game()));
+
+  systemMenu.setText(emulator->name);
+  systemMenu.setVisible();
+
+  MenuItem reset{&systemMenu};
+  reset.setText("Reset").setIcon(Icon::Action::Refresh).onActivate([&] {
+    emulator->interface->power();
+    program.showMessage("System reset");
+  });
+
+  systemMenu.append(MenuSeparator());
+
+  MenuItem unload{&systemMenu};
+  unload.setText("Unload").setIcon(Icon::Media::Eject).onActivate([&] {
+    program.unload();
+    if(settings.video.adaptiveSizing) resizeWindow();
+  });
+
+  toolsMenu.setVisible(true);
+  pauseEmulation.setChecked(false);
+}
+
+auto Presentation::unloadEmulator() -> void {
+  setTitle({Information::Name, " v", Information::Version});
+
+  systemMenu.setVisible(false);
+  systemMenu.reset();
+
+  toolsMenu.setVisible(false);
+}
+
 auto Presentation::loadShaders() -> void {
   videoShaderMenu.reset();
   videoShaderMenu.setEnabled(ruby::video.hasShader());
@@ -220,37 +320,4 @@ auto Presentation::loadShaders() -> void {
       item.setChecked();
     }
   }
-}
-
-auto Presentation::loadEmulator() -> void {
-  setTitle(Location::prefix(emulator->interface->game()));
-
-  systemMenu.setText(emulator->name);
-  systemMenu.setVisible();
-
-  MenuItem reset{&systemMenu};
-  reset.setText("Reset").setIcon(Icon::Action::Refresh).onActivate([&] {
-    emulator->interface->power();
-    program.showMessage("System reset");
-  });
-
-  systemMenu.append(MenuSeparator());
-
-  MenuItem unload{&systemMenu};
-  unload.setText("Unload").setIcon(Icon::Media::Eject).onActivate([&] {
-    program.unload();
-    if(settings.video.adaptiveSizing) resizeWindow();
-  });
-
-  toolsMenu.setVisible(true);
-  pauseEmulation.setChecked(false);
-}
-
-auto Presentation::unloadEmulator() -> void {
-  setTitle({Information::Name, " v", Information::Version});
-
-  systemMenu.setVisible(false);
-  systemMenu.reset();
-
-  toolsMenu.setVisible(false);
 }

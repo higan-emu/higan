@@ -10,7 +10,6 @@ struct Famicom : Emulator {
 Famicom::Famicom() {
   interface = new higan::Famicom::FamicomInterface;
   name = "Nintendo";
-  abbreviation = "NES";
   extensions = {"nes"};
 }
 

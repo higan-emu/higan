@@ -51,6 +51,7 @@ auto nall::main(Arguments arguments) -> void {
   }
 
   program.create();
+  presentation.loadEmulators();
   Application::onMain({&Program::main, &program});
   Application::run();
 

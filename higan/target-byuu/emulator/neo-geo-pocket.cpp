@@ -10,7 +10,6 @@ struct NeoGeoPocket : Emulator {
 NeoGeoPocket::NeoGeoPocket() {
   interface = new higan::NeoGeoPocket::NeoGeoPocketInterface;
   name = "Neo Geo Pocket";
-  abbreviation = "NGP";
   extensions = {"ngp"};
 }
 
@@ -29,7 +28,7 @@ auto NeoGeoPocket::open(higan::Node::Object node, string name, vfs::file::mode m
   if(name == "manifest.bml") return Emulator::manifest();
 
   if(name == "bios.rom") {
-    if(!file::exists(path.bios)) {
+    if(!file::exists(configuration.bios)) {
       MessageDialog().setText(
         "In order to run Neo Geo Pocket games, a BIOS is required.\n"
         "Please select the NGP BIOS first. This will only need to be done once.\n"
@@ -42,7 +41,7 @@ auto NeoGeoPocket::open(higan::Node::Object node, string name, vfs::file::mode m
       if(file::exists(bios)) {
         auto sha256 = file::sha256(bios);
         if(file::sha256(bios) == "0293555b21c4fac516d25199df7809b26beeae150e1d4504a050db32264a6ad7") {
-          path.bios = bios;
+          configuration.bios = bios;
         } else {
           MessageDialog().setText(
             "Sorry, this does not appear to be the correct BIOS file. Please try again.\n"
@@ -51,7 +50,7 @@ auto NeoGeoPocket::open(higan::Node::Object node, string name, vfs::file::mode m
         }
       }
     }
-    if(auto result = vfs::fs::file::open(path.bios, mode)) return result;
+    if(auto result = vfs::fs::file::open(configuration.bios, mode)) return result;
     return {};
   }
 
@@ -94,7 +93,6 @@ struct NeoGeoPocketColor : Emulator {
 NeoGeoPocketColor::NeoGeoPocketColor() {
   interface = new higan::NeoGeoPocket::NeoGeoPocketColorInterface;
   name = "Neo Geo Pocket Color";
-  abbreviation = "NGPC";
   extensions = {"ngpc", "ngc"};
 }
 
@@ -113,7 +111,7 @@ auto NeoGeoPocketColor::open(higan::Node::Object node, string name, vfs::file::m
   if(name == "manifest.bml") return Emulator::manifest();
 
   if(name == "bios.rom") {
-    if(!file::exists(path.bios)) {
+    if(!file::exists(configuration.bios)) {
       MessageDialog().setText(
         "In order to run Neo Geo Pocket Color games, a BIOS is required.\n"
         "Please select the NGPC BIOS first. This will only need to be done once.\n"
@@ -126,7 +124,7 @@ auto NeoGeoPocketColor::open(higan::Node::Object node, string name, vfs::file::m
       if(file::exists(bios)) {
         auto sha256 = file::sha256(bios);
         if(file::sha256(bios) == "8fb845a2f71514cec20728e2f0fecfade69444f8d50898b92c2259f1ba63e10d") {
-          path.bios = bios;
+          configuration.bios = bios;
         } else {
           MessageDialog().setText(
             "Sorry, this does not appear to be the correct BIOS file. Please try again.\n"
@@ -135,7 +133,7 @@ auto NeoGeoPocketColor::open(higan::Node::Object node, string name, vfs::file::m
         }
       }
     }
-    if(auto result = vfs::fs::file::open(path.bios, mode)) return result;
+    if(auto result = vfs::fs::file::open(configuration.bios, mode)) return result;
     return {};
   }
 

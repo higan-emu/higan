@@ -97,6 +97,7 @@ auto Emulator::construct() -> void {
   #ifdef CORE_WS
   emulators.append(new WonderSwan);
   emulators.append(new WonderSwanColor);
+  emulators.append(new PocketChallengeV2);
   #endif
 
   #ifdef CORE_NGP
@@ -117,7 +118,7 @@ auto Emulator::manifest() -> shared_pointer<vfs::file> {
 }
 
 auto Emulator::load(const string& location, const vector<uint8_t>& image) -> void {
-  path.game = Location::dir(location);
+  configuration.game = Location::dir(location);
 
   game.location = location;
   game.image = image;
@@ -135,4 +136,8 @@ auto Emulator::load(const string& location, const vector<uint8_t>& image) -> voi
 
 auto Emulator::unload() -> void {
   interface->unload();
+}
+
+auto Emulator::error(const string& text) -> void {
+  MessageDialog().setTitle("Error").setText(text).setAlignment(presentation).error();
 }

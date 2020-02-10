@@ -10,7 +10,6 @@ struct SuperFamicom : Emulator {
 SuperFamicom::SuperFamicom() {
   interface = new higan::SuperFamicom::SuperFamicomInterface;
   name = "Super Nintendo";
-  abbreviation = "SNES";
   extensions = {"sfc", "smc"};
 }
 
@@ -42,7 +41,6 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
   auto programROMSize = document["game/board/memory(content=Program,type=ROM)/size"].natural();
   auto dataROMSize = document["game/board/memory(content=Data,type=ROM)/size"].natural();
   auto expansionROMSize = document["game/board/memory(content=Expansion.type=ROM)/size"].natural();
-  auto saveRAMVolatile = (bool)document["game/board/memory(content=Save,type=RAM)/volatile"];
 
   if(name == "program.rom") {
     return vfs::memory::file::open(game.image.data(), programROMSize);
@@ -57,6 +55,7 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
   }
 
   if(name == "save.ram") {
+    if((bool)document["game/board/memory(content=Save,type=RAM)/volatile"]) return {};
     string location = {Location::notsuffix(game.location), ".sav"};
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
@@ -72,65 +71,117 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
   }
 
   if(name.beginsWith("upd7725.")) {
+    auto identifier = document["game/board/memory(architecture=uPD7725)/identifier"].string().downcase();
     auto firmwareProgramROMSize = document["game/board/memory(content=Program,type=ROM,architecture=uPD7725)/size"].natural();
-    auto firmwareDataROMSize = document["game/board/memory(content=Program,type=ROM,architecture=uPD7725)/size"].natural();
+    auto firmwareDataROMSize = document["game/board/memory(content=Data,type=ROM,architecture=uPD7725)/size"].natural();
 
     if(name == "upd7725.program.rom") {
-      return vfs::memory::file::open(game.image.data() + programROMSize, programROMSize);
+      if(game.image.size() >= programROMSize + firmwareProgramROMSize) {
+        return vfs::memory::file::open(game.image.data() + programROMSize, firmwareProgramROMSize);
+      }
+      if(file::exists({Location::dir(game.location), identifier, ".program.rom"})) {
+        return vfs::fs::file::open({Location::dir(game.location), identifier, ".program.rom"}, mode);
+      }
+      error({"Missing required file: ", identifier, ".program.rom"});
     }
 
     if(name == "upd7725.data.rom") {
-      return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
+      if(game.image.size() >= programROMSize + firmwareProgramROMSize + firmwareDataROMSize) {
+        return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
+      }
+      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
+        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
+      }
+      error({"Missing required file: ", identifier, ".data.rom"});
+    }
+
+    if(name == "upd7725.data.ram") {
+      if((bool)document["game/board/memory(content=Data,type=RAM,architecture=uPD7725)/volatile"]) return {};
+      string location = {Location::notsuffix(game.location), ".upd7725.sav"};
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
 
   if(name.beginsWith("upd96050.")) {
+    auto identifier = document["game/board/memory(architecture=uPD96050)/identifier"].string().downcase();
     auto firmwareProgramROMSize = document["game/board/memory(content=Program,type=ROM,architecture=uPD96050)/size"].natural();
     auto firmwareDataROMSize = document["game/board/memory(content=Program,type=ROM,architecture=uPD96050)/size"].natural();
-    auto firmwareDataRAMVolatile = (bool)document["game/board/memory(content=Program,type=RAM,architecture=uPD96050)/volatile"];
 
     if(name == "upd96050.program.rom") {
-      return vfs::memory::file::open(game.image.data() + programROMSize, programROMSize);
+      if(game.image.size() >= programROMSize + firmwareProgramROMSize) {
+        return vfs::memory::file::open(game.image.data() + programROMSize, firmwareProgramROMSize);
+      }
+      if(file::exists({Location::dir(game.location), identifier, ".program.rom"})) {
+        return vfs::fs::file::open({Location::dir(game.location), identifier, ".program.rom"}, mode);
+      }
+      error({"Missing required file: ", identifier, ".program.rom"});
     }
 
     if(name == "upd96050.data.rom") {
-      return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
+      if(game.image.size() >= programROMSize + firmwareProgramROMSize + firmwareDataROMSize) {
+        return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
+      }
+      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
+        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
+      }
+      error({"Missing required file: ", identifier, ".data.rom"});
     }
 
-    if(name == "upd96050.data.ram" && !firmwareDataRAMVolatile) {
+    if(name == "upd96050.data.ram") {
+      if((bool)document["game/board/memory(content=Data,type=RAM,architecture=uPD96050)/volatile"]) return {};
       string location = {Location::notsuffix(game.location), ".upd96050.sav"};
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
 
   if(name.beginsWith("hg51bs169.")) {
+    auto identifier = document["game/board/memory(architecture=HG51BS169)/identifier"].string().downcase();
     auto firmwareDataROMSize = document["game/board/memory(content=Data,type=ROM,architecture=HG51BS169)/size"].natural();
-    auto firmwareDataRAMVolatile = (bool)document["game/board/memory(content=Data,type=RAM,architecture=HG51BS169)/volatile"];
 
     if(name == "hg51bs169.data.rom") {
-      return vfs::memory::file::open(game.image.data() + programROMSize, firmwareDataROMSize);
+      if(game.image.size() >= programROMSize + firmwareDataROMSize) {
+        return vfs::memory::file::open(game.image.data() + programROMSize, firmwareDataROMSize);
+      }
+      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
+        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
+      }
+      error({"Missing required file: ", identifier, ".data.rom"});
     }
 
-    if(name == "hg51bs169.data.ram" && !firmwareDataRAMVolatile) {
+    if(name == "hg51bs169.data.ram") {
+      if((bool)document["game/board/memory(content=Data,type=RAM,architecture=HG51BS169)/volatile"]) return {};
       string location = {Location::notsuffix(game.location), ".hg51bs169.sav"};
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
 
   if(name.beginsWith("arm6.")) {
+    auto identifier = document["game/board/memory(architecture=ARM6)/identifier"].string().downcase();
     auto firmwareProgramROMSize = document["game/board/memory(content=Program,type=ROM,architecture=ARM6)/size"].natural();
     auto firmwareDataROMSize = document["game/board/memory(content=Data,type=ROM,architecture=ARM6)/size"].natural();
-    auto firmwareDataRAMVolatile = (bool)document["game/board/memory(content=Data,type=RAM,architecture=ARM6)/volatile"];
 
     if(name == "arm6.program.rom") {
-      return vfs::memory::file::open(game.image.data() + programROMSize, firmwareProgramROMSize);
+      if(game.image.size() >= programROMSize + firmwareProgramROMSize) {
+        return vfs::memory::file::open(game.image.data() + programROMSize, firmwareProgramROMSize);
+      }
+      if(file::exists({Location::dir(game.location), identifier, ".program.rom"})) {
+        return vfs::fs::file::open({Location::dir(game.location), identifier, ".program.rom"}, mode);
+      }
+      error({"Missing required file: ", identifier, ".program.rom"});
     }
 
     if(name == "arm6.data.rom") {
-      return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
+      if(game.image.size() >= programROMSize + firmwareProgramROMSize + firmwareDataROMSize) {
+        return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
+      }
+      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
+        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
+      }
+      error({"Missing required file: ", identifier, ".data.rom"});
     }
 
-    if(name == "arm6.data.ram" && !firmwareDataRAMVolatile) {
+    if(name == "arm6.data.ram") {
+      if((bool)document["game/board/memory(content=Data,type=RAM,architecture=ARM6)/volatile"]) return {};
       string location = {Location::notsuffix(game.location), ".arm6.sav"};
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }

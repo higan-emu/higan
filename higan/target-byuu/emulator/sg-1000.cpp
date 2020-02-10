@@ -10,7 +10,6 @@ struct SG1000 : Emulator {
 SG1000::SG1000() {
   interface = new higan::SG1000::SG1000Interface;
   name = "SG-1000";
-  abbreviation = "SG1K";
   extensions = {"sg"};
 }
 

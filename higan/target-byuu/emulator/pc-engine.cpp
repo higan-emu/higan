@@ -16,8 +16,7 @@ struct SuperGrafx : Emulator {
 
 PCEngine::PCEngine() {
   interface = new higan::PCEngine::PCEngineInterface;
-  name = "PC Engine";
-  abbreviation = "PCE";
+  name = "TurboGrafx-16";
   extensions = {"pce"};
 }
 
@@ -76,7 +75,6 @@ auto PCEngine::input(higan::Node::Input node) -> void {
 SuperGrafx::SuperGrafx() {
   interface = new higan::PCEngine::SuperGrafxInterface;
   name = "SuperGrafx";
-  abbreviation = "SGX";
   extensions = {"sgx"};
 }
 

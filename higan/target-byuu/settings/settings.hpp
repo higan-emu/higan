@@ -46,6 +46,10 @@ struct Settings : Markup::Node {
   struct General {
     bool showStatusBar = true;
   } general;
+
+  struct Recent {
+    string game[9];
+  } recent;
 };
 
 struct VideoSettings : VerticalLayout {
@@ -114,6 +118,14 @@ struct HotkeySettings : VerticalLayout {
     Button clearButton{&controlLayout, Size{80, 0}};
 
   maybe<InputMapping&> activeMapping;
+};
+
+struct EmulatorSettings : VerticalLayout {
+  auto construct() -> void;
+  auto eventToggle(TableViewCell cell) -> void;
+
+  Label emulatorLabel{this, Size{~0, 0}, 2};
+  TableView emulatorList{this, Size{~0, ~0}};
 };
 
 struct DriverSettings : VerticalLayout {
@@ -185,6 +197,7 @@ struct SettingsWindow : Window {
       AudioSettings audioSettings;
       InputSettings inputSettings;
       HotkeySettings hotkeySettings;
+      EmulatorSettings emulatorSettings;
       DriverSettings driverSettings;
 
   StatusBar statusBar{this};
@@ -197,4 +210,5 @@ extern VideoSettings& videoSettings;
 extern AudioSettings& audioSettings;
 extern InputSettings& inputSettings;
 extern HotkeySettings& hotkeySettings;
+extern EmulatorSettings& emulatorSettings;
 extern DriverSettings& driverSettings;

@@ -1,9 +1,10 @@
 struct Presentation : Window {
   Presentation();
   auto resizeWindow() -> void;
-  auto loadShaders() -> void;
+  auto loadEmulators() -> void;
   auto loadEmulator() -> void;
   auto unloadEmulator() -> void;
+  auto loadShaders() -> void;
 
   MenuBar menuBar{this};
     Menu loadMenu{&menuBar};
@@ -28,6 +29,7 @@ struct Presentation : Window {
       MenuItem audioSettingsAction{&settingsMenu};
       MenuItem inputSettingsAction{&settingsMenu};
       MenuItem hotkeySettingsAction{&settingsMenu};
+      MenuItem emulatorSettingsAction{&settingsMenu};
       MenuItem driverSettingsAction{&settingsMenu};
     Menu toolsMenu{&menuBar};
       Menu saveStateMenu{&toolsMenu};

@@ -17,7 +17,6 @@ struct GameGear : Emulator {
 MasterSystem::MasterSystem() {
   interface = new higan::MasterSystem::MasterSystemInterface;
   name = "Master System";
-  abbreviation = "SMS";
   extensions = {"ms", "sms"};
 }
 
@@ -76,7 +75,6 @@ auto MasterSystem::input(higan::Node::Input node) -> void {
 GameGear::GameGear() {
   interface = new higan::MasterSystem::GameGearInterface;
   name = "Game Gear";
-  abbreviation = "GG";
   extensions = {"gg"};
 }
 

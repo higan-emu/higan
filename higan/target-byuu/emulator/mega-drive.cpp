@@ -10,7 +10,6 @@ struct MegaDrive : Emulator {
 MegaDrive::MegaDrive() {
   interface = new higan::MegaDrive::MegaDriveInterface;
   name = "Genesis";
-  abbreviation = "GEN";
   extensions = {"md", "smd"};  //"bin" is too generic for a multi-system emulator
 }
 

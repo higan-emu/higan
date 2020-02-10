@@ -17,7 +17,6 @@ struct GameBoyColor : Emulator {
 GameBoy::GameBoy() {
   interface = new higan::GameBoy::GameBoyInterface;
   name = "Game Boy";
-  abbreviation = "GB";
   extensions = {"gb"};
 }
 
@@ -74,7 +73,6 @@ auto GameBoy::input(higan::Node::Input node) -> void {
 GameBoyColor::GameBoyColor() {
   interface = new higan::GameBoy::GameBoyColorInterface;
   name = "Game Boy Color";
-  abbreviation = "GBC";
   extensions = {"gbc"};
 }
 

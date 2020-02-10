@@ -10,7 +10,6 @@ struct GameBoyAdvance : Emulator {
 GameBoyAdvance::GameBoyAdvance() {
   interface = new higan::GameBoyAdvance::GameBoyAdvanceInterface;
   name = "Game Boy Advance";
-  abbreviation = "GBA";
   extensions = {"gba"};
 }
 
@@ -25,7 +24,7 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
   if(name == "manifest.bml") return Emulator::manifest();
 
   if(name == "bios.rom") {
-    if(!file::exists(path.bios)) {
+    if(!file::exists(configuration.bios)) {
       MessageDialog().setText(
         "In order to run Game Boy Advance games, a BIOS is required.\n"
         "Please select the GBA BIOS first. This will only need to be done once.\n"
@@ -38,7 +37,7 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
       if(file::exists(bios)) {
         auto sha256 = file::sha256(bios);
         if(file::sha256(bios) == "fd2547724b505f487e6dcb29ec2ecff3af35a841a77ab2e85fd87350abd36570") {
-          path.bios = bios;
+          configuration.bios = bios;
         } else {
           MessageDialog().setText(
             "Sorry, this does not appear to be the correct BIOS file. Please try again.\n"
@@ -47,19 +46,20 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
         }
       }
     }
-    if(auto result = vfs::fs::file::open(path.bios, mode)) return result;
+    if(auto result = vfs::fs::file::open(configuration.bios, mode)) return result;
     return {};
   }
 
   auto document = BML::unserialize(game.manifest);
   auto programROMSize = document["game/board/memory(content=Program,type=ROM)/size"].natural();
-  auto saveRAMVolatile = (bool)document["game/board/memory(Content=Save,type=RAM)/volatile"];
+  auto saveRAMVolatile = (bool)document["game/board/memory(Content=Save)/volatile"];
 
   if(name == "program.rom") {
     return vfs::memory::file::open(game.image.data(), programROMSize);
   }
 
-  if(name == "save.ram" && !saveRAMVolatile) {
+  if(name == "save.ram" || name == "save.eeprom" || name == "save.flash") {
+    if(saveRAMVolatile) return {};
     string location = {Location::notsuffix(game.location), ".sav"};
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }

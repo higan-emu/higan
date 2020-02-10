@@ -1,4 +1,5 @@
 #include "../byuu.hpp"
+#include "emulators.cpp"
 #include "video.cpp"
 #include "audio.cpp"
 #include "input.cpp"
@@ -12,6 +13,7 @@ VideoSettings& videoSettings = settingsWindow.videoSettings;
 AudioSettings& audioSettings = settingsWindow.audioSettings;
 InputSettings& inputSettings = settingsWindow.inputSettings;
 HotkeySettings& hotkeySettings = settingsWindow.hotkeySettings;
+EmulatorSettings& emulatorSettings = settingsWindow.emulatorSettings;
 DriverSettings& driverSettings = settingsWindow.driverSettings;
 
 auto Settings::load() -> void {
@@ -72,6 +74,11 @@ auto Settings::process(bool load) -> void {
 
   bind(boolean, "General/ShowStatusBar", general.showStatusBar);
 
+  for(uint index : range(9)) {
+    string name = {"Recent/Game-", 1 + index};
+    bind(string, name, recent.game[index]);
+  }
+
   for(auto& mapping : virtualPad.mappings) {
     string name = {"VirtualPad/", mapping->name};
     bind(string, name, mapping->assignment);
@@ -83,11 +90,16 @@ auto Settings::process(bool load) -> void {
   }
 
   for(auto& emulator : emulators) {
-    string name = {string{emulator->name}.replace(" ", ""), "/Path/Game"};
-    bind(string, name, emulator->path.game);
-    if(load || emulator->path.bios) {
-      string name = {string{emulator->name}.replace(" ", ""), "/Path/BIOS"};
-      bind(string, name, emulator->path.bios);
+    string base = string{emulator->name}.replace(" ", "");
+    { string name = {base, "/Visible"};
+      bind(boolean, name, emulator->configuration.visible);
+    }
+    { string name = {base, "/Path"};
+      bind(string,  name, emulator->configuration.game);
+    }
+    if(load || emulator->configuration.bios) {
+      string name = {base, "/BIOS"};
+      bind(string,  name, emulator->configuration.bios);
     }
   }
 
@@ -103,6 +115,7 @@ SettingsWindow::SettingsWindow() {
   panelList.append(ListViewItem().setText("Audio").setIcon(Icon::Device::Speaker));
   panelList.append(ListViewItem().setText("Input").setIcon(Icon::Device::Joypad));
   panelList.append(ListViewItem().setText("Hotkeys").setIcon(Icon::Device::Keyboard));
+  panelList.append(ListViewItem().setText("Emulators").setIcon(Icon::Place::Server));
   panelList.append(ListViewItem().setText("Drivers").setIcon(Icon::Place::Settings));
   panelList.onChange([&] { eventChange(); });
 
@@ -110,12 +123,14 @@ SettingsWindow::SettingsWindow() {
   panelContainer.append(audioSettings, Size{~0, ~0});
   panelContainer.append(inputSettings, Size{~0, ~0});
   panelContainer.append(hotkeySettings, Size{~0, ~0});
+  panelContainer.append(emulatorSettings, Size{~0, ~0});
   panelContainer.append(driverSettings, Size{~0, ~0});
 
   videoSettings.construct();
   audioSettings.construct();
   inputSettings.construct();
   hotkeySettings.construct();
+  emulatorSettings.construct();
   driverSettings.construct();
 
   statusBar.setFont(Font().setBold());
@@ -143,14 +158,16 @@ auto SettingsWindow::eventChange() -> void {
   audioSettings.setVisible(false);
   inputSettings.setVisible(false);
   hotkeySettings.setVisible(false);
+  emulatorSettings.setVisible(false);
   driverSettings.setVisible(false);
 
   if(auto item = panelList.selected()) {
-    if(item.text() == "Video"  ) videoSettings.setVisible();
-    if(item.text() == "Audio"  ) audioSettings.setVisible();
-    if(item.text() == "Input"  ) inputSettings.setVisible();
-    if(item.text() == "Hotkeys") hotkeySettings.setVisible();
-    if(item.text() == "Drivers") driverSettings.setVisible();
+    if(item.text() == "Video"    ) videoSettings.setVisible();
+    if(item.text() == "Audio"    ) audioSettings.setVisible();
+    if(item.text() == "Input"    ) inputSettings.setVisible();
+    if(item.text() == "Hotkeys"  ) hotkeySettings.setVisible();
+    if(item.text() == "Emulators") emulatorSettings.setVisible();
+    if(item.text() == "Drivers"  ) driverSettings.setVisible();
   }
 
   panelContainer.resize();

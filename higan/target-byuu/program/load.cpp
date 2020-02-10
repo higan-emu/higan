@@ -20,7 +20,7 @@ auto Program::identify(const string& filename) -> shared_pointer<Emulator> {
 
 auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   if(!filename) {
-    string location = emulator->path.game;
+    string location = emulator->configuration.game;
     if(!location) location = Path::user();
 
     BrowserDialog dialog;
@@ -58,6 +58,15 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   }
   if(!filedata) return false;
 
+  //apply patch (if one exists)
+  bool patchApplied = false;
+  if(auto patch = file::read({Location::notsuffix(filename), ".bps"})) {
+    if(auto output = Beat::Single::apply(filedata, patch)) {
+      filedata = output();
+      patchApplied = true;
+    }
+  }
+
   unload();
   ::emulator = emulator;
   emulator->load(filename, filedata);
@@ -66,7 +75,15 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   if(settings.video.adaptiveSizing) presentation.resizeWindow();
   state = {};  //reset hotkey state slot to 1
   pause(false);
-  showMessage({"Loaded ", Location::prefix(emulator->game.location)});
+  showMessage({"Loaded ", Location::prefix(emulator->game.location), patchApplied ? ", and patch applied" : ""});
+
+  //update recent games list
+  for(int index = 7; index >= 0; index--) {
+    settings.recent.game[index + 1] = settings.recent.game[index];
+  }
+  settings.recent.game[0] = filename;
+  presentation.loadEmulators();
+
   return true;
 }
 
