@@ -17,7 +17,7 @@ struct Settings : Markup::Node {
     string output = "Scale";
     bool aspectCorrection = true;
     bool adaptiveSizing = true;
-    bool autoCentering = true;
+    bool autoCentering = false;
 
     double luminance = 1.0;
     double saturation = 1.0;

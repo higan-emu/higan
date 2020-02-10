@@ -21,9 +21,13 @@ struct Emulator {
   higan::Node::Object root;
   Game game;
 
-  struct Settings {
-    string gamePath;
-  } settings;
+  struct Paths {
+    string game;
+    string bios;
+  } path;
+
+  //some handheld screens can be rotated
+  uint rotation = 0;
 };
 
 extern vector<shared_pointer<Emulator>> emulators;

@@ -1,5 +1,5 @@
-target := higan
-#target := byuu
+#target := higan
+target := byuu
 build := performance
 openmp := false
 local := true
@@ -34,7 +34,7 @@ ifeq ($(target),higan)
 endif
 
 ifeq ($(target),byuu)
-  cores := fc sfc ms md pce gb gba
+  cores := fc sfc sg ms md pce msx gb gba ws ngp
 endif
 
 ifneq ($(filter $(cores),fc),)

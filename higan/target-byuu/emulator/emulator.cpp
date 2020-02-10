@@ -21,12 +21,28 @@
   #include "master-system.cpp"
 #endif
 
+#ifdef CORE_MSX
+  #include "msx.cpp"
+#endif
+
+#ifdef CORE_NGP
+  #include "neo-geo-pocket.cpp"
+#endif
+
 #ifdef CORE_PCE
   #include "pc-engine.cpp"
 #endif
 
 #ifdef CORE_SFC
   #include "super-famicom.cpp"
+#endif
+
+#ifdef CORE_SG
+  #include "sg-1000.cpp"
+#endif
+
+#ifdef CORE_WS
+  #include "wonderswan.cpp"
 #endif
 
 vector<shared_pointer<Emulator>> emulators;
@@ -43,6 +59,10 @@ auto Emulator::construct() -> void {
   emulators.append(new SuperFamicom);
   #endif
 
+  #ifdef CORE_SG
+  emulators.append(new SG1000);
+  #endif
+
   #ifdef CORE_MS
   emulators.append(new MasterSystem);
   #endif
@@ -56,6 +76,11 @@ auto Emulator::construct() -> void {
   emulators.append(new SuperGrafx);
   #endif
 
+  #ifdef CORE_MSX
+  emulators.append(new MSX);
+  emulators.append(new MSX2);
+  #endif
+
   #ifdef CORE_GB
   emulators.append(new GameBoy);
   emulators.append(new GameBoyColor);
@@ -67,6 +92,16 @@ auto Emulator::construct() -> void {
 
   #ifdef CORE_MS
   emulators.append(new GameGear);
+  #endif
+
+  #ifdef CORE_WS
+  emulators.append(new WonderSwan);
+  emulators.append(new WonderSwanColor);
+  #endif
+
+  #ifdef CORE_NGP
+  emulators.append(new NeoGeoPocket);
+  emulators.append(new NeoGeoPocketColor);
   #endif
 }
 
@@ -82,10 +117,12 @@ auto Emulator::manifest() -> shared_pointer<vfs::file> {
 }
 
 auto Emulator::load(const string& location, const vector<uint8_t>& image) -> void {
-  settings.gamePath = Location::dir(location);
+  path.game = Location::dir(location);
 
   game.location = location;
   game.image = image;
+
+  rotation = 0;
 
   auto system = higan::Node::System::create();
   system->setName(interface->name());

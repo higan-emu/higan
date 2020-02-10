@@ -83,8 +83,12 @@ auto Settings::process(bool load) -> void {
   }
 
   for(auto& emulator : emulators) {
-    string name = {string{emulator->name}.replace(" ", ""), "/Game/Path"};
-    bind(string, name, emulator->settings.gamePath);
+    string name = {string{emulator->name}.replace(" ", ""), "/Path/Game"};
+    bind(string, name, emulator->path.game);
+    if(load || emulator->path.bios) {
+      string name = {string{emulator->name}.replace(" ", ""), "/Path/BIOS"};
+      bind(string, name, emulator->path.bios);
+    }
   }
 
   #undef bind

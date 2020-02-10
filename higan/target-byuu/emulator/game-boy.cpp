@@ -58,8 +58,8 @@ auto GameBoy::input(higan::Node::Input node) -> void {
   if(name == "Down"  ) mapping = virtualPad.down;
   if(name == "Left"  ) mapping = virtualPad.left;
   if(name == "Right" ) mapping = virtualPad.right;
-  if(name == "B"     ) mapping = virtualPad.b;
-  if(name == "A"     ) mapping = virtualPad.a;
+  if(name == "B"     ) mapping = virtualPad.a;
+  if(name == "A"     ) mapping = virtualPad.b;
   if(name == "Select") mapping = virtualPad.select;
   if(name == "Start" ) mapping = virtualPad.start;
 
@@ -115,8 +115,8 @@ auto GameBoyColor::input(higan::Node::Input node) -> void {
   if(name == "Down"  ) mapping = virtualPad.down;
   if(name == "Left"  ) mapping = virtualPad.left;
   if(name == "Right" ) mapping = virtualPad.right;
-  if(name == "B"     ) mapping = virtualPad.b;
-  if(name == "A"     ) mapping = virtualPad.a;
+  if(name == "B"     ) mapping = virtualPad.a;
+  if(name == "A"     ) mapping = virtualPad.b;
   if(name == "Select") mapping = virtualPad.select;
   if(name == "Start" ) mapping = virtualPad.start;
 

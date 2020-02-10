@@ -25,8 +25,30 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
   if(name == "manifest.bml") return Emulator::manifest();
 
   if(name == "bios.rom") {
-    if(auto result = vfs::fs::file::open({Path::user(), "higan/Game Boy Advance/bios.rom"}, mode)) return result;
-    return {};  //todo
+    if(!file::exists(path.bios)) {
+      MessageDialog().setText(
+        "In order to run Game Boy Advance games, a BIOS is required.\n"
+        "Please select the GBA BIOS first. This will only need to be done once.\n"
+        "Note: the BIOS file must be uncompressed!"
+      ).setAlignment(presentation).information();
+      BrowserDialog dialog;
+      dialog.setTitle("Select Game Boy Advance BIOS");
+      dialog.setAlignment(presentation);
+      string bios = dialog.openFile();
+      if(file::exists(bios)) {
+        auto sha256 = file::sha256(bios);
+        if(file::sha256(bios) == "fd2547724b505f487e6dcb29ec2ecff3af35a841a77ab2e85fd87350abd36570") {
+          path.bios = bios;
+        } else {
+          MessageDialog().setText(
+            "Sorry, this does not appear to be the correct BIOS file. Please try again.\n"
+            "Note: the BIOS file must be uncompressed!"
+          ).setAlignment(presentation).warning();
+        }
+      }
+    }
+    if(auto result = vfs::fs::file::open(path.bios, mode)) return result;
+    return {};
   }
 
   auto document = BML::unserialize(game.manifest);

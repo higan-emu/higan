@@ -20,7 +20,7 @@ auto Program::identify(const string& filename) -> shared_pointer<Emulator> {
 
 auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   if(!filename) {
-    string location = emulator->settings.gamePath;
+    string location = emulator->path.game;
     if(!location) location = Path::user();
 
     BrowserDialog dialog;
