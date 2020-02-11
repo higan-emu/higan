@@ -1,4 +1,6 @@
 struct Presentation : Window {
+  enum : uint { StatusHeight = 24 };
+
   Presentation();
   auto resizeWindow() -> void;
   auto loadEmulators() -> void;
@@ -42,9 +44,16 @@ struct Presentation : Window {
       MenuItem aboutAction{&helpMenu};
 
   VerticalLayout layout{this};
-    Viewport viewport{&layout, Size{~0, ~0}};
-
-  StatusBar statusBar{this};
+    HorizontalLayout viewportLayout{&layout, Size{~0, ~0}, 0};
+      Viewport viewport{&viewportLayout, Size{~0, ~0}, 0};
+      VerticalLayout iconLayout{&viewportLayout, Size{0, ~0}, 0};
+        Canvas iconSpacer{&iconLayout, Size{128, ~0}, 0};
+        Canvas iconCanvas{&iconLayout, Size{128, 128}, 0};
+    HorizontalLayout statusLayout{&layout, Size{~0, StatusHeight}, 0};
+      Label spacerLeft{&statusLayout, Size{8, ~0}, 0};
+      Label statusLeft{&statusLayout, Size{~0, ~0}, 0};
+      Label statusRight{&statusLayout, Size{100, ~0}, 0};
+      Label spacerRight{&statusLayout, Size{8, ~0}, 0};
 };
 
 namespace Instances { extern Instance<Presentation> presentation; }

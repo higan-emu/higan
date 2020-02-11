@@ -40,7 +40,7 @@ using namespace nall;
 
 namespace higan {
   static const string Name    = "higan";
-  static const string Version = "107.15";
+  static const string Version = "107.16";
   static const string Author  = "byuu";
   static const string License = "GPLv3";
   static const string Website = "https://byuu.org";
@@ -55,7 +55,7 @@ namespace higan {
     }
   }
 
-  //nall/vfs shorthand constants for open(), load()
+  //nall/vfs shorthand constants
   namespace File {
     static const auto Read  = vfs::file::mode::read;
     static const auto Write = vfs::file::mode::write;

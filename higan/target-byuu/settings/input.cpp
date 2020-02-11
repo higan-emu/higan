@@ -68,13 +68,7 @@ auto InputSettings::eventInput(shared_pointer<HID::Device> device, uint groupID,
   if(!activeMapping) return;
   if(!settingsWindow.focused()) return;
 
-  if(device->isKeyboard() && oldValue == 0 && newValue == 1) {
-    if(device->group(groupID).input(inputID).name() == "Escape") {
-      activeMapping->resetAssignment();
-    } else {
-      activeMapping->setAssignment(device, groupID, inputID);
-    }
-
+  if(activeMapping->bind(device, groupID, inputID, oldValue, newValue)) {
     activeMapping.reset();
     settingsWindow.statusBar.setText();
     settingsWindow.layout.setEnabled();

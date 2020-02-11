@@ -1,4 +1,5 @@
 namespace name=Resource
+  binary name=Emblem file=icon.png
   binary name=Logo file=logo.png
   namespace name=GameBoy
     binary name=BootDMG1 file="../../System/Game Boy/boot.dmg-1.rom"

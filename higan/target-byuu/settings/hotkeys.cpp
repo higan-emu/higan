@@ -43,14 +43,17 @@ auto HotkeySettings::eventClear() -> void {
   if(auto item = inputList.selected()) {
     activeMapping = inputManager.hotkeys[item.offset()];
 
-    for(auto& device : inputManager.devices) {
-      if(!device->isKeyboard()) continue;
-      uint groupID = 0, inputID = 0;
-      for(auto& input : device->group(groupID)) {
-        if(input.name() == "Escape") return eventInput(device, groupID, inputID, 0, 1);
-        inputID++;
-      }
-    }
+    shared_pointer<HID::Device> device{new HID::Null};
+    return eventInput(device, 0, 0, 0, 0);
+
+//    for(auto& device : inputManager.devices) {
+//      if(!device->isKeyboard()) continue;
+//      uint groupID = 0, inputID = 0;
+//      for(auto& input : device->group(groupID)) {
+//        if(input.name() == "Escape") return eventInput(device, groupID, inputID, 0, 1);
+//        inputID++;
+//      }
+//    }
   }
 }
 
@@ -68,13 +71,7 @@ auto HotkeySettings::eventInput(shared_pointer<HID::Device> device, uint groupID
   if(!activeMapping) return;
   if(!settingsWindow.focused()) return;
 
-  if(device->isKeyboard() && oldValue == 0 && newValue == 1) {
-    if(device->group(groupID).input(inputID).name() == "Escape") {
-      activeMapping->resetAssignment();
-    } else {
-      activeMapping->setAssignment(device, groupID, inputID);
-    }
-
+  if(activeMapping->bind(device, groupID, inputID, oldValue, newValue)) {
     activeMapping.reset();
     settingsWindow.statusBar.setText();
     settingsWindow.layout.setEnabled();

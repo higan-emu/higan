@@ -4,8 +4,7 @@ auto Program::pause(bool state) -> void {
   presentation.pauseEmulation.setChecked(paused);
 
   if(paused) {
-    showMessage("Paused");
-    message.text = "Paused";
+    presentation.statusRight.setText("Paused");
   }
 }
 

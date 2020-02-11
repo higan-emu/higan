@@ -159,6 +159,8 @@ auto DriverSettings::audioDriverUpdate() -> void {
     "Warning: incompatible drivers may cause this software to crash.\n"
     "Are you sure you want to change this driver while a game is loaded?"
   ).setAlignment(settingsWindow).question() != "Yes") return;
+  program.audioDriverUpdate();
+  audioRefresh();
 }
 
 auto DriverSettings::inputRefresh() -> void {
@@ -178,4 +180,6 @@ auto DriverSettings::inputDriverUpdate() -> void {
     "Warning: incompatible drivers may cause this software to crash.\n"
     "Are you sure you want to change this driver while a game is loaded?"
   ).setAlignment(settingsWindow).question() != "Yes") return;
+  program.inputDriverUpdate();
+  inputRefresh();
 }

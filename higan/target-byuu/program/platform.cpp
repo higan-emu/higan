@@ -5,7 +5,7 @@ auto Program::attach(higan::Node::Object node) -> void {
 
   if(auto stream = node->cast<higan::Node::Stream>()) {
     streams = emulator->root->find<higan::Node::Stream>();
-    stream->setResamplerFrequency(48000.0);
+    stream->setResamplerFrequency(ruby::audio.frequency());
   }
 }
 
@@ -80,7 +80,7 @@ auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, 
   current = chrono::timestamp();
   if(current != previous) {
     previous = current;
-    message.text = {"FPS: ", frameCounter};
+    presentation.statusRight.setText({frameCounter, " FPS"});
     frameCounter = 0;
   }
 }

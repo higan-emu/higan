@@ -1,10 +1,14 @@
 auto Program::updateMessage() -> void {
   if(chrono::millisecond() - message.timestamp >= 2000) {
-    presentation.statusBar.setText(message.text);
+    presentation.statusLeft.setText();
+  }
+
+  if(!emulator) {
+    presentation.statusRight.setText("Unloaded");
   }
 }
 
 auto Program::showMessage(const string& text) -> void {
   message.timestamp = chrono::millisecond();
-  presentation.statusBar.setText(text);
+  presentation.statusLeft.setText(text);
 }

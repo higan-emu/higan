@@ -36,20 +36,6 @@ auto nall::main(Arguments arguments) -> void {
   Instances::presentation.construct();
   Instances::settingsWindow.construct();
 
-  if(!Path::user().endsWith("/byuu/")) {
-    MessageDialog()
-    .setTitle("byuu")
-    .setText({
-      "Note: this is pre-alpha software!\n"
-      "Development literally just started.\n\n"
-      "Please do not distribute binaries of byuu.\n"
-      "Please do not report any bugs.\n"
-      "Please don't even run this at all!\n"
-      "If you do so anyway, the consequences are on you."
-    })
-    .information();
-  }
-
   program.create();
   presentation.loadEmulators();
   Application::onMain({&Program::main, &program});

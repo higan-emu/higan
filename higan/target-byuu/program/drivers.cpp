@@ -69,6 +69,10 @@ auto Program::audioFrequencyUpdate() -> void {
     settings.audio.frequency = ruby::audio.frequency();
   }
   ruby::audio.setFrequency(settings.audio.frequency);
+
+  for(auto& stream : streams) {
+    stream->setResamplerFrequency(ruby::audio.frequency());
+  }
 }
 
 auto Program::audioLatencyUpdate() -> void {

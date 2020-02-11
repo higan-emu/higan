@@ -1,4 +1,5 @@
 namespace Resource {
+extern const unsigned char Emblem[6832];
 extern const unsigned char Logo[16053];
 namespace GameBoy {
 extern const unsigned char BootDMG1[256];

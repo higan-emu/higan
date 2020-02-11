@@ -1,19 +1,26 @@
 struct InputMapping {
+  enum class Qualifier : uint { None, Lo, Hi };
+
   InputMapping(const string& name) : name(name) {}
 
+  auto bind(shared_pointer<HID::Device>, uint groupID, uint inputID, int16_t oldValue, int16_t newValue) -> bool;
   auto bind() -> void;
+  auto unbind() -> void;
   auto icon() -> image;
   auto text() -> string;
   auto value() -> int16_t;
 
   auto resetAssignment() -> void;
-  auto setAssignment(shared_pointer<HID::Device>, uint groupID, uint inputID) -> void;
+  auto setAssignment(shared_pointer<HID::Device>, uint groupID, uint inputID, const string& qualifier = "") -> void;
 
   const string name;
+
   shared_pointer<HID::Device> device;
   uint64_t deviceID;
   uint groupID;
   uint inputID;
+  Qualifier qualifier = Qualifier::None;
+
   string assignment;
 };
 
@@ -38,9 +45,10 @@ struct VirtualPad {
 
   InputButton up{"Up"}, down{"Down"}, left{"Left"}, right{"Right"};
   InputButton select{"Select"}, start{"Start"};
-  InputButton a{"A"}, b{"B"}, c{"C"};
-  InputButton x{"X"}, y{"Y"}, z{"Z"};
-  InputButton l{"L"}, r{"R"};
+  InputButton a{"A"}, b{"B"};
+  InputButton x{"X"}, y{"Y"};
+  InputButton l1{"L1"}, r1{"R1"};
+  InputButton l2{"L2"}, r2{"R2"};
 
   vector<InputMapping*> mappings;
 };

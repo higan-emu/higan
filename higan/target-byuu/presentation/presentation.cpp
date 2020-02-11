@@ -59,8 +59,12 @@ Presentation::Presentation() {
   });
   showStatusBarSetting.setText("Show Status Bar").setChecked(settings.general.showStatusBar).onToggle([&] {
     settings.general.showStatusBar = showStatusBarSetting.checked();
-    statusBar.setVisible(settings.general.showStatusBar);
-    resizeWindow();
+    if(!showStatusBarSetting.checked()) {
+      layout.remove(statusLayout);
+    } else {
+      layout.append(statusLayout, Size{~0, StatusHeight});
+    }
+    if(visible()) resizeWindow();
   }).doToggle();
   videoSettingsAction.setText("Video ...").setIcon(Icon::Device::Display).onActivate([&] {
     settingsWindow.show("Video");
@@ -122,7 +126,23 @@ Presentation::Presentation() {
     }
   });
 
-  statusBar.setFont(Font().setBold());
+  iconSpacer.setCollapsible().setColor({0, 0, 0}).setDroppable().onDrop([&](auto filenames) {
+    viewport.doDrop(filenames);
+  });
+
+  image icon{Resource::Emblem};
+  icon.alphaBlend(0x000000);
+  iconCanvas.setCollapsible().setIcon(icon).setDroppable().onDrop([&](auto filenames) {
+    viewport.doDrop(filenames);
+  });
+
+  spacerLeft .setBackgroundColor({32, 32, 32});
+  statusLeft .setBackgroundColor({32, 32, 32}).setForegroundColor({255, 255, 255});
+  statusRight.setBackgroundColor({32, 32, 32}).setForegroundColor({255, 255, 255});
+  spacerRight.setBackgroundColor({32, 32, 32});
+
+  statusLeft .setAlignment(0.0).setFont(Font().setBold());
+  statusRight.setAlignment(1.0).setFont(Font().setBold());
 
   onClose([&] {
     program.quit();
@@ -158,11 +178,15 @@ auto Presentation::resizeWindow() -> void {
     viewportHeight = videoHeight * multiplier;
   }
 
+  uint statusHeight = showStatusBarSetting.checked() ? StatusHeight : 0;
+
   if(settings.video.autoCentering) {
-    setGeometry(Alignment::Center, {viewportWidth, viewportHeight});
+    setGeometry(Alignment::Center, {viewportWidth, viewportHeight + statusHeight});
   } else {
-    setSize({viewportWidth, viewportHeight});
+    setSize({viewportWidth, viewportHeight + statusHeight});
   }
+
+  setMinimumSize({320, 240 + statusHeight});
 }
 
 auto Presentation::loadEmulators() -> void {
@@ -267,6 +291,10 @@ auto Presentation::loadEmulator() -> void {
 
   toolsMenu.setVisible(true);
   pauseEmulation.setChecked(false);
+
+  iconSpacer.setVisible(false);
+  iconCanvas.setVisible(false);
+  layout.resize();
 }
 
 auto Presentation::unloadEmulator() -> void {
@@ -276,6 +304,10 @@ auto Presentation::unloadEmulator() -> void {
   systemMenu.reset();
 
   toolsMenu.setVisible(false);
+
+  iconSpacer.setVisible(true);
+  iconCanvas.setVisible(true);
+  layout.resize();
 }
 
 auto Presentation::loadShaders() -> void {

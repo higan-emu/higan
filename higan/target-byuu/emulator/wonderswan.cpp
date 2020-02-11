@@ -23,8 +23,12 @@ auto WonderSwan::load() -> void {
 auto WonderSwan::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   if(name == "manifest.bml") return Emulator::manifest();
 
-  if(name == "boot.rom") {
+  if(node->identity() == "System" && name == "boot.rom") {
     return vfs::memory::file::open(Resource::WonderSwan::Boot, sizeof Resource::WonderSwan::Boot);
+  }
+
+  if(node->identity() == "System" && name == "save.eeprom") {
+    return {};
   }
 
   auto document = BML::unserialize(game.manifest);
@@ -41,16 +45,21 @@ auto WonderSwan::open(higan::Node::Object node, string name, vfs::file::mode mod
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
+  if(name == "time.rtc") {
+    string location = {Location::notsuffix(game.location), ".rtc"};
+    if(auto result = vfs::fs::file::open(location, mode)) return result;
+  }
+
   return {};
 }
 
 auto WonderSwan::input(higan::Node::Input node) -> void {
   auto name = node->name();
   maybe<InputMapping&> mapping;
-  if(name == "Y1"   ) mapping = virtualPad.c;
-  if(name == "Y2"   ) mapping = virtualPad.x;
-  if(name == "Y3"   ) mapping = virtualPad.y;
-  if(name == "Y4"   ) mapping = virtualPad.z;
+  if(name == "Y1"   ) mapping = virtualPad.l1;
+  if(name == "Y2"   ) mapping = virtualPad.l2;
+  if(name == "Y3"   ) mapping = virtualPad.r1;
+  if(name == "Y4"   ) mapping = virtualPad.r2;
   if(name == "X1"   ) mapping = virtualPad.up;
   if(name == "X2"   ) mapping = virtualPad.right;
   if(name == "X3"   ) mapping = virtualPad.down;
@@ -90,8 +99,12 @@ auto WonderSwanColor::load() -> void {
 auto WonderSwanColor::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   if(name == "manifest.bml") return Emulator::manifest();
 
-  if(name == "boot.rom") {
+  if(node->identity() == "System" && name == "boot.rom") {
     return vfs::memory::file::open(Resource::WonderSwanColor::Boot, sizeof Resource::WonderSwanColor::Boot);
+  }
+
+  if(node->identity() == "System" && name == "save.eeprom") {
+    return {};
   }
 
   auto document = BML::unserialize(game.manifest);
@@ -108,16 +121,21 @@ auto WonderSwanColor::open(higan::Node::Object node, string name, vfs::file::mod
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
+  if(name == "time.rtc") {
+    string location = {Location::notsuffix(game.location), ".rtc"};
+    if(auto result = vfs::fs::file::open(location, mode)) return result;
+  }
+
   return {};
 }
 
 auto WonderSwanColor::input(higan::Node::Input node) -> void {
   auto name = node->name();
   maybe<InputMapping&> mapping;
-  if(name == "Y1"   ) mapping = virtualPad.c;
-  if(name == "Y2"   ) mapping = virtualPad.x;
-  if(name == "Y3"   ) mapping = virtualPad.y;
-  if(name == "Y4"   ) mapping = virtualPad.z;
+  if(name == "Y1"   ) mapping = virtualPad.l1;
+  if(name == "Y2"   ) mapping = virtualPad.l2;
+  if(name == "Y3"   ) mapping = virtualPad.r1;
+  if(name == "Y4"   ) mapping = virtualPad.r2;
   if(name == "X1"   ) mapping = virtualPad.up;
   if(name == "X2"   ) mapping = virtualPad.right;
   if(name == "X3"   ) mapping = virtualPad.down;
@@ -157,8 +175,12 @@ auto PocketChallengeV2::load() -> void {
 auto PocketChallengeV2::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   if(name == "manifest.bml") return Emulator::manifest();
 
-  if(name == "boot.rom") {
+  if(node->identity() == "System" && name == "boot.rom") {
     return vfs::memory::file::open(Resource::WonderSwan::Boot, sizeof Resource::WonderSwan::Boot);
+  }
+
+  if(node->identity() == "System" && name == "save.eeprom") {
+    return {};
   }
 
   auto document = BML::unserialize(game.manifest);
@@ -175,6 +197,11 @@ auto PocketChallengeV2::open(higan::Node::Object node, string name, vfs::file::m
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
+  if(name == "time.rtc") {
+    string location = {Location::notsuffix(game.location), ".rtc"};
+    if(auto result = vfs::fs::file::open(location, mode)) return result;
+  }
+
   return {};
 }
 
@@ -187,7 +214,7 @@ auto PocketChallengeV2::input(higan::Node::Input node) -> void {
   if(name == "Right" ) mapping = virtualPad.right;
   if(name == "Pass"  ) mapping = virtualPad.a;
   if(name == "Circle") mapping = virtualPad.b;
-  if(name == "Clear" ) mapping = virtualPad.c;
+  if(name == "Clear" ) mapping = virtualPad.y;
   if(name == "View"  ) mapping = virtualPad.start;
   if(name == "Escape") mapping = virtualPad.select;
 
