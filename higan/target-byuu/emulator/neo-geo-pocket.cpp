@@ -36,6 +36,7 @@ auto NeoGeoPocket::open(higan::Node::Object node, string name, vfs::file::mode m
       ).setAlignment(presentation).information();
       BrowserDialog dialog;
       dialog.setTitle("Select Neo Geo Pocket BIOS");
+      dialog.setPath(Path::desktop());
       dialog.setAlignment(presentation);
       string bios = dialog.openFile();
       if(file::exists(bios)) {
@@ -119,6 +120,7 @@ auto NeoGeoPocketColor::open(higan::Node::Object node, string name, vfs::file::m
       ).setAlignment(presentation).information();
       BrowserDialog dialog;
       dialog.setTitle("Select Neo Geo Pocket Color BIOS");
+      dialog.setPath(Path::desktop());
       dialog.setAlignment(presentation);
       string bios = dialog.openFile();
       if(file::exists(bios)) {

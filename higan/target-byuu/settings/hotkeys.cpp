@@ -2,6 +2,7 @@ auto HotkeySettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 
+  inputList.setBatchable();
   inputList.setHeadered();
   inputList.onChange([&] { eventChange(); });
   inputList.onActivate([&](auto cell) { eventAssign(); });
@@ -35,25 +36,15 @@ auto HotkeySettings::refresh() -> void {
 }
 
 auto HotkeySettings::eventChange() -> void {
-  assignButton.setEnabled((bool)inputList.selected());
-  clearButton.setEnabled((bool)inputList.selected());
+  assignButton.setEnabled(inputList.batched().size() == 1);
+  clearButton.setEnabled(inputList.batched().size() >= 1);
 }
 
 auto HotkeySettings::eventClear() -> void {
-  if(auto item = inputList.selected()) {
+  for(auto& item : inputList.batched()) {
     activeMapping = inputManager.hotkeys[item.offset()];
-
     shared_pointer<HID::Device> device{new HID::Null};
-    return eventInput(device, 0, 0, 0, 0);
-
-//    for(auto& device : inputManager.devices) {
-//      if(!device->isKeyboard()) continue;
-//      uint groupID = 0, inputID = 0;
-//      for(auto& input : device->group(groupID)) {
-//        if(input.name() == "Escape") return eventInput(device, groupID, inputID, 0, 1);
-//        inputID++;
-//      }
-//    }
+    eventInput(device, 0, 0, 0, 0);
   }
 }
 

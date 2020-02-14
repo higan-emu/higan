@@ -103,8 +103,22 @@ struct Object : shared_pointer_this<Object> {
   template<typename T = Node::Object>
   auto find(string name) -> T {
     using Type = typename T::type;
+    auto path = name.split("/");
+    name = path.takeFirst();
+    for(auto& node : _nodes) {
+      if(node->_name != name) continue;
+      if(path) return node->find<T>(path.merge("/"));
+      if(node->identity() == Type::identifier) return node;
+    }
+    return {};
+  }
+
+  template<typename T = Node::Object>
+  auto scan(string name) -> T {
+    using Type = typename T::type;
     for(auto& node : _nodes) {
       if(node->identity() == Type::identifier && node->_name == name) return node;
+      if(auto result = node->scan<T>(name)) return result;
     }
     return {};
   }

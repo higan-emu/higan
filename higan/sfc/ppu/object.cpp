@@ -1,5 +1,3 @@
-#include "oam.cpp"
-
 auto PPU::Object::addressReset() -> void {
   ppu.io.oamAddress = ppu.io.oamBaseAddress;
   setFirstSprite();

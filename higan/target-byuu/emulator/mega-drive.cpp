@@ -54,10 +54,10 @@ auto MegaDrive::input(higan::Node::Input node) -> void {
   if(name == "Right") mapping = virtualPad.right;
   if(name == "A"    ) mapping = virtualPad.a;
   if(name == "B"    ) mapping = virtualPad.b;
-  if(name == "C"    ) mapping = virtualPad.l1;
+  if(name == "C"    ) mapping = virtualPad.l;
   if(name == "X"    ) mapping = virtualPad.x;
   if(name == "Y"    ) mapping = virtualPad.y;
-  if(name == "Z"    ) mapping = virtualPad.r1;
+  if(name == "Z"    ) mapping = virtualPad.r;
   if(name == "Mode" ) mapping = virtualPad.select;
   if(name == "Start") mapping = virtualPad.start;
 

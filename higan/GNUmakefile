@@ -30,11 +30,21 @@ obj/libco.o: ../libco/libco.c
 obj/emulator.o: emulator/emulator.cpp
 
 ifeq ($(target),higan)
+  profile := accuracy
   cores := fc sfc sg ms md pce msx cv gb gba ws ngp
 endif
 
 ifeq ($(target),byuu)
+  profile := accuracy
   cores := fc sfc sg ms md pce msx gb gba ws ngp
+endif
+
+ifeq ($(profile),accuracy)
+  flags += -DPROFILE_ACCURACY
+endif
+
+ifeq ($(profile),performance)
+  flags += -DPROFILE_PERFORMANCE
 endif
 
 ifneq ($(filter $(cores),fc),)

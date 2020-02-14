@@ -29,4 +29,22 @@ auto VideoSettings::construct() -> void {
     gammaValue.setText({100 + gammaSlider.position(), "%"});
     program.paletteUpdate();
   }).doChange();
+
+  emulatorOptionsLabel.setText("Emulator Options").setFont(Font().setBold());
+  colorBleedOption.setText("Color Bleed").setChecked(settings.video.colorBleed).onToggle([&] {
+    settings.video.colorBleed = colorBleedOption.checked();
+    if(emulator) emulator->setBoolean("Color Bleed", settings.video.colorBleed);
+  });
+  colorEmulationOption.setText("Color Emulation").setChecked(settings.video.colorEmulation).onToggle([&] {
+    settings.video.colorEmulation = colorEmulationOption.checked();
+    if(emulator) emulator->setBoolean("Color Emulation", settings.video.colorEmulation);
+  });
+  interframeBlendingOption.setText("Interframe Blending").setChecked(settings.video.interframeBlending).onToggle([&] {
+    settings.video.interframeBlending = interframeBlendingOption.checked();
+    if(emulator) emulator->setBoolean("Interframe Blending", settings.video.interframeBlending);
+  });
+  overscanOption.setText("Overscan").setChecked(settings.video.overscan).onToggle([&] {
+    settings.video.overscan = overscanOption.checked();
+    if(emulator) emulator->setOverscan(settings.video.overscan);
+  });
 }

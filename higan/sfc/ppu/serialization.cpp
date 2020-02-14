@@ -28,8 +28,8 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(latch.oamAddress);
   s.integer(latch.cgramAddress);
 
-  s.integer(io.displayDisable);
   s.integer(io.displayBrightness);
+  s.integer(io.displayDisable);
 
   s.integer(io.oamBaseAddress);
   s.integer(io.oamAddress);
@@ -41,15 +41,15 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(io.hoffsetMode7);
   s.integer(io.voffsetMode7);
 
-  s.integer(io.vramIncrementMode);
-  s.integer(io.vramMapping);
   s.integer(io.vramIncrementSize);
+  s.integer(io.vramMapping);
+  s.integer(io.vramIncrementMode);
 
   s.integer(io.vramAddress);
 
-  s.integer(io.repeatMode7);
-  s.integer(io.vflipMode7);
   s.integer(io.hflipMode7);
+  s.integer(io.vflipMode7);
+  s.integer(io.repeatMode7);
 
   s.integer(io.m7a);
   s.integer(io.m7b);
@@ -76,7 +76,7 @@ auto PPU::serialize(serializer& s) -> void {
   bg4.serialize(s);
   obj.serialize(s);
   window.serialize(s);
-  screen.serialize(s);
+  dac.serialize(s);
 }
 
 auto PPU::Mosaic::serialize(serializer& s) -> void {
@@ -85,9 +85,9 @@ auto PPU::Mosaic::serialize(serializer& s) -> void {
 }
 
 auto PPU::Background::serialize(serializer& s) -> void {
-  s.integer(io.tiledataAddress);
-  s.integer(io.screenAddress);
   s.integer(io.screenSize);
+  s.integer(io.screenAddress);
+  s.integer(io.tiledataAddress);
   s.integer(io.tileSize);
   s.integer(io.mode);
   s.array(io.priority);
@@ -147,15 +147,15 @@ auto PPU::Object::serialize(serializer& s) -> void {
   s.integer(io.belowEnable);
   s.integer(io.interlace);
 
-  s.integer(io.baseSize);
-  s.integer(io.nameselect);
   s.integer(io.tiledataAddress);
+  s.integer(io.nameselect);
+  s.integer(io.baseSize);
   s.integer(io.firstSprite);
 
   s.array(io.priority);
 
-  s.integer(io.timeOver);
   s.integer(io.rangeOver);
+  s.integer(io.timeOver);
 
   s.integer(latch.firstSprite);
 
@@ -248,7 +248,7 @@ auto PPU::Window::serialize(serializer& s) -> void {
   s.integer(x);
 }
 
-auto PPU::Screen::serialize(serializer& s) -> void {
+auto PPU::DAC::serialize(serializer& s) -> void {
   s.array(cgram);
 
   s.integer(io.blendMode);

@@ -1,7 +1,7 @@
 auto PPU::latchCounters() -> void {
   cpu.synchronize(ppu);
-  io.hcounter = hdot();
-  io.vcounter = vcounter();
+  io.hcounter = cpu.hdot();
+  io.vcounter = cpu.vcounter();
   latch.counters = 1;
 }
 
@@ -85,7 +85,7 @@ auto PPU::readIO(uint24 address, uint8 data) -> uint8 {
     return ppu1.mdr = result.byte(1);
   }
 
-  //MPYH
+  //MYPH
   case 0x2136: {
     uint24 result = (int16)io.m7a * (int8)(io.m7b >> 8);
     return ppu1.mdr = result.byte(2);
@@ -175,7 +175,7 @@ auto PPU::readIO(uint24 address, uint8 data) -> uint8 {
       ppu2.mdr.bit(6) = latch.counters;
       latch.counters = 0;
     }
-    ppu2.mdr.bit(7) = field();
+    ppu2.mdr.bit(7) = cpu.field();
     return ppu2.mdr;
   }
 
@@ -249,16 +249,7 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
 
   //MOSAIC
   case 0x2106: {
-    bool mosaicEnable = mosaic.enable();
-    bg1.mosaic.enable = data.bit(0);
-    bg2.mosaic.enable = data.bit(1);
-    bg3.mosaic.enable = data.bit(2);
-    bg4.mosaic.enable = data.bit(3);
-    mosaic.size       = data.bit(4,7) + 1;
-    if(!mosaicEnable && mosaic.enable()) {
-      //mosaic vcounter is reloaded when mosaic becomes enabled
-      mosaic.vcounter = mosaic.size + 1;
-    }
+    //TODO
     return;
   }
 
@@ -386,7 +377,7 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
     return;
   }
 
-  //VMADDH
+  //VHADDH
   case 0x2117: {
     io.vramAddress.bit(8,15) = data;
     latch.vram = readVRAM();
@@ -474,269 +465,8 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
     return;
   }
 
-  //W12SEL
-  case 0x2123: {
-    window.io.bg1.oneInvert = data.bit(0);
-    window.io.bg1.oneEnable = data.bit(1);
-    window.io.bg1.twoInvert = data.bit(2);
-    window.io.bg1.twoEnable = data.bit(3);
-    window.io.bg2.oneInvert = data.bit(4);
-    window.io.bg2.oneEnable = data.bit(5);
-    window.io.bg2.twoInvert = data.bit(6);
-    window.io.bg2.twoEnable = data.bit(7);
-    return;
-  }
-
-  //W34SEL
-  case 0x2124: {
-    window.io.bg3.oneInvert = data.bit(0);
-    window.io.bg3.oneEnable = data.bit(1);
-    window.io.bg3.twoInvert = data.bit(2);
-    window.io.bg3.twoEnable = data.bit(3);
-    window.io.bg4.oneInvert = data.bit(4);
-    window.io.bg4.oneEnable = data.bit(5);
-    window.io.bg4.twoInvert = data.bit(6);
-    window.io.bg4.twoEnable = data.bit(7);
-    return;
-  }
-
-  //WOBJSEL
-  case 0x2125: {
-    window.io.obj.oneInvert = data.bit(0);
-    window.io.obj.oneEnable = data.bit(1);
-    window.io.obj.twoInvert = data.bit(2);
-    window.io.obj.twoEnable = data.bit(3);
-    window.io.col.oneInvert = data.bit(4);
-    window.io.col.oneEnable = data.bit(5);
-    window.io.col.twoInvert = data.bit(6);
-    window.io.col.twoEnable = data.bit(7);
-    return;
-  }
-
-  //WH0
-  case 0x2126: {
-    window.io.oneLeft = data;
-    return;
-  }
-
-  //WH1
-  case 0x2127: {
-    window.io.oneRight = data;
-    return;
-  }
-
-  //WH2
-  case 0x2128: {
-    window.io.twoLeft = data;
-    return;
-  }
-
-  //WH3
-  case 0x2129: {
-    window.io.twoRight = data;
-    return;
-  }
-
-  //WBGLOG
-  case 0x212a: {
-    window.io.bg1.mask = data.bit(0,1);
-    window.io.bg2.mask = data.bit(2,3);
-    window.io.bg3.mask = data.bit(4,5);
-    window.io.bg4.mask = data.bit(6,7);
-    return;
-  }
-
-  //WOBJLOG
-  case 0x212b: {
-    window.io.obj.mask = data.bit(0,1);
-    window.io.col.mask = data.bit(2,3);
-    return;
-  }
-
-  //TM
-  case 0x212c: {
-    bg1.io.aboveEnable = data.bit(0);
-    bg2.io.aboveEnable = data.bit(1);
-    bg3.io.aboveEnable = data.bit(2);
-    bg4.io.aboveEnable = data.bit(3);
-    obj.io.aboveEnable = data.bit(4);
-    return;
-  }
-
-  //TS
-  case 0x212d: {
-    bg1.io.belowEnable = data.bit(0);
-    bg2.io.belowEnable = data.bit(1);
-    bg3.io.belowEnable = data.bit(2);
-    bg4.io.belowEnable = data.bit(3);
-    obj.io.belowEnable = data.bit(4);
-    return;
-  }
-
-  //TMW
-  case 0x212e: {
-    window.io.bg1.aboveEnable = data.bit(0);
-    window.io.bg2.aboveEnable = data.bit(1);
-    window.io.bg3.aboveEnable = data.bit(2);
-    window.io.bg4.aboveEnable = data.bit(3);
-    window.io.obj.aboveEnable = data.bit(4);
-    return;
-  }
-
-  //TSW
-  case 0x212f: {
-    window.io.bg1.belowEnable = data.bit(0);
-    window.io.bg2.belowEnable = data.bit(1);
-    window.io.bg3.belowEnable = data.bit(2);
-    window.io.bg4.belowEnable = data.bit(3);
-    window.io.obj.belowEnable = data.bit(4);
-    return;
-  }
-
-  //CGWSEL
-  case 0x2130: {
-    dac.io.directColor      = data.bit(0);
-    dac.io.blendMode        = data.bit(1);
-    window.io.col.belowMask = data.bit(4,5);
-    window.io.col.aboveMask = data.bit(6,7);
-    return;
-  }
-
-  //CGADDSUB
-  case 0x2131: {
-    dac.io.bg1.colorEnable  = data.bit(0);
-    dac.io.bg2.colorEnable  = data.bit(1);
-    dac.io.bg3.colorEnable  = data.bit(2);
-    dac.io.bg4.colorEnable  = data.bit(3);
-    dac.io.obj.colorEnable  = data.bit(4);
-    dac.io.back.colorEnable = data.bit(5);
-    dac.io.colorHalve       = data.bit(6);
-    dac.io.colorMode        = data.bit(7);
-    return;
-  }
-
-  //COLDATA
-  case 0x2132: {
-    if(data.bit(5)) dac.io.colorRed   = data.bit(0,4);
-    if(data.bit(6)) dac.io.colorGreen = data.bit(0,4);
-    if(data.bit(7)) dac.io.colorBlue  = data.bit(0,4);
-    return;
-  }
-
-  //SETINI
-  case 0x2133: {
-    io.interlace     = data.bit(0);
-    obj.io.interlace = data.bit(1);
-    io.overscan      = data.bit(2);
-    io.pseudoHires   = data.bit(3);
-    io.extbg         = data.bit(6);
-    updateVideoMode();
-    return;
-  }
-
   }
 }
 
 auto PPU::updateVideoMode() -> void {
-  self.vdisp = !io.overscan ? 225 : 240;
-
-  switch(io.bgMode) {
-  case 0:
-    bg1.io.mode = Background::Mode::BPP2;
-    bg2.io.mode = Background::Mode::BPP2;
-    bg3.io.mode = Background::Mode::BPP2;
-    bg4.io.mode = Background::Mode::BPP2;
-    memory::assign(bg1.io.priority, 8, 11);
-    memory::assign(bg2.io.priority, 7, 10);
-    memory::assign(bg3.io.priority, 2,  5);
-    memory::assign(bg4.io.priority, 1,  4);
-    memory::assign(obj.io.priority, 3,  6, 9, 12);
-    break;
-
-  case 1:
-    bg1.io.mode = Background::Mode::BPP4;
-    bg2.io.mode = Background::Mode::BPP4;
-    bg3.io.mode = Background::Mode::BPP2;
-    bg4.io.mode = Background::Mode::Inactive;
-    if(io.bgPriority) {
-      memory::assign(bg1.io.priority, 5,  8);
-      memory::assign(bg2.io.priority, 4,  7);
-      memory::assign(bg3.io.priority, 1, 10);
-      memory::assign(obj.io.priority, 2,  3, 6,  9);
-    } else {
-      memory::assign(bg1.io.priority, 6,  9);
-      memory::assign(bg2.io.priority, 5,  8);
-      memory::assign(bg3.io.priority, 1,  3);
-      memory::assign(obj.io.priority, 2,  4, 7, 10);
-    }
-    break;
-
-  case 2:
-    bg1.io.mode = Background::Mode::BPP4;
-    bg2.io.mode = Background::Mode::BPP4;
-    bg3.io.mode = Background::Mode::Inactive;
-    bg4.io.mode = Background::Mode::Inactive;
-    memory::assign(bg1.io.priority, 3, 7);
-    memory::assign(bg2.io.priority, 1, 5);
-    memory::assign(obj.io.priority, 2, 4, 6, 8);
-    break;
-
-  case 3:
-    bg1.io.mode = Background::Mode::BPP8;
-    bg2.io.mode = Background::Mode::BPP4;
-    bg3.io.mode = Background::Mode::Inactive;
-    bg4.io.mode = Background::Mode::Inactive;
-    memory::assign(bg1.io.priority, 3, 7);
-    memory::assign(bg2.io.priority, 1, 5);
-    memory::assign(obj.io.priority, 2, 4, 6, 8);
-    break;
-
-  case 4:
-    bg1.io.mode = Background::Mode::BPP8;
-    bg2.io.mode = Background::Mode::BPP2;
-    bg3.io.mode = Background::Mode::Inactive;
-    bg4.io.mode = Background::Mode::Inactive;
-    memory::assign(bg1.io.priority, 3, 7);
-    memory::assign(bg2.io.priority, 1, 5);
-    memory::assign(obj.io.priority, 2, 4, 6, 8);
-    break;
-
-  case 5:
-    bg1.io.mode = Background::Mode::BPP4;
-    bg2.io.mode = Background::Mode::BPP2;
-    bg3.io.mode = Background::Mode::Inactive;
-    bg4.io.mode = Background::Mode::Inactive;
-    memory::assign(bg1.io.priority, 3, 7);
-    memory::assign(bg2.io.priority, 1, 5);
-    memory::assign(obj.io.priority, 2, 4, 6, 8);
-    break;
-
-  case 6:
-    bg1.io.mode = Background::Mode::BPP4;
-    bg2.io.mode = Background::Mode::Inactive;
-    bg3.io.mode = Background::Mode::Inactive;
-    bg4.io.mode = Background::Mode::Inactive;
-    memory::assign(bg1.io.priority, 2, 5);
-    memory::assign(obj.io.priority, 1, 3, 4, 6);
-    break;
-
-  case 7:
-    if(!io.extbg) {
-      bg1.io.mode = Background::Mode::Mode7;
-      bg2.io.mode = Background::Mode::Inactive;
-      bg3.io.mode = Background::Mode::Inactive;
-      bg4.io.mode = Background::Mode::Inactive;
-      memory::assign(bg1.io.priority, 2);
-      memory::assign(obj.io.priority, 1, 3, 4, 5);
-    } else {
-      bg1.io.mode = Background::Mode::Mode7;
-      bg2.io.mode = Background::Mode::Mode7;
-      bg3.io.mode = Background::Mode::Inactive;
-      bg4.io.mode = Background::Mode::Inactive;
-      memory::assign(bg1.io.priority, 3);
-      memory::assign(bg2.io.priority, 1, 5);
-      memory::assign(obj.io.priority, 2, 4, 6, 7);
-    }
-    break;
-  }
 }

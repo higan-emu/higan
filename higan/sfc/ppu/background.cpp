@@ -1,5 +1,3 @@
-#include "mode7.cpp"
-
 auto PPU::Background::hires() const -> bool {
   return ppu.io.bgMode == 5 || ppu.io.bgMode == 6;
 }

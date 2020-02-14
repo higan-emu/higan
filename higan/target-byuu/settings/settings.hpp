@@ -22,6 +22,10 @@ struct Settings : Markup::Node {
     double luminance = 1.0;
     double saturation = 1.0;
     double gamma = 1.0;
+    bool colorBleed = true;
+    bool colorEmulation = true;
+    bool interframeBlending = true;
+    bool overscan = false;
   } video;
 
   struct Audio {
@@ -68,6 +72,11 @@ struct VideoSettings : VerticalLayout {
     Label gammaLabel{&colorAdjustmentLayout, Size{0, 0}};
     Label gammaValue{&colorAdjustmentLayout, Size{50_sx, 0}};
     HorizontalSlider gammaSlider{&colorAdjustmentLayout, Size{~0, 0}};
+  Label emulatorOptionsLabel{this, Size{~0, 0}, 2};
+    CheckLabel colorBleedOption{this, Size{0, 0}, 2};
+    CheckLabel colorEmulationOption{this, Size{0, 0}, 2};
+    CheckLabel interframeBlendingOption{this, Size{0, 0}, 2};
+    CheckLabel overscanOption{this, Size{0, 0}};
 };
 
 struct AudioSettings : VerticalLayout {

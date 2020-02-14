@@ -132,4 +132,11 @@ namespace higan::Node {
     if(auto object = from->find<T>(name)) return object;
     return {};
   }
+
+  template<typename T>
+  static inline auto scan(Object from, string name) -> Object {
+    if(!from) return {};
+    if(auto object = from->scan<T>(name)) return object;
+    return {};
+  }
 }

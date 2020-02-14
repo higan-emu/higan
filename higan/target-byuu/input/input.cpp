@@ -22,23 +22,23 @@ auto InputMapping::bind(shared_pointer<HID::Device> device, uint groupID, uint i
   }
 
   if(device->isJoypad() && groupID == HID::Joypad::GroupID::Hat && newValue < -16384) {
-    return setAssignment(device, groupID, inputID, "/Lo"), true;
+    return setAssignment(device, groupID, inputID, Qualifier::Lo), true;
   }
 
   if(device->isJoypad() && groupID == HID::Joypad::GroupID::Hat && newValue > +16384) {
-    return setAssignment(device, groupID, inputID, "/Hi"), true;
+    return setAssignment(device, groupID, inputID, Qualifier::Hi), true;
   }
 
   if(device->isJoypad() && groupID == HID::Joypad::GroupID::Axis && newValue < -16384) {
-    return setAssignment(device, groupID, inputID, "/Lo"), true;
+    return setAssignment(device, groupID, inputID, Qualifier::Lo), true;
   }
 
   if(device->isJoypad() && groupID == HID::Joypad::GroupID::Axis && newValue > +16384) {
-    return setAssignment(device, groupID, inputID, "/Hi"), true;
+    return setAssignment(device, groupID, inputID, Qualifier::Hi), true;
   }
 
   if(device->isJoypad() && groupID == HID::Joypad::GroupID::Trigger && newValue < -16384) {
-    return setAssignment(device, groupID, inputID, "/Lo"), true;
+    return setAssignment(device, groupID, inputID, Qualifier::Lo), true;
   }
 
   return false;
@@ -140,15 +140,16 @@ auto InputMapping::resetAssignment() -> void {
   assignment = "";
 }
 
-auto InputMapping::setAssignment(shared_pointer<HID::Device> device, uint groupID, uint inputID, const string& qualifier) -> void {
+auto InputMapping::setAssignment(shared_pointer<HID::Device> device, uint groupID, uint inputID, Qualifier qualifier) -> void {
+  assignment = {device->name(), "/", hex(device->id()), "/", device->group(groupID).name(), "/", device->group(groupID).input(inputID).name()};
+
   this->device = device;
   this->deviceID = device->id();
   this->groupID = groupID;
   this->inputID = inputID;
   this->qualifier = Qualifier::None;
-  if(qualifier == "Lo") this->qualifier = Qualifier::Lo;
-  if(qualifier == "Hi") this->qualifier = Qualifier::Hi;
-  assignment = {device->name(), "/", hex(device->id()), "/", device->group(groupID).name(), "/", device->group(groupID).input(inputID).name(), qualifier};
+  if(qualifier == Qualifier::Lo) this->qualifier = Qualifier::Lo, assignment.append("/Lo");
+  if(qualifier == Qualifier::Hi) this->qualifier = Qualifier::Hi, assignment.append("/Hi");
 }
 
 //
@@ -164,10 +165,8 @@ VirtualPad::VirtualPad() {
   mappings.append(&b);
   mappings.append(&x);
   mappings.append(&y);
-  mappings.append(&l1);
-  mappings.append(&r1);
-  mappings.append(&l2);
-  mappings.append(&r2);
+  mappings.append(&l);
+  mappings.append(&r);
 }
 
 //

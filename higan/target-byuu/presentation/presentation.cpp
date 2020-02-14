@@ -186,7 +186,7 @@ auto Presentation::resizeWindow() -> void {
     setSize({viewportWidth, viewportHeight + statusHeight});
   }
 
-  setMinimumSize({320, 240 + statusHeight});
+  setMinimumSize({256, 240 + statusHeight});
 }
 
 auto Presentation::loadEmulators() -> void {

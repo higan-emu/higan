@@ -32,8 +32,10 @@ auto Program::log(string_view message) -> void {
 auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {
   if(!screens) return;
 
-  if(node->rotation() != emulator->rotation) {
-    emulator->rotation = node->rotation();
+  if(node->width() != emulator->latch.width || node->height() != emulator->latch.height || node->rotation() != emulator->latch.rotation) {
+    emulator->latch.width = node->width();
+    emulator->latch.height = node->height();
+    emulator->latch.rotation = node->rotation();
     if(settings.video.adaptiveSizing) presentation.resizeWindow();
   }
 

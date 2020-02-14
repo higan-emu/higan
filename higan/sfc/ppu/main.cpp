@@ -16,7 +16,7 @@ auto PPU::main() -> void {
   bg4.scanline();
   obj.scanline();
   window.scanline();
-  screen.scanline();
+  dac.scanline();
 
   if(vcounter() == 240) {
     scheduler.exit(Event::Frame);
@@ -176,7 +176,7 @@ auto PPU::cycleBackgroundAbove() -> void {
 auto PPU::cycleRenderPixel() -> void {
   obj.run();
   window.run();
-  screen.run();
+  dac.run();
 }
 
 template<uint Cycle>

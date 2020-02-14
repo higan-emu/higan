@@ -1,53 +1,24 @@
-#if defined(PROFILE_PERFORMANCE)
-#include "../ppu-performance/ppu.hpp"
-#else
 struct PPU : Thread, PPUcounter {
   Node::Component node;
-  Node::Natural versionPPU1;
-  Node::Natural versionPPU2;
-  Node::Natural vramSize;
   Node::Screen screen;
-  Node::String region;
   Node::Boolean colorEmulation;
-  Node::Boolean colorBleed;
 
-  inline auto interlace() const -> bool { return self.interlace; }
-  inline auto overscan() const -> bool { return self.overscan; }
-  inline auto vdisp() const -> uint { return self.vdisp; }
+  inline auto interlace() const -> bool { return false; }
+  inline auto overscan() const -> bool { return false; }
+  inline auto vdisp() const -> uint { return 225; }
 
   //ppu.cpp
   auto load(Node::Object parent, Node::Object from) -> void;
   auto unload() -> void;
 
+  auto step(uint clocks) -> void;
+  auto main() -> void;
   auto map() -> void;
   auto power(bool reset) -> void;
   auto refresh() -> void;
 
-  //main.cpp
-  auto main() -> void;
-  noinline auto cycleObjectEvaluate() -> void;
-  template<uint Cycle> noinline auto cycleBackgroundFetch() -> void;
-  noinline auto cycleBackgroundBegin() -> void;
-  noinline auto cycleBackgroundBelow() -> void;
-  noinline auto cycleBackgroundAbove() -> void;
-  noinline auto cycleRenderPixel() -> void;
-  template<uint> auto cycle() -> void;
-
   //io.cpp
   auto latchCounters() -> void;
-
-  //color.cpp
-  auto color(uint32) -> uint64;
-
-  //serialization.cpp
-  auto serialize(serializer&) -> void;
-
-private:
-  //ppu.cpp
-  inline auto step() -> void;
-  inline auto step(uint clocks) -> void;
-
-  //io.cpp
   alwaysinline auto addressVRAM() const -> uint16;
   alwaysinline auto readVRAM() -> uint16;
   alwaysinline auto writeVRAM(uint1 byte, uint8 data) -> void;
@@ -59,7 +30,19 @@ private:
   auto writeIO(uint24 address, uint8 data) -> void;
   auto updateVideoMode() -> void;
 
+  //color.cpp
+  auto color(uint32 color) -> uint64;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
+private:
   uint32* output = nullptr;
+
+  struct {
+    uint4 version;
+    uint8 mdr;
+  } ppu1, ppu2;
 
   struct VRAM {
     inline auto& operator[](uint address) { return data[address & mask]; }
@@ -67,23 +50,12 @@ private:
     uint16 mask = 0x7fff;
   } vram;
 
-  struct {
-    uint1 interlace;
-    uint1 overscan;
-    uint9 vdisp;
-  } self;
-
-  struct {
-    uint4 version;
-    uint8 mdr;
-  } ppu1, ppu2;
-
   struct Latches {
     uint16 vram;
      uint8 oam;
      uint8 cgram;
      uint8 bgofsPPU1;
-     uint3 bgofsPPU2;
+     uint8 bgofsPPU2;
      uint8 mode7;
      uint1 counters;
      uint1 hcounter;
@@ -95,8 +67,8 @@ private:
 
   struct IO {
     //$2100  INIDISP
-     uint4 displayBrightness;
-     uint1 displayDisable;
+    uint4 displayBrightness;
+    uint1 displayDisable;
 
     //$2102  OAMADDL
     //$2103  OAMADDH
@@ -150,12 +122,6 @@ private:
      uint8 cgramAddress;
      uint1 cgramAddressLatch;
 
-    //$2133  SETINI
-     uint1 extbg;
-     uint1 pseudoHires;
-     uint1 overscan;
-     uint1 interlace;
-
     //$213c  OPHCT
     uint16 hcounter;
 
@@ -163,14 +129,12 @@ private:
     uint16 vcounter;
   } io;
 
-  #include "mosaic.hpp"
   #include "background.hpp"
   #include "oam.hpp"
   #include "object.hpp"
   #include "window.hpp"
   #include "dac.hpp"
 
-  Mosaic mosaic;
   Background bg1{Background::ID::BG1};
   Background bg2{Background::ID::BG2};
   Background bg3{Background::ID::BG3};
@@ -187,4 +151,3 @@ private:
 };
 
 extern PPU ppu;
-#endif

@@ -21,7 +21,7 @@ auto Program::identify(const string& filename) -> shared_pointer<Emulator> {
 auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   if(!filename) {
     string location = emulator->configuration.game;
-    if(!location) location = Path::user();
+    if(!location) location = Path::desktop();
 
     BrowserDialog dialog;
     dialog.setTitle({"Load ", emulator->name, " Game"});

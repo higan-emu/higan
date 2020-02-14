@@ -11,7 +11,7 @@ struct InputMapping {
   auto value() -> int16_t;
 
   auto resetAssignment() -> void;
-  auto setAssignment(shared_pointer<HID::Device>, uint groupID, uint inputID, const string& qualifier = "") -> void;
+  auto setAssignment(shared_pointer<HID::Device>, uint groupID, uint inputID, Qualifier = Qualifier::None) -> void;
 
   const string name;
 
@@ -47,8 +47,7 @@ struct VirtualPad {
   InputButton select{"Select"}, start{"Start"};
   InputButton a{"A"}, b{"B"};
   InputButton x{"X"}, y{"Y"};
-  InputButton l1{"L1"}, r1{"R1"};
-  InputButton l2{"L2"}, r2{"R2"};
+  InputButton l{"L"}, r{"R"};
 
   vector<InputMapping*> mappings;
 };

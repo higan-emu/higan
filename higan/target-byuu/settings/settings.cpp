@@ -57,6 +57,10 @@ auto Settings::process(bool load) -> void {
   bind(real,    "Video/Luminance", video.luminance);
   bind(real,    "Video/Saturation", video.saturation);
   bind(real,    "Video/Gamma", video.gamma);
+  bind(boolean, "Video/ColorBleed", video.colorBleed);
+  bind(boolean, "Video/ColorEmulation", video.colorEmulation);
+  bind(boolean, "Video/InterframeBlending", video.interframeBlending);
+  bind(boolean, "Video/Overscan", video.overscan);
 
   bind(string,  "Audio/Driver", audio.driver);
   bind(string,  "Audio/Device", audio.device);
@@ -90,13 +94,11 @@ auto Settings::process(bool load) -> void {
   }
 
   for(auto& emulator : emulators) {
-    string base = string{emulator->name}.replace(" ", "");
-    { string name = {base, "/Visible"};
-      bind(boolean, name, emulator->configuration.visible);
-    }
-    { string name = {base, "/Path"};
-      bind(string,  name, emulator->configuration.game);
-    }
+    string base = string{emulator->name}.replace(" ", ""), name;
+    name = {base, "/Visible"};
+    bind(boolean, name, emulator->configuration.visible);
+    name = {base, "/Path"};
+    bind(string,  name, emulator->configuration.game);
     if(load || emulator->configuration.bios) {
       string name = {base, "/BIOS"};
       bind(string,  name, emulator->configuration.bios);

@@ -1,4 +1,4 @@
-struct Screen {
+struct DAC {
   auto scanline() -> void;
   auto run() -> void;
   auto power() -> void;

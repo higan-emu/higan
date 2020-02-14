@@ -123,12 +123,17 @@ auto Emulator::load(const string& location, const vector<uint8_t>& image) -> voi
   game.location = location;
   game.image = image;
 
-  rotation = 0;
+  latch = {};
 
   auto system = higan::Node::System::create();
   system->setName(interface->name());
   auto configuration = higan::Node::serialize(system);
   interface->load(root, configuration);
+
+  setBoolean("Color Bleed", settings.video.colorBleed);
+  setBoolean("Color Emulation", settings.video.colorEmulation);
+  setBoolean("Interframe Blending", settings.video.interframeBlending);
+  setOverscan(settings.video.overscan);
 
   load();
   interface->power();
@@ -136,6 +141,24 @@ auto Emulator::load(const string& location, const vector<uint8_t>& image) -> voi
 
 auto Emulator::unload() -> void {
   interface->unload();
+}
+
+auto Emulator::setBoolean(const string& name, bool value) -> bool {
+  if(auto node = root->scan<higan::Node::Boolean>(name)) {
+    node->setValue(value);
+    return true;
+  }
+  return false;
+}
+
+auto Emulator::setOverscan(bool value) -> bool {
+  if(auto screen = root->scan<higan::Node::Screen>("Screen")) {
+    if(auto region = screen->find<higan::Node::String>("Region")) {
+      region->setValue(!settings.video.overscan ? "NTSC" : "PAL");
+      return true;
+    }
+  }
+  return false;
 }
 
 auto Emulator::error(const string& text) -> void {

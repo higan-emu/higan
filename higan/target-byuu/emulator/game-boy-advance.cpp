@@ -32,6 +32,7 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
       ).setAlignment(presentation).information();
       BrowserDialog dialog;
       dialog.setTitle("Select Game Boy Advance BIOS");
+      dialog.setPath(Path::desktop());
       dialog.setAlignment(presentation);
       string bios = dialog.openFile();
       if(file::exists(bios)) {
@@ -76,8 +77,8 @@ auto GameBoyAdvance::input(higan::Node::Input node) -> void {
   if(name == "Right" ) mapping = virtualPad.right;
   if(name == "B"     ) mapping = virtualPad.a;
   if(name == "A"     ) mapping = virtualPad.b;
-  if(name == "L"     ) mapping = virtualPad.l1;
-  if(name == "R"     ) mapping = virtualPad.r1;
+  if(name == "L"     ) mapping = virtualPad.l;
+  if(name == "R"     ) mapping = virtualPad.r;
   if(name == "Select") mapping = virtualPad.select;
   if(name == "Start" ) mapping = virtualPad.start;
 

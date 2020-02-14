@@ -1,3 +1,6 @@
+#if defined(PROFILE_PERFORMANCE)
+#include "../ppu-performance/ppu.cpp"
+#else
 #include <sfc/sfc.hpp>
 
 namespace higan::SuperFamicom {
@@ -7,9 +10,11 @@ PPU ppu;
 #include "io.cpp"
 #include "mosaic.cpp"
 #include "background.cpp"
+#include "mode7.cpp"
+#include "oam.cpp"
 #include "object.cpp"
 #include "window.cpp"
-#include "screen.cpp"
+#include "dac.cpp"
 #include "color.cpp"
 #include "serialization.cpp"
 #include "counter/serialization.cpp"
@@ -27,27 +32,27 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   vramSize = Node::append<Node::Natural>(parent, from, "VRAM", 64_KiB);
   vramSize->setAllowedValues({64_KiB, 128_KiB});
 
-  screen_ = Node::append<Node::Screen>(parent, from, "Screen");
-  screen_->colors(1 << 19, {&PPU::color, this});
-  screen_->setSize(512, 480);
-  screen_->setScale(0.5, 0.5);
-  screen_->setAspect(8.0, 7.0);
-  from = Node::scan(parent = screen_, from);
+  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen->colors(1 << 19, {&PPU::color, this});
+  screen->setSize(512, 480);
+  screen->setScale(0.5, 0.5);
+  screen->setAspect(8.0, 7.0);
+  from = Node::scan(parent = screen, from);
 
   region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
-    if(region == "NTSC") screen_->setSize(512, 448);
-    if(region == "PAL" ) screen_->setSize(512, 480);
+    if(region == "NTSC") screen->setSize(512, 448);
+    if(region == "PAL" ) screen->setSize(512, 480);
   });
   region->setAllowedValues({"NTSC", "PAL"});
   region->setDynamic(true);
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
-    screen_->resetPalette();
+    screen->resetPalette();
   });
   colorEmulation->setDynamic(true);
 
   colorBleed = Node::append<Node::Boolean>(parent, from, "Color Bleed", true, [&](auto value) {
-    screen_->setColorBleed(value);
+    screen->setColorBleed(value);
   });
   colorBleed->setDynamic(true);
 
@@ -194,7 +199,7 @@ auto PPU::power(bool reset) -> void {
   bg4.power();
   obj.power();
   window.power();
-  screen.power();
+  dac.power();
 
   updateVideoMode();
 }
@@ -205,13 +210,14 @@ auto PPU::refresh() -> void {
   if(region->value() == "NTSC") {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
-    screen_->refresh(data, 512 * sizeof(uint32), 512, 448);
+    screen->refresh(data, 512 * sizeof(uint32), 512, 448);
   }
 
   if(region->value() == "PAL") {
     if(!overscan()) data -= 14 * 512;
-    screen_->refresh(data, 512 * sizeof(uint32), 512, 480);
+    screen->refresh(data, 512 * sizeof(uint32), 512, 480);
   }
 }
 
 }
+#endif

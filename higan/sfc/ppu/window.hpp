@@ -1,4 +1,5 @@
 struct Window {
+  //window.cpp
   auto scanline() -> void;
   auto run() -> void;
   auto test(bool oneEnable, bool one, bool twoEnable, bool two, uint mask) -> bool;

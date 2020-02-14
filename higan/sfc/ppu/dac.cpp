@@ -1,4 +1,4 @@
-auto PPU::Screen::scanline() -> void {
+auto PPU::DAC::scanline() -> void {
   lineA = ppu.output + ppu.vcounter() * 1024;
   lineB = lineA + (ppu.self.interlace ? 0 : 512);
   if(ppu.self.interlace && ppu.field()) lineA += 512, lineB += 512;
@@ -16,7 +16,7 @@ auto PPU::Screen::scanline() -> void {
   math.colorHalve  = io.colorHalve && !io.blendMode && math.above.colorEnable;
 }
 
-auto PPU::Screen::run() -> void {
+auto PPU::DAC::run() -> void {
   if(ppu.vcounter() == 0) return;
 
   bool hires      = ppu.io.pseudoHires || ppu.io.bgMode == 5 || ppu.io.bgMode == 6;
@@ -27,7 +27,7 @@ auto PPU::Screen::run() -> void {
   *lineA++ = *lineB++ = ppu.io.displayBrightness << 15 | (aboveColor);
 }
 
-auto PPU::Screen::below(bool hires) -> uint16 {
+auto PPU::DAC::below(bool hires) -> uint16 {
   if(ppu.io.displayDisable || (!ppu.io.overscan && ppu.vcounter() >= 225)) return 0;
 
   uint priority = 0;
@@ -66,7 +66,7 @@ auto PPU::Screen::below(bool hires) -> uint16 {
   );
 }
 
-auto PPU::Screen::above() -> uint16 {
+auto PPU::DAC::above() -> uint16 {
   if(ppu.io.displayDisable || (!ppu.io.overscan && ppu.vcounter() >= 225)) return 0;
 
   uint priority = 0;
@@ -122,7 +122,7 @@ auto PPU::Screen::above() -> uint16 {
   );
 }
 
-auto PPU::Screen::blend(uint x, uint y) const -> uint15 {
+auto PPU::DAC::blend(uint x, uint y) const -> uint15 {
   if(!io.colorMode) {  //add
     if(!math.colorHalve) {
       uint sum = x + y;
@@ -142,12 +142,12 @@ auto PPU::Screen::blend(uint x, uint y) const -> uint15 {
   }
 }
 
-auto PPU::Screen::paletteColor(uint8 palette) const -> uint15 {
+auto PPU::DAC::paletteColor(uint8 palette) const -> uint15 {
   ppu.latch.cgramAddress = palette;
   return cgram[palette];
 }
 
-auto PPU::Screen::directColor(uint8 palette, uint3 paletteGroup) const -> uint15 {
+auto PPU::DAC::directColor(uint8 palette, uint3 paletteGroup) const -> uint15 {
   //palette = -------- BBGGGRRR
   //group   = -------- -----bgr
   //output  = 0BBb00GG Gg0RRRr0
@@ -156,11 +156,11 @@ auto PPU::Screen::directColor(uint8 palette, uint3 paletteGroup) const -> uint15
        + (palette << 2 & 0x001c) + (paletteGroup <<  1 & 0x0002);
 }
 
-auto PPU::Screen::fixedColor() const -> uint15 {
+auto PPU::DAC::fixedColor() const -> uint15 {
   return io.colorBlue << 10 | io.colorGreen << 5 | io.colorRed << 0;
 }
 
-auto PPU::Screen::power() -> void {
+auto PPU::DAC::power() -> void {
   random.array((uint8*)cgram, sizeof(cgram));
   for(auto& word : cgram) word &= 0x7fff;
 

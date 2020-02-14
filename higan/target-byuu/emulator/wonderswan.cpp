@@ -56,10 +56,10 @@ auto WonderSwan::open(higan::Node::Object node, string name, vfs::file::mode mod
 auto WonderSwan::input(higan::Node::Input node) -> void {
   auto name = node->name();
   maybe<InputMapping&> mapping;
-  if(name == "Y1"   ) mapping = virtualPad.l1;
-  if(name == "Y2"   ) mapping = virtualPad.l2;
-  if(name == "Y3"   ) mapping = virtualPad.r1;
-  if(name == "Y4"   ) mapping = virtualPad.r2;
+  if(name == "Y1"   ) mapping = virtualPad.x;
+  if(name == "Y2"   ) mapping = virtualPad.y;
+  if(name == "Y3"   ) mapping = virtualPad.l;
+  if(name == "Y4"   ) mapping = virtualPad.r;
   if(name == "X1"   ) mapping = virtualPad.up;
   if(name == "X2"   ) mapping = virtualPad.right;
   if(name == "X3"   ) mapping = virtualPad.down;
@@ -132,10 +132,10 @@ auto WonderSwanColor::open(higan::Node::Object node, string name, vfs::file::mod
 auto WonderSwanColor::input(higan::Node::Input node) -> void {
   auto name = node->name();
   maybe<InputMapping&> mapping;
-  if(name == "Y1"   ) mapping = virtualPad.l1;
-  if(name == "Y2"   ) mapping = virtualPad.l2;
-  if(name == "Y3"   ) mapping = virtualPad.r1;
-  if(name == "Y4"   ) mapping = virtualPad.r2;
+  if(name == "Y1"   ) mapping = virtualPad.x;
+  if(name == "Y2"   ) mapping = virtualPad.y;
+  if(name == "Y3"   ) mapping = virtualPad.l;
+  if(name == "Y4"   ) mapping = virtualPad.r;
   if(name == "X1"   ) mapping = virtualPad.up;
   if(name == "X2"   ) mapping = virtualPad.right;
   if(name == "X3"   ) mapping = virtualPad.down;
