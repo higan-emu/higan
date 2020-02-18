@@ -1,11 +1,12 @@
 struct PPU : Thread, PPUcounter {
   Node::Component node;
   Node::Screen screen;
+  Node::String region;
   Node::Boolean colorEmulation;
 
-  inline auto interlace() const -> bool { return false; }
-  inline auto overscan() const -> bool { return false; }
-  inline auto vdisp() const -> uint { return 225; }
+  inline auto interlace() const -> bool { return state.interlace; }
+  inline auto overscan() const -> bool { return state.overscan; }
+  inline auto vdisp() const -> uint { return state.vdisp; }
 
   //ppu.cpp
   auto load(Node::Object parent, Node::Object from) -> void;
@@ -37,6 +38,8 @@ struct PPU : Thread, PPUcounter {
   auto serialize(serializer&) -> void;
 
 private:
+  struct Source { enum : uint { BG1, BG2, BG3, BG4, OBJ1, OBJ2, COL }; };
+
   uint32* output = nullptr;
 
   struct {
@@ -49,6 +52,12 @@ private:
     uint16 data[64_KiB];
     uint16 mask = 0x7fff;
   } vram;
+
+  struct State {
+    uint1 interlace;
+    uint2 overscan;
+    uint9 vdisp;
+  } state;
 
   struct Latches {
     uint16 vram;
@@ -80,11 +89,9 @@ private:
      uint3 bgMode;
      uint1 bgPriority;
 
-    //$210d  BG1HOFS
-    uint16 hoffsetMode7;
-
-    //$210e  BG1VOFS
-    uint16 voffsetMode7;
+    //$2106  MOSAIC
+     uint5 mosaicSize;
+     uint5 mosaicCounter;
 
     //$2115  VMAIN
      uint8 vramIncrementSize;
@@ -95,32 +102,15 @@ private:
     //$2117  VMADDH
     uint16 vramAddress;
 
-    //$211a  M7SEL
-     uint1 hflipMode7;
-     uint1 vflipMode7;
-     uint2 repeatMode7;
-
-    //$211b  M7A
-    uint16 m7a;
-
-    //$211c  M7B
-    uint16 m7b;
-
-    //$211d  M7C
-    uint16 m7c;
-
-    //$211e  M7D
-    uint16 m7d;
-
-    //$211f  M7X
-    uint16 m7x;
-
-    //$2120  M7Y
-    uint16 m7y;
-
     //$2121  CGADD
      uint8 cgramAddress;
      uint1 cgramAddressLatch;
+
+    //$2133  SETINI
+     uint1 interlace;
+     uint1 overscan;
+     uint1 pseudoHires;
+     uint1 extbg;
 
     //$213c  OPHCT
     uint16 hcounter;
@@ -129,18 +119,49 @@ private:
     uint16 vcounter;
   } io;
 
+  struct Mode7 {
+    //$210d  BG1HOFS
+    uint16 hoffset;
+
+    //$210e  BG1VOFS
+    uint16 voffset;
+
+    //$211a  M7SEL
+     uint1 hflip;
+     uint1 vflip;
+     uint2 repeat;
+
+    //$211b  M7A
+    uint16 a;
+
+    //$211c  M7B
+    uint16 b;
+
+    //$211d  M7C
+    uint16 c;
+
+    //$211e  M7D
+    uint16 d;
+
+    //$211f  M7X
+    uint16 hcenter;
+
+    //$2120  M7Y
+    uint16 vcenter;
+  } mode7;
+
+  #include "window.hpp"
   #include "background.hpp"
   #include "oam.hpp"
   #include "object.hpp"
-  #include "window.hpp"
   #include "dac.hpp"
 
+  Window window;
   Background bg1{Background::ID::BG1};
   Background bg2{Background::ID::BG2};
   Background bg3{Background::ID::BG3};
   Background bg4{Background::ID::BG4};
   Object obj;
-  Window window;
   DAC dac;
 
   friend class PPU::Background;

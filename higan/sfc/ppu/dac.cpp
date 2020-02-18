@@ -157,7 +157,7 @@ auto PPU::DAC::directColor(uint8 palette, uint3 paletteGroup) const -> uint15 {
 }
 
 auto PPU::DAC::fixedColor() const -> uint15 {
-  return io.colorBlue << 10 | io.colorGreen << 5 | io.colorRed << 0;
+  return io.colorRed << 0 | io.colorGreen << 5 | io.colorBlue << 10;
 }
 
 auto PPU::DAC::power() -> void {

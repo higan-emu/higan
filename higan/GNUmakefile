@@ -35,7 +35,7 @@ ifeq ($(target),higan)
 endif
 
 ifeq ($(target),byuu)
-  profile := accuracy
+  profile := performance
   cores := fc sfc sg ms md pce msx gb gba ws ngp
 endif
 

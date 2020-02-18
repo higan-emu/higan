@@ -61,10 +61,10 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(io.cgramAddress);
   s.integer(io.cgramAddressLatch);
 
-  s.integer(io.extbg);
-  s.integer(io.pseudoHires);
-  s.integer(io.overscan);
   s.integer(io.interlace);
+  s.integer(io.overscan);
+  s.integer(io.pseudoHires);
+  s.integer(io.extbg);
 
   s.integer(io.hcounter);
   s.integer(io.vcounter);
@@ -189,10 +189,10 @@ auto PPU::Object::serialize(serializer& s) -> void {
 }
 
 auto PPU::Window::serialize(serializer& s) -> void {
-  s.integer(io.bg1.oneEnable);
   s.integer(io.bg1.oneInvert);
-  s.integer(io.bg1.twoEnable);
+  s.integer(io.bg1.oneEnable);
   s.integer(io.bg1.twoInvert);
+  s.integer(io.bg1.twoEnable);
   s.integer(io.bg1.mask);
   s.integer(io.bg1.aboveEnable);
   s.integer(io.bg1.belowEnable);
@@ -251,21 +251,21 @@ auto PPU::Window::serialize(serializer& s) -> void {
 auto PPU::DAC::serialize(serializer& s) -> void {
   s.array(cgram);
 
-  s.integer(io.blendMode);
   s.integer(io.directColor);
+  s.integer(io.blendMode);
 
-  s.integer(io.colorMode);
-  s.integer(io.colorHalve);
   s.integer(io.bg1.colorEnable);
   s.integer(io.bg2.colorEnable);
   s.integer(io.bg3.colorEnable);
   s.integer(io.bg4.colorEnable);
   s.integer(io.obj.colorEnable);
   s.integer(io.back.colorEnable);
+  s.integer(io.colorHalve);
+  s.integer(io.colorMode);
 
-  s.integer(io.colorBlue);
-  s.integer(io.colorGreen);
   s.integer(io.colorRed);
+  s.integer(io.colorGreen);
+  s.integer(io.colorBlue);
 
   s.integer(math.above.color);
   s.integer(math.above.colorEnable);

@@ -9,10 +9,10 @@ struct Window {
 
   struct IO {
     struct Layer {
-      uint1 oneEnable;
       uint1 oneInvert;
-      uint1 twoEnable;
+      uint1 oneEnable;
       uint1 twoInvert;
+      uint1 twoEnable;
       uint2 mask;
       uint1 aboveEnable;
       uint1 belowEnable;

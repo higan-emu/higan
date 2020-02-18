@@ -29,23 +29,21 @@ auto Cartridge::loadCartridge(Markup::Node node) -> void {
   board = node["board"];
   if(!board) board = loadBoard(information.board);
 
-  if(region() == "Auto") {
-    auto region = information.region;
-    if(region.endsWith("BRA")
-    || region.endsWith("CAN")
-    || region.endsWith("HKG")
-    || region.endsWith("JPN")
-    || region.endsWith("KOR")
-    || region.endsWith("LTN")
-    || region.endsWith("ROC")
-    || region.endsWith("USA")
-    || region.beginsWith("SHVC-")
-    || region == "NTSC"
-    ) {
-      information.region = "NTSC";
-    } else {
-      information.region = "PAL";
-    }
+  auto region = information.region;
+  if(region.endsWith("BRA")
+  || region.endsWith("CAN")
+  || region.endsWith("HKG")
+  || region.endsWith("JPN")
+  || region.endsWith("KOR")
+  || region.endsWith("LTN")
+  || region.endsWith("ROC")
+  || region.endsWith("USA")
+  || region.beginsWith("SHVC-")
+  || region == "NTSC"
+  ) {
+    information.region = "NTSC";
+  } else {
+    information.region = "PAL";
   }
 
   if(auto node = board["memory(type=ROM,content=Program)"]) loadROM(node);

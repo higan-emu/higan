@@ -4,7 +4,8 @@ auto PPU::Object::addressReset() -> void {
 }
 
 auto PPU::Object::setFirstSprite() -> void {
-  io.firstSprite = !ppu.io.oamPriority ? 0 : uint(ppu.io.oamAddress >> 2);
+  io.firstSprite = 0;
+  if(ppu.io.oamPriority) io.firstSprite = ppu.io.oamAddress >> 2;
 }
 
 auto PPU::Object::frame() -> void {
@@ -106,7 +107,7 @@ auto PPU::Object::fetch() -> void {
 
     uint tileWidth = sprite.width() >> 3;
     int x = sprite.x;
-    int y = t.y - sprite.y & 0xff;
+    int y = t.y - sprite.y & 255;
     if(io.interlace) y <<= 1;
 
     if(sprite.vflip) {
@@ -157,8 +158,8 @@ auto PPU::Object::fetch() -> void {
     }
   }
 
-  io.timeOver  |= (t.tileCount > 34);
-  io.rangeOver |= (t.itemCount > 32);
+  io.rangeOver |= t.itemCount > 32;
+  io.timeOver  |= t.tileCount > 34;
 }
 
 auto PPU::Object::power() -> void {

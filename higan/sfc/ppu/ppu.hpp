@@ -151,10 +151,10 @@ private:
      uint1 cgramAddressLatch;
 
     //$2133  SETINI
-     uint1 extbg;
-     uint1 pseudoHires;
-     uint1 overscan;
      uint1 interlace;
+     uint1 overscan;
+     uint1 pseudoHires;
+     uint1 extbg;
 
     //$213c  OPHCT
     uint16 hcounter;

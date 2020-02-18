@@ -1,8 +1,13 @@
 struct OAM {
+  //oam.cpp
   auto read(uint10 address) -> uint8;
   auto write(uint10 address, uint8 data) -> void;
 
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
   struct Object {
+    //oam.cpp
     alwaysinline auto width() const -> uint;
     alwaysinline auto height() const -> uint;
 
@@ -15,5 +20,5 @@ struct OAM {
     uint2 priority;
     uint3 palette;
     uint1 size;
-  } object[128];
+  } objects[128];
 };

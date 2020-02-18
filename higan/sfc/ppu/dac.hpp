@@ -19,18 +19,18 @@ struct DAC {
   uint15 cgram[256];
 
   struct IO {
-    uint1 blendMode;
     uint1 directColor;
+    uint1 blendMode;
 
-    uint1 colorMode;
-    uint1 colorHalve;
     struct Layer {
       uint1 colorEnable;
     } bg1, bg2, bg3, bg4, obj, back;
+    uint1 colorHalve;
+    uint1 colorMode;
 
-    uint5 colorBlue;
-    uint5 colorGreen;
     uint5 colorRed;
+    uint5 colorGreen;
+    uint5 colorBlue;
   } io;
 
   struct Math {

@@ -75,19 +75,19 @@ auto PPU::readIO(uint24 address, uint8 data) -> uint8 {
 
   //MPYL
   case 0x2134: {
-    uint24 result = (int16)io.m7a * (int8)(io.m7b >> 8);
+    uint24 result = (int16)mode7.a * (int8)(mode7.b >> 8);
     return ppu1.mdr = result.byte(0);
   }
 
   //MPYM
   case 0x2135: {
-    uint24 result = (int16)io.m7a * (int8)(io.m7b >> 8);
+    uint24 result = (int16)mode7.a * (int8)(mode7.b >> 8);
     return ppu1.mdr = result.byte(1);
   }
 
   //MYPH
   case 0x2136: {
-    uint24 result = (int16)io.m7a * (int8)(io.m7b >> 8);
+    uint24 result = (int16)mode7.a * (int8)(mode7.b >> 8);
     return ppu1.mdr = result.byte(2);
   }
 
@@ -249,7 +249,16 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
 
   //MOSAIC
   case 0x2106: {
-    //TODO
+    bool mosaicEnable = bg1.io.mosaicEnable || bg2.io.mosaicEnable || bg3.io.mosaicEnable || bg4.io.mosaicEnable;
+    bg1.io.mosaicEnable = data.bit(0);
+    bg2.io.mosaicEnable = data.bit(1);
+    bg3.io.mosaicEnable = data.bit(2);
+    bg4.io.mosaicEnable = data.bit(3);
+    io.mosaicSize       = data.bit(4,7) + 1;
+    if(!mosaicEnable && data.bit(0,3)) {
+      //mosaic vcounter is reloaded when mosaic becomes enabled
+      io.mosaicCounter = io.mosaicSize + 1;
+    }
     return;
   }
 
@@ -297,7 +306,7 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
 
   //BG1HOFS
   case 0x210d: {
-    io.hoffsetMode7 = data << 8 | latch.mode7;
+    mode7.hoffset = data << 8 | latch.mode7;
     latch.mode7 = data;
 
     bg1.io.hoffset = data << 8 | latch.bgofsPPU1 & ~7 | latch.bgofsPPU2 & 7;
@@ -308,7 +317,7 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
 
   //BG1VOFS
   case 0x210e: {
-    io.voffsetMode7 = data << 8 | latch.mode7;
+    mode7.voffset = data << 8 | latch.mode7;
     latch.mode7 = data;
 
     bg1.io.voffset = data << 8 | latch.bgofsPPU1;
@@ -400,50 +409,50 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
 
   //M7SEL
   case 0x211a: {
-    io.hflipMode7  = data.bit(0);
-    io.vflipMode7  = data.bit(1);
-    io.repeatMode7 = data.bit(6,7);
+    mode7.hflip  = data.bit(0);
+    mode7.vflip  = data.bit(1);
+    mode7.repeat = data.bit(6,7);
     return;
   }
 
   //M7A
   case 0x211b: {
-    io.m7a = data << 8 | latch.mode7;
+    mode7.a = data << 8 | latch.mode7;
     latch.mode7 = data;
     return;
   }
 
   //M7B
   case 0x211c: {
-    io.m7b = data << 8 | latch.mode7;
+    mode7.b = data << 8 | latch.mode7;
     latch.mode7 = data;
     return;
   }
 
   //M7C
   case 0x211d: {
-    io.m7c = data << 8 | latch.mode7;
+    mode7.c = data << 8 | latch.mode7;
     latch.mode7 = data;
     return;
   }
 
   //M7D
   case 0x211e: {
-    io.m7d = data << 8 | latch.mode7;
+    mode7.d = data << 8 | latch.mode7;
     latch.mode7 = data;
     return;
   }
 
   //M7X
   case 0x211f: {
-    io.m7x = data << 8 | latch.mode7;
+    mode7.hcenter = data << 8 | latch.mode7;
     latch.mode7 = data;
     return;
   }
 
   //M7Y
   case 0x2120: {
-    io.m7y = data << 8 | latch.mode7;
+    mode7.vcenter = data << 8 | latch.mode7;
     latch.mode7 = data;
     return;
   }
@@ -465,8 +474,270 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
     return;
   }
 
+  //W12SEL
+  case 0x2123: {
+    bg1.window.oneInvert = data.bit(0);
+    bg1.window.oneEnable = data.bit(1);
+    bg1.window.twoInvert = data.bit(2);
+    bg1.window.twoEnable = data.bit(3);
+    bg2.window.oneInvert = data.bit(4);
+    bg2.window.oneEnable = data.bit(5);
+    bg2.window.twoInvert = data.bit(6);
+    bg2.window.twoEnable = data.bit(7);
+    return;
+  }
+
+  //W34SEL
+  case 0x2124: {
+    bg3.window.oneInvert = data.bit(0);
+    bg3.window.oneEnable = data.bit(1);
+    bg3.window.twoInvert = data.bit(2);
+    bg3.window.twoEnable = data.bit(3);
+    bg4.window.oneInvert = data.bit(4);
+    bg4.window.oneEnable = data.bit(5);
+    bg4.window.twoInvert = data.bit(6);
+    bg4.window.twoEnable = data.bit(7);
+    return;
+  }
+
+  //WOBJSEL
+  case 0x2125: {
+    obj.window.oneInvert = data.bit(0);
+    obj.window.oneEnable = data.bit(1);
+    obj.window.twoInvert = data.bit(2);
+    obj.window.twoEnable = data.bit(3);
+    dac.window.oneInvert = data.bit(4);
+    dac.window.oneEnable = data.bit(5);
+    dac.window.twoInvert = data.bit(6);
+    dac.window.twoEnable = data.bit(7);
+    return;
+  }
+
+  //WH0
+  case 0x2126: {
+    window.io.oneLeft = data;
+    return;
+  }
+
+  //WH1
+  case 0x2127: {
+    window.io.oneRight = data;
+    return;
+  }
+
+  //WH2
+  case 0x2128: {
+    window.io.twoLeft = data;
+    return;
+  }
+
+  //WH3
+  case 0x2129: {
+    window.io.twoRight = data;
+    return;
+  }
+
+  //WBGLOG
+  case 0x212a: {
+    bg1.window.mask = data.bit(0,1);
+    bg2.window.mask = data.bit(2,3);
+    bg3.window.mask = data.bit(4,5);
+    bg4.window.mask = data.bit(6,7);
+    return;
+  }
+
+  //WOBJLOG
+  case 0x212b: {
+    obj.window.mask = data.bit(0,1);
+    dac.window.mask = data.bit(2,3);
+    return;
+  }
+
+  //TM
+  case 0x212c: {
+    bg1.io.aboveEnable = data.bit(0);
+    bg2.io.aboveEnable = data.bit(1);
+    bg3.io.aboveEnable = data.bit(2);
+    bg4.io.aboveEnable = data.bit(3);
+    obj.io.aboveEnable = data.bit(4);
+    return;
+  }
+
+  //TS
+  case 0x212d: {
+    bg1.io.belowEnable = data.bit(0);
+    bg2.io.belowEnable = data.bit(1);
+    bg3.io.belowEnable = data.bit(2);
+    bg4.io.belowEnable = data.bit(3);
+    obj.io.belowEnable = data.bit(4);
+    return;
+  }
+
+  //TMW
+  case 0x212e: {
+    bg1.window.aboveEnable = data.bit(0);
+    bg2.window.aboveEnable = data.bit(1);
+    bg3.window.aboveEnable = data.bit(2);
+    bg4.window.aboveEnable = data.bit(3);
+    obj.window.aboveEnable = data.bit(4);
+    return;
+  }
+
+  //TSW
+  case 0x212f: {
+    bg1.window.belowEnable = data.bit(0);
+    bg2.window.belowEnable = data.bit(1);
+    bg3.window.belowEnable = data.bit(2);
+    bg4.window.belowEnable = data.bit(3);
+    obj.window.belowEnable = data.bit(4);
+    return;
+  }
+
+  //CGWSEL
+  case 0x2130: {
+    dac.io.directColor   = data.bit(0);
+    dac.io.blendMode     = data.bit(1);
+    dac.window.belowMask = data.bit(4,5);
+    dac.window.aboveMask = data.bit(6,7);
+    return;
+  }
+
+  //CGADDSUB
+  case 0x2131: {
+    dac.io.colorEnable[Source::BG1 ] = data.bit(0);
+    dac.io.colorEnable[Source::BG2 ] = data.bit(1);
+    dac.io.colorEnable[Source::BG3 ] = data.bit(2);
+    dac.io.colorEnable[Source::BG4 ] = data.bit(3);
+    dac.io.colorEnable[Source::OBJ1] = 0;
+    dac.io.colorEnable[Source::OBJ2] = data.bit(4);
+    dac.io.colorEnable[Source::COL ] = data.bit(5);
+    dac.io.colorHalve = data.bit(6);
+    dac.io.colorMode  = data.bit(7);
+    return;
+  }
+
+  //COLDATA
+  case 0x2132: {
+    if(data.bit(5)) dac.io.colorRed   = data.bit(0,4);
+    if(data.bit(6)) dac.io.colorGreen = data.bit(0,4);
+    if(data.bit(7)) dac.io.colorBlue  = data.bit(0,4);
+    return;
+  }
+
+  //SETINI
+  case 0x2133: {
+    io.interlace     = data.bit(0);
+    obj.io.interlace = data.bit(1);
+    io.overscan      = data.bit(2);
+    io.pseudoHires   = data.bit(3);
+    io.extbg         = data.bit(6);
+    updateVideoMode();
+    return;
+  }
+
   }
 }
 
 auto PPU::updateVideoMode() -> void {
+  state.vdisp = !io.overscan ? 225 : 240;
+
+  switch(io.bgMode) {
+  case 0:
+    bg1.io.mode = Background::Mode::BPP2;
+    bg2.io.mode = Background::Mode::BPP2;
+    bg3.io.mode = Background::Mode::BPP2;
+    bg4.io.mode = Background::Mode::BPP2;
+    memory::assign(bg1.io.priority, 8, 11);
+    memory::assign(bg2.io.priority, 7, 10);
+    memory::assign(bg3.io.priority, 2,  5);
+    memory::assign(bg4.io.priority, 1,  4);
+    memory::assign(obj.io.priority, 3,  6, 9, 12);
+    break;
+
+  case 1:
+    bg1.io.mode = Background::Mode::BPP4;
+    bg2.io.mode = Background::Mode::BPP4;
+    bg3.io.mode = Background::Mode::BPP2;
+    bg4.io.mode = Background::Mode::Inactive;
+    if(io.bgPriority) {
+      memory::assign(bg1.io.priority, 5,  8);
+      memory::assign(bg2.io.priority, 4,  7);
+      memory::assign(bg3.io.priority, 1, 10);
+      memory::assign(obj.io.priority, 2,  3, 6,  9);
+    } else {
+      memory::assign(bg1.io.priority, 6,  9);
+      memory::assign(bg2.io.priority, 5,  8);
+      memory::assign(bg3.io.priority, 1,  3);
+      memory::assign(obj.io.priority, 2,  4, 7, 10);
+    }
+    break;
+
+  case 2:
+    bg1.io.mode = Background::Mode::BPP4;
+    bg2.io.mode = Background::Mode::BPP4;
+    bg3.io.mode = Background::Mode::Inactive;
+    bg4.io.mode = Background::Mode::Inactive;
+    memory::assign(bg1.io.priority, 3, 7);
+    memory::assign(bg2.io.priority, 1, 5);
+    memory::assign(obj.io.priority, 2, 4, 6, 8);
+    break;
+
+  case 3:
+    bg1.io.mode = Background::Mode::BPP8;
+    bg2.io.mode = Background::Mode::BPP4;
+    bg3.io.mode = Background::Mode::Inactive;
+    bg4.io.mode = Background::Mode::Inactive;
+    memory::assign(bg1.io.priority, 3, 7);
+    memory::assign(bg2.io.priority, 1, 5);
+    memory::assign(obj.io.priority, 2, 4, 6, 8);
+    break;
+
+  case 4:
+    bg1.io.mode = Background::Mode::BPP8;
+    bg2.io.mode = Background::Mode::BPP2;
+    bg3.io.mode = Background::Mode::Inactive;
+    bg4.io.mode = Background::Mode::Inactive;
+    memory::assign(bg1.io.priority, 3, 7);
+    memory::assign(bg2.io.priority, 1, 5);
+    memory::assign(obj.io.priority, 2, 4, 6, 8);
+    break;
+
+  case 5:
+    bg1.io.mode = Background::Mode::BPP4;
+    bg2.io.mode = Background::Mode::BPP2;
+    bg3.io.mode = Background::Mode::Inactive;
+    bg4.io.mode = Background::Mode::Inactive;
+    memory::assign(bg1.io.priority, 3, 7);
+    memory::assign(bg2.io.priority, 1, 5);
+    memory::assign(obj.io.priority, 2, 4, 6, 8);
+    break;
+
+  case 6:
+    bg1.io.mode = Background::Mode::BPP4;
+    bg2.io.mode = Background::Mode::Inactive;
+    bg3.io.mode = Background::Mode::Inactive;
+    bg4.io.mode = Background::Mode::Inactive;
+    memory::assign(bg1.io.priority, 2, 5);
+    memory::assign(obj.io.priority, 1, 3, 4, 6);
+    break;
+
+  case 7:
+    if(!io.extbg) {
+      bg1.io.mode = Background::Mode::Mode7;
+      bg2.io.mode = Background::Mode::Inactive;
+      bg3.io.mode = Background::Mode::Inactive;
+      bg4.io.mode = Background::Mode::Inactive;
+      memory::assign(bg1.io.priority, 2);
+      memory::assign(obj.io.priority, 1, 3, 4, 5);
+    } else {
+      bg1.io.mode = Background::Mode::Mode7;
+      bg2.io.mode = Background::Mode::Mode7;
+      bg3.io.mode = Background::Mode::Inactive;
+      bg4.io.mode = Background::Mode::Inactive;
+      memory::assign(bg1.io.priority, 3);
+      memory::assign(bg2.io.priority, 1, 5);
+      memory::assign(obj.io.priority, 2, 4, 6, 7);
+    }
+    break;
+  }
 }
