@@ -1,6 +1,6 @@
 struct PPU : Thread, IO {
   Node::Component node;
-  Node::Screen screen_;
+  Node::Screen screen;
   Node::Boolean colorEmulation;
   Node::Boolean interframeBlending;
   Node::String rotation;
@@ -182,7 +182,7 @@ private:
     uint1 output;  //IN0, IN1, IN2 only
   } window0, window1, window2, window3;
 
-  struct Screen {
+  struct DAC {
     auto run(uint x, uint y) -> uint15;
     auto blend(uint15 above, uint eva, uint15 below, uint evb) -> uint15;
 
@@ -198,7 +198,7 @@ private:
       uint5 blendEVB;
       uint5 blendEVY;
     } io;
-  } screen;
+  } dac;
 
   struct Object {
     auto serialize(serializer&) -> void;

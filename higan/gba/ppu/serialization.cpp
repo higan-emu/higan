@@ -29,7 +29,7 @@ auto PPU::serialize(serializer& s) -> void {
   window1.serialize(s);
   window2.serialize(s);
   window3.serialize(s);
-  screen.serialize(s);
+  dac.serialize(s);
   for(auto& object : this->object) object.serialize(s);
   for(auto& param : this->objectParam) param.serialize(s);
 }
@@ -87,7 +87,7 @@ auto PPU::Window::serialize(serializer& s) -> void {
   s.integer(output);
 }
 
-auto PPU::Screen::serialize(serializer& s) -> void {
+auto PPU::DAC::serialize(serializer& s) -> void {
   s.integer(io.blendMode);
   s.array(io.blendAbove);
   s.array(io.blendBelow);

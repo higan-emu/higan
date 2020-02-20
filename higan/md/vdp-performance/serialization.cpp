@@ -1,15 +1,18 @@
 auto VDP::serialize(serializer& s) -> void {
   Thread::serialize(s);
-
+  vram.serialize(s);
+  vsram.serialize(s);
+  cram.serialize(s);
   dma.serialize(s);
   planeA.serialize(s);
   window.serialize(s);
   planeB.serialize(s);
   sprite.serialize(s);
 
-  vram.serialize(s);
-  vsram.serialize(s);
-  cram.serialize(s);
+  s.integer(state.hdot);
+  s.integer(state.hcounter);
+  s.integer(state.vcounter);
+  s.integer(state.field);
 
   s.integer(io.vblankIRQ);
   s.integer(io.command);
@@ -34,14 +37,26 @@ auto VDP::serialize(serializer& s) -> void {
   s.integer(io.verticalSync);
   s.integer(io.dataIncrement);
 
+  s.integer(latch.interlace);
   s.integer(latch.overscan);
   s.integer(latch.horizontalInterruptCounter);
   s.integer(latch.displayWidth);
+}
 
-  s.integer(state.hdot);
-  s.integer(state.hcounter);
-  s.integer(state.vcounter);
-  s.integer(state.field);
+auto VDP::VRAM::serialize(serializer& s) -> void {
+  s.array(pixels);
+  s.array(memory);
+  s.integer(size);
+  s.integer(mode);
+}
+
+auto VDP::VSRAM::serialize(serializer& s) -> void {
+  s.array(memory);
+}
+
+auto VDP::CRAM::serialize(serializer& s) -> void {
+  s.array(memory);
+  s.array(palette);
 }
 
 auto VDP::DMA::serialize(serializer& s) -> void {
@@ -66,12 +81,6 @@ auto VDP::Background::serialize(serializer& s) -> void {
   s.integer(io.horizontalDirection);
   s.integer(io.verticalOffset);
   s.integer(io.verticalDirection);
-
-  s.integer(state.horizontalScroll);
-  s.integer(state.verticalScroll);
-
-  s.integer(output.color);
-  s.integer(output.priority);
 }
 
 auto VDP::Object::serialize(serializer& s) -> void {
@@ -90,23 +99,6 @@ auto VDP::Object::serialize(serializer& s) -> void {
 auto VDP::Sprite::serialize(serializer& s) -> void {
   s.integer(io.generatorAddress);
   s.integer(io.nametableAddress);
-
-  s.integer(output.color);
-  s.integer(output.priority);
-
-  for(uint n : range(80)) oam[n].serialize(s);
-  for(uint n : range(20)) objects[n].serialize(s);
-}
-
-auto VDP::VRAM::serialize(serializer& s) -> void {
-  s.array(memory);
-  s.integer(mode);
-}
-
-auto VDP::VSRAM::serialize(serializer& s) -> void {
-  s.array(memory);
-}
-
-auto VDP::CRAM::serialize(serializer& s) -> void {
-  s.array(memory);
+  for(auto& object : oam) object.serialize(s);
+  for(auto& object : objects) object.serialize(s);
 }

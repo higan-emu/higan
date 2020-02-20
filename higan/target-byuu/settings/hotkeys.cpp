@@ -9,6 +9,7 @@ auto HotkeySettings::construct() -> void {
 
   reload();
 
+  spacer.setFocusable();
   assignButton.setText("Assign").onActivate([&] { eventAssign(); });
   clearButton.setText("Clear").onActivate([&] { eventClear(); });
 }
@@ -55,6 +56,7 @@ auto HotkeySettings::eventAssign() -> void {
     settingsWindow.statusBar.setText({"Press a key or button to assign to [", activeMapping->name, "] ..."});
     settingsWindow.layout.setEnabled(false);
     settingsWindow.setDismissable(false);
+    spacer.setFocused();
   }
 }
 
@@ -69,5 +71,6 @@ auto HotkeySettings::eventInput(shared_pointer<HID::Device> device, uint groupID
     settingsWindow.setDismissable(true);
 
     refresh();
+    inputList.setFocused();
   }
 }

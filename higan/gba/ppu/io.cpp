@@ -74,26 +74,26 @@ auto PPU::readIO(uint32 addr) -> uint8 {
 
   //BLTCNT
   case 0x0400'0050: return (
-    screen.io.blendAbove[BG0] << 0
-  | screen.io.blendAbove[BG1] << 1
-  | screen.io.blendAbove[BG2] << 2
-  | screen.io.blendAbove[BG3] << 3
-  | screen.io.blendAbove[OBJ] << 4
-  | screen.io.blendAbove[SFX] << 5
-  | screen.io.blendMode       << 6
+    dac.io.blendAbove[BG0] << 0
+  | dac.io.blendAbove[BG1] << 1
+  | dac.io.blendAbove[BG2] << 2
+  | dac.io.blendAbove[BG3] << 3
+  | dac.io.blendAbove[OBJ] << 4
+  | dac.io.blendAbove[SFX] << 5
+  | dac.io.blendMode       << 6
   );
   case 0x0400'0051: return (
-    screen.io.blendBelow[BG0] << 0
-  | screen.io.blendBelow[BG1] << 1
-  | screen.io.blendBelow[BG2] << 2
-  | screen.io.blendBelow[BG3] << 3
-  | screen.io.blendBelow[OBJ] << 4
-  | screen.io.blendBelow[SFX] << 5
+    dac.io.blendBelow[BG0] << 0
+  | dac.io.blendBelow[BG1] << 1
+  | dac.io.blendBelow[BG2] << 2
+  | dac.io.blendBelow[BG3] << 3
+  | dac.io.blendBelow[OBJ] << 4
+  | dac.io.blendBelow[SFX] << 5
   );
 
   //BLDALPHA
-  case 0x0400'0052: return screen.io.blendEVA;
-  case 0x0400'0053: return screen.io.blendEVB;
+  case 0x0400'0052: return dac.io.blendEVA;
+  case 0x0400'0053: return dac.io.blendEVB;
 
   //BLDY (write-only)
 
@@ -356,29 +356,29 @@ auto PPU::writeIO(uint32 addr, uint8 data) -> void {
 
   //BLDCNT
   case 0x0400'0050:
-    screen.io.blendAbove[BG0] = data.bit(0);
-    screen.io.blendAbove[BG1] = data.bit(1);
-    screen.io.blendAbove[BG2] = data.bit(2);
-    screen.io.blendAbove[BG3] = data.bit(3);
-    screen.io.blendAbove[OBJ] = data.bit(4);
-    screen.io.blendAbove[SFX] = data.bit(5);
-    screen.io.blendMode       = data.bit(6,7);
+    dac.io.blendAbove[BG0] = data.bit(0);
+    dac.io.blendAbove[BG1] = data.bit(1);
+    dac.io.blendAbove[BG2] = data.bit(2);
+    dac.io.blendAbove[BG3] = data.bit(3);
+    dac.io.blendAbove[OBJ] = data.bit(4);
+    dac.io.blendAbove[SFX] = data.bit(5);
+    dac.io.blendMode       = data.bit(6,7);
     return;
   case 0x0400'0051:
-    screen.io.blendBelow[BG0] = data.bit(0);
-    screen.io.blendBelow[BG1] = data.bit(1);
-    screen.io.blendBelow[BG2] = data.bit(2);
-    screen.io.blendBelow[BG3] = data.bit(3);
-    screen.io.blendBelow[OBJ] = data.bit(4);
-    screen.io.blendBelow[SFX] = data.bit(5);
+    dac.io.blendBelow[BG0] = data.bit(0);
+    dac.io.blendBelow[BG1] = data.bit(1);
+    dac.io.blendBelow[BG2] = data.bit(2);
+    dac.io.blendBelow[BG3] = data.bit(3);
+    dac.io.blendBelow[OBJ] = data.bit(4);
+    dac.io.blendBelow[SFX] = data.bit(5);
     return;
 
   //BLDALPHA
-  case 0x0400'0052: screen.io.blendEVA = data.bit(0,4); return;
-  case 0x0400'0053: screen.io.blendEVB = data.bit(0,4); return;
+  case 0x0400'0052: dac.io.blendEVA = data.bit(0,4); return;
+  case 0x0400'0053: dac.io.blendEVB = data.bit(0,4); return;
 
   //BLDY
-  case 0x0400'0054: screen.io.blendEVY = data.bit(0,4); return;
+  case 0x0400'0054: dac.io.blendEVY = data.bit(0,4); return;
   case 0x0400'0055: return;
 
   }

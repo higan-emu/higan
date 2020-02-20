@@ -1,7 +1,7 @@
 struct Cartridge;
 
-struct CartridgePort {
-  CartridgePort(string_view name);
+struct CartridgeSlot {
+  CartridgeSlot(string_view name);
   auto load(Node::Object, Node::Object) -> void;
   auto unload() -> void;
   auto connect(Node::Peripheral) -> void;
@@ -12,4 +12,4 @@ struct CartridgePort {
   maybe<Cartridge&> peripheral;
 };
 
-extern CartridgePort cartridgePort;
+extern CartridgeSlot cartridgeSlot;

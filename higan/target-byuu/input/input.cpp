@@ -41,6 +41,10 @@ auto InputMapping::bind(shared_pointer<HID::Device> device, uint groupID, uint i
     return setAssignment(device, groupID, inputID, Qualifier::Lo), true;
   }
 
+  if(device->isJoypad() && groupID == HID::Joypad::GroupID::Trigger && newValue > +16384) {
+    return setAssignment(device, groupID, inputID, Qualifier::Hi), true;
+  }
+
   return false;
 }
 

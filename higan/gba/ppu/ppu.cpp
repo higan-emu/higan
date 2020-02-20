@@ -16,7 +16,7 @@ PPU ppu;
 #include "background.cpp"
 #include "object.cpp"
 #include "window.cpp"
-#include "screen.cpp"
+#include "dac.cpp"
 #include "io.cpp"
 #include "memory.cpp"
 #include "color.cpp"
@@ -26,28 +26,28 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   node = Node::append<Node::Component>(parent, from, "PPU");
   from = Node::scan(parent = node, from);
 
-  screen_ = Node::append<Node::Screen>(parent, from, "Screen");
-  screen_->colors(1 << 15, {&PPU::color, this});
-  screen_->setSize(240, 160);
-  screen_->setScale(1.0, 1.0);
-  screen_->setAspect(1.0, 1.0);
-  from = Node::scan(parent = screen_, from);
+  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen->colors(1 << 15, {&PPU::color, this});
+  screen->setSize(240, 160);
+  screen->setScale(1.0, 1.0);
+  screen->setAspect(1.0, 1.0);
+  from = Node::scan(parent = screen, from);
 
   colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
-    screen_->resetPalette();
+    screen->resetPalette();
   });
   colorEmulation->setDynamic(true);
 
   interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
-    screen_->setInterframeBlending(value);
+    screen->setInterframeBlending(value);
   });
   interframeBlending->setDynamic(true);
 
   rotation = Node::append<Node::String>(parent, from, "Orientation", "0°", [&](auto value) {
-    if(value ==   "0°") screen_->setRotation(  0);
-    if(value ==  "90°") screen_->setRotation( 90);
-    if(value == "180°") screen_->setRotation(180);
-    if(value == "270°") screen_->setRotation(270);
+    if(value ==   "0°") screen->setRotation(  0);
+    if(value ==  "90°") screen->setRotation( 90);
+    if(value == "180°") screen->setRotation(180);
+    if(value == "270°") screen->setRotation(270);
   });
   rotation->setDynamic(true);
   rotation->setAllowedValues({"0°", "90°", "180°", "270°"});
@@ -55,7 +55,7 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
 
 auto PPU::unload() -> void {
   node = {};
-  screen_ = {};
+  screen = {};
   colorEmulation = {};
   interframeBlending = {};
   rotation = {};
@@ -112,7 +112,7 @@ auto PPU::main() -> void {
       window1.run(x, y);
       window2.output = objects.output.window;
       window3.output = true;
-      uint15 color = screen.run(x, y);
+      uint15 color = dac.run(x, y);
       output[y * 240 + x] = color;
       step(4);
     }
@@ -137,7 +137,7 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  screen_->refresh(output, 240 * sizeof(uint32), 240, 160);
+  screen->refresh(output, 240 * sizeof(uint32), 240, 160);
 }
 
 auto PPU::power() -> void {
@@ -164,7 +164,7 @@ auto PPU::power() -> void {
   window1.power(IN1);
   window2.power(IN2);
   window3.power(OUT);
-  screen.power();
+  dac.power();
 }
 
 }

@@ -14,7 +14,7 @@ SuperFamicom::SuperFamicom() {
 }
 
 auto SuperFamicom::load() -> void {
-  if(auto port = root->find<higan::Node::Port>("Cartridge Port")) {
+  if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
   }

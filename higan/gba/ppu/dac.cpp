@@ -1,4 +1,4 @@
-auto PPU::Screen::run(uint x, uint y) -> uint15 {
+auto PPU::DAC::run(uint x, uint y) -> uint15 {
   if(ppu.blank()) return 0x7fff;
 
   //determine active window
@@ -53,7 +53,7 @@ auto PPU::Screen::run(uint x, uint y) -> uint15 {
   return color;
 }
 
-auto PPU::Screen::blend(uint15 above, uint eva, uint15 below, uint evb) -> uint15 {
+auto PPU::DAC::blend(uint15 above, uint eva, uint15 below, uint evb) -> uint15 {
   uint5 ar = above >> 0, ag = above >> 5, ab = above >> 10;
   uint5 br = below >> 0, bg = below >> 5, bb = below >> 10;
 
@@ -64,6 +64,6 @@ auto PPU::Screen::blend(uint15 above, uint eva, uint15 below, uint evb) -> uint1
   return min(31u, r) << 0 | min(31u, g) << 5 | min(31u, b) << 10;
 }
 
-auto PPU::Screen::power() -> void {
+auto PPU::DAC::power() -> void {
   io = {};
 }

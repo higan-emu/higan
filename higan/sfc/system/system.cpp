@@ -45,7 +45,7 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
   smp.load(node, from);
   dsp.load(node, from);
   ppu.load(node, from);
-  cartridgePort.load(node, from);
+  cartridgeSlot.load(node, from);
   controllerPort1.load(node, from);
   controllerPort2.load(node, from);
   expansionPort.load(node, from);
@@ -54,7 +54,7 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridgePort.unload();
+  cartridgeSlot.unload();
   controllerPort1.port.reset();
   controllerPort2.port.reset();
   expansionPort.port.reset();

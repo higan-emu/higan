@@ -22,6 +22,7 @@ auto PPU::DAC::render() -> void {
     for(uint x : range(256)) {
       auto color = luma | pixel(x, above[x], below[x]);
       *output++ = color;
+      *output++ = color;
     }
   } else {
     for(uint x : range(256)) {

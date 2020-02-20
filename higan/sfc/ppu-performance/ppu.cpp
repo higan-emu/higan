@@ -86,17 +86,42 @@ auto PPU::map() -> void {
 auto PPU::power(bool reset) -> void {
   Thread::create(system.cpuFrequency(), {&PPU::main, this});
   PPUcounter::reset();
+
+  memory::fill<uint32>(output, 512 * 480);
+
+  for(auto& word : vram.data) word = 0;
+
+  state = {};
+  latch = {};
+  io = {};
+  mode7 = {};
+  window.io = {};
+  bg1.io = {};
+  bg1.window = {};
+  bg2.io = {};
+  bg3.window = {};
+  bg3.io = {};
+  bg3.window = {};
+  bg4.io = {};
+  bg4.window = {};
+  for(auto& object : obj.oam.objects) object = {};
+  obj.io = {};
+  obj.window = {};
+  for(auto& item : obj.items) item = {};
+  for(auto& tile : obj.tiles) tile = {};
+  for(auto& color : dac.cgram) color = 0;
+  dac.io = {};
+  dac.window = {};
 }
 
 auto PPU::refresh() -> void {
   auto data = output;
   bool hires = io.bgMode == 5 || io.bgMode == 6;
-  bool phires = io.pseudoHires || io.bgMode == 5 || io.bgMode == 6;
 
   if(region->value() == "NTSC") {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
-    uint width  = 256 << phires;
+    uint width  = 512;
     uint height = 224 <<  hires;
     uint pitch  = 512 << !hires;
     screen->refresh(data, pitch * sizeof(uint32), width, height);
@@ -104,7 +129,7 @@ auto PPU::refresh() -> void {
 
   if(region->value() == "PAL") {
     if(!overscan()) data -= 14 * 512;
-    uint width  = 256 << phires;
+    uint width  = 512;
     uint height = 240 <<  hires;
     uint pitch  = 512 << !hires;
     screen->refresh(data, pitch * sizeof(uint32), width, height);

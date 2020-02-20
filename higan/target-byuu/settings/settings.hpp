@@ -104,7 +104,7 @@ struct InputSettings : VerticalLayout {
 
   TableView inputList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Widget spacer{&controlLayout, Size{~0, 0}};
+    Canvas spacer{&controlLayout, Size{~0, 0}};
     Button assignButton{&controlLayout, Size{80, 0}};
     Button clearButton{&controlLayout, Size{80, 0}};
 
@@ -122,7 +122,7 @@ struct HotkeySettings : VerticalLayout {
 
   TableView inputList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Widget spacer{&controlLayout, Size{~0, 0}};
+    Canvas spacer{&controlLayout, Size{~0, 0}};
     Button assignButton{&controlLayout, Size{80, 0}};
     Button clearButton{&controlLayout, Size{80, 0}};
 

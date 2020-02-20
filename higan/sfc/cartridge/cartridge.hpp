@@ -1,4 +1,4 @@
-#include "port.hpp"
+#include "slot.hpp"
 
 struct Cartridge {
   Node::Peripheral node;

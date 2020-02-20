@@ -1,5 +1,7 @@
 //Yamaha YM7101
-
+#if defined(PROFILE_PERFORMANCE)
+#include "../vdp-performance/vdp.hpp"
+#else
 struct VDP : Thread {
   Node::Component node;
   Node::Screen screen;
@@ -95,10 +97,10 @@ struct VDP : Thread {
        uint1 verticalScrollMode;
 
       //Window
-       uint1 horizontalDirection;
       uint10 horizontalOffset;
-       uint1 verticalDirection;
+       uint1 horizontalDirection;
       uint10 verticalOffset;
+       uint1 verticalDirection;
     } io;
 
     struct State {
@@ -276,3 +278,4 @@ private:
 };
 
 extern VDP vdp;
+#endif

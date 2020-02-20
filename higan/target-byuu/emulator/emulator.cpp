@@ -69,6 +69,7 @@ auto Emulator::construct() -> void {
 
   #ifdef CORE_MD
   emulators.append(new MegaDrive);
+//emulators.append(new MegaCD);
   #endif
 
   #ifdef CORE_PCE

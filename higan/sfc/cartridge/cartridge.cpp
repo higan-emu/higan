@@ -2,7 +2,7 @@
 
 namespace higan::SuperFamicom {
 
-#include "port.cpp"
+#include "slot.cpp"
 #include "load.cpp"
 #include "save.cpp"
 #include "serialization.cpp"

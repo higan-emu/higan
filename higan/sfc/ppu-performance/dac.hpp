@@ -30,7 +30,7 @@ struct DAC {
 
   PPU::Window::Color window;
 
-  //unserialized:
+//unserialized:
   struct Pixel {
      uint8 source;
      uint8 priority;

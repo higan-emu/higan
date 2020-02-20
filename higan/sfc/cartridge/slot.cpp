@@ -1,9 +1,9 @@
-CartridgePort cartridgePort{"Cartridge Port"};
+CartridgeSlot cartridgeSlot{"Cartridge Slot"};
 
-CartridgePort::CartridgePort(string_view name) : name(name) {
+CartridgeSlot::CartridgeSlot(string_view name) : name(name) {
 }
 
-auto CartridgePort::load(Node::Object parent, Node::Object from) -> void {
+auto CartridgeSlot::load(Node::Object parent, Node::Object from) -> void {
   port = Node::append<Node::Port>(parent, from, name);
   port->setFamily("Super Famicom");
   port->setType("Cartridge");
@@ -13,12 +13,12 @@ auto CartridgePort::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
-auto CartridgePort::unload() -> void {
+auto CartridgeSlot::unload() -> void {
   disconnect();
   port = {};
 }
 
-auto CartridgePort::connect(Node::Peripheral node) -> void {
+auto CartridgeSlot::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {
     peripheral = cartridge;
@@ -26,7 +26,7 @@ auto CartridgePort::connect(Node::Peripheral node) -> void {
   }
 }
 
-auto CartridgePort::disconnect() -> void {
+auto CartridgeSlot::disconnect() -> void {
   if(!peripheral) return;
   peripheral->disconnect();
   peripheral.reset();
