@@ -20,14 +20,14 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
     //$0000-03ff  VDC or VPC
     if((address & 0x1c00) == 0x0000) {
       HuC6280::io();  //penalty cycle
-      if(Model::PCEngine()) return vdc0.read(address);
-      if(Model::SuperGrafx()) return vpc.read(address);
+      if(Model::PCEngine()) return vdp.vdc0.read(address);
+      if(Model::SuperGrafx()) return vdp.vpc.read(address);
     }
 
     //$0400-07ff  VCE
     if((address & 0x1c00) == 0x0400) {
       HuC6280::io();  //penalty cycle
-      return vce.read(address);
+      return vdp.vce.read(address);
     }
 
     //$0800-0bff  PSG
@@ -77,7 +77,7 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
 
       if(address.bit(0,1) == 3) {
         bool pendingExternal = 0;
-        bool pendingVDC = vdc0.irqLine() | vdc1.irqLine();
+        bool pendingVDC = vdp.vdc0.irqLine() | vdp.vdc1.irqLine();
         bool pendingTimer = timer.irqLine();
         return (
           pendingExternal << 0
@@ -126,14 +126,14 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
     //$0000-03ff  VDC or VPC
     if((address & 0x1c00) == 0x0000) {
       HuC6280::io();  //penalty cycle
-      if(Model::PCEngine()) return vdc0.write(address, data);
-      if(Model::SuperGrafx()) return vpc.write(address, data);
+      if(Model::PCEngine()) return vdp.vdc0.write(address, data);
+      if(Model::SuperGrafx()) return vdp.vpc.write(address, data);
     }
 
     //$0400-07ff  VCE
     if((address & 0x1c00) == 0x0400) {
       HuC6280::io();  //penalty cycle
-      return vce.write(address, data);
+      return vdp.vce.write(address, data);
     }
 
     //$0800-0bff  PSG
@@ -192,6 +192,6 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
 auto CPU::store(uint2 address, uint8 data) -> void {
   HuC6280::io();  //penalty cycle
   if(address) address++;  //0,1,2 => 0,2,3
-  if(Model::PCEngine()) vdc0.write(address, data);
-  if(Model::SuperGrafx()) vpc.store(address, data);
+  if(Model::PCEngine()) vdp.vdc0.write(address, data);
+  if(Model::SuperGrafx()) vdp.vpc.store(address, data);
 }

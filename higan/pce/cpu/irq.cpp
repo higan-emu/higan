@@ -15,7 +15,7 @@ auto CPU::IRQ::poll() -> void {
     pendingVector = 0xfff6;
   }
 
-  if(!disableVDC && (vdc0.irqLine() | vdc1.irqLine())) {
+  if(!disableVDC && (vdp.vdc0.irqLine() | vdp.vdc1.irqLine())) {
     pendingIRQ = !disableVDC;
     pendingVector = 0xfff8;
   }

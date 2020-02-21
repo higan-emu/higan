@@ -1,4 +1,4 @@
-auto VCE::color(uint32 color) -> uint64 {
+auto VDP::color(uint32 color) -> uint64 {
   uint3 B = color.bit(0,2);
   uint3 R = color.bit(3,5);
   uint3 G = color.bit(6,8);

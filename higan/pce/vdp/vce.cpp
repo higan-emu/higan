@@ -1,18 +1,20 @@
 auto VCE::read(uint3 address) -> uint8 {
+  uint8 data = 0xff;
+
   if(address == 0x04) {
     //CTR
-    uint8 data = cram.read(cram.address).bit(0,7);
+    data.bit(0,7) = cram.read(cram.address).bit(0,7);
     return data;
   }
 
   if(address == 0x05) {
     //CTR
-    uint1 data = cram.read(cram.address).bit(8);
+    data.bit(0) = cram.read(cram.address).bit(8);
     cram.address++;
-    return 0xfe | data;
+    return data;
   }
 
-  return 0xff;
+  return data;
 }
 
 auto VCE::write(uint3 address, uint8 data) -> void {
@@ -51,4 +53,20 @@ auto VCE::write(uint3 address, uint8 data) -> void {
     cram.address++;
     return;
   }
+}
+
+auto VCE::power() -> void {
+  for(auto& data : cram.memory) data = 0;
+  cram.address = 0;
+
+  io = {};
+}
+
+auto VCE::CRAM::read(uint9 address) -> uint9 {
+  return memory[address];
+}
+
+auto VCE::CRAM::write(uint9 address, uint1 a0, uint8 data) -> void {
+  if(a0 == 0) memory[address].bit(0,7) = data.bit(0,7);
+  if(a0 == 1) memory[address].bit(8)   = data.bit(0);
 }

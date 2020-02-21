@@ -7,7 +7,7 @@ System system;
 #include "serialization.cpp"
 
 auto System::run() -> void {
-  if(scheduler.enter() == Event::Frame) vce.refresh();
+  if(scheduler.enter() == Event::Frame) vdp.refresh();
 }
 
 auto System::runToSave() -> void {
@@ -26,7 +26,7 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
 
   scheduler.reset();
   cpu.load(node, from);
-  vce.load(node, from);
+  vdp.load(node, from);
   psg.load(node, from);
   cartridge.load(node, from);
   controllerPort.load(node, from);
@@ -43,7 +43,7 @@ auto System::unload() -> void {
   cartridge.port = {};
   controllerPort.port = {};
   cpu.unload();
-  vce.unload();
+  vdp.unload();
   psg.unload();
   node = {};
 }
@@ -53,10 +53,7 @@ auto System::power() -> void {
 
   cartridge.power();
   cpu.power();
-  vce.power();
-  vpc.power();
-  vdc0.power();
-  vdc1.power();
+  vdp.power();
   psg.power();
   scheduler.power(cpu);
 

@@ -2,8 +2,8 @@ auto VDC::Sprite::scanline(uint y) -> void {
   y += 64;
   objects.reset();
 
-  static const uint widths[]  = {15, 31};
-  static const uint heights[] = {15, 31, 63, 63};
+  static const uint widths [2] = {15, 31};
+  static const uint heights[4] = {15, 31, 63, 63};
 
   uint count = 0;
   for(uint index : range(64)) {
@@ -86,17 +86,16 @@ auto VDC::Sprite::run(uint x, uint y) -> void {
     color.bit(1) = d1.bit(index);
     color.bit(2) = d2.bit(index);
     color.bit(3) = d3.bit(index);
-    if(color == 0) continue;
+    if(!color) continue;
 
     if(this->color) {
       if(first) return vdc->irq.raise(VDC::IRQ::Line::Collision);
       return;
     }
+    if(object.first) first = true;
 
     this->color = color;
     this->palette = object.palette;
     this->priority = object.priority;
-
-    if(object.first) first = true;
   }
 }

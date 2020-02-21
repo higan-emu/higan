@@ -43,10 +43,7 @@ auto System::serialize(serializer& s) -> void {
 auto System::serializeAll(serializer& s) -> void {
   system.serialize(s);
   cpu.serialize(s);
-  vce.serialize(s);
-  vpc.serialize(s);
-  vdc0.serialize(s);
-  vdc1.serialize(s);
+  vdp.serialize(s);
   psg.serialize(s);
   controllerPort.serialize(s);
 }

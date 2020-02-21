@@ -50,9 +50,7 @@ auto CPU::main() -> void {
 auto CPU::step(uint clocks) -> void {
   Thread::step(clocks);
   timer.step(clocks);
-  synchronize(vdc0);
-  synchronize(vdc1);
-  synchronize(vce);
+  synchronize(vdp);
   synchronize(psg);
 //for(auto peripheral : peripherals) synchronize(*peripheral);
 }
