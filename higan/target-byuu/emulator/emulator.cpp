@@ -140,6 +140,10 @@ auto Emulator::load(const string& location, const vector<uint8_t>& image) -> voi
   interface->power();
 }
 
+auto Emulator::save() -> void {
+  interface->save();
+}
+
 auto Emulator::unload() -> void {
   interface->unload();
 }

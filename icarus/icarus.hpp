@@ -7,10 +7,11 @@ using namespace hiro;
 #include "resource/resource.hpp"
 
 namespace icarus {
-  static const string Name    = "icarus";
-  static const string Version = "107";
-  static const string License = "GPLv3";
-  static const string Website = "https://byuu.org";
+  static const string Name      = "icarus";
+  static const string Version   = "107";
+  static const string Copyright = "byuu";
+  static const string License   = "GPLv3";
+  static const string Website   = "https://byuu.org";
 
   #include "settings/settings.hpp"
   #include "media/media.hpp"

@@ -16,3 +16,15 @@ auto Program::paletteUpdate() -> void {
     screen->setGamma(settings.video.gamma);
   }
 }
+
+auto Program::openFile(BrowserDialog& dialog) -> string {
+  if(settings.general.nativeFileDialogs) {
+    BrowserWindow window;
+    window.setTitle(dialog.title());
+    window.setPath(dialog.path());
+    window.setFilters(dialog.filters());
+    window.setParent(dialog.alignmentWindow());
+    return window.open();
+  }
+  return dialog.openFile();
+}

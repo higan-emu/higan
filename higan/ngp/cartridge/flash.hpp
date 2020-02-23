@@ -9,8 +9,8 @@
 struct Flash {
   natural ID;  //todo: can this be made const, even though it's declared as Cartridge::Flash[2] ?
 
-  Memory::Writable<uint8> rom;
   boolean modified;
+  Memory::Writable<uint8> rom;
   uint8 vendorID;
   uint8 deviceID;
 
@@ -20,6 +20,7 @@ struct Flash {
   auto reset(natural ID) -> void;
   auto allocate(natural size) -> bool;
   auto load(shared_pointer<vfs::file> fp) -> void;
+  auto save(shared_pointer<vfs::file> fp) -> void;
 
   auto power() -> void;
   auto read(uint21 address) -> uint8;

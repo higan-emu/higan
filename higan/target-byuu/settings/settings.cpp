@@ -77,6 +77,8 @@ auto Settings::process(bool load) -> void {
   bind(string,  "Input/Defocus", input.defocus);
 
   bind(boolean, "General/ShowStatusBar", general.showStatusBar);
+  bind(boolean, "General/AutoSaveMemory", general.autoSaveMemory);
+  bind(boolean, "General/NativeFileDialogs", general.nativeFileDialogs);
 
   for(uint index : range(9)) {
     string name = {"Recent/Game-", 1 + index};
@@ -111,6 +113,13 @@ auto Settings::process(bool load) -> void {
 //
 
 SettingsWindow::SettingsWindow() {
+  onClose([&] {
+    setVisible(false);
+    //cancel any pending input assignment requests, if any
+    inputSettings.eventCancel();
+    hotkeySettings.eventCancel();
+  });
+
   layout.setPadding(5);
 
   panelList.append(ListViewItem().setText("Video").setIcon(Icon::Device::Display));

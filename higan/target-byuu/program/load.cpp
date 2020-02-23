@@ -36,7 +36,7 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
     filters.trimRight(":", 1L);
     filters.prepend(emulator->name, " Games|");
     dialog.setFilters({filters, "All Files|*"});
-    filename = dialog.openFile();
+    filename = openFile(dialog);
   }
   if(!file::exists(filename)) return false;
 

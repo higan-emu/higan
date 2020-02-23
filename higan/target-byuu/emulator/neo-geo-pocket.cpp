@@ -7,6 +7,13 @@ struct NeoGeoPocket : Emulator {
   auto input(higan::Node::Input) -> void override;
 };
 
+struct NeoGeoPocketColor : Emulator {
+  NeoGeoPocketColor();
+  auto load() -> void override;
+  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
+  auto input(higan::Node::Input) -> void override;
+};
+
 NeoGeoPocket::NeoGeoPocket() {
   interface = new higan::NeoGeoPocket::NeoGeoPocketInterface;
   name = "Neo Geo Pocket";
@@ -38,7 +45,7 @@ auto NeoGeoPocket::open(higan::Node::Object node, string name, vfs::file::mode m
       dialog.setTitle("Select Neo Geo Pocket BIOS");
       dialog.setPath(Path::desktop());
       dialog.setAlignment(presentation);
-      string bios = dialog.openFile();
+      string bios = program.openFile(dialog);
       if(file::exists(bios)) {
         auto sha256 = file::sha256(bios);
         if(file::sha256(bios) == "0293555b21c4fac516d25199df7809b26beeae150e1d4504a050db32264a6ad7") {
@@ -84,13 +91,6 @@ auto NeoGeoPocket::input(higan::Node::Input node) -> void {
   }
 }
 
-struct NeoGeoPocketColor : Emulator {
-  NeoGeoPocketColor();
-  auto load() -> void override;
-  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
-  auto input(higan::Node::Input) -> void override;
-};
-
 NeoGeoPocketColor::NeoGeoPocketColor() {
   interface = new higan::NeoGeoPocket::NeoGeoPocketColorInterface;
   name = "Neo Geo Pocket Color";
@@ -122,7 +122,7 @@ auto NeoGeoPocketColor::open(higan::Node::Object node, string name, vfs::file::m
       dialog.setTitle("Select Neo Geo Pocket Color BIOS");
       dialog.setPath(Path::desktop());
       dialog.setAlignment(presentation);
-      string bios = dialog.openFile();
+      string bios = program.openFile(dialog);
       if(file::exists(bios)) {
         auto sha256 = file::sha256(bios);
         if(file::sha256(bios) == "8fb845a2f71514cec20728e2f0fecfade69444f8d50898b92c2259f1ba63e10d") {
@@ -142,8 +142,15 @@ auto NeoGeoPocketColor::open(higan::Node::Object node, string name, vfs::file::m
   auto document = BML::unserialize(game.manifest);
   auto programROMSize = document["game/board/memory(content=Program,type=Flash)/size"].natural();
 
-  if(name == "program.flash") {
+  if(name == "program.flash" && mode == vfs::file::mode::read) {
+    string location = {Location::notsuffix(game.location), ".sav"};
+    if(auto result = vfs::fs::file::open(location, mode)) return result;
     return vfs::memory::file::open(game.image.data(), programROMSize);
+  }
+
+  if(name == "program.flash" && mode == vfs::file::mode::write) {
+    string location = {Location::notsuffix(game.location), ".sav"};
+    if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
   return {};

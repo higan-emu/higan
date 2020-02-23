@@ -34,7 +34,7 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
       dialog.setTitle("Select Game Boy Advance BIOS");
       dialog.setPath(Path::desktop());
       dialog.setAlignment(presentation);
-      string bios = dialog.openFile();
+      string bios = program.openFile(dialog);
       if(file::exists(bios)) {
         auto sha256 = file::sha256(bios);
         if(file::sha256(bios) == "fd2547724b505f487e6dcb29ec2ecff3af35a841a77ab2e85fd87350abd36570") {

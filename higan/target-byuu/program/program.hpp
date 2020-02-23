@@ -29,6 +29,7 @@ struct Program : higan::Platform {
   //utility.cpp
   auto pause(bool) -> void;
   auto paletteUpdate() -> void;
+  auto openFile(BrowserDialog&) -> string;
 
   //drivers.cpp
   auto videoDriverUpdate() -> void;

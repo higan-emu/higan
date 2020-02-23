@@ -20,9 +20,7 @@ auto PPU::DAC::render() -> void {
   uint luma = ppu.io.displayBrightness << 15;
   if(!hires) {
     for(uint x : range(256)) {
-      auto color = luma | pixel(x, above[x], below[x]);
-      *output++ = color;
-      *output++ = color;
+      *output++ = luma | pixel(x, above[x], below[x]);
     }
   } else {
     for(uint x : range(256)) {

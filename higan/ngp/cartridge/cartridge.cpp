@@ -54,6 +54,15 @@ auto Cartridge::disconnect() -> void {
 auto Cartridge::save() -> void {
   if(!node) return;
   auto document = BML::unserialize(information.manifest);
+
+  if(auto memory = document["game/board/memory(type=Flash,content=Program)"]) {
+    if(flash[0].modified || flash[1].modified) {
+      if(auto fp = platform->open(node, "program.flash", File::Write)) {
+        flash[0].save(fp);
+        flash[1].save(fp);
+      }
+    }
+  }
 }
 
 auto Cartridge::power() -> void {

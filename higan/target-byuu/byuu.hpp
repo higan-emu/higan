@@ -15,11 +15,12 @@ namespace ruby {
   extern Input input;
 }
 
-namespace Information {
-  static const string Name    = "byuu";
-  static const string Version = "0.13";
-  static const string License = "GPLv3";
-  static const string Website = "https://byuu.org";
+namespace byuu {
+  static const string Name      = "byuu";
+  static const string Version   = "0.14";
+  static const string Copyright = "byuu";
+  static const string License   = "GPLv3";
+  static const string Website   = "https://byuu.org";
 }
 
 #include "resource/resource.hpp"

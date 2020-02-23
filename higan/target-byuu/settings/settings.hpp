@@ -49,6 +49,8 @@ struct Settings : Markup::Node {
 
   struct General {
     bool showStatusBar = true;
+    bool autoSaveMemory = true;
+    bool nativeFileDialogs = true;
   } general;
 
   struct Recent {
@@ -100,8 +102,10 @@ struct InputSettings : VerticalLayout {
   auto eventChange() -> void;
   auto eventClear() -> void;
   auto eventAssign() -> void;
+  auto eventCancel() -> void;
   auto eventInput(shared_pointer<HID::Device>, uint groupID, uint inputID, int16_t oldValue, int16_t newValue) -> void;
 
+  Label inputLabel{this, Size{~0, 0}, 2};
   TableView inputList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
     Canvas spacer{&controlLayout, Size{~0, 0}};
@@ -109,6 +113,7 @@ struct InputSettings : VerticalLayout {
     Button clearButton{&controlLayout, Size{80, 0}};
 
   maybe<InputMapping&> activeMapping;
+  uint64_t activeMappingBeginTimestamp = 0;
 };
 
 struct HotkeySettings : VerticalLayout {
@@ -118,8 +123,10 @@ struct HotkeySettings : VerticalLayout {
   auto eventChange() -> void;
   auto eventClear() -> void;
   auto eventAssign() -> void;
+  auto eventCancel() -> void;
   auto eventInput(shared_pointer<HID::Device>, uint groupID, uint inputID, int16_t oldValue, int16_t newValue) -> void;
 
+  Label inputLabel{this, Size{~0, 0}, 2};
   TableView inputList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
     Canvas spacer{&controlLayout, Size{~0, 0}};
@@ -127,12 +134,16 @@ struct HotkeySettings : VerticalLayout {
     Button clearButton{&controlLayout, Size{80, 0}};
 
   maybe<InputMapping&> activeMapping;
+  uint64_t activeMappingBeginTimestamp = 0;
 };
 
 struct EmulatorSettings : VerticalLayout {
   auto construct() -> void;
   auto eventToggle(TableViewCell cell) -> void;
 
+  Label optionsLabel{this, Size{~0, 0}, 2};
+  CheckLabel autoSaveMemory{this, Size{~0, 0}, 2};
+  CheckLabel nativeFileDialogs{this, Size{~0, 0}};
   Label emulatorLabel{this, Size{~0, 0}, 2};
   TableView emulatorList{this, Size{~0, ~0}};
 };

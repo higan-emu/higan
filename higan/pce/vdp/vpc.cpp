@@ -6,8 +6,6 @@ auto VPC::bus(uint16 hcounter) const -> uint9 {
   auto bus0 = vdp.vdc0.bus();
   auto bus1 = vdp.vdc1.bus();
 
-  //note: timing may not be correct here; unable to test behavior
-  //no official SuperGrafx games ever use partial screen-width windows
   bool window0 = window[0] >= 64 && (window[0] - 64) >= hcounter / 2;
   bool window1 = window[1] >= 64 && (window[1] - 64) >= hcounter / 2;
 

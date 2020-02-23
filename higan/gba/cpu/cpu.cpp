@@ -50,6 +50,8 @@ auto CPU::main() -> void {
 }
 
 auto CPU::step(uint clocks) -> void {
+  if(!clocks) return;
+
   dma[0].waiting = max(0, dma[0].waiting - (int)clocks);
   dma[1].waiting = max(0, dma[1].waiting - (int)clocks);
   dma[2].waiting = max(0, dma[2].waiting - (int)clocks);
@@ -68,6 +70,15 @@ auto CPU::step(uint clocks) -> void {
     timer[3].run();
     context.clock++;
   }
+
+  #if defined(PROFILE_PERFORMANCE)
+  //20% speedup by only synchronizing other components every 64 clock cycles
+  static uint counter = 0;
+  counter += clocks;
+  if(counter < 64) return;
+  clocks = counter;
+  counter = 0;
+  #endif
 
   Thread::step(clocks);
   Thread::synchronize();

@@ -58,6 +58,16 @@ auto PPU::step(uint clocks) -> void {
 
 auto PPU::main() -> void {
   if(vcounter() < vdisp()) {
+    if(vcounter() == 0) {
+      width256 = 0;
+      width512 = 0;
+    }
+    uint width = 256;
+    if(io.pseudoHires || io.bgMode == 5 || io.bgMode == 6) width = 512;
+    if(width == 256) width256 = 1;
+    if(width == 512) width512 = 1;
+    widths[vcounter()] = width;
+
     step(512);
     dac.prepare();
     if(!io.displayDisable) {
@@ -112,26 +122,41 @@ auto PPU::power(bool reset) -> void {
   for(auto& color : dac.cgram) color = 0;
   dac.io = {};
   dac.window = {};
+
+  updateVideoMode();
 }
 
 auto PPU::refresh() -> void {
-  auto data = output;
-  bool hires = io.bgMode == 5 || io.bgMode == 6;
+  auto data  = output;
+  uint width = width512 ? 512 : 256;
+  uint pitch = io.bgMode == 5 || io.bgMode == 6 ? 512 : 1024;
+
+  //this frame contains mixed resolutions: normalize every scanline to 512-width
+  if(width256 && width512) {
+    for(uint y : range(240)) {
+      auto line = data + pitch * y;
+      if(widths[y] == 256) {
+        auto source = &line[256];
+        auto target = &line[512];
+        for(uint x : range(256)) {
+          auto color = *--source;
+          *--target = color;
+          *--target = color;
+        }
+      }
+    }
+  }
 
   if(region->value() == "NTSC") {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
-    uint width  = 512;
-    uint height = 224 <<  hires;
-    uint pitch  = 512 << !hires;
+    uint height = 224 << (io.bgMode == 5 || io.bgMode == 6);
     screen->refresh(data, pitch * sizeof(uint32), width, height);
   }
 
   if(region->value() == "PAL") {
     if(!overscan()) data -= 14 * 512;
-    uint width  = 512;
-    uint height = 240 <<  hires;
-    uint pitch  = 512 << !hires;
+    uint height = 240 << (io.bgMode == 5 || io.bgMode == 6);
     screen->refresh(data, pitch * sizeof(uint32), width, height);
   }
 }

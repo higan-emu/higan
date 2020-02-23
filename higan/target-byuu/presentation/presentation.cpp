@@ -110,11 +110,12 @@ Presentation::Presentation() {
   });
   aboutAction.setText("About byuu ...").setIcon(Icon::Prompt::Question).onActivate([&] {
     AboutDialog()
-    .setName(Information::Name)
+    .setName(byuu::Name)
     .setLogo(Resource::Logo)
-    .setVersion(Information::Version)
-    .setLicense(Information::License)
-    .setWebsite(Information::Website)
+    .setVersion(byuu::Version)
+    .setCopyright(byuu::Copyright)
+    .setLicense(byuu::License)
+    .setWebsite(byuu::Website)
     .setAlignment(presentation)
     .show();
   });
@@ -149,7 +150,7 @@ Presentation::Presentation() {
   });
 
   resizeWindow();
-  setTitle({Information::Name, " v", Information::Version});
+  setTitle({byuu::Name, " v", byuu::Version});
   setBackgroundColor({0, 0, 0});
   setAlignment(Alignment::Center);
   setVisible();
@@ -298,7 +299,7 @@ auto Presentation::loadEmulator() -> void {
 }
 
 auto Presentation::unloadEmulator() -> void {
-  setTitle({Information::Name, " v", Information::Version});
+  setTitle({byuu::Name, " v", byuu::Version});
 
   systemMenu.setVisible(false);
   systemMenu.reset();

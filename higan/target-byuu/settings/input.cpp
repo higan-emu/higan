@@ -2,6 +2,7 @@ auto InputSettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 
+  inputLabel.setText("Virtual Gamepad Bindings").setFont(Font().setBold());
   inputList.setBatchable();
   inputList.setHeadered();
   inputList.onChange([&] { eventChange(); });
@@ -43,6 +44,7 @@ auto InputSettings::eventChange() -> void {
 
 auto InputSettings::eventClear() -> void {
   for(auto& item : inputList.batched()) {
+    activeMappingBeginTimestamp = chrono::millisecond() + 50;
     activeMapping = *virtualPad.mappings[item.offset()];
     shared_pointer<HID::Device> device{new HID::Null};
     eventInput(device, 0, 0, 0, 0);
@@ -50,7 +52,13 @@ auto InputSettings::eventClear() -> void {
 }
 
 auto InputSettings::eventAssign() -> void {
+  if(ruby::input.driver() == "None") return (void)MessageDialog().setText(
+    "Bindings cannot be set when no input driver has been loaded.\n"
+    "Please go to driver settings and activate an input driver first."
+  ).setAlignment(settingsWindow).error();
+
   if(auto item = inputList.selected()) {
+    activeMappingBeginTimestamp = chrono::millisecond();
     activeMapping = *virtualPad.mappings[item.offset()];
 
     settingsWindow.statusBar.setText({"Press a key or button to assign to [", activeMapping->name, "] ..."});
@@ -60,16 +68,22 @@ auto InputSettings::eventAssign() -> void {
   }
 }
 
-auto InputSettings::eventInput(shared_pointer<HID::Device> device, uint groupID, uint inputID, int16_t oldValue, int16_t newValue) -> void {
-  if(!activeMapping) return;
-  if(!settingsWindow.focused()) return;
-
-  if(activeMapping->bind(device, groupID, inputID, oldValue, newValue)) {
+auto InputSettings::eventCancel() -> void {
+  if(activeMapping) {
     activeMapping.reset();
     settingsWindow.statusBar.setText();
     settingsWindow.layout.setEnabled();
     settingsWindow.setDismissable(true);
+  }
+}
 
+auto InputSettings::eventInput(shared_pointer<HID::Device> device, uint groupID, uint inputID, int16_t oldValue, int16_t newValue) -> void {
+  if(!activeMapping) return;
+  if(!settingsWindow.focused()) return;
+  if(chrono::millisecond() - activeMappingBeginTimestamp < 50) return;
+
+  if(activeMapping->bind(device, groupID, inputID, oldValue, newValue)) {
+    eventCancel();
     refresh();
     inputList.setFocused();
   }

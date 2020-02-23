@@ -9,6 +9,7 @@ struct PSG : Thread {
   auto unload() -> void;
 
   auto main() -> void;
+  auto frame(int16&, int16&) -> void;
   auto step(uint clocks) -> void;
 
   auto power() -> void;

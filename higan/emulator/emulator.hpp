@@ -39,10 +39,11 @@ using namespace nall;
 #include <emulator/resource/resource.hpp>
 
 namespace higan {
-  static const string Name    = "higan";
-  static const string Version = "107.20";
-  static const string License = "GPLv3";
-  static const string Website = "https://byuu.org";
+  static const string Name      = "higan";
+  static const string Version   = "107.21";
+  static const string Copyright = "byuu";
+  static const string License   = "GPLv3";
+  static const string Website   = "https://byuu.org";
 
   //incremented only when serialization format changes
   static const string SerializerVersion = "107.6";

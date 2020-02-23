@@ -12,8 +12,8 @@ auto AboutDialog::setAlignment(sWindow relativeTo, Alignment alignment) -> type&
   return *this;
 }
 
-auto AboutDialog::setAuthor(const string& author) -> type& {
-  state.author = author;
+auto AboutDialog::setCopyright(const string& copyright) -> type& {
+  state.copyright = copyright;
   return *this;
 }
 
@@ -54,7 +54,7 @@ auto AboutDialog::show() -> void {
   window.onClose([&] { window.setModal(false); });
 
   VerticalLayout layout{&window};
-  layout.setPadding(10_sx, 10_sy);
+  layout.setPadding(5_sx, 5_sy);
 
   Label nameLabel{&layout, Size{~0, 0}};
   nameLabel.setCollapsible();
@@ -64,7 +64,7 @@ auto AboutDialog::show() -> void {
   nameLabel.setText(state.name ? state.name : Application::name());
   nameLabel.setVisible((bool)state.name && !(bool)state.logo);
 
-  Canvas logoCanvas{&layout, Size{~0, 0}, 10_sy};
+  Canvas logoCanvas{&layout, Size{~0, 0}, 5_sy};
   logoCanvas.setCollapsible();
   if(state.logo) {
     image logo{state.logo};
@@ -95,19 +95,19 @@ auto AboutDialog::show() -> void {
   versionValue.setText(state.version);
   if(!state.version) versionLayout.setVisible(false);
 
-  HorizontalLayout authorLayout{&layout, Size{~0, 0}, 0};
-  authorLayout.setCollapsible();
-  Label authorLabel{&authorLayout, Size{~0, 0}, 3_sx};
-  authorLabel.setAlignment(1.0);
-  authorLabel.setFont(Font().setBold());
-  authorLabel.setForegroundColor({0, 0, 0});
-  authorLabel.setText("Author:");
-  Label authorValue{&authorLayout, Size{~0, 0}};
-  authorValue.setAlignment(0.0);
-  authorValue.setFont(Font().setBold());
-  authorValue.setForegroundColor({0, 0, 0});
-  authorValue.setText(state.author);
-  if(!state.author) authorLayout.setVisible(false);
+  HorizontalLayout copyrightLayout{&layout, Size{~0, 0}, 0};
+  copyrightLayout.setCollapsible();
+  Label copyrightLabel{&copyrightLayout, Size{~0, 0}, 3_sx};
+  copyrightLabel.setAlignment(1.0);
+  copyrightLabel.setFont(Font().setBold());
+  copyrightLabel.setForegroundColor({0, 0, 0});
+  copyrightLabel.setText("Copyright:");
+  Label copyrightValue{&copyrightLayout, Size{~0, 0}};
+  copyrightValue.setAlignment(0.0);
+  copyrightValue.setFont(Font().setBold());
+  copyrightValue.setForegroundColor({0, 0, 0});
+  copyrightValue.setText(state.copyright);
+  if(!state.copyright) copyrightLayout.setVisible(false);
 
   HorizontalLayout licenseLayout{&layout, Size{~0, 0}, 0};
   licenseLayout.setCollapsible();

@@ -3,9 +3,9 @@ auto VPC::render() -> void {
     auto bus0 = vdp.vdc0.output[x];
     auto bus1 = vdp.vdc1.output[x];
 
-    //note: windowing behavior is untested, as no SuperGrafx games ever use it
-    bool window0 = window[0] >= 64 && window[0] < 64 + x;
-    bool window1 = window[1] >= 64 && window[1] < 64 + x;
+    //todo: windowing test doesn't work exactly as it should ... hard-coded for now
+    bool window0 = window[0] >= 64 && (window[0] - 64) >= x * vdp.vce.clock() / 2;
+    bool window1 = window[1] >= 64 && (window[1] - 64) >= x * vdp.vce.clock() / 2;
 
     uint2 mode = !window0 << 0 | !window1 << 1;
     bool enableVDC0 = settings[mode].enableVDC0 && bus0.bit(0,3);

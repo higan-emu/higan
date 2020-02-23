@@ -10,7 +10,7 @@ auto VDC::Sprite::scanline(uint16 y) -> void {
     uint16 d0 = vdc->satb.read(index << 2 | 0);
     uint16 d1 = vdc->satb.read(index << 2 | 1);
     uint16 d2 = vdc->satb.read(index << 2 | 2);
-    uint16 d3 = vdc->satb.read(index << 3 | 3);
+    uint16 d3 = vdc->satb.read(index << 2 | 3);
 
     Object object;
     object.y = d0.bit(0,9);

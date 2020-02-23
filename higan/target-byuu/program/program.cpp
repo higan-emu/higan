@@ -37,6 +37,15 @@ auto Program::main() -> void {
   if(emulator && defocused) message.text = "Paused";
   if(!emulator || paused || defocused) return (void)usleep(20 * 1000);
   emulator->interface->run();
+
+  if(settings.general.autoSaveMemory) {
+    static uint64_t previousTime = chrono::timestamp();
+    uint64_t currentTime = chrono::timestamp();
+    if(currentTime - previousTime >= 30) {
+      previousTime = currentTime;
+      emulator->save();
+    }
+  }
 }
 
 auto Program::quit() -> void {

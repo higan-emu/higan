@@ -164,6 +164,10 @@ private:
   Object obj;
   DAC dac;
 
+   uint1 width256;
+   uint1 width512;
+  uint16 widths[240];
+
   friend class PPU::Background;
   friend class PPU::Object;
   friend class PPU::Window;
