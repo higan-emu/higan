@@ -240,7 +240,7 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 }
 
 auto VDC::power() -> void {
-  vram = {};
+//vram = {};
   satb = {};
   irq = {};
   dma = {};
