@@ -42,7 +42,7 @@ ListWindow::ListWindow() {
     AboutDialog()
     .setName("genius")
     .setVersion("1")
-    .setAuthor("byuu")
+    .setCopyright("byuu")
     .setLicense("GPLv3")
     .setWebsite("https://byuu.org")
     .setAlignment(*this)
