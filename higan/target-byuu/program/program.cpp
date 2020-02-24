@@ -29,13 +29,21 @@ auto Program::create() -> void {
 }
 
 auto Program::main() -> void {
-  if(Application::modal()) return;  //modal loop calls usleep() internally
+  if(Application::modal()) {
+    ruby::audio.clear();
+    return;
+  }
+
   updateMessage();
   inputManager.poll();
   inputManager.pollHotkeys();
   bool defocused = driverSettings.inputDefocusPause.checked() && !ruby::video.fullScreen() && !presentation.focused();
   if(emulator && defocused) message.text = "Paused";
-  if(!emulator || paused || defocused) return (void)usleep(20 * 1000);
+  if(!emulator || paused || defocused) {
+    ruby::audio.clear();
+    usleep(20 * 1000);
+    return;
+  }
   emulator->interface->run();
 
   if(settings.general.autoSaveMemory) {

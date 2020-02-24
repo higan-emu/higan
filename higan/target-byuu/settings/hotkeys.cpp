@@ -62,8 +62,8 @@ auto HotkeySettings::eventAssign() -> void {
     activeMapping = inputManager.hotkeys[item.offset()];
 
     settingsWindow.statusBar.setText({"Press a key or button to assign to [", activeMapping->name, "] ..."});
-    settingsWindow.layout.setEnabled(false);
     settingsWindow.setDismissable(false);
+    Application::processEvents();
     spacer.setFocused();
   }
 }
@@ -72,7 +72,6 @@ auto HotkeySettings::eventCancel() -> void {
   if(activeMapping) {
     activeMapping.reset();
     settingsWindow.statusBar.setText();
-    settingsWindow.layout.setEnabled();
     settingsWindow.setDismissable(true);
   }
 }

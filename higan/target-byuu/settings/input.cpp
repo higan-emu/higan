@@ -2,7 +2,7 @@ auto InputSettings::construct() -> void {
   setCollapsible();
   setVisible(false);
 
-  inputLabel.setText("Virtual Gamepad Bindings").setFont(Font().setBold());
+  inputLabel.setText("Virtual Gamepad Bindings (Xbox 360 Layout)").setFont(Font().setBold());
   inputList.setBatchable();
   inputList.setHeadered();
   inputList.onChange([&] { eventChange(); });
@@ -62,8 +62,8 @@ auto InputSettings::eventAssign() -> void {
     activeMapping = *virtualPad.mappings[item.offset()];
 
     settingsWindow.statusBar.setText({"Press a key or button to assign to [", activeMapping->name, "] ..."});
-    settingsWindow.layout.setEnabled(false);
     settingsWindow.setDismissable(false);
+    Application::processEvents();
     spacer.setFocused();
   }
 }
@@ -72,7 +72,6 @@ auto InputSettings::eventCancel() -> void {
   if(activeMapping) {
     activeMapping.reset();
     settingsWindow.statusBar.setText();
-    settingsWindow.layout.setEnabled();
     settingsWindow.setDismissable(true);
   }
 }

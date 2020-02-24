@@ -211,7 +211,7 @@ auto Presentation::loadEmulators() -> void {
   }
   { Menu recentGames{&loadMenu};
     recentGames.setIcon(Icon::Action::Open);
-    recentGames.setText("Recent Game");
+    recentGames.setText("Recent Games");
     for(uint index : range(count)) {
       MenuItem item{&recentGames};
       auto location = settings.recent.game[index];
@@ -287,7 +287,7 @@ auto Presentation::loadEmulator() -> void {
   MenuItem unload{&systemMenu};
   unload.setText("Unload").setIcon(Icon::Media::Eject).onActivate([&] {
     program.unload();
-    if(settings.video.adaptiveSizing) resizeWindow();
+    if(settings.video.adaptiveSizing) presentation.resizeWindow();
   });
 
   toolsMenu.setVisible(true);

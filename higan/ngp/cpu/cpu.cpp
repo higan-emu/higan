@@ -431,6 +431,7 @@ auto CPU::fastBoot() -> void {
   ram[0x2f84] = 0x40;  //user boot: power on
   ram[0x2f85] = 0x00;  //user shutdown: no
   ram[0x2f86] = 0x00;  //user response: none
+  ram[0x2f87] = 0x01;  //language: English
   ram[0x2f91] = Model::NeoGeoPocketColor() ? 0x10 : 0x00;  //hardware model
   ram[0x2f92] = ram[0x2c58];
   ram[0x2f93] = ram[0x2c59];

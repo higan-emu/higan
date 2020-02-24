@@ -35,6 +35,11 @@ struct serializer {
     return _size;
   }
 
+  auto setMode(Mode mode) -> void {
+    _mode = mode;
+    _size = 0;
+  }
+
   auto mode() const -> Mode {
     return _mode;
   }

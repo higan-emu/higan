@@ -4,6 +4,7 @@ auto Program::pause(bool state) -> void {
   presentation.pauseEmulation.setChecked(paused);
 
   if(paused) {
+    ruby::audio.clear();
     presentation.statusRight.setText("Paused");
   }
 }

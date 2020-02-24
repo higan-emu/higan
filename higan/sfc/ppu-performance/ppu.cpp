@@ -59,11 +59,12 @@ auto PPU::step(uint clocks) -> void {
 auto PPU::main() -> void {
   if(vcounter() < vdisp()) {
     if(vcounter() == 0) {
+      state.interlace = io.interlace;
+      state.overscan = io.overscan;
       width256 = 0;
       width512 = 0;
     }
-    uint width = 256;
-    if(io.pseudoHires || io.bgMode == 5 || io.bgMode == 6) width = 512;
+    uint width = hires() ? 512 : 256;
     if(width == 256) width256 = 1;
     if(width == 512) width512 = 1;
     widths[vcounter()] = width;
@@ -129,7 +130,7 @@ auto PPU::power(bool reset) -> void {
 auto PPU::refresh() -> void {
   auto data  = output;
   uint width = width512 ? 512 : 256;
-  uint pitch = io.bgMode == 5 || io.bgMode == 6 ? 512 : 1024;
+  uint pitch = state.interlace ? 512 : 1024;
 
   //this frame contains mixed resolutions: normalize every scanline to 512-width
   if(width256 && width512) {
@@ -150,13 +151,13 @@ auto PPU::refresh() -> void {
   if(region->value() == "NTSC") {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
-    uint height = 224 << (io.bgMode == 5 || io.bgMode == 6);
+    uint height = 224 << state.interlace;
     screen->refresh(data, pitch * sizeof(uint32), width, height);
   }
 
   if(region->value() == "PAL") {
     if(!overscan()) data -= 14 * 512;
-    uint height = 240 << (io.bgMode == 5 || io.bgMode == 6);
+    uint height = 240 << state.interlace;
     screen->refresh(data, pitch * sizeof(uint32), width, height);
   }
 }

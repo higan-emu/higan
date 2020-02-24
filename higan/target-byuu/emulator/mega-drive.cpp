@@ -21,6 +21,10 @@ MegaDrive::MegaDrive() {
 }
 
 auto MegaDrive::load() -> void {
+  if(auto region = root->find<higan::Node::String>("Region")) {
+    region->setValue("NTSC-U → NTSC-J → PAL");
+  }
+
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -83,6 +87,10 @@ MegaCD::MegaCD() {
 }
 
 auto MegaCD::load() -> void {
+  if(auto region = root->find<higan::Node::String>("Region")) {
+    region->setValue("NTSC-U → NTSC-J → PAL");
+  }
+
   if(auto port = root->find<higan::Node::Port>("Expansion Port")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);

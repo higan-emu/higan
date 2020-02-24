@@ -17,45 +17,39 @@ auto PPU::addressVRAM() const -> uint16 {
 }
 
 auto PPU::readVRAM() -> uint16 {
-  if(!io.displayDisable && vcounter() < vdisp()) return 0x0000;
+  if(!io.displayDisable && cpu.vcounter() < vdisp()) return 0x0000;
   auto address = addressVRAM();
   return vram[address];
 }
 
 auto PPU::writeVRAM(uint1 byte, uint8 data) -> void {
-  if(!io.displayDisable && vcounter() < vdisp()) return;
+  if(!io.displayDisable && cpu.vcounter() < vdisp()) return;
   auto address = addressVRAM();
   vram[address].byte(byte) = data;
 }
 
 auto PPU::readOAM(uint10 address) -> uint8 {
-  if(!io.displayDisable && vcounter() < vdisp()) {
-    if(address.bit(9) == 0) return obj.oam.read(0x000 | latch.oamAddress << 2 | address & 1);
-    if(address.bit(9) == 1) return obj.oam.read(0x200 | latch.oamAddress >> 2);
-  }
+  if(!io.displayDisable && cpu.vcounter() < vdisp()) address = 0x0218;
   return obj.oam.read(address);
 }
 
 auto PPU::writeOAM(uint10 address, uint8 data) -> void {
-  if(!io.displayDisable && vcounter() < vdisp()) {
-    if(address.bit(9) == 0) return obj.oam.write(0x000 | latch.oamAddress << 2 | address & 1, data);
-    if(address.bit(9) == 1) return obj.oam.write(0x200 | latch.oamAddress >> 2, data);
-  }
+  if(!io.displayDisable && cpu.vcounter() < vdisp()) address = 0x0218;
   return obj.oam.write(address, data);
 }
 
 auto PPU::readCGRAM(uint1 byte, uint8 address) -> uint8 {
   if(!io.displayDisable
-  && vcounter() > 0 && vcounter() < vdisp()
-  && hcounter() >= 88 && hcounter() < 1096
+  && cpu.vcounter() > 0 && cpu.vcounter() < vdisp()
+  && cpu.hcounter() >= 88 && cpu.hcounter() < 1096
   ) address = latch.cgramAddress;
   return dac.cgram[address].byte(byte);
 }
 
 auto PPU::writeCGRAM(uint8 address, uint15 data) -> void {
   if(!io.displayDisable
-  && vcounter() > 0 && vcounter() < vdisp()
-  && hcounter() >= 88 && hcounter() < 1096
+  && cpu.vcounter() > 0 && cpu.vcounter() < vdisp()
+  && cpu.hcounter() >= 88 && cpu.hcounter() < 1096
   ) address = latch.cgramAddress;
   dac.cgram[address] = data;
 }

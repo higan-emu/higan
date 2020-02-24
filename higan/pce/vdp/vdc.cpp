@@ -245,7 +245,12 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 auto VDC::power() -> void {
   output = 0;
 
-//vram = {};
+  for(auto& data : vram.memory) data = 0;
+  vram.addressRead = 0;
+  vram.addressWrite = 0;
+  vram.addressIncrement = 0;
+  vram.dataRead = 0;
+  vram.dataWrite = 0;
   satb = {};
   irq = {};
   dma = {};

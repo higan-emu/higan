@@ -120,7 +120,7 @@ SettingsWindow::SettingsWindow() {
     hotkeySettings.eventCancel();
   });
 
-  layout.setPadding(5);
+  layout.setPadding(5_sx, 5_sy);
 
   panelList.append(ListViewItem().setText("Video").setIcon(Icon::Device::Display));
   panelList.append(ListViewItem().setText("Audio").setIcon(Icon::Device::Speaker));
@@ -165,6 +165,10 @@ auto SettingsWindow::show(const string& panel) -> void {
 }
 
 auto SettingsWindow::eventChange() -> void {
+  //cancel any pending input assignment requests, if any
+  inputSettings.eventCancel();
+  hotkeySettings.eventCancel();
+
   videoSettings.setVisible(false);
   audioSettings.setVisible(false);
   inputSettings.setVisible(false);

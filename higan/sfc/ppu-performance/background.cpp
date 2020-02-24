@@ -129,9 +129,9 @@ auto PPU::Background::render() -> void {
       } else {
         uint X = x >> 1;
         if(x & 1) {
-          if(io.aboveEnable && !windowAbove[x]) ppu.dac.plotAbove(x, id, mosaicPriority, mosaicColor);
+          if(io.aboveEnable && !windowAbove[X]) ppu.dac.plotAbove(X, id, mosaicPriority, mosaicColor);
         } else {
-          if(io.belowEnable && !windowBelow[x]) ppu.dac.plotBelow(x, id, mosaicPriority, mosaicColor);
+          if(io.belowEnable && !windowBelow[X]) ppu.dac.plotBelow(X, id, mosaicPriority, mosaicColor);
         }
       }
     }

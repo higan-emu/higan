@@ -10,15 +10,13 @@ auto PPU::DAC::prepare() -> void {
 }
 
 auto PPU::DAC::render() -> void {
-  bool hires = ppu.io.pseudoHires || ppu.io.bgMode == 5 || ppu.io.bgMode == 6;
-
   ppu.window.render(window, window.aboveMask, windowAbove);
   ppu.window.render(window, window.belowMask, windowBelow);
 
-  auto output = ppu.output + (ppu.vcounter() * 1024 + (ppu.interlace() && ppu.field() ? 512 : 0));
+  auto output = ppu.output + ppu.vcounter() * 1024 + (ppu.interlace() && ppu.field() ? 512 : 0);
 
   uint luma = ppu.io.displayBrightness << 15;
-  if(!hires) {
+  if(!ppu.hires()) {
     for(uint x : range(256)) {
       *output++ = luma | pixel(x, above[x], below[x]);
     }

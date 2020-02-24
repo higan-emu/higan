@@ -90,6 +90,7 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
 auto Program::unload() -> void {
   if(!emulator) return;
 
+  settings.save();
   showMessage({"Unloaded ", Location::prefix(emulator->game.location)});
   emulator->unload();
   emulator.reset();
