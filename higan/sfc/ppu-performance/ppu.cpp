@@ -5,6 +5,7 @@ namespace higan::SuperFamicom {
 PPU ppu;
 #include "io.cpp"
 #include "window.cpp"
+#include "mosaic.cpp"
 #include "background.cpp"
 #include "mode7.cpp"
 #include "oam.cpp"
@@ -57,19 +58,23 @@ auto PPU::step(uint clocks) -> void {
 }
 
 auto PPU::main() -> void {
+  if(vcounter() == 0) {
+    state.interlace = io.interlace;
+    state.overscan = io.overscan;
+    obj.io.rangeOver = 0;
+    obj.io.timeOver = 0;
+    width256 = 0;
+    width512 = 0;
+  }
+
   if(vcounter() < vdisp()) {
-    if(vcounter() == 0) {
-      state.interlace = io.interlace;
-      state.overscan = io.overscan;
-      width256 = 0;
-      width512 = 0;
-    }
     uint width = hires() ? 512 : 256;
     if(width == 256) width256 = 1;
     if(width == 512) width512 = 1;
     widths[vcounter()] = width;
 
     step(512);
+    mosaic.scanline();
     dac.prepare();
     if(!io.displayDisable) {
       bg1.render();
@@ -79,6 +84,10 @@ auto PPU::main() -> void {
       obj.render();
     }
     dac.render();
+  }
+
+  if(vcounter() == vdisp()) {
+    if(!io.displayDisable) obj.addressReset();
   }
 
   if(vcounter() == 240) {
@@ -107,6 +116,7 @@ auto PPU::power(bool reset) -> void {
   io = {};
   mode7 = {};
   window.io = {};
+  mosaic.power();
   bg1.io = {};
   bg1.window = {};
   bg2.io = {};

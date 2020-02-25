@@ -28,12 +28,12 @@ auto PPU::Background::render() -> void {
   uint vmask = (width << io.tileSize << !!(io.screenSize & 2)) - 1;
 
   uint y = ppu.vcounter();
-  if(io.mosaicEnable) y -= ppu.io.mosaicSize - ppu.io.mosaicCounter;
+  if(io.mosaicEnable) y -= ppu.mosaic.voffset();
   if(hires) {
     hscroll <<= 1;
     if(ppu.io.interlace) {
       y = y << 1 | ppu.field();
-      if(io.mosaicEnable) y -= ppu.io.mosaicSize - ppu.io.mosaicCounter + ppu.field();
+      if(io.mosaicEnable) y -= ppu.mosaic.voffset() + ppu.field();
     }
   }
 
@@ -112,7 +112,7 @@ auto PPU::Background::render() -> void {
           color += data >> shift + 49 & 128;
         }
 
-        mosaicCounter = io.mosaicEnable ? (uint)ppu.io.mosaicSize : 1;
+        mosaicCounter = io.mosaicEnable ? (uint)ppu.mosaic.size : 1;
         mosaicPalette = color;
         mosaicPriority = tilePriority;
         if(directColorMode) {

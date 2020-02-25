@@ -1,6 +1,6 @@
 auto PPU::Background::renderMode7() -> void {
   int Y = ppu.vcounter();
-  if(io.mosaicEnable) Y -= ppu.io.mosaicSize - ppu.io.mosaicCounter;
+  if(io.mosaicEnable) Y -= ppu.mosaic.voffset();  //BG2 vertical mosaic uses BG1 mosaic enable
   int y = !ppu.mode7.vflip ? Y : 255 - Y;
 
   int a = (int16)ppu.mode7.a;
@@ -47,7 +47,7 @@ auto PPU::Background::renderMode7() -> void {
     }
 
     if(--mosaicCounter == 0) {
-      mosaicCounter = io.mosaicEnable ? (uint)ppu.io.mosaicSize : 1;
+      mosaicCounter = io.mosaicEnable ? (uint)ppu.mosaic.size : 1;
       mosaicPalette = palette;
       mosaicPriority = priority;
       if(ppu.dac.io.directColor && id == ID::BG1) {

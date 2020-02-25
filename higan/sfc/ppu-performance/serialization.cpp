@@ -34,8 +34,6 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(io.oamPriority);
   s.integer(io.bgMode);
   s.integer(io.bgPriority);
-  s.integer(io.mosaicSize);
-  s.integer(io.mosaicCounter);
   s.integer(io.vramIncrementSize);
   s.integer(io.vramMapping);
   s.integer(io.vramIncrementMode);
@@ -62,6 +60,7 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(mode7.vcenter);
 
   window.serialize(s);
+  mosaic.serialize(s);
   bg1.serialize(s);
   bg2.serialize(s);
   bg3.serialize(s);
@@ -95,6 +94,11 @@ auto PPU::Window::serialize(serializer& s) -> void {
   s.integer(io.oneRight);
   s.integer(io.twoLeft);
   s.integer(io.twoRight);
+}
+
+auto PPU::Mosaic::serialize(serializer& s) -> void {
+  s.integer(size);
+  s.integer(vcounter);
 }
 
 auto PPU::Background::serialize(serializer& s) -> void {

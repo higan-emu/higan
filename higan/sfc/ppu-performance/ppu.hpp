@@ -90,10 +90,6 @@ private:
      uint3 bgMode;
      uint1 bgPriority;
 
-    //$2106  MOSAIC
-     uint5 mosaicSize;
-     uint5 mosaicCounter;
-
     //$2115  VMAIN
      uint8 vramIncrementSize;
      uint2 vramMapping;
@@ -152,12 +148,14 @@ private:
   } mode7;
 
   #include "window.hpp"
+  #include "mosaic.hpp"
   #include "background.hpp"
   #include "oam.hpp"
   #include "object.hpp"
   #include "dac.hpp"
 
   Window window;
+  Mosaic mosaic;
   Background bg1{Background::ID::BG1};
   Background bg2{Background::ID::BG2};
   Background bg3{Background::ID::BG3};
@@ -169,9 +167,10 @@ private:
    uint1 width512;
   uint16 widths[240];
 
+  friend class PPU::Window;
+  friend class PPU::Mosaic;
   friend class PPU::Background;
   friend class PPU::Object;
-  friend class PPU::Window;
   friend class PPU::DAC;
   friend class SuperFamicomInterface;
 };
