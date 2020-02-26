@@ -127,6 +127,7 @@ auto PPU::Object::render() -> void {
 }
 
 auto PPU::Object::power() -> void {
+  for(auto& object : oam.objects) object = {};
   io = {};
   window = {};
 }

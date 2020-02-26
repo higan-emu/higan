@@ -73,7 +73,7 @@ auto PPU::main() -> void {
     if(width == 512) width512 = 1;
     widths[vcounter()] = width;
 
-    step(512);
+    step(renderingCycle);
     mosaic.scanline();
     dac.prepare();
     if(!io.displayDisable) {
@@ -109,32 +109,34 @@ auto PPU::power(bool reset) -> void {
 
   memory::fill<uint32>(output, 512 * 480);
 
+  ppu1.version = 1, ppu1.mdr = 0x00;
+  ppu2.version = 3, ppu2.mdr = 0x00;
+
   for(auto& word : vram.data) word = 0;
 
   state = {};
   latch = {};
   io = {};
   mode7 = {};
-  window.io = {};
+  window.power();
   mosaic.power();
-  bg1.io = {};
-  bg1.window = {};
-  bg2.io = {};
-  bg3.window = {};
-  bg3.io = {};
-  bg3.window = {};
-  bg4.io = {};
-  bg4.window = {};
-  for(auto& object : obj.oam.objects) object = {};
-  obj.io = {};
-  obj.window = {};
-  for(auto& item : obj.items) item = {};
-  for(auto& tile : obj.tiles) tile = {};
-  for(auto& color : dac.cgram) color = 0;
-  dac.io = {};
-  dac.window = {};
+  bg1.power();
+  bg2.power();
+  bg3.power();
+  bg4.power();
+  obj.power();
+  dac.power();
 
   updateVideoMode();
+
+  auto document = BML::unserialize(cartridge.manifest());
+  auto title = document["game/title"].string();
+
+  renderingCycle = 512;
+  if(title == "ADVENTURES OF FRANKEN") renderingCycle = 32;
+  if(title == "FIREPOWER 2000" || title == "SUPER SWIV") renderingCycle = 32;
+  if(title == "NHL '94" || title == "NHL PROHOCKEY'94") renderingCycle = 32;
+  if(title == "Suguro Quest++") renderingCycle = 128;
 }
 
 auto PPU::refresh() -> void {

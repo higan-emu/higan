@@ -3,6 +3,8 @@ auto PPU::DAC::prepare() -> void {
 
   uint15 aboveColor = cgram[0];
   uint15 belowColor = hires ? cgram[0] : fixedColor();
+  if(ppu.io.displayDisable) aboveColor = 0, belowColor = 0;
+
   for(uint x : range(256)) {
     above[x] = {PPU::Source::COL, 0, aboveColor};
     below[x] = {PPU::Source::COL, 0, belowColor};
@@ -78,4 +80,7 @@ auto PPU::DAC::fixedColor() const -> uint15 {
 }
 
 auto PPU::DAC::power() -> void {
+  for(auto& color : cgram) color = 0;
+  io = {};
+  window = {};
 }

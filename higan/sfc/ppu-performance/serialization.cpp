@@ -10,6 +10,10 @@ auto PPU::serialize(serializer& s) -> void {
 
   s.array(vram.data);
   s.integer(vram.mask);
+  s.integer(vram.address);
+  s.integer(vram.increment);
+  s.integer(vram.mapping);
+  s.integer(vram.mode);
 
   s.integer(state.interlace);
   s.integer(state.overscan);
@@ -34,10 +38,6 @@ auto PPU::serialize(serializer& s) -> void {
   s.integer(io.oamPriority);
   s.integer(io.bgMode);
   s.integer(io.bgPriority);
-  s.integer(io.vramIncrementSize);
-  s.integer(io.vramMapping);
-  s.integer(io.vramIncrementMode);
-  s.integer(io.vramAddress);
   s.integer(io.cgramAddress);
   s.integer(io.cgramAddressLatch);
   s.integer(io.interlace);

@@ -42,6 +42,7 @@ private:
   struct Source { enum : uint { BG1, BG2, BG3, BG4, OBJ1, OBJ2, COL }; };
 
   uint32* output = nullptr;
+  uint32 renderingCycle;
 
   struct {
     uint4 version;
@@ -52,6 +53,10 @@ private:
     inline auto& operator[](uint address) { return data[address & mask]; }
     uint16 data[64_KiB];
     uint16 mask = 0x7fff;
+    uint16 address;
+     uint8 increment;
+     uint2 mapping;
+     uint1 mode;
   } vram;
 
   struct State {
@@ -89,15 +94,6 @@ private:
     //$2105  BGMODE
      uint3 bgMode;
      uint1 bgPriority;
-
-    //$2115  VMAIN
-     uint8 vramIncrementSize;
-     uint2 vramMapping;
-     uint1 vramIncrementMode;
-
-    //$2116  VMADDL
-    //$2117  VMADDH
-    uint16 vramAddress;
 
     //$2121  CGADD
      uint8 cgramAddress;

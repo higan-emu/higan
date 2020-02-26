@@ -1,4 +1,5 @@
 //Yamaha YM2612
+//Author: Talarubi
 
 struct YM2612 : Thread {
   Node::Component node;

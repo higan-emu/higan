@@ -5,7 +5,7 @@ auto PPU::OAM::read(uint10 address) -> uint8 {
     uint7 n = address >> 2;  //object#
     address &= 3;
     if(address == 0) return objects[n].x.bit(0,7);
-    if(address == 1) return objects[n].y;
+    if(address == 1) return objects[n].y - 1;  //-1 => rendering happens one scanline late
     if(address == 2) return objects[n].character;
     data.bit(0)   = objects[n].nameselect;
     data.bit(1,3) = objects[n].palette;
@@ -32,7 +32,7 @@ auto PPU::OAM::write(uint10 address, uint8 data) -> void {
     uint7 n = address >> 2;  //object#
     address &= 3;
     if(address == 0) { objects[n].x.bit(0,7) = data; return; }
-    if(address == 1) { objects[n].y = data; return; }
+    if(address == 1) { objects[n].y = data + 1; return; }  //+1 => rendering happens one scanline late
     if(address == 2) { objects[n].character = data; return; }
     objects[n].nameselect = data.bit(0);
     objects[n].palette    = data.bit(1,3);

@@ -3,6 +3,7 @@
 namespace higan {
 
 //Yamaha YM2413 (OPLL)
+//Author: Talarubi
 
 struct YM2413 {
   //ym2413.cpp

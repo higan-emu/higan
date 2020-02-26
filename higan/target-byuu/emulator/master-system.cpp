@@ -55,7 +55,7 @@ auto MasterSystem::open(higan::Node::Object node, string name, vfs::file::mode m
 auto MasterSystem::input(higan::Node::Input node) -> void {
   auto name = node->name();
   maybe<InputMapping&> mapping;
-  if(name == "Pause") mapping = virtualPad.select;
+  if(name == "Pause") mapping = virtualPad.start;
   if(name == "Reset") mapping = nothing;
   if(name == "Up"   ) mapping = virtualPad.up;
   if(name == "Down" ) mapping = virtualPad.down;

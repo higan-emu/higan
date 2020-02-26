@@ -25,7 +25,7 @@ Development
 -----------
 
 Git is used for the development of new releases, and represents a staging
-environment. As bsnes is rather mature, things should generally be quite stable.
+environment. As higan is rather mature, things should generally be quite stable.
 However, bugs will exist, regressions will occur, so proceed at your own risk.
 
 If stability is required, please download the latest stable release from the

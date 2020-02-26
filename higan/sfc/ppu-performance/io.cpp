@@ -6,8 +6,8 @@ auto PPU::latchCounters() -> void {
 }
 
 auto PPU::addressVRAM() const -> uint16 {
-  uint16 address = io.vramAddress;
-  switch(io.vramMapping) {
+  uint16 address = vram.address;
+  switch(vram.mapping) {
   case 0: return address;
   case 1: return address.bit( 8,15) <<  8 | address.bit(0,4) << 3 | address.bit(5,7);
   case 2: return address.bit( 9,15) <<  9 | address.bit(0,5) << 3 | address.bit(6,8);
@@ -101,9 +101,9 @@ auto PPU::readIO(uint24 address, uint8 data) -> uint8 {
   //VMDATALREAD
   case 0x2139: {
     ppu1.mdr = latch.vram.byte(0);
-    if(io.vramIncrementMode == 0) {
+    if(vram.mode == 0) {
       latch.vram = readVRAM();
-      io.vramAddress += io.vramIncrementSize;
+      vram.address += vram.increment;
     }
     return ppu1.mdr;
   }
@@ -111,9 +111,9 @@ auto PPU::readIO(uint24 address, uint8 data) -> uint8 {
   //VMDATAHREAD
   case 0x213a: {
     ppu1.mdr = latch.vram.byte(1);
-    if(io.vramIncrementMode == 1) {
+    if(vram.mode == 1) {
       latch.vram = readVRAM();
-      io.vramAddress += io.vramIncrementSize;
+      vram.address += vram.increment;
     }
     return ppu1.mdr;
   }
@@ -367,22 +367,22 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
   //VMAIN
   case 0x2115: {
     static const uint size[4] = {1, 32, 128, 128};
-    io.vramIncrementSize = size[data.bit(0,1)];
-    io.vramMapping       = data.bit(2,3);
-    io.vramIncrementMode = data.bit(7);
+    vram.increment = size[data.bit(0,1)];
+    vram.mapping   = data.bit(2,3);
+    vram.mode      = data.bit(7);
     return;
   }
 
   //VMADDL
   case 0x2116: {
-    io.vramAddress.bit(0,7) = data;
+    vram.address.bit(0,7) = data;
     latch.vram = readVRAM();
     return;
   }
 
   //VHADDH
   case 0x2117: {
-    io.vramAddress.bit(8,15) = data;
+    vram.address.bit(8,15) = data;
     latch.vram = readVRAM();
     return;
   }
@@ -390,14 +390,14 @@ auto PPU::writeIO(uint24 address, uint8 data) -> void {
   //VMDATAL
   case 0x2118: {
     writeVRAM(0, data);
-    if(io.vramIncrementMode == 0) io.vramAddress += io.vramIncrementSize;
+    if(vram.mode == 0) vram.address += vram.increment;
     return;
   }
 
   //VMDATAH
   case 0x2119: {
     writeVRAM(1, data);
-    if(io.vramIncrementMode == 1) io.vramAddress += io.vramIncrementSize;
+    if(vram.mode == 1) vram.address += vram.increment;
     return;
   }
 

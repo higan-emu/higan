@@ -22,7 +22,7 @@ auto CPU::in(uint16 address) -> uint8 {
     if(Model::GameGear()) {
       platform->input(system.controls.start);
       bool start = !system.controls.start->value();
-      return start << 7 | 0x7f;
+      return 0x7f | start << 7;
     }
 
     return 0xff;  //SMS1 = MDR, SMS2 = 0xff
