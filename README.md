@@ -25,8 +25,8 @@ Development
 -----------
 
 Git is used for the development of new releases, and represents a staging
-environment. higan is currently in the midst of a major redesign, so please
-expect rapid changes and some instabilities during this period.
+environment. As bsnes is rather mature, things should generally be quite stable.
+However, bugs will exist, regressions will occur, so proceed at your own risk.
 
 If stability is required, please download the latest stable release from the
 [official website.](https://byuu.org/higan)
@@ -36,7 +36,6 @@ Links
 
   - [Official website](https://byuu.org/higan)
   - [Official git repository](https://github.com/byuu/higan)
-  - [Official documentation](https://higan.readthedocs.io)
   - [Donations](https://patreon.com/byuu)
 
 Release Builds

@@ -6,7 +6,7 @@ linux-x86_64-binaries_task:
         - apt-get update && apt-get -y install build-essential libgtk2.0-dev libpulse-dev mesa-common-dev libgtksourceview2.0-dev libcairo2-dev libsdl2-dev libxv-dev libao-dev libopenal-dev libudev-dev zip
 
     compile_script:
-        - make -C higan local=false
+        - make -C higan target=higan local=false
         - make -C icarus
         - make -C genius
 
@@ -32,7 +32,7 @@ freebsd-x86_64-binaries_task:
         - pkg install --yes gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv zip
 
     compile_script:
-        - gmake -C higan local=false
+        - gmake -C higan target=higan local=false
         - gmake -C icarus
         - gmake -C genius
 
@@ -58,7 +58,7 @@ windows-x86_64-binaries_task:
         - apt-get update && apt-get -y install build-essential mingw-w64 zip
 
     compile_script:
-        - make -C higan local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
+        - make -C higan target=higan local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
         - make -C icarus platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
 
     package_script:
@@ -82,7 +82,7 @@ macOS-x86_64-binaries_task:
         image: mojave-base
 
     compile_script:
-        - make -C higan local=false
+        - make -C higan target=higan local=false
         - make -C icarus
 
     package_script:
