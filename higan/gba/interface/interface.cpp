@@ -37,9 +37,8 @@ auto GameBoyAdvanceInterface::run() -> void {
   system.run();
 }
 
-auto GameBoyAdvanceInterface::serialize() -> serializer {
-  system.runToSave();
-  return system.serialize();
+auto GameBoyAdvanceInterface::serialize(bool synchronize) -> serializer {
+  return system.serialize(synchronize);
 }
 
 auto GameBoyAdvanceInterface::unserialize(serializer& s) -> bool {

@@ -15,7 +15,7 @@ struct GameBoyAdvanceInterface : Interface {
   auto power() -> void override;
   auto run() -> void override;
 
-  auto serialize() -> serializer override;
+  auto serialize(bool synchronize = true) -> serializer override;
   auto unserialize(serializer&) -> bool override;
 };
 

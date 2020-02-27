@@ -7,7 +7,7 @@ enum class Event : uint {
   Step,
   Frame,
   Power,
-  Serialize,
+  Synchronize,
 };
 
 struct Platform {

@@ -13,10 +13,6 @@ auto System::run() -> void {
   if(GameBoyAdvance::Model::GameBoyPlayer()) player.frame();
 }
 
-auto System::runToSave() -> void {
-  scheduler.enter(Scheduler::Mode::Serialize);
-}
-
 auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
@@ -57,7 +53,8 @@ auto System::power() -> void {
     fp->read(bios.data, bios.size);
   }
 
-  serializeInit();
+  information.serializeSize[0] = serializeInit(0);
+  information.serializeSize[1] = serializeInit(1);
 
   bus.power();
   player.power();

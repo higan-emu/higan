@@ -39,8 +39,7 @@ auto ICD::power(bool reset) -> void {
   //SGB1 uses CPU oscillator; SGB2 uses dedicated oscillator
   Thread::create(clockFrequency() / 5.0, [&] {
     while(true) {
-      if(scheduler.serializing()) GameBoy::system.runToSave();
-      scheduler.serialize();
+      scheduler.synchronize();
       main();
     }
   });

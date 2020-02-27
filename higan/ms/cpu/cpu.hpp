@@ -3,7 +3,7 @@ struct CPU : Z80, Z80::Bus, Thread {
   Node::Instruction eventInstruction;
   Node::Notification eventInterrupt;
 
-  inline auto serializing() const -> bool override { return scheduler.serializing(); }
+  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //cpu.cpp
   auto load(Node::Object, Node::Object) -> void;

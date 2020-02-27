@@ -9,7 +9,7 @@ auto Thread::Enter() -> void {
       auto entryPoint = EntryPoints()[index].entryPoint;
       EntryPoints().remove(index);
       while(true) {
-        scheduler.serialize();
+        scheduler.synchronize();
         entryPoint();
       }
     }
@@ -79,9 +79,9 @@ template<typename... P>
 auto Thread::synchronize(Thread& thread, P&&... p) -> void {
   //switching to another thread does not guarantee it will catch up before switching back.
   while(thread.clock() < clock()) {
-    //disable synchronization for auxiliary threads during serialization.
-    //serialization can begin inside of this while loop.
-    if(scheduler.serializing()) break;
+    //disable synchronization for auxiliary threads during scheduler synchronization.
+    //synchronization can begin inside of this while loop.
+    if(scheduler.synchronizing()) break;
     co_switch(thread.handle());
   }
   //convenience: allow synchronizing multiple threads with one function call.
@@ -92,4 +92,27 @@ auto Thread::serialize(serializer& s) -> void {
   s.integer(_frequency);
   s.integer(_scalar);
   s.integer(_clock);
+
+  if(!scheduler._synchronize) {
+    static uint8_t stack[Thread::Size];
+    bool resume = co_active() == _handle;
+
+    if(s.mode() == serializer::Size) {
+      s.array(stack, Thread::Size);
+      s.boolean(resume);
+    }
+
+    if(s.mode() == serializer::Load) {
+      s.array(stack, Thread::Size);
+      s.boolean(resume);
+      memory::copy(_handle, stack, Thread::Size);
+      if(resume) scheduler._resume = _handle;
+    }
+
+    if(s.mode() == serializer::Save) {
+      memory::copy(stack, _handle, Thread::Size);
+      s.array(stack, Thread::Size);
+      s.boolean(resume);
+    }
+  }
 }

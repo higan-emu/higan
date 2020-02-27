@@ -19,6 +19,7 @@ auto InputManager::createHotkeys() -> void {
 
   hotkeys.append(InputHotkey("Fast Forward").onPress([&] {
     if(!emulator) return;
+    program.fastForwarding = true;
     fastForwardVideoBlocking = ruby::video.blocking();
     fastForwardAudioBlocking = ruby::audio.blocking();
     fastForwardAudioDynamic  = ruby::audio.dynamic();
@@ -27,6 +28,7 @@ auto InputManager::createHotkeys() -> void {
     ruby::audio.setDynamic(false);
   }).onRelease([&] {
     if(!emulator) return;
+    program.fastForwarding = false;
     ruby::video.setBlocking(fastForwardVideoBlocking);
     ruby::audio.setBlocking(fastForwardAudioBlocking);
     ruby::audio.setDynamic(fastForwardAudioDynamic);

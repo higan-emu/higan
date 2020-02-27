@@ -58,7 +58,7 @@ auto VDP::main() -> void {
 
   step(512);
   //H = 512
-  if(state.vcounter < screenHeight()) {
+  if(state.vcounter < screenHeight() && !runAhead()) {
     render();
   }
 

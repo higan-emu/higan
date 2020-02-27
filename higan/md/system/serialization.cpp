@@ -1,37 +1,41 @@
-auto System::serialize() -> serializer {
-  serializer s{information.serializeSize};
+auto System::serialize(bool synchronize) -> serializer {
+  if(synchronize) scheduler.enter(Scheduler::Mode::Synchronize);
+  serializer s{information.serializeSize[synchronize]};
 
   uint signature = 0x31545342;
+  uint size = s.capacity();
   char version[16] = {0};
   char description[512] = {0};
   memory::copy(&version, (const char*)SerializerVersion, SerializerVersion.size());
 
   s.integer(signature);
+  s.integer(size);
+  s.integer(synchronize);
   s.array(version);
   s.array(description);
-  serializeAll(s);
-  s.integer(information.serializeSize);
+  serializeAll(s, synchronize);
   return s;
 }
 
 auto System::unserialize(serializer& s) -> bool {
-  array_view<uint8_t> view{s.data() + s.capacity() - 4, 4};
-  auto size = view.readl(4);
-  if(size != information.serializeSize) return false;
-
   uint signature = 0;
+  uint size = 0;
+  bool synchronize = true;
   char version[16] = {0};
   char description[512] = {0};
 
   s.integer(signature);
+  s.integer(size);
+  s.integer(synchronize);
   s.array(version);
   s.array(description);
 
   if(signature != 0x31545342) return false;
+  if(size != information.serializeSize[synchronize]) return false;
   if(string{version} != SerializerVersion) return false;
 
-  power(/* reset = */ false);
-  serializeAll(s);
+  if(synchronize) power(/* reset = */ false);
+  serializeAll(s, synchronize);
   return true;
 }
 
@@ -40,7 +44,8 @@ auto System::unserialize(serializer& s) -> bool {
 auto System::serialize(serializer& s) -> void {
 }
 
-auto System::serializeAll(serializer& s) -> void {
+auto System::serializeAll(serializer& s, bool synchronize) -> void {
+  scheduler.setSynchronize(synchronize);
   system.serialize(s);
   cartridge.serialize(s);
   expansion.serialize(s);
@@ -55,17 +60,19 @@ auto System::serializeAll(serializer& s) -> void {
   extensionPort.serialize(s);
 }
 
-auto System::serializeInit() -> void {
+auto System::serializeInit(bool synchronize) -> uint {
   serializer s;
 
   uint signature = 0;
+  uint size = 0;
   char version[16] = {0};
   char description[512] = {0};
 
   s.integer(signature);
+  s.integer(size);
+  s.integer(synchronize);
   s.array(version);
   s.array(description);
-  serializeAll(s);
-  information.serializeSize = s.size() + 4;
-  s.integer(information.serializeSize);
+  serializeAll(s, synchronize);
+  return s.size();
 }

@@ -6,5 +6,6 @@
 namespace higan {
 
 Platform* platform = nullptr;
+bool _runAhead = false;
 
 }

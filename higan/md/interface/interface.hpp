@@ -15,7 +15,7 @@ struct MegaDriveInterface : Interface {
   auto power() -> void override;
   auto run() -> void override;
 
-  auto serialize() -> serializer override;
+  auto serialize(bool synchronize) -> serializer override;
   auto unserialize(serializer&) -> bool override;
 };
 

@@ -18,7 +18,7 @@ struct Interface {
   virtual auto unload() -> void {}
 
   //state functions
-  virtual auto serialize() -> serializer { return {}; }
+  virtual auto serialize(bool synchronize = true) -> serializer { return {}; }
   virtual auto unserialize(serializer&) -> bool { return false; }
 
   //debugging functions

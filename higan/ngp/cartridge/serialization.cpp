@@ -1,5 +1,5 @@
 auto Flash::serialize(serializer& s) -> void {
-  rom.serialize(s);
+//rom.serialize(s);
   s.boolean(modified);
   s.integer(vendorID);
   s.integer(deviceID);

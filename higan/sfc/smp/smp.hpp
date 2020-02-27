@@ -4,7 +4,7 @@ struct SMP : SPC700, Thread {
   Node::Component node;
   Node::Instruction eventInstruction;
 
-  inline auto serializing() const -> bool override { return scheduler.serializing(); }
+  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //smp.cpp
   auto load(Node::Object, Node::Object) -> void;

@@ -8,7 +8,6 @@ struct System {
 
   //system.cpp
   auto run() -> void;
-  auto runToSave() -> void;
 
   auto load(Node::Object&, Node::Object) -> void;
   auto save() -> void;
@@ -16,20 +15,20 @@ struct System {
   auto power() -> void;
 
   //serialization.cpp
-  auto serialize() -> serializer;
+  auto serialize(bool synchronize) -> serializer;
   auto unserialize(serializer&) -> bool;
 
 private:
   struct Information {
     Model model = Model::PCEngine;
     double colorburst = Constants::Colorburst::NTSC;
-    uint32 serializeSize;
+    uint32 serializeSize[2];
   } information;
 
   //serialization.cpp
-  auto serializeInit() -> void;
-  auto serializeAll(serializer&) -> void;
   auto serialize(serializer&) -> void;
+  auto serializeAll(serializer&, bool synchronize) -> void;
+  auto serializeInit(bool synchronize) -> uint;
 };
 
 extern System system;

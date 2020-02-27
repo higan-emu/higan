@@ -21,7 +21,6 @@ struct System {
   inline auto frequency() const -> double { return information.frequency; }
 
   auto run() -> void;
-  auto runToSave() -> void;
 
   auto load(Node::Object&, Node::Object) -> void;
   auto unload() -> void;
@@ -29,7 +28,7 @@ struct System {
   auto power(bool reset) -> void;
 
   //serialization.cpp
-  auto serialize() -> serializer;
+  auto serialize(bool synchronize) -> serializer;
   auto unserialize(serializer&) -> bool;
 
 private:
@@ -37,13 +36,13 @@ private:
     Region region = Region::NTSCJ;
     bool megaCD = false;
     double frequency = Constants::Colorburst::NTSC * 15.0;
-    uint32 serializeSize;
+    uint32 serializeSize[2];
   } information;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
-  auto serializeAll(serializer&) -> void;
-  auto serializeInit() -> void;
+  auto serializeAll(serializer&, bool synchronize) -> void;
+  auto serializeInit(bool synchronize) -> uint;
 };
 
 extern System system;

@@ -72,7 +72,7 @@ auto S21FX::main() -> void {
     {&S21FX::write, this}
   );
   if(linkMain) linkMain({});
-  while(true) scheduler.serialize(), step(10'000'000);
+  while(true) scheduler.synchronize(), step(10'000'000);
 }
 
 auto S21FX::read(uint24 address, uint8 data) -> uint8 {

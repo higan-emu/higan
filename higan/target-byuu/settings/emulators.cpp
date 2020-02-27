@@ -3,6 +3,9 @@ auto EmulatorSettings::construct() -> void {
   setVisible(false);
 
   optionsLabel.setText("Options").setFont(Font().setBold());
+  runAhead.setText("Run-ahead").setChecked(settings.general.runAhead && co_serializable()).onToggle([&] {
+    settings.general.runAhead = runAhead.checked() && co_serializable();
+  });
   autoSaveMemory.setText("Auto-save memory periodically").setChecked(settings.general.autoSaveMemory).onToggle([&] {
     settings.general.autoSaveMemory = autoSaveMemory.checked();
   });

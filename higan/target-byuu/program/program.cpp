@@ -44,7 +44,18 @@ auto Program::main() -> void {
     usleep(20 * 1000);
     return;
   }
-  emulator->interface->run();
+
+  if(!settings.general.runAhead || fastForwarding || rewinding) {
+    emulator->interface->run();
+  } else {
+    higan::setRunAhead(true);
+    emulator->interface->run();
+    auto state = emulator->interface->serialize(false);
+    higan::setRunAhead(false);
+    emulator->interface->run();
+    state.setMode(serializer::Mode::Load);
+    emulator->interface->unserialize(state);
+  }
 
   if(settings.general.autoSaveMemory) {
     static uint64_t previousTime = chrono::timestamp();

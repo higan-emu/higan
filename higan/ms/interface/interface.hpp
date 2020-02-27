@@ -14,7 +14,7 @@ struct AbstractInterface : Interface {
   auto save() -> void override;
   auto unload() -> void override;
 
-  auto serialize() -> serializer override;
+  auto serialize(bool synchronize = true) -> serializer override;
   auto unserialize(serializer&) -> bool override;
 };
 

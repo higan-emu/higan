@@ -23,6 +23,8 @@ auto Screen::colors(uint colors, function<uint64 (uint32)> color) -> void {
 }
 
 auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void {
+  if(runAhead()) return;
+
   //allocate the screen buffers (only when growing)
   if(_renderWidth != width || _renderHeight != height) {
     if(_renderWidth * _renderHeight < width * height) {

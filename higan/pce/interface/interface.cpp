@@ -37,9 +37,8 @@ auto AbstractInterface::run() -> void {
   system.run();
 }
 
-auto AbstractInterface::serialize() -> serializer {
-  system.runToSave();
-  return system.serialize();
+auto AbstractInterface::serialize(bool synchronize) -> serializer {
+  return system.serialize(synchronize);
 }
 
 auto AbstractInterface::unserialize(serializer& s) -> bool {

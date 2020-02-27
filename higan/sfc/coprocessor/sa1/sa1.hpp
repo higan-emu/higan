@@ -16,7 +16,7 @@ struct SA1 : WDC65816, Thread {
   alwaysinline auto triggerIRQ() -> void;
   alwaysinline auto lastCycle() -> void override;
   alwaysinline auto interruptPending() const -> bool override;
-  auto serializing() const -> bool override;
+  alwaysinline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   auto power() -> void;
 

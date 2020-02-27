@@ -5,13 +5,14 @@ struct APU : Z80, Z80::Bus, Thread {
   Node::Instruction eventInstruction;
   Node::Notification eventInterrupt;
 
+  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
+
   //z80.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
   auto step(uint clocks) -> void override;
-  auto serializing() const -> bool override;
 
   auto enable(bool) -> void;
   auto power(bool reset) -> void;

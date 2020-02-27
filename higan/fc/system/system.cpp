@@ -16,10 +16,6 @@ auto System::run() -> void {
   if(!reset && controls.reset->value()) power(true);
 }
 
-auto System::runToSave() -> void {
-  scheduler.enter(Scheduler::Mode::Serialize);
-}
-
 auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
@@ -97,7 +93,8 @@ auto System::power(bool reset) -> void {
   ppu.power(reset);
   scheduler.power(cpu);
 
-  serializeInit();
+  information.serializeSize[0] = serializeInit(0);
+  information.serializeSize[1] = serializeInit(1);
 }
 
 }

@@ -50,10 +50,6 @@ auto APU::step(uint clocks) -> void {
   Thread::synchronize(cpu, vdp, psg, ym2612);
 }
 
-auto APU::serializing() const -> bool {
-  return scheduler.serializing();
-}
-
 auto APU::setNMI(bool value) -> void {
   state.nmiLine = value;
 }

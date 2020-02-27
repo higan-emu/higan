@@ -36,7 +36,7 @@ auto VDP::main() -> void {
 
   if(io.vcounter == 0) width256 = 0, width344 = 0, width512 = 0;
 
-  if(io.vcounter >= 13 && io.vcounter < 240 + 13) {
+  if(io.vcounter >= 13 && io.vcounter < 240 + 13 && !runAhead()) {
     step(512);
 
     switch(vce.width()) {

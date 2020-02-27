@@ -36,7 +36,6 @@ struct System {
 
   //system.cpp
   auto run() -> void;
-  auto runToSave() -> void;
   auto clocksExecuted() -> uint;
 
   auto load(Node::Object&, Node::Object) -> void;
@@ -45,19 +44,19 @@ struct System {
   auto power() -> void;
 
   //serialization.cpp
-  auto serialize() -> serializer;
+  auto serialize(bool synchronize) -> serializer;
   auto unserialize(serializer&) -> bool;
 
   struct Information {
     Model model = Model::GameBoy;
-    uint32 serializeSize;
+    uint32 serializeSize[2];
     uint32 clocksExecuted;
   } information;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
-  auto serializeAll(serializer&) -> void;
-  auto serializeInit() -> void;
+  auto serializeAll(serializer&, bool synchronize) -> void;
+  auto serializeInit(bool synchronize) -> uint;
 };
 
 #include <gb/interface/interface.hpp>

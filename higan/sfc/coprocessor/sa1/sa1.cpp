@@ -97,10 +97,6 @@ auto SA1::interruptPending() const -> bool {
   return status.interruptPending;
 }
 
-auto SA1::serializing() const -> bool {
-  return scheduler.serializing();
-}
-
 auto SA1::step() -> void {
   Thread::step(2);
   Thread::synchronize(cpu);

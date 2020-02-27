@@ -41,9 +41,8 @@ auto FamicomInterface::run() -> void {
   system.run();
 }
 
-auto FamicomInterface::serialize() -> serializer {
-  system.runToSave();
-  return system.serialize();
+auto FamicomInterface::serialize(bool synchronize) -> serializer {
+  return system.serialize(synchronize);
 }
 
 auto FamicomInterface::unserialize(serializer& s) -> bool {

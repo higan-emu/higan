@@ -3,9 +3,9 @@ struct Thread;
 struct Scheduler {
   enum class Mode : uint {
     Run,
-    Serialize,
-    SerializePrimary,
-    SerializeAuxiliary,
+    Synchronize,
+    SynchronizePrimary,
+    SynchronizeAuxiliary,
   };
 
   Scheduler() = default;
@@ -26,8 +26,11 @@ struct Scheduler {
   inline auto enter(Mode mode = Mode::Run) -> Event;
   inline auto exit(Event event) -> void;
 
-  inline auto serializing() const -> bool;
-  inline auto serialize() -> void;
+  inline auto synchronizing() const -> bool;
+  inline auto synchronize() -> void;
+
+  inline auto getSynchronize() -> bool;
+  inline auto setSynchronize(bool) -> void;
 
 private:
   cothread_t _host = nullptr;     //program thread (used to exit scheduler)
@@ -36,6 +39,7 @@ private:
   Mode _mode = Mode::Run;
   Event _event = Event::Step;
   vector<Thread*> _threads;
+  bool _synchronize = false;
 
   friend class Thread;
 };

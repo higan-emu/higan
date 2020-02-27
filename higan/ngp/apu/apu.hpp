@@ -4,7 +4,7 @@ struct APU : Z80, Z80::Bus, Thread {
   Node::Notification eventInterrupt;
   Memory::Writable<uint8> ram;
 
-  inline auto serializing() const -> bool override { return scheduler.serializing(); }
+  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //apu.cpp
   auto load(Node::Object, Node::Object) -> void;

@@ -67,7 +67,7 @@ auto PPU::main() -> void {
     width512 = 0;
   }
 
-  if(vcounter() < vdisp()) {
+  if(vcounter() && vcounter() < vdisp() && !runAhead()) {
     uint width = hires() ? 512 : 256;
     if(width == 256) width256 = 1;
     if(width == 512) width512 = 1;
@@ -129,25 +129,28 @@ auto PPU::power(bool reset) -> void {
 
   updateVideoMode();
 
-  auto document = BML::unserialize(cartridge.manifest());
-  auto title = document["game/title"].string();
+  string title;
+  for(uint index : range(21)) {
+    char byte = bus.read(0xffc0 + index, 0x00);
+    if(byte == 0x00) break;
+    if(byte == 0xff) break;
+    title.append(byte);
+  }
+  title.strip();
 
   renderingCycle = 512;
   if(title == "ADVENTURES OF FRANKEN") renderingCycle = 32;
+  if(title == "AIR STRIKE PATROL" || title == "DESERT FIGHTER") renderingCycle = 32;
   if(title == "FIREPOWER 2000" || title == "SUPER SWIV") renderingCycle = 32;
   if(title == "NHL '94" || title == "NHL PROHOCKEY'94") renderingCycle = 32;
   if(title == "Suguro Quest++") renderingCycle = 128;
 }
 
 auto PPU::refresh() -> void {
-  auto data  = output;
-  uint width = width512 ? 512 : 256;
-  uint pitch = state.interlace ? 512 : 1024;
-
   //this frame contains mixed resolutions: normalize every scanline to 512-width
   if(width256 && width512) {
-    for(uint y : range(240)) {
-      auto line = data + pitch * y;
+    for(uint y : range(1, 240)) {
+      auto line = output + 1024 * y + (interlace() && field() ? 512 : 0);
       if(widths[y] == 256) {
         auto source = &line[256];
         auto target = &line[512];
@@ -159,6 +162,10 @@ auto PPU::refresh() -> void {
       }
     }
   }
+
+  auto data  = output;
+  uint width = width512 ? 512 : 256;
+  uint pitch = state.interlace ? 512 : 1024;
 
   if(region->value() == "NTSC") {
     data += 2 * 512;

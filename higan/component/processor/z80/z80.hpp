@@ -27,7 +27,7 @@ struct Z80 {
   };
 
   virtual auto step(uint clocks) -> void = 0;
-  virtual auto serializing() const -> bool = 0;
+  virtual auto synchronizing() const -> bool = 0;
 
   //CMOS: out (c) writes 0x00
   //NMOS: out (c) writes 0xff;

@@ -59,9 +59,8 @@ auto SuperFamicomInterface::run() -> void {
   system.run();
 }
 
-auto SuperFamicomInterface::serialize() -> serializer {
-  system.runToSave();
-  return system.serialize();
+auto SuperFamicomInterface::serialize(bool synchronize) -> serializer {
+  return system.serialize(synchronize);
 }
 
 auto SuperFamicomInterface::unserialize(serializer& s) -> bool {

@@ -62,6 +62,7 @@ private:
     uint id;
   } channel[6];
 
+//unserialized:
   double volumeScalar[32];
 };
 

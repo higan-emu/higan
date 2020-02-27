@@ -14,10 +14,6 @@ auto System::run() -> void {
   }
 }
 
-auto System::runToSave() -> void {
-  scheduler.enter(Scheduler::Mode::Serialize);
-}
-
 auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
@@ -95,7 +91,8 @@ auto System::power() -> void {
   opll.power();
   scheduler.power(cpu);
 
-  serializeInit();
+  information.serializeSize[0] = serializeInit(0);
+  information.serializeSize[1] = serializeInit(1);
 }
 
 }

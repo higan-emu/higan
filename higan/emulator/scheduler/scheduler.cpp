@@ -69,30 +69,30 @@ auto Scheduler::enter(Mode mode) -> Event {
     return _event;
   }
 
-  if(mode == Mode::Serialize) {
+  if(mode == Mode::Synchronize) {
     //run all threads to safe points, starting with the primary thread.
     for(auto& thread : _threads) {
       if(thread->handle() == _primary) {
-        _mode = Mode::SerializePrimary;
+        _mode = Mode::SynchronizePrimary;
         _host = co_active();
         do {
           co_switch(_resume);
           platform->event(_event);
-        } while(_event != Event::Serialize);
+        } while(_event != Event::Synchronize);
       }
     }
     for(auto& thread : _threads) {
       if(thread->handle() != _primary) {
-        _mode = Mode::SerializeAuxiliary;
+        _mode = Mode::SynchronizeAuxiliary;
         _host = co_active();
         _resume = thread->handle();
         do {
           co_switch(_resume);
           platform->event(_event);
-        } while(_event != Event::Serialize);
+        } while(_event != Event::Synchronize);
       }
     }
-    return Event::Serialize;
+    return Event::Synchronize;
   }
 
   return Event::None;
@@ -111,19 +111,27 @@ auto Scheduler::exit(Event event) -> void {
   co_switch(_host);
 }
 
-//used to prevent auxiliary threads from blocking during serialization.
+//used to prevent auxiliary threads from blocking during synchronization.
 //for instance, a secondary CPU waiting on an interrupt from the primary CPU.
-//as other threads are not run during serialization, this would otherwise cause a deadlock.
-auto Scheduler::serializing() const -> bool {
-  return _mode == Mode::SerializeAuxiliary;
+//as other threads are not run during synchronization, this would otherwise cause a deadlock.
+auto Scheduler::synchronizing() const -> bool {
+  return _mode == Mode::SynchronizeAuxiliary;
 }
 
 //marks a safe point (typically the beginning of the entry point) of a thread.
-//the scheduler may exit at these points for the purpose of serialization.
-auto Scheduler::serialize() -> void {
+//the scheduler may exit at these points for the purpose of synchronization.
+auto Scheduler::synchronize() -> void {
   if(co_active() == _primary) {
-    if(_mode == Mode::SerializePrimary) return exit(Event::Serialize);
+    if(_mode == Mode::SynchronizePrimary) return exit(Event::Synchronize);
   } else {
-    if(_mode == Mode::SerializeAuxiliary) return exit(Event::Serialize);
+    if(_mode == Mode::SynchronizeAuxiliary) return exit(Event::Synchronize);
   }
+}
+
+auto Scheduler::getSynchronize() -> bool {
+  return _synchronize;
+}
+
+auto Scheduler::setSynchronize(bool synchronize) -> void {
+  _synchronize = synchronize;
 }

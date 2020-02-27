@@ -22,6 +22,7 @@ struct Stream : Object {
 
   template<typename... P>
   inline auto sample(P&&... p) -> void {
+    if(runAhead()) return;
     double samples[sizeof...(p)] = {forward<P>(p)...};
     write(samples);
   }

@@ -1,6 +1,6 @@
 auto ICD::serialize(serializer& s) -> void {
   Thread::serialize(s);
-  GameBoy::system.serializeAll(s);
+  GameBoy::system.serializeAll(s, scheduler.getSynchronize());
 
   for(uint n : range(64)) s.array(packet[n].data);
   s.integer(packetSize);

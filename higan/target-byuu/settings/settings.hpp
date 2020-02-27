@@ -49,6 +49,7 @@ struct Settings : Markup::Node {
 
   struct General {
     bool showStatusBar = true;
+    bool runAhead = false;
     bool autoSaveMemory = true;
     bool nativeFileDialogs = true;
   } general;
@@ -142,6 +143,7 @@ struct EmulatorSettings : VerticalLayout {
   auto eventToggle(TableViewCell cell) -> void;
 
   Label optionsLabel{this, Size{~0, 0}, 2};
+  CheckLabel runAhead{this, Size{~0, 0}, 2};
   CheckLabel autoSaveMemory{this, Size{~0, 0}, 2};
   CheckLabel nativeFileDialogs{this, Size{~0, 0}};
   Label emulatorLabel{this, Size{~0, 0}, 2};

@@ -77,6 +77,7 @@ auto Settings::process(bool load) -> void {
   bind(string,  "Input/Defocus", input.defocus);
 
   bind(boolean, "General/ShowStatusBar", general.showStatusBar);
+  bind(boolean, "General/RunAhead", general.runAhead);
   bind(boolean, "General/AutoSaveMemory", general.autoSaveMemory);
   bind(boolean, "General/NativeFileDialogs", general.nativeFileDialogs);
 

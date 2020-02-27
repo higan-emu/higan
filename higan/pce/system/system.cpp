@@ -10,10 +10,6 @@ auto System::run() -> void {
   if(scheduler.enter() == Event::Frame) vdp.refresh();
 }
 
-auto System::runToSave() -> void {
-  scheduler.enter(Scheduler::Mode::Serialize);
-}
-
 auto System::load(Node::Object& root, Node::Object from) -> void {
   if(node) unload();
 
@@ -57,7 +53,8 @@ auto System::power() -> void {
   psg.power();
   scheduler.power(cpu);
 
-  serializeInit();
+  information.serializeSize[0] = serializeInit(0);
+  information.serializeSize[1] = serializeInit(1);
 }
 
 }

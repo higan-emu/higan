@@ -11,10 +11,6 @@ auto System::run() -> void {
   if(scheduler.enter() == Event::Frame) ppu.refresh();
 }
 
-auto System::runToSave() -> void {
-  scheduler.enter(Scheduler::Mode::Serialize);
-}
-
 auto System::clocksExecuted() -> uint {
   uint clocks = information.clocksExecuted;
   information.clocksExecuted = 0;
@@ -104,7 +100,8 @@ auto System::power() -> void {
   apu.power();
   scheduler.power(cpu);
 
-  serializeInit();
+  information.serializeSize[0] = serializeInit(0);
+  information.serializeSize[1] = serializeInit(1);
 }
 
 }

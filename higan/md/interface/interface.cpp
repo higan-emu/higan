@@ -41,9 +41,8 @@ auto MegaDriveInterface::run() -> void {
   system.run();
 }
 
-auto MegaDriveInterface::serialize() -> serializer {
-  system.runToSave();
-  return system.serialize();
+auto MegaDriveInterface::serialize(bool synchronize) -> serializer {
+  return system.serialize(synchronize);
 }
 
 auto MegaDriveInterface::unserialize(serializer& s) -> bool {

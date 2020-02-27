@@ -557,7 +557,7 @@ auto SPC700::instructionReturnSubroutine() -> void {
 
 auto SPC700::instructionStop() -> void {
   r.stop = true;
-  while(r.stop && !serializing()) {
+  while(r.stop && !synchronizing()) {
     read(PC);
     idle();
   }
@@ -583,7 +583,7 @@ auto SPC700::instructionTransfer(uint8& from, uint8& to) -> void {
 
 auto SPC700::instructionWait() -> void {
   r.wait = true;
-  while(r.wait && !serializing()) {
+  while(r.wait && !synchronizing()) {
     read(PC);
     idle();
   }

@@ -51,6 +51,8 @@ struct Program : higan::Platform {
   vector<higan::Node::Stream> streams;
 
   bool paused = false;
+  bool fastForwarding = false;
+  bool rewinding = false;
 
   struct State {
     uint slot = 1;
