@@ -18,7 +18,7 @@ auto Player::step(uint clocks) -> void {
 }
 
 auto Player::power() -> void {
-  create(1000, {&Player::main, this});
+  Thread::create(1000, {&Player::main, this});
 
   status.enable = false;
   status.rumble = false;

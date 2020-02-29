@@ -71,6 +71,7 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   ::emulator = emulator;
   emulator->load(filename, filedata);
   paletteUpdate();
+  runAheadUpdate();
   presentation.loadEmulator();
   if(settings.video.adaptiveSizing) presentation.resizeWindow();
   state = {};  //reset hotkey state slot to 1
@@ -94,6 +95,7 @@ auto Program::unload() -> void {
   showMessage({"Unloaded ", Location::prefix(emulator->game.location)});
   emulator->unload();
   emulator.reset();
+  rewindReset();
   presentation.unloadEmulator();
   message.text = "";
   ruby::video.clear();

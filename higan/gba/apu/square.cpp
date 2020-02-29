@@ -15,13 +15,13 @@ auto APU::Square::run() -> void {
   output = sample;
 }
 
-auto APU::Square::clocklength() -> void {
+auto APU::Square::clockLength() -> void {
   if(enable && counter) {
     if(++length == 0) enable = false;
   }
 }
 
-auto APU::Square::clockenvelope() -> void {
+auto APU::Square::clockEnvelope() -> void {
   if(enable && envelope.frequency && --envelope.period == 0) {
     envelope.period = envelope.frequency;
     if(envelope.direction == 0 && volume >  0) volume--;

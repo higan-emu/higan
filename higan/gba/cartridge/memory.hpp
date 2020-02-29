@@ -1,26 +1,41 @@
 struct MROM {
+  //mrom.cpp
+  auto read(uint mode, uint32 address) -> uint32;
+  auto write(uint mode, uint32 address, uint32 word) -> void;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
   uint8* data = nullptr;
   uint size;
   uint mask;
-
-  auto read(uint mode, uint32 addr) -> uint32;
-  auto write(uint mode, uint32 addr, uint32 word) -> void;
-
-  auto serialize(serializer&) -> void;
 } mrom;
 
 struct SRAM {
+  //sram.cpp
+  auto read(uint mode, uint32 address) -> uint32;
+  auto write(uint mode, uint32 address, uint32 word) -> void;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
   uint8* data = nullptr;
   uint size;
   uint mask;
-
-  auto read(uint mode, uint32 addr) -> uint32;
-  auto write(uint mode, uint32 addr, uint32 word) -> void;
-
-  auto serialize(serializer&) -> void;
 } sram;
 
 struct EEPROM {
+  //eeprom.cpp
+  auto read(uint address) -> bool;
+  auto write(uint address, bool bit) -> void;
+
+  auto read() -> bool;
+  auto write(bool bit) -> void;
+  auto power() -> void;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
   uint8* data = nullptr;
   uint size;
   uint mask;
@@ -33,17 +48,18 @@ struct EEPROM {
   uint offset;
   uint address;
   uint addressbits;
-
-  auto read(uint addr) -> bool;
-  auto write(uint addr, bool bit) -> void;
-
-  auto read() -> bool;
-  auto write(bool bit) -> void;
-  auto power() -> void;
-  auto serialize(serializer&) -> void;
 } eeprom;
 
 struct FLASH {
+  //flash.cpp
+  auto read(uint16 address) -> uint8;
+  auto write(uint16 address, uint8 byte) -> void;
+
+  auto power() -> void;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
   uint8* data = nullptr;
   uint size;
   string manufacturer;
@@ -57,10 +73,4 @@ struct FLASH {
   bool bankselect;
   bool writeselect;
   bool bank;
-
-  auto read(uint16 addr) -> uint8;
-  auto write(uint16 addr, uint8 byte) -> void;
-
-  auto power() -> void;
-  auto serialize(serializer&) -> void;
 } flash;

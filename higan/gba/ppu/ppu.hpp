@@ -18,9 +18,11 @@ struct PPU : Thread, IO {
   auto refresh() -> void;
   auto power() -> void;
 
+  //io.cpp
   auto readIO(uint32 addr) -> uint8;
   auto writeIO(uint32 addr, uint8 byte) -> void;
 
+  //memory.cpp
   auto readVRAM(uint mode, uint32 addr) -> uint32;
   auto writeVRAM(uint mode, uint32 addr, uint32 word) -> void;
 
@@ -49,40 +51,42 @@ private:
   enum : uint { IN0 = 0, IN1 = 1, IN2 = 2, OUT = 3 };
 
   struct IO {
-    uint1 gameBoyColorMode;
-    uint1 forceBlank;
-    uint1 greenSwap;
+     uint1 gameBoyColorMode;
+     uint1 forceBlank;
+     uint1 greenSwap;
 
-    uint1 vblank;
-    uint1 hblank;
-    uint1 vcoincidence;
-    uint1 irqvblank;
-    uint1 irqhblank;
-    uint1 irqvcoincidence;
-    uint8 vcompare;
+     uint1 vblank;
+     uint1 hblank;
+     uint1 vcoincidence;
+     uint1 irqvblank;
+     uint1 irqhblank;
+     uint1 irqvcoincidence;
+     uint8 vcompare;
 
     uint16 vcounter;
   } io;
 
   struct Pixel {
-    uint1  enable;
-    uint2  priority;
+     uint1 enable;
+     uint2 priority;
     uint15 color;
 
     //OBJ only
-    uint1  translucent;
-    uint1  mosaic;
-    uint1  window;  //IN2
+     uint1 translucent;
+     uint1 mosaic;
+     uint1 window;  //IN2
   };
 
   struct Background {
+    //background.cpp
     auto scanline(uint y) -> void;
     auto run(uint x, uint y) -> void;
     auto linear(uint x, uint y) -> void;
     auto affine(uint x, uint y) -> void;
     auto bitmap(uint x, uint y) -> void;
-
     auto power(uint id) -> void;
+
+    //serialization.cpp
     auto serialize(serializer&) -> void;
 
     uint id;  //BG0, BG1, BG2, BG3
@@ -122,9 +126,9 @@ private:
 
     struct Latch {
       uint10 character;
-      uint1  hflip;
-      uint1  vflip;
-      uint4  palette;
+       uint1 hflip;
+       uint1 vflip;
+       uint4 palette;
     } latch;
 
     Pixel output;
@@ -139,10 +143,12 @@ private:
   } bg0, bg1, bg2, bg3;
 
   struct Objects {
+    //object.cpp
     auto scanline(uint y) -> void;
     auto run(uint x, uint y) -> void;
-
     auto power() -> void;
+
+    //object.cpp
     auto serialize(serializer&) -> void;
 
     struct IO {
@@ -161,9 +167,11 @@ private:
   } objects;
 
   struct Window {
+    //window.cpp
     auto run(uint x, uint y) -> void;
-
     auto power(uint id) -> void;
+
+    //serialization.cpp
     auto serialize(serializer&) -> void;
 
     uint id;  //IN0, IN1, IN2, OUT
@@ -183,10 +191,12 @@ private:
   } window0, window1, window2, window3;
 
   struct DAC {
+    //dac.cpp
     auto run(uint x, uint y) -> uint15;
     auto blend(uint15 above, uint eva, uint15 below, uint evb) -> uint15;
-
     auto power() -> void;
+
+    //serialization.cpp
     auto serialize(serializer&) -> void;
 
     struct IO {
@@ -201,32 +211,34 @@ private:
   } dac;
 
   struct Object {
+    //serialization.cpp
     auto serialize(serializer&) -> void;
 
-    uint8  y;
-    uint1  affine;
-    uint1  affineSize;
-    uint2  mode;
-    uint1  mosaic;
-    uint1  colors;  //0 = 16, 1 = 256
-    uint2  shape;   //0 = square, 1 = horizontal, 2 = vertical
+     uint8 y;
+     uint1 affine;
+     uint1 affineSize;
+     uint2 mode;
+     uint1 mosaic;
+     uint1 colors;  //0 = 16, 1 = 256
+     uint2 shape;   //0 = square, 1 = horizontal, 2 = vertical
 
-    uint9  x;
-    uint5  affineParam;
-    uint1  hflip;
-    uint1  vflip;
-    uint2  size;
+     uint9 x;
+     uint5 affineParam;
+     uint1 hflip;
+     uint1 vflip;
+     uint2 size;
 
     uint10 character;
-    uint2  priority;
-    uint4  palette;
+     uint2 priority;
+     uint4 palette;
 
     //ancillary data
-    uint width;
-    uint height;
+    uint32 width;
+    uint32 height;
   } object[128];
 
   struct ObjectParam {
+    //serialization.cpp
     auto serialize(serializer&) -> void;
 
     int16 pa;

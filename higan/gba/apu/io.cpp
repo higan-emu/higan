@@ -91,11 +91,11 @@ auto APU::readIO(uint32 addr) -> uint8 {
 
   //SOUNDBIAS
   case 0x0400'0088: return (
-    regs.bias.level.bit(0,7)
+    bias.level.bit(0,7)
   );
   case 0x0400'0089: return (
-    regs.bias.level.bit(8,9) << 0
-  | regs.bias.amplitude      << 6
+    bias.level.bit(8,9) << 0
+  | bias.amplitude      << 6
   );
 
   //zero
@@ -103,36 +103,36 @@ auto APU::readIO(uint32 addr) -> uint8 {
   case 0x0400'008b: return 0x00;
 
   //WAVE_RAM0_L
-  case 0x0400'0090: return wave.readram( 0);
-  case 0x0400'0091: return wave.readram( 1);
+  case 0x0400'0090: return wave.readRAM( 0);
+  case 0x0400'0091: return wave.readRAM( 1);
 
   //WAVE_RAM0_H
-  case 0x0400'0092: return wave.readram( 2);
-  case 0x0400'0093: return wave.readram( 3);
+  case 0x0400'0092: return wave.readRAM( 2);
+  case 0x0400'0093: return wave.readRAM( 3);
 
   //WAVE_RAM1_L
-  case 0x0400'0094: return wave.readram( 4);
-  case 0x0400'0095: return wave.readram( 5);
+  case 0x0400'0094: return wave.readRAM( 4);
+  case 0x0400'0095: return wave.readRAM( 5);
 
   //WAVE_RAM1_H
-  case 0x0400'0096: return wave.readram( 6);
-  case 0x0400'0097: return wave.readram( 7);
+  case 0x0400'0096: return wave.readRAM( 6);
+  case 0x0400'0097: return wave.readRAM( 7);
 
   //WAVE_RAM2_L
-  case 0x0400'0098: return wave.readram( 8);
-  case 0x0400'0099: return wave.readram( 9);
+  case 0x0400'0098: return wave.readRAM( 8);
+  case 0x0400'0099: return wave.readRAM( 9);
 
   //WAVE_RAM2_H
-  case 0x0400'009a: return wave.readram(10);
-  case 0x0400'009b: return wave.readram(11);
+  case 0x0400'009a: return wave.readRAM(10);
+  case 0x0400'009b: return wave.readRAM(11);
 
   //WAVE_RAM3_L
-  case 0x0400'009c: return wave.readram(12);
-  case 0x0400'009d: return wave.readram(13);
+  case 0x0400'009c: return wave.readRAM(12);
+  case 0x0400'009d: return wave.readRAM(13);
 
   //WAVE_RAM3_H
-  case 0x0400'009e: return wave.readram(14);
-  case 0x0400'009f: return wave.readram(15);
+  case 0x0400'009e: return wave.readRAM(14);
+  case 0x0400'009f: return wave.readRAM(15);
 
   }
 
@@ -209,44 +209,44 @@ auto APU::writeIO(uint32 addr, uint8 data) -> void {
 
   //SOUNDBIAS
   case 0x0400'0088:
-    regs.bias.level.bit(0,7) = data;
+    bias.level.bit(0,7) = data;
     return;
   case 0x0400'0089:
-    regs.bias.level.bit(8,9) = data.bit(0,1);
-    regs.bias.amplitude      = data.bit(6,7);
+    bias.level.bit(8,9) = data.bit(0,1);
+    bias.amplitude      = data.bit(6,7);
     return;
 
   //WAVE_RAM0_L
-  case 0x0400'0090: return wave.writeram( 0, data);
-  case 0x0400'0091: return wave.writeram( 1, data);
+  case 0x0400'0090: return wave.writeRAM( 0, data);
+  case 0x0400'0091: return wave.writeRAM( 1, data);
 
   //WAVE_RAM0_H
-  case 0x0400'0092: return wave.writeram( 2, data);
-  case 0x0400'0093: return wave.writeram( 3, data);
+  case 0x0400'0092: return wave.writeRAM( 2, data);
+  case 0x0400'0093: return wave.writeRAM( 3, data);
 
   //WAVE_RAM1_L
-  case 0x0400'0094: return wave.writeram( 4, data);
-  case 0x0400'0095: return wave.writeram( 5, data);
+  case 0x0400'0094: return wave.writeRAM( 4, data);
+  case 0x0400'0095: return wave.writeRAM( 5, data);
 
   //WAVE_RAM1_H
-  case 0x0400'0096: return wave.writeram( 6, data);
-  case 0x0400'0097: return wave.writeram( 7, data);
+  case 0x0400'0096: return wave.writeRAM( 6, data);
+  case 0x0400'0097: return wave.writeRAM( 7, data);
 
   //WAVE_RAM2_L
-  case 0x0400'0098: return wave.writeram( 8, data);
-  case 0x0400'0099: return wave.writeram( 9, data);
+  case 0x0400'0098: return wave.writeRAM( 8, data);
+  case 0x0400'0099: return wave.writeRAM( 9, data);
 
   //WAVE_RAM2_H
-  case 0x0400'009a: return wave.writeram(10, data);
-  case 0x0400'009b: return wave.writeram(11, data);
+  case 0x0400'009a: return wave.writeRAM(10, data);
+  case 0x0400'009b: return wave.writeRAM(11, data);
 
   //WAVE_RAM3_L
-  case 0x0400'009c: return wave.writeram(12, data);
-  case 0x0400'009d: return wave.writeram(13, data);
+  case 0x0400'009c: return wave.writeRAM(12, data);
+  case 0x0400'009d: return wave.writeRAM(13, data);
 
   //WAVE_RAM3_H
-  case 0x0400'009e: return wave.writeram(14, data);
-  case 0x0400'009f: return wave.writeram(15, data);
+  case 0x0400'009e: return wave.writeRAM(14, data);
+  case 0x0400'009f: return wave.writeRAM(15, data);
 
   //FIFO_A_L
   //FIFO_A_H

@@ -1,20 +1,20 @@
-auto APU::runsequencer() -> void {
+auto APU::sequence() -> void {
   auto& r = sequencer;
 
   if(r.base == 0) {  //512hz
     if(r.step == 0 || r.step == 2 || r.step == 4 || r.step == 6) {  //256hz
-      square1.clocklength();
-      square2.clocklength();
-      wave.clocklength();
-      noise.clocklength();
+      square1.clockLength();
+      square2.clockLength();
+      wave.clockLength();
+      noise.clockLength();
     }
     if(r.step == 2 || r.step == 6) {  //128hz
-      square1.clocksweep();
+      square1.clockSweep();
     }
     if(r.step == 7) {  //64hz
-      square1.clockenvelope();
-      square2.clockenvelope();
-      noise.clockenvelope();
+      square1.clockEnvelope();
+      square2.clockEnvelope();
+      noise.clockEnvelope();
     }
     r.step++;
   }

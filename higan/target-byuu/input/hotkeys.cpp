@@ -18,7 +18,7 @@ auto InputManager::createHotkeys() -> void {
   }));*/
 
   hotkeys.append(InputHotkey("Fast Forward").onPress([&] {
-    if(!emulator) return;
+    if(!emulator || program.rewinding) return;
     program.fastForwarding = true;
     fastForwardVideoBlocking = ruby::video.blocking();
     fastForwardAudioBlocking = ruby::audio.blocking();
@@ -32,6 +32,19 @@ auto InputManager::createHotkeys() -> void {
     ruby::video.setBlocking(fastForwardVideoBlocking);
     ruby::audio.setBlocking(fastForwardAudioBlocking);
     ruby::audio.setDynamic(fastForwardAudioDynamic);
+  }));
+
+  hotkeys.append(InputHotkey("Rewind").onPress([&] {
+    if(!emulator || program.fastForwarding) return;
+    if(program.rewind.frequency == 0) {
+      return program.showMessage("Please enable rewind support in the emulator settings first.");
+    }
+    program.rewinding = true;
+    program.rewindSetMode(Program::Rewind::Mode::Rewinding);
+  }).onRelease([&] {
+    if(!emulator) return;
+    program.rewinding = false;
+    program.rewindSetMode(Program::Rewind::Mode::Playing);
   }));
 
   hotkeys.append(InputHotkey("Save State").onPress([&] {

@@ -35,16 +35,20 @@ auto VideoSettings::construct() -> void {
     settings.video.colorBleed = colorBleedOption.checked();
     if(emulator) emulator->setBoolean("Color Bleed", settings.video.colorBleed);
   });
+  colorBleedHint.setText("Blurs adjacent pixels for translucency effects").setFont(Font().setSize(7.0)).setForegroundColor({80, 80, 80});
   colorEmulationOption.setText("Color Emulation").setChecked(settings.video.colorEmulation).onToggle([&] {
     settings.video.colorEmulation = colorEmulationOption.checked();
     if(emulator) emulator->setBoolean("Color Emulation", settings.video.colorEmulation);
   });
+  colorEmulationHint.setText("Matches colors to how they look on real hardware").setFont(Font().setSize(7.0)).setForegroundColor({80, 80, 80});
   interframeBlendingOption.setText("Interframe Blending").setChecked(settings.video.interframeBlending).onToggle([&] {
     settings.video.interframeBlending = interframeBlendingOption.checked();
     if(emulator) emulator->setBoolean("Interframe Blending", settings.video.interframeBlending);
   });
+  interframeBlendingHint.setText("Emulates LCD translucency effects, but increases motion blur").setFont(Font().setSize(7.0)).setForegroundColor({80, 80, 80});
   overscanOption.setText("Overscan").setChecked(settings.video.overscan).onToggle([&] {
     settings.video.overscan = overscanOption.checked();
     if(emulator) emulator->setOverscan(settings.video.overscan);
   });
+  overscanLabel.setText("Shows extended PAL CRT lines, but these are usually blank in most games").setFont(Font().setSize(7.0)).setForegroundColor({80, 80, 80});
 }

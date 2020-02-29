@@ -4,73 +4,73 @@ namespace higan::GameBoyAdvance {
 
 Bus bus;
 
-auto IO::readIO(uint mode, uint32 addr) -> uint32 {
-  uint32 word = 0;
+auto IO::readIO(uint mode, uint32 address) -> uint32 {
+  uint32 word;
 
   if(mode & Word) {
-    addr &= ~3;
-    word |= readIO(addr + 0) <<  0;
-    word |= readIO(addr + 1) <<  8;
-    word |= readIO(addr + 2) << 16;
-    word |= readIO(addr + 3) << 24;
+    address &= ~3;
+    word.byte(0) = readIO(address + 0);
+    word.byte(1) = readIO(address + 1);
+    word.byte(2) = readIO(address + 2);
+    word.byte(3) = readIO(address + 3);
   } else if(mode & Half) {
-    addr &= ~1;
-    word |= readIO(addr + 0) <<  0;
-    word |= readIO(addr + 1) <<  8;
+    address &= ~1;
+    word.byte(0) = readIO(address + 0);
+    word.byte(1) = readIO(address + 1);
   } else if(mode & Byte) {
-    word |= readIO(addr + 0) <<  0;
+    word.byte(0) = readIO(address + 0);
   }
 
   return word;
 }
 
-auto IO::writeIO(uint mode, uint32 addr, uint32 word) -> void {
+auto IO::writeIO(uint mode, uint32 address, uint32 word) -> void {
   if(mode & Word) {
-    addr &= ~3;
-    writeIO(addr + 0, word >>  0);
-    writeIO(addr + 1, word >>  8);
-    writeIO(addr + 2, word >> 16);
-    writeIO(addr + 3, word >> 24);
+    address &= ~3;
+    writeIO(address + 0, word.byte(0));
+    writeIO(address + 1, word.byte(1));
+    writeIO(address + 2, word.byte(2));
+    writeIO(address + 3, word.byte(3));
   } else if(mode & Half) {
-    addr &= ~1;
-    writeIO(addr + 0, word >>  0);
-    writeIO(addr + 1, word >>  8);
+    address &= ~1;
+    writeIO(address + 0, word.byte(0));
+    writeIO(address + 1, word.byte(1));
   } else if(mode & Byte) {
-    writeIO(addr + 0, word >>  0);
+    writeIO(address + 0, word.byte(0));
   }
 }
 
 struct UnmappedIO : IO {
-  auto readIO(uint32 addr) -> uint8 override {
-    return cpu.pipeline.fetch.instruction.byte(addr & 1);
+  auto readIO(uint32 address) -> uint8 override {
+    return cpu.pipeline.fetch.instruction.byte(address & 1);
   }
 
-  auto writeIO(uint32 addr, uint8 byte) -> void override {
+  auto writeIO(uint32 address, uint8 byte) -> void override {
   }
 };
 
 static UnmappedIO unmappedIO;
 
-auto Bus::mirror(uint32 addr, uint32 size) -> uint32 {
+auto Bus::mirror(uint32 address, uint32 size) -> uint32 {
   uint32 base = 0;
   if(size) {
     uint32 mask = 1 << 27;  //28-bit bus
-    while(addr >= size) {
-      while(!(addr & mask)) mask >>= 1;
-      addr -= mask;
+    while(address >= size) {
+      while(!(address & mask)) mask >>= 1;
+      address -= mask;
       if(size > mask) {
         size -= mask;
         base += mask;
       }
       mask >>= 1;
     }
-    base += addr;
+    base += address;
   }
   return base;
 }
 
 auto Bus::power() -> void {
-  for(auto n : range(0x400)) io[n] = &unmappedIO;
+  for(uint n : range(0x400)) io[n] = &unmappedIO;
 }
 
 }

@@ -16,7 +16,6 @@ struct Background {
   auto power() -> void;
 
   //mode7.cpp
-  alwaysinline auto clip(int n) -> int;
   auto runMode7() -> void;
 
   auto serialize(serializer&) -> void;

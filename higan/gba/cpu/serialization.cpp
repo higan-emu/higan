@@ -17,13 +17,19 @@ auto CPU::serialize(serializer& s) -> void {
     s.integer(dma.timingMode);
     s.integer(dma.irq);
     s.integer(dma.enable);
-    s.integer(dma.source);
-    s.integer(dma.target);
-    s.integer(dma.length);
     s.integer(dma.data);
-    s.integer(dma.latch.target);
-    s.integer(dma.latch.source);
-    s.integer(dma.latch.length);
+    s.integer(dma.source.data);
+    s.integer(dma.source.mask);
+    s.integer(dma.target.data);
+    s.integer(dma.target.mask);
+    s.integer(dma.length.data);
+    s.integer(dma.length.mask);
+    s.integer(dma.latch.source.data);
+    s.integer(dma.latch.source.mask);
+    s.integer(dma.latch.target.data);
+    s.integer(dma.latch.target.mask);
+    s.integer(dma.latch.length.data);
+    s.integer(dma.latch.length.mask);
   }
 
   for(auto& timer : this->timer) {

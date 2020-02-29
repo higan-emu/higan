@@ -2,6 +2,7 @@
 #include "platform.cpp"
 #include "load.cpp"
 #include "states.cpp"
+#include "rewind.cpp"
 #include "status.cpp"
 #include "utility.cpp"
 #include "drivers.cpp"
@@ -45,7 +46,9 @@ auto Program::main() -> void {
     return;
   }
 
-  if(!settings.general.runAhead || fastForwarding || rewinding) {
+  rewindRun();
+
+  if(!runAhead || fastForwarding || rewinding) {
     emulator->interface->run();
   } else {
     higan::setRunAhead(true);

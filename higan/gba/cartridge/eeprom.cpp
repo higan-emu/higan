@@ -1,10 +1,10 @@
-auto Cartridge::EEPROM::read(uint addr) -> bool {
-  return data[addr >> 3] & 0x80 >> (addr & 7);
+auto Cartridge::EEPROM::read(uint address) -> bool {
+  return data[address >> 3] & 0x80 >> (address & 7);
 }
 
-auto Cartridge::EEPROM::write(uint addr, bool bit) -> void {
-  if(bit == 0) data[addr >> 3] &=~ (0x80 >> (addr & 7));
-  if(bit == 1) data[addr >> 3] |=  (0x80 >> (addr & 7));
+auto Cartridge::EEPROM::write(uint address, bool bit) -> void {
+  if(bit == 0) data[address >> 3] &=~ (0x80 >> (address & 7));
+  if(bit == 1) data[address >> 3] |=  (0x80 >> (address & 7));
 }
 
 auto Cartridge::EEPROM::read() -> bool {

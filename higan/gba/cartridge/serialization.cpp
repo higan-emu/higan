@@ -1,8 +1,8 @@
 auto Cartridge::serialize(serializer& s) -> void {
   mrom.serialize(s);
-  if(hasSRAM) sram.serialize(s);
-  if(hasEEPROM) eeprom.serialize(s);
-  if(hasFLASH) flash.serialize(s);
+  if(has.sram) sram.serialize(s);
+  if(has.eeprom) eeprom.serialize(s);
+  if(has.flash) flash.serialize(s);
 }
 
 auto Cartridge::MROM::serialize(serializer& s) -> void {

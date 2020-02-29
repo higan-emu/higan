@@ -16,13 +16,13 @@ auto APU::Noise::run() -> void {
   if(enable == false || (lfsr & 1)) output = 0;
 }
 
-auto APU::Noise::clocklength() -> void {
+auto APU::Noise::clockLength() -> void {
   if(enable && counter) {
     if(++length == 0) enable = false;
   }
 }
 
-auto APU::Noise::clockenvelope() -> void {
+auto APU::Noise::clockEnvelope() -> void {
   if(enable && envelope.frequency && --envelope.period == 0) {
     envelope.period = envelope.frequency;
     if(envelope.direction == 0 && volume >  0) volume--;

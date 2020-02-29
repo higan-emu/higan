@@ -13,17 +13,17 @@ struct Player : Thread {
 
 private:
   struct Status {
-    bool enable;
-    bool rumble;
+     uint1 enable;
+     uint1 rumble;
 
-    bool logoDetected;
-    uint logoCounter;
+     uint1 logoDetected;
+    uint32 logoCounter;
 
-    uint packet;
+    uint32 packet;
     uint32 send;
     uint32 recv;
 
-    uint timeout;
+    uint32 timeout;
   } status;
 };
 

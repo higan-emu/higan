@@ -68,34 +68,42 @@ struct CPU : ARM7TDMI, Thread, IO {
   uint8 ewram[256 * 1024];
 
 //private:
+  struct uintVN {
+    inline auto operator()() const -> uint32 { return data & mask; }
+    inline auto setBits(uint bits) -> void { mask = (1 << bits) - 1; }
+
+    uint32 data;
+    uint32 mask;
+  };
+
   struct DMA {
     //dma.cpp
     inline auto run() -> bool;
     auto transfer() -> void;
 
-    uint2 id;
+     uint2 id;
 
-    boolean active;
-    integer waiting;
+     uint1 active;
+     int32 waiting;
 
-    uint2 targetMode;
-    uint2 sourceMode;
-    uint1 repeat;
-    uint1 size;
-    uint1 drq;
-    uint2 timingMode;
-    uint1 irq;
-    uint1 enable;
-
-    VariadicNatural source;
-    VariadicNatural target;
-    VariadicNatural length;
+     uint2 targetMode;
+     uint2 sourceMode;
+     uint1 repeat;
+     uint1 size;
+     uint1 drq;
+     uint2 timingMode;
+     uint1 irq;
+     uint1 enable;
     uint32 data;
 
+    uintVN source;
+    uintVN target;
+    uintVN length;
+
     struct Latch {
-      VariadicNatural target;
-      VariadicNatural source;
-      VariadicNatural length;
+      uintVN source;
+      uintVN target;
+      uintVN length;
     } latch;
   } dma[4];
 
@@ -104,30 +112,30 @@ struct CPU : ARM7TDMI, Thread, IO {
     inline auto run() -> void;
     auto step() -> void;
 
-    uint2 id;
+     uint2 id;
 
-    boolean pending;
+     uint1 pending;
 
     uint16 period;
     uint16 reload;
 
-    uint2 frequency;
-    uint1 cascade;
-    uint1 irq;
-    uint1 enable;
+     uint2 frequency;
+     uint1 cascade;
+     uint1 irq;
+     uint1 enable;
   } timer[4];
 
   struct Serial {
-    uint1 shiftClockSelect;
-    uint1 shiftClockFrequency;
-    uint1 transferEnableReceive;
-    uint1 transferEnableSend;
-    uint1 startBit;
-    uint1 transferLength;
-    uint1 irqEnable;
+     uint1 shiftClockSelect;
+     uint1 shiftClockFrequency;
+     uint1 transferEnableReceive;
+     uint1 transferEnableSend;
+     uint1 startBit;
+     uint1 transferLength;
+     uint1 irqEnable;
 
     uint16 data[4];
-    uint8 data8;
+     uint8 data8;
   } serial;
 
   struct Keypad {
@@ -140,32 +148,32 @@ struct CPU : ARM7TDMI, Thread, IO {
   } keypad;
 
   struct Joybus {
-    uint1 sc;
-    uint1 sd;
-    uint1 si;
-    uint1 so;
-    uint1 scMode;
-    uint1 sdMode;
-    uint1 siMode;
-    uint1 soMode;
-    uint1 siIRQEnable;
-    uint2 mode;
+     uint1 sc;
+     uint1 sd;
+     uint1 si;
+     uint1 so;
+     uint1 scMode;
+     uint1 sdMode;
+     uint1 siMode;
+     uint1 soMode;
+     uint1 siIRQEnable;
+     uint2 mode;
 
-    uint1 resetSignal;
-    uint1 receiveComplete;
-    uint1 sendComplete;
-    uint1 resetIRQEnable;
+     uint1 resetSignal;
+     uint1 receiveComplete;
+     uint1 sendComplete;
+     uint1 resetIRQEnable;
 
     uint32 receive;
     uint32 transmit;
 
-    uint1 receiveFlag;
-    uint1 sendFlag;
-    uint2 generalFlag;
+     uint1 receiveFlag;
+     uint1 sendFlag;
+     uint2 generalFlag;
   } joybus;
 
   struct IRQ {
-    uint1 ime;
+     uint1 ime;
     uint16 enable;
     uint16 flag;
   } irq;
@@ -187,21 +195,21 @@ struct CPU : ARM7TDMI, Thread, IO {
   } memory;
 
   struct {
+    inline auto empty() const { return addr == load; }
+    inline auto full() const { return load - addr == 16; }
+
     uint16 slot[8];
     uint32 addr;       //read location of slot buffer
     uint32 load;       //write location of slot buffer
-    integer wait = 1;  //number of clocks before next slot load
-
-    inline auto empty() const { return addr == load; }
-    inline auto full() const { return load - addr == 16; }
+     int32 wait = 1;  //number of clocks before next slot load
   } prefetch;
 
   struct Context {
-    natural clock;
-    boolean halted;
-    boolean stopped;
-    boolean booted;  //set to true by the GBA BIOS
-    boolean dmaActive;
+    uint32 clock;
+     uint1 halted;
+     uint1 stopped;
+     uint1 booted;  //set to true by the GBA BIOS
+     uint1 dmaActive;
   } context;
 };
 

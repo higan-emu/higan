@@ -237,20 +237,20 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
   switch(addr) {
 
   //DMA0SAD, DMA1SAD, DMA2SAD, DMA3SAD
-  case 0x0400'00b0: case 0x0400'00bc: case 0x0400'00c8: case 0x0400'00d4: dma().source.byte(0) = data; return;
-  case 0x0400'00b1: case 0x0400'00bd: case 0x0400'00c9: case 0x0400'00d5: dma().source.byte(1) = data; return;
-  case 0x0400'00b2: case 0x0400'00be: case 0x0400'00ca: case 0x0400'00d6: dma().source.byte(2) = data; return;
-  case 0x0400'00b3: case 0x0400'00bf: case 0x0400'00cb: case 0x0400'00d7: dma().source.byte(3) = data; return;
+  case 0x0400'00b0: case 0x0400'00bc: case 0x0400'00c8: case 0x0400'00d4: dma().source.data.byte(0) = data; return;
+  case 0x0400'00b1: case 0x0400'00bd: case 0x0400'00c9: case 0x0400'00d5: dma().source.data.byte(1) = data; return;
+  case 0x0400'00b2: case 0x0400'00be: case 0x0400'00ca: case 0x0400'00d6: dma().source.data.byte(2) = data; return;
+  case 0x0400'00b3: case 0x0400'00bf: case 0x0400'00cb: case 0x0400'00d7: dma().source.data.byte(3) = data; return;
 
   //DMA0DAD, DMA1DAD, DMA2DAD, DMA3DAD
-  case 0x0400'00b4: case 0x0400'00c0: case 0x0400'00cc: case 0x0400'00d8: dma().target.byte(0) = data; return;
-  case 0x0400'00b5: case 0x0400'00c1: case 0x0400'00cd: case 0x0400'00d9: dma().target.byte(1) = data; return;
-  case 0x0400'00b6: case 0x0400'00c2: case 0x0400'00ce: case 0x0400'00da: dma().target.byte(2) = data; return;
-  case 0x0400'00b7: case 0x0400'00c3: case 0x0400'00cf: case 0x0400'00db: dma().target.byte(3) = data; return;
+  case 0x0400'00b4: case 0x0400'00c0: case 0x0400'00cc: case 0x0400'00d8: dma().target.data.byte(0) = data; return;
+  case 0x0400'00b5: case 0x0400'00c1: case 0x0400'00cd: case 0x0400'00d9: dma().target.data.byte(1) = data; return;
+  case 0x0400'00b6: case 0x0400'00c2: case 0x0400'00ce: case 0x0400'00da: dma().target.data.byte(2) = data; return;
+  case 0x0400'00b7: case 0x0400'00c3: case 0x0400'00cf: case 0x0400'00db: dma().target.data.byte(3) = data; return;
 
   //DMA0CNT_L, DMA1CNT_L, DMA2CNT_L, DMA3CNT_L
-  case 0x0400'00b8: case 0x0400'00c4: case 0x0400'00d0: case 0x0400'00dc: dma().length.byte(0) = data; return;
-  case 0x0400'00b9: case 0x0400'00c5: case 0x0400'00d1: case 0x0400'00dd: dma().length.byte(1) = data; return;
+  case 0x0400'00b8: case 0x0400'00c4: case 0x0400'00d0: case 0x0400'00dc: dma().length.data.byte(0) = data; return;
+  case 0x0400'00b9: case 0x0400'00c5: case 0x0400'00d1: case 0x0400'00dd: dma().length.data.byte(1) = data; return;
 
   //DMA0CNT_H, DMA1CNT_H, DMA2CNT_H, DMA3CNT_H
   case 0x0400'00ba: case 0x0400'00c6: case 0x0400'00d2: case 0x0400'00de:
@@ -274,8 +274,8 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
         dma().active = true;  //immediate transfer mode
         dma().waiting = 2;
       }
-      dma().latch.target = dma().target;
       dma().latch.source = dma().source;
+      dma().latch.target = dma().target;
       dma().latch.length = dma().length;
     } else if(!dma().enable) {
       dma().active = false;

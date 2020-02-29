@@ -7,6 +7,13 @@ auto Program::videoDriverUpdate() -> void {
   ruby::video.setBlocking(settings.video.blocking);
   ruby::video.setFlush(settings.video.flush);
   ruby::video.setShader(settings.video.shader);
+
+  if(!ruby::video.ready()) {
+    MessageDialog().setText({"Failed to initialize ", settings.video.driver, " video driver."}).setAlignment(presentation).error();
+    settings.video.driver = "None";
+    driverSettings.videoDriverUpdate();
+  }
+
   presentation.loadShaders();
 }
 
@@ -55,6 +62,12 @@ auto Program::audioDriverUpdate() -> void {
   ruby::audio.setExclusive(settings.audio.exclusive);
   ruby::audio.setBlocking(settings.audio.blocking);
   ruby::audio.setDynamic(settings.audio.dynamic);
+
+  if(!ruby::audio.ready()) {
+    MessageDialog().setText({"Failed to initialize ", settings.audio.driver, " audio driver."}).setAlignment(presentation).error();
+    settings.audio.driver = "None";
+    driverSettings.audioDriverUpdate();
+  }
 }
 
 auto Program::audioDeviceUpdate() -> void {
@@ -88,4 +101,10 @@ auto Program::inputDriverUpdate() -> void {
   ruby::input.create(settings.input.driver);
   ruby::input.setContext(presentation.viewport.handle());
   ruby::input.onChange({&InputManager::eventInput, &inputManager});
+
+  if(!ruby::input.ready()) {
+    MessageDialog().setText({"Failed to initialize ", settings.input.driver, " input driver."}).setAlignment(presentation).error();
+    settings.input.driver = "None";
+    driverSettings.inputDriverUpdate();
+  }
 }

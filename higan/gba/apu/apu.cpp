@@ -31,7 +31,7 @@ auto APU::unload() -> void {
 auto APU::main() -> void {
   //GBA clock runs at 16777216hz
   //GBA PSG channels run at 2097152hz
-  runsequencer();
+  sequence();
   step(8);
 
   //audio PWM output frequency and bit-rate are dependent upon amplitude setting:
@@ -44,11 +44,11 @@ auto APU::main() -> void {
   //always run the output frequency at the maximum 262144hz
   if(++clock & 7) return;
 
-  int lsample = regs.bias.level - 0x0200;
-  int rsample = regs.bias.level - 0x0200;
+  int lsample = bias.level - 0x0200;
+  int rsample = bias.level - 0x0200;
 
   //amplitude: 0 = 32768hz; 1 = 65536hz; 2 = 131072hz; 3 = 262144hz
-  if((clock & (63 >> (3 - regs.bias.amplitude))) == 0) {
+  if((clock & (63 >> (3 - bias.amplitude))) == 0) {
     sequencer.sample();
     fifo[0].sample();
     fifo[1].sample();
@@ -71,10 +71,10 @@ auto APU::main() -> void {
 
   //clip 11-bit signed output to more limited output bit-rate
   //note: leaving 2-bits more on output to prevent quantization noise
-  if(regs.bias.amplitude == 0) lsample &= ~0, rsample &= ~0;  //9-bit
-  if(regs.bias.amplitude == 1) lsample &= ~1, rsample &= ~1;  //8-bit
-  if(regs.bias.amplitude == 2) lsample &= ~3, rsample &= ~3;  //7-bit
-  if(regs.bias.amplitude == 3) lsample &= ~7, rsample &= ~7;  //6-bit
+  if(bias.amplitude == 0) lsample &= ~0, rsample &= ~0;  //9-bit
+  if(bias.amplitude == 1) lsample &= ~1, rsample &= ~1;  //8-bit
+  if(bias.amplitude == 2) lsample &= ~3, rsample &= ~3;  //7-bit
+  if(bias.amplitude == 3) lsample &= ~7, rsample &= ~7;  //6-bit
 
   if(cpu.stopped()) lsample = 0, rsample = 0;
   stream->sample((lsample << 5) / 32768.0, (rsample << 5) / 32768.0);
@@ -89,6 +89,7 @@ auto APU::power() -> void {
   Thread::create(system.frequency(), {&APU::main, this});
 
   clock = 0;
+  bias = {};
   square1.power();
   square2.power();
   wave.power();
@@ -96,9 +97,6 @@ auto APU::power() -> void {
   sequencer.power();
   fifo[0].power();
   fifo[1].power();
-
-  regs.bias.amplitude = 0;
-  regs.bias.level = 0x200;
 
   for(uint n = 0x060; n <= 0x0a7; n++) bus.io[n] = this;
 }

@@ -10,10 +10,10 @@ auto CPU::DMA::run() -> bool {
 auto CPU::DMA::transfer() -> void {
   uint seek = size ? 4 : 2;
   uint mode = size ? Word : Half;
-  mode |= latch.length == length ? Nonsequential : Sequential;
+  mode |= latch.length() == length() ? Nonsequential : Sequential;
 
   if(mode & Nonsequential) {
-    if((source & 0x0800'0000) && (target & 0x0800'0000)) {
+    if((source() & 0x0800'0000) && (target() & 0x0800'0000)) {
       //ROM -> ROM transfer
     } else {
       cpu.idle();
@@ -21,36 +21,37 @@ auto CPU::DMA::transfer() -> void {
     }
   }
 
-  if(latch.source < 0x0200'0000) {
+  if(latch.source() < 0x0200'0000) {
     cpu.idle();  //cannot access BIOS
   } else {
-    uint32 addr = latch.source;
+    uint32 addr = latch.source();
     if(mode & Word) addr &= ~3;
     if(mode & Half) addr &= ~1;
     data = cpu.get(mode, addr);
   }
 
-  if(latch.target < 0x0200'0000) {
+  if(latch.target() < 0x0200'0000) {
     cpu.idle();  //cannot access BIOS
   } else {
-    uint32 addr = latch.target;
+    uint32 addr = latch.target();
     if(mode & Word) addr &= ~3;
     if(mode & Half) addr &= ~1;
     cpu.set(mode, addr, data);
   }
 
   switch(sourceMode) {
-  case 0: latch.source += seek; break;
-  case 1: latch.source -= seek; break;
+  case 0: latch.source.data += seek; break;
+  case 1: latch.source.data -= seek; break;
   }
 
   switch(targetMode) {
-  case 0: latch.target += seek; break;
-  case 1: latch.target -= seek; break;
-  case 3: latch.target += seek; break;
+  case 0: latch.target.data += seek; break;
+  case 1: latch.target.data -= seek; break;
+  case 3: latch.target.data += seek; break;
   }
 
-  if(--latch.length == 0) {
+  latch.length.data--;
+  if(!latch.length()) {
     active = false;
     if(targetMode == 3) latch.target = target;
     if(repeat == 1) latch.length = length;

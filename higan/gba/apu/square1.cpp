@@ -1,4 +1,4 @@
-auto APU::Square1::runsweep(bool update) -> void {
+auto APU::Square1::runSweep(bool update) -> void {
   if(!sweep.enable) return;
 
   sweep.negate = sweep.direction;
@@ -14,11 +14,11 @@ auto APU::Square1::runsweep(bool update) -> void {
   }
 }
 
-auto APU::Square1::clocksweep() -> void {
+auto APU::Square1::clockSweep() -> void {
   if(enable && sweep.frequency && --sweep.period == 0) {
     sweep.period = sweep.frequency;
-    runsweep(1);
-    runsweep(0);
+    runSweep(1);
+    runSweep(0);
   }
 }
 
@@ -72,7 +72,7 @@ auto APU::Square1::write(uint addr, uint8 byte) -> void {
       sweep.period = sweep.frequency;
       sweep.enable = sweep.period || sweep.shift;
       sweep.negate = false;
-      if(sweep.shift) runsweep(0);
+      if(sweep.shift) runSweep(0);
     }
 
     break;

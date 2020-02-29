@@ -141,7 +141,7 @@ auto PPU::refresh() -> void {
 }
 
 auto PPU::power() -> void {
-  create(system.frequency(), {&PPU::main, this});
+  Thread::create(system.frequency(), {&PPU::main, this});
 
   for(uint n = 0x000; n <= 0x055; n++) bus.io[n] = this;
 

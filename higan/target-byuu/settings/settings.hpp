@@ -49,10 +49,16 @@ struct Settings : Markup::Node {
 
   struct General {
     bool showStatusBar = true;
+    bool rewind = false;
     bool runAhead = false;
     bool autoSaveMemory = true;
     bool nativeFileDialogs = true;
   } general;
+
+  struct Rewind {
+    uint length = 100;
+    uint frequency = 10;
+  } rewind;
 
   struct Recent {
     string game[9];
@@ -76,10 +82,18 @@ struct VideoSettings : VerticalLayout {
     Label gammaValue{&colorAdjustmentLayout, Size{50_sx, 0}};
     HorizontalSlider gammaSlider{&colorAdjustmentLayout, Size{~0, 0}};
   Label emulatorOptionsLabel{this, Size{~0, 0}, 2};
-    CheckLabel colorBleedOption{this, Size{0, 0}, 2};
-    CheckLabel colorEmulationOption{this, Size{0, 0}, 2};
-    CheckLabel interframeBlendingOption{this, Size{0, 0}, 2};
-    CheckLabel overscanOption{this, Size{0, 0}};
+    HorizontalLayout colorBleedLayout{this, Size{~0, 0}, 2};
+      CheckLabel colorBleedOption{&colorBleedLayout, Size{0, 0}, 2};
+      Label colorBleedHint{&colorBleedLayout, Size{~0, 0}};
+    HorizontalLayout colorEmulationLayout{this, Size{~0, 0}, 2};
+      CheckLabel colorEmulationOption{&colorEmulationLayout, Size{0, 0}, 2};
+      Label colorEmulationHint{&colorEmulationLayout, Size{~0, 0}};
+    HorizontalLayout interframeBlendingLayout{this, Size{~0, 0}, 2};
+      CheckLabel interframeBlendingOption{&interframeBlendingLayout, Size{0, 0}, 2};
+      Label interframeBlendingHint{&interframeBlendingLayout, Size{~0, 0}};
+    HorizontalLayout overscanLayout{this, Size{~0, 0}, 2};
+      CheckLabel overscanOption{&overscanLayout, Size{0, 0}, 2};
+      Label overscanLabel{&overscanLayout, Size{~0, 0}};
 };
 
 struct AudioSettings : VerticalLayout {
@@ -143,9 +157,18 @@ struct EmulatorSettings : VerticalLayout {
   auto eventToggle(TableViewCell cell) -> void;
 
   Label optionsLabel{this, Size{~0, 0}, 2};
-  CheckLabel runAhead{this, Size{~0, 0}, 2};
-  CheckLabel autoSaveMemory{this, Size{~0, 0}, 2};
-  CheckLabel nativeFileDialogs{this, Size{~0, 0}};
+  HorizontalLayout rewindLayout{this, Size{~0, 0}, 2};
+    CheckLabel rewind{&rewindLayout, Size{0, 0}, 2};
+    Label rewindHint{&rewindLayout, Size{~0, 0}};
+  HorizontalLayout runAheadLayout{this, Size{~0, 0}, 2};
+    CheckLabel runAhead{&runAheadLayout, Size{0, 0}, 2};
+    Label runAheadHint{&runAheadLayout, Size{~0, 0}};
+  HorizontalLayout autoSaveMemoryLayout{this, Size{~0, 0}, 2};
+    CheckLabel autoSaveMemory{&autoSaveMemoryLayout, Size{0, 0}, 2};
+    Label autoSaveMemoryHint{&autoSaveMemoryLayout, Size{~0, 0}};
+  HorizontalLayout nativeFileDialogsLayout{this, Size{~0, 0}, 2};
+    CheckLabel nativeFileDialogs{&nativeFileDialogsLayout, Size{0, 0}, 2};
+    Label nativeFileDialogsHint{&nativeFileDialogsLayout, Size{~0, 0}};
   Label emulatorLabel{this, Size{~0, 0}, 2};
   TableView emulatorList{this, Size{~0, ~0}};
 };

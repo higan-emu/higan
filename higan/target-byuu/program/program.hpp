@@ -29,6 +29,7 @@ struct Program : higan::Platform {
   //utility.cpp
   auto pause(bool) -> void;
   auto paletteUpdate() -> void;
+  auto runAheadUpdate() -> void;
   auto openFile(BrowserDialog&) -> string;
 
   //drivers.cpp
@@ -53,10 +54,23 @@ struct Program : higan::Platform {
   bool paused = false;
   bool fastForwarding = false;
   bool rewinding = false;
+  bool runAhead = false;
 
   struct State {
     uint slot = 1;
   } state;
+
+  //rewind.cpp
+  struct Rewind {
+    enum class Mode : uint { Playing, Rewinding } mode = Mode::Playing;
+    vector<serializer> history;
+    uint length = 0;
+    uint frequency = 0;
+    uint counter = 0;
+  } rewind;
+  auto rewindSetMode(Rewind::Mode) -> void;
+  auto rewindReset() -> void;
+  auto rewindRun() -> void;
 
   struct Message {
     uint64_t timestamp = 0;

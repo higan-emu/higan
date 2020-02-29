@@ -11,7 +11,7 @@ auto APU::Wave::run() -> void {
   if(enable == false) output = 0;
 }
 
-auto APU::Wave::clocklength() -> void {
+auto APU::Wave::clockLength() -> void {
   if(enable && counter) {
     if(++length == 0) enable = false;
   }
@@ -65,14 +65,14 @@ auto APU::Wave::write(uint addr, uint8 byte) -> void {
   }
 }
 
-auto APU::Wave::readram(uint addr) const -> uint8 {
+auto APU::Wave::readRAM(uint addr) const -> uint8 {
   uint8 byte = 0;
   byte |= pattern[!bank << 5 | addr << 1 | 0] << 4;
   byte |= pattern[!bank << 5 | addr << 1 | 1] << 0;
   return byte;
 }
 
-auto APU::Wave::writeram(uint addr, uint8 byte) -> void {
+auto APU::Wave::writeRAM(uint addr, uint8 byte) -> void {
   pattern[!bank << 5 | addr << 1 | 0] = byte >> 4;
   pattern[!bank << 5 | addr << 1 | 1] = byte >> 0;
 }

@@ -102,21 +102,21 @@ auto CPU::power() -> void {
   prefetch = {};
   context = {};
 
-  dma[0].source.resize(27); dma[0].latch.source.resize(27);
-  dma[0].target.resize(27); dma[0].latch.target.resize(27);
-  dma[0].length.resize(14); dma[0].latch.length.resize(14);
+  dma[0].source.setBits(27); dma[0].latch.source.setBits(27);
+  dma[0].target.setBits(27); dma[0].latch.target.setBits(27);
+  dma[0].length.setBits(14); dma[0].latch.length.setBits(14);
 
-  dma[1].source.resize(28); dma[1].latch.source.resize(28);
-  dma[1].target.resize(27); dma[1].latch.target.resize(27);
-  dma[1].length.resize(14); dma[1].latch.length.resize(14);
+  dma[1].source.setBits(28); dma[1].latch.source.setBits(28);
+  dma[1].target.setBits(27); dma[1].latch.target.setBits(27);
+  dma[1].length.setBits(14); dma[1].latch.length.setBits(14);
 
-  dma[2].source.resize(28); dma[2].latch.source.resize(28);
-  dma[2].target.resize(27); dma[2].latch.target.resize(27);
-  dma[2].length.resize(14); dma[2].latch.length.resize(14);
+  dma[2].source.setBits(28); dma[2].latch.source.setBits(28);
+  dma[2].target.setBits(27); dma[2].latch.target.setBits(27);
+  dma[2].length.setBits(14); dma[2].latch.length.setBits(14);
 
-  dma[3].source.resize(28); dma[3].latch.source.resize(28);
-  dma[3].target.resize(28); dma[3].latch.target.resize(28);
-  dma[3].length.resize(16); dma[3].latch.length.resize(16);
+  dma[3].source.setBits(28); dma[3].latch.source.setBits(28);
+  dma[3].target.setBits(28); dma[3].latch.target.setBits(28);
+  dma[3].length.setBits(16); dma[3].latch.length.setBits(16);
 
   for(uint n = 0x0b0; n <= 0x0df; n++) bus.io[n] = this;  //DMA
   for(uint n = 0x100; n <= 0x10f; n++) bus.io[n] = this;  //Timers

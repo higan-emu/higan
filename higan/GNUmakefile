@@ -5,6 +5,8 @@ openmp := false
 local := true
 flags += -I. -I..
 
+$(info Targeting $(target) ...)
+
 nall.path := ../nall
 include $(nall.path)/GNUmakefile
 

@@ -18,6 +18,13 @@ auto Program::paletteUpdate() -> void {
   }
 }
 
+auto Program::runAheadUpdate() -> void {
+  runAhead = settings.general.runAhead;
+  if(emulator && emulator->name == "Game Boy Advance") runAhead = false;  //crashes immediately
+  if(emulator && emulator->name == "MSX") runAhead = false;  //unstable
+  if(emulator && emulator->name == "MSX2") runAhead = false;  //unstable
+}
+
 auto Program::openFile(BrowserDialog& dialog) -> string {
   if(settings.general.nativeFileDialogs) {
     BrowserWindow window;

@@ -28,13 +28,18 @@ auto PPU::Background::renderMode7() -> void {
 
   for(int X : range(256)) {
     int x = !ppu.mode7.hflip ? X : 255 - X;
+
     int pixelX = originX + a * x >> 8;
     int pixelY = originY + c * x >> 8;
-    int tileX = pixelX >> 3 & 127;
-    int tileY = pixelY >> 3 & 127;
+
+    uint7 tileX = pixelX >> 3;
+    uint7 tileY = pixelY >> 3;
+
     bool outOfBounds = (pixelX | pixelY) & ~1023;
-    uint15 tileAddress = tileY * 128 + tileX;
-    uint15 paletteAddress = ((pixelY & 7) << 3) + (pixelX & 7);
+
+    uint16 tileAddress = tileY << 7 | tileX;
+    uint16 paletteAddress = (uint3)pixelY << 3 | (uint3)pixelX;
+
     uint8 tile = ppu.mode7.repeat == 3 && outOfBounds ? 0 : ppu.vram[tileAddress] >> 0;
     uint8 palette = ppu.mode7.repeat == 2 && outOfBounds ? 0 : ppu.vram[tile << 6 | paletteAddress] >> 8;
 
@@ -42,8 +47,8 @@ auto PPU::Background::renderMode7() -> void {
     if(id == ID::BG1) {
       priority = io.priority[0];
     } else {
-      priority = io.priority[palette >> 7];
-      palette &= 0x7f;
+      priority = io.priority[palette.bit(7)];
+      palette.bit(7) = 0;
     }
 
     if(--mosaicCounter == 0) {

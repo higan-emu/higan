@@ -37,6 +37,6 @@ auto CPU::runFIFO(uint n) -> void {
     dma.waiting = 2;
     dma.targetMode = 2;
     dma.size = 1;
-    dma.latch.length = 4;
+    dma.latch.length.data = 4;
   }
 }

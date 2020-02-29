@@ -4,8 +4,8 @@ auto System::serialize(bool synchronize) -> serializer {
 
   uint signature = 0x31545342;
   uint size = s.capacity();
-  char version[16] = {0};
-  char description[512] = {0};
+  char version[16] = {};
+  char description[512] = {};
   memory::copy(&version, (const char*)SerializerVersion, SerializerVersion.size());
 
   s.integer(signature);
@@ -21,8 +21,8 @@ auto System::unserialize(serializer& s) -> bool {
   uint signature = 0;
   uint size = 0;
   bool synchronize = true;
-  char version[16] = {0};
-  char description[512] = {0};
+  char version[16] = {};
+  char description[512] = {};
 
   s.integer(signature);
   s.integer(size);
@@ -61,8 +61,8 @@ auto System::serializeInit(bool synchronize) -> uint {
 
   uint signature = 0;
   uint size = 0;
-  char version[16] = {0};
-  char description[512] = {0};
+  char version[16] = {};
+  char description[512] = {};
 
   s.integer(signature);
   s.integer(size);
