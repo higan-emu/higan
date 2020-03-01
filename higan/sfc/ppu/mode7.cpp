@@ -24,7 +24,7 @@ auto PPU::Background::runMode7() -> void {
   if(ppu.io.vflipMode7) y = 255 - y;
 
   //13-bit sign extend: --s---nnnnnnnnnn -> ssssssnnnnnnnnnn
-  auto clip = [](int n) -> int { return n & 0x2000 ? (n | ~1023) | (n & 1023); };
+  auto clip = [](int n) -> int { return n & 0x2000 ? (n | ~1023) : (n & 1023); };
   int originX = (a * clip(hoffset - hcenter) & ~63) + (b * clip(voffset - vcenter) & ~63) + (b * y & ~63) + (hcenter << 8);
   int originY = (c * clip(hoffset - hcenter) & ~63) + (d * clip(voffset - vcenter) & ~63) + (d * y & ~63) + (vcenter << 8);
 
