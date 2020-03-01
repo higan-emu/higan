@@ -10,6 +10,14 @@ struct Emulator {
   virtual auto load() -> void = 0;
   virtual auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> = 0;
   virtual auto input(higan::Node::Input) -> void = 0;
+  virtual auto notify(const string& message) -> void {}
+
+  struct Firmware {
+    string type;
+    string region;
+    string sha256;  //optional
+    string location;
+  };
 
   struct Game {
     string location;
@@ -22,12 +30,13 @@ struct Emulator {
   vector<string> extensions;
 
   higan::Node::Object root;
+  vector<Firmware> firmware;
+  Game bios;
   Game game;
 
   struct Configuration {
     bool visible = true;  //whether or not to show this emulator in the load menu
     string game;          //the most recently used folder for games for each emulator core
-    string bios;          //the location of required BIOS files (for systems that have one)
   } configuration;
 
   struct Latch {

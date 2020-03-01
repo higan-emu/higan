@@ -4,6 +4,14 @@ auto VDP::DMA::transfer() -> void {
 
   //load
   if(io.mode <= 1) {
+    if(mcd.handle()
+    && (io.mode.bit(0) << 23 | io.source << 1) >= 0x200000
+    && (io.mode.bit(0) << 23 | io.source << 1) <= 0x23ffff
+    ) {
+      io.source.bit(0,15)++;
+      io.length--;
+    }
+
     do {
       auto data = cpu.read(1, 1, io.mode.bit(0) << 23 | io.source << 1);
       vdp.writeDataPort(data);

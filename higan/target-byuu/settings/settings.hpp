@@ -91,7 +91,7 @@ struct VideoSettings : VerticalLayout {
     HorizontalLayout interframeBlendingLayout{this, Size{~0, 0}, 2};
       CheckLabel interframeBlendingOption{&interframeBlendingLayout, Size{0, 0}, 2};
       Label interframeBlendingHint{&interframeBlendingLayout, Size{~0, 0}};
-    HorizontalLayout overscanLayout{this, Size{~0, 0}, 2};
+    HorizontalLayout overscanLayout{this, Size{~0, 0}};
       CheckLabel overscanOption{&overscanLayout, Size{0, 0}, 2};
       Label overscanLabel{&overscanLayout, Size{~0, 0}};
 };
@@ -166,11 +166,26 @@ struct EmulatorSettings : VerticalLayout {
   HorizontalLayout autoSaveMemoryLayout{this, Size{~0, 0}, 2};
     CheckLabel autoSaveMemory{&autoSaveMemoryLayout, Size{0, 0}, 2};
     Label autoSaveMemoryHint{&autoSaveMemoryLayout, Size{~0, 0}};
-  HorizontalLayout nativeFileDialogsLayout{this, Size{~0, 0}, 2};
+  HorizontalLayout nativeFileDialogsLayout{this, Size{~0, 0}};
     CheckLabel nativeFileDialogs{&nativeFileDialogsLayout, Size{0, 0}, 2};
     Label nativeFileDialogsHint{&nativeFileDialogsLayout, Size{~0, 0}};
   Label emulatorLabel{this, Size{~0, 0}, 2};
   TableView emulatorList{this, Size{~0, ~0}};
+};
+
+struct FirmwareSettings : VerticalLayout {
+  auto construct() -> void;
+  auto refresh() -> void;
+  auto eventChange() -> void;
+  auto eventAssign() -> void;
+  auto eventClear() -> void;
+
+  Label firmwareLabel{this, Size{~0, 0}, 2};
+  TableView firmwareList{this, Size{~0, ~0}};
+  HorizontalLayout controlLayout{this, Size{~0, 0}};
+    Canvas spacer{&controlLayout, Size{~0, 0}};
+    Button assignButton{&controlLayout, Size{80, 0}};
+    Button clearButton{&controlLayout, Size{80, 0}};
 };
 
 struct DriverSettings : VerticalLayout {
@@ -230,6 +245,16 @@ struct DriverSettings : VerticalLayout {
     Group inputDefocusGroup{&inputDefocusPause, &inputDefocusBlock, &inputDefocusAllow};
 };
 
+struct HomePanel : VerticalLayout {
+  auto construct() -> void;
+
+  Canvas canvas{this, Size{~0, ~0}};
+//  Widget spacerY{this, Size{~0, ~0}};
+//  HorizontalLayout layout{this, Size{~0, 116}};
+//    Widget spacerX{&layout, Size{~0, ~0}};
+//    Canvas canvas{&layout, Size{320, 116}};
+};
+
 struct SettingsWindow : Window {
   SettingsWindow();
   auto show(const string& panel) -> void;
@@ -243,7 +268,9 @@ struct SettingsWindow : Window {
       InputSettings inputSettings;
       HotkeySettings hotkeySettings;
       EmulatorSettings emulatorSettings;
+      FirmwareSettings firmwareSettings;
       DriverSettings driverSettings;
+      HomePanel homePanel;
 
   StatusBar statusBar{this};
 };
@@ -256,4 +283,5 @@ extern AudioSettings& audioSettings;
 extern InputSettings& inputSettings;
 extern HotkeySettings& hotkeySettings;
 extern EmulatorSettings& emulatorSettings;
+extern FirmwareSettings& firmwareSettings;
 extern DriverSettings& driverSettings;

@@ -9,3 +9,5 @@ struct FloppyDisk : Media {
   virtual auto export(string location) -> vector<uint8_t> = 0;
   virtual auto heuristics(vector<uint8_t>& data, string location) -> string = 0;
 };
+
+#include "famicom-disk.hpp"

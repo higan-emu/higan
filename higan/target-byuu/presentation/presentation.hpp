@@ -32,6 +32,7 @@ struct Presentation : Window {
       MenuItem inputSettingsAction{&settingsMenu};
       MenuItem hotkeySettingsAction{&settingsMenu};
       MenuItem emulatorSettingsAction{&settingsMenu};
+      MenuItem firmwareSettingsAction{&settingsMenu};
       MenuItem driverSettingsAction{&settingsMenu};
     Menu toolsMenu{&menuBar};
       Menu saveStateMenu{&toolsMenu};

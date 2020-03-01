@@ -17,7 +17,7 @@ namespace ruby {
 
 namespace byuu {
   static const string Name      = "byuu";
-  static const string Version   = "1.4";
+  static const string Version   = "1.5";
   static const string Copyright = "byuu";
   static const string License   = "GPLv3";
   static const string Website   = "https://byuu.org";

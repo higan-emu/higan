@@ -11,6 +11,8 @@ GameBoyAdvance::GameBoyAdvance() {
   interface = new higan::GameBoyAdvance::GameBoyAdvanceInterface;
   name = "Game Boy Advance";
   extensions = {"gba"};
+
+  firmware.append({"BIOS", "World", "fd2547724b505f487e6dcb29ec2ecff3af35a841a77ab2e85fd87350abd36570"});
 }
 
 auto GameBoyAdvance::load() -> void {
@@ -24,7 +26,7 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
   if(name == "manifest.bml") return Emulator::manifest();
 
   if(name == "bios.rom") {
-    if(!file::exists(configuration.bios)) {
+    if(!file::exists(firmware[0].location)) {
       MessageDialog().setText(
         "In order to run Game Boy Advance games, a BIOS is required.\n"
         "Please select the GBA BIOS first. This will only need to be done once.\n"
@@ -37,8 +39,9 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
       string bios = program.openFile(dialog);
       if(file::exists(bios)) {
         auto sha256 = file::sha256(bios);
-        if(file::sha256(bios) == "fd2547724b505f487e6dcb29ec2ecff3af35a841a77ab2e85fd87350abd36570") {
-          configuration.bios = bios;
+        if(file::sha256(bios) == firmware[0].sha256) {
+          firmware[0].location = bios;
+          firmwareSettings.refresh();
         } else {
           MessageDialog().setText(
             "Sorry, this does not appear to be the correct BIOS file. Please try again.\n"
@@ -47,7 +50,7 @@ auto GameBoyAdvance::open(higan::Node::Object node, string name, vfs::file::mode
         }
       }
     }
-    if(auto result = vfs::fs::file::open(configuration.bios, mode)) return result;
+    if(auto result = vfs::fs::file::open(firmware[0].location, mode)) return result;
     return {};
   }
 

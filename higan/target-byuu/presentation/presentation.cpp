@@ -81,6 +81,9 @@ Presentation::Presentation() {
   emulatorSettingsAction.setText("Emulators ...").setIcon(Icon::Place::Server).onActivate([&] {
     settingsWindow.show("Emulators");
   });
+  firmwareSettingsAction.setText("Firmware ...").setIcon(Icon::Emblem::Binary).onActivate([&] {
+    settingsWindow.show("Firmware");
+  });
   driverSettingsAction.setText("Drivers ...").setIcon(Icon::Place::Settings).onActivate([&] {
     settingsWindow.show("Drivers");
   });
@@ -275,6 +278,24 @@ auto Presentation::loadEmulator() -> void {
 
   systemMenu.setText(emulator->name);
   systemMenu.setVisible();
+
+  //todo: structure this better ...
+  if(emulator->name == "Famicom Disk System") {
+    Menu diskMenu{&systemMenu};
+    diskMenu.setText("Disk Drive").setIcon(Icon::Media::Floppy);
+    MenuRadioItem ejected{&diskMenu};
+    ejected.setText("Ejected").onActivate([&] { emulator->notify("Ejected"); });
+    MenuRadioItem disk1sideA{&diskMenu};
+    disk1sideA.setText("Disk 1: Side A").onActivate([&] { emulator->notify("Disk 1: Side A"); });
+    MenuRadioItem disk1sideB{&diskMenu};
+    disk1sideB.setText("Disk 1: Side B").onActivate([&] { emulator->notify("Disk 1: Side B"); });
+    MenuRadioItem disk2sideA{&diskMenu};
+    disk2sideA.setText("Disk 2: Side A").onActivate([&] { emulator->notify("Disk 2: Side A"); });
+    MenuRadioItem disk2sideB{&diskMenu};
+    disk2sideB.setText("Disk 2: Side B").onActivate([&] { emulator->notify("Disk 2: Side B"); });
+    Group group{&ejected, &disk1sideA, &disk1sideB, &disk2sideA, &disk2sideB};
+    disk1sideA.setChecked();
+  }
 
   MenuItem reset{&systemMenu};
   reset.setText("Reset").setIcon(Icon::Action::Refresh).onActivate([&] {

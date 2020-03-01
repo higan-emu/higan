@@ -1,10 +1,12 @@
 #include "../byuu.hpp"
-#include "emulators.cpp"
 #include "video.cpp"
 #include "audio.cpp"
 #include "input.cpp"
 #include "hotkeys.cpp"
+#include "emulators.cpp"
+#include "firmware.cpp"
 #include "drivers.cpp"
+#include "home.cpp"
 
 Settings settings;
 namespace Instances { Instance<SettingsWindow> settingsWindow; }
@@ -14,7 +16,9 @@ AudioSettings& audioSettings = settingsWindow.audioSettings;
 InputSettings& inputSettings = settingsWindow.inputSettings;
 HotkeySettings& hotkeySettings = settingsWindow.hotkeySettings;
 EmulatorSettings& emulatorSettings = settingsWindow.emulatorSettings;
+FirmwareSettings& firmwareSettings = settingsWindow.firmwareSettings;
 DriverSettings& driverSettings = settingsWindow.driverSettings;
+HomePanel& homePanel = settingsWindow.homePanel;
 
 auto Settings::load() -> void {
   Markup::Node::operator=(BML::unserialize(string::read(locate("settings.bml")), " "));
@@ -106,9 +110,9 @@ auto Settings::process(bool load) -> void {
     bind(boolean, name, emulator->configuration.visible);
     name = {base, "/Path"};
     bind(string,  name, emulator->configuration.game);
-    if(load || emulator->configuration.bios) {
-      string name = {base, "/BIOS"};
-      bind(string,  name, emulator->configuration.bios);
+    for(auto& firmware : emulator->firmware) {
+      string name = {base, "/Firmware/", firmware.type, ".", firmware.region};
+      bind(string, name, firmware.location);
     }
   }
 
@@ -132,6 +136,7 @@ SettingsWindow::SettingsWindow() {
   panelList.append(ListViewItem().setText("Input").setIcon(Icon::Device::Joypad));
   panelList.append(ListViewItem().setText("Hotkeys").setIcon(Icon::Device::Keyboard));
   panelList.append(ListViewItem().setText("Emulators").setIcon(Icon::Place::Server));
+  panelList.append(ListViewItem().setText("Firmware").setIcon(Icon::Emblem::Binary));
   panelList.append(ListViewItem().setText("Drivers").setIcon(Icon::Place::Settings));
   panelList.onChange([&] { eventChange(); });
 
@@ -140,14 +145,18 @@ SettingsWindow::SettingsWindow() {
   panelContainer.append(inputSettings, Size{~0, ~0});
   panelContainer.append(hotkeySettings, Size{~0, ~0});
   panelContainer.append(emulatorSettings, Size{~0, ~0});
+  panelContainer.append(firmwareSettings, Size{~0, ~0});
   panelContainer.append(driverSettings, Size{~0, ~0});
+  panelContainer.append(homePanel, Size{~0, ~0});
 
   videoSettings.construct();
   audioSettings.construct();
   inputSettings.construct();
   hotkeySettings.construct();
   emulatorSettings.construct();
+  firmwareSettings.construct();
   driverSettings.construct();
+  homePanel.construct();
 
   statusBar.setFont(Font().setBold());
 
@@ -179,16 +188,21 @@ auto SettingsWindow::eventChange() -> void {
   inputSettings.setVisible(false);
   hotkeySettings.setVisible(false);
   emulatorSettings.setVisible(false);
+  firmwareSettings.setVisible(false);
   driverSettings.setVisible(false);
+  homePanel.setVisible(false);
 
+  bool found = false;
   if(auto item = panelList.selected()) {
-    if(item.text() == "Video"    ) videoSettings.setVisible();
-    if(item.text() == "Audio"    ) audioSettings.setVisible();
-    if(item.text() == "Input"    ) inputSettings.setVisible();
-    if(item.text() == "Hotkeys"  ) hotkeySettings.setVisible();
-    if(item.text() == "Emulators") emulatorSettings.setVisible();
-    if(item.text() == "Drivers"  ) driverSettings.setVisible();
+    if(item.text() == "Video"    ) found = true, videoSettings.setVisible();
+    if(item.text() == "Audio"    ) found = true, audioSettings.setVisible();
+    if(item.text() == "Input"    ) found = true, inputSettings.setVisible();
+    if(item.text() == "Hotkeys"  ) found = true, hotkeySettings.setVisible();
+    if(item.text() == "Emulators") found = true, emulatorSettings.setVisible();
+    if(item.text() == "Firmware" ) found = true, firmwareSettings.setVisible();
+    if(item.text() == "Drivers"  ) found = true, driverSettings.setVisible();
   }
+  if(!found) homePanel.setVisible();
 
   panelContainer.resize();
 }
