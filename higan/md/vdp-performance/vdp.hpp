@@ -81,7 +81,12 @@ private:
 
   struct DMA {
     //dma.cpp
-    auto transfer() -> void;
+    auto run() -> void;
+    auto load() -> void;
+    auto fill() -> void;
+    auto copy() -> void;
+
+    auto power() -> void;
 
     //serialization.cpp
     auto serialize(serializer&) -> void;

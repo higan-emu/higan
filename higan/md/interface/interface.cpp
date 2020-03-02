@@ -6,6 +6,7 @@ Interface* interface = nullptr;
 
 auto MegaDriveInterface::game() -> string {
   if(expansion.node && (!cartridge.node || !cartridge.bootable())) {
+    if(mcd.disc) return mcd.name();
     return expansion.name();
   }
 

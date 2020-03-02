@@ -81,7 +81,6 @@ auto VDP::writeDataPort(uint16 data) -> void {
   if(dma.io.wait) {
     dma.io.wait = false;
     dma.io.fill = data >> 8;
-    dma.transfer();
     //falls through to memory write
     //causes extra transfer to occur on VRAM fill operations
   }
@@ -149,7 +148,6 @@ auto VDP::writeControlPort(uint16 data) -> void {
 
     if(!dma.io.enable) io.command.bit(5) = 0;
     if(dma.io.mode == 3) dma.io.wait = false;
-    dma.transfer();
     return;
   }
 
@@ -184,7 +182,6 @@ auto VDP::writeControlPort(uint16 data) -> void {
     io.displayEnable = data.bit(6);
     vram.mode = data.bit(7);
     if(!dma.io.enable) io.command.bit(5) = 0;
-    dma.transfer();
     return;
   }
 
@@ -325,7 +322,6 @@ auto VDP::writeControlPort(uint16 data) -> void {
     dma.io.source.bit(16,21) = data.bit(0,5);
     dma.io.mode = data.bit(6,7);
     dma.io.wait = dma.io.mode.bit(1);
-    dma.transfer();
     return;
   }
 

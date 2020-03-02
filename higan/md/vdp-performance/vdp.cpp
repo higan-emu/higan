@@ -95,8 +95,15 @@ auto VDP::main() -> void {
 
 auto VDP::step(uint clocks) -> void {
   state.hcounter += clocks;
-  Thread::step(clocks);
-  Thread::synchronize(cpu, apu);
+
+  if(!dma.io.enable || dma.io.wait) {
+    Thread::step(clocks);
+    Thread::synchronize(cpu, apu);
+  } else while(clocks--) {
+    dma.run();
+    Thread::step(1);
+    Thread::synchronize(cpu, apu);
+  }
 }
 
 auto VDP::refresh() -> void {
@@ -187,8 +194,7 @@ auto VDP::power(bool reset) -> void {
   for(auto& data : cram.memory) data = 0;
   for(auto& data : cram.palette) data = 0;
 
-  dma.active = 0;
-  dma.io = {};
+  dma.power();
 
   planeA.io = {};
   window.io = {};

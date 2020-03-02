@@ -12,6 +12,8 @@ struct MegaCD : Emulator {
   auto load() -> void override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
+
+  uint regionID = 0;
 };
 
 MegaDrive::MegaDrive() {
@@ -83,7 +85,7 @@ auto MegaDrive::input(higan::Node::Input node) -> void {
 MegaCD::MegaCD() {
   interface = new higan::MegaDrive::MegaDriveInterface;
   name = "Sega CD";
-  extensions = {"bin"};
+  extensions = {"bin", "img"};
 
   firmware.append({"BIOS", "US"});
   firmware.append({"BIOS", "Japan"});
@@ -91,7 +93,19 @@ MegaCD::MegaCD() {
 }
 
 auto MegaCD::load() -> void {
-  bios.location = firmware[0].location;
+  //todo: implement this into icarus::MegaCD
+  regionID = 0;
+  if(file::size(game.location) >= 0x210) {
+    auto fp = file::open(game.location, file::mode::read);
+    fp.seek(0x200);
+    uint8_t region = fp.read();
+    if(region == 'U') regionID = 0;
+    if(region == 'J') regionID = 1;
+    if(region == 'E') regionID = 2;
+    if(region == 'W') regionID = 0;
+  }
+
+  bios.location = firmware[regionID].location;
   bios.image = file::read(bios.location);
   for(auto& media : icarus::media) {
     if(media->name() != "Mega Drive") continue;
@@ -109,6 +123,11 @@ auto MegaCD::load() -> void {
     port->connect(peripheral);
   }
 
+  if(auto port = root->scan<higan::Node::Port>("Disc Tray")) {
+    auto peripheral = port->allocate();
+    port->connect(peripheral);
+  }
+
   if(auto port = root->find<higan::Node::Port>("Controller Port 1")) {
     auto peripheral = port->allocate();
     peripheral->setName("Fighting Pad");
@@ -117,17 +136,48 @@ auto MegaCD::load() -> void {
 }
 
 auto MegaCD::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
-  if(name == "manifest.bml") {
-    return vfs::memory::file::open(bios.manifest.data<uint8_t>(), bios.manifest.size());
+  if(node->name() == "Mega Drive") {
+    if(name == "manifest.bml") {
+      return vfs::memory::file::open(bios.manifest.data<uint8_t>(), bios.manifest.size());
+    }
+
+    if(name == "program.rom") {
+      return vfs::memory::file::open(bios.image.data(), bios.image.size());
+    }
+
+    if(name == "backup.ram") {
+      string location = {Location::notsuffix(game.location), ".sav"};
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
+    }
   }
 
-  if(name == "program.rom") {
-    return vfs::memory::file::open(bios.image.data(), bios.image.size());
-  }
+  if(node->name() == "Mega CD") {
+    if(name == "manifest.bml") {
+      string manifest;
+      manifest.append("game\n");
+      manifest.append("  name:  ", Location::prefix(game.location), "\n");
+      manifest.append("  label: ", Location::prefix(game.location), "\n");
+      return vfs::memory::file::open(manifest.data<uint8_t>(), manifest.size());
+    }
 
-  if(name == "backup.ram") {
-    string location = {Location::notsuffix(game.location), ".sav"};
-    if(auto result = vfs::fs::file::open(location, mode)) return result;
+    if(name == "cd.rom") {
+      if(game.location.iendsWith(".zip")) {
+        MessageDialog().setText(
+          "Sorry, compressed CD-ROM images are not currently supported.\n"
+          "Please extract the image prior to loading it."
+        ).setAlignment(presentation).error();
+        return {};
+      }
+
+      string binLocation = game.location;
+      string cueLocation = {Location::notsuffix(game.location), ".cue"};
+      string subLocation = {Location::notsuffix(game.location), ".sub"};
+      if(auto result = vfs::fs::cdrom::open(binLocation, cueLocation, subLocation)) return result;
+      if(0) MessageDialog().setText(
+        "Failed to load CD-ROM image.\n"
+        "Please ensure image is in single-file BIN+CUE format and is uncompressed."
+      ).setAlignment(presentation).error();
+    }
   }
 
   return {};

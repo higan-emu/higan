@@ -249,10 +249,6 @@ struct HomePanel : VerticalLayout {
   auto construct() -> void;
 
   Canvas canvas{this, Size{~0, ~0}};
-//  Widget spacerY{this, Size{~0, ~0}};
-//  HorizontalLayout layout{this, Size{~0, 116}};
-//    Widget spacerX{&layout, Size{~0, ~0}};
-//    Canvas canvas{&layout, Size{320, 116}};
 };
 
 struct SettingsWindow : Window {

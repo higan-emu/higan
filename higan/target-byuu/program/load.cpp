@@ -42,7 +42,11 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
 
   vector<uint8_t> filedata;
 
-  if(filename.iendsWith(".zip")) {
+  if(emulator->name == "Sega CD") {
+    //Sega CD uses on-disk file instead of loading image into RAM.
+    //todo: support this more cleanly.
+    filedata.append(0);
+  } else if(filename.iendsWith(".zip")) {
     Decode::ZIP archive;
     if(archive.open(filename)) {
       for(auto& file : archive.file) {

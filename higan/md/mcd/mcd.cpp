@@ -86,6 +86,9 @@ auto MCD::connect(Node::Peripheral with) -> void {
       information.manifest = fp->reads();
     }
 
+    auto document = BML::unserialize(information.manifest);
+    information.name = document["game/label"].text();
+
     fd = platform->open(disc, "cd.rom", File::Read, File::Required);
     cdd.insert();
   }
@@ -96,6 +99,7 @@ auto MCD::disconnect() -> void {
   cdd.eject();
   disc = {};
   fd = {};
+  information = {};
 }
 
 auto MCD::main() -> void {
