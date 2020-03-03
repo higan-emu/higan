@@ -119,7 +119,7 @@ auto Emulator::manifest() -> shared_pointer<vfs::file> {
   return {};
 }
 
-auto Emulator::load(const string& location, const vector<uint8_t>& image) -> void {
+auto Emulator::load(const string& location, const vector<uint8_t>& image) -> bool {
   configuration.game = Location::dir(location);
 
   game.location = location;
@@ -136,9 +136,10 @@ auto Emulator::load(const string& location, const vector<uint8_t>& image) -> voi
   setBoolean("Color Emulation", settings.video.colorEmulation);
   setBoolean("Interframe Blending", settings.video.interframeBlending);
   setOverscan(settings.video.overscan);
+  if(!load()) return false;
 
-  load();
   interface->power();
+  return true;
 }
 
 auto Emulator::save() -> void {
@@ -169,4 +170,11 @@ auto Emulator::setOverscan(bool value) -> bool {
 
 auto Emulator::error(const string& text) -> void {
   MessageDialog().setTitle("Error").setText(text).setAlignment(presentation).error();
+}
+
+auto Emulator::errorFirmwareRequired(const Firmware& firmware) -> void {
+  if(MessageDialog().setText({
+    emulator->name, " - ", firmware.type, " (", firmware.region, ") is required to play this game.\n"
+    "Would you like to configure firmware settings now?"
+  }).question() == "Yes") settingsWindow.show("Firmware");
 }

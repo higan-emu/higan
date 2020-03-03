@@ -2,14 +2,14 @@
 
 struct Famicom : Emulator {
   Famicom();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
 
 struct FamicomDiskSystem : Emulator {
   FamicomDiskSystem();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
   auto notify(const string& message) -> void override;
@@ -19,11 +19,11 @@ struct FamicomDiskSystem : Emulator {
 
 Famicom::Famicom() {
   interface = new higan::Famicom::FamicomInterface;
-  name = "Nintendo";
+  name = "Famicom";
   extensions = {"nes"};
 }
 
-auto Famicom::load() -> void {
+auto Famicom::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -34,6 +34,8 @@ auto Famicom::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto Famicom::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -90,7 +92,12 @@ FamicomDiskSystem::FamicomDiskSystem() {
   firmware.append({"BIOS", "Japan"});
 }
 
-auto FamicomDiskSystem::load() -> void {
+auto FamicomDiskSystem::load() -> bool {
+  if(!file::exists(firmware[0].location)) {
+    errorFirmwareRequired(firmware[0]);
+    return false;
+  }
+
   bios.location = firmware[0].location;
   bios.image = file::read(bios.location);
   for(auto& media : icarus::media) {
@@ -137,6 +144,8 @@ auto FamicomDiskSystem::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto FamicomDiskSystem::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

@@ -2,25 +2,25 @@
 
 struct PCEngine : Emulator {
   PCEngine();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
 
 struct SuperGrafx : Emulator {
   SuperGrafx();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
 
 PCEngine::PCEngine() {
   interface = new higan::PCEngine::PCEngineInterface;
-  name = "TurboGrafx-16";
+  name = "PC Engine";
   extensions = {"pce"};
 }
 
-auto PCEngine::load() -> void {
+auto PCEngine::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -31,6 +31,8 @@ auto PCEngine::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto PCEngine::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -78,7 +80,7 @@ SuperGrafx::SuperGrafx() {
   extensions = {"sgx"};
 }
 
-auto SuperGrafx::load() -> void {
+auto SuperGrafx::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -89,6 +91,8 @@ auto SuperGrafx::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto SuperGrafx::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

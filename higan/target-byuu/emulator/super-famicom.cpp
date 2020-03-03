@@ -2,18 +2,18 @@
 
 struct SuperFamicom : Emulator {
   SuperFamicom();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
 
 SuperFamicom::SuperFamicom() {
   interface = new higan::SuperFamicom::SuperFamicomInterface;
-  name = "Super Nintendo";
+  name = "Super Famicom";
   extensions = {"sfc", "smc"};
 }
 
-auto SuperFamicom::load() -> void {
+auto SuperFamicom::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -24,6 +24,8 @@ auto SuperFamicom::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

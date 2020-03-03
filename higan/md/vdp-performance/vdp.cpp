@@ -43,6 +43,7 @@ auto VDP::main() -> void {
   apu.setINT(false);
 
   if(state.vcounter == 0) {
+    latch.displayWidth = io.displayWidth;
     latch.horizontalInterruptCounter = io.horizontalInterruptCounter;
     io.vblankIRQ = false;
     cpu.lower(CPU::Interrupt::VerticalBlank);
@@ -89,14 +90,13 @@ auto VDP::main() -> void {
     latch.interlace = io.interlaceMode == 3;
     latch.overscan = io.overscan;
   }
-
-  latch.displayWidth = io.displayWidth;
 }
 
 auto VDP::step(uint clocks) -> void {
   state.hcounter += clocks;
 
   if(!dma.io.enable || dma.io.wait) {
+    dma.active = 0;
     Thread::step(clocks);
     Thread::synchronize(cpu, apu);
   } else while(clocks--) {

@@ -2,14 +2,14 @@
 
 struct MasterSystem : Emulator {
   MasterSystem();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
 
 struct GameGear : Emulator {
   GameGear();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
@@ -20,7 +20,7 @@ MasterSystem::MasterSystem() {
   extensions = {"ms", "sms"};
 }
 
-auto MasterSystem::load() -> void {
+auto MasterSystem::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -31,6 +31,8 @@ auto MasterSystem::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto MasterSystem::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -78,11 +80,13 @@ GameGear::GameGear() {
   extensions = {"gg"};
 }
 
-auto GameGear::load() -> void {
+auto GameGear::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto GameGear::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

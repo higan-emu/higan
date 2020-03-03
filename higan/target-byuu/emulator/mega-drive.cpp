@@ -2,14 +2,14 @@
 
 struct MegaDrive : Emulator {
   MegaDrive();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
 
 struct MegaCD : Emulator {
   MegaCD();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 
@@ -18,11 +18,11 @@ struct MegaCD : Emulator {
 
 MegaDrive::MegaDrive() {
   interface = new higan::MegaDrive::MegaDriveInterface;
-  name = "Genesis";
+  name = "Mega Drive";
   extensions = {"md", "smd", "gen"};
 }
 
-auto MegaDrive::load() -> void {
+auto MegaDrive::load() -> bool {
   if(auto region = root->find<higan::Node::String>("Region")) {
     region->setValue("NTSC-U → NTSC-J → PAL");
   }
@@ -37,6 +37,8 @@ auto MegaDrive::load() -> void {
     peripheral->setName("Fighting Pad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto MegaDrive::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -84,7 +86,7 @@ auto MegaDrive::input(higan::Node::Input node) -> void {
 
 MegaCD::MegaCD() {
   interface = new higan::MegaDrive::MegaDriveInterface;
-  name = "Sega CD";
+  name = "Mega CD";
   extensions = {"bin", "img"};
 
   firmware.append({"BIOS", "US"});
@@ -92,7 +94,7 @@ MegaCD::MegaCD() {
   firmware.append({"BIOS", "Europe"});
 }
 
-auto MegaCD::load() -> void {
+auto MegaCD::load() -> bool {
   //todo: implement this into icarus::MegaCD
   regionID = 0;
   if(file::size(game.location) >= 0x210) {
@@ -103,6 +105,11 @@ auto MegaCD::load() -> void {
     if(region == 'J') regionID = 1;
     if(region == 'E') regionID = 2;
     if(region == 'W') regionID = 0;
+  }
+
+  if(!file::exists(firmware[regionID].location)) {
+    errorFirmwareRequired(firmware[regionID]);
+    return false;
   }
 
   bios.location = firmware[regionID].location;
@@ -133,6 +140,8 @@ auto MegaCD::load() -> void {
     peripheral->setName("Fighting Pad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto MegaCD::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

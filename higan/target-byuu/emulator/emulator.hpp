@@ -1,13 +1,16 @@
 struct Emulator {
+  struct Firmware;
+
   static auto construct() -> void;
   auto manifest() -> shared_pointer<vfs::file>;
-  auto load(const string& location, const vector<uint8_t>& image) -> void;
+  auto load(const string& location, const vector<uint8_t>& image) -> bool;
   auto save() -> void;
   auto unload() -> void;
   auto setBoolean(const string& name, bool value) -> bool;
   auto setOverscan(bool value) -> bool;
   auto error(const string& text) -> void;
-  virtual auto load() -> void = 0;
+  auto errorFirmwareRequired(const Firmware&) -> void;
+  virtual auto load() -> bool = 0;
   virtual auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> = 0;
   virtual auto input(higan::Node::Input) -> void = 0;
   virtual auto notify(const string& message) -> void {}

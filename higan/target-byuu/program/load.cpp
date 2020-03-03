@@ -42,8 +42,8 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
 
   vector<uint8_t> filedata;
 
-  if(emulator->name == "Sega CD") {
-    //Sega CD uses on-disk file instead of loading image into RAM.
+  if(emulator->name == "Mega CD") {
+    //Mega CD uses on-disk file instead of loading image into RAM.
     //todo: support this more cleanly.
     filedata.append(0);
   } else if(filename.iendsWith(".zip")) {
@@ -73,7 +73,12 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
 
   unload();
   ::emulator = emulator;
-  emulator->load(filename, filedata);
+  if(!emulator->load(filename, filedata)) {
+    ::emulator.reset();
+    if(settings.video.adaptiveSizing) presentation.resizeWindow();
+    return false;
+  }
+
   paletteUpdate();
   runAheadUpdate();
   presentation.loadEmulator();

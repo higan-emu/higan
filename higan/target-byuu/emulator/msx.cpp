@@ -2,7 +2,14 @@
 
 struct MSX : Emulator {
   MSX();
-  auto load() -> void override;
+  auto load() -> bool override;
+  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
+  auto input(higan::Node::Input) -> void override;
+};
+
+struct MSX2 : Emulator {
+  MSX2();
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
@@ -13,7 +20,7 @@ MSX::MSX() {
   extensions = {"msx"};
 }
 
-auto MSX::load() -> void {
+auto MSX::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -24,6 +31,8 @@ auto MSX::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto MSX::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -61,20 +70,13 @@ auto MSX::input(higan::Node::Input node) -> void {
   }
 }
 
-struct MSX2 : Emulator {
-  MSX2();
-  auto load() -> void override;
-  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
-  auto input(higan::Node::Input) -> void override;
-};
-
 MSX2::MSX2() {
   interface = new higan::MSX::MSX2Interface;
   name = "MSX2";
   extensions = {"msx2"};
 }
 
-auto MSX2::load() -> void {
+auto MSX2::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
@@ -85,6 +87,8 @@ auto MSX2::load() -> void {
     peripheral->setName("Gamepad");
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto MSX2::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

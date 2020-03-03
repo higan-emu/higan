@@ -284,7 +284,7 @@ auto Presentation::loadEmulator() -> void {
     Menu diskMenu{&systemMenu};
     diskMenu.setText("Disk Drive").setIcon(Icon::Media::Floppy);
     MenuRadioItem ejected{&diskMenu};
-    ejected.setText("Ejected").onActivate([&] { emulator->notify("Ejected"); });
+    ejected.setText("No Disk").onActivate([&] { emulator->notify("Ejected"); });
     MenuRadioItem disk1sideA{&diskMenu};
     disk1sideA.setText("Disk 1: Side A").onActivate([&] { emulator->notify("Disk 1: Side A"); });
     MenuRadioItem disk1sideB{&diskMenu};

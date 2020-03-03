@@ -2,7 +2,21 @@
 
 struct WonderSwan : Emulator {
   WonderSwan();
-  auto load() -> void override;
+  auto load() -> bool override;
+  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
+  auto input(higan::Node::Input) -> void override;
+};
+
+struct WonderSwanColor : Emulator {
+  WonderSwanColor();
+  auto load() -> bool override;
+  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
+  auto input(higan::Node::Input) -> void override;
+};
+
+struct PocketChallengeV2 : Emulator {
+  PocketChallengeV2();
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
@@ -13,11 +27,13 @@ WonderSwan::WonderSwan() {
   extensions = {"ws"};
 }
 
-auto WonderSwan::load() -> void {
+auto WonderSwan::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto WonderSwan::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -76,24 +92,19 @@ auto WonderSwan::input(higan::Node::Input node) -> void {
   }
 }
 
-struct WonderSwanColor : Emulator {
-  WonderSwanColor();
-  auto load() -> void override;
-  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
-  auto input(higan::Node::Input) -> void override;
-};
-
 WonderSwanColor::WonderSwanColor() {
   interface = new higan::WonderSwan::WonderSwanColorInterface;
   name = "WonderSwan Color";
   extensions = {"wsc"};
 }
 
-auto WonderSwanColor::load() -> void {
+auto WonderSwanColor::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto WonderSwanColor::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -152,24 +163,19 @@ auto WonderSwanColor::input(higan::Node::Input node) -> void {
   }
 }
 
-struct PocketChallengeV2 : Emulator {
-  PocketChallengeV2();
-  auto load() -> void override;
-  auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
-  auto input(higan::Node::Input) -> void override;
-};
-
 PocketChallengeV2::PocketChallengeV2() {
   interface = new higan::WonderSwan::PocketChallengeV2Interface;
   name = "Pocket Challenge V2";
   extensions = {"pc2"};
 }
 
-auto PocketChallengeV2::load() -> void {
+auto PocketChallengeV2::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto PocketChallengeV2::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {

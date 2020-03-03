@@ -2,14 +2,14 @@
 
 struct GameBoy : Emulator {
   GameBoy();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
 
 struct GameBoyColor : Emulator {
   GameBoyColor();
-  auto load() -> void override;
+  auto load() -> bool override;
   auto open(higan::Node::Object, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> override;
   auto input(higan::Node::Input) -> void override;
 };
@@ -20,11 +20,13 @@ GameBoy::GameBoy() {
   extensions = {"gb"};
 }
 
-auto GameBoy::load() -> void {
+auto GameBoy::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto GameBoy::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
@@ -76,11 +78,13 @@ GameBoyColor::GameBoyColor() {
   extensions = {"gbc"};
 }
 
-auto GameBoyColor::load() -> void {
+auto GameBoyColor::load() -> bool {
   if(auto port = root->find<higan::Node::Port>("Cartridge Slot")) {
     auto peripheral = port->allocate();
     port->connect(peripheral);
   }
+
+  return true;
 }
 
 auto GameBoyColor::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
