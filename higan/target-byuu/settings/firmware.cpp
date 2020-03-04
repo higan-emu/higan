@@ -27,7 +27,7 @@ auto FirmwareSettings::refresh() -> void {
       item.append(TableViewCell().setText(firmware.type));
       item.append(TableViewCell().setText(firmware.region));
       if(file::exists(firmware.location)) {
-        item.append(TableViewCell().setText(string{firmware.location}.replace(Path::user(), "~/", 1L)));
+        item.append(TableViewCell().setText(string{firmware.location}.replace(Path::user(), "~/")));
       } else {
         item.append(TableViewCell().setText("(unset)").setForegroundColor({128, 128, 128}));
       }
@@ -36,6 +36,20 @@ auto FirmwareSettings::refresh() -> void {
 
   firmwareList.resizeColumns();
   eventChange();
+}
+
+auto FirmwareSettings::select(const string& emulator, const string& type, const string& region) -> bool {
+  for(auto& item : firmwareList.items()) {
+    if(item.cell(0).text() != emulator) continue;
+    if(item.cell(1).text() != type) continue;
+    if(item.cell(2).text() != region) continue;
+    firmwareList.selectNone();
+    item.setSelected();
+    eventChange();
+    firmwareList.setFocused();
+    return true;
+  }
+  return false;
 }
 
 auto FirmwareSettings::eventChange() -> void {
@@ -59,16 +73,9 @@ auto FirmwareSettings::eventAssign() -> void {
       BrowserDialog dialog;
       dialog.setTitle({"Select ", name, " ", type, " (", region, ")"});
       dialog.setPath(Path::desktop());
-      auto location = program.openFile(dialog);
-      if(location.iendsWith(".zip")) {
-        MessageDialog().setText("Sorry, firmware files must be uncompressed.").error();
-      } else if(location) {
-        if(firmware.sha256 && firmware.sha256 != file::sha256(location)) {
-          MessageDialog().setText("Sorry, this does not appear to be the correct firmware file.").error();
-        } else {
-          firmware.location = location;
-          refresh();
-        }
+      if(auto location = program.openFile(dialog)) {
+        firmware.location = location;
+        refresh();
       }
     }
   }

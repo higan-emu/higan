@@ -112,15 +112,6 @@ auto MegaCD::load() -> bool {
     return false;
   }
 
-  bios.location = firmware[regionID].location;
-  bios.image = file::read(bios.location);
-  for(auto& media : icarus::media) {
-    if(media->name() != "Mega Drive") continue;
-    if(auto cartridge = media.cast<icarus::Cartridge>()) {
-      bios.manifest = cartridge->manifest(bios.image, bios.location);
-    }
-  }
-
   if(auto region = root->find<higan::Node::String>("Region")) {
     region->setValue("NTSC-U → NTSC-J → PAL");
   }
@@ -147,11 +138,22 @@ auto MegaCD::load() -> bool {
 auto MegaCD::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   if(node->name() == "Mega Drive") {
     if(name == "manifest.bml") {
-      return vfs::memory::file::open(bios.manifest.data<uint8_t>(), bios.manifest.size());
+      for(auto& media : icarus::media) {
+        if(media->name() != "Mega Drive") continue;
+        if(auto cartridge = media.cast<icarus::Cartridge>()) {
+          if(auto image = loadFirmware(firmware[regionID])) {
+            vector<uint8_t> bios;
+            bios.resize(image->size());
+            image->read(bios.data(), bios.size());
+            auto manifest = cartridge->manifest(bios, firmware[regionID].location);
+            return vfs::memory::file::open(manifest.data<uint8_t>(), manifest.size());
+          }
+        }
+      }
     }
 
     if(name == "program.rom") {
-      return vfs::memory::file::open(bios.image.data(), bios.image.size());
+      return loadFirmware(firmware[regionID]);
     }
 
     if(name == "backup.ram") {

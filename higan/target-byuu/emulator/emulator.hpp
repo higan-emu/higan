@@ -4,6 +4,7 @@ struct Emulator {
   static auto construct() -> void;
   auto manifest() -> shared_pointer<vfs::file>;
   auto load(const string& location, const vector<uint8_t>& image) -> bool;
+  auto loadFirmware(const Firmware&) -> shared_pointer<vfs::file>;
   auto save() -> void;
   auto unload() -> void;
   auto setBoolean(const string& name, bool value) -> bool;
@@ -34,7 +35,6 @@ struct Emulator {
 
   higan::Node::Object root;
   vector<Firmware> firmware;
-  Game bios;
   Game game;
 
   struct Configuration {

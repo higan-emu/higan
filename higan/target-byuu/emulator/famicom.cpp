@@ -98,15 +98,6 @@ auto FamicomDiskSystem::load() -> bool {
     return false;
   }
 
-  bios.location = firmware[0].location;
-  bios.image = file::read(bios.location);
-  for(auto& media : icarus::media) {
-    if(media->name() != "Famicom") continue;
-    if(auto cartridge = media.cast<icarus::Cartridge>()) {
-      bios.manifest = cartridge->manifest(bios.image, bios.location);
-    }
-  }
-
   for(auto& media : icarus::media) {
     if(media->name() != "Famicom Disk") continue;
     if(auto famicomDisk = media.cast<icarus::FamicomDisk>()) {
@@ -151,11 +142,22 @@ auto FamicomDiskSystem::load() -> bool {
 auto FamicomDiskSystem::open(higan::Node::Object node, string name, vfs::file::mode mode, bool required) -> shared_pointer<vfs::file> {
   if(node->name() == "Famicom") {
     if(name == "manifest.bml") {
-      return vfs::memory::file::open(bios.manifest.data<uint8_t>(), bios.manifest.size());
+      for(auto& media : icarus::media) {
+        if(media->name() != "Famicom") continue;
+        if(auto cartridge = media.cast<icarus::Cartridge>()) {
+          if(auto image = loadFirmware(firmware[0])) {
+            vector<uint8_t> bios;
+            bios.resize(image->size());
+            image->read(bios.data(), bios.size());
+            auto manifest = cartridge->manifest(bios, firmware[0].location);
+            return vfs::memory::file::open(manifest.data<uint8_t>(), manifest.size());
+          }
+        }
+      }
     }
 
     if(name == "program.rom") {
-      return vfs::memory::file::open(bios.image.data(), bios.image.size());
+      return loadFirmware(firmware[0]);
     }
   }
 

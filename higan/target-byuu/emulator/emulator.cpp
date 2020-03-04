@@ -142,6 +142,19 @@ auto Emulator::load(const string& location, const vector<uint8_t>& image) -> boo
   return true;
 }
 
+auto Emulator::loadFirmware(const Firmware& firmware) -> shared_pointer<vfs::file> {
+  if(firmware.location.iendsWith(".zip")) {
+    Decode::ZIP archive;
+    if(archive.open(firmware.location) && archive.file) {
+      auto image = archive.extract(archive.file.first());
+      return vfs::memory::file::open(image.data(), image.size());
+    }
+  } else if(auto image = file::read(firmware.location)) {
+    return vfs::memory::file::open(image.data(), image.size());
+  }
+  return {};
+}
+
 auto Emulator::save() -> void {
   interface->save();
 }
@@ -176,5 +189,8 @@ auto Emulator::errorFirmwareRequired(const Firmware& firmware) -> void {
   if(MessageDialog().setText({
     emulator->name, " - ", firmware.type, " (", firmware.region, ") is required to play this game.\n"
     "Would you like to configure firmware settings now?"
-  }).question() == "Yes") settingsWindow.show("Firmware");
+  }).question() == "Yes") {
+    settingsWindow.show("Firmware");
+    firmwareSettings.select(emulator->name, firmware.type, firmware.region);
+  }
 }

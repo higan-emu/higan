@@ -176,6 +176,7 @@ struct EmulatorSettings : VerticalLayout {
 struct FirmwareSettings : VerticalLayout {
   auto construct() -> void;
   auto refresh() -> void;
+  auto select(const string& emulator, const string& type, const string& region) -> bool;
   auto eventChange() -> void;
   auto eventAssign() -> void;
   auto eventClear() -> void;

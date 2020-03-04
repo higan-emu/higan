@@ -44,7 +44,7 @@ auto NeoGeoPocket::open(higan::Node::Object node, string name, vfs::file::mode m
   if(name == "manifest.bml") return Emulator::manifest();
 
   if(name == "bios.rom") {
-    if(auto result = vfs::fs::file::open(firmware[0].location, mode)) return result;
+    return loadFirmware(firmware[0]);
   }
 
   auto document = BML::unserialize(game.manifest);
@@ -106,7 +106,7 @@ auto NeoGeoPocketColor::open(higan::Node::Object node, string name, vfs::file::m
   if(name == "manifest.bml") return Emulator::manifest();
 
   if(name == "bios.rom") {
-    if(auto result = vfs::fs::file::open(firmware[0].location, mode)) return result;
+    return loadFirmware(firmware[0]);
   }
 
   auto document = BML::unserialize(game.manifest);

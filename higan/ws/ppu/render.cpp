@@ -55,12 +55,13 @@ auto PPU::renderBack() -> void {
 }
 
 auto PPU::renderScreenOne(uint8 x, uint8 y) -> void {
-  uint8 scrollY = y + l.scrollOneY;
   uint8 scrollX = x + l.scrollOneX;
+  uint8 scrollY = y + l.scrollOneY;
 
-  uint16 tilemapOffset = l.screenOneMapBase.bit(0, depth() == 2 ? 2 : 3) << 11;
-  tilemapOffset += (scrollY >> 3) << 6;
-  tilemapOffset += (scrollX >> 3) << 1;
+  uint15 tilemapOffset = 0;
+  tilemapOffset.bit( 1, 5) = scrollX >> 3;
+  tilemapOffset.bit( 6,10) = scrollY >> 3;
+  tilemapOffset.bit(11,14) = l.screenOneMapBase.bit(0, depth() == 2 ? 2 : 3);
 
   uint16 attributes = iram.read16(tilemapOffset);
   uint10 tile = attributes.bit(13) << 9 | attributes.bit(0,8);
@@ -73,17 +74,25 @@ auto PPU::renderScreenOne(uint8 x, uint8 y) -> void {
 }
 
 auto PPU::renderScreenTwo(uint8 x, uint8 y) -> void {
-  bool windowInside = y >= l.screenTwoWindowY0 && y <= l.screenTwoWindowY1
-                   && x >= l.screenTwoWindowX0 && x <= l.screenTwoWindowX1;
+  auto x0 = l.screenTwoWindowX0;
+  auto x1 = l.screenTwoWindowX1;
+  if(x0 > x1) swap(x0, x1);
+
+  auto y0 = l.screenTwoWindowY0;
+  auto y1 = l.screenTwoWindowY1;
+  if(y0 > y1) swap(y0, y1);
+
+  bool windowInside = x >= x0 && x <= x1 && y >= y0 && y <= y1;
   windowInside ^= l.screenTwoWindowInvert;
   if(l.screenTwoWindowEnable && !windowInside) return;
 
-  uint8 scrollY = y + l.scrollTwoY;
   uint8 scrollX = x + l.scrollTwoX;
+  uint8 scrollY = y + l.scrollTwoY;
 
-  uint16 tilemapOffset = l.screenTwoMapBase.bit(0, depth() == 2 ? 2 : 3) << 11;
-  tilemapOffset += (scrollY >> 3) << 6;
-  tilemapOffset += (scrollX >> 3) << 1;
+  uint15 tilemapOffset = 0;
+  tilemapOffset.bit( 1, 5) = scrollX >> 3;
+  tilemapOffset.bit( 6,10) = scrollY >> 3;
+  tilemapOffset.bit(11,14) = l.screenTwoMapBase.bit(0, depth() == 2 ? 2 : 3);
 
   uint16 attributes = iram.read16(tilemapOffset);
   uint10 tile = attributes.bit(13) << 9 | attributes.bit(0,8);
@@ -96,8 +105,15 @@ auto PPU::renderScreenTwo(uint8 x, uint8 y) -> void {
 }
 
 auto PPU::renderSprite(uint8 x, uint8 y) -> void {
-  bool windowInside = y >= l.spriteWindowY0 && y <= l.spriteWindowY1
-                   && x >= l.spriteWindowX0 && x <= l.spriteWindowX1;
+  auto x0 = l.spriteWindowX0;
+  auto x1 = l.spriteWindowX1;
+  if(x0 > x1) swap(x0, x1);
+
+  auto y0 = l.spriteWindowY0;
+  auto y1 = l.spriteWindowY1;
+  if(y0 > y1) swap(y0, y1);
+
+  bool windowInside = x >= x0 && x <= x1 && y >= y0 && y <= y1;
   for(auto index : range(l.spriteCount)) {
     auto sprite = l.sprite[index];
     if(l.spriteWindowEnable && sprite.bit(12) == windowInside) continue;
