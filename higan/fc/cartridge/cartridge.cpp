@@ -36,6 +36,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   information.region = document["game/region"].text();
 
   Board::load(information.manifest);  //this call sets Cartridge::board internally
+  board->load();
 
   power();
   if(fds.present) {

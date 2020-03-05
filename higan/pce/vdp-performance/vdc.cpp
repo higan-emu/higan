@@ -135,20 +135,23 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 
   if(io.address == 0x06) {
     //RCR
-    io.coincidence.byte(a0) = data;
+    if(a0 == 0) io.coincidence.bit(0,7) = data.bit(0,7);
+    if(a0 == 1) io.coincidence.bit(8,9) = data.bit(0,1);
     return;
   }
 
   if(io.address == 0x07) {
     //BXR
-    background.hscroll.byte(a0) = data;
+    if(a0 == 0) background.hscroll.bit(0,7) = data.bit(0,7);
+    if(a0 == 1) background.hscroll.bit(8,9) = data.bit(0,1);
     return;
   }
 
   if(io.address == 0x08) {
     //BYR
-    background.vscroll.byte(a0) = data;
-    background.vcounter = background.vscroll;
+    if(a0 == 0) background.vscroll.bit(0,7) = data.bit(0,7);
+    if(a0 == 1) background.vscroll.bit(8)   = data.bit(0);
+    background.vcounter = background.vscroll;  //updated on both even and odd writes
     return;
   }
 

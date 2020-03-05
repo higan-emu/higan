@@ -9,6 +9,7 @@
 #include <component/processor/mos6502/mos6502.hpp>
 #include <component/audio/ym2149/ym2149.hpp>
 #include <component/audio/ym2413/ym2413.hpp>
+#include <component/eeprom/x24c01/x24c01.hpp>
 
 namespace higan::Famicom {
   #include <emulator/inline.hpp>

@@ -2,18 +2,17 @@
 
 namespace nall {
 
-template<int...> struct BitRange;
-
 /* static BitRange */
 
-template<int Precision, int Lo, int Hi> struct BitRange<Precision, Lo, Hi> {
+template<int Precision, int Lo, int Hi> struct BitRange {
   static_assert(Precision >= 1 && Precision <= 64);
-  enum : uint { bits = Precision };
+  static_assert(Lo < Precision && Hi < Precision);
+  static_assert(Lo <= Hi);
   using type =
-    conditional_t<bits <=  8,  uint8_t,
-    conditional_t<bits <= 16, uint16_t,
-    conditional_t<bits <= 32, uint32_t,
-    conditional_t<bits <= 64, uint64_t,
+    conditional_t<Precision <=  8,  uint8_t,
+    conditional_t<Precision <= 16, uint16_t,
+    conditional_t<Precision <= 32, uint32_t,
+    conditional_t<Precision <= 64, uint64_t,
     void>>>>;
   enum : uint { lo = Lo < 0 ? Precision + Lo : Lo };
   enum : uint { hi = Hi < 0 ? Precision + Hi : Hi };
@@ -125,32 +124,29 @@ private:
 
 /* dynamic BitRange */
 
-template<int Precision> struct BitRange<Precision> {
+template<typename Type, int Precision = Type::bits()> struct DynamicBitRange {
   static_assert(Precision >= 1 && Precision <= 64);
-  enum : uint { bits = Precision };
   using type =
-    conditional_t<bits <=  8,  uint8_t,
-    conditional_t<bits <= 16, uint16_t,
-    conditional_t<bits <= 32, uint32_t,
-    conditional_t<bits <= 64, uint64_t,
+    conditional_t<Precision <=  8,  uint8_t,
+    conditional_t<Precision <= 16, uint16_t,
+    conditional_t<Precision <= 32, uint32_t,
+    conditional_t<Precision <= 64, uint64_t,
     void>>>>;
 
-  BitRange(const BitRange& source) = delete;
+  DynamicBitRange(const DynamicBitRange& source) = delete;
 
-  inline auto& operator=(const BitRange& source) {
+  inline auto& operator=(const DynamicBitRange& source) {
     target = target & ~mask | ((source.target & source.mask) >> source.shift) << shift & mask;
     return *this;
   }
 
-  template<typename T> inline BitRange(T* source, int index) : target((type&)*source) {
-    static_assert(sizeof(T) == sizeof(type));
+  inline DynamicBitRange(Type& source, int index) : target(source) {
     if(index < 0) index = Precision + index;
     mask = 1ull << index;
     shift = index;
   }
 
-  template<typename T> inline BitRange(T* source, int lo, int hi) : target((type&)*source) {
-    static_assert(sizeof(T) == sizeof(type));
+  inline DynamicBitRange(Type& source, int lo, int hi) : target(source) {
     if(lo < 0) lo = Precision + lo;
     if(hi < 0) hi = Precision + hi;
     if(lo > hi) swap(lo, hi);
@@ -247,7 +243,7 @@ template<int Precision> struct BitRange<Precision> {
   }
 
 private:
-  type& target;
+  Type& target;
   type mask;
   uint shift;
 };

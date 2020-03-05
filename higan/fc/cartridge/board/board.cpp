@@ -24,6 +24,10 @@
 Board::Board(Markup::Node document) {
   cartridge.board = this;
   information.type = document["game/board"].text();
+}
+
+auto Board::load() -> void {
+  auto document = BML::unserialize(cartridge.manifest());
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     if(prgrom.size = memory["size"].natural()) prgrom.data = new uint8_t[prgrom.size]();

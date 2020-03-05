@@ -71,6 +71,7 @@ auto Famicom::heuristicsINES(vector<uint8_t>& data, string location) -> string {
   uint chrrom = data[5] * 0x2000;
   uint prgram = 0u;
   uint chrram = chrrom == 0u ? 8192u : 0u;
+  uint eeprom = 0u;
 
   string s;
   s += "game\n";
@@ -135,6 +136,7 @@ auto Famicom::heuristicsINES(vector<uint8_t>& data, string location) -> string {
   case  16:
     s += "  board:  BANDAI-FCG\n";
     s += "    chip type=LZ93D50\n";
+    eeprom = 128;
     break;
 
   case  21:
@@ -232,6 +234,13 @@ auto Famicom::heuristicsINES(vector<uint8_t>& data, string location) -> string {
     s +={"      size: 0x", hex(chrram), "\n"};
     s += "      content: Character\n";
     s += "      volatile\n";
+  }
+
+  if(eeprom) {
+    s += "    memory\n";
+    s += "      type: EEPROM\n";
+    s +={"      size: 0x", hex(eeprom), "\n"};
+    s += "      content: Save\n";
   }
 
   return s;

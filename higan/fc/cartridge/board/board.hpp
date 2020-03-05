@@ -18,7 +18,8 @@ struct Board {
   static auto mirror(uint addr, uint size) -> uint;
 
   Board(Markup::Node document = {});
-  auto save() -> void;
+  virtual auto load() -> void;
+  virtual auto save() -> void;
 
   virtual auto main() -> void;
   virtual auto tick() -> void;

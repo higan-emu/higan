@@ -45,7 +45,7 @@ auto Famicom::open(higan::Node::Object node, string name, vfs::file::mode mode, 
   auto iNESROMSize = document["game/board/memory(content=iNES,type=ROM)/size"].natural();
   auto programROMSize = document["game/board/memory(content=Program,type=ROM)/size"].natural();
   auto characterROMSize = document["game/board/memory(content=Character,type=ROM)/size"].natural();
-  auto programRAMSize = (bool)document["game/board/memory(content=Program,type=RAM)/volatile"];
+  auto programRAMVolatile = (bool)document["game/board/memory(content=Program,type=RAM)/volatile"];
 
   if(name == "program.rom") {
     return vfs::memory::file::open(game.image.data() + iNESROMSize, programROMSize);
@@ -55,7 +55,12 @@ auto Famicom::open(higan::Node::Object node, string name, vfs::file::mode mode, 
     return vfs::memory::file::open(game.image.data() + iNESROMSize + programROMSize, characterROMSize);
   }
 
-  if(name == "save.ram" && !programRAMSize) {
+  if(name == "save.ram" && !programRAMVolatile) {
+    string location = {Location::notsuffix(game.location), ".sav"};
+    if(auto result = vfs::fs::file::open(location, mode)) return result;
+  }
+
+  if(name == "save.eeprom") {
     string location = {Location::notsuffix(game.location), ".sav"};
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }

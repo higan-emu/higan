@@ -1,4 +1,4 @@
-components += mos6502 ym2149 ym2413
+components += mos6502 ym2149 ym2413 x24c01
 
 objects += fc-interface fc-system fc-controller
 objects += fc-memory fc-cartridge fc-cpu fc-apu fc-ppu

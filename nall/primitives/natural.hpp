@@ -6,10 +6,10 @@ template<uint Precision> struct Natural {
   static_assert(Precision >= 1 && Precision <= 64);
   static inline constexpr auto bits() -> uint { return Precision; }
   using utype =
-    conditional_t<bits() <=  8,  uint8_t,
-    conditional_t<bits() <= 16, uint16_t,
-    conditional_t<bits() <= 32, uint32_t,
-    conditional_t<bits() <= 64, uint64_t,
+    conditional_t<Precision <=  8,  uint8_t,
+    conditional_t<Precision <= 16, uint16_t,
+    conditional_t<Precision <= 32, uint32_t,
+    conditional_t<Precision <= 64, uint64_t,
     void>>>>;
   static inline constexpr auto mask() -> utype { return ~0ull >> 64 - Precision; }
 
@@ -38,14 +38,14 @@ template<uint Precision> struct Natural {
   template<typename T> inline auto& operator ^=(const T& value) { data = cast(data  ^ value); return *this; }
   template<typename T> inline auto& operator |=(const T& value) { data = cast(data  | value); return *this; }
 
-  inline auto bit(int index) -> BitRange<Precision> { return {&data, index}; }
-  inline auto bit(int index) const -> const BitRange<Precision> { return {&data, index}; }
+  inline auto bit(int index) -> DynamicBitRange<Natural> { return {*this, index}; }
+  inline auto bit(int index) const -> const DynamicBitRange<Natural> { return {(Natural&)*this, index}; }
 
-  inline auto bit(int lo, int hi) -> BitRange<Precision> { return {&data, lo, hi}; }
-  inline auto bit(int lo, int hi) const -> const BitRange<Precision> { return {&data, lo, hi}; }
+  inline auto bit(int lo, int hi) -> DynamicBitRange<Natural> { return {*this, lo, hi}; }
+  inline auto bit(int lo, int hi) const -> const DynamicBitRange<Natural> { return {(Natural&)*this, lo, hi}; }
 
-  inline auto byte(int index) -> BitRange<Precision> { return {&data, index * 8 + 0, index * 8 + 7}; }
-  inline auto byte(int index) const -> const BitRange<Precision> { return {&data, index * 8 + 0, index * 8 + 7}; }
+  inline auto byte(int index) -> DynamicBitRange<Natural> { return {*this, index * 8 + 0, index * 8 + 7}; }
+  inline auto byte(int index) const -> const DynamicBitRange<Natural> { return {(Natural&)*this, index * 8 + 0, index * 8 + 7}; }
 
   inline auto mask(int index) const -> utype {
     return data & 1 << index;

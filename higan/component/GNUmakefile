@@ -7,6 +7,7 @@ objects += $(if $(findstring ym2149,$(components)),audio-ym2149)
 objects += $(if $(findstring ym2413,$(components)),audio-ym2413)
 
 objects += $(if $(findstring m93lcx6,$(components)),eeprom-m93lcx6)
+objects += $(if $(findstring x24c01,$(components)),eeprom-x24c01)
 
 objects += $(if $(findstring arm7tdmi,$(components)),processor-arm7tdmi)
 objects += $(if $(findstring gsu,$(components)),processor-gsu)
@@ -32,6 +33,7 @@ obj/audio-ym2149.o:       component/audio/ym2149/ym2149.cpp
 obj/audio-ym2413.o:       component/audio/ym2413/ym2413.cpp
 
 obj/eeprom-m93lcx6.o:     component/eeprom/m93lcx6/m93lcx6.cpp
+obj/eeprom-x24c01.o:      component/eeprom/x24c01/x24c01.cpp
 
 obj/processor-arm7tdmi.o: component/processor/arm7tdmi/arm7tdmi.cpp
 obj/processor-gsu.o:      component/processor/gsu/gsu.cpp

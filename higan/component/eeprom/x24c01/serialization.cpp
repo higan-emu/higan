@@ -1,0 +1,19 @@
+auto X24C01::serialize(serializer& s) -> void {
+  s.array(memory);
+  s.integer(clock.lo);
+  s.integer(clock.hi);
+  s.integer(clock.fall);
+  s.integer(clock.rise);
+  s.integer(clock.line);
+  s.integer(data.lo);
+  s.integer(data.hi);
+  s.integer(data.fall);
+  s.integer(data.rise);
+  s.integer(data.line);
+  s.integer((uint&)mode);
+  s.integer(counter);
+  s.integer(address);
+  s.integer(input);
+  s.integer(output);
+  s.integer(line);
+}
