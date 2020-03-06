@@ -22,7 +22,7 @@ auto VDP::load(Node::Object parent, Node::Object from) -> void {
 
   screen = Node::append<Node::Screen>(parent, from, "Screen");
   screen->colors(1 << 9, {&VDP::color, this});
-  screen->setSize(1120, 240);
+  screen->setSize(1024, 239);
   screen->setScale(0.25, 1.0);
   screen->setAspect(8.0, 7.0);
   from = Node::scan(parent = screen, from);
@@ -34,14 +34,19 @@ auto VDP::unload() -> void {
 }
 
 auto VDP::main() -> void {
-  vdc0.prologue(io.vcounter); if(Model::SuperGrafx())
-  vdc1.prologue(io.vcounter);
+  vdc0.hpulse(); if(Model::SuperGrafx())
+  vdc1.hpulse();
+
+  if(io.vcounter == 0) {
+    vdc0.vpulse(); if(Model::SuperGrafx())
+    vdc1.vpulse();
+  }
 
   auto output = buffer + 1365 * io.vcounter;
 
-  while(io.hcounter < 1360) {
-    vdc0.run(io.hcounter, io.vcounter); if(Model::SuperGrafx())
-    vdc1.run(io.hcounter, io.vcounter);
+  while(io.hcounter <= 1360) {
+    vdc0.hclock(); if(Model::SuperGrafx())
+    vdc1.hclock();
 
     uint9 color;
     if(Model::PCEngine()) color = vdc0.bus();
@@ -56,14 +61,15 @@ auto VDP::main() -> void {
     step(vce.clock());
   }
 
-  vdc0.epilogue(io.vcounter); if(Model::SuperGrafx())
-  vdc1.epilogue(io.vcounter);
-
   step(1365 - io.hcounter);
+  vdc0.vclock(); if(Model::SuperGrafx())
+  vdc1.vclock();
+
   io.hcounter = 0;
-  io.vcounter++;
-  if(io.vcounter == 240) scheduler.exit(Event::Frame);
-  if(io.vcounter == 262) io.vcounter = 0;
+  if(++io.vcounter == 262) {
+    io.vcounter = 0;
+    scheduler.exit(Event::Frame);
+  }
 }
 
 auto VDP::step(uint clocks) -> void {
@@ -76,7 +82,7 @@ auto VDP::step(uint clocks) -> void {
 }
 
 auto VDP::refresh() -> void {
-  screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1120, 240);
+  screen->refresh(buffer + 1365 * 19 + 96, 1365 * sizeof(uint32), 1024, 239);
 }
 
 auto VDP::power() -> void {

@@ -21,7 +21,7 @@ struct VDP : Thread {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
-  uint32 buffer[1365 * 263];
+  uint32 buffer[1365 * 262];
 
   VCE vce;
   VDC vdc0;

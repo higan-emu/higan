@@ -127,7 +127,6 @@ struct Object : shared_pointer_this<Object> {
   auto enumerate(vector<T>& objects) -> void {
     using Type = typename T::type;
     if(auto instance = cast<T>()) objects.append(instance);
-//    if(identity() == Type::identifier) objects.append(shared());
     for(auto& node : _nodes) node->enumerate<T>(objects);
   }
 

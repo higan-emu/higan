@@ -66,33 +66,33 @@ auto Cartridge::save() -> void {
 auto Cartridge::power() -> void {
 }
 
-auto Cartridge::read(uint20 addr) -> uint8 {
+auto Cartridge::read(uint20 address) -> uint8 {
   if(!rom.size) return 0x00;
-  return rom.data[mirror(addr, rom.size)];
+  return rom.data[mirror(address, rom.size)];
 }
 
-auto Cartridge::write(uint20 addr, uint8 data) -> void {
+auto Cartridge::write(uint20 address, uint8 data) -> void {
 }
 
-auto Cartridge::mirror(uint addr, uint size) -> uint {
+auto Cartridge::mirror(uint address, uint size) -> uint {
   //384KB games have unusual mirroring (only second ROM repeats)
   if(size == 0x60000) {
-    if(addr <= 0x3ffff) return addr;
-    return 0x40000 + (addr & 0x1ffff);
+    if(address <= 0x3ffff) return address;
+    return 0x40000 + (address & 0x1ffff);
   }
 
   uint base = 0;
   uint mask = 1 << 20;
-  while(addr >= size) {
-    while(!(addr & mask)) mask >>= 1;
-    addr -= mask;
+  while(address >= size) {
+    while(!(address & mask)) mask >>= 1;
+    address -= mask;
     if(size > mask) {
       size -= mask;
       base += mask;
     }
     mask >>= 1;
   }
-  return base + addr;
+  return base + address;
 }
 
 }

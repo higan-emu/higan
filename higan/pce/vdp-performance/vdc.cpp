@@ -2,12 +2,17 @@ auto VDC::prologue(uint16 vcounter) -> void {
   if(vcounter == 0) {
     timing.voffset = 0;
     timing.vstart = max((uint8)2, timing.verticalDisplayStart) - 2;
-    timing.vlength = min(242, timing.verticalDisplayLength + 1);
+    timing.vlength = min(242, timing.verticalDisplayWidth + 1);
+  }
+
+  if(vcounter == timing.vstart + timing.vlength) {
+    irq.raise(IRQ::Line::Vblank);
+    dma.satbStart();
   }
 
   timing.hoffset = 0;
   timing.hstart = timing.horizontalDisplayStart;
-  timing.hlength = (timing.horizontalDisplayLength + 1) << 3;
+  timing.hlength = (timing.horizontalDisplayWidth + 1) << 3;
 
   if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
     if(timing.voffset == io.coincidence - 64) {
@@ -39,11 +44,6 @@ auto VDC::render(uint16 vcounter) -> void {
 auto VDC::epilogue(uint16 vcounter) -> void {
   if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
     timing.voffset++;
-  }
-
-  if(vcounter == timing.vstart + timing.vlength) {
-    irq.raise(IRQ::Line::Vblank);
-    dma.satbStart();
   }
 }
 
@@ -179,8 +179,8 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 
   if(io.address == 0x0b) {
     //HDR
-    if(a0 == 0) timing.horizontalDisplayLength = data.bit(0,6);
-    if(a0 == 1) timing.horizontalDisplayEnd    = data.bit(0,6);
+    if(a0 == 0) timing.horizontalDisplayWidth = data.bit(0,6);
+    if(a0 == 1) timing.horizontalDisplayEnd   = data.bit(0,6);
     return;
   }
 
@@ -193,8 +193,8 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 
   if(io.address == 0x0d) {
     //VDR
-    if(a0 == 0) timing.verticalDisplayLength.bit(0,7) = data.bit(0,7);
-    if(a0 == 1) timing.verticalDisplayLength.bit(8)   = data.bit(0);
+    if(a0 == 0) timing.verticalDisplayWidth.bit(0,7) = data.bit(0,7);
+    if(a0 == 1) timing.verticalDisplayWidth.bit(8)   = data.bit(0);
     return;
   }
 

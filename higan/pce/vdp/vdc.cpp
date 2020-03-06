@@ -1,52 +1,82 @@
-auto VDC::prologue(uint16 vcounter) -> void {
-  if(vcounter == 0) {
-    timing.voffset = 0;
-    timing.vstart = max((uint8)2, timing.verticalDisplayStart) - 2;
-    timing.vlength = min(242, timing.verticalDisplayLength + 1);
-  }
-
+auto VDC::hpulse() -> void {
+  timing.hstate = HDS;
   timing.hoffset = 0;
-  timing.hstart = timing.horizontalDisplayStart;
-  timing.hlength = (timing.horizontalDisplayLength + 1) << 3;
-
-  if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
-    if(timing.voffset == io.coincidence - 64) {
-      irq.raise(IRQ::Line::Coincidence);
-    }
-    background.scanline(timing.voffset);
-    sprite.scanline(timing.voffset);
-  }
 }
 
-auto VDC::run(uint16 hcounter, uint16 vcounter) -> void {
+auto VDC::vpulse() -> void {
+  timing.vstate = VSW;
+  timing.voffset = 0;
+}
+
+auto VDC::hclock() -> void {
   output = 0;
 
-  if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
-    if(hcounter >= timing.hstart && timing.hoffset < timing.hlength) {
-      background.run(timing.hoffset, timing.voffset);
-      sprite.run(timing.hoffset, timing.voffset);
+  if(timing.vstate == VDW && timing.hstate == HDW) {
+    background.run(timing.hoffset, timing.voffset);
+    sprite.run(timing.hoffset, timing.voffset);
 
-      if(sprite.color && sprite.priority) {
-        output = sprite.color << 0 | sprite.palette << 4 | 1 << 8;
-      } else if(background.color) {
-        output = background.color << 0 | background.palette << 4 | 0 << 8;
-      } else if(sprite.color) {
-        output = sprite.color << 0 | sprite.palette << 4 | 1 << 8;
-      }
-
-      timing.hoffset++;
+    if(sprite.color && sprite.priority) {
+      output = sprite.color << 0 | sprite.palette << 4 | 1 << 8;
+    } else if(background.color) {
+      output = background.color << 0 | background.palette << 4 | 0 << 8;
+    } else if(sprite.color) {
+      output = sprite.color << 0 | sprite.palette << 4 | 1 << 8;
     }
+  }
+
+  timing.hoffset++;
+  switch(timing.hstate) {
+  case HDS:
+    if(timing.hoffset == max(2, timing.horizontalDisplayStart) + 1 << 3) {
+      timing.hstate = HDW;
+      timing.hoffset = 0;
+      if(timing.voffset + 64 == io.coincidence) irq.raise(IRQ::Line::Coincidence);
+      background.scanline(timing.voffset);
+      sprite.scanline(timing.voffset);
+    } break;
+  case HDW:
+    if(timing.hoffset == timing.horizontalDisplayWidth + 1 << 3) {
+      timing.hstate = HDE;
+      timing.hoffset = 0;
+    } break;
+  case HDE:
+    if(timing.hoffset == timing.horizontalDisplayEnd + 1 << 3) {
+      timing.hstate = HSW;
+      timing.hoffset = 0;
+    } break;
+  case HSW:
+    if(timing.hoffset == timing.horizontalSyncWidth + 1 << 3) {
+      timing.hstate = HDS;
+      timing.hoffset = 0;
+    } break;
   }
 }
 
-auto VDC::epilogue(uint16 vcounter) -> void {
-  if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
-    timing.voffset++;
-  }
-
-  if(vcounter == timing.vstart + timing.vlength) {
-    irq.raise(IRQ::Line::Vblank);
-    dma.satbStart();
+auto VDC::vclock() -> void {
+  timing.voffset++;
+  switch(timing.vstate) {
+  case VSW:
+    if(timing.voffset == timing.verticalSyncWidth + 1) {
+      timing.vstate = VDS;
+      timing.voffset = 0;
+    } break;
+  case VDS:
+    if(timing.voffset == timing.verticalDisplayStart) {
+      timing.vstate = VDW;
+      timing.voffset = 0;
+    } break;
+  case VDW:
+    if(timing.voffset == timing.verticalDisplayWidth + 1) {
+      timing.vstate = VCR;
+      timing.voffset = 0;
+      irq.raise(IRQ::Line::Vblank);
+      dma.satbStart();
+    } break;
+  case VCR:
+    if(timing.voffset == timing.verticalDisplayEnd) {
+      timing.vstate = VSW;
+      timing.voffset = 0;
+    } break;
   }
 }
 
@@ -182,8 +212,8 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 
   if(io.address == 0x0b) {
     //HDR
-    if(a0 == 0) timing.horizontalDisplayLength = data.bit(0,6);
-    if(a0 == 1) timing.horizontalDisplayEnd    = data.bit(0,6);
+    if(a0 == 0) timing.horizontalDisplayWidth = data.bit(0,6);
+    if(a0 == 1) timing.horizontalDisplayEnd   = data.bit(0,6);
     return;
   }
 
@@ -196,8 +226,8 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 
   if(io.address == 0x0d) {
     //VDR
-    if(a0 == 0) timing.verticalDisplayLength.bit(0,7) = data.bit(0,7);
-    if(a0 == 1) timing.verticalDisplayLength.bit(8)   = data.bit(0);
+    if(a0 == 0) timing.verticalDisplayWidth.bit(0,7) = data.bit(0,7);
+    if(a0 == 1) timing.verticalDisplayWidth.bit(8)   = data.bit(0);
     return;
   }
 

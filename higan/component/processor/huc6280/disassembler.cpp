@@ -24,7 +24,7 @@ auto HuC6280::disassembleInstruction() -> string {
   auto indirectLong = [&]() -> string { return {"($", hex(readWord(), 4L), ")"}; };
   auto indirectLongX = [&]() -> string { return {"($", hex(readWord(), 4L), ",x)"}; };
   auto memory = [&]() -> string { return {"(x),#$", hex(readByte(), 2L)}; };
-  auto relative = [&]() -> string { auto displacement = readByte(); return {"$", hex(pc + (int8)displacement, 4L)}; };
+  auto relative = [&]() -> string { auto displacement = readByte(); return {"$", hex(pc + 2 + (int8)displacement, 4L)}; };
   auto zeropage = [&]() -> string { return {"$", hex(readByte(), 2L)}; };
   auto zeropageX = [&]() -> string { return {"$", hex(readByte(), 2L), ",x"}; };
   auto zeropageY = [&]() -> string { return {"$", hex(readByte(), 2L), ",y"}; };
@@ -334,7 +334,7 @@ U op(0xfc, "nop", "$fc")
   #undef U
 
   if(!o) o = {"??? (", hex(opcode, 2L), ")"};
-  s.append(pad(o, -12L, ' '));
+  s.append(pad(o, -13L, ' '));
   #undef op
 
   return s;

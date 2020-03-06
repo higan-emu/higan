@@ -41,7 +41,9 @@ auto CPU::main() -> void {
     uint8 bank = r.mpr[r.pc.bit(13,15)];
     uint13 address = r.pc.bit(0,12);
     if(eventInstruction->address(bank << 13 | address)) {
-      eventInstruction->notify(disassembleInstruction(), disassembleContext());
+      eventInstruction->notify(disassembleInstruction(), disassembleContext(), {
+        "V:", pad(vdp.io.vcounter, 3L), " ", "H:", pad(vdp.io.hcounter, 4L)
+      });
     }
   }
   instruction();

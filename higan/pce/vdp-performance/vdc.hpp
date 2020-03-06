@@ -95,12 +95,12 @@ struct VDC {
   struct Timing {
      uint5 horizontalSyncWidth;
      uint7 horizontalDisplayStart;
-     uint7 horizontalDisplayLength;
+     uint7 horizontalDisplayWidth;
      uint7 horizontalDisplayEnd;
 
      uint5 verticalSyncWidth;
      uint8 verticalDisplayStart;
-     uint9 verticalDisplayLength;
+     uint9 verticalDisplayWidth;
      uint8 verticalDisplayEnd;
 
     uint16 hoffset;

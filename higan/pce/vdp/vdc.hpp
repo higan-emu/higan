@@ -5,9 +5,10 @@ struct VDC {
   inline auto irqLine() const -> bool { return irq.line; }
 
   //vdc.cpp
-  auto prologue(uint16 vcounter) -> void;
-  auto run(uint16 hcounter, uint16 vcounter) -> void;
-  auto epilogue(uint16 vcounter) -> void;
+  auto hpulse() -> void;
+  auto vpulse() -> void;
+  auto hclock() -> void;
+  auto vclock() -> void;
   auto read(uint2 address) -> uint8;
   auto write(uint2 address, uint8 data) -> void;
   auto power() -> void;
@@ -93,25 +94,25 @@ struct VDC {
      uint8 satbOffset;
   } dma;
 
+  enum : uint { HDS, HDW, HDE, HSW };
+  enum : uint { VSW, VDS, VDW, VCR };
+
   struct Timing {
-     uint5 horizontalSyncWidth;
      uint7 horizontalDisplayStart;
-     uint7 horizontalDisplayLength;
+     uint7 horizontalDisplayWidth;
      uint7 horizontalDisplayEnd;
+     uint5 horizontalSyncWidth;
 
      uint5 verticalSyncWidth;
      uint8 verticalDisplayStart;
-     uint9 verticalDisplayLength;
+     uint9 verticalDisplayWidth;
      uint8 verticalDisplayEnd;
+
+     uint8 hstate = HDS;
+     uint8 vstate = VSW;
 
     uint16 hoffset;
     uint16 voffset;
-
-    uint16 hstart;
-    uint16 vstart;
-
-    uint16 hlength;
-    uint16 vlength;
   } timing;
 
   struct IO {

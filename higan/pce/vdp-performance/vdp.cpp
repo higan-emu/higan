@@ -70,9 +70,10 @@ auto VDP::main() -> void {
   vdc1.epilogue(io.vcounter);
 
   io.hcounter = 0;
-  io.vcounter++;
-  if(io.vcounter == 240) scheduler.exit(Event::Frame);
-  if(io.vcounter == 262) io.vcounter = 0;
+  if(++io.vcounter == 262) {
+    io.vcounter = 0;
+    scheduler.exit(Event::Frame);
+  }
 }
 
 auto VDP::step(uint clocks) -> void {

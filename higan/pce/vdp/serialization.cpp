@@ -57,20 +57,18 @@ auto VDC::serialize(serializer& s) -> void {
   s.integer(dma.satbPending);
   s.integer(dma.satbOffset);
 
-  s.integer(timing.horizontalSyncWidth);
   s.integer(timing.horizontalDisplayStart);
-  s.integer(timing.horizontalDisplayLength);
+  s.integer(timing.horizontalDisplayWidth);
   s.integer(timing.horizontalDisplayEnd);
+  s.integer(timing.horizontalSyncWidth);
   s.integer(timing.verticalSyncWidth);
   s.integer(timing.verticalDisplayStart);
-  s.integer(timing.verticalDisplayLength);
+  s.integer(timing.verticalDisplayWidth);
   s.integer(timing.verticalDisplayEnd);
+  s.integer(timing.hstate);
+  s.integer(timing.vstate);
   s.integer(timing.hoffset);
   s.integer(timing.voffset);
-  s.integer(timing.hstart);
-  s.integer(timing.vstart);
-  s.integer(timing.hlength);
-  s.integer(timing.vlength);
 
   s.integer(io.address);
   s.integer(io.externalSync);

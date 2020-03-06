@@ -13,8 +13,8 @@ struct Cartridge {
   auto save() -> void;
   auto power() -> void;
 
-  auto read(uint20 addr) -> uint8;
-  auto write(uint20 addr, uint8 data) -> void;
+  auto read(uint20 address) -> uint8;
+  auto write(uint20 address, uint8 data) -> void;
 
 private:
   auto mirror(uint addr, uint size) -> uint;

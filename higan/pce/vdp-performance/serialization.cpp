@@ -57,11 +57,11 @@ auto VDC::serialize(serializer& s) -> void {
 
   s.integer(timing.horizontalSyncWidth);
   s.integer(timing.horizontalDisplayStart);
-  s.integer(timing.horizontalDisplayLength);
+  s.integer(timing.horizontalDisplayWidth);
   s.integer(timing.horizontalDisplayEnd);
   s.integer(timing.verticalSyncWidth);
   s.integer(timing.verticalDisplayStart);
-  s.integer(timing.verticalDisplayLength);
+  s.integer(timing.verticalDisplayWidth);
   s.integer(timing.verticalDisplayEnd);
   s.integer(timing.hoffset);
   s.integer(timing.voffset);
