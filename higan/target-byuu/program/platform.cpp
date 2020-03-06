@@ -27,6 +27,12 @@ auto Program::event(higan::Event event) -> void {
 }
 
 auto Program::log(string_view message) -> void {
+  if(!traceLogger.fp) {
+    string datetime = chrono::local::datetime().replace("-", "").replace(":", "").replace(" ", "-");
+    string location = {Location::notsuffix(emulator->game.location), "-", datetime, ".log"};
+    traceLogger.fp.open(location, file::mode::write);
+  }
+  traceLogger.fp.print(message);
 }
 
 auto Program::video(higan::Node::Screen node, const uint32_t* data, uint pitch, uint width, uint height) -> void {

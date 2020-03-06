@@ -9,7 +9,7 @@ ruby.path := ../ruby
 include $(ruby.path)/GNUmakefile
 
 objects += ui-byuu ui-resource ui-emulator ui-program ui-input
-objects += ui-presentation ui-settings
+objects += ui-presentation ui-settings ui-tools
 objects += icarus icarus-resource
 objects := $(objects:%=obj/%.o)
 
@@ -20,6 +20,7 @@ obj/ui-program.o: $(ui)/program/program.cpp
 obj/ui-input.o: $(ui)/input/input.cpp
 obj/ui-presentation.o: $(ui)/presentation/presentation.cpp
 obj/ui-settings.o: $(ui)/settings/settings.cpp
+obj/ui-tools.o: $(ui)/tools/tools.cpp
 obj/icarus.o: ../icarus/icarus.cpp
 obj/icarus-resource.o: ../icarus/resource/resource.cpp
 

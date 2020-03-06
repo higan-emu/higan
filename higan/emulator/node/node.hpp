@@ -139,4 +139,11 @@ namespace higan::Node {
     if(auto object = from->scan<T>(name)) return object;
     return {};
   }
+
+  template<typename T>
+  static inline auto enumerate(Object from) -> vector<T> {
+    vector<T> objects;
+    if(from) from->enumerate<T>(objects);
+    return objects;
+  }
 }

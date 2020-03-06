@@ -10,6 +10,9 @@ auto VDC::prologue(uint16 vcounter) -> void {
   timing.hlength = (timing.horizontalDisplayLength + 1) << 3;
 
   if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
+    if(timing.voffset == io.coincidence - 64) {
+      irq.raise(IRQ::Line::Coincidence);
+    }
     background.scanline(timing.voffset);
     sprite.scanline(timing.voffset);
   }
@@ -35,9 +38,6 @@ auto VDC::render(uint16 vcounter) -> void {
 
 auto VDC::epilogue(uint16 vcounter) -> void {
   if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
-    if(timing.voffset == io.coincidence - 64) {
-      irq.raise(IRQ::Line::Coincidence);
-    }
     timing.voffset++;
   }
 

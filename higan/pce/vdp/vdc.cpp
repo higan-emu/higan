@@ -10,6 +10,9 @@ auto VDC::prologue(uint16 vcounter) -> void {
   timing.hlength = (timing.horizontalDisplayLength + 1) << 3;
 
   if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
+    if(timing.voffset == io.coincidence - 64) {
+      irq.raise(IRQ::Line::Coincidence);
+    }
     background.scanline(timing.voffset);
     sprite.scanline(timing.voffset);
   }
@@ -38,9 +41,6 @@ auto VDC::run(uint16 hcounter, uint16 vcounter) -> void {
 
 auto VDC::epilogue(uint16 vcounter) -> void {
   if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
-    if(timing.voffset == io.coincidence - 64) {
-      irq.raise(IRQ::Line::Coincidence);
-    }
     timing.voffset++;
   }
 
@@ -154,8 +154,7 @@ auto VDC::write(uint2 address, uint8 data) -> void {
     //BYR
     if(a0 == 0) background.vscroll.bit(0,7) = data.bit(0,7);
     if(a0 == 1) background.vscroll.bit(8)   = data.bit(0);
-    background.vcounter = background.vscroll;
-print("d ", background.vcounter, " @ ", vdp.io.vcounter, ",", vdp.io.hcounter, "\n");
+    background.vcounter = background.vscroll;  //updated on both even and odd writes
     return;
   }
 

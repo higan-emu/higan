@@ -35,6 +35,7 @@ auto nall::main(Arguments arguments) -> void {
   settings.load();
   Instances::presentation.construct();
   Instances::settingsWindow.construct();
+  Instances::toolsWindow.construct();
 
   program.create();
   presentation.loadEmulators();

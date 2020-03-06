@@ -18,7 +18,6 @@ HotkeySettings& hotkeySettings = settingsWindow.hotkeySettings;
 EmulatorSettings& emulatorSettings = settingsWindow.emulatorSettings;
 FirmwareSettings& firmwareSettings = settingsWindow.firmwareSettings;
 DriverSettings& driverSettings = settingsWindow.driverSettings;
-HomePanel& homePanel = settingsWindow.homePanel;
 
 auto Settings::load() -> void {
   Markup::Node::operator=(BML::unserialize(string::read(locate("settings.bml")), " "));
@@ -157,8 +156,6 @@ SettingsWindow::SettingsWindow() {
   firmwareSettings.construct();
   driverSettings.construct();
   homePanel.construct();
-
-  statusBar.setFont(Font().setBold());
 
   setDismissable();
   setTitle("Configuration");

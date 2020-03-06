@@ -39,6 +39,8 @@ struct Presentation : Window {
       Menu loadStateMenu{&toolsMenu};
       MenuSeparator stateMenuSeparator{&toolsMenu};
       MenuCheckItem pauseEmulation{&toolsMenu};
+      MenuSeparator toolsMenuSeparator{&toolsMenu};
+      MenuItem traceLoggerAction{&toolsMenu};
     Menu helpMenu{&menuBar};
       MenuItem webpageAction{&helpMenu};
       MenuSeparator aboutSeparator{&helpMenu};

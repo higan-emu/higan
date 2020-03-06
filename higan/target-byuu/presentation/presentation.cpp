@@ -106,6 +106,9 @@ Presentation::Presentation() {
   pauseEmulation.setText("Pause Emulation").onToggle([&] {
     program.pause(!program.paused);
   });
+  traceLoggerAction.setText("Tracer").setIcon(Icon::Emblem::Text).onActivate([&] {
+    toolsWindow.show("Tracer");
+  });
 
   helpMenu.setText("Help");
   webpageAction.setText("Webpage ...").setIcon(Icon::Application::Browser).onActivate([&] {

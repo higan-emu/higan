@@ -10,6 +10,7 @@ auto HotkeySettings::construct() -> void {
 
   reload();
 
+  assignLabel.setFont(Font().setBold());
   spacer.setFocusable();
   assignButton.setText("Assign").onActivate([&] { eventAssign(); });
   clearButton.setText("Clear").onActivate([&] { eventClear(); });
@@ -61,7 +62,7 @@ auto HotkeySettings::eventAssign() -> void {
     activeMappingBeginTimestamp = chrono::millisecond();
     activeMapping = inputManager.hotkeys[item.offset()];
 
-    settingsWindow.statusBar.setText({"Press a key or button to assign to [", activeMapping->name, "] ..."});
+    assignLabel.setText({"Press a key or button to assign to [", activeMapping->name, "] ..."});
     settingsWindow.setDismissable(false);
     Application::processEvents();
     spacer.setFocused();
@@ -71,7 +72,7 @@ auto HotkeySettings::eventAssign() -> void {
 auto HotkeySettings::eventCancel() -> void {
   if(activeMapping) {
     activeMapping.reset();
-    settingsWindow.statusBar.setText();
+    assignLabel.setText();
     settingsWindow.setDismissable(true);
   }
 }

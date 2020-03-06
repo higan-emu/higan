@@ -123,7 +123,8 @@ struct InputSettings : VerticalLayout {
   Label inputLabel{this, Size{~0, 0}, 2};
   TableView inputList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Canvas spacer{&controlLayout, Size{~0, 0}};
+    Label assignLabel{&controlLayout, Size{~0, 0}};
+    Canvas spacer{&controlLayout, Size{1, 0}};
     Button assignButton{&controlLayout, Size{80, 0}};
     Button clearButton{&controlLayout, Size{80, 0}};
 
@@ -144,7 +145,8 @@ struct HotkeySettings : VerticalLayout {
   Label inputLabel{this, Size{~0, 0}, 2};
   TableView inputList{this, Size{~0, ~0}};
   HorizontalLayout controlLayout{this, Size{~0, 0}};
-    Canvas spacer{&controlLayout, Size{~0, 0}};
+    Label assignLabel{&controlLayout, Size{~0, 0}};
+    Canvas spacer{&controlLayout, Size{1, 0}};
     Button assignButton{&controlLayout, Size{80, 0}};
     Button clearButton{&controlLayout, Size{80, 0}};
 
@@ -268,8 +270,6 @@ struct SettingsWindow : Window {
       FirmwareSettings firmwareSettings;
       DriverSettings driverSettings;
       HomePanel homePanel;
-
-  StatusBar statusBar{this};
 };
 
 extern Settings settings;
