@@ -82,7 +82,7 @@ auto VDP::step(uint clocks) -> void {
 }
 
 auto VDP::refresh() -> void {
-  screen->refresh(buffer + 1365 * 19 + 96, 1365 * sizeof(uint32), 1024, 239);
+  screen->refresh(buffer + 1365 * 18 + 96, 1365 * sizeof(uint32), 1024, 239);
 }
 
 auto VDP::power() -> void {

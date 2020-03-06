@@ -30,11 +30,15 @@ auto VDC::hclock() -> void {
     if(timing.hoffset == max(2, timing.horizontalDisplayStart) + 1 << 3) {
       timing.hstate = HDW;
       timing.hoffset = 0;
-      if(timing.voffset + 64 == io.coincidence) irq.raise(IRQ::Line::Coincidence);
       background.scanline(timing.voffset);
       sprite.scanline(timing.voffset);
     } break;
   case HDW:
+    //this is said to happen 4 cycles before HDW ends;
+    //however, anything less than 40 cycles causes severe graphics issues in games
+    if(timing.hoffset == timing.horizontalDisplayWidth - 4 << 3) {
+      if(timing.coincidence++ == io.coincidence) irq.raise(IRQ::Line::Coincidence);
+    }
     if(timing.hoffset == timing.horizontalDisplayWidth + 1 << 3) {
       timing.hstate = HDE;
       timing.hoffset = 0;
@@ -64,6 +68,7 @@ auto VDC::vclock() -> void {
     if(timing.voffset == timing.verticalDisplayStart) {
       timing.vstate = VDW;
       timing.voffset = 0;
+      timing.coincidence = 64;
     } break;
   case VDW:
     if(timing.voffset == timing.verticalDisplayWidth + 1) {

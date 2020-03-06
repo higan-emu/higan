@@ -98,21 +98,23 @@ struct VDC {
   enum : uint { VSW, VDS, VDW, VCR };
 
   struct Timing {
-     uint7 horizontalDisplayStart;
-     uint7 horizontalDisplayWidth;
-     uint7 horizontalDisplayEnd;
-     uint5 horizontalSyncWidth;
+     uint5 horizontalSyncWidth = 2;
+     uint7 horizontalDisplayStart = 31;
+     uint7 horizontalDisplayWidth = 4;
+     uint7 horizontalDisplayEnd = 2;
 
-     uint5 verticalSyncWidth;
-     uint8 verticalDisplayStart;
-     uint9 verticalDisplayWidth;
-     uint8 verticalDisplayEnd;
+     uint5 verticalSyncWidth = 2;
+     uint8 verticalDisplayStart = 15;
+     uint9 verticalDisplayWidth = 239;
+     uint8 verticalDisplayEnd = 4;
 
      uint8 hstate = HDS;
      uint8 vstate = VSW;
 
     uint16 hoffset;
     uint16 voffset;
+
+    uint10 coincidence = 64;
   } timing;
 
   struct IO {

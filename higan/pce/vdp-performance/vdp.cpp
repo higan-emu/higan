@@ -19,7 +19,7 @@ auto VDP::load(Node::Object parent, Node::Object from) -> void {
 
   screen = Node::append<Node::Screen>(parent, from, "Screen");
   screen->colors(1 << 9, {&VDP::color, this});
-  screen->setSize(1024, 240);
+  screen->setSize(1024, 239);
   screen->setScale(0.25, 1.0);
   screen->setAspect(8.0, 7.0);
   from = Node::scan(parent = screen, from);
@@ -31,23 +31,26 @@ auto VDP::unload() -> void {
 }
 
 auto VDP::main() -> void {
-  vdc0.prologue(io.vcounter); if(Model::SuperGrafx())
-  vdc1.prologue(io.vcounter);
+  vdc0.hpulse(); if(Model::SuperGrafx())
+  vdc1.hpulse();
 
-  if(io.vcounter == 0) width256 = 0, width344 = 0, width512 = 0;
+  if(io.vcounter == 0) {
+    vdc0.vpulse(); if(Model::SuperGrafx())
+    vdc1.vpulse();
+    width256 = 0, width344 = 0, width512 = 0;
+  }
 
-  if(io.vcounter >= 13 && io.vcounter < 240 + 13 && !runAhead()) {
-    step(512);
+  step(512);
 
+  vdc0.hclock(); if(Model::SuperGrafx())
+  vdc1.hclock();
+
+  if(io.vcounter >= 18 && io.vcounter < 239 + 18) {
     switch(vce.width()) {
     case 256: widths[io.vcounter] = 256; width256 = 1; break;
     case 344: widths[io.vcounter] = 344; width344 = 1; break;
     case 512: widths[io.vcounter] = 512; width512 = 1; break;
     }
-
-    vdc0.render(io.vcounter); if(Model::SuperGrafx())
-    vdc1.render(io.vcounter); if(Model::SuperGrafx())
-    vpc.render();
 
     auto output = buffer + 1365 * io.vcounter;
 
@@ -58,6 +61,7 @@ auto VDP::main() -> void {
     }
 
     if(Model::SuperGrafx()) {
+      vpc.render();
       for(uint x : range(vce.width())) {
         output[x] = vce.cram.read(vpc.output[x]);
       }
@@ -66,8 +70,8 @@ auto VDP::main() -> void {
 
   step(1365 - io.hcounter);
 
-  vdc0.epilogue(io.vcounter); if(Model::SuperGrafx())
-  vdc1.epilogue(io.vcounter);
+  vdc0.vclock(); if(Model::SuperGrafx())
+  vdc1.vclock();
 
   io.hcounter = 0;
   if(++io.vcounter == 262) {
@@ -87,19 +91,19 @@ auto VDP::step(uint clocks) -> void {
 
 auto VDP::refresh() -> void {
   if(width256 == 1 && width344 == 0 && width512 == 0) {
-    return screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 256, 240);
+    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 256, 240);
   }
 
   if(width256 == 0 && width344 == 1 && width512 == 0) {
-    return screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 344, 240);
+    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 344, 240);
   }
 
   if(width256 == 0 && width344 == 0 && width512 == 1) {
-    return screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 512, 240);
+    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 512, 240);
   }
 
   //this frame contains mixed resolutions: normalize every scanline to 1024-width
-  for(uint y = 13; y < 240 + 13; y++) {
+  for(uint y = 18; y < 239 + 18; y++) {
     auto output = buffer + 1365 * y;
     switch(widths[y]) {
 
@@ -138,8 +142,7 @@ auto VDP::refresh() -> void {
 
     }
   }
-
-  return screen->refresh(buffer + 1365 * 13, 1365 * sizeof(uint32), 1024, 240);
+  return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 1024, 239);
 }
 
 auto VDP::power() -> void {

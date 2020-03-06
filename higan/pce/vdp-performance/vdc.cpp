@@ -1,30 +1,18 @@
-auto VDC::prologue(uint16 vcounter) -> void {
-  if(vcounter == 0) {
-    timing.voffset = 0;
-    timing.vstart = max((uint8)2, timing.verticalDisplayStart) - 2;
-    timing.vlength = min(242, timing.verticalDisplayWidth + 1);
-  }
-
-  if(vcounter == timing.vstart + timing.vlength) {
-    irq.raise(IRQ::Line::Vblank);
-    dma.satbStart();
-  }
-
+auto VDC::hpulse() -> void {
+  timing.hstate = HDS;
   timing.hoffset = 0;
-  timing.hstart = timing.horizontalDisplayStart;
-  timing.hlength = (timing.horizontalDisplayWidth + 1) << 3;
-
-  if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
-    if(timing.voffset == io.coincidence - 64) {
-      irq.raise(IRQ::Line::Coincidence);
-    }
-    background.scanline(timing.voffset);
-    sprite.scanline(timing.voffset);
-  }
 }
 
-auto VDC::render(uint16 vcounter) -> void {
-  if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
+auto VDC::vpulse() -> void {
+  timing.vstate = VSW;
+  timing.voffset = 0;
+}
+
+auto VDC::hclock() -> void {
+  background.scanline(timing.voffset);
+  sprite.scanline(timing.voffset);
+
+  if(timing.vstate == VDW) {
     background.render(timing.voffset);
     sprite.render(timing.voffset);
 
@@ -39,11 +27,36 @@ auto VDC::render(uint16 vcounter) -> void {
       }
     }
   }
+
+  if(timing.coincidence++ == io.coincidence) irq.raise(IRQ::Line::Coincidence);
 }
 
-auto VDC::epilogue(uint16 vcounter) -> void {
-  if(vcounter >= timing.vstart && timing.voffset < timing.vlength) {
-    timing.voffset++;
+auto VDC::vclock() -> void {
+  timing.voffset++;
+  switch(timing.vstate) {
+  case VSW:
+    if(timing.voffset == timing.verticalSyncWidth + 1) {
+      timing.vstate = VDS;
+      timing.voffset = 0;
+    } break;
+  case VDS:
+    if(timing.voffset == timing.verticalDisplayStart) {
+      timing.vstate = VDW;
+      timing.voffset = 0;
+      timing.coincidence = 64;
+    } break;
+  case VDW:
+    if(timing.voffset == timing.verticalDisplayWidth + 1) {
+      timing.vstate = VCR;
+      timing.voffset = 0;
+      irq.raise(IRQ::Line::Vblank);
+      dma.satbStart();
+    } break;
+  case VCR:
+    if(timing.voffset == timing.verticalDisplayEnd) {
+      timing.vstate = VSW;
+      timing.voffset = 0;
+    } break;
   }
 }
 
