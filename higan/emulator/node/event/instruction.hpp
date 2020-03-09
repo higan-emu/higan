@@ -39,6 +39,8 @@ struct Instruction : Event {
   }
 
   auto notify(string_view instruction, string_view context, string_view extra = {}) -> void {
+    if(!enabled()) return;
+
     if(_omitted) {
       PlatformLog({
       //_component, " ",

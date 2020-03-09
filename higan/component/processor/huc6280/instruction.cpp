@@ -2,8 +2,8 @@
 #define fp(name) &HuC6280::algorithm##name
 
 auto HuC6280::interrupt(uint16 vector) -> void {
-  io();
-  io();
+  idle();
+  idle();
   push(PC >> 8);
   push(PC >> 0);
   push(P);

@@ -4,7 +4,7 @@ auto HuC6280::algorithmADC(uint8 i) -> uint8 {
     o = A + i + C;
     V = ~(A ^ i) & (A ^ o) & 0x80;
   } else {
-    io();
+    idle();
     o = (A & 0x0f) + (i & 0x0f) + (C << 0);
     if(o > 0x09) o += 0x06;
     C = o > 0x0f;
@@ -130,7 +130,7 @@ auto HuC6280::algorithmSBC(uint8 i) -> uint8 {
     o = A + i + C;
     V = ~(A ^ i) & (A ^ o) & 0x80;
   } else {
-    io();
+    idle();
     o = (A & 0x0f) + (i & 0x0f) + (C << 0);
     if(o <= 0x0f) o -= 0x06;
     C = o > 0x0f;

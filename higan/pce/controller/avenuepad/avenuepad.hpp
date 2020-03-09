@@ -1,14 +1,18 @@
-struct Gamepad : Controller {
+struct AvenuePad : Controller {
   Node::Button up;
   Node::Button down;
   Node::Button left;
   Node::Button right;
+  Node::Button three;
   Node::Button two;
   Node::Button one;
+  Node::Button four;
+  Node::Button five;
+  Node::Button six;
   Node::Button select;
   Node::Button run;
 
-  Gamepad(Node::Port, Node::Peripheral);
+  AvenuePad(Node::Port, Node::Peripheral);
 
   auto read() -> uint4 override;
   auto write(uint2 data) -> void override;
@@ -16,6 +20,7 @@ struct Gamepad : Controller {
 private:
   bool sel = 0;
   bool clr = 0;
+  bool active = 0;
 
   bool yHold = 0;
   bool upLatch = 0;

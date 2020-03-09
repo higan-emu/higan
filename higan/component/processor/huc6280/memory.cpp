@@ -20,7 +20,7 @@ auto HuC6280::store16(uint16 address, uint8 data) -> void {
 
 //
 
-auto HuC6280::io() -> void {
+auto HuC6280::idle() -> void {
   step(r.cs);
 }
 
@@ -36,12 +36,10 @@ auto HuC6280::operand() -> uint8 {
 
 auto HuC6280::push(uint8 data) -> void {
   step(r.cs);
-  write(r.mpr[1], 0x0100 | S, data);
-  S--;
+  write(r.mpr[1], 0x0100 | S--, data);
 }
 
 auto HuC6280::pull() -> uint8 {
   step(r.cs);
-  S++;
-  return read(r.mpr[1], 0x0100 | S);
+  return read(r.mpr[1], 0x0100 | ++S);
 }

@@ -117,6 +117,11 @@ auto MCD::PCM::write(uint13 address, uint8 data) -> void {
   }
 }
 
+auto MCD::PCM::writeDMA(uint12 address, uint16 data) -> void {
+  ram[io.bank << 12 | address | 1] = data.byte(1);
+  ram[io.bank << 12 | address | 0] = data.byte(0);
+}
+
 auto MCD::PCM::power(bool reset) -> void {
   io = {};
   for(auto& channel : channels) channel = {};

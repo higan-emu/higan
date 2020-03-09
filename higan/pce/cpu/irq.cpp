@@ -20,7 +20,7 @@ auto CPU::IRQ::poll() -> void {
     pendingVector = 0xfff8;
   }
 
-  if(cpu.timer.irqLine()) {
+  if(cpu.timer.irqLine() && cpu.timer.enable) {
     pendingIRQ = !disableTimer;
     pendingVector = 0xfffa;
   }

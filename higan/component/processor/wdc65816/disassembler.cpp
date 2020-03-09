@@ -271,7 +271,7 @@ auto WDC65816::disassembleInstruction(uint24 address, bool e, bool m, bool x) ->
 
   op(0x60, "rts", implied)
   op(0x61, "adc", indexedIndirectX)
-  op(0x62, "per", absolute)
+  op(0x62, "per", relativeWord)
   op(0x63, "adc", stack)
   op(0x64, "stz", direct)
   op(0x65, "adc", direct)

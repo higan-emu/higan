@@ -17,6 +17,7 @@ auto ControllerPort::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {
     if(node->name() == "Gamepad") device = new Gamepad(port, node);
+    if(node->name() == "Avenue Pad 6") device = new AvenuePad(port, node);
   }
 }
 

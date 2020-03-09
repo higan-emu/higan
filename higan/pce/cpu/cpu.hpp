@@ -48,23 +48,18 @@ private:
   struct Timer {
     inline auto irqLine() const { return line; }
 
-    //timer.cpp
-    auto start() -> void;
-    auto step(uint clocks) -> void;
-
   private:
-     uint1 enable;
-     uint7 latch;
-     uint7 value;
-    uint32 clock;
-
-     uint1 line;
+    uint1 line;
+    uint1 enable;
+    uint7 reload;
+    uint7 value;
+    int32 counter;
 
     friend class CPU;
   } timer;
 
   struct IO {
-    uint8 mdr;
+    uint8 mdr;  //latches only on $ff:0800-17ff writes
   } io;
 };
 

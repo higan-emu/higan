@@ -9,3 +9,4 @@ struct Controller : Thread {
 
 #include "port.hpp"
 #include "gamepad/gamepad.hpp"
+#include "avenuepad/avenuepad.hpp"

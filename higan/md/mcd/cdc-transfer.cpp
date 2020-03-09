@@ -5,8 +5,7 @@ auto MCD::CDC::Transfer::dma() -> void {
   uint16 data = mcd.cdc.ram[uint13(source >> 1)];
   switch(destination) {
   case 4:  //PCM
-    mcd.pcm.ram.write(address + 1, data.byte(1));
-    mcd.pcm.ram.write(address + 0, data.byte(0));
+    mcd.pcm.writeDMA((uint12)address & ~1, data);
     break;
 
   case 5:  //PRAM

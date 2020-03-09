@@ -11,11 +11,11 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(irq.pendingIRQ);
   s.integer(irq.pendingVector);
 
-  s.integer(timer.enable);
-  s.integer(timer.latch);
-  s.integer(timer.value);
-  s.integer(timer.clock);
   s.integer(timer.line);
+  s.integer(timer.enable);
+  s.integer(timer.reload);
+  s.integer(timer.value);
+  s.integer(timer.counter);
 
   s.integer(io.mdr);
 }

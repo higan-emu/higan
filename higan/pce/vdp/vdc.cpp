@@ -245,8 +245,8 @@ auto VDC::write(uint2 address, uint8 data) -> void {
   if(io.address == 0x0f) {
     //DCR
     if(a0 == 1) return;
-    irq.transferVRAM.enable = data.bit(0);
-    irq.transferSATB.enable = data.bit(1);
+    irq.transferSATB.enable = data.bit(0);
+    irq.transferVRAM.enable = data.bit(1);
     dma.sourceIncrementMode = data.bit(2);
     dma.targetIncrementMode = data.bit(3);
     dma.satbRepeat          = data.bit(4);

@@ -1,4 +1,6 @@
 auto CPU::read(uint8 bank, uint13 address) -> uint8 {
+  uint8 data = io.mdr;
+
   //$00-7f  HuCard
   if(!bank.bit(7)) {
     return cartridge.read(bank << 13 | address);
@@ -19,25 +21,26 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
   if(bank == 0xff) {
     //$0000-03ff  VDC or VPC
     if((address & 0x1c00) == 0x0000) {
-      HuC6280::io();  //penalty cycle
+      step(1);  //penalty cycle
       if(Model::PCEngine()) return vdp.vdc0.read(address);
       if(Model::SuperGrafx()) return vdp.vpc.read(address);
     }
 
     //$0400-07ff  VCE
     if((address & 0x1c00) == 0x0400) {
-      HuC6280::io();  //penalty cycle
+      step(1);  //penalty cycle
       return vdp.vce.read(address);
     }
 
     //$0800-0bff  PSG
     if((address & 0x1c00) == 0x0800) {
-      return io.mdr;
+      return data;
     }
 
     //$0c00-0fff  Timer
     if((address & 0x1c00) == 0x0c00) {
-      return io.mdr & 0x80 | timer.value;
+      data.bit(0,6) = timer.value;
+      return data;
     }
 
     //$1000-13ff  I/O
@@ -47,44 +50,36 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
       //it's more compatible to always identify as a Turbografx-16 system.
       //note 2: we state that the CD-ROM drive is present.
       //this is so games can use its backup RAM for save data.
-      return (
-        controllerPort.read() << 0
-      | 1 << 4
-      | 1 << 5
-      | 0 << 6  //device (0 = Turbografx-16; 1 = PC Engine)
-      | 0 << 7  //add-on (0 = CD-ROM; 1 = nothing)
-      );
+      data.bit(0,3) = controllerPort.read();
+      data.bit(4)   = 1;
+      data.bit(5)   = 1;
+      data.bit(6)   = 0;  //device (0 = Turbografx-16; 1 = PC Engine)
+      data.bit(7)   = 0;  //add-on (0 = CD-ROM; 1 = nothing)
+      return data;
     }
 
     //$1400-17ff  IRQ
     if((address & 0x1c00) == 0x1400) {
       if(address.bit(0,1) == 0) {
-        return io.mdr;
+        return data;
       }
 
       if(address.bit(0,1) == 1) {
-        return io.mdr;
+        return data;
       }
 
       if(address.bit(0,1) == 2) {
-        return (
-          irq.disableExternal << 0
-        | irq.disableVDC << 1
-        | irq.disableTimer << 2
-        | (io.mdr & 0xf8)
-        );
+        data.bit(0) = irq.disableExternal;
+        data.bit(1) = irq.disableVDC;
+        data.bit(2) = irq.disableTimer;
+        return data;
       }
 
       if(address.bit(0,1) == 3) {
-        bool pendingExternal = 0;
-        bool pendingVDC = vdp.vdc0.irqLine() | vdp.vdc1.irqLine();
-        bool pendingTimer = timer.irqLine();
-        return (
-          pendingExternal << 0
-        | pendingVDC << 1
-        | pendingTimer << 2
-        | (io.mdr & 0xf8)
-        );
+        data.bit(0) = 0;  //pending external IRQ
+        data.bit(1) = vdp.vdc0.irqLine() | vdp.vdc1.irqLine();
+        data.bit(2) = timer.irqLine();
+        return data;
       }
     }
 
@@ -125,30 +120,34 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
   if(bank == 0xff) {
     //$0000-03ff  VDC or VPC
     if((address & 0x1c00) == 0x0000) {
-      HuC6280::io();  //penalty cycle
+      step(1);  //penalty cycle
       if(Model::PCEngine()) return vdp.vdc0.write(address, data);
       if(Model::SuperGrafx()) return vdp.vpc.write(address, data);
     }
 
     //$0400-07ff  VCE
     if((address & 0x1c00) == 0x0400) {
-      HuC6280::io();  //penalty cycle
+      step(1);  //penalty cycle
       return vdp.vce.write(address, data);
     }
 
     //$0800-0bff  PSG
     if((address & 0x1c00) == 0x0800) {
-      return psg.write(address, io.mdr = data);
+      io.mdr = data;
+      return psg.write(address, data);
     }
 
     //$0c00-0fff  Timer
     if((address & 0x1c00) == 0x0c00) {
       io.mdr = data;
       if(!address.bit(0)) {
-        timer.latch = data.bit(0,6);
+        timer.reload = data.bit(0,6);
       } else {
+        if(!timer.enable && data.bit(0)) {
+          timer.value = timer.reload;
+          timer.counter = 1024 * 3;
+        }
         timer.enable = data.bit(0);
-        if(timer.enable) timer.start();
       }
       return;
     }
@@ -190,7 +189,7 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
 
 //ST0, ST1, ST2
 auto CPU::store(uint2 address, uint8 data) -> void {
-  HuC6280::io();  //penalty cycle
+  step(1);  //penalty cycle
   if(address) address++;  //0,1,2 => 0,2,3
   if(Model::PCEngine()) vdp.vdc0.write(address, data);
   if(Model::SuperGrafx()) vdp.vpc.store(address, data);

@@ -1,8 +1,8 @@
 auto HuC6280::instructionAbsoluteModify(fp alu, uint8 index) -> void {
   uint16 absolute = operand();
   absolute |= operand() << 8;
-  io();
-  io();
+  idle();
+  idle();
   auto data = ALU(load16(absolute + index));
 L store16(absolute + index, data);
 }
@@ -10,14 +10,14 @@ L store16(absolute + index, data);
 auto HuC6280::instructionAbsoluteRead(fp alu, uint8& data, uint8 index) -> void {
   uint16 absolute = operand();
   absolute |= operand() << 8;
-  io();
+  idle();
 L data = ALU(load16(absolute + index));
 }
 
 auto HuC6280::instructionAbsoluteWrite(uint8 data, uint8 index) -> void {
   uint16 absolute = operand();
   absolute |= operand() << 8;
-  io();
+  idle();
 L store16(absolute + index, data);
 }
 
@@ -31,20 +31,20 @@ auto HuC6280::instructionBlockMove(bp alu) -> void {
   push(Y);
   push(A);
   push(X);
-  io();
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
+  idle();
   bool alternate = 0;
   do {
     auto data = load16(source);
     store16(target, data);
     ALU(source, target, alternate);
     alternate ^= 1;
-    io();
-    io();
-    io();
-    io();
+    idle();
+    idle();
+    idle();
+    idle();
   } while(--length);
   X = pull();
   A = pull();
@@ -56,8 +56,8 @@ auto HuC6280::instructionBranch(bool take) -> void {
   L operand();
   } else {
     auto displacement = operand();
-    io();
-  L io();
+    idle();
+  L idle();
     PC += (int8)displacement;
   }
 }
@@ -65,8 +65,8 @@ auto HuC6280::instructionBranch(bool take) -> void {
 auto HuC6280::instructionBranchIfBitReset(uint3 index) -> void {
   auto zeropage = operand();
   auto displacement = operand();
-  io();
-  io();
+  idle();
+  idle();
 L auto data = load8(zeropage);
   if(data.bit(index) == 0) {
     PC += (int8)displacement;
@@ -76,8 +76,8 @@ L auto data = load8(zeropage);
 auto HuC6280::instructionBranchIfBitSet(uint3 index) -> void {
   auto zeropage = operand();
   auto displacement = operand();
-  io();
-  io();
+  idle();
+  idle();
 L auto data = load8(zeropage);
   if(data.bit(index) == 1) {
     PC += (int8)displacement;
@@ -86,10 +86,10 @@ L auto data = load8(zeropage);
 
 auto HuC6280::instructionBranchSubroutine() -> void {
   auto displacement = operand();
-  io();
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
+  idle();
   push((PC - 1) >> 8);
 L push((PC - 1) >> 0);
   PC += (int8)displacement;
@@ -97,7 +97,7 @@ L push((PC - 1) >> 0);
 
 auto HuC6280::instructionBreak() -> void {
   operand();
-  io();
+  idle();
   push(PC >> 8);
   push(PC >> 0);
   uint8 p = P;
@@ -111,89 +111,92 @@ L PC.byte(1) = load16(0xfff7);
 auto HuC6280::instructionCallAbsolute() -> void {
   uint16 address = operand();
   address |= operand() << 8;
-  io();
-  io();
+  idle();
+  idle();
   push((PC - 1) >> 8);
 L push((PC - 1) >> 0);
   PC = address;
 }
 
 auto HuC6280::instructionChangeSpeedLow() -> void {
-L io();
-  r.cs = 4;
+  idle();
+  r.cs = 12;
+L idle();
 }
 
 auto HuC6280::instructionChangeSpeedHigh() -> void {
-L io();
-  r.cs = 1;
+  idle();
+  r.cs = 3;
+L idle();
 }
 
 auto HuC6280::instructionClear(uint8& data) -> void {
-L io();
+L idle();
   data = 0;
 }
 
 auto HuC6280::instructionClear(bool& flag) -> void {
-L io();
+L idle();
   flag = 0;
 }
 
 auto HuC6280::instructionImmediate(fp alu, uint8& data) -> void {
-L io();
-  data = ALU(operand());
+L data = ALU(operand());
 }
 
 auto HuC6280::instructionImplied(fp alu, uint8& data) -> void {
-L io();
+L idle();
   data = ALU(data);
 }
 
 auto HuC6280::instructionIndirectRead(fp alu, uint8& data, uint8 index) -> void {
   auto zeropage = operand();
-  io();
+  idle();
   uint16 absolute = load8(zeropage + index + 0);
   absolute |= load8(zeropage + index + 1) << 8;
-  io();
+  idle();
 L data = ALU(load16(absolute));
 }
 
 auto HuC6280::instructionIndirectWrite(uint8 data, uint8 index) -> void {
   auto zeropage = operand();
-  io();
+  idle();
   uint16 absolute = load8(zeropage + index + 0);
   absolute |= load8(zeropage + index + 1) << 8;
+  idle();
 L store16(absolute, data);
 }
 
 auto HuC6280::instructionIndirectYRead(fp alu, uint8& data) -> void {
   auto zeropage = operand();
-  io();
+  idle();
   uint16 absolute = load8(zeropage + 0);
   absolute |= load8(zeropage + 1) << 8;
-  io();
+  idle();
 L data = ALU(load16(absolute + Y));
 }
 
 auto HuC6280::instructionIndirectYWrite(uint8 data) -> void {
   auto zeropage = operand();
-  io();
+  idle();
   uint16 absolute = load8(zeropage + 0);
   absolute |= load8(zeropage + 1) << 8;
+  idle();
 L store16(absolute + Y, data);
 }
 
 auto HuC6280::instructionJumpAbsolute() -> void {
   uint16 address = operand();
   address |= operand() << 8;
-L io();
+L idle();
   PC = address;
 }
 
 auto HuC6280::instructionJumpIndirect(uint8 index) -> void {
   uint16 address = operand();
   address |= operand() << 8;
-  io();
-  io();
+  idle();
+  idle();
   PC.byte(0) = load16(address + index + 0);
 L PC.byte(1) = load16(address + index + 1);
 }
@@ -206,67 +209,67 @@ L store8(X, A);
 }
 
 auto HuC6280::instructionNoOperation() -> void {
-L io();
+L idle();
 }
 
 auto HuC6280::instructionPull(uint8& data) -> void {
-  io();
-  io();
+  idle();
+  idle();
 L data = pull();
   Z = data == 0;
   N = data.bit(7);
 }
 
 auto HuC6280::instructionPullP() -> void {
-  io();
-  io();
+  idle();
+  idle();
 L P = pull();
 }
 
 auto HuC6280::instructionPush(uint8 data) -> void {
-  io();
+  idle();
 L push(data);
 }
 
 auto HuC6280::instructionResetMemoryBit(uint3 index) -> void {
   auto zeropage = operand();
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
   auto data = load8(zeropage);
   data.bit(index) = 0;
 L store8(zeropage, data);
 }
 
 auto HuC6280::instructionReturnInterrupt() -> void {
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
   P = pull();
   PC.byte(0) = pull();
 L PC.byte(1) = pull();
 }
 
 auto HuC6280::instructionReturnSubroutine() -> void {
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
   PC.byte(0) = pull();
   PC.byte(1) = pull();
-L io();
+L idle();
   PC++;
 }
 
 auto HuC6280::instructionSet(bool& flag) -> void {
-L io();
+L idle();
   flag = 1;
 }
 
 auto HuC6280::instructionSetMemoryBit(uint3 index) -> void {
   auto zeropage = operand();
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
   auto data = load8(zeropage);
   data.bit(index) = 1;
 L store8(zeropage, data);
@@ -274,14 +277,14 @@ L store8(zeropage, data);
 
 auto HuC6280::instructionStoreImplied(uint2 index) -> void {
   auto data = operand();
-  io();
-  io();
+  idle();
+  idle();
 L store(index, data);
 }
 
 auto HuC6280::instructionSwap(uint8& lhs, uint8& rhs) -> void {
-  io();
-L io();
+  idle();
+L idle();
   swap(lhs, rhs);
 }
 
@@ -289,9 +292,9 @@ auto HuC6280::instructionTestAbsolute(uint8 index) -> void {
   auto mask = operand();
   uint16 absolute = operand();
   absolute |= operand() << 8;
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
 L uint8 data = load16(absolute + index);
   Z = (data & mask) == 0;
   V = data.bit(6);
@@ -301,9 +304,9 @@ L uint8 data = load16(absolute + index);
 auto HuC6280::instructionTestZeroPage(uint8 index) -> void {
   auto mask = operand();
   auto zeropage = operand();
-  io();
-  io();
-  io();
+  idle();
+  idle();
+  idle();
 L uint8 data = load8(zeropage + index);
   Z = (data & mask) == 0;
   V = data.bit(6);
@@ -311,7 +314,7 @@ L uint8 data = load8(zeropage + index);
 }
 
 auto HuC6280::instructionTransfer(uint8& source, uint8& target) -> void {
-L io();
+L idle();
   target = source;
   Z = target == 0;
   N = target.bit(7);
@@ -319,9 +322,9 @@ L io();
 
 auto HuC6280::instructionTransferAccumulatorToMPR() -> void {
   auto mask = operand();
-  io();
-  io();
-L io();
+  idle();
+  idle();
+L idle();
   for(uint index : range(8)) {
     if(mask.bit(index)) r.mpr[index] = A;
   }
@@ -329,34 +332,34 @@ L io();
 
 auto HuC6280::instructionTransferMPRToAccumulator() -> void {
   auto mask = operand();
-  io();
-L io();
+  idle();
+L idle();
   for(uint index : range(8)) {
     if(mask.bit(index)) { A = r.mpr[index]; break; }
   }
 }
 
 auto HuC6280::instructionTransferXS() -> void {
-L io();
+L idle();
   S = X;
 }
 
 auto HuC6280::instructionZeroPageModify(fp alu, uint8 index) -> void {
   auto zeropage = operand();
-  io();
-  io();
+  idle();
+  idle();
   auto data = ALU(load8(zeropage + index));
 L store8(zeropage + index, data);
 }
 
 auto HuC6280::instructionZeroPageRead(fp alu, uint8& data, uint8 index) -> void {
   auto zeropage = operand();
-  io();
+  idle();
 L data = ALU(load8(zeropage + index));
 }
 
 auto HuC6280::instructionZeroPageWrite(uint8 data, uint8 index) -> void {
   auto zeropage = operand();
-  io();
+  idle();
 L store8(zeropage + index, data);
 }

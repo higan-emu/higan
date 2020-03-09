@@ -399,6 +399,7 @@ struct MCD : M68K, Thread {
     auto clock() -> void;
     auto read(uint13 address, uint8 data) -> uint8;
     auto write(uint13 address, uint8 data) -> void;
+    auto writeDMA(uint12 address, uint16 data) -> void;
     auto power(bool reset) -> void;
 
     //serialization.cpp

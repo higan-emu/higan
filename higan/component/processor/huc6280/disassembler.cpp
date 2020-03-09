@@ -1,57 +1,148 @@
 auto HuC6280::disassembleInstruction() -> string {
   uint16 pc = r.pc;
-  uint8 bank = r.mpr[pc.bit(13,15)];
-  uint13 address = pc.bit(0,12);
-
+  maybe<uint24> effectiveAddress;
   string s;
 
   auto readByte = [&]() -> uint8 {
-    return read(bank, address++);
+    uint8 data = read(r.mpr[pc >> 13], pc & 0x1fff);
+    return pc++, data;
   };
 
   auto readWord = [&]() -> uint16 {
-    uint16 data = read(bank, address++) << 0;
-    return data | read(bank, address++) << 8;
+    uint16 data = readByte() << 0;
+    return data | readByte() << 8;
   };
 
-  auto absolute = [&]() -> string { return {"$", hex(readWord(), 4L)}; };
-  auto absoluteX = [&]() -> string { return {"$", hex(readWord(), 4L), ",x"}; };
-  auto absoluteY = [&]() -> string { return {"$", hex(readWord(), 4L), ",y"}; };
-  auto immediate = [&]() -> string { return {"#$", hex(readByte(), 2L)}; };
-  auto indirect = [&]() -> string { return {"($", hex(readByte(), 2L), ")"}; };
-  auto indirectX = [&]() -> string { return {"($", hex(readByte(), 2L), ",x)"}; };
-  auto indirectY = [&]() -> string { return {"($", hex(readByte(), 2L), "),y"}; };
-  auto indirectLong = [&]() -> string { return {"($", hex(readWord(), 4L), ")"}; };
-  auto indirectLongX = [&]() -> string { return {"($", hex(readWord(), 4L), ",x)"}; };
-  auto memory = [&]() -> string { return {"(x),#$", hex(readByte(), 2L)}; };
-  auto relative = [&]() -> string { auto displacement = readByte(); return {"$", hex(pc + 2 + (int8)displacement, 4L)}; };
-  auto zeropage = [&]() -> string { return {"$", hex(readByte(), 2L)}; };
-  auto zeropageX = [&]() -> string { return {"$", hex(readByte(), 2L), ",x"}; };
-  auto zeropageY = [&]() -> string { return {"$", hex(readByte(), 2L), ",y"}; };
+  auto computeAbsolute = [&](uint16 address) {
+    effectiveAddress = r.mpr[address >> 13] << 16 | address & 0x1fff;
+  };
+
+  auto computeIndirect = [&](uint8 address, uint8 index = 0) {
+    uint16 absolute = 0;
+    absolute |= read(1, address++) << 0;
+    absolute |= read(1, address++) << 8;
+    effectiveAddress = absolute + index;
+  };
+
+  auto computeIndirectLong = [&](uint16 address, uint8 index = 0) {
+    uint16 absolute = 0;
+    absolute |= read(r.mpr[address >> 13], address & 0x1fff) << 0; address++;
+    absolute |= read(r.mpr[address >> 13], address & 0x1fff) << 8;
+    effectiveAddress = absolute + index;
+  };
+
+  auto computeZeroPage = [&](uint8 address) {
+    effectiveAddress = r.mpr[1] << 16 | address;
+  };
+
+  auto absolute = [&]() -> string {
+    auto address = readWord();
+    computeAbsolute(address);
+    return {"$", hex(address, 4L)};
+  };
+
+  auto absoluteX = [&]() -> string {
+    auto address = readWord();
+    computeAbsolute(address + r.x);
+    return {"$", hex(address, 4L), ",x"};
+  };
+
+  auto absoluteY = [&]() -> string {
+    auto address = readWord();
+    computeAbsolute(address + r.y);
+    return {"$", hex(address, 4L), ",y"};
+  };
+
+  auto immediate = [&]() -> string {
+    return {"#$", hex(readByte(), 2L)};
+  };
+
+  auto indirect = [&]() -> string {
+    auto indirect = readByte();
+    computeIndirect(indirect);
+    return {"($", hex(indirect, 2L), ")"};
+  };
+
+  auto indirectX = [&]() -> string {
+    auto indirect = readByte();
+    computeIndirect(indirect + r.x);
+    return {"($", hex(indirect, 2L), ",x)"};
+  };
+
+  auto indirectY = [&]() -> string {
+    auto indirect = readByte();
+    computeIndirect(indirect, r.y);
+    return {"($", hex(indirect, 2L), "),y"};
+  };
+
+  auto indirectLong = [&]() -> string {
+    auto address = readWord();
+    computeIndirectLong(address);
+    return {"($", hex(address, 4L), ")"};
+  };
+
+  auto indirectLongX = [&]() -> string {
+    auto address = readWord();
+    computeIndirectLong(address, r.x);
+    return {"($", hex(readWord(), 4L), ",x)"};
+  };
+
+  auto memory = [&]() -> string {
+    computeZeroPage(r.x);
+    return {"(x),#$", hex(readByte(), 2L)};
+  };
+
+  auto relative = [&]() -> string {
+    auto displacement = readByte();
+    computeAbsolute(pc + (int8)displacement);
+    return {"$", hex(pc + (int8)displacement, 4L)};
+  };
+
+  auto zeropage = [&]() -> string {
+    auto zeroPage = readByte();
+    computeZeroPage(zeroPage);
+    return {"$", hex(zeroPage, 2L)};
+  };
+
+  auto zeropageX = [&]() -> string {
+    auto zeroPage = readByte();
+    computeZeroPage(zeroPage + r.x);
+    return {"$", hex(zeroPage, 2L), ",x"};
+  };
+
+  auto zeropageY = [&]() -> string {
+    auto zeroPage = readByte();
+    computeZeroPage(zeroPage + r.y);
+    return {"$", hex(zeroPage, 2L), ",y"};
+  };
 
   auto immediateAbsolute = [&](string index = "") -> string {
     auto immediate = readByte();
     auto absolute = readWord();
+    computeAbsolute(absolute + (index == "x" ? r.x : (uint8)0));
     if(index) index.prepend(",");
     return {"#$", hex(immediate, 2L), ",$", hex(absolute, 4L), index};
   };
 
   auto immediateZeropage = [&](string index = "") -> string {
     auto immediate = readByte();
-    auto zeropage = readByte();
+    auto zeroPage = readByte();
+    computeZeroPage(zeroPage + (index == "x" ? r.x : (uint8)0));
     if(index) index.prepend(",");
-    return {"#$", hex(immediate, 2L), ",$", hex(zeropage, 2L), index};
+    return {"#$", hex(immediate, 2L), ",$", hex(zeroPage, 2L), index};
   };
 
   auto zeropageBit = [&](uint3 bit) -> string {
-    auto zeropage = readByte();
-    return {"$", hex(zeropage, 2L), ":", bit};
+    auto zeroPage = readByte();
+    computeZeroPage(zeroPage);
+    return {"$", hex(zeroPage, 2L), ":", bit};
   };
 
   auto zeropageBitRelative = [&](uint3 bit) -> string {
-    auto zeropage = readByte();
+    auto zeroPage = readByte();
     auto displacement = readByte();
-    return {"$", hex(zeropage, 2L), ":", bit, ",$", hex(pc + (int8)displacement, 4L)};
+    computeZeroPage(zeroPage);
+    return {"$", hex(zeroPage, 2L), ":", bit, ",$", hex(pc + (int8)displacement, 4L)};
   };
 
   auto blockMove = [&]() -> string {
@@ -334,7 +425,12 @@ U op(0xfc, "nop", "$fc")
   #undef U
 
   if(!o) o = {"??? (", hex(opcode, 2L), ")"};
-  s.append(pad(o, -13L, ' '));
+  s.append(pad(o, -21L, ' '));
+  if(effectiveAddress) {
+    s.append(" [", hex(*effectiveAddress, 6L), "]");
+  } else {
+    s.append("         ");
+  }
   #undef op
 
   return s;

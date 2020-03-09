@@ -5,6 +5,8 @@ struct Notification : Event {
   }
 
   auto notify(string_view message = {}) -> void {
+    if(!enabled()) return;
+
     if(message) {
       PlatformLog({_component, " [", _name, ": ", message, "]\n"});
     } else {
