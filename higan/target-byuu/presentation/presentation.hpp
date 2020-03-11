@@ -40,6 +40,7 @@ struct Presentation : Window {
       MenuSeparator stateMenuSeparator{&toolsMenu};
       MenuCheckItem pauseEmulation{&toolsMenu};
       MenuSeparator toolsMenuSeparator{&toolsMenu};
+      MenuItem manifestViewerAction{&toolsMenu};
       MenuItem traceLoggerAction{&toolsMenu};
     Menu helpMenu{&menuBar};
       MenuItem webpageAction{&helpMenu};

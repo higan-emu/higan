@@ -26,6 +26,9 @@ auto VDC::hclock() -> void {
         output[x] = sprite.output[x].color << 0 | sprite.output[x].palette << 4 | 1 << 8;
       }
     }
+  } else {
+    //vertical-blanking period
+    for(auto& pixel : output) pixel = 0;
   }
 
   if(timing.coincidence++ == io.coincidence) irq.raise(IRQ::Line::Coincidence);

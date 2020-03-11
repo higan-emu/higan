@@ -82,6 +82,7 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   paletteUpdate();
   runAheadUpdate();
   presentation.loadEmulator();
+  manifestViewer.reload();
   traceLogger.reload();
   if(settings.video.adaptiveSizing) presentation.resizeWindow();
   state = {};  //reset hotkey state slot to 1

@@ -1,3 +1,11 @@
+struct ManifestViewer : VerticalLayout {
+  auto construct() -> void;
+  auto reload() -> void;
+
+  Label manifestLabel{this, Size{~0, 0}, 2};
+  TextEdit manifestView{this, Size{~0, ~0}};
+};
+
 struct TraceLogger : VerticalLayout {
   auto construct() -> void;
   auto reload() -> void;
@@ -18,10 +26,12 @@ struct ToolsWindow : Window {
   HorizontalLayout layout{this};
     ListView panelList{&layout, Size{125_sx, ~0}};
     VerticalLayout panelContainer{&layout, Size{~0, ~0}};
+      ManifestViewer manifestViewer;
       TraceLogger traceLogger;
       HomePanel homePanel;
 };
 
 namespace Instances { extern Instance<ToolsWindow> toolsWindow; }
 extern ToolsWindow& toolsWindow;
+extern ManifestViewer& manifestViewer;
 extern TraceLogger& traceLogger;

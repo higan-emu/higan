@@ -106,6 +106,9 @@ Presentation::Presentation() {
   pauseEmulation.setText("Pause Emulation").onToggle([&] {
     program.pause(!program.paused);
   });
+  manifestViewerAction.setText("Manifest").setIcon(Icon::Emblem::Text).onActivate([&] {
+    toolsWindow.show("Manifest");
+  });
   traceLoggerAction.setText("Tracer").setIcon(Icon::Emblem::Text).onActivate([&] {
     toolsWindow.show("Tracer");
   });

@@ -312,7 +312,7 @@ struct MCD : M68K, Thread {
        uint4 status = Status::NoDisc;
        uint4 seeking;  //status after seeking (Playing or Paused)
       uint16 latency;
-       int   sector;   //current frame#
+       int32 sector;   //current frame#
       uint16 sample;   //current audio sample# within current frame
        uint7 track;    //current track#
     } io;
@@ -399,7 +399,6 @@ struct MCD : M68K, Thread {
     auto clock() -> void;
     auto read(uint13 address, uint8 data) -> uint8;
     auto write(uint13 address, uint8 data) -> void;
-    auto writeDMA(uint12 address, uint16 data) -> void;
     auto power(bool reset) -> void;
 
     //serialization.cpp

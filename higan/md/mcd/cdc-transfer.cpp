@@ -4,8 +4,9 @@ auto MCD::CDC::Transfer::dma() -> void {
 
   uint16 data = mcd.cdc.ram[uint13(source >> 1)];
   switch(destination) {
-  case 4:  //PCM
-    mcd.pcm.writeDMA((uint12)address & ~1, data);
+  case 4:  //PCM (0x1000 - 0x1fff = PCM RAM active 4KB bank)
+    mcd.pcm.write(0x1000 | uint12(address & ~1) | 1, data.byte(1));
+    mcd.pcm.write(0x1000 | uint12(address & ~1) | 0, data.byte(0));
     break;
 
   case 5:  //PRAM
