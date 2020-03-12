@@ -1,7 +1,7 @@
 auto Program::stateSave(uint slot) -> bool {
   if(!emulator) return false;
 
-  string location = {Location::notsuffix(emulator->game.location), ".bs", slot};
+  auto location = emulator->locate(emulator->game.location, {".bs", slot}, settings.paths.saves);
   if(auto state = emulator->interface->serialize()) {
     if(file::write(location, {state.data(), state.size()})) {
       showMessage({"Saved state to slot ", slot});
@@ -16,7 +16,7 @@ auto Program::stateSave(uint slot) -> bool {
 auto Program::stateLoad(uint slot) -> bool {
   if(!emulator) return false;
 
-  string location = {Location::notsuffix(emulator->game.location), ".bs", slot};
+  auto location = emulator->locate(emulator->game.location, {".bs", slot}, settings.paths.saves);
   if(auto memory = file::read(location)) {
     serializer state{memory.data(), (uint)memory.size()};
     if(emulator->interface->unserialize(state)) {
