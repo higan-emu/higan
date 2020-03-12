@@ -60,6 +60,12 @@ struct Settings : Markup::Node {
     uint frequency = 10;
   } rewind;
 
+  struct Paths {
+    string saves;
+    string patches;
+    string firmware;
+  } paths;
+
   struct Recent {
     string game[9];
   } recent;
@@ -191,6 +197,27 @@ struct FirmwareSettings : VerticalLayout {
     Button clearButton{&controlLayout, Size{80, 0}};
 };
 
+struct PathSettings : VerticalLayout {
+  auto construct() -> void;
+  auto refresh() -> void;
+
+  Label savesLabel{this, Size{~0, 0}, 2};
+  HorizontalLayout savesLayout{this, Size{~0, 0}};
+    LineEdit savesPath{&savesLayout, Size{~0, 0}};
+    Button savesAssign{&savesLayout, Size{80, 0}};
+    Button savesReset{&savesLayout, Size{80, 0}};
+  Label patchesLabel{this, Size{~0, 0}, 2};
+  HorizontalLayout patchesLayout{this, Size{~0, 0}};
+    LineEdit patchesPath{&patchesLayout, Size{~0, 0}};
+    Button patchesAssign{&patchesLayout, Size{80, 0}};
+    Button patchesReset{&patchesLayout, Size{80, 0}};
+  Label firmwareLabel{this, Size{~0, 0}, 2};
+  HorizontalLayout firmwareLayout{this, Size{~0, 0}};
+    LineEdit firmwarePath{&firmwareLayout, Size{~0, 0}};
+    Button firmwareAssign{&firmwareLayout, Size{80, 0}};
+    Button firmwareReset{&firmwareLayout, Size{80, 0}};
+};
+
 struct DriverSettings : VerticalLayout {
   auto construct() -> void;
   auto videoRefresh() -> void;
@@ -268,6 +295,7 @@ struct SettingsWindow : Window {
       HotkeySettings hotkeySettings;
       EmulatorSettings emulatorSettings;
       FirmwareSettings firmwareSettings;
+      PathSettings pathSettings;
       DriverSettings driverSettings;
       HomePanel homePanel;
 };
@@ -281,4 +309,5 @@ extern InputSettings& inputSettings;
 extern HotkeySettings& hotkeySettings;
 extern EmulatorSettings& emulatorSettings;
 extern FirmwareSettings& firmwareSettings;
+extern PathSettings& pathSettings;
 extern DriverSettings& driverSettings;

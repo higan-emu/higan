@@ -63,12 +63,12 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
   }
 
   if(name == "download.ram") {
-    string location = {Location::notsuffix(game.location), ".psr"};
+    auto location = locate(game.location, ".psr", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
   if(name == "time.rtc") {
-    string location = {Location::notsuffix(game.location), ".rtc"};
+    auto location = locate(game.location, ".rtc", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
@@ -81,9 +81,8 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
       if(game.image.size() >= programROMSize + firmwareProgramROMSize) {
         return vfs::memory::file::open(game.image.data() + programROMSize, firmwareProgramROMSize);
       }
-      if(file::exists({Location::dir(game.location), identifier, ".program.rom"})) {
-        return vfs::fs::file::open({Location::dir(game.location), identifier, ".program.rom"}, mode);
-      }
+      auto location = locate({Location::dir(game.location), identifier, ".program.rom"}, ".rom", settings.paths.firmware);
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
       error({"Missing required file: ", identifier, ".program.rom"});
     }
 
@@ -91,15 +90,14 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
       if(game.image.size() >= programROMSize + firmwareProgramROMSize + firmwareDataROMSize) {
         return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
       }
-      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
-        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
-      }
+      auto location = locate({Location::dir(game.location), identifier, ".data.rom"}, ".rom", settings.paths.firmware);
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
       error({"Missing required file: ", identifier, ".data.rom"});
     }
 
     if(name == "upd7725.data.ram") {
       if((bool)document["game/board/memory(content=Data,type=RAM,architecture=uPD7725)/volatile"]) return {};
-      string location = {Location::notsuffix(game.location), ".upd7725.sav"};
+      auto location = locate(game.location, ".upd7725.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
@@ -113,9 +111,8 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
       if(game.image.size() >= programROMSize + firmwareProgramROMSize) {
         return vfs::memory::file::open(game.image.data() + programROMSize, firmwareProgramROMSize);
       }
-      if(file::exists({Location::dir(game.location), identifier, ".program.rom"})) {
-        return vfs::fs::file::open({Location::dir(game.location), identifier, ".program.rom"}, mode);
-      }
+      auto location = locate({Location::dir(game.location), identifier, ".program.rom"}, ".rom", settings.paths.firmware);
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
       error({"Missing required file: ", identifier, ".program.rom"});
     }
 
@@ -123,15 +120,14 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
       if(game.image.size() >= programROMSize + firmwareProgramROMSize + firmwareDataROMSize) {
         return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
       }
-      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
-        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
-      }
+      auto location = locate({Location::dir(game.location), identifier, ".data.rom"}, ".rom", settings.paths.firmware);
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
       error({"Missing required file: ", identifier, ".data.rom"});
     }
 
     if(name == "upd96050.data.ram") {
       if((bool)document["game/board/memory(content=Data,type=RAM,architecture=uPD96050)/volatile"]) return {};
-      string location = {Location::notsuffix(game.location), ".upd96050.sav"};
+      auto location = locate(game.location, ".upd96050.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
@@ -144,15 +140,14 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
       if(game.image.size() >= programROMSize + firmwareDataROMSize) {
         return vfs::memory::file::open(game.image.data() + programROMSize, firmwareDataROMSize);
       }
-      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
-        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
-      }
+      auto location = locate({Location::dir(game.location), identifier, ".data.rom"}, ".rom", settings.paths.firmware);
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
       error({"Missing required file: ", identifier, ".data.rom"});
     }
 
     if(name == "hg51bs169.data.ram") {
       if((bool)document["game/board/memory(content=Data,type=RAM,architecture=HG51BS169)/volatile"]) return {};
-      string location = {Location::notsuffix(game.location), ".hg51bs169.sav"};
+      auto location = locate(game.location, ".hg51bs169.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
@@ -166,9 +161,8 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
       if(game.image.size() >= programROMSize + firmwareProgramROMSize) {
         return vfs::memory::file::open(game.image.data() + programROMSize, firmwareProgramROMSize);
       }
-      if(file::exists({Location::dir(game.location), identifier, ".program.rom"})) {
-        return vfs::fs::file::open({Location::dir(game.location), identifier, ".program.rom"}, mode);
-      }
+      auto location = locate({Location::dir(game.location), identifier, ".program.rom"}, ".rom", settings.paths.firmware);
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
       error({"Missing required file: ", identifier, ".program.rom"});
     }
 
@@ -176,26 +170,25 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
       if(game.image.size() >= programROMSize + firmwareProgramROMSize + firmwareDataROMSize) {
         return vfs::memory::file::open(game.image.data() + programROMSize + firmwareProgramROMSize, firmwareDataROMSize);
       }
-      if(file::exists({Location::dir(game.location), identifier, ".data.rom"})) {
-        return vfs::fs::file::open({Location::dir(game.location), identifier, ".data.rom"}, mode);
-      }
+      auto location = locate({Location::dir(game.location), identifier, ".data.rom"}, ".rom", settings.paths.firmware);
+      if(auto result = vfs::fs::file::open(location, mode)) return result;
       error({"Missing required file: ", identifier, ".data.rom"});
     }
 
     if(name == "arm6.data.ram") {
       if((bool)document["game/board/memory(content=Data,type=RAM,architecture=ARM6)/volatile"]) return {};
-      string location = {Location::notsuffix(game.location), ".arm6.sav"};
+      auto location = locate(game.location, ".arm6.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
 
   if(name == "msu1/data.rom") {
-    string location = {Location::notsuffix(game.location), ".msu"};
+    auto location = locate(game.location, ".msu");
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
-  if(name.beginsWith("msu1/track")) {
-    string location = {Location::notsuffix(game.location), "-track", string{name}.trimLeft("msu1/track", 1L)};
+  if(name.beginsWith("msu1/track-")) {
+    auto location = locate({game.location, string{name}.trimLeft("msu1/", 1L)}, ".pcm");
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 

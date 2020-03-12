@@ -118,6 +118,7 @@ auto MCD::PCM::write(uint13 address, uint8 data) -> void {
 }
 
 auto MCD::PCM::power(bool reset) -> void {
+  ram.fill(0x00);
   io = {};
   for(auto& channel : channels) channel = {};
 }

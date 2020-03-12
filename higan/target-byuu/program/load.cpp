@@ -64,7 +64,7 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
 
   //apply patch (if one exists)
   bool patchApplied = false;
-  if(auto patch = file::read({Location::notsuffix(filename), ".bps"})) {
+  if(auto patch = file::read(emulator->locate(filename, ".bps", settings.paths.patches))) {
     if(auto output = Beat::Single::apply(filedata, patch)) {
       filedata = output();
       patchApplied = true;

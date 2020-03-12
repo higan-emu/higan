@@ -5,6 +5,7 @@
 #include "hotkeys.cpp"
 #include "emulators.cpp"
 #include "firmware.cpp"
+#include "paths.cpp"
 #include "drivers.cpp"
 #include "home.cpp"
 
@@ -17,6 +18,7 @@ InputSettings& inputSettings = settingsWindow.inputSettings;
 HotkeySettings& hotkeySettings = settingsWindow.hotkeySettings;
 EmulatorSettings& emulatorSettings = settingsWindow.emulatorSettings;
 FirmwareSettings& firmwareSettings = settingsWindow.firmwareSettings;
+PathSettings& pathSettings = settingsWindow.pathSettings;
 DriverSettings& driverSettings = settingsWindow.driverSettings;
 
 auto Settings::load() -> void {
@@ -88,6 +90,10 @@ auto Settings::process(bool load) -> void {
   bind(natural, "Rewind/Length", rewind.length);
   bind(natural, "Rewind/Frequency", rewind.frequency);
 
+  bind(string,  "Paths/Saves", paths.saves);
+  bind(string,  "Paths/Patches", paths.patches);
+  bind(string,  "Paths/Firmware", paths.firmware);
+
   for(uint index : range(9)) {
     string name = {"Recent/Game-", 1 + index};
     bind(string, name, recent.game[index]);
@@ -136,6 +142,7 @@ SettingsWindow::SettingsWindow() {
   panelList.append(ListViewItem().setText("Hotkeys").setIcon(Icon::Device::Keyboard));
   panelList.append(ListViewItem().setText("Emulators").setIcon(Icon::Place::Server));
   panelList.append(ListViewItem().setText("Firmware").setIcon(Icon::Emblem::Binary));
+  panelList.append(ListViewItem().setText("Paths").setIcon(Icon::Emblem::Folder));
   panelList.append(ListViewItem().setText("Drivers").setIcon(Icon::Place::Settings));
   panelList.onChange([&] { eventChange(); });
 
@@ -145,6 +152,7 @@ SettingsWindow::SettingsWindow() {
   panelContainer.append(hotkeySettings, Size{~0, ~0});
   panelContainer.append(emulatorSettings, Size{~0, ~0});
   panelContainer.append(firmwareSettings, Size{~0, ~0});
+  panelContainer.append(pathSettings, Size{~0, ~0});
   panelContainer.append(driverSettings, Size{~0, ~0});
   panelContainer.append(homePanel, Size{~0, ~0});
 
@@ -154,6 +162,7 @@ SettingsWindow::SettingsWindow() {
   hotkeySettings.construct();
   emulatorSettings.construct();
   firmwareSettings.construct();
+  pathSettings.construct();
   driverSettings.construct();
   homePanel.construct();
 
@@ -173,6 +182,7 @@ auto SettingsWindow::show(const string& panel) -> void {
   }
   setVisible();
   setFocused();
+  panelList.setFocused();
 }
 
 auto SettingsWindow::eventChange() -> void {
@@ -186,6 +196,7 @@ auto SettingsWindow::eventChange() -> void {
   hotkeySettings.setVisible(false);
   emulatorSettings.setVisible(false);
   firmwareSettings.setVisible(false);
+  pathSettings.setVisible(false);
   driverSettings.setVisible(false);
   homePanel.setVisible(false);
 
@@ -197,6 +208,7 @@ auto SettingsWindow::eventChange() -> void {
     if(item.text() == "Hotkeys"  ) found = true, hotkeySettings.setVisible();
     if(item.text() == "Emulators") found = true, emulatorSettings.setVisible();
     if(item.text() == "Firmware" ) found = true, firmwareSettings.setVisible();
+    if(item.text() == "Paths"    ) found = true, pathSettings.setVisible();
     if(item.text() == "Drivers"  ) found = true, driverSettings.setVisible();
   }
   if(!found) homePanel.setVisible();

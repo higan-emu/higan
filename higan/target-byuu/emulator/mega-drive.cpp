@@ -53,7 +53,7 @@ auto MegaDrive::open(higan::Node::Object node, string name, vfs::file::mode mode
   }
 
   if(name == "save.ram" && !saveRAMVolatile) {
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
@@ -157,7 +157,7 @@ auto MegaCD::open(higan::Node::Object node, string name, vfs::file::mode mode, b
     }
 
     if(name == "backup.ram") {
-      string location = {Location::notsuffix(game.location), ".sav"};
+      auto location = locate(game.location, ".sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
     }
   }
@@ -184,7 +184,7 @@ auto MegaCD::open(higan::Node::Object node, string name, vfs::file::mode mode, b
       string cueLocation = {Location::notsuffix(game.location), ".cue"};
       string subLocation = {Location::notsuffix(game.location), ".sub"};
       if(auto result = vfs::fs::cdrom::open(binLocation, cueLocation, subLocation)) return result;
-      if(0) MessageDialog().setText(
+      MessageDialog().setText(
         "Failed to load CD-ROM image.\n"
         "Please ensure image is in single-file BIN+CUE format and is uncompressed."
       ).setAlignment(presentation).error();

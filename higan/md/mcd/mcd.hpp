@@ -51,6 +51,12 @@ struct MCD : M68K, Thread {
     string name;
   } information;
 
+  struct Counter {
+    uint16 divider;
+    uint16 dma;
+    double pcm = 0.0;
+  } counter;
+
   struct IO {
      uint1 run;
      uint1 request;
@@ -64,12 +70,6 @@ struct MCD : M68K, Thread {
      uint2 pramBank;
      uint8 pramProtect;
   } io;
-
-  struct Counter {
-    uint16 divider;
-    uint16 dma;
-    double pcm = 0.0;
-  } counter;
 
   struct LED {
     uint1 red;

@@ -56,12 +56,12 @@ auto Famicom::open(higan::Node::Object node, string name, vfs::file::mode mode, 
   }
 
   if(name == "save.ram" && !programRAMVolatile) {
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
   if(name == "save.eeprom") {
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
@@ -178,25 +178,25 @@ auto FamicomDiskSystem::open(higan::Node::Object node, string name, vfs::file::m
     }
 
     if(name == "disk1.sideA") {
-      string location = {Location::notsuffix(game.location), ".1A.sav"};
+      auto location = locate(game.location, ".1A.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
       if(mode == vfs::file::mode::read) return vfs::memory::file::open(diskSide[0].data(), diskSide[0].size());
     }
 
     if(name == "disk1.sideB") {
-      string location = {Location::notsuffix(game.location), ".1B.sav"};
+      auto location = locate(game.location, ".1B.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
       if(mode == vfs::file::mode::read) return vfs::memory::file::open(diskSide[1].data(), diskSide[1].size());
     }
 
     if(name == "disk2.sideA") {
-      string location = {Location::notsuffix(game.location), ".2A.sav"};
+      auto location = locate(game.location, ".2A.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
       if(mode == vfs::file::mode::read) return vfs::memory::file::open(diskSide[2].data(), diskSide[2].size());
     }
 
     if(name == "disk2.sideB") {
-      string location = {Location::notsuffix(game.location), ".2B.sav"};
+      auto location = locate(game.location, ".2B.sav", settings.paths.saves);
       if(auto result = vfs::fs::file::open(location, mode)) return result;
       if(mode == vfs::file::mode::read) return vfs::memory::file::open(diskSide[3].data(), diskSide[3].size());
     }

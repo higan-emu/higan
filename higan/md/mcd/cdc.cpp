@@ -389,15 +389,17 @@ auto MCD::CDC::write(uint8 data) -> void {
 }
 
 auto MCD::CDC::power(bool reset) -> void {
-  for(uint index : range(ram.size())) ram[index] = 0x00;
+  ram.fill(0x00);
 
   address = 0;
   stopwatch = 0;
 
+  irq = {};
   command = {};
   status = {};
   transfer = {};
   decoder = {};
   header = {};
   subheader = {};
+  control = {};
 }

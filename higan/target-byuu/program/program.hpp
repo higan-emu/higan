@@ -31,6 +31,7 @@ struct Program : higan::Platform {
   auto paletteUpdate() -> void;
   auto runAheadUpdate() -> void;
   auto openFile(BrowserDialog&) -> string;
+  auto selectFolder(BrowserDialog&) -> string;
 
   //drivers.cpp
   auto videoDriverUpdate() -> void;

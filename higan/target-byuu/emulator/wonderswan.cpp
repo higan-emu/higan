@@ -57,12 +57,12 @@ auto WonderSwan::open(higan::Node::Object node, string name, vfs::file::mode mod
 
   if(name == "save.ram" || name == "save.eeprom") {
     if(saveRAMVolatile) return {};
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
   if(name == "time.rtc") {
-    string location = {Location::notsuffix(game.location), ".rtc"};
+    auto location = locate(game.location, ".rtc", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
@@ -128,12 +128,12 @@ auto WonderSwanColor::open(higan::Node::Object node, string name, vfs::file::mod
 
   if(name == "save.ram" || name == "save.eeprom") {
     if(saveRAMVolatile) return {};
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
   if(name == "time.rtc") {
-    string location = {Location::notsuffix(game.location), ".rtc"};
+    auto location = locate(game.location, ".rtc", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
@@ -199,12 +199,12 @@ auto PocketChallengeV2::open(higan::Node::Object node, string name, vfs::file::m
 
   if(name == "save.ram" || name == "save.eeprom") {
     if(saveRAMVolatile) return {};
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
   if(name == "time.rtc") {
-    string location = {Location::notsuffix(game.location), ".rtc"};
+    auto location = locate(game.location, ".rtc", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 

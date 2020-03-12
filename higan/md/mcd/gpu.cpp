@@ -103,4 +103,12 @@ auto MCD::GPU::start() -> void {
 }
 
 auto MCD::GPU::power(bool reset) -> void {
+  irq = {};
+  font = {};
+  stamp = {};
+  image = {};
+  vector = {};
+  active = 0;
+  counter = 0;
+  period = 0;
 }

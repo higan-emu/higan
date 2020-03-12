@@ -217,7 +217,7 @@ auto BrowserDialogWindow::run() -> BrowserDialog::Response {
   pathUp.setBordered(false).setIcon(iconUp).onActivate([&] { setPath(Location::dir(state.path)); });
   view.setBatchable(state.action == "openFiles").onActivate([&] { activate(); }).onChange([&] { change(); });
   view.onContext([&] { context(); });
-  filterList.setVisible(state.action != "selectFolder").onChange([&] { setPath(state.path); });
+  filterList.setCollapsible().setVisible(state.action != "selectFolder").onChange([&] { setPath(state.path); });
   for(auto& filter : state.filters) {
     auto part = filter.split("|", 1L);
     filterList.append(ComboButtonItem().setText(part.left()));

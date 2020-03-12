@@ -108,6 +108,16 @@ auto Emulator::construct() -> void {
   #endif
 }
 
+auto Emulator::locate(const string& location, const string& suffix, const string& path) -> string {
+  //game path
+  if(!path) return {Location::notsuffix(location), suffix};
+
+  //path override
+  string pathname = {path, interface->name(), "/"};
+  directory::create(pathname);
+  return {pathname, Location::prefix(location), suffix};
+}
+
 auto Emulator::manifest() -> shared_pointer<vfs::file> {
   for(auto& media : icarus::media) {
     if(media->name() != interface->name()) continue;

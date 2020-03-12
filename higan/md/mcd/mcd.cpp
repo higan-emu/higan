@@ -191,6 +191,8 @@ auto MCD::power(bool reset) -> void {
     io = {};
     led = {};
     irq = {};
+    external = {};
+    communication = {};
     cdc.power(reset);
     cdd.power(reset);
     timer.power(reset);

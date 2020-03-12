@@ -84,6 +84,9 @@ Presentation::Presentation() {
   firmwareSettingsAction.setText("Firmware ...").setIcon(Icon::Emblem::Binary).onActivate([&] {
     settingsWindow.show("Firmware");
   });
+  pathSettingsAction.setText("Paths ...").setIcon(Icon::Emblem::Folder).onActivate([&] {
+    settingsWindow.show("Paths");
+  });
   driverSettingsAction.setText("Drivers ...").setIcon(Icon::Place::Settings).onActivate([&] {
     settingsWindow.show("Drivers");
   });
@@ -109,7 +112,7 @@ Presentation::Presentation() {
   manifestViewerAction.setText("Manifest").setIcon(Icon::Emblem::Text).onActivate([&] {
     toolsWindow.show("Manifest");
   });
-  traceLoggerAction.setText("Tracer").setIcon(Icon::Emblem::Text).onActivate([&] {
+  traceLoggerAction.setText("Tracer").setIcon(Icon::Emblem::Script).onActivate([&] {
     toolsWindow.show("Tracer");
   });
 

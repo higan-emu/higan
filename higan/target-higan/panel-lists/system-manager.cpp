@@ -54,6 +54,7 @@ auto SystemManager::refresh() -> void {
 
 auto SystemManager::onActivate() -> void {
   if(auto item = listView.selected()) {
+    if(!item.attribute("path")) return;
     if(auto system = item.attribute("system")) {
       if(auto index = interfaces.find([&](auto interface) { return interface->name() == system; })) {
         emulator.create(interfaces[*index], {item.attribute("path"), item.attribute("name"), "/"});
@@ -83,12 +84,20 @@ auto SystemManager::onChange() -> void {
 }
 
 auto SystemManager::onContext() -> void {
-  auto selected = (bool)listView.selected();
-  listCreate.setVisible(!selected);
-  listLaunch.setVisible(selected);
-  listRename.setVisible(selected);
-  listRemove.setVisible(selected);
-  listMenu.setVisible();
+  if(auto item = listView.selected()) {
+    if(!item.attribute("path")) return;  //no context menu for "Create New System" option
+    listCreate.setVisible(false);
+    listLaunch.setVisible(true);
+    listRename.setVisible(true);
+    listRemove.setVisible(true);
+    listMenu.setVisible();
+  } else {
+    listCreate.setVisible(true);
+    listLaunch.setVisible(false);
+    listRename.setVisible(false);
+    listRemove.setVisible(false);
+    listMenu.setVisible();
+  }
 }
 
 auto SystemManager::doCreate() -> void {
@@ -99,6 +108,7 @@ auto SystemManager::doCreate() -> void {
 
 auto SystemManager::doRename() -> void {
   if(auto item = listView.selected()) {
+    if(!item.attribute("path")) return;
     auto path = item.attribute("path");
     auto from = item.attribute("name");
     if(auto name = NameDialog()
@@ -124,6 +134,7 @@ auto SystemManager::doRename() -> void {
 
 auto SystemManager::doRemove() -> void {
   if(auto item = listView.selected()) {
+    if(!item.attribute("path")) return;
     if(MessageDialog()
     .setTitle({"Delete ", item.attribute("name")})
     .setText("Are you sure you want to permanently delete the selected system?\n"

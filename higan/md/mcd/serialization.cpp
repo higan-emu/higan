@@ -6,6 +6,10 @@ auto MCD::serialize(serializer& s) -> void {
   wram.serialize(s);
   bram.serialize(s);
 
+  s.integer(counter.divider);
+  s.integer(counter.dma);
+  s.real(counter.pcm);
+
   s.integer(io.run);
   s.integer(io.request);
   s.integer(io.halt);
@@ -16,10 +20,6 @@ auto MCD::serialize(serializer& s) -> void {
   s.integer(io.wramPriority);
   s.integer(io.pramBank);
   s.integer(io.pramProtect);
-
-  s.integer(counter.divider);
-  s.integer(counter.dma);
-  s.real(counter.pcm);
 
   s.integer(led.red);
   s.integer(led.green);

@@ -182,6 +182,7 @@ inline auto directory::copy(const string& source, const string& target) -> bool 
   }
 
   inline auto directory::remove(const string& pathname) -> bool {
+    if(!pathname || pathname == "/" || pathname.match("?:") || pathname.match("?:/")) return false;  //safeguard
     auto list = directory::contents(pathname);
     for(auto& name : list) {
       if(name.endsWith("/")) directory::remove({pathname, name});
@@ -290,6 +291,7 @@ inline auto directory::copy(const string& source, const string& target) -> bool 
   }
 
   inline auto directory::remove(const string& pathname) -> bool {
+    if(!pathname || pathname == "/") return false;  //safeguard
     auto list = directory::contents(pathname);
     for(auto& name : list) {
       if(name.endsWith("/")) directory::remove({pathname, name});

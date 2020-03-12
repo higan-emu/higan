@@ -225,6 +225,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
   }
 
   if(address == 0xff800a) {
+    cdc.transfer.address.bit(0, 2) = 0;  //alignment
     cdc.transfer.address.bit(3,18) = data.bit(0,15);
   }
 

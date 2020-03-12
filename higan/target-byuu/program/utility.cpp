@@ -36,3 +36,14 @@ auto Program::openFile(BrowserDialog& dialog) -> string {
   }
   return dialog.openFile();
 }
+
+auto Program::selectFolder(BrowserDialog& dialog) -> string {
+  if(settings.general.nativeFileDialogs) {
+    BrowserWindow window;
+    window.setTitle(dialog.title());
+    window.setPath(dialog.path());
+    window.setParent(dialog.alignmentWindow());
+    return window.directory();
+  }
+  return dialog.selectFolder();
+}

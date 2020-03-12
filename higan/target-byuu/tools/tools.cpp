@@ -11,7 +11,7 @@ ToolsWindow::ToolsWindow() {
   layout.setPadding(5_sx, 5_sy);
 
   panelList.append(ListViewItem().setText("Manifest").setIcon(Icon::Emblem::Text));
-  panelList.append(ListViewItem().setText("Tracer").setIcon(Icon::Emblem::Text));
+  panelList.append(ListViewItem().setText("Tracer").setIcon(Icon::Emblem::Script));
   panelList.onChange([&] { eventChange(); });
 
   panelContainer.append(manifestViewer, Size{~0, ~0});
@@ -38,6 +38,7 @@ auto ToolsWindow::show(const string& panel) -> void {
   }
   setVisible();
   setFocused();
+  panelList.setFocused();
 }
 
 auto ToolsWindow::eventChange() -> void {

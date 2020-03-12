@@ -296,10 +296,14 @@ auto MCD::CDD::eject() -> void {
 }
 
 auto MCD::CDD::power(bool reset) -> void {
+  irq = {};
+  counter = 0;
   dac.power(reset);
   io = {};
+  hostClockEnable = 0;
+  statusPending = 0;
+  for(auto& data : status) data = 0x0;
+  for(auto& data : command) data = 0x0;
   insert();
-  for(uint index : range(10)) status [index] = 0x0;
-  for(uint index : range(10)) command[index] = 0x0;
   checksum();
 }

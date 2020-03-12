@@ -2,6 +2,7 @@ struct Emulator {
   struct Firmware;
 
   static auto construct() -> void;
+  auto locate(const string& location, const string& suffix, const string& path = "") -> string;
   auto manifest() -> shared_pointer<vfs::file>;
   auto load(const string& location, const vector<uint8_t>& image) -> bool;
   auto loadFirmware(const Firmware&) -> shared_pointer<vfs::file>;

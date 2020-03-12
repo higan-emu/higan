@@ -47,7 +47,7 @@ auto PCEngine::open(higan::Node::Object node, string name, vfs::file::mode mode,
   }
 
   if(name == "save.ram" && !programRAMVolatile) {
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 
@@ -107,7 +107,7 @@ auto SuperGrafx::open(higan::Node::Object node, string name, vfs::file::mode mod
   }
 
   if(name == "save.ram" && !programRAMVolatile) {
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 

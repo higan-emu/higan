@@ -33,6 +33,7 @@ struct Presentation : Window {
       MenuItem hotkeySettingsAction{&settingsMenu};
       MenuItem emulatorSettingsAction{&settingsMenu};
       MenuItem firmwareSettingsAction{&settingsMenu};
+      MenuItem pathSettingsAction{&settingsMenu};
       MenuItem driverSettingsAction{&settingsMenu};
     Menu toolsMenu{&menuBar};
       Menu saveStateMenu{&toolsMenu};
