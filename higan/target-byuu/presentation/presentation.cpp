@@ -318,26 +318,25 @@ auto Presentation::loadEmulator() -> void {
   unload.setText("Unload").setIcon(Icon::Media::Eject).onActivate([&] {
     program.unload();
     if(settings.video.adaptiveSizing) presentation.resizeWindow();
+    presentation.showIcon(true);
   });
 
   toolsMenu.setVisible(true);
   pauseEmulation.setChecked(false);
-
-  iconSpacer.setVisible(false);
-  iconCanvas.setVisible(false);
-  layout.resize();
 }
 
-auto Presentation::unloadEmulator() -> void {
+auto Presentation::unloadEmulator(bool reloading) -> void {
   setTitle({byuu::Name, " v", byuu::Version});
 
   systemMenu.setVisible(false);
   systemMenu.reset();
 
   toolsMenu.setVisible(false);
+}
 
-  iconSpacer.setVisible(true);
-  iconCanvas.setVisible(true);
+auto Presentation::showIcon(bool visible) -> void {
+  iconSpacer.setVisible(visible);
+  iconCanvas.setVisible(visible);
   layout.resize();
 }
 

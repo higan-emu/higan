@@ -50,6 +50,7 @@ auto System::serializeAll(serializer& s, bool synchronize) -> void {
   cpu.serialize(s);
   vdp.serialize(s);
   psg.serialize(s);
+  cartridge.serialize(s);
   controllerPort.serialize(s);
 }
 

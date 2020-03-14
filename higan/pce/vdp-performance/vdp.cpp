@@ -91,15 +91,15 @@ auto VDP::step(uint clocks) -> void {
 
 auto VDP::refresh() -> void {
   if(width256 == 1 && width344 == 0 && width512 == 0) {
-    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 256, 240);
+    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 256, 239);
   }
 
   if(width256 == 0 && width344 == 1 && width512 == 0) {
-    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 344, 240);
+    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 344, 239);
   }
 
   if(width256 == 0 && width344 == 0 && width512 == 1) {
-    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 512, 240);
+    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 512, 239);
   }
 
   //this frame contains mixed resolutions: normalize every scanline to 1024-width

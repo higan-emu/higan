@@ -71,6 +71,15 @@ auto VDC::serialize(serializer& s) -> void {
   s.integer(timing.voffset);
   s.integer(timing.coincidence);
 
+  s.integer(latch.horizontalSyncWidth);
+  s.integer(latch.horizontalDisplayStart);
+  s.integer(latch.horizontalDisplayWidth);
+  s.integer(latch.horizontalDisplayEnd);
+  s.integer(latch.verticalSyncWidth);
+  s.integer(latch.verticalDisplayStart);
+  s.integer(latch.verticalDisplayWidth);
+  s.integer(latch.verticalDisplayEnd);
+
   s.integer(io.address);
   s.integer(io.externalSync);
   s.integer(io.displayOutput);

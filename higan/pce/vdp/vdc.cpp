@@ -1,11 +1,21 @@
 auto VDC::hpulse() -> void {
   timing.hstate = HDS;
   timing.hoffset = 0;
+
+  latch.horizontalSyncWidth = timing.horizontalSyncWidth;
+  latch.horizontalDisplayStart = timing.horizontalDisplayStart;
+  latch.horizontalDisplayWidth = timing.horizontalDisplayWidth;
+  latch.horizontalDisplayEnd = timing.horizontalDisplayEnd;
 }
 
 auto VDC::vpulse() -> void {
-  timing.vstate = VSW;
+  timing.vstate = VDS;
   timing.voffset = 0;
+
+  latch.verticalSyncWidth = timing.verticalSyncWidth;
+  latch.verticalDisplayStart = timing.verticalDisplayStart;
+  latch.verticalDisplayWidth = timing.verticalDisplayWidth;
+  latch.verticalDisplayEnd = timing.verticalDisplayEnd;
 }
 
 auto VDC::hclock() -> void {
@@ -27,7 +37,7 @@ auto VDC::hclock() -> void {
   timing.hoffset++;
   switch(timing.hstate) {
   case HDS:
-    if(timing.hoffset == max(2, timing.horizontalDisplayStart) + 1 << 3) {
+    if(timing.hoffset >= max(2, latch.horizontalDisplayStart) + 1 << 3) {
       timing.hstate = HDW;
       timing.hoffset = 0;
       background.scanline(timing.voffset);
@@ -36,20 +46,20 @@ auto VDC::hclock() -> void {
   case HDW:
     //this is said to happen 4 cycles before HDW ends;
     //however, anything less than 40 cycles causes severe graphics issues in games
-    if(timing.hoffset == timing.horizontalDisplayWidth - 4 << 3) {
+    if(timing.hoffset == latch.horizontalDisplayWidth - 4 << 3) {
       if(timing.coincidence++ == io.coincidence) irq.raise(IRQ::Line::Coincidence);
     }
-    if(timing.hoffset == timing.horizontalDisplayWidth + 1 << 3) {
+    if(timing.hoffset >= latch.horizontalDisplayWidth + 1 << 3) {
       timing.hstate = HDE;
       timing.hoffset = 0;
     } break;
   case HDE:
-    if(timing.hoffset == timing.horizontalDisplayEnd + 1 << 3) {
+    if(timing.hoffset >= latch.horizontalDisplayEnd + 1 << 3) {
       timing.hstate = HSW;
       timing.hoffset = 0;
     } break;
   case HSW:
-    if(timing.hoffset == timing.horizontalSyncWidth + 1 << 3) {
+    if(timing.hoffset >= latch.horizontalSyncWidth + 1 << 3) {
       timing.hstate = HDS;
       timing.hoffset = 0;
     } break;
@@ -59,27 +69,27 @@ auto VDC::hclock() -> void {
 auto VDC::vclock() -> void {
   timing.voffset++;
   switch(timing.vstate) {
-  case VSW:
-    if(timing.voffset == timing.verticalSyncWidth + 1) {
-      timing.vstate = VDS;
-      timing.voffset = 0;
-    } break;
   case VDS:
-    if(timing.voffset == timing.verticalDisplayStart) {
+    if(timing.voffset >= latch.verticalDisplayStart + 2) {
       timing.vstate = VDW;
       timing.voffset = 0;
       timing.coincidence = 64;
     } break;
   case VDW:
-    if(timing.voffset == timing.verticalDisplayWidth + 1) {
+    if(timing.voffset >= latch.verticalDisplayWidth + 1) {
       timing.vstate = VCR;
       timing.voffset = 0;
       irq.raise(IRQ::Line::Vblank);
       dma.satbStart();
     } break;
   case VCR:
-    if(timing.voffset == timing.verticalDisplayEnd) {
+    if(timing.voffset >= latch.verticalDisplayEnd) {
       timing.vstate = VSW;
+      timing.voffset = 0;
+    } break;
+  case VSW:
+    if(timing.voffset >= latch.verticalSyncWidth + 1) {
+      timing.vstate = VDS;
       timing.voffset = 0;
     } break;
   }
@@ -87,27 +97,33 @@ auto VDC::vclock() -> void {
 
 auto VDC::read(uint2 address) -> uint8 {
   uint8 data = 0x00;
-  uint1 a0 = address.bit(0);
-  uint1 a1 = address.bit(1);
 
-  if(a1 == 0) {
+  if(address == 0x0) {
     //SR
-    if(a0 == 1) return data;
     data.bit(0) = irq.collision.pending;
     data.bit(1) = irq.overflow.pending;
     data.bit(2) = irq.coincidence.pending;
     data.bit(3) = irq.transferSATB.pending;
     data.bit(4) = irq.transferVRAM.pending;
     data.bit(5) = irq.vblank.pending;
+    data.bit(6) = dma.vramActive || dma.satbActive;
     irq.lower();
     return data;
   }
+
+  if(address == 0x1) {
+    //unmapped
+    return data;
+  }
+
+  uint1 a0 = address.bit(0);
 
   if(io.address == 0x02) {
     //VRR
     data = vram.dataRead.byte(a0);
     if(a0 == 1) {
       vram.addressRead += vram.addressIncrement;
+      while(dma.vramActive || dma.satbActive) cpu.idle();
       vram.dataRead = vram.read(vram.addressRead);
     }
     return data;
@@ -117,14 +133,18 @@ auto VDC::read(uint2 address) -> uint8 {
 }
 
 auto VDC::write(uint2 address, uint8 data) -> void {
-  uint1 a0 = address.bit(0);
-  uint1 a1 = address.bit(1);
-
-  if(a1 == 0) {
+  if(address == 0x0) {
     //AR
-    if(a0 == 0) io.address = data.bit(0,4);
+    io.address = data.bit(0,4);
     return;
   }
+
+  if(address == 0x1) {
+    //unmapped
+    return;
+  }
+
+  uint1 a0 = address.bit(0);
 
   if(io.address == 0x00) {
     //MAWR
@@ -135,6 +155,7 @@ auto VDC::write(uint2 address, uint8 data) -> void {
   if(io.address == 0x01) {
     //MARR
     vram.addressRead.byte(a0) = data;
+    while(dma.vramActive || dma.satbActive) cpu.idle();
     vram.dataRead = vram.read(vram.addressRead);
     return;
   }
@@ -143,6 +164,7 @@ auto VDC::write(uint2 address, uint8 data) -> void {
     //VWR
     vram.dataWrite.byte(a0) = data;
     if(a0 == 1) {
+      while(dma.vramActive || dma.satbActive) cpu.idle();
       vram.write(vram.addressWrite, vram.dataWrite);
       vram.addressWrite += vram.addressIncrement;
     }
@@ -159,6 +181,7 @@ auto VDC::write(uint2 address, uint8 data) -> void {
       io.externalSync        = data.bit(4,5);
       sprite.enable          = data.bit(6);
       background.enable      = data.bit(7);
+      irq.poll();
     }
     if(a0 == 1) {
       io.displayOutput = data.bit(0,1);
@@ -250,6 +273,7 @@ auto VDC::write(uint2 address, uint8 data) -> void {
     dma.sourceIncrementMode = data.bit(2);
     dma.targetIncrementMode = data.bit(3);
     dma.satbRepeat          = data.bit(4);
+    irq.poll();
     return;
   }
 
@@ -275,7 +299,7 @@ auto VDC::write(uint2 address, uint8 data) -> void {
   if(io.address == 0x13) {
     //DVSSR
     dma.satbSource.byte(a0) = data;
-    if(a0 == 1) dma.satbQueue();
+    dma.satbQueue();
     return;
   }
 }

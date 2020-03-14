@@ -5,7 +5,8 @@ struct Presentation : Window {
   auto resizeWindow() -> void;
   auto loadEmulators() -> void;
   auto loadEmulator() -> void;
-  auto unloadEmulator() -> void;
+  auto unloadEmulator(bool reloading = false) -> void;
+  auto showIcon(bool visible) -> void;
   auto loadShaders() -> void;
 
   MenuBar menuBar{this};

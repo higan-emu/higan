@@ -11,16 +11,14 @@ auto VDC::Background::scanline(uint y) -> void {
 auto VDC::Background::run(uint x, uint y) -> void {
   color = 0;
   palette = 0;
+  if(!enable) return;
 
-  uint16 batAddress;
-  batAddress  = (voffset >> 3) & (height - 1);
-  batAddress *= width;
-  batAddress += (hoffset >> 3) & (width  - 1);
+  uint8 tileX = hoffset >> 3 & width  - 1;
+  uint8 tileY = voffset >> 3 & height - 1;
+  uint16 attributes = vdc->vram.read(tileY * width + tileX);
 
-  uint16 tiledata = vdc->vram.read(batAddress);
-  uint16 patternAddress = tiledata.bit(0,11) << 4;
-  patternAddress += (uint3)voffset;
-  uint4 palette = tiledata.bit(12,15);
+  uint16 patternAddress = attributes.bit(0,11) << 4 | (uint3)voffset;
+  uint4 palette = attributes.bit(12,15);
 
   uint16 d0 = vdc->vram.read(patternAddress + 0);
   uint16 d1 = vdc->vram.read(patternAddress + 8);
@@ -32,7 +30,7 @@ auto VDC::Background::run(uint x, uint y) -> void {
   color.bit(2) = d1.bit(0 + index);
   color.bit(3) = d1.bit(8 + index);
 
-  if(enable && color) {
+  if(color) {
     this->color = color;
     this->palette = palette;
   }

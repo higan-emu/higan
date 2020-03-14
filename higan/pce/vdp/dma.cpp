@@ -11,6 +11,7 @@ auto VDC::DMA::step(uint clocks) -> void {
         vramActive = 0;
         vdc->irq.raise(VDC::IRQ::Line::TransferVRAM);
       }
+      continue;
     }
 
     if(satbActive) {
@@ -18,9 +19,9 @@ auto VDC::DMA::step(uint clocks) -> void {
       vdc->satb.write(satbOffset, data);
       if(!++satbOffset) {
         satbActive = 0;
-        satbPending = satbRepeat;
         vdc->irq.raise(VDC::IRQ::Line::TransferSATB);
       }
+      continue;
     }
   } while(--clocks);
 }
@@ -30,9 +31,11 @@ auto VDC::DMA::vramStart() -> void {
 }
 
 auto VDC::DMA::satbStart() -> void {
-  if(!satbPending) return;
-  satbActive = 1;
-  satbOffset = 0;
+  if(satbPending || satbRepeat) {
+    satbPending = 0;
+    satbActive = 1;
+    satbOffset = 0;
+  }
 }
 
 auto VDC::DMA::satbQueue() -> void {

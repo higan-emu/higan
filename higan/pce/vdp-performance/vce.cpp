@@ -1,13 +1,13 @@
 auto VCE::read(uint3 address) -> uint8 {
   uint8 data = 0xff;
 
-  if(address == 0x04) {
+  if(address == 0x4) {
     //CTR
     data.bit(0,7) = cram.read(cram.address).bit(0,7);
     return data;
   }
 
-  if(address == 0x05) {
+  if(address == 0x5) {
     //CTR
     data.bit(0) = cram.read(cram.address).bit(8);
     cram.address++;
@@ -18,7 +18,7 @@ auto VCE::read(uint3 address) -> uint8 {
 }
 
 auto VCE::write(uint3 address, uint8 data) -> void {
-  if(address == 0x00) {
+  if(address == 0x0) {
     //CR
     if(data.bit(0,1) == 0) io.clock = 4;
     if(data.bit(0,1) == 1) io.clock = 3;
@@ -29,25 +29,25 @@ auto VCE::write(uint3 address, uint8 data) -> void {
     return;
   }
 
-  if(address == 0x02) {
+  if(address == 0x2) {
     //CTA
     cram.address.bit(0,7) = data.bit(0,7);
     return;
   }
 
-  if(address == 0x03) {
+  if(address == 0x3) {
     //CTA
     cram.address.bit(8) = data.bit(0);
     return;
   }
 
-  if(address == 0x04) {
+  if(address == 0x4) {
     //CTW
     cram.write(cram.address, 0, data.bit(0,7));
     return;
   }
 
-  if(address == 0x05) {
+  if(address == 0x5) {
     //CTW
     cram.write(cram.address, 1, data.bit(0));
     cram.address++;

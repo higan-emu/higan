@@ -94,7 +94,7 @@ struct VDC {
   } dma;
 
   enum : uint { HDS, HDW, HDE, HSW };
-  enum : uint { VSW, VDS, VDW, VCR };
+  enum : uint { VDS, VDW, VCR, VSW };
 
   struct Timing {
      uint5 horizontalSyncWidth = 2;

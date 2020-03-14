@@ -95,7 +95,7 @@ struct VDC {
   } dma;
 
   enum : uint { HDS, HDW, HDE, HSW };
-  enum : uint { VSW, VDS, VDW, VCR };
+  enum : uint { VDS, VDW, VCR, VSW };
 
   struct Timing {
      uint5 horizontalSyncWidth = 2;
@@ -116,6 +116,18 @@ struct VDC {
 
     uint10 coincidence = 64;
   } timing;
+
+  struct Latch {
+    uint5 horizontalSyncWidth;
+    uint7 horizontalDisplayStart;
+    uint7 horizontalDisplayWidth;
+    uint7 horizontalDisplayEnd;
+
+    uint5 verticalSyncWidth;
+    uint8 verticalDisplayStart;
+    uint9 verticalDisplayWidth;
+    uint8 verticalDisplayEnd;
+  } latch;
 
   struct IO {
      uint5 address;

@@ -4,6 +4,7 @@
 auto HuC6280::interrupt(uint16 vector) -> void {
   idle();
   idle();
+  idle();
   push(PC >> 8);
   push(PC >> 0);
   push(P);

@@ -58,7 +58,7 @@ auto SuperFamicom::open(higan::Node::Object node, string name, vfs::file::mode m
 
   if(name == "save.ram") {
     if((bool)document["game/board/memory(content=Save,type=RAM)/volatile"]) return {};
-    string location = {Location::notsuffix(game.location), ".sav"};
+    auto location = locate(game.location, ".sav", settings.paths.saves);
     if(auto result = vfs::fs::file::open(location, mode)) return result;
   }
 

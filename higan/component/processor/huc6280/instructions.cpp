@@ -69,6 +69,8 @@ auto HuC6280::instructionBranchIfBitReset(uint3 index) -> void {
   idle();
 L auto data = load8(zeropage);
   if(data.bit(index) == 0) {
+    idle();
+    idle();
     PC += (int8)displacement;
   }
 }
@@ -80,6 +82,8 @@ auto HuC6280::instructionBranchIfBitSet(uint3 index) -> void {
   idle();
 L auto data = load8(zeropage);
   if(data.bit(index) == 1) {
+    idle();
+    idle();
     PC += (int8)displacement;
   }
 }
@@ -203,7 +207,8 @@ L PC.byte(1) = load16(address + index + 1);
 
 auto HuC6280::instructionMemory(fp alu) -> void {
   auto a = A;
-  A = ALU(load8(X));
+  A = load8(X);
+  A = ALU(operand());
 L store8(X, A);
   A = a;
 }

@@ -76,15 +76,17 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
   if(!emulator->load(filename, filedata)) {
     ::emulator.reset();
     if(settings.video.adaptiveSizing) presentation.resizeWindow();
+    presentation.showIcon(true);
     return false;
   }
 
   paletteUpdate();
   runAheadUpdate();
   presentation.loadEmulator();
+  presentation.showIcon(false);
+  if(settings.video.adaptiveSizing) presentation.resizeWindow();
   manifestViewer.reload();
   traceLogger.reload();
-  if(settings.video.adaptiveSizing) presentation.resizeWindow();
   state = {};  //reset hotkey state slot to 1
   pause(false);
   showMessage({"Loaded ", Location::prefix(emulator->game.location), patchApplied ? ", and patch applied" : ""});

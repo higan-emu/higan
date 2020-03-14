@@ -17,11 +17,25 @@ auto HuC6280::disassembleInstruction() -> string {
     effectiveAddress = r.mpr[address >> 13] << 16 | address & 0x1fff;
   };
 
-  auto computeIndirect = [&](uint8 address, uint8 index = 0) {
+  auto computeIndirect = [&](uint8 address) {
     uint16 absolute = 0;
-    absolute |= read(1, address++) << 0;
-    absolute |= read(1, address++) << 8;
-    effectiveAddress = absolute + index;
+    absolute |= read(r.mpr[1], address + 0) << 0;
+    absolute |= read(r.mpr[1], address + 1) << 8;
+    effectiveAddress = absolute;
+  };
+
+  auto computeIndirectX = [&](uint8 address) {
+    uint16 absolute = 0;
+    absolute |= read(r.mpr[1], address + r.x + 0) << 0;
+    absolute |= read(r.mpr[1], address + r.x + 1) << 8;
+    effectiveAddress = absolute;
+  };
+
+  auto computeIndirectY = [&](uint8 address) {
+    uint16 absolute = 0;
+    absolute |= read(r.mpr[1], address + 0) << 0;
+    absolute |= read(r.mpr[1], address + 1) << 8;
+    effectiveAddress = absolute + r.y;
   };
 
   auto computeIndirectLong = [&](uint16 address, uint8 index = 0) {
@@ -65,13 +79,13 @@ auto HuC6280::disassembleInstruction() -> string {
 
   auto indirectX = [&]() -> string {
     auto indirect = readByte();
-    computeIndirect(indirect + r.x);
+    computeIndirectX(indirect);
     return {"($", hex(indirect, 2L), ",x)"};
   };
 
   auto indirectY = [&]() -> string {
     auto indirect = readByte();
-    computeIndirect(indirect, r.y);
+    computeIndirectY(indirect);
     return {"($", hex(indirect, 2L), "),y"};
   };
 

@@ -3,7 +3,7 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
 
   //$00-7f  HuCard
   if(!bank.bit(7)) {
-    return cartridge.read(bank << 13 | address);
+    return cartridge.read(bank, address);
   }
 
   //$f7  BRAM
@@ -100,7 +100,7 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
 auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
   //$00-7f  HuCard
   if(!bank.bit(7)) {
-    return cartridge.write(bank << 13 | address, data);
+    return cartridge.write(bank, address, data);
   }
 
   //$f7  BRAM

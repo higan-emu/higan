@@ -1,3 +1,5 @@
+#include "board/board.hpp"
+
 struct Cartridge {
   Node::Port port;
   Node::Peripheral node;
@@ -13,23 +15,20 @@ struct Cartridge {
   auto save() -> void;
   auto power() -> void;
 
-  auto read(uint20 address) -> uint8;
-  auto write(uint20 address, uint8 data) -> void;
+  auto read(uint8 bank, uint13 address) -> uint8;
+  auto write(uint8 bank, uint13 address, uint8 data) -> void;
+
+  //serialization.cpp
+  auto serialize(serializer&) -> void;
+
+  unique_pointer<Board::Interface> board;
 
 private:
-  auto mirror(uint addr, uint size) -> uint;
-
   struct Information {
     string manifest;
     string name;
+    string board;
   } information;
-
-  struct Memory {
-    uint8* data = nullptr;
-    uint size = 0;
-  };
-
-  Memory rom;
 };
 
 extern Cartridge cartridge;

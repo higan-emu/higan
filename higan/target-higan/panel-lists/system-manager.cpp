@@ -67,7 +67,11 @@ auto SystemManager::onChange() -> void {
   auto item = listView.selected();
   if(item && !item.attribute("location")) {
     program.setPanelItem(systemCreation);
-  } else if(item) {
+    actionMenu.create.setEnabled(true);
+    actionMenu.launch.setEnabled(false);
+    actionMenu.rename.setEnabled(false);
+    actionMenu.remove.setEnabled(false);
+  } else if(item && item.attribute("location")) {
     systemOverview.refresh();
     program.setPanelItem(systemOverview);
     actionMenu.create.setEnabled(false);
