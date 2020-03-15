@@ -62,6 +62,7 @@ struct HuC6280 {
   //instructions.cpp
   auto instructionAbsoluteModify(fp, uint8 = 0) -> void;
   auto instructionAbsoluteRead(fp, uint8&, uint8 = 0) -> void;
+  auto instructionAbsoluteReadMemory(fp, uint8 = 0) -> void;
   auto instructionAbsoluteWrite(uint8, uint8 = 0) -> void;
   auto instructionBlockMove(bp) -> void;
   auto instructionBranch(bool) -> void;
@@ -75,14 +76,16 @@ struct HuC6280 {
   auto instructionClear(uint8&) -> void;
   auto instructionClear(bool&) -> void;
   auto instructionImmediate(fp, uint8&) -> void;
+  auto instructionImmediateMemory(fp) -> void;
   auto instructionImplied(fp, uint8&) -> void;
   auto instructionIndirectRead(fp, uint8&, uint8 = 0) -> void;
+  auto instructionIndirectReadMemory(fp, uint8 = 0) -> void;
   auto instructionIndirectWrite(uint8, uint8 = 0) -> void;
   auto instructionIndirectYRead(fp, uint8&) -> void;
+  auto instructionIndirectYReadMemory(fp) -> void;
   auto instructionIndirectYWrite(uint8) -> void;
   auto instructionJumpAbsolute() -> void;
   auto instructionJumpIndirect(uint8 = 0) -> void;
-  auto instructionMemory(fp) -> void;
   auto instructionNoOperation() -> void;
   auto instructionPull(uint8&) -> void;
   auto instructionPullP() -> void;
@@ -102,6 +105,7 @@ struct HuC6280 {
   auto instructionTransferXS() -> void;
   auto instructionZeroPageModify(fp, uint8 = 0) -> void;
   auto instructionZeroPageRead(fp, uint8&, uint8 = 0) -> void;
+  auto instructionZeroPageReadMemory(fp, uint8 = 0) -> void;
   auto instructionZeroPageWrite(uint8, uint8 = 0) -> void;
 
   //disassembler.cpp

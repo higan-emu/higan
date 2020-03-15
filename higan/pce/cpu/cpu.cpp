@@ -54,7 +54,7 @@ auto CPU::step(uint clocks) -> void {
     timer.counter += 1024 * 3;
     if(!timer.value--) {
       timer.value = timer.reload;
-      timer.line = 1;
+      timer.line = timer.enable;
     }
   }
 

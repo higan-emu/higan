@@ -8,8 +8,9 @@ auto HuC6280::interrupt(uint16 vector) -> void {
   push(PC >> 8);
   push(PC >> 0);
   push(P);
-  D = 0;
   I = 1;
+  D = 0;
+  T = 0;
   PC.byte(0) = load16(vector + 0);
 L PC.byte(1) = load16(vector + 1);
 }
@@ -20,10 +21,45 @@ auto HuC6280::instruction() -> void {
   if(T) {
     T = 0;
     switch(code) {
-    op(0x09, Memory, fp(ORA))
-    op(0x29, Memory, fp(AND))
-    op(0x49, Memory, fp(EOR))
-    op(0x69, Memory, fp(ADC))
+    op(0x01, IndirectReadMemory, fp(ORA), X)
+    op(0x05, ZeroPageReadMemory, fp(ORA))
+    op(0x09, ImmediateMemory, fp(ORA))
+    op(0x0d, AbsoluteReadMemory, fp(ORA))
+    op(0x11, IndirectYReadMemory, fp(ORA))
+    op(0x12, IndirectReadMemory, fp(ORA))
+    op(0x15, ZeroPageReadMemory, fp(ORA), X)
+    op(0x19, AbsoluteReadMemory, fp(ORA), Y)
+    op(0x1d, AbsoluteReadMemory, fp(ORA), X)
+
+    op(0x21, IndirectReadMemory, fp(AND), X)
+    op(0x25, ZeroPageReadMemory, fp(AND))
+    op(0x29, ImmediateMemory, fp(AND))
+    op(0x2d, AbsoluteReadMemory, fp(AND))
+    op(0x31, IndirectYReadMemory, fp(AND))
+    op(0x32, IndirectReadMemory, fp(AND))
+    op(0x35, ZeroPageReadMemory, fp(AND), X)
+    op(0x39, AbsoluteReadMemory, fp(AND), Y)
+    op(0x3d, AbsoluteReadMemory, fp(AND), X)
+
+    op(0x41, IndirectReadMemory, fp(EOR), X)
+    op(0x45, ZeroPageReadMemory, fp(EOR))
+    op(0x49, ImmediateMemory, fp(EOR))
+    op(0x4d, AbsoluteReadMemory, fp(EOR))
+    op(0x51, IndirectYReadMemory, fp(EOR))
+    op(0x52, IndirectReadMemory, fp(EOR))
+    op(0x55, ZeroPageReadMemory, fp(EOR), X)
+    op(0x59, AbsoluteReadMemory, fp(EOR), Y)
+    op(0x5d, AbsoluteReadMemory, fp(EOR), X)
+
+    op(0x61, IndirectReadMemory, fp(ADC), X)
+    op(0x65, ZeroPageReadMemory, fp(ADC))
+    op(0x69, ImmediateMemory, fp(ADC))
+    op(0x6d, AbsoluteReadMemory, fp(ADC))
+    op(0x71, IndirectYReadMemory, fp(ADC))
+    op(0x72, IndirectReadMemory, fp(ADC))
+    op(0x75, ZeroPageReadMemory, fp(ADC), X)
+    op(0x79, AbsoluteReadMemory, fp(ADC), Y)
+    op(0x7d, AbsoluteReadMemory, fp(ADC), X)
     }
   }
 

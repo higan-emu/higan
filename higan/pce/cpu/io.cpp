@@ -21,14 +21,12 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
   if(bank == 0xff) {
     //$0000-03ff  VDC or VPC
     if((address & 0x1c00) == 0x0000) {
-      step(1);  //penalty cycle
       if(Model::PCEngine()) return vdp.vdc0.read(address);
       if(Model::SuperGrafx()) return vdp.vpc.read(address);
     }
 
     //$0400-07ff  VCE
     if((address & 0x1c00) == 0x0400) {
-      step(1);  //penalty cycle
       return vdp.vce.read(address);
     }
 
@@ -116,18 +114,16 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
     return;
   }
 
-  //$1fe000-1fffff  Hardware
+  //$ff  Hardware
   if(bank == 0xff) {
     //$0000-03ff  VDC or VPC
     if((address & 0x1c00) == 0x0000) {
-      step(1);  //penalty cycle
       if(Model::PCEngine()) return vdp.vdc0.write(address, data);
       if(Model::SuperGrafx()) return vdp.vpc.write(address, data);
     }
 
     //$0400-07ff  VCE
     if((address & 0x1c00) == 0x0400) {
-      step(1);  //penalty cycle
       return vdp.vce.write(address, data);
     }
 
@@ -189,7 +185,6 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
 
 //ST0, ST1, ST2
 auto CPU::store(uint2 address, uint8 data) -> void {
-  step(1);  //penalty cycle
   if(address) address++;  //0,1,2 => 0,2,3
   if(Model::PCEngine()) vdp.vdc0.write(address, data);
   if(Model::SuperGrafx()) vdp.vpc.store(address, data);

@@ -14,12 +14,12 @@ auto VDC::vpulse() -> void {
 
   latch.verticalSyncWidth = timing.verticalSyncWidth;
   latch.verticalDisplayStart = timing.verticalDisplayStart;
-  latch.verticalDisplayWidth = timing.verticalDisplayWidth;
+  latch.verticalDisplayWidth = min(239, timing.verticalDisplayWidth);
   latch.verticalDisplayEnd = timing.verticalDisplayEnd;
 }
 
 auto VDC::hclock() -> void {
-  output = 0;
+  output = 0x100;  //blanking area backdrop color
 
   if(timing.vstate == VDW && timing.hstate == HDW) {
     background.run(timing.hoffset, timing.voffset);
@@ -31,6 +31,8 @@ auto VDC::hclock() -> void {
       output = background.color << 0 | background.palette << 4 | 0 << 8;
     } else if(sprite.color) {
       output = sprite.color << 0 | sprite.palette << 4 | 1 << 8;
+    } else {
+      output = 0x000;  //active display backdrop color
     }
   }
 
@@ -96,6 +98,7 @@ auto VDC::vclock() -> void {
 }
 
 auto VDC::read(uint2 address) -> uint8 {
+  if(!burstMode()) cpu.idle();  //penalty cycle
   uint8 data = 0x00;
 
   if(address == 0x0) {
@@ -133,6 +136,8 @@ auto VDC::read(uint2 address) -> uint8 {
 }
 
 auto VDC::write(uint2 address, uint8 data) -> void {
+  if(!burstMode()) cpu.idle();  //penalty cycle
+
   if(address == 0x0) {
     //AR
     io.address = data.bit(0,4);
@@ -310,7 +315,7 @@ auto VDC::power() -> void {
   for(auto& data : vram.memory) data = 0;
   vram.addressRead = 0;
   vram.addressWrite = 0;
-  vram.addressIncrement = 0;
+  vram.addressIncrement = 0x01;
   vram.dataRead = 0;
   vram.dataWrite = 0;
   satb = {};

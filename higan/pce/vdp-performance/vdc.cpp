@@ -64,6 +64,7 @@ auto VDC::vclock() -> void {
 }
 
 auto VDC::read(uint2 address) -> uint8 {
+  if(!burstMode()) cpu.idle();  //penalty cycle
   uint8 data = 0x00;
 
   if(address == 0x0) {
@@ -100,6 +101,8 @@ auto VDC::read(uint2 address) -> uint8 {
 }
 
 auto VDC::write(uint2 address, uint8 data) -> void {
+  if(!burstMode()) cpu.idle();  //penalty cycle
+
   if(address == 0x0) {
     //AR
     io.address = data.bit(0,4);
@@ -271,7 +274,7 @@ auto VDC::power() -> void {
   for(auto& data : vram.memory) data = 0;
   vram.addressRead = 0;
   vram.addressWrite = 0;
-  vram.addressIncrement = 0;
+  vram.addressIncrement = 0x01;
   vram.dataRead = 0;
   vram.dataWrite = 0;
   satb = {};

@@ -10,18 +10,18 @@ auto CPU::IRQ::poll() -> void {
   pendingIRQ = false;
   if(cpu.r.p.i) return;
 
-  if(0) {  //external IRQ sources
-    pendingIRQ = !disableExternal;
+  if(!disableExternal && 0) {
+    pendingIRQ = 1;
     pendingVector = 0xfff6;
   }
 
   if(!disableVDC && (vdp.vdc0.irqLine() | vdp.vdc1.irqLine())) {
-    pendingIRQ = !disableVDC;
+    pendingIRQ = 1;
     pendingVector = 0xfff8;
   }
 
-  if(cpu.timer.irqLine() && cpu.timer.enable) {
-    pendingIRQ = !disableTimer;
+  if(!disableTimer && cpu.timer.irqLine()) {
+    pendingIRQ = 1;
     pendingVector = 0xfffa;
   }
 }

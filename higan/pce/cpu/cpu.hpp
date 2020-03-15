@@ -21,9 +21,6 @@ struct CPU : HuC6280, Thread {
   auto write(uint8 bank, uint13 address, uint8 data) -> void override;
   auto store(uint2 address, uint8 data) -> void override;
 
-  //timer.cpp
-  auto timerStep(uint clocks) -> void;
-
   //serialization.cpp
   auto serialize(serializer&) -> void;
 

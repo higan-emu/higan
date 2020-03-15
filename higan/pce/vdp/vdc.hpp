@@ -2,6 +2,7 @@
 
 struct VDC {
   inline auto bus() const -> uint9 { return output; }
+  inline auto burstMode() const -> bool { return !background.enable && !sprite.enable; }
   inline auto irqLine() const -> bool { return irq.line; }
 
   //vdc.cpp
@@ -27,7 +28,7 @@ struct VDC {
 
     uint16 addressRead;
     uint16 addressWrite;
-    uint16 addressIncrement;
+    uint16 addressIncrement = 0x01;
 
     uint16 dataRead;
     uint16 dataWrite;
@@ -99,9 +100,9 @@ struct VDC {
 
   struct Timing {
      uint5 horizontalSyncWidth = 2;
-     uint7 horizontalDisplayStart = 31;
-     uint7 horizontalDisplayWidth = 4;
-     uint7 horizontalDisplayEnd = 2;
+     uint7 horizontalDisplayStart = 2;
+     uint7 horizontalDisplayWidth = 31;
+     uint7 horizontalDisplayEnd = 4;
 
      uint5 verticalSyncWidth = 2;
      uint8 verticalDisplayStart = 15;
@@ -109,7 +110,7 @@ struct VDC {
      uint8 verticalDisplayEnd = 4;
 
      uint8 hstate = HDS;
-     uint8 vstate = VSW;
+     uint8 vstate = VDS;
 
     uint16 hoffset;
     uint16 voffset;
@@ -157,8 +158,8 @@ struct VDC {
     uint10 hscroll;
      uint9 vscroll;
      uint9 vcounter;
-     uint8 width;
-     uint8 height;
+     uint8 width = 32;
+     uint8 height = 32;
 
     uint10 hoffset;
      uint9 voffset;

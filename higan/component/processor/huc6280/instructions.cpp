@@ -14,6 +14,19 @@ auto HuC6280::instructionAbsoluteRead(fp alu, uint8& data, uint8 index) -> void 
 L data = ALU(load16(absolute + index));
 }
 
+auto HuC6280::instructionAbsoluteReadMemory(fp alu, uint8 index) -> void {
+  auto a = A;
+  A = load8(X);
+
+  uint16 absolute = operand();
+  absolute |= operand() << 8;
+  idle();
+  A = ALU(load16(absolute + index));
+
+L store8(X, A);
+  A = a;
+}
+
 auto HuC6280::instructionAbsoluteWrite(uint8 data, uint8 index) -> void {
   uint16 absolute = operand();
   absolute |= operand() << 8;
@@ -148,6 +161,16 @@ auto HuC6280::instructionImmediate(fp alu, uint8& data) -> void {
 L data = ALU(operand());
 }
 
+auto HuC6280::instructionImmediateMemory(fp alu) -> void {
+  auto a = A;
+  A = load8(X);
+
+  A = ALU(operand());
+
+L store8(X, A);
+  A = a;
+}
+
 auto HuC6280::instructionImplied(fp alu, uint8& data) -> void {
 L idle();
   data = ALU(data);
@@ -160,6 +183,21 @@ auto HuC6280::instructionIndirectRead(fp alu, uint8& data, uint8 index) -> void 
   absolute |= load8(zeropage + index + 1) << 8;
   idle();
 L data = ALU(load16(absolute));
+}
+
+auto HuC6280::instructionIndirectReadMemory(fp alu, uint8 index) -> void {
+  auto a = A;
+  A = load8(X);
+
+  auto zeropage = operand();
+  idle();
+  uint16 absolute = load8(zeropage + index + 0);
+  absolute |= load8(zeropage + index + 1) << 8;
+  idle();
+  A = ALU(load16(absolute));
+
+L store8(X, A);
+  A = a;
 }
 
 auto HuC6280::instructionIndirectWrite(uint8 data, uint8 index) -> void {
@@ -178,6 +216,21 @@ auto HuC6280::instructionIndirectYRead(fp alu, uint8& data) -> void {
   absolute |= load8(zeropage + 1) << 8;
   idle();
 L data = ALU(load16(absolute + Y));
+}
+
+auto HuC6280::instructionIndirectYReadMemory(fp alu) -> void {
+  auto a = A;
+  A = load8(X);
+
+  auto zeropage = operand();
+  idle();
+  uint16 absolute = load8(zeropage + 0);
+  absolute |= load8(zeropage + 1) << 8;
+  idle();
+  A = ALU(load16(absolute + Y));
+
+L store8(X, A);
+  A = a;
 }
 
 auto HuC6280::instructionIndirectYWrite(uint8 data) -> void {
@@ -203,14 +256,6 @@ auto HuC6280::instructionJumpIndirect(uint8 index) -> void {
   idle();
   PC.byte(0) = load16(address + index + 0);
 L PC.byte(1) = load16(address + index + 1);
-}
-
-auto HuC6280::instructionMemory(fp alu) -> void {
-  auto a = A;
-  A = load8(X);
-  A = ALU(operand());
-L store8(X, A);
-  A = a;
 }
 
 auto HuC6280::instructionNoOperation() -> void {
@@ -361,6 +406,18 @@ auto HuC6280::instructionZeroPageRead(fp alu, uint8& data, uint8 index) -> void 
   auto zeropage = operand();
   idle();
 L data = ALU(load8(zeropage + index));
+}
+
+auto HuC6280::instructionZeroPageReadMemory(fp alu, uint8 index) -> void {
+  auto a = A;
+  A = load8(X);
+
+  auto zeropage = operand();
+  idle();
+  A = ALU(load8(zeropage + index));
+
+L store8(X, A);
+  A = a;
 }
 
 auto HuC6280::instructionZeroPageWrite(uint8 data, uint8 index) -> void {

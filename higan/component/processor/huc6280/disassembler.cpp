@@ -101,11 +101,6 @@ auto HuC6280::disassembleInstruction() -> string {
     return {"($", hex(readWord(), 4L), ",x)"};
   };
 
-  auto memory = [&]() -> string {
-    computeZeroPage(r.x);
-    return {"(x),#$", hex(readByte(), 2L)};
-  };
-
   auto relative = [&]() -> string {
     auto displacement = readByte();
     computeAbsolute(pc + (int8)displacement);
@@ -171,15 +166,8 @@ auto HuC6280::disassembleInstruction() -> string {
   #define op(id, name, ...) case id: o = {name, " ", vector<string>{__VA_ARGS__}.merge(",")}; break;
   string o;
 
-  if(T == 1) switch(opcode) {
-  op(0x09, "ora", memory())
-  op(0x29, "and", memory())
-  op(0x49, "eor", memory())
-  op(0x69, "adc", memory())
-  }
-
   #define U
-  if(T == 0) switch(opcode) {
+  switch(opcode) {
   op(0x00, "brk")
   op(0x01, "ora", indirectX())
   op(0x02, "sxy")

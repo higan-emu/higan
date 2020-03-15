@@ -1,11 +1,11 @@
 auto VDC::IRQ::poll() -> void {
   uint1 pending = 0;
-  pending |= collision.pending & collision.enable;
-  pending |= overflow.pending & overflow.enable;
-  pending |= coincidence.pending & coincidence.enable;
-  pending |= vblank.pending & vblank.enable;
-  pending |= transferVRAM.pending & transferVRAM.enable;
-  pending |= transferSATB.pending & transferSATB.enable;
+  pending |= collision.pending;
+  pending |= overflow.pending;
+  pending |= coincidence.pending;
+  pending |= vblank.pending;
+  pending |= transferVRAM.pending;
+  pending |= transferSATB.pending;
   line = pending;
 }
 

@@ -1,4 +1,5 @@
 auto VCE::read(uint3 address) -> uint8 {
+  cpu.idle();  //penalty cycle
   uint8 data = 0xff;
 
   if(address == 0x4) {
@@ -18,6 +19,8 @@ auto VCE::read(uint3 address) -> uint8 {
 }
 
 auto VCE::write(uint3 address, uint8 data) -> void {
+  cpu.idle();  //penalty cycle
+
   if(address == 0x0) {
     //CR
     if(data.bit(0,1) == 0) io.clock = 4;
