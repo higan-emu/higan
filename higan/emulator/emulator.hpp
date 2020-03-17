@@ -37,6 +37,7 @@ namespace higan {
 }
 
 #include <emulator/types.hpp>
+#include <emulator/random.hpp>
 #include <emulator/node/node.hpp>
 #include <emulator/platform.hpp>
 #include <emulator/interface.hpp>
@@ -46,7 +47,7 @@ namespace higan {
 
 namespace higan {
   static const string Name      = "higan";
-  static const string Version   = "109.2";
+  static const string Version   = "109.3";
   static const string Copyright = "byuu";
   static const string License   = "GPLv3";
   static const string Website   = "https://byuu.org";

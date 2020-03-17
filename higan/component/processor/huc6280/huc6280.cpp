@@ -10,6 +10,9 @@ namespace higan {
 #define PC r.pc
 #define PCH r.pc.byte(1)
 #define PCL r.pc.byte(0)
+#define MPR r.mpr
+#define MPL r.mpl
+#define CS r.cs
 #define P r.p
 #define C r.p.c
 #define Z r.p.z
@@ -30,6 +33,36 @@ namespace higan {
 #include "disassembler.cpp"
 #include "serialization.cpp"
 
+auto HuC6280::power() -> void {
+  random.entropy(Random::Entropy::High);
+
+  A = random();
+  X = random();
+  Y = random();
+  S = random();
+  PC = 0x0000;
+  MPR[0] = random();
+  MPR[1] = random();
+  MPR[2] = random();
+  MPR[3] = random();
+  MPR[4] = random();
+  MPR[5] = random();
+  MPR[6] = random();
+  MPR[7] = 0x00;
+  MPL = 0x00;
+  C = random();
+  Z = random();
+  I = 1;
+  D = 0;
+  B = 1;
+  T = 0;
+  V = random();
+  N = random();
+  CS = 12;
+
+  blockMove = false;
+}
+
 #undef A
 #undef X
 #undef Y
@@ -37,6 +70,9 @@ namespace higan {
 #undef PC
 #undef PCH
 #undef PCL
+#undef MPR
+#undef MPL
+#undef CS
 #undef P
 #undef C
 #undef Z
@@ -49,24 +85,5 @@ namespace higan {
 #undef EA
 #undef L
 #undef ALU
-
-auto HuC6280::power() -> void {
-  r.a = 0x00;
-  r.x = 0x00;
-  r.y = 0x00;
-  r.s = 0xff;
-  r.pc = 0x0000;
-  r.mpr[0] = 0xff;
-  r.mpr[1] = 0xf8;
-  r.mpr[2] = 0x00;
-  r.mpr[3] = 0x00;
-  r.mpr[4] = 0x00;
-  r.mpr[5] = 0x00;
-  r.mpr[6] = 0x00;
-  r.mpr[7] = 0x00;
-  r.mdr = 0x00;
-  r.p = 0x04;
-  r.cs = 12;
-}
 
 }

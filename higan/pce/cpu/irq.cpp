@@ -1,27 +1,16 @@
-auto CPU::IRQ::pending() const -> bool {
-  return pendingIRQ;
-}
-
-auto CPU::IRQ::vector() const -> uint16 {
-  return pendingVector;
-}
-
 auto CPU::IRQ::poll() -> void {
-  pendingIRQ = false;
+  pending = 0;
   if(cpu.r.p.i) return;
 
-  if(!disableExternal && 0) {
-    pendingIRQ = 1;
-    pendingVector = 0xfff6;
+  if(!disable.irq2 && 0) {
+    pending = Vector::IRQ2;
   }
 
-  if(!disableVDC && (vdp.vdc0.irqLine() | vdp.vdc1.irqLine())) {
-    pendingIRQ = 1;
-    pendingVector = 0xfff8;
+  if(!disable.irq1 && (vdp.vdc0.irqLine() | vdp.vdc1.irqLine())) {
+    pending = Vector::IRQ1;
   }
 
-  if(!disableTimer && cpu.timer.irqLine()) {
-    pendingIRQ = 1;
-    pendingVector = 0xfffa;
+  if(!disable.tiq && cpu.timer.irqLine()) {
+    pending = Vector::TIQ;
   }
 }

@@ -53,15 +53,15 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.port = {};
-  if(!MasterSystem::Model::GameGear()) {
-    controllerPort1.unload();
-    controllerPort2.unload();
-  }
   cpu.unload();
   vdp.unload();
   psg.unload();
   opll.unload();
+  cartridge.unload();
+  if(!MasterSystem::Model::GameGear()) {
+    controllerPort1.unload();
+    controllerPort2.unload();
+  }
   node = {};
 }
 

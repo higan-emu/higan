@@ -15,6 +15,11 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto Cartridge::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 auto Cartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, interface->name());
   node->setManifest([&] { return information.manifest; });
@@ -241,12 +246,12 @@ auto Cartridge::writeBanked(uint1 upper, uint1 lower, uint22 address, uint16 dat
 auto Cartridge::readLockOn(uint1 upper, uint1 lower, uint22 address, uint16 data) -> uint16 {
   if(address < 0x200000) return data = rom[address >> 1];
   if(address >= 0x300000 && ramEnable) return data = patch[address >> 1];
-  if(slot) return data = slot->read(upper, lower, address, data);
+  if(slot && slot->node) return data = slot->read(upper, lower, address, data);
   return data;
 }
 
 auto Cartridge::writeLockOn(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void {
-  if(slot) return slot->write(upper, lower, address, data);
+  if(slot && slot->node) return slot->write(upper, lower, address, data);
 }
 
 //
@@ -256,14 +261,14 @@ auto Cartridge::readGameGenie(uint1 upper, uint1 lower, uint22 address, uint16 d
     for(auto& code : gameGenie.codes) {
       if(code.enable && code.address == address) return data = code.data;
     }
-    if(slot) return slot->read(upper, lower, address, data);
+    if(slot && slot->node) return slot->read(upper, lower, address, data);
   }
   return data = rom[address >> 1];
 }
 
 auto Cartridge::writeGameGenie(uint1 upper, uint1 lower, uint22 address, uint16 data) -> void {
   if(gameGenie.enable) {
-    if(slot) return slot->write(upper, lower, address, data);
+    if(slot && slot->node) return slot->write(upper, lower, address, data);
   }
   if(address == 0x02 && data == 0x0001) {
     gameGenie.enable = true;

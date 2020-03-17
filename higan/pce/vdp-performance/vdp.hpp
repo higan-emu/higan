@@ -6,6 +6,8 @@ struct VDP : Thread {
   Node::Component node;
   Node::Screen screen;
 
+  inline auto irqLine() const -> bool { return vdc0.irqLine() | vdc1.irqLine(); }
+
   //vdp.cpp
   auto load(Node::Object, Node::Object) -> void;
   auto unload() -> void;
@@ -21,7 +23,7 @@ struct VDP : Thread {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
-  uint32 buffer[1365 * 262];
+  uint32 buffer[1365 * 263];
 
   VCE vce;
   VDC vdc0;
@@ -36,7 +38,7 @@ struct VDP : Thread {
   uint1 width256;
   uint1 width344;
   uint1 width512;
-  uint9 widths[262];
+  uint9 widths[263];
 };
 
 extern VDP vdp;

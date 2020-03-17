@@ -4,7 +4,7 @@ auto HuC6280::disassembleInstruction() -> string {
   string s;
 
   auto readByte = [&]() -> uint8 {
-    uint8 data = read(r.mpr[pc >> 13], pc & 0x1fff);
+    uint8 data = read(MPR[pc >> 13], pc & 0x1fff);
     return pc++, data;
   };
 
@@ -14,39 +14,39 @@ auto HuC6280::disassembleInstruction() -> string {
   };
 
   auto computeAbsolute = [&](uint16 address) {
-    effectiveAddress = r.mpr[address >> 13] << 16 | address & 0x1fff;
+    effectiveAddress = MPR[address >> 13] << 16 | address & 0x1fff;
   };
 
   auto computeIndirect = [&](uint8 address) {
     uint16 absolute = 0;
-    absolute |= read(r.mpr[1], address + 0) << 0;
-    absolute |= read(r.mpr[1], address + 1) << 8;
+    absolute |= read(MPR[1], address + 0) << 0;
+    absolute |= read(MPR[1], address + 1) << 8;
     effectiveAddress = absolute;
   };
 
   auto computeIndirectX = [&](uint8 address) {
     uint16 absolute = 0;
-    absolute |= read(r.mpr[1], address + r.x + 0) << 0;
-    absolute |= read(r.mpr[1], address + r.x + 1) << 8;
+    absolute |= read(MPR[1], address + r.x + 0) << 0;
+    absolute |= read(MPR[1], address + r.x + 1) << 8;
     effectiveAddress = absolute;
   };
 
   auto computeIndirectY = [&](uint8 address) {
     uint16 absolute = 0;
-    absolute |= read(r.mpr[1], address + 0) << 0;
-    absolute |= read(r.mpr[1], address + 1) << 8;
+    absolute |= read(MPR[1], address + 0) << 0;
+    absolute |= read(MPR[1], address + 1) << 8;
     effectiveAddress = absolute + r.y;
   };
 
   auto computeIndirectLong = [&](uint16 address, uint8 index = 0) {
     uint16 absolute = 0;
-    absolute |= read(r.mpr[address >> 13], address & 0x1fff) << 0; address++;
-    absolute |= read(r.mpr[address >> 13], address & 0x1fff) << 8;
+    absolute |= read(MPR[address >> 13], address & 0x1fff) << 0; address++;
+    absolute |= read(MPR[address >> 13], address & 0x1fff) << 8;
     effectiveAddress = absolute + index;
   };
 
   auto computeZeroPage = [&](uint8 address) {
-    effectiveAddress = r.mpr[1] << 16 | address;
+    effectiveAddress = MPR[1] << 16 | address;
   };
 
   auto absolute = [&]() -> string {
@@ -440,20 +440,20 @@ U op(0xfc, "nop", "$fc")
 
 auto HuC6280::disassembleContext() -> string {
   string s;
-  s.append( "A:", hex(r.a, 2L));
-  s.append(" X:", hex(r.x, 2L));
-  s.append(" Y:", hex(r.y, 2L));
-  s.append(" S:", hex(r.s, 2L));
-  s.append(" PC:", hex(r.pc, 4L));
+  s.append( "A:", hex(A, 2L));
+  s.append(" X:", hex(X, 2L));
+  s.append(" Y:", hex(Y, 2L));
+  s.append(" S:", hex(S, 2L));
+  s.append(" PC:", hex(PC, 4L));
   s.append(" ");
-  s.append(r.p.n ? "N" : "n");
-  s.append(r.p.v ? "V" : "v");
-  s.append(r.p.t ? "T" : "t");
-  s.append(r.p.b ? "B" : "b");
-  s.append(r.p.d ? "D" : "d");
-  s.append(r.p.i ? "I" : "i");
-  s.append(r.p.z ? "Z" : "z");
-  s.append(r.p.c ? "C" : "c");
-  s.append(r.cs == 3 ? "+" : "-");
+  s.append(N ? "N" : "n");
+  s.append(V ? "V" : "v");
+  s.append(T ? "T" : "t");
+  s.append(B ? "B" : "b");
+  s.append(D ? "D" : "d");
+  s.append(I ? "I" : "i");
+  s.append(Z ? "Z" : "z");
+  s.append(C ? "C" : "c");
+  s.append(CS == 3 ? "+" : "-");
   return s;
 }

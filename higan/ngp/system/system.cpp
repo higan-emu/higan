@@ -34,19 +34,19 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
 
 auto System::save() -> void {
   if(!node) return;
-  cartridge.save();
   cpu.save();
   apu.save();
+  cartridge.save();
 }
 
 auto System::unload() -> void {
   if(!node) return;
   bios.reset();
-  cartridge.port = {};
   cpu.unload();
   apu.unload();
   vpu.unload();
   psg.unload();
+  cartridge.unload();
   node = {};
 }
 

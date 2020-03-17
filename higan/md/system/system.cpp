@@ -54,16 +54,16 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.port = {};
-  expansion.port = {};
-  controllerPort1.unload();
-  controllerPort2.unload();
-  extensionPort.unload();
   cpu.unload();
   apu.unload();
   vdp.unload();
   psg.unload();
   ym2612.unload();
+  cartridge.unload();
+  expansion.unload();
+  controllerPort1.unload();
+  controllerPort2.unload();
+  extensionPort.unload();
   mcd.unload();
   node = {};
 }

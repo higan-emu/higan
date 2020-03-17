@@ -1,8 +1,8 @@
 auto CPU::read(uint8 bank, uint13 address) -> uint8 {
-  uint8 data = io.mdr;
+  uint8 data = 0xff;
 
   //$00-7f  HuCard
-  if(!bank.bit(7)) {
+  if(bank >= 0x00 && bank <= 0x7f) {
     return cartridge.read(bank, address);
   }
 
@@ -32,17 +32,21 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
 
     //$0800-0bff  PSG
     if((address & 0x1c00) == 0x0800) {
-      return data;
+      if(HuC6280::blockMove) return 0x00;
+      return io.buffer;
     }
 
     //$0c00-0fff  Timer
     if((address & 0x1c00) == 0x0c00) {
+      if(HuC6280::blockMove) return 0x00;
       data.bit(0,6) = timer.value;
+      data.bit(7)   = io.buffer.bit(7);
       return data;
     }
 
     //$1000-13ff  I/O
     if((address & 0x1c00) == 0x1000) {
+      if(HuC6280::blockMove) return 0x00;
       //note 1: Turbografx-16 games check this bit for region protection.
       //yet PC Engine games do not. since we cannot tell the games apart,
       //it's more compatible to always identify as a Turbografx-16 system.
@@ -58,46 +62,52 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
 
     //$1400-17ff  IRQ
     if((address & 0x1c00) == 0x1400) {
+      if(HuC6280::blockMove) return 0x00;
+
       if(address.bit(0,1) == 0) {
-        return data;
+        return io.buffer;
       }
 
       if(address.bit(0,1) == 1) {
-        return data;
+        return io.buffer;
       }
 
       if(address.bit(0,1) == 2) {
-        data.bit(0) = irq.disableExternal;
-        data.bit(1) = irq.disableVDC;
-        data.bit(2) = irq.disableTimer;
+        data.bit(0)   = irq2.disable;
+        data.bit(1)   = irq1.disable;
+        data.bit(2)   = tiq.disable;
+        data.bit(3,7) = io.buffer.bit(3,7);
         return data;
       }
 
       if(address.bit(0,1) == 3) {
-        data.bit(0) = 0;  //pending external IRQ
-        data.bit(1) = vdp.vdc0.irqLine() | vdp.vdc1.irqLine();
-        data.bit(2) = timer.irqLine();
+        data.bit(0)   = 0;  //IRQ2 line
+        data.bit(1)   = vdp.irqLine();
+        data.bit(2)   = timer.irqLine();
+        data.bit(3,7) = io.buffer.bit(3,7);
         return data;
       }
     }
 
     //$1800-1bff  CD-ROM
     if((address & 0x1c00) == 0x1800) {
-      return 0xff;
+      return data;
     }
 
     //$1c00-1fff  unmapped
     if((address & 0x1c00) == 0x1c00) {
-      return 0xff;
+      return data;
     }
   }
 
-  return 0xff;
+  //$80-f7  unmapped
+  //$fc-fe  unmapped
+  return data;
 }
 
 auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
   //$00-7f  HuCard
-  if(!bank.bit(7)) {
+  if(bank >= 0x00 && bank <= 0x7f) {
     return cartridge.write(bank, address, data);
   }
 
@@ -129,13 +139,14 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
 
     //$0800-0bff  PSG
     if((address & 0x1c00) == 0x0800) {
-      io.mdr = data;
+      synchronize(psg);
+      io.buffer = data;
       return psg.write(address, data);
     }
 
     //$0c00-0fff  Timer
     if((address & 0x1c00) == 0x0c00) {
-      io.mdr = data;
+      io.buffer = data;
       if(!address.bit(0)) {
         timer.reload = data.bit(0,6);
       } else {
@@ -150,18 +161,18 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
 
     //$1000-13ff  I/O
     if((address & 0x1c00) == 0x1000) {
-      io.mdr = data;
+      io.buffer = data;
       controllerPort.write(data.bit(0,1));
       return;
     }
 
     //$1400-17ff  IRQ
     if((address & 0x1c00) == 0x1400) {
-      io.mdr = data;
+      io.buffer = data;
       if(address.bit(0,1) == 2) {
-        irq.disableExternal = data.bit(0);
-        irq.disableVDC = data.bit(1);
-        irq.disableTimer = data.bit(2);
+        irq2.disable = data.bit(0);
+        irq1.disable = data.bit(1);
+        tiq.disable  = data.bit(2);
         return;
       }
 
@@ -181,6 +192,10 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
       return;
     }
   }
+
+  //$80-f7  unmapped
+  //$fc-fe  unmapped
+  return;
 }
 
 //ST0, ST1, ST2

@@ -53,10 +53,9 @@ auto System::unload() -> void {
   cpu.unload();
   vdp.unload();
   psg.unload();
-  cartridge.port = {};
-  controllerPort1.port = {};
-  controllerPort2.port = {};
-  vdp.unload();
+  cartridge.unload();
+  controllerPort1.unload();
+  controllerPort2.unload();
   node = {};
 }
 

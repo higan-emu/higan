@@ -15,6 +15,7 @@ auto ControllerPort::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto ControllerPort::unload() -> void {
+  disconnect();
   port = {};
 }
 

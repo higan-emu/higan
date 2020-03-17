@@ -53,6 +53,7 @@ auto Gamepad::read() -> uint4 {
 }
 
 auto Gamepad::write(uint2 data) -> void {
+  //there should be a small delay for this to take effect ...
   sel = data.bit(0);
   clr = data.bit(1);
 }

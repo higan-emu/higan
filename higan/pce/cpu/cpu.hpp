@@ -25,38 +25,44 @@ struct CPU : HuC6280, Thread {
   auto serialize(serializer&) -> void;
 
 private:
-  struct IRQ {
-    //irq.cpp
-    auto pending() const -> bool;
-    auto vector() const -> uint16;
-    auto poll() -> void;
+  struct IRQ2 {  //CD-ROM, BRK instruction
+    enum : uint16_t { vector = 0xfff6 };
+    uint1 disable;
+    uint1 pending;
+  } irq2;
 
-  private:
-     uint1 disableExternal;
-     uint1 disableVDC;
-     uint1 disableTimer;
+  struct IRQ1 {  //VDC
+    enum : uint16_t { vector = 0xfff8 };
+    uint1 disable;
+    uint1 pending;
+  } irq1;
 
-     uint1 pendingIRQ;
-    uint16 pendingVector;
+  struct TIQ {  //Timer
+    enum : uint16_t { vector = 0xfffa };
+    uint1 disable;
+    uint1 pending;
+  } tiq;
 
-    friend class CPU;
-  } irq;
+  struct NMI {  //not exposed by the PC Engine
+    enum : uint16_t { vector = 0xfffc };
+  } nmi;
+
+  struct Reset {
+    enum : uint16_t { vector = 0xfffe };
+  } reset;
 
   struct Timer {
     inline auto irqLine() const { return line; }
 
-  private:
     uint1 line;
     uint1 enable;
     uint7 reload;
     uint7 value;
     int32 counter;
-
-    friend class CPU;
   } timer;
 
   struct IO {
-    uint8 mdr;  //latches only on $ff:0800-17ff writes
+    uint8 buffer;  //latches only on $ff:0800-17ff writes
   } io;
 };
 

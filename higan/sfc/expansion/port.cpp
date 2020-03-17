@@ -12,6 +12,11 @@ auto ExpansionPort::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto ExpansionPort::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 auto ExpansionPort::connect(Node::Peripheral node) -> void {
   disconnect();
   if(node) {

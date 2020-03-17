@@ -11,6 +11,7 @@ struct Expansion {
   inline auto regions() const -> vector<string> { return information.regions; }
 
   auto load(Node::Object, Node::Object) -> void;
+  auto unload() -> void;
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
 

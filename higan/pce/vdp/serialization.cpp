@@ -85,11 +85,10 @@ auto VDC::serialize(serializer& s) -> void {
   s.integer(io.displayOutput);
   s.integer(io.dramRefresh);
   s.integer(io.coincidence);
-  s.integer(io.vramAccess);
-  s.integer(io.spriteAccess);
-  s.integer(io.cgMode);
 
   s.integer(background.enable);
+  s.integer(background.vramMode);
+  s.integer(background.characterMode);
   s.integer(background.hscroll);
   s.integer(background.vscroll);
   s.integer(background.vcounter);
@@ -99,18 +98,24 @@ auto VDC::serialize(serializer& s) -> void {
   s.integer(background.voffset);
   s.integer(background.color);
   s.integer(background.palette);
+  s.integer(background.latch.vramMode);
+  s.integer(background.latch.characterMode);
 
   //todo: serialize array<sprite.objects>
   s.integer(sprite.enable);
+  s.integer(sprite.vramMode);
   s.integer(sprite.color);
   s.integer(sprite.palette);
   s.integer(sprite.priority);
+  s.integer(sprite.latch.vramMode);
+
+  random.serialize(s);
 }
 
 auto VDC::Object::serialize(serializer& s) -> void {
   s.integer(y);
   s.integer(x);
-  s.integer(mode);
+  s.integer(characterMode);
   s.integer(pattern);
   s.integer(palette);
   s.integer(priority);

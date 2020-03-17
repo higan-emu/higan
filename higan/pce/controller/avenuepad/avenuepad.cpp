@@ -77,6 +77,7 @@ auto AvenuePad::read() -> uint4 {
 }
 
 auto AvenuePad::write(uint2 data) -> void {
+  //there should be a small delay for this to take effect ...
   if(!sel && data.bit(0)) active ^= 1;
 
   sel = data.bit(0);

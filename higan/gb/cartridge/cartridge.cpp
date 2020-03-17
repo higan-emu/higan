@@ -28,6 +28,11 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto Cartridge::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 auto Cartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, port->family());
   node->setManifest([&] { return information.manifest; });

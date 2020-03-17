@@ -2,7 +2,7 @@
 
 struct VDC {
   inline auto bus() const -> uint9 { return output; }
-  inline auto burstMode() const -> bool { return !background.enable && !sprite.enable; }
+  inline auto burstMode() const -> bool { return latch.burstMode; }
   inline auto irqLine() const -> bool { return irq.line; }
 
   //vdc.cpp
@@ -128,23 +128,17 @@ struct VDC {
     uint8 verticalDisplayStart;
     uint9 verticalDisplayWidth;
     uint8 verticalDisplayEnd;
+
+    uint1 burstMode = 1;
   } latch;
 
   struct IO {
      uint5 address;
 
-    //$0005  CR (W)
      uint2 externalSync;
      uint2 displayOutput;
      uint1 dramRefresh;
-
-    //$0006  RCR
     uint10 coincidence;
-
-    //$0009  MWR
-     uint2 vramAccess;
-     uint2 spriteAccess;
-     uint1 cgMode;
   } io;
 
   struct Background {
@@ -155,6 +149,8 @@ struct VDC {
     auto run(uint x, uint y) -> void;
 
      uint1 enable;
+     uint2 vramMode;  //partially emulated
+     uint1 characterMode;
     uint10 hscroll;
      uint9 vscroll;
      uint9 vcounter;
@@ -166,6 +162,11 @@ struct VDC {
 
      uint4 color;
      uint4 palette;
+
+    struct Latch {
+      uint2 vramMode;
+      uint1 characterMode;
+    } latch;
   } background;
 
   struct Object {
@@ -174,7 +175,7 @@ struct VDC {
 
     uint10 y;
     uint10 x;
-     uint1 mode;
+     uint1 characterMode;
     uint10 pattern;
      uint4 palette;
      uint1 priority;
@@ -195,9 +196,16 @@ struct VDC {
     adaptive_array<Object, 16> objects;
 
     uint1 enable;
+    uint2 vramMode;  //partially emulated
 
     uint4 color;
     uint4 palette;
     uint1 priority;
+
+    struct Latch {
+      uint2 vramMode;
+    } latch;
   } sprite;
+
+  Random random;
 };

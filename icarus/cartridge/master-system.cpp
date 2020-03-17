@@ -21,7 +21,7 @@ auto MasterSystem::heuristics(vector<uint8_t>& data, string location) -> string 
   s +={"      size: 0x", hex(data.size()), "\n"};
   s += "      content: Program\n";
   s += "    memory\n";
-  s += "      type: ROM\n";
+  s += "      type: RAM\n";
   s += "      size: 0x8000\n";
   s += "      content: Save\n";
   return s;

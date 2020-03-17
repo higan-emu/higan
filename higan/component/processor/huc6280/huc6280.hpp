@@ -129,6 +129,10 @@ struct HuC6280 {
       return c << 0 | z << 1 | i << 2 | d << 3 | b << 4 | t << 5 | v << 6 | n << 7;
     }
 
+    inline auto operator()() const -> uint8 {
+      return operator uint8();
+    }
+
     inline auto& operator=(uint8 data) {
       c = data.bit(0);
       z = data.bit(1);
@@ -143,16 +147,19 @@ struct HuC6280 {
   };
 
   struct Registers {
-    uint8  a;
-    uint8  x;
-    uint8  y;
-    uint8  s;
+     uint8 a;
+     uint8 x;
+     uint8 y;
+     uint8 s;
     uint16 pc;
-    uint8  mpr[8];
-    uint8  mdr;
-    Flags  p;
-    uint8  cs;  //code speed (3 = fast, 12 = slow)
+     uint8 mpr[8];
+     uint8 mpl;  //MPR latch
+     uint8 cs;   //code speed (3 = fast, 12 = slow)
+     Flags p;
   } r;
+
+  bool blockMove;
+  Random random;
 };
 
 }

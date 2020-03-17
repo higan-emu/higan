@@ -6,6 +6,10 @@ auto VDC::hpulse() -> void {
   latch.horizontalDisplayStart = timing.horizontalDisplayStart;
   latch.horizontalDisplayWidth = timing.horizontalDisplayWidth;
   latch.horizontalDisplayEnd = timing.horizontalDisplayEnd;
+
+  background.latch.characterMode = background.characterMode;
+  background.scanline(timing.voffset);
+  sprite.scanline(timing.voffset);
 }
 
 auto VDC::vpulse() -> void {
@@ -14,14 +18,21 @@ auto VDC::vpulse() -> void {
 
   latch.verticalSyncWidth = timing.verticalSyncWidth;
   latch.verticalDisplayStart = timing.verticalDisplayStart;
-  latch.verticalDisplayWidth = min(239, timing.verticalDisplayWidth);
+  latch.verticalDisplayWidth = timing.verticalDisplayWidth;
   latch.verticalDisplayEnd = timing.verticalDisplayEnd;
+
+  //ensure that Vblank IRQs always occur each frame
+  if(latch.verticalSyncWidth + latch.verticalDisplayStart + latch.verticalDisplayWidth > 261) {
+    latch.verticalDisplayWidth = 261 - latch.verticalSyncWidth - latch.verticalDisplayStart;
+  }
+
+  latch.burstMode = !background.enable && !sprite.enable;
 }
 
 auto VDC::hclock() -> void {
   output = 0x100;  //blanking area backdrop color
 
-  if(timing.vstate == VDW && timing.hstate == HDW) {
+  if(timing.vstate == VDW && timing.hstate == HDW && !burstMode()) {
     background.run(timing.hoffset, timing.voffset);
     sprite.run(timing.hoffset, timing.voffset);
 
@@ -42,8 +53,6 @@ auto VDC::hclock() -> void {
     if(timing.hoffset >= max(2, latch.horizontalDisplayStart) + 1 << 3) {
       timing.hstate = HDW;
       timing.hoffset = 0;
-      background.scanline(timing.voffset);
-      sprite.scanline(timing.voffset);
     } break;
   case HDW:
     //this is said to happen 4 cycles before HDW ends;
@@ -81,6 +90,9 @@ auto VDC::vclock() -> void {
     if(timing.voffset >= latch.verticalDisplayWidth + 1) {
       timing.vstate = VCR;
       timing.voffset = 0;
+      latch.burstMode = 1;
+      background.latch.vramMode = background.vramMode;
+      sprite.latch.vramMode = sprite.vramMode;
       irq.raise(IRQ::Line::Vblank);
       dma.satbStart();
     } break;
@@ -109,7 +121,7 @@ auto VDC::read(uint2 address) -> uint8 {
     data.bit(3) = irq.transferSATB.pending;
     data.bit(4) = irq.transferVRAM.pending;
     data.bit(5) = irq.vblank.pending;
-    data.bit(6) = dma.vramActive || dma.satbActive;
+    data.bit(6) = 0;  //busy
     irq.lower();
     return data;
   }
@@ -224,15 +236,15 @@ auto VDC::write(uint2 address, uint8 data) -> void {
   if(io.address == 0x09) {
     //MWR
     if(a0 == 1) return;
-    io.vramAccess   = data.bit(0,1);
-    io.spriteAccess = data.bit(2,3);
+    background.vramMode = data.bit(0,1);
+    sprite.vramMode     = data.bit(2,3);
     if(data.bit(4,5) == 0) background.width =  32;
     if(data.bit(4,5) == 1) background.width =  64;
     if(data.bit(4,5) == 2) background.width = 128;
     if(data.bit(4,5) == 3) background.width = 128;
     if(data.bit(6) == 0) background.height = 32;
     if(data.bit(6) == 1) background.height = 64;
-    io.cgMode = data.bit(7);
+    background.characterMode = data.bit(7);
     return;
   }
 
@@ -310,6 +322,8 @@ auto VDC::write(uint2 address, uint8 data) -> void {
 }
 
 auto VDC::power() -> void {
+  random.entropy(Random::Entropy::High);
+
   output = 0;
 
   for(auto& data : vram.memory) data = 0;
@@ -318,7 +332,7 @@ auto VDC::power() -> void {
   vram.addressIncrement = 0x01;
   vram.dataRead = 0;
   vram.dataWrite = 0;
-  satb = {};
+  for(auto& data : satb.memory) data = random();
   irq = {};
   dma = {};
   timing = {};

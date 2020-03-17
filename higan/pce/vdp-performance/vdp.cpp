@@ -18,7 +18,7 @@ auto VDP::load(Node::Object parent, Node::Object from) -> void {
   from = Node::scan(parent = node, from);
 
   screen = Node::append<Node::Screen>(parent, from, "Screen");
-  screen->colors(1 << 9, {&VDP::color, this});
+  screen->colors(1 << 10, {&VDP::color, this});
   screen->setSize(1024, 239);
   screen->setScale(0.25, 1.0);
   screen->setAspect(8.0, 7.0);
@@ -56,14 +56,14 @@ auto VDP::main() -> void {
 
     if(Model::PCEngine()) {
       for(uint x : range(vce.width())) {
-        output[x] = vce.cram.read(vdc0.output[x]);
+        output[x] = vce.io.grayscale << 9 | vce.cram.read(vdc0.output[x]);
       }
     }
 
     if(Model::SuperGrafx()) {
       vpc.render();
       for(uint x : range(vce.width())) {
-        output[x] = vce.cram.read(vpc.output[x]);
+        output[x] = vce.io.grayscale << 9 | vce.cram.read(vpc.output[x]);
       }
     }
   }
@@ -74,7 +74,7 @@ auto VDP::main() -> void {
   vdc1.vclock();
 
   io.hcounter = 0;
-  if(++io.vcounter == 262) {
+  if(++io.vcounter >= 262 + vce.io.extraLine) {
     io.vcounter = 0;
     scheduler.exit(Event::Frame);
   }

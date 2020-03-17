@@ -57,8 +57,8 @@ auto System::unload() -> void {
   apu.unload();
   ppu.unload();
   cartridge.unload();
-  controllerPort1.port = {};
-  controllerPort2.port = {};
+  controllerPort1.unload();
+  controllerPort2.unload();
   node = {};
 }
 

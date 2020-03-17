@@ -48,6 +48,7 @@ auto HuC6280::instructionBlockMove(bp alu) -> void {
   idle();
   idle();
   idle();
+  blockMove = 1;
   bool alternate = 0;
   do {
     auto data = load16(source);
@@ -59,6 +60,7 @@ auto HuC6280::instructionBlockMove(bp alu) -> void {
     idle();
     idle();
   } while(--length);
+  blockMove = 0;
   X = pull();
   A = pull();
 L Y = pull();
@@ -107,8 +109,8 @@ auto HuC6280::instructionBranchSubroutine() -> void {
   idle();
   idle();
   idle();
-  push((PC - 1) >> 8);
-L push((PC - 1) >> 0);
+  push(PC - 1 >> 8);
+L push(PC - 1 >> 0);
   PC += (int8)displacement;
 }
 
@@ -117,10 +119,10 @@ auto HuC6280::instructionBreak() -> void {
   idle();
   push(PC >> 8);
   push(PC >> 0);
-  uint8 p = P;
-  push(p | 0x10);  //B flag set on push
-  D = 0;
+  push(P() | 0x10);  //B flag is set
   I = 1;
+  D = 0;
+  T = 0;
   PC.byte(0) = load16(0xfff6);
 L PC.byte(1) = load16(0xfff7);
 }
@@ -130,20 +132,20 @@ auto HuC6280::instructionCallAbsolute() -> void {
   address |= operand() << 8;
   idle();
   idle();
-  push((PC - 1) >> 8);
-L push((PC - 1) >> 0);
+  push(PC - 1 >> 8);
+L push(PC - 1 >> 0);
   PC = address;
 }
 
 auto HuC6280::instructionChangeSpeedLow() -> void {
   idle();
-  r.cs = 12;
+  CS = 12;
 L idle();
 }
 
 auto HuC6280::instructionChangeSpeedHigh() -> void {
   idle();
-  r.cs = 3;
+  CS = 3;
 L idle();
 }
 
@@ -273,7 +275,7 @@ L data = pull();
 auto HuC6280::instructionPullP() -> void {
   idle();
   idle();
-L P = pull();
+L P = pull() | 0x10;  //B flag is set
 }
 
 auto HuC6280::instructionPush(uint8 data) -> void {
@@ -376,7 +378,7 @@ auto HuC6280::instructionTransferAccumulatorToMPR() -> void {
   idle();
 L idle();
   for(uint index : range(8)) {
-    if(mask.bit(index)) r.mpr[index] = A;
+    if(mask.bit(index)) MPR[index] = MPL = A;
   }
 }
 
@@ -384,9 +386,13 @@ auto HuC6280::instructionTransferMPRToAccumulator() -> void {
   auto mask = operand();
   idle();
 L idle();
+  if(mask) MPL = ~0;
   for(uint index : range(8)) {
-    if(mask.bit(index)) { A = r.mpr[index]; break; }
+    //exact logic if multiple bits are set is unknown; but it is combinatorial
+    if(mask.bit(index)) MPL &= MPR[index];
   }
+  //in the event no bits are set, A is loaded with the previously latched value
+  A = MPL;
 }
 
 auto HuC6280::instructionTransferXS() -> void {

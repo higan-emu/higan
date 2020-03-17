@@ -4,7 +4,6 @@
 //started: 2004-10-14
 
 #include <emulator/emulator.hpp>
-#include <emulator/random.hpp>
 
 #include <component/processor/arm7tdmi/arm7tdmi.hpp>
 #include <component/processor/gsu/gsu.hpp>

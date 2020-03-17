@@ -3,11 +3,18 @@ auto VDC::DMA::step(uint clocks) -> void {
     if(!vramActive && !satbActive) break;
 
     if(vramActive) {
+      if(!vdc->burstMode()) {
+        //terminate transfer early if VRAM DMA runs into active display area
+        vramActive = 0;
+        vdc->irq.raise(VDC::IRQ::Line::TransferVRAM);
+        continue;
+      }
+
       uint16 data = vdc->vram.read(source);
       vdc->vram.write(target, data);
       sourceIncrementMode == 0 ? source++ : source--;
       targetIncrementMode == 0 ? target++ : target--;
-      if(!--length) {
+      if(!length--) {
         vramActive = 0;
         vdc->irq.raise(VDC::IRQ::Line::TransferVRAM);
       }
@@ -27,7 +34,9 @@ auto VDC::DMA::step(uint clocks) -> void {
 }
 
 auto VDC::DMA::vramStart() -> void {
-  vramActive = 1;
+  if(vdc->burstMode()) {
+    vramActive = 1;
+  }
 }
 
 auto VDC::DMA::satbStart() -> void {

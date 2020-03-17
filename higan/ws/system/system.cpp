@@ -143,10 +143,10 @@ auto System::unload() -> void {
   save();
   bootROM.reset();
   eeprom.reset();
-  cartridge.port = {};
   cpu.unload();
   ppu.unload();
   apu.unload();
+  cartridge.unload();
   node = {};
   headphones = {};
 }

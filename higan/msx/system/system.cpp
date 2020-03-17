@@ -49,13 +49,13 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.port = {};
-  expansion.port = {};
-  controllerPort1.port = {};
-  controllerPort2.port = {};
   cpu.unload();
   vdp.unload();
   psg.unload();
+  cartridge.unload();
+  expansion.unload();
+  controllerPort1.unload();
+  controllerPort2.unload();
   node = {};
   rom.bios.reset();
   rom.sub.reset();

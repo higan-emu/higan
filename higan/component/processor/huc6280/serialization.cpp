@@ -5,7 +5,8 @@ auto HuC6280::serialize(serializer& s) -> void {
   s.integer(r.s);
   s.integer(r.pc);
   s.array(r.mpr);
-  s.integer(r.mdr);
+  s.integer(r.mpl);
+  s.integer(r.cs);
   s.integer(r.p.c);
   s.integer(r.p.z);
   s.integer(r.p.i);
@@ -14,5 +15,6 @@ auto HuC6280::serialize(serializer& s) -> void {
   s.integer(r.p.t);
   s.integer(r.p.v);
   s.integer(r.p.n);
-  s.integer(r.cs);
+  s.integer(blockMove);
+  random.serialize(s);
 }

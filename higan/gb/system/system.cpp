@@ -52,10 +52,10 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.port = {};
   cpu.unload();
   ppu.unload();
   apu.unload();
+  cartridge.unload();
   bootROM.reset();
   node = {};
 }

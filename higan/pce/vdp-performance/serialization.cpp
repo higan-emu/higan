@@ -69,16 +69,24 @@ auto VDC::serialize(serializer& s) -> void {
   s.integer(timing.voffset);
   s.integer(timing.coincidence);
 
+  s.integer(latch.horizontalSyncWidth);
+  s.integer(latch.horizontalDisplayStart);
+  s.integer(latch.horizontalDisplayWidth);
+  s.integer(latch.horizontalDisplayEnd);
+  s.integer(latch.verticalSyncWidth);
+  s.integer(latch.verticalDisplayStart);
+  s.integer(latch.verticalDisplayWidth);
+  s.integer(latch.verticalDisplayEnd);
+
   s.integer(io.address);
   s.integer(io.externalSync);
   s.integer(io.displayOutput);
   s.integer(io.dramRefresh);
   s.integer(io.coincidence);
-  s.integer(io.vramAccess);
-  s.integer(io.spriteAccess);
-  s.integer(io.cgMode);
 
   s.integer(background.enable);
+  s.integer(background.vramMode);
+  s.integer(background.characterMode);
   s.integer(background.hscroll);
   s.integer(background.vscroll);
   s.integer(background.vcounter);
@@ -86,14 +94,18 @@ auto VDC::serialize(serializer& s) -> void {
   s.integer(background.height);
   s.integer(background.hoffset);
   s.integer(background.voffset);
+  s.integer(background.latch.vramMode);
+  s.integer(background.latch.characterMode);
 
   s.integer(sprite.enable);
+  s.integer(sprite.vramMode);
+  s.integer(sprite.latch.vramMode);
 }
 
 auto VDC::Object::serialize(serializer& s) -> void {
   s.integer(y);
   s.integer(x);
-  s.integer(mode);
+  s.integer(characterMode);
   s.integer(pattern);
   s.integer(palette);
   s.integer(priority);

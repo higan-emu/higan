@@ -1,6 +1,8 @@
 auto VDC::Sprite::scanline(uint16 y) -> void {
-  y += 64;
   objects.reset();
+  if(!enable) return;
+
+  y += 64;
 
   static const uint widths [2] = {15, 31};
   static const uint heights[4] = {15, 31, 63, 63};
@@ -19,7 +21,7 @@ auto VDC::Sprite::scanline(uint16 y) -> void {
     if(y > object.y + object.height) continue;
 
     object.x = d1.bit(0,9);
-    object.mode = d2.bit(0);
+    object.characterMode = d2.bit(0);
     object.pattern = d2.bit(1,10);
     object.palette = d3.bit(0,3);
     object.priority = d3.bit(7);
@@ -52,6 +54,7 @@ auto VDC::Sprite::scanline(uint16 y) -> void {
 
 auto VDC::Sprite::render(uint16 y) -> void {
   if(!enable) return (void)memset(&output, 0, sizeof(output));
+
   y += 64;
 
   for(uint x : range(vdp.vce.width())) {
@@ -72,10 +75,23 @@ auto VDC::Sprite::render(uint16 y) -> void {
       patternAddress <<= 6;
       patternAddress  += (voffset & 15);
 
-      uint16 d0 = vdc->vram.read(patternAddress +  0);
-      uint16 d1 = vdc->vram.read(patternAddress + 16);
-      uint16 d2 = vdc->vram.read(patternAddress + 32);
-      uint16 d3 = vdc->vram.read(patternAddress + 48);
+      uint16 d0 = 0, d1 = 0, d2 = 0, d3 = 0;
+      if(latch.vramMode != 1) {
+        d0 = vdc->vram.read(patternAddress +  0);
+        d1 = vdc->vram.read(patternAddress + 16);
+        d2 = vdc->vram.read(patternAddress + 32);
+        d3 = vdc->vram.read(patternAddress + 48);
+      }
+      if(latch.vramMode == 1) {
+        if(object.characterMode == 0) {
+          d0 = vdc->vram.read(patternAddress +  0);
+          d1 = vdc->vram.read(patternAddress + 16);
+        }
+        if(object.characterMode == 1) {
+          d0 = vdc->vram.read(patternAddress + 32);
+          d1 = vdc->vram.read(patternAddress + 48);
+        }
+      }
 
       uint4 index = 15 - (hoffset & 15);
       uint4 color;

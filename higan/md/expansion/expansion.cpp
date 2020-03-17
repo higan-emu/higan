@@ -15,6 +15,11 @@ auto Expansion::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto Expansion::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 auto Expansion::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, interface->name());
   node->setManifest([&] { return information.manifest; });

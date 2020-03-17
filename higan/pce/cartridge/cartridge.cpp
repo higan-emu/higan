@@ -16,6 +16,11 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto Cartridge::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 //most PC Engine HuCards lack save RAM on them due to the card size and cost savings.
 //the PC Engine CD adds 2KB of backup RAM that some HuCard games can use for saves.
 //however, all games must share this small amount of RAM.

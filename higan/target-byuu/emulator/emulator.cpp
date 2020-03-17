@@ -75,6 +75,7 @@ auto Emulator::construct() -> void {
 
   #ifdef CORE_PCE
   emulators.append(new PCEngine);
+//emulators.append(new PCEngineCD);
   emulators.append(new SuperGrafx);
   #endif
 

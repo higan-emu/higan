@@ -20,8 +20,15 @@ auto VDC::Background::run(uint x, uint y) -> void {
   uint16 patternAddress = attributes.bit(0,11) << 4 | (uint3)voffset;
   uint4 palette = attributes.bit(12,15);
 
-  uint16 d0 = vdc->vram.read(patternAddress + 0);
-  uint16 d1 = vdc->vram.read(patternAddress + 8);
+  uint16 d0 = 0, d1 = 0;
+  if(latch.vramMode != 3) {
+    d0 = vdc->vram.read(patternAddress + 0);
+    d1 = vdc->vram.read(patternAddress + 8);
+  }
+  if(latch.vramMode == 3) {
+    if(latch.characterMode == 0) d0 = vdc->vram.read(patternAddress + 0);
+    if(latch.characterMode == 1) d0 = vdc->vram.read(patternAddress + 8);
+  }
 
   uint3 index = ~hoffset;
   uint4 color;

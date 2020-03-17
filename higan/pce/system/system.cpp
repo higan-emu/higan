@@ -36,12 +36,11 @@ auto System::save() -> void {
 auto System::unload() -> void {
   if(!node) return;
   save();
-  cartridge.disconnect();
-  cartridge.port = {};
-  controllerPort.port = {};
   cpu.unload();
   vdp.unload();
   psg.unload();
+  cartridge.unload();
+  controllerPort.unload();
   node = {};
 }
 

@@ -34,6 +34,11 @@ auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
   port->scan(from);
 }
 
+auto Cartridge::unload() -> void {
+  disconnect();
+  port = {};
+}
+
 auto Cartridge::connect(Node::Peripheral with) -> void {
   string name = interface->name();
   if(Model::SwanCrystal()) name = "WonderSwan Color";

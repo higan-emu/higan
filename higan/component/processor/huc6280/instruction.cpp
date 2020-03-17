@@ -7,7 +7,7 @@ auto HuC6280::interrupt(uint16 vector) -> void {
   idle();
   push(PC >> 8);
   push(PC >> 0);
-  push(P);
+  push(P() & ~0x10);  //B flag is clear
   I = 1;
   D = 0;
   T = 0;

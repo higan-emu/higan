@@ -4,7 +4,6 @@
 //started: 2011-09-05
 
 #include <emulator/emulator.hpp>
-#include <emulator/random.hpp>
 
 #include <component/processor/mos6502/mos6502.hpp>
 #include <component/audio/ym2149/ym2149.hpp>

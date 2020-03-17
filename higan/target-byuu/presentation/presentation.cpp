@@ -323,6 +323,9 @@ auto Presentation::loadEmulator() -> void {
 
   toolsMenu.setVisible(true);
   pauseEmulation.setChecked(false);
+
+  setFocused();
+  viewport.setFocused();
 }
 
 auto Presentation::unloadEmulator(bool reloading) -> void {

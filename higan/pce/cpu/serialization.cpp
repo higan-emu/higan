@@ -5,11 +5,14 @@ auto CPU::serialize(serializer& s) -> void {
   ram.serialize(s);
   bram.serialize(s);
 
-  s.integer(irq.disableExternal);
-  s.integer(irq.disableVDC);
-  s.integer(irq.disableTimer);
-  s.integer(irq.pendingIRQ);
-  s.integer(irq.pendingVector);
+  s.integer(irq2.disable);
+  s.integer(irq2.pending);
+
+  s.integer(irq1.disable);
+  s.integer(irq1.pending);
+
+  s.integer(tiq.disable);
+  s.integer(tiq.pending);
 
   s.integer(timer.line);
   s.integer(timer.enable);
@@ -17,5 +20,5 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(timer.value);
   s.integer(timer.counter);
 
-  s.integer(io.mdr);
+  s.integer(io.buffer);
 }
