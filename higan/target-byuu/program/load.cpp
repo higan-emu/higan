@@ -42,8 +42,8 @@ auto Program::load(shared_pointer<Emulator> emulator, string filename) -> bool {
 
   vector<uint8_t> filedata;
 
-  if(emulator->name == "Mega CD") {
-    //Mega CD uses on-disk file instead of loading image into RAM.
+  if(emulator->name == "Mega CD" || emulator->name == "PC Engine CD") {
+    //CDs use on-disk file instead of loading image into RAM.
     //todo: support this more cleanly.
     filedata.append(0);
   } else if(filename.iendsWith(".zip")) {

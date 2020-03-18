@@ -12,5 +12,7 @@ struct Interface {
 #include "linear.hpp"
 #include "split.hpp"
 #include "banked.hpp"
+#include "ram.hpp"
+#include "system-card.hpp"
 
 }

@@ -20,6 +20,7 @@ namespace higan::PCEngine {
   #include <pce/cpu/cpu.hpp>
   #include <pce/vdp/vdp.hpp>
   #include <pce/psg/psg.hpp>
+  #include <pce/pcd/pcd.hpp>
 
   #include <pce/system/system.hpp>
   #include <pce/cartridge/cartridge.hpp>

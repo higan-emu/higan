@@ -3,7 +3,6 @@ auto CPU::serialize(serializer& s) -> void {
   Thread::serialize(s);
 
   ram.serialize(s);
-  bram.serialize(s);
 
   s.integer(irq2.disable);
   s.integer(irq2.pending);

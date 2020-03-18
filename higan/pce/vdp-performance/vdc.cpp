@@ -1,22 +1,22 @@
-auto VDC::hpulse() -> void {
+auto VDC::hsync() -> void {
   timing.hstate = HDS;
   timing.hoffset = 0;
 
-  latch.horizontalSyncWidth = timing.horizontalSyncWidth;
-  latch.horizontalDisplayStart = timing.horizontalDisplayStart;
-  latch.horizontalDisplayWidth = timing.horizontalDisplayWidth;
-  latch.horizontalDisplayEnd = timing.horizontalDisplayEnd;
+  latch.horizontalDisplayStart = max(2, timing.horizontalDisplayStart) + 1 << 3;
+  latch.horizontalDisplayWidth = timing.horizontalDisplayWidth + 1 << 3;
+  latch.horizontalDisplayEnd = timing.horizontalDisplayEnd + 1 << 3;
+  latch.horizontalSyncWidth = timing.horizontalSyncWidth + 1 << 3;
 
   background.latch.characterMode = background.characterMode;
 }
 
-auto VDC::vpulse() -> void {
-  timing.vstate = VDS;
+auto VDC::vsync() -> void {
+  timing.vstate = VSW;
   timing.voffset = 0;
 
-  latch.verticalSyncWidth = timing.verticalSyncWidth;
-  latch.verticalDisplayStart = timing.verticalDisplayStart;
-  latch.verticalDisplayWidth = timing.verticalDisplayWidth;
+  latch.verticalSyncWidth = timing.verticalSyncWidth + 1;
+  latch.verticalDisplayStart = timing.verticalDisplayStart + 2;
+  latch.verticalDisplayWidth = timing.verticalDisplayWidth + 1;
   latch.verticalDisplayEnd = timing.verticalDisplayEnd;
 
   //ensure that Vblank IRQs always occur each frame
@@ -56,17 +56,21 @@ auto VDC::hclock() -> void {
 auto VDC::vclock() -> void {
   timing.voffset++;
   switch(timing.vstate) {
+  case VSW:
+    if(timing.voffset >= latch.verticalSyncWidth) {
+      timing.vstate = VDS;
+      timing.voffset = 0;
+    } break;
   case VDS:
-    if(timing.voffset >= latch.verticalDisplayStart + 2) {
+    if(timing.voffset >= latch.verticalDisplayStart) {
       timing.vstate = VDW;
       timing.voffset = 0;
       timing.coincidence = 64;
     } break;
   case VDW:
-    if(timing.voffset >= latch.verticalDisplayWidth + 1) {
+    if(timing.voffset >= latch.verticalDisplayWidth) {
       timing.vstate = VCR;
       timing.voffset = 0;
-      latch.burstMode = 1;
       background.latch.vramMode = background.vramMode;
       sprite.latch.vramMode = sprite.vramMode;
       irq.raise(IRQ::Line::Vblank);
@@ -75,11 +79,6 @@ auto VDC::vclock() -> void {
   case VCR:
     if(timing.voffset >= latch.verticalDisplayEnd) {
       timing.vstate = VSW;
-      timing.voffset = 0;
-    } break;
-  case VSW:
-    if(timing.voffset >= latch.verticalSyncWidth + 1) {
-      timing.vstate = VDS;
       timing.voffset = 0;
     } break;
   }

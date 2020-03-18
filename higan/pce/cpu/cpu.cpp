@@ -17,12 +17,10 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
 
   if(Model::PCEngine())   ram.allocate( 8_KiB, 0x00);
   if(Model::SuperGrafx()) ram.allocate(32_KiB, 0x00);
-  bram.allocate(2_KiB);
 }
 
 auto CPU::unload() -> void {
   ram.reset();
-  bram.reset();
 
   node = {};
   eventInstruction = {};
@@ -71,6 +69,7 @@ auto CPU::step(uint clocks) -> void {
 
   Thread::step(clocks);
   synchronize(vdp);
+  if(PCD::Present()) synchronize(pcd);
 }
 
 auto CPU::power() -> void {

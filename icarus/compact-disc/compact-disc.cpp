@@ -1,4 +1,5 @@
 #include "mega-cd.cpp"
+#include "pc-engine-cd.cpp"
 
 auto CompactDisc::construct() -> void {
   Media::construct();

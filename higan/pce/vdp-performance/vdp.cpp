@@ -31,12 +31,12 @@ auto VDP::unload() -> void {
 }
 
 auto VDP::main() -> void {
-  vdc0.hpulse(); if(Model::SuperGrafx())
-  vdc1.hpulse();
+  vdc0.hsync(); if(Model::SuperGrafx())
+  vdc1.hsync();
 
   if(io.vcounter == 0) {
-    vdc0.vpulse(); if(Model::SuperGrafx())
-    vdc1.vpulse();
+    vdc0.vsync(); if(Model::SuperGrafx())
+    vdc1.vsync();
     width256 = 0, width344 = 0, width512 = 0;
   }
 

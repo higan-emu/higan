@@ -26,11 +26,13 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
   psg.load(node, from);
   cartridge.load(node, from);
   controllerPort.load(node, from);
+  if(PCD::Present()) pcd.load(node, from);
 }
 
 auto System::save() -> void {
   if(!node) return;
   cartridge.save();
+  if(PCD::Present()) pcd.save();
 }
 
 auto System::unload() -> void {
@@ -41,6 +43,7 @@ auto System::unload() -> void {
   psg.unload();
   cartridge.unload();
   controllerPort.unload();
+  if(PCD::Present()) pcd.unload();
   node = {};
 }
 
@@ -51,6 +54,7 @@ auto System::power() -> void {
   cpu.power();
   vdp.power();
   psg.power();
+  if(PCD::Present()) pcd.power();
   scheduler.power(cpu);
 
   information.serializeSize[0] = serializeInit(0);

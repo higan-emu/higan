@@ -6,9 +6,16 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
     return cartridge.read(bank, address);
   }
 
-  //$f7  BRAM
+  //$80-87  CD WRAM
+  if(bank >= 0x80 && bank <= 0x87) {
+    if(PCD::Present()) return pcd.readWRAM(address);
+    return data;
+  }
+
+  //$f7  CD BRAM
   if(bank == 0xf7) {
-    return bram[address.bit(0,10)];
+    if(PCD::Present()) return pcd.readBRAM(bank.bit(0,2) << 13 | address);
+    return data;
   }
 
   //$f8-fb  RAM
@@ -56,7 +63,7 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
       data.bit(4)   = 1;
       data.bit(5)   = 1;
       data.bit(6)   = 0;  //device (0 = Turbografx-16; 1 = PC Engine)
-      data.bit(7)   = 0;  //add-on (0 = CD-ROM; 1 = nothing)
+      data.bit(7)   = PCD::Present() == 0;  //add-on (0 = CD-ROM; 1 = nothing)
       return data;
     }
 
@@ -89,8 +96,9 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
       }
     }
 
-    //$1800-1bff  CD-ROM
+    //$1800-1bff  CD I/O
     if((address & 0x1c00) == 0x1800) {
+      if(PCD::Present()) return pcd.read(address);
       return data;
     }
 
@@ -100,8 +108,6 @@ auto CPU::read(uint8 bank, uint13 address) -> uint8 {
     }
   }
 
-  //$80-f7  unmapped
-  //$fc-fe  unmapped
   return data;
 }
 
@@ -111,9 +117,15 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
     return cartridge.write(bank, address, data);
   }
 
-  //$f7  BRAM
+  //$80-87  CD WRAM
+  if(bank >= 0x80 && bank <= 0x87) {
+    if(PCD::Present()) return pcd.writeWRAM(bank.bit(0,2) << 13 | address, data);
+    return;
+  }
+
+  //$f7  CD BRAM
   if(bank == 0xf7) {
-    bram[address.bit(0,10)] = data;
+    if(PCD::Present()) return pcd.writeBRAM(address, data);
     return;
   }
 
@@ -182,8 +194,9 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
       }
     }
 
-    //$1800-1bff  CD-ROM
+    //$1800-1bff  CD I/O
     if((address & 0x1c00) == 0x1800) {
+      if(PCD::Present()) return pcd.write(address, data);
       return;
     }
 
@@ -193,8 +206,6 @@ auto CPU::write(uint8 bank, uint13 address, uint8 data) -> void {
     }
   }
 
-  //$80-f7  unmapped
-  //$fc-fe  unmapped
   return;
 }
 

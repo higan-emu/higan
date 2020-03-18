@@ -34,12 +34,12 @@ auto VDP::unload() -> void {
 }
 
 auto VDP::main() -> void {
-  vdc0.hpulse(); if(Model::SuperGrafx())
-  vdc1.hpulse();
+  vdc0.hsync(); if(Model::SuperGrafx())
+  vdc1.hsync();
 
   if(io.vcounter == 0) {
-    vdc0.vpulse(); if(Model::SuperGrafx())
-    vdc1.vpulse();
+    vdc0.vsync(); if(Model::SuperGrafx())
+    vdc1.vsync();
   }
 
   auto output = buffer + 1365 * io.vcounter;
@@ -82,7 +82,7 @@ auto VDP::step(uint clocks) -> void {
 }
 
 auto VDP::refresh() -> void {
-  screen->refresh(buffer + 1365 * 18 + 96, 1365 * sizeof(uint32), 1024, 239);
+  screen->refresh(buffer + 1365 * 21 + 96, 1365 * sizeof(uint32), 1024, 239);
 }
 
 auto VDP::power() -> void {

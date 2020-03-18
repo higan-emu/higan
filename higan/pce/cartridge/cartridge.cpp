@@ -43,12 +43,10 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(information.board == "Linear") board = new Board::Linear;
   if(information.board == "Split" ) board = new Board::Split;
   if(information.board == "Banked") board = new Board::Banked;
+  if(information.board == "RAM"   ) board = new Board::RAM;
+  if(information.board.match("System Card ?.??")) board = new Board::SystemCard;
   if(!board) board = new Board::Interface;
   board->load(document);
-
-  if(auto fp = platform->open(node, "save.ram", File::Read)) {
-    cpu.bram.load(fp);
-  }
 
   power();
 }
@@ -63,10 +61,6 @@ auto Cartridge::save() -> void {
   if(!node) return;
   auto document = BML::unserialize(information.manifest);
   board->save(document);
-
-  if(auto fp = platform->open(node, "save.ram", File::Write)) {
-    cpu.bram.save(fp);
-  }
 }
 
 auto Cartridge::power() -> void {

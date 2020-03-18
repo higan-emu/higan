@@ -4,8 +4,7 @@ struct CPU : HuC6280, Thread {
   Node::Component node;
   Node::Instruction eventInstruction;
   Node::Notification eventInterrupt;
-  Memory::Writable<uint8> ram;   //PC Engine = 8KB, SuperGrafx = 32KB
-  Memory::Writable<uint8> bram;  //PC Engine CD-ROM Backup RAM = 2KB
+  Memory::Writable<uint8> ram;  //PC Engine = 8KB, SuperGrafx = 32KB
 
   //cpu.cpp
   auto load(Node::Object, Node::Object) -> void;

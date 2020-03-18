@@ -54,6 +54,8 @@ auto MCD::load(Node::Object parent, Node::Object from) -> void {
 }
 
 auto MCD::unload() -> void {
+  disconnect();
+
   if(expansion.node) {
     if(auto fp = platform->open(expansion.node, "backup.ram", File::Write)) {
       bram.save(fp);

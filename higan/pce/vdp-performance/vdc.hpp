@@ -1,12 +1,12 @@
 //Hudson Soft HuC6270: Video Display Controller
 
 struct VDC {
-  inline auto burstMode() const -> bool { return latch.burstMode; }
+  inline auto burstMode() const -> bool { return latch.burstMode || timing.vstate != VDW; }
   inline auto irqLine() const -> bool { return irq.line; }
 
   //vdc.cpp
-  auto hpulse() -> void;
-  auto vpulse() -> void;
+  auto hsync() -> void;
+  auto vsync() -> void;
   auto hclock() -> void;
   auto vclock() -> void;
   auto read(uint2 address) -> uint8;
@@ -95,7 +95,7 @@ struct VDC {
   } dma;
 
   enum : uint { HDS, HDW, HDE, HSW };
-  enum : uint { VDS, VDW, VCR, VSW };
+  enum : uint { VSW, VDS, VDW, VCR };
 
   struct Timing {
      uint5 horizontalSyncWidth = 2;
@@ -109,7 +109,7 @@ struct VDC {
      uint8 verticalDisplayEnd = 4;
 
      uint8 hstate = HDS;
-     uint8 vstate = VDS;
+     uint8 vstate = VSW;
 
     uint16 hoffset;
     uint16 voffset;
@@ -118,17 +118,17 @@ struct VDC {
   } timing;
 
   struct Latch {
-    uint5 horizontalSyncWidth;
-    uint7 horizontalDisplayStart;
-    uint7 horizontalDisplayWidth;
-    uint7 horizontalDisplayEnd;
+    uint16 horizontalSyncWidth;
+    uint16 horizontalDisplayStart;
+    uint16 horizontalDisplayWidth;
+    uint16 horizontalDisplayEnd;
 
-    uint5 verticalSyncWidth;
-    uint8 verticalDisplayStart;
-    uint9 verticalDisplayWidth;
-    uint8 verticalDisplayEnd;
+    uint16 verticalSyncWidth;
+    uint16 verticalDisplayStart;
+    uint16 verticalDisplayWidth;
+    uint16 verticalDisplayEnd;
 
-    uint1 burstMode = 1;
+     uint1 burstMode = 1;
   } latch;
 
   struct IO {

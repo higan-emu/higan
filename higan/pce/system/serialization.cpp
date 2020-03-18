@@ -52,6 +52,7 @@ auto System::serializeAll(serializer& s, bool synchronize) -> void {
   psg.serialize(s);
   cartridge.serialize(s);
   controllerPort.serialize(s);
+  if(PCD::Present()) pcd.serialize(s);
 }
 
 auto System::serializeInit(bool synchronize) -> uint {
