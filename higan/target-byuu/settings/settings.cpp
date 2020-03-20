@@ -92,6 +92,7 @@ auto Settings::process(bool load) -> void {
 
   bind(string,  "Paths/Saves", paths.saves);
   bind(string,  "Paths/Patches", paths.patches);
+  bind(string,  "Paths/Traces", paths.traces);
   bind(string,  "Paths/Firmware", paths.firmware);
 
   for(uint index : range(9)) {

@@ -21,11 +21,6 @@ auto Cartridge::unload() -> void {
   port = {};
 }
 
-//most PC Engine HuCards lack save RAM on them due to the card size and cost savings.
-//the PC Engine CD adds 2KB of backup RAM that some HuCard games can use for saves.
-//however, all games must share this small amount of RAM.
-//since this is an emulator, we can make this process nicer by storing BRAM per-game.
-
 auto Cartridge::connect(Node::Peripheral with) -> void {
   node = Node::append<Node::Peripheral>(port, with, interface->name());
   node->setManifest([&] { return information.manifest; });
@@ -48,6 +43,10 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   if(!board) board = new Board::Interface;
   board->load(document);
 
+  if(auto fp = platform->open(node, "save.ram", File::Read)) {
+    pcd.bram.load(fp);
+  }
+
   power();
 }
 
@@ -61,6 +60,10 @@ auto Cartridge::save() -> void {
   if(!node) return;
   auto document = BML::unserialize(information.manifest);
   board->save(document);
+
+  if(auto fp = platform->open(node, "save.ram", File::Write)) {
+    pcd.bram.save(fp);
+  }
 }
 
 auto Cartridge::power() -> void {

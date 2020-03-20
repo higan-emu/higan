@@ -28,8 +28,8 @@ auto Program::event(higan::Event event) -> void {
 
 auto Program::log(string_view message) -> void {
   if(!traceLogger.fp) {
-    string datetime = chrono::local::datetime().replace("-", "").replace(":", "").replace(" ", "-");
-    string location = {Location::notsuffix(emulator->game.location), "-", datetime, ".log"};
+    auto datetime = chrono::local::datetime().replace("-", "").replace(":", "").replace(" ", "-");
+    auto location = emulator->locate({emulator->game.location, "-", datetime, ".log"}, ".log", settings.paths.traces);
     traceLogger.fp.open(location, file::mode::write);
   }
   traceLogger.fp.print(message);

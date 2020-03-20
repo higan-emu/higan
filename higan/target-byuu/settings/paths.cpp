@@ -34,6 +34,22 @@ auto PathSettings::construct() -> void {
     refresh();
   });
 
+  tracesLabel.setText("Trace Logs").setFont(Font().setBold());
+  tracesPath.setEditable(false);
+  tracesAssign.setText("Assign ...").onActivate([&] {
+    BrowserDialog dialog;
+    dialog.setTitle("Select Traces Path");
+    dialog.setPath(Path::desktop());
+    if(auto location = program.selectFolder(dialog)) {
+      settings.paths.traces = location;
+      refresh();
+    }
+  });
+  tracesReset.setText("Reset").onActivate([&] {
+    settings.paths.traces = "";
+    refresh();
+  });
+
   firmwareLabel.setText("DSP Firmware").setFont(Font().setBold());
   firmwarePath.setEditable(false);
   firmwareAssign.setText("Assign ...").onActivate([&] {
@@ -64,6 +80,12 @@ auto PathSettings::refresh() -> void {
     patchesPath.setText(settings.paths.patches).setForegroundColor();
   } else {
     patchesPath.setText("(same as game path)").setForegroundColor({80, 80, 80});
+  }
+
+  if(settings.paths.traces) {
+    tracesPath.setText(settings.paths.traces).setForegroundColor();
+  } else {
+    tracesPath.setText("(same as game path)").setForegroundColor({80, 80, 80});
   }
 
   if(settings.paths.firmware) {

@@ -63,6 +63,7 @@ struct Settings : Markup::Node {
   struct Paths {
     string saves;
     string patches;
+    string traces;
     string firmware;
   } paths;
 
@@ -211,6 +212,11 @@ struct PathSettings : VerticalLayout {
     LineEdit patchesPath{&patchesLayout, Size{~0, 0}};
     Button patchesAssign{&patchesLayout, Size{80, 0}};
     Button patchesReset{&patchesLayout, Size{80, 0}};
+  Label tracesLabel{this, Size{~0, 0}, 2};
+  HorizontalLayout tracesLayout{this, Size{~0, 0}};
+    LineEdit tracesPath{&tracesLayout, Size{~0, 0}};
+    Button tracesAssign{&tracesLayout, Size{80, 0}};
+    Button tracesReset{&tracesLayout, Size{80, 0}};
   Label firmwareLabel{this, Size{~0, 0}, 2};
   HorizontalLayout firmwareLayout{this, Size{~0, 0}};
     LineEdit firmwarePath{&firmwareLayout, Size{~0, 0}};
