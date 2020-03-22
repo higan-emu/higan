@@ -26,7 +26,7 @@ ProgramWindow::ProgramWindow() {
   });
 
   helpMenu.setText("Help");
-  aboutAction.setIcon(Icon::Prompt::Question).setText("About ...").onActivate([&] {
+  aboutAction.setIcon(Icon::Prompt::Question).setText("About icarus ...").onActivate([&] {
     AboutDialog()
     .setName("icarus")
     .setVersion(icarus::Version)

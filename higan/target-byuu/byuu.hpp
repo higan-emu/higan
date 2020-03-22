@@ -17,10 +17,10 @@ namespace ruby {
 
 namespace byuu {
   static const string Name      = "byuu";
-  static const string Version   = "4";
-  static const string Copyright = "byuu";
-  static const string License   = "GPLv3";
-  static const string Website   = "https://byuu.org";
+  static const string Version   = "110";
+  static const string Copyright = "byuu et al";
+  static const string License   = "GPLv3 or later";
+  static const string Website   = "https://github.com/higan-emu";
 }
 
 #include "resource/resource.hpp"

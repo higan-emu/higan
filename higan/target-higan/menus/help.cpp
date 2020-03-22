@@ -1,12 +1,6 @@
 HelpMenu::HelpMenu(MenuBar* parent) : Menu(parent) {
   setText("Help");
-  webpage.setIcon(Icon::Application::Browser).setText("Webpage ...").onActivate([&] {
-    invoke("https://byuu.org/higan");
-  });
-  userGuide.setIcon(Icon::Application::Browser).setText("User Guide ...").onActivate([&] {
-    invoke("https://byuu.org/higan/user-guide");
-  });
-  about.setIcon(Icon::Prompt::Question).setText("About ...").onActivate([&] {
+  about.setIcon(Icon::Prompt::Question).setText("About higan ...").onActivate([&] {
     AboutDialog()
     .setLogo(Resource::Logo)
     .setVersion(higan::Version)
