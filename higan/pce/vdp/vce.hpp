@@ -1,7 +1,7 @@
 //Hudson Soft HuC6260: Video Color Encoder
 
 struct VCE {
-  inline auto clock() const -> uint { return io.clock; }
+  auto clock() const -> uint { return io.clock; }
 
   //vce.cpp
   auto read(uint3 address) -> uint8;

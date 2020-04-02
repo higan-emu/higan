@@ -1,8 +1,8 @@
 //Hudson Soft HuC6270: Video Display Controller
 
 struct VDC {
-  inline auto burstMode() const -> bool { return latch.burstMode || timing.vstate != VDW; }
-  inline auto irqLine() const -> bool { return irq.line; }
+  auto burstMode() const -> bool { return latch.burstMode || timing.vstate != VDW; }
+  auto irqLine() const -> bool { return irq.line; }
 
   //vdc.cpp
   auto hsync() -> void;
