@@ -12,8 +12,8 @@ struct MCD : M68K, Thread {
   Memory::Writable<uint16> wram;  //work RAM
   Memory::Writable< uint8> bram;  //backup RAM
 
-  inline auto manifest() const -> string { return information.manifest; }
-  inline auto name() const -> string { return information.name; }
+  auto manifest() const -> string { return information.manifest; }
+  auto name() const -> string { return information.name; }
 
   //mcd.cpp
   auto load(Node::Object, Node::Object) -> void;

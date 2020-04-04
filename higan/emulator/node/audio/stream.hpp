@@ -2,9 +2,9 @@ struct Stream : Object {
   DeclareClass(Stream, "Stream")
   using Object::Object;
 
-  inline auto channels() const -> uint { return _channels.size(); }
-  inline auto frequency() const -> double { return _frequency; }
-  inline auto resamplerFrequency() const -> double { return _resamplerFrequency; }
+  auto channels() const -> uint { return _channels.size(); }
+  auto frequency() const -> double { return _frequency; }
+  auto resamplerFrequency() const -> double { return _resamplerFrequency; }
 
   auto setChannels(uint channels) -> void;
   auto setFrequency(double frequency) -> void;

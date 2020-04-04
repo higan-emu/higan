@@ -57,8 +57,8 @@ struct VDP : Thread {
   auto outputPixel(uint32 color) -> void;
 
   struct Pixel {
-    inline auto above() const -> bool { return priority == 1 && color; }
-    inline auto below() const -> bool { return priority == 0 && color; }
+    auto above() const -> bool { return priority == 1 && color; }
+    auto below() const -> bool { return priority == 0 && color; }
 
     uint6 color;
     uint1 priority;

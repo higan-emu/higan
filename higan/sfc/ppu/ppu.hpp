@@ -11,9 +11,9 @@ struct PPU : Thread, PPUcounter {
   Node::Boolean colorEmulation;
   Node::Boolean colorBleed;
 
-  inline auto interlace() const -> bool { return self.interlace; }
-  inline auto overscan() const -> bool { return self.overscan; }
-  inline auto vdisp() const -> uint { return self.vdisp; }
+  auto interlace() const -> bool { return self.interlace; }
+  auto overscan() const -> bool { return self.overscan; }
+  auto vdisp() const -> uint { return self.vdisp; }
 
   //ppu.cpp
   auto load(Node::Object parent, Node::Object from) -> void;

@@ -11,11 +11,11 @@ struct ProtectableMemory : AbstractMemory {
     for(uint address : range(size)) self.data[address] = fill;
   }
 
-  inline auto load(shared_pointer<vfs::file> fp) -> void {
+  auto load(shared_pointer<vfs::file> fp) -> void {
     fp->read(self.data, min(fp->size(), self.size));
   }
 
-  inline auto save(shared_pointer<vfs::file> fp) -> void {
+  auto save(shared_pointer<vfs::file> fp) -> void {
     fp->write(self.data, self.size);
   }
 
@@ -27,11 +27,11 @@ struct ProtectableMemory : AbstractMemory {
     return self.size;
   }
 
-  inline auto writable() const -> bool {
+  auto writable() const -> bool {
     return self.writable;
   }
 
-  inline auto writable(bool writable) -> void {
+  auto writable(bool writable) -> void {
     self.writable = writable;
   }
 
@@ -44,7 +44,7 @@ struct ProtectableMemory : AbstractMemory {
     self.data[address] = data;
   }
 
-  inline auto operator[](uint24 address) const -> uint8 {
+  auto operator[](uint24 address) const -> uint8 {
     return self.data[address];
   }
 

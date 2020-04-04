@@ -11,11 +11,11 @@ struct WritableMemory : AbstractMemory {
     for(uint address : range(size)) self.data[address] = fill;
   }
 
-  inline auto load(shared_pointer<vfs::file> fp) -> void {
+  auto load(shared_pointer<vfs::file> fp) -> void {
     fp->read(self.data, min(fp->size(), self.size));
   }
 
-  inline auto save(shared_pointer<vfs::file> fp) -> void {
+  auto save(shared_pointer<vfs::file> fp) -> void {
     fp->write(self.data, self.size);
   }
 
@@ -35,7 +35,7 @@ struct WritableMemory : AbstractMemory {
     self.data[address] = data;
   }
 
-  inline auto operator[](uint24 address) -> uint8& {
+  auto operator[](uint24 address) -> uint8& {
     return self.data[address];
   }
 

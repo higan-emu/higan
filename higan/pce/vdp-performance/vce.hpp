@@ -1,8 +1,8 @@
 //Hudson Soft HuC6260: Video Color Encoder
 
 struct VCE {
-  inline auto clock() const -> uint { return io.clock; }
-  inline auto width() const -> uint { return io.clock == 4 ? 256 : io.clock == 3 ? 344 : 512; }
+  auto clock() const -> uint { return io.clock; }
+  auto width() const -> uint { return io.clock == 4 ? 256 : io.clock == 3 ? 344 : 512; }
 
   //vce.cpp
   auto read(uint3 address) -> uint8;
