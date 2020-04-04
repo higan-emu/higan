@@ -205,7 +205,11 @@ auto pWindow::setModal(bool modal) -> void {
       }
       Application::processEvents();
     }
+  } else {
+    bool wasVisible = qtWindow->isVisible();
+    setVisible(false);
     qtWindow->setWindowModality(Qt::NonModal);
+    setVisible(wasVisible);
   }
 }
 
