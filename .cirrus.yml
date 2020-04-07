@@ -34,7 +34,7 @@ linux-x86_64-binaries_task:
 
 freebsd-x86_64-binaries_task:
   freebsd_instance:
-    image: freebsd-12-0-release-amd64
+    image: freebsd-12-1-release-amd64
 
   setup_script:
     - pkg install --yes curl gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv zip

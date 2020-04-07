@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 
 echo "Uploading..."
-name="higan-$CIRRUS_TAG-$CIRRUS_OS.zip"
+name="higan-$CIRRUS_TAG-$OS.zip"
 curl -X POST \
     --data-binary @higan-nightly.zip \
     --header "Authorization: token $GITHUB_TOKEN" \
