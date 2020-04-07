@@ -111,6 +111,8 @@ auto main(Arguments arguments) -> void {
 
   directory::create({Path::userSettings(), "icarus/"});
   file::write({Path::userSettings(), "icarus/settings.bml"}, settings.serialize());
+
+  Instances::programWindow.destruct();
 }
 
 }
