@@ -1,6 +1,7 @@
 namespace Board {
 
 struct Interface {
+  virtual ~Interface() = default;
   virtual auto load(Markup::Node) -> void {}
   virtual auto save(Markup::Node) -> void {}
   virtual auto read(uint8 bank, uint13 address) -> uint8 { return 0x00; }
