@@ -26,11 +26,83 @@ Links
 Nightly Builds
 --------------
 
-  - [Download](https://cirrus-ci.com/github/higan-emu/higan/master)
-  - ![Build status](https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=windows-x86_64-binaries)
-  - ![Build status](https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=macOS-x86_64-binaries)
-  - ![Build status](https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=linux-x86_64-binaries)
-  - ![Build status](https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=freebsd-x86_64-binaries)
+Automated, untested builds of higan and byuu are available
+for each supported operating system:
+
+<table>
+    <tr>
+        <th scope=row>Windows</th>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/windows-x86_64-binaries/higan-nightly/higan-nightly.zip">
+                higan
+            </a>
+        </td>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/windows-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
+                byuu
+            </a>
+        </td>
+        <td>
+            <img
+                src="https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=windows-x86_64-binaries"
+                alt="">
+        </td>
+    </tr>
+    <tr>
+        <th scope=row>Linux</th>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/linux-x86_64-binaries/higan-nightly/higan-nightly.zip">
+                higan
+            </a>
+        </td>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/linux-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
+                byuu
+            </a>
+        </td>
+        <td>
+            <img
+                src="https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=linux-x86_64-binaries"
+                alt="">
+        </td>
+    </tr>
+    <tr>
+        <th scope=row>macOS</th>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/macOS-x86_64-binaries/higan-nightly/higan-nightly.zip">
+                higan
+            </a>
+        </td>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/macOS-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
+                byuu
+            </a>
+        </td>
+        <td>
+            <img
+                src="https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=macOS-x86_64-binaries"
+                alt="">
+        </td>
+    </tr>
+    <tr>
+        <th scope=row>FreeBSD</th>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/freebsd-x86_64-binaries/higan-nightly/higan-nightly.zip">
+                higan
+            </a>
+        </td>
+        <td>
+            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/freebsd-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
+                byuu
+            </a>
+        </td>
+        <td>
+            <img
+                src="https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=freebsd-x86_64-binaries"
+                alt="">
+        </td>
+    </tr>
+</table>
 
 Preview
 -------

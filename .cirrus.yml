@@ -5,32 +5,47 @@ linux-x86_64-binaries_task:
   setup_script:
     - apt-get update && apt-get -y install build-essential curl libgtk2.0-dev libpulse-dev mesa-common-dev libgtksourceview2.0-dev libcairo2-dev libsdl2-dev libxv-dev libao-dev libopenal-dev libudev-dev zip
 
-  compile_script:
-    - make -C higan target=higan local=false
-    - make -C icarus
-    - make -C genius
-
-  package_script:
-    - mkdir higan-nightly
-    - cp -a higan/out/higan higan-nightly/higan
-    - cp -a higan/System higan-nightly
-    - cp -a icarus/out/icarus higan-nightly/icarus
-    - cp -a icarus/Database higan-nightly
-    - cp -a icarus/Firmware higan-nightly
-    - cp -a genius/out/genius higan-nightly/genius
-    - cp -a GPLv3.txt higan-nightly
-    - zip -r higan-nightly.zip higan-nightly
-
   matrix:
-    - only_if: $CIRRUS_RELEASE != ""
-      environment:
-        OS: linux-x86_64
-        GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
-      upload_script: ./.cirrus.upload.sh
-    - only_if: $CIRRUS_RELEASE == ""
+    - build_genius_script:
+        - make -C genius
 
-  higan-nightly_artifacts:
-    path: "higan-nightly.zip"
+    - build_higan_script:
+        - make -C higan target=higan profile=accuracy build=performance local=false
+        - make -C icarus
+
+      package_higan_script:
+        - mkdir higan-nightly
+        - cp -a higan/out/higan higan-nightly/higan
+        - cp -a higan/System higan-nightly
+        - cp -a icarus/out/icarus higan-nightly/icarus
+        - cp -a icarus/Database higan-nightly
+        - cp -a icarus/Firmware higan-nightly
+        - cp -a GPLv3.txt higan-nightly
+        - zip -r higan-nightly.zip higan-nightly
+
+      matrix:
+        - only_if: $CIRRUS_RELEASE != ""
+          environment:
+            OS: linux-x86_64
+            GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
+          upload_script: ./.cirrus.upload.sh
+        - only_if: $CIRRUS_RELEASE == ""
+
+      higan-nightly_artifacts:
+        path: "higan-nightly.zip"
+
+    - build_byuu_script:
+        - make -C higan target=byuu profile=performance build=performance local=false
+
+      package_byuu_script:
+        - mkdir byuu-nightly
+        - mkdir byuu-nightly/Firmware
+        - cp -a higan/out/byuu byuu-nightly/byuu
+        - cp -a GPLv3.txt byuu-nightly
+        - zip -r byuu-nightly.zip byuu-nightly
+
+      byuu-nightly_artifacts:
+        path: "byuu-nightly.zip"
 
 freebsd-x86_64-binaries_task:
   freebsd_instance:
@@ -39,32 +54,47 @@ freebsd-x86_64-binaries_task:
   setup_script:
     - pkg install --yes curl gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv zip
 
-  compile_script:
-    - gmake -C higan target=higan local=false
-    - gmake -C icarus
-    - gmake -C genius
-
-  package_script:
-    - mkdir higan-nightly
-    - cp -a higan/out/higan higan-nightly/higan
-    - cp -a higan/System higan-nightly
-    - cp -a icarus/out/icarus higan-nightly/icarus
-    - cp -a icarus/Database higan-nightly
-    - cp -a icarus/Firmware higan-nightly
-    - cp -a genius/out/genius higan-nightly/genius
-    - cp -a GPLv3.txt higan-nightly
-    - zip -r higan-nightly.zip higan-nightly
-
   matrix:
-    - only_if: $CIRRUS_RELEASE != ""
-      environment:
-        OS: freebsd-x86_64
-        GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
-      upload_script: ./.cirrus.upload.sh
-    - only_if: $CIRRUS_RELEASE == ""
+    - build_genius_script:
+        - gmake -C genius
 
-  higan-nightly_artifacts:
-    path: "higan-nightly.zip"
+    - build_higan_script:
+        - gmake -C higan target=higan profile=accuracy build=performance local=false
+        - gmake -C icarus
+
+      package_higan_script:
+        - mkdir higan-nightly
+        - cp -a higan/out/higan higan-nightly/higan
+        - cp -a higan/System higan-nightly
+        - cp -a icarus/out/icarus higan-nightly/icarus
+        - cp -a icarus/Database higan-nightly
+        - cp -a icarus/Firmware higan-nightly
+        - cp -a GPLv3.txt higan-nightly
+        - zip -r higan-nightly.zip higan-nightly
+
+      matrix:
+        - only_if: $CIRRUS_RELEASE != ""
+          environment:
+            OS: freebsd-x86_64
+            GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
+          upload_script: ./.cirrus.upload.sh
+        - only_if: $CIRRUS_RELEASE == ""
+
+      higan-nightly_artifacts:
+        path: "higan-nightly.zip"
+
+    - build_higan_script:
+        - gmake -C higan target=byuu profile=performance build=performance local=false
+
+      package_byuu_script:
+        - mkdir byuu-nightly
+        - mkdir byuu-nightly/Firmware
+        - cp -a higan/out/byuu byuu-nightly/byuu
+        - cp -a GPLv3.txt byuu-nightly
+        - zip -r byuu-nightly.zip byuu-nightly
+
+      byuu-nightly_artifacts:
+        path: "byuu-nightly.zip"
 
 windows-x86_64-binaries_task:
   container:
@@ -73,59 +103,87 @@ windows-x86_64-binaries_task:
   setup_script:
     - apt-get update && apt-get -y install build-essential curl mingw-w64 zip
 
-  compile_script:
-    - make -C higan target=higan local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
-    - make -C icarus platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
-
-  package_script:
-    - mkdir higan-nightly
-    - cp -a higan/out/higan higan-nightly/higan.exe
-    - cp -a icarus/out/icarus higan-nightly/icarus.exe
-    - cp -a higan/System higan-nightly/Templates
-    - mkdir higan-nightly/Systems
-    - cp -a icarus/Database higan-nightly
-    - cp -a icarus/Firmware higan-nightly
-    - cp -a GPLv3.txt higan-nightly
-    - echo "templates: ./Templates/" >> higan-nightly/paths.bml
-    - echo "data: ./Systems/" >> higan-nightly/paths.bml
-    - zip -r higan-nightly.zip higan-nightly
-
   matrix:
-    - only_if: $CIRRUS_RELEASE != ""
-      environment:
-        OS: windows-x86_64
-        GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
-      upload_script: ./.cirrus.upload.sh
-    - only_if: $CIRRUS_RELEASE == ""
+    - build_higan_script:
+        - make -C higan target=higan profile=accuracy build=performance local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
+        - make -C icarus platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
 
-  higan-nightly_artifacts:
-    path: "higan-nightly.zip"
+      package_higan_script:
+        - mkdir higan-nightly
+        - cp -a higan/out/higan higan-nightly/higan.exe
+        - cp -a icarus/out/icarus higan-nightly/icarus.exe
+        - cp -a higan/System higan-nightly/Templates
+        - mkdir higan-nightly/Systems
+        - cp -a icarus/Database higan-nightly
+        - cp -a icarus/Firmware higan-nightly
+        - cp -a GPLv3.txt higan-nightly
+        - echo "templates: ./Templates/" >> higan-nightly/paths.bml
+        - echo "data: ./Systems/" >> higan-nightly/paths.bml
+        - zip -r higan-nightly.zip higan-nightly
+
+      matrix:
+        - only_if: $CIRRUS_RELEASE != ""
+          environment:
+            OS: windows-x86_64
+            GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
+          upload_script: ./.cirrus.upload.sh
+        - only_if: $CIRRUS_RELEASE == ""
+
+      higan-nightly_artifacts:
+        path: "higan-nightly.zip"
+
+    - build_byuu_script:
+        - make -C higan target=byuu profile=performance build=performance local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
+
+      package_byuu_script:
+        - mkdir byuu-nightly
+        - mkdir byuu-nightly/Firmware
+        - cp -a higan/out/byuu byuu-nightly/byuu.exe
+        - cp -a GPLv3.txt byuu-nightly
+        - zip -r byuu-nightly.zip byuu-nightly
+
+      byuu-nightly_artifacts:
+        path: "byuu-nightly.zip"
 
 macOS-x86_64-binaries_task:
   osx_instance:
     image: mojave-base
 
-  compile_script:
-    - make -C higan target=higan local=false
-    - make -C icarus
-
-  package_script:
-    - mkdir higan-nightly
-    - cp -a higan/out/higan.app higan-nightly
-    - cp -a higan/System higan-nightly
-    - cp -a icarus/out/icarus.app higan-nightly
-    - cp -a icarus/Database higan-nightly
-    - cp -a icarus/Firmware higan-nightly
-    - cp -a GPLv3.txt higan-nightly
-    - zip -r higan-nightly.zip higan-nightly
-
   matrix:
-    - only_if: $CIRRUS_RELEASE != ""
-      environment:
-        OS: macOS-x86_64
-        GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
-      upload_script: ./.cirrus.upload.sh
-    - only_if: $CIRRUS_RELEASE == ""
+    - build_higan_script:
+        - make -C higan target=higan profile=accuracy build=performance local=false
+        - make -C icarus
 
-  higan-nightly_artifacts:
-    path: "higan-nightly.zip"
+      package_higan_script:
+        - mkdir higan-nightly
+        - cp -a higan/out/higan.app higan-nightly
+        - cp -a higan/System higan-nightly
+        - cp -a icarus/out/icarus.app higan-nightly
+        - cp -a icarus/Database higan-nightly
+        - cp -a icarus/Firmware higan-nightly
+        - cp -a GPLv3.txt higan-nightly
+        - zip -r higan-nightly.zip higan-nightly
+
+      matrix:
+        - only_if: $CIRRUS_RELEASE != ""
+          environment:
+            OS: macOS-x86_64
+            GITHUB_TOKEN: ENCRYPTED[7a134a5ab55ae4be1e91c44040969d89e5f4017e2d71f4f03fbde21e136085b6f366c33e0bbcc2d2c6d23914a149aa66]
+          upload_script: ./.cirrus.upload.sh
+        - only_if: $CIRRUS_RELEASE == ""
+
+      higan-nightly_artifacts:
+        path: "higan-nightly.zip"
+
+    - build_byuu_script:
+        - make -C higan target=byuu profile=performance build=performance local=false
+
+      package_byuu_script:
+        - mkdir byuu-nightly
+        - mkdir byuu-nightly/Firmware
+        - cp -a higan/out/byuu.app byuu-nightly
+        - cp -a GPLv3.txt byuu-nightly
+        - zip -r byuu-nightly.zip byuu-nightly
+
+      byuu-nightly_artifacts:
+        path: "byuu-nightly.zip"
