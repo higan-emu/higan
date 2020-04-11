@@ -21,6 +21,7 @@ linux-x86_64-binaries_task:
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
         - cp -a GPLv3.txt higan-nightly
+        - cp -a extras/higan/* higan-nightly
         - zip -r higan-nightly.zip higan-nightly
 
       matrix:
@@ -42,6 +43,7 @@ linux-x86_64-binaries_task:
         - mkdir byuu-nightly/Firmware
         - cp -a higan/out/byuu byuu-nightly/byuu
         - cp -a GPLv3.txt byuu-nightly
+        - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
 
       byuu-nightly_artifacts:
@@ -70,6 +72,7 @@ freebsd-x86_64-binaries_task:
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
         - cp -a GPLv3.txt higan-nightly
+        - cp -a extras/higan/* higan-nightly
         - zip -r higan-nightly.zip higan-nightly
 
       matrix:
@@ -91,6 +94,7 @@ freebsd-x86_64-binaries_task:
         - mkdir byuu-nightly/Firmware
         - cp -a higan/out/byuu byuu-nightly/byuu
         - cp -a GPLv3.txt byuu-nightly
+        - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
 
       byuu-nightly_artifacts:
@@ -117,8 +121,7 @@ windows-x86_64-binaries_task:
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
         - cp -a GPLv3.txt higan-nightly
-        - echo "templates: ./Templates/" >> higan-nightly/paths.bml
-        - echo "data: ./Systems/" >> higan-nightly/paths.bml
+        - cp -a extras/higan/* higan-nightly
         - zip -r higan-nightly.zip higan-nightly
 
       matrix:
@@ -140,6 +143,7 @@ windows-x86_64-binaries_task:
         - mkdir byuu-nightly/Firmware
         - cp -a higan/out/byuu byuu-nightly/byuu.exe
         - cp -a GPLv3.txt byuu-nightly
+        - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
 
       byuu-nightly_artifacts:
@@ -162,6 +166,7 @@ macOS-x86_64-binaries_task:
         - cp -a icarus/Database higan-nightly
         - cp -a icarus/Firmware higan-nightly
         - cp -a GPLv3.txt higan-nightly
+        - cp -a extras/higan/* higan-nightly
         - zip -r higan-nightly.zip higan-nightly
 
       matrix:
@@ -183,6 +188,7 @@ macOS-x86_64-binaries_task:
         - mkdir byuu-nightly/Firmware
         - cp -a higan/out/byuu.app byuu-nightly
         - cp -a GPLv3.txt byuu-nightly
+        - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
 
       byuu-nightly_artifacts:
