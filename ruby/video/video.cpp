@@ -383,9 +383,10 @@ auto Video::hasMonitors() -> vector<Monitor> {
     unsigned long size;
     unsigned long bytesAfter;
     unsigned char* data = nullptr;
+    Atom edid = XInternAtom(display, "EDID", False);
     auto property = XRRGetOutputProperty(
       display, resources->outputs[index],
-      XInternAtom(display, "EDID", 1), 0, 384,
+      edid, 0, 384,
       0, 0, 0, &actualType, &actualFormat, &size, &bytesAfter, &data
     );
     if(size >= 128) {
