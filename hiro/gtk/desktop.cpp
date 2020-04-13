@@ -25,13 +25,14 @@ auto pDesktop::workspace() -> Geometry {
   unsigned long items, after;
   XlibAtom returnAtom;
 
-  XlibAtom netWorkarea = XInternAtom(display, "_NET_WORKAREA", XlibTrue);
+  XlibAtom netWorkarea = XInternAtom(display, "_NET_WORKAREA", XlibFalse);
+  XlibAtom cardinal = XInternAtom(display, "CARDINAL", XlibFalse);
+
   int result = XGetWindowProperty(
     display, RootWindow(display, screen), netWorkarea, 0, 4, XlibFalse,
-    XInternAtom(display, "CARDINAL", XlibTrue), &returnAtom, &format, &items, &after, &data
+    cardinal, &returnAtom, &format, &items, &after, &data
   );
 
-  XlibAtom cardinal = XInternAtom(display, "CARDINAL", XlibTrue);
   if(result == Success && returnAtom == cardinal && format == 32 && items == 4) {
     unsigned long* workarea = (unsigned long*)data;
     XCloseDisplay(display);

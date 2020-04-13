@@ -44,8 +44,8 @@ struct VideoXVideo : VideoDriver {
   auto setBlocking(bool blocking) -> bool override {
     bool result = false;
     Display* display = XOpenDisplay(nullptr);
-    Atom atom = XInternAtom(display, "XV_SYNC_TO_VBLANK", true);
-    if(atom != None && _port >= 0) {
+    Atom atom = XInternAtom(display, "XV_SYNC_TO_VBLANK", false);
+    if(_port >= 0) {
       XvSetPortAttribute(display, _port, atom, self.blocking);
       result = true;
     }
@@ -229,8 +229,8 @@ private:
     for(auto n : range(attributeCount)) {
       if(string{attributeList[n].name} == "XV_AUTOPAINT_COLORKEY") {
         //set colorkey to auto paint, so that Xv video output is always visible
-        Atom atom = XInternAtom(_display, "XV_AUTOPAINT_COLORKEY", true);
-        if(atom != None) XvSetPortAttribute(_display, _port, atom, 1);
+        Atom atom = XInternAtom(_display, "XV_AUTOPAINT_COLORKEY", false);
+        XvSetPortAttribute(_display, _port, atom, 1);
       }
     }
     XFree(attributeList);
