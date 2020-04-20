@@ -1,0 +1,20 @@
+settings
+  persistence: 0.3333
+  red:   vec3(1,0,0)
+  green: vec3(0,1,0)
+  blue:  vec3(0,0,1)
+  gain: 1.0
+  gamma: 3.0
+  blacklevel: 0.05
+  ambient: 0.0
+//  BGR
+  coloremulation
+input
+  // Using linear with color emulation is not recommended.
+  // Colors are rounded down before being converted.
+  filter: nearest
+  history: 8
+  wrap: border
+program
+  filter: nearest
+  fragment: game-boy-advance.fs

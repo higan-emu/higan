@@ -1,0 +1,6 @@
+program
+  vertex: dots.vs
+  fragment: dots.fs
+
+history
+  frames: 7

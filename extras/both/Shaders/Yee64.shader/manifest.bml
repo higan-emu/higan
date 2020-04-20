@@ -1,0 +1,9 @@
+input
+  filter: nearest
+
+program
+  filter: nearest
+  fragment: yee64.fs
+  
+output
+  filter: linear

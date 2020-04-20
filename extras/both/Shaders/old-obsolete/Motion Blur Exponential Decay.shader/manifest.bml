@@ -1,0 +1,10 @@
+history
+  frames: 8
+  filter: nearest
+
+program
+  filter: nearest
+  fragment: motion-blur-exponential-decay.fs
+
+output
+  filter: linear

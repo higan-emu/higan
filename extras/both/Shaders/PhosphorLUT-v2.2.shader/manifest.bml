@@ -1,0 +1,12 @@
+program
+  filter: linear
+  fragment: gaussian-horiz.fs
+
+program
+  filter: linear
+  fragment: shadow-mask.fs
+  pixmap: miniLUT.png
+    wrap: repeat
+
+program
+  fragment: gamma.fs

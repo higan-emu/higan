@@ -1,0 +1,5 @@
+program
+  filter: linear
+  wrap: border
+  vertex: crt-simple.vs
+  fragment: crt-simple.fs

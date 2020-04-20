@@ -1,0 +1,85 @@
+settings
+//  cropOverscan
+//  noScanlines
+  tvVerticalResolution: 250.0
+    min: 20.0
+    max: 1000.0
+    step: 1.0  
+  signalResolution: 700.0
+    min: 20.0
+    max: 2000.0
+    step: 1.0
+//  combFilter
+  signalResolutionY: 200.0
+    min: 20.0
+    max: 500.0
+    step: 1.0
+  signalResolutionI: 125.0
+    min: 20.0
+    max: 350.0
+    step: 1.0
+  signalResolutionQ: 125.0
+    min: 20.0
+    max: 350.0
+    step: 1.0
+  blackLevel: 0.07
+    min: -0.30
+    max: 0.30
+    step: 0.0001  
+  contrast: 1.0
+    min: 0.0
+    max: 2.0
+    step: 0.1  
+  gamma: 1.0
+    min: 0.5
+    max: 1.5
+    step: 0.01  
+  phaseOffset: 0.0
+    min: -0.5
+    max: 0.5
+    step: 0.01  
+  addNoise
+  noiseStrengh: 0.0
+    min: 0.0
+    max: 1.0
+    step: 0.001  
+program
+  width: 800%
+  height: 100%
+  format: rgba32f
+  filter: nearest
+  wrap: edge
+  modulo: 32
+  vertex: DAC.vs
+  fragment: DAC.fs
+program
+  width: 100%
+  height: 100%
+  format: rgba32f
+  filter: nearest
+  wrap: edge
+  fragment: lowPass.fs
+program
+  width: 100%
+  height: 100%
+  format: rgba32f
+  filter: nearest
+  wrap: edge
+  vertex: combFilter.vs
+  fragment: combFilter.fs
+program
+  height: 100%
+  format: rgba32f
+  filter: nearest
+  wrap: border
+  vertex: scaleX.vs
+  fragment: scaleX.fs
+program
+  format: rgba32f
+  filter: nearest
+  wrap: edge
+  vertex: scaleY.vs
+  fragment: scaleY.fs
+input
+  filter: nearest
+  format: rgba32f

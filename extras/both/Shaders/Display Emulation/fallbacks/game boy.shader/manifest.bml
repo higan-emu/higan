@@ -1,0 +1,11 @@
+settings
+  // Color emulation: green, yellow
+  palette: green
+input
+  // Using linear with a color emulation palette is not recommended.
+  // Colors are rounded up before being converted, making a display that
+  // resembles 2xSaI or HQ#x.
+  filter: nearest
+  wrap: border
+program
+  fragment: game-boy.fs

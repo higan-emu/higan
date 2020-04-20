@@ -1,0 +1,7 @@
+settings
+  coloremulation
+input
+  filter: linear
+  wrap: border
+program
+  fragment: game-boy-color.fs

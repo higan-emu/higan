@@ -1,0 +1,11 @@
+program
+  modulo: 2
+  fragment: cmyk-dot.fs
+  
+program
+  fragment: gamma.fs
+
+output
+  filter: nearest
+
+

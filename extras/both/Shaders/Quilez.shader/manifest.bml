@@ -1,0 +1,10 @@
+program
+  format: rgba16f
+  filter: linear
+  wrap: edge
+  fragment: quilez.fs
+
+output
+  width: 100%
+  height: 100%
+  filter: linear

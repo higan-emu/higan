@@ -1,0 +1,9 @@
+settings
+  coloremulation
+input
+  // Using linear with color emulation is not recommended.
+  // Colors are rounded down before being converted.
+  filter: nearest
+  wrap: border
+program
+  fragment: game-boy-advance.fs
