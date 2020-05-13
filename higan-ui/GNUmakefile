@@ -83,7 +83,7 @@ else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/share/$(name)/
 	cp $(output.path)/$(name) $(prefix)/bin/$(name)
 	cp -R $(higan.path)/System/* $(prefix)/share/$(name)/
-	cp resource/$(name).desktop $(prefix)/share/applications/$(name).desktop
+	sed "/^Exec/s:$(name):$(prefix)/bin/$(name):" resource/$(name).desktop >$(prefix)/share/applications/$(name).desktop
 	cp resource/$(name).png $(prefix)/share/icons/$(name).png
 endif
 
