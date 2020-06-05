@@ -163,82 +163,82 @@ struct Session {
         auto& track = tracks[trackID];
         if(!track) continue;
         auto q = toQ(lba);
-        q[0] = track.control << 4 | track.address << 0;
-        q[1] = 0x00;
-        q[2] = BCD::encode(trackID);
+        q[0u] = track.control << 4 | track.address << 0;
+        q[1u] = 0x00;
+        q[2u] = BCD::encode(trackID);
         auto msf = MSF(lba);
-        q[3] = BCD::encode(msf.minute);
-        q[4] = BCD::encode(msf.second);
-        q[5] = BCD::encode(msf.frame);
-        q[6] = 0x00;
+        q[3u] = BCD::encode(msf.minute);
+        q[4u] = BCD::encode(msf.second);
+        q[5u] = BCD::encode(msf.frame);
+        q[6u] = 0x00;
         msf = MSF(track.indices[1].lba);
-        q[7] = BCD::encode(msf.minute);
-        q[8] = BCD::encode(msf.second);
-        q[9] = BCD::encode(msf.frame);
+        q[7u] = BCD::encode(msf.minute);
+        q[8u] = BCD::encode(msf.second);
+        q[9u] = BCD::encode(msf.frame);
         auto crc16 = CRC16({q, 10});
-        q[10] = crc16 >> 8;
-        q[11] = crc16 >> 0;
+        q[10u] = crc16 >> 8;
+        q[11u] = crc16 >> 0;
         if(++lba >= 0) break;
       }}if(  lba >= 0) break;
 
       //first track
       for(uint repeat : range(3)) {
         auto q = toQ(lba);
-        q[0] = 0x01;  //control value unverified; address = 1
-        q[1] = 0x00;  //track# = 00 (TOC)
-        q[2] = 0xa0;  //first track
+        q[0u] = 0x01;  //control value unverified; address = 1
+        q[1u] = 0x00;  //track# = 00 (TOC)
+        q[2u] = 0xa0;  //first track
         auto msf = MSF(lba);
-        q[3] = BCD::encode(msf.minute);
-        q[4] = BCD::encode(msf.second);
-        q[5] = BCD::encode(msf.frame);
-        q[6] = 0x00;
-        q[7] = BCD::encode(firstTrack);
-        q[8] = 0x00;
-        q[9] = 0x00;
+        q[3u] = BCD::encode(msf.minute);
+        q[4u] = BCD::encode(msf.second);
+        q[5u] = BCD::encode(msf.frame);
+        q[6u] = 0x00;
+        q[7u] = BCD::encode(firstTrack);
+        q[8u] = 0x00;
+        q[9u] = 0x00;
         auto crc16 = CRC16({q, 10});
-        q[10] = crc16 >> 8;
-        q[11] = crc16 >> 0;
+        q[10u] = crc16 >> 8;
+        q[11u] = crc16 >> 0;
         if(++lba >= 0) break;
       } if(  lba >= 0) break;
 
       //last track
       for(uint repeat : range(3)) {
         auto q = toQ(lba);
-        q[0] = 0x01;
-        q[1] = 0x00;
-        q[2] = 0xa1;  //last track
+        q[0u] = 0x01;
+        q[1u] = 0x00;
+        q[2u] = 0xa1;  //last track
         auto msf = MSF(lba);
-        q[3] = BCD::encode(msf.minute);
-        q[4] = BCD::encode(msf.second);
-        q[5] = BCD::encode(msf.frame);
-        q[6] = 0x00;
-        q[7] = BCD::encode(lastTrack);
-        q[8] = 0x00;
-        q[9] = 0x00;
+        q[3u] = BCD::encode(msf.minute);
+        q[4u] = BCD::encode(msf.second);
+        q[5u] = BCD::encode(msf.frame);
+        q[6u] = 0x00;
+        q[7u] = BCD::encode(lastTrack);
+        q[8u] = 0x00;
+        q[9u] = 0x00;
         auto crc16 = CRC16({q, 10});
-        q[10] = crc16 >> 8;
-        q[11] = crc16 >> 0;
+        q[10u] = crc16 >> 8;
+        q[11u] = crc16 >> 0;
         if(++lba >= 0) break;
       } if(  lba >= 0) break;
 
       //lead-out point
       for(uint repeat : range(3)) {
         auto q = toQ(lba);
-        q[0] = 0x01;
-        q[1] = 0x00;
-        q[2] = 0xa2;  //lead-out point
+        q[0u] = 0x01;
+        q[1u] = 0x00;
+        q[2u] = 0xa2;  //lead-out point
         auto msf = MSF(lba);
-        q[3] = BCD::encode(msf.minute);
-        q[4] = BCD::encode(msf.second);
-        q[5] = BCD::encode(msf.frame);
-        q[6] = 0x00;
+        q[3u] = BCD::encode(msf.minute);
+        q[4u] = BCD::encode(msf.second);
+        q[5u] = BCD::encode(msf.frame);
+        q[6u] = 0x00;
         msf = MSF(leadOut.lba);
-        q[7] = BCD::encode(msf.minute);
-        q[8] = BCD::encode(msf.second);
-        q[9] = BCD::encode(msf.frame);
+        q[7u] = BCD::encode(msf.minute);
+        q[8u] = BCD::encode(msf.second);
+        q[9u] = BCD::encode(msf.frame);
         auto crc16 = CRC16({q, 10});
-        q[10] = crc16 >> 8;
-        q[11] = crc16 >> 0;
+        q[10u] = crc16 >> 8;
+        q[11u] = crc16 >> 0;
         if(++lba >= 0) break;
       } if(  lba >= 0) break;
     }
@@ -260,21 +260,21 @@ struct Session {
           for(uint index : range(12)) p[index] = byte;
 
           auto q = toQ(lba);
-          q[0] = track.control << 4 | track.address << 0;
-          q[1] = BCD::encode(trackID);
-          q[2] = BCD::encode(indexID);
+          q[0u] = track.control << 4 | track.address << 0;
+          q[1u] = BCD::encode(trackID);
+          q[2u] = BCD::encode(indexID);
           auto msf = MSF(lba - track.indices[1].lba);
-          q[3] = BCD::encode(msf.minute);
-          q[4] = BCD::encode(msf.second);
-          q[5] = BCD::encode(msf.frame);
-          q[6] = 0x00;
+          q[3u] = BCD::encode(msf.minute);
+          q[4u] = BCD::encode(msf.second);
+          q[5u] = BCD::encode(msf.frame);
+          q[6u] = 0x00;
           msf = MSF(lba);
-          q[7] = BCD::encode(msf.minute);
-          q[8] = BCD::encode(msf.second);
-          q[9] = BCD::encode(msf.frame);
+          q[7u] = BCD::encode(msf.minute);
+          q[8u] = BCD::encode(msf.second);
+          q[9u] = BCD::encode(msf.frame);
           auto crc16 = CRC16({q, 10});
-          q[10] = crc16 >> 8;
-          q[11] = crc16 >> 0;
+          q[10u] = crc16 >> 8;
+          q[11u] = crc16 >> 0;
         }
 
         end = index.lba;
@@ -295,21 +295,21 @@ struct Session {
       for(uint index : range(12)) p[index] = byte;
 
       auto q = toQ(leadOut.lba + lba);
-      q[0] = 0x01;
-      q[1] = 0xaa;  //lead-out track#
-      q[2] = 0x01;  //lead-out index#
+      q[0u] = 0x01;
+      q[1u] = 0xaa;  //lead-out track#
+      q[2u] = 0x01;  //lead-out index#
       auto msf = MSF(lba);
-      q[3] = BCD::encode(msf.minute);
-      q[4] = BCD::encode(msf.second);
-      q[5] = BCD::encode(msf.frame);
-      q[6] = 0x00;
+      q[3u] = BCD::encode(msf.minute);
+      q[4u] = BCD::encode(msf.second);
+      q[5u] = BCD::encode(msf.frame);
+      q[6u] = 0x00;
       msf = MSF(leadOut.lba + lba);
-      q[7] = BCD::encode(msf.minute);
-      q[8] = BCD::encode(msf.second);
-      q[9] = BCD::encode(msf.frame);
+      q[7u] = BCD::encode(msf.minute);
+      q[8u] = BCD::encode(msf.second);
+      q[9u] = BCD::encode(msf.frame);
       auto crc16 = CRC16({q, 10});
-      q[10] = crc16 >> 8;
-      q[11] = crc16 >> 0;
+      q[10u] = crc16 >> 8;
+      q[11u] = crc16 >> 0;
     }
 
     data.resize(data.size() - 96);  //remove padding for P shift
@@ -329,16 +329,16 @@ struct Session {
       if(offset + 12 > data.size()) break;
       auto q = array_view<uint8_t>{&data[offset], 12};
       auto crc16 = CRC16({q, 10});
-      if(q[10] != uint8_t(crc16 >> 8)) continue;
-      if(q[11] != uint8_t(crc16 >> 0)) continue;
+      if(q[10u] != uint8_t(crc16 >> 8)) continue;
+      if(q[11u] != uint8_t(crc16 >> 0)) continue;
 
-      uint8_t control = q[0] >> 4;
-      uint8_t address = q[0] & 15;
-      uint8_t trackID = q[1];
+      uint8_t control = q[0u] >> 4;
+      uint8_t address = q[0u] & 15;
+      uint8_t trackID = q[1u];
       if(address != 1) continue;
       if(trackID != 0) continue;
 
-      auto msf = MSF::fromBCD(q[3], q[4], q[5]);
+      auto msf = MSF::fromBCD(q[3u], q[4u], q[5u]);
       leadIn.lba = msf.toLBA() - lba;
       break;
     }
@@ -357,34 +357,34 @@ struct Session {
       auto q = toQ(lba);
       if(!q) break;
       auto crc16 = CRC16({q, 10});
-      if(q[10] != uint8_t(crc16 >> 8)) continue;
-      if(q[11] != uint8_t(crc16 >> 0)) continue;
+      if(q[10u] != uint8_t(crc16 >> 8)) continue;
+      if(q[11u] != uint8_t(crc16 >> 0)) continue;
 
-      uint8_t control = q[0] >> 4;
-      uint8_t address = q[0] & 15;
-      uint8_t trackID = q[1];
+      uint8_t control = q[0u] >> 4;
+      uint8_t address = q[0u] & 15;
+      uint8_t trackID = q[1u];
       if(address != 1) continue;
       if(trackID != 0) continue;
 
-      trackID = BCD::decode(q[2]);
+      trackID = BCD::decode(q[2u]);
 
       if(trackID <=  99) {  //00-99
         auto& track = tracks[trackID];
         track.control = control;
         track.address = address;
-        track.indices[1].lba = MSF::fromBCD(q[7], q[8], q[9]).toLBA();
+        track.indices[1].lba = MSF::fromBCD(q[7u], q[8u], q[9u]).toLBA();
       }
 
       if(trackID == 100) {  //a0
-        firstTrack = BCD::decode(q[7]);
+        firstTrack = BCD::decode(q[7u]);
       }
 
       if(trackID == 101) {  //a1
-        lastTrack = BCD::decode(q[7]);
+        lastTrack = BCD::decode(q[7u]);
       }
 
       if(trackID == 102) {  //a2
-        leadOut.lba = MSF::fromBCD(q[7], q[8], q[9]).toLBA();
+        leadOut.lba = MSF::fromBCD(q[7u], q[8u], q[9u]).toLBA();
       }
     }
     if(leadOut.lba == InvalidLBA) return false;
@@ -394,13 +394,13 @@ struct Session {
       auto q = toQ(lba);
       if(!q) break;
       auto crc16 = CRC16({q, 10});
-      if(q[10] != uint8_t(crc16 >> 8)) continue;
-      if(q[11] != uint8_t(crc16 >> 0)) continue;
+      if(q[10u] != uint8_t(crc16 >> 8)) continue;
+      if(q[11u] != uint8_t(crc16 >> 0)) continue;
 
-      uint8_t control = q[0] >> 4;
-      uint8_t address = q[0] & 15;
-      uint8_t trackID = BCD::decode(q[1]);
-      uint8_t indexID = BCD::decode(q[2]);
+      uint8_t control = q[0u] >> 4;
+      uint8_t address = q[0u] & 15;
+      uint8_t trackID = BCD::decode(q[1u]);
+      uint8_t indexID = BCD::decode(q[2u]);
       if(address != 1) continue;
       if(trackID > 99) continue;
       if(indexID > 99) continue;
@@ -410,7 +410,7 @@ struct Session {
       auto& index = track.indices[indexID];
       if(index) continue;   //index already decoded?
 
-      index.lba = MSF::fromBCD(q[7], q[8], q[9]).toLBA();
+      index.lba = MSF::fromBCD(q[7u], q[8u], q[9u]).toLBA();
     }
 
     synchronize(leadOutSectors);
