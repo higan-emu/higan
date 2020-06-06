@@ -29,10 +29,10 @@ inline auto create(array_view<uint8_t> input) -> uint32_t {
 inline auto create(array_view<uint8_t> input, array_span<uint8_t> output) -> bool {
   if(output.size() != 4) return false;
   auto sum = create(input);
-  output[0] = sum >>  0;
-  output[1] = sum >>  8;
-  output[2] = sum >> 16;
-  output[3] = sum >> 24;
+  output[0u] = sum >>  0;
+  output[1u] = sum >>  8;
+  output[2u] = sum >> 16;
+  output[3u] = sum >> 24;
   return true;
 }
 
@@ -50,10 +50,10 @@ inline auto verify(array_view<uint8_t> input, uint32_t edc) -> bool {
 inline auto verify(array_view<uint8_t> input, array_view<uint8_t> compare) -> bool {
   if(compare.size() != 4) return false;
   auto sum = create(input);
-  if(compare[0] != uint8_t(sum >>  0)) return false;
-  if(compare[1] != uint8_t(sum >>  8)) return false;
-  if(compare[2] != uint8_t(sum >> 16)) return false;
-  if(compare[3] != uint8_t(sum >> 24)) return false;
+  if(compare[0u] != uint8_t(sum >>  0)) return false;
+  if(compare[1u] != uint8_t(sum >>  8)) return false;
+  if(compare[2u] != uint8_t(sum >> 16)) return false;
+  if(compare[3u] != uint8_t(sum >> 24)) return false;
   return true;
 }
 
