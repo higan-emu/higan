@@ -114,8 +114,8 @@ windows-x86_64-binaries_task:
 
       package_higan_script:
         - mkdir higan-nightly
-        - cp -a higan/out/higan higan-nightly/higan.exe
-        - cp -a icarus/out/icarus higan-nightly/icarus.exe
+        - cp -a higan/out/higan.exe higan-nightly/higan.exe
+        - cp -a icarus/out/icarus.exe higan-nightly/icarus.exe
         - cp -a higan/System higan-nightly/Templates
         - mkdir higan-nightly/Systems
         - cp -a icarus/Database higan-nightly
@@ -141,7 +141,7 @@ windows-x86_64-binaries_task:
       package_byuu_script:
         - mkdir byuu-nightly
         - mkdir byuu-nightly/Firmware
-        - cp -a higan/out/byuu byuu-nightly/byuu.exe
+        - cp -a higan/out/byuu.exe byuu-nightly/byuu.exe
         - cp -a GPLv3.txt byuu-nightly
         - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
