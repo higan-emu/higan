@@ -30,6 +30,16 @@
     emit.qword(ps.data);
   }
 
+  auto mov(moff64 pt, reg64 rs) {
+    if(unlikely(pt.base != rsp)) throw;
+    if(unlikely(rs != rax)) throw;
+    emit.rex(1, 0, 0, 0);
+    emit.byte(0x89);
+    emit.modrm(2, 0, 4);
+    emit.sib(0, 4, 4);
+    emit.dword(u32{pt.offset});
+  }
+
   auto ret() { emit.byte(0xc3); }
 
   #define op(code) \

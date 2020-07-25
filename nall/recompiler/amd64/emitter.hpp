@@ -38,6 +38,10 @@ struct emitter {
     byte(mod << 6 | reg << 3 | rm << 0);
   }
 
+  auto sib(u8 scale, u8 index, u8 base) {
+    byte(scale << 6 | index << 3 | base << 0);
+  }
+
   array_span<u8> span, origin;
 } emit;
 
