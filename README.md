@@ -1,7 +1,7 @@
 higan
 =====
 
-![higan logo](https://byuu.org/images/higan/github/byuu-higan-logo.png)
+![higan logo](higan/target-higan/resource/logo.png)
 
 higan is a multi-system emulator, originally developed by
 [byuu](https://byuu.org/about), with an uncompromising focus on accuracy and
