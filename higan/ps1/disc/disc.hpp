@@ -14,6 +14,7 @@ struct Disc : Thread {
   //disc.cpp
   auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto empty() const -> bool { return name() == ""; };
 
   auto allocate(Node::Port) -> Node::Peripheral;
   auto connect() -> void;

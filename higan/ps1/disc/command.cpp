@@ -359,7 +359,21 @@ auto Disc::commandGetID() -> void {
   }
 
   if(event.invocation == 1) {
-    if(region() == "NTSC-J") {
+    if (empty()) {
+      ssr.idError = 1;
+
+      fifo.response.flush();
+      fifo.response.write(status());
+      fifo.response.write(0x40);
+      fifo.response.write(0x00);
+      fifo.response.write(0x00);
+      fifo.response.write(0x00);
+      fifo.response.write(0x00);
+      fifo.response.write(0x00);
+      fifo.response.write(0x00);
+
+      irq.error.flag = 1;
+    } else if(region() == "NTSC-J") {
       ssr.idError = 0;
 
       fifo.response.flush();
