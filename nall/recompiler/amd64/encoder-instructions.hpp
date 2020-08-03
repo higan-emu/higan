@@ -99,6 +99,7 @@
   auto sub (reg64 rt, reg64 rs) { op(0x29); }
   auto test(reg64 rt, reg64 rs) { op(0x85); }
   auto xor (reg64 rt, reg64 rs) { op(0x31); }
+  #undef op
 
   #define op(code, reg) \
     auto _rt = (uint)rt; \
