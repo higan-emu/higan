@@ -2,7 +2,8 @@
 
 namespace higan::GameBoy {
 
-Cartridge cartridge;
+Cartridge& cartridge = cartridgeSlot.cartridge;
+#include "slot.cpp"
 #include "io.cpp"
 #include "serialization.cpp"
 #include "mbc0/mbc0.cpp"
@@ -18,23 +19,11 @@ Cartridge cartridge;
 #include "huc3/huc3.cpp"
 #include "tama/tama.cpp"
 
-auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
-  port->setFamily(!Model::GameBoyColor() ? "Game Boy" : "Game Boy Color");
-  port->setType("Cartridge");
-  port->setAllocate([&] { return Node::Peripheral::create(port->family()); });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
+auto Cartridge::allocate(Node::Port parent) -> Node::Peripheral {
+  return node = parent->append<Node::Peripheral>(parent->family());
 }
 
-auto Cartridge::unload() -> void {
-  disconnect();
-  port = {};
-}
-
-auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, port->family());
+auto Cartridge::connect() -> void {
   node->setManifest([&] { return information.manifest; });
 
   information = {};
@@ -94,7 +83,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
     }
   }
 
-  mapper->load(node, with);
+  mapper->load(node);
   mapper->load(document);
 
   power();

@@ -5,35 +5,30 @@ namespace higan::Famicom {
 CPU cpu;
 #include "memory.cpp"
 #include "timing.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "CPU");
-  from = Node::scan(parent = node, from);
+auto CPU::load(Node::Object parent) -> void {
+  ram.allocate(2_KiB);
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
-  eventInstruction->setAddressBits(16);
-//eventInstruction->setEnabled(true);
+  node = parent->append<Node::Component>("CPU");
 
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
-//eventInterrupt->setEnabled(true);
+  debugger.load(node);
 }
 
 auto CPU::unload() -> void {
-  eventInstruction = {};
-  eventInterrupt = {};
+  ram.reset();
+  debugger = {};
   node = {};
 }
 
 auto CPU::main() -> void {
   if(io.interruptPending) {
-    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
+    debugger.interrupt("IRQ");
     return interrupt();
   }
 
-  if(eventInstruction->enabled() && eventInstruction->address(r.pc)) {
-    eventInstruction->notify(disassembleInstruction(), disassembleContext());
-  }
+  debugger.instruction();
   instruction();
 }
 
@@ -53,8 +48,8 @@ auto CPU::power(bool reset) -> void {
   ram[0x00a] = 0xdf;
   ram[0x00f] = 0xbf;
 
-  r.pc.byte(0) = bus.read(0xfffc);
-  r.pc.byte(1) = bus.read(0xfffd);
+  r.pc.byte(0) = readBus(0xfffc);
+  r.pc.byte(1) = readBus(0xfffd);
 
   io = {};
 }

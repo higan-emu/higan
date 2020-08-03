@@ -1,16 +1,15 @@
 struct ExpansionPort {
   Node::Port port;
+  unique_pointer<Expansion> device;
 
-  ExpansionPort(string_view name);
-  auto load(Node::Object parent, Node::Object from) -> void;
+  ExpansionPort(string name);
+  auto load(Node::Object parent) -> void;
   auto unload() -> void;
-  auto connect(Node::Peripheral) -> void;
-  auto disconnect() -> void;
+  auto allocate(string name) -> Node::Peripheral;
 
   auto serialize(serializer&) -> void;
 
   const string name;
-  unique_pointer<Expansion> device;
 };
 
 extern ExpansionPort expansionPort;

@@ -1,14 +1,14 @@
-components += arm7tdmi
+higan.components += arm7tdmi
 
-objects += gba-memory gba-interface gba-system
-objects += gba-cartridge gba-player
-objects += gba-cpu gba-ppu gba-apu
+higan.objects += higan-gba-memory higan-gba-interface higan-gba-system
+higan.objects += higan-gba-cartridge higan-gba-player
+higan.objects += higan-gba-cpu higan-gba-ppu higan-gba-apu
 
-obj/gba-memory.o:    gba/memory/memory.cpp
-obj/gba-interface.o: gba/interface/interface.cpp
-obj/gba-system.o:    gba/system/system.cpp
-obj/gba-cartridge.o: gba/cartridge/cartridge.cpp
-obj/gba-player.o:    gba/player/player.cpp
-obj/gba-cpu.o:       gba/cpu/cpu.cpp
-obj/gba-ppu.o:       gba/ppu/ppu.cpp
-obj/gba-apu.o:       gba/apu/apu.cpp
+$(object.path)/higan-gba-memory.o:    $(higan.path)/gba/memory/memory.cpp
+$(object.path)/higan-gba-interface.o: $(higan.path)/gba/interface/interface.cpp
+$(object.path)/higan-gba-system.o:    $(higan.path)/gba/system/system.cpp
+$(object.path)/higan-gba-cartridge.o: $(higan.path)/gba/cartridge/cartridge.cpp
+$(object.path)/higan-gba-player.o:    $(higan.path)/gba/player/player.cpp
+$(object.path)/higan-gba-cpu.o:       $(higan.path)/gba/cpu/cpu.cpp
+$(object.path)/higan-gba-ppu.o:       $(higan.path)/gba/ppu/ppu.cpp
+$(object.path)/higan-gba-apu.o:       $(higan.path)/gba/apu/apu.cpp

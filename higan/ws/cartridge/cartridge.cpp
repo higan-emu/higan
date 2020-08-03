@@ -2,48 +2,20 @@
 
 namespace higan::WonderSwan {
 
-Cartridge cartridge;
+Cartridge& cartridge = cartridgeSlot.cartridge;
+#include "slot.cpp"
 #include "memory.cpp"
 #include "rtc.cpp"
 #include "io.cpp"
 #include "serialization.cpp"
 
-auto Cartridge::main() -> void {
-  if(rtc.data) {
-    rtcTickSecond();
-    rtcCheckAlarm();
-  }
-  step(3'072'000);
-}
-
-auto Cartridge::step(uint clocks) -> void {
-  Thread::step(clocks);
-  synchronize(cpu);
-}
-
-auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
-  port->setFamily(interface->name());
-  port->setType("Cartridge");
-  port->setAllocate([&] {
-    if(Model::SwanCrystal()) return Node::Peripheral::create("WonderSwan Color");
-    return Node::Peripheral::create(interface->name());
-  });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
-}
-
-auto Cartridge::unload() -> void {
-  disconnect();
-  port = {};
-}
-
-auto Cartridge::connect(Node::Peripheral with) -> void {
+auto Cartridge::allocate(Node::Port parent) -> Node::Peripheral {
   string name = interface->name();
   if(Model::SwanCrystal()) name = "WonderSwan Color";
+  return node = parent->append<Node::Peripheral>(name);
+}
 
-  node = Node::append<Node::Peripheral>(port, with, name);
+auto Cartridge::connect() -> void {
   node->setManifest([&] { return information.manifest; });
 
   information = {};
@@ -53,7 +25,7 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   }
 
   auto document = BML::unserialize(information.manifest);
-  information.name = document["game/label"].text();
+  information.name = document["game/label"].string();
 
   if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
     rom.size = memory["size"].natural();
@@ -96,8 +68,8 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
     }
   }
 
-  if(document["game/orientation"].text() == "horizontal") information.orientation = "Horizontal";
-  if(document["game/orientation"].text() == "vertical"  ) information.orientation = "Vertical";
+  if(document["game/orientation"].string() == "horizontal") information.orientation = "Horizontal";
+  if(document["game/orientation"].string() == "vertical"  ) information.orientation = "Vertical";
 
   power();
 }
@@ -148,6 +120,19 @@ auto Cartridge::save() -> void {
       }
     }
   }
+}
+
+auto Cartridge::main() -> void {
+  if(rtc.data) {
+    rtcTickSecond();
+    rtcCheckAlarm();
+  }
+  step(3'072'000);
+}
+
+auto Cartridge::step(uint clocks) -> void {
+  Thread::step(clocks);
+  synchronize(cpu);
 }
 
 auto Cartridge::power() -> void {

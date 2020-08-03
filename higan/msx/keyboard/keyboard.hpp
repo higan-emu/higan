@@ -3,8 +3,11 @@ struct Keyboard {
   Node::Peripheral layout;
 
   //keyboard.cpp
-  auto load(Node::Object, Node::Object) -> void;
-  auto connect(Node::Peripheral) -> void;
+  auto load(Node::Object) -> void;
+  auto unload() -> void;
+
+  auto allocate(Node::Port, string) -> Node::Peripheral;
+  auto connect() -> void;
   auto disconnect() -> void;
 
   auto power() -> void;

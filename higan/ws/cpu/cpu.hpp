@@ -1,6 +1,21 @@
 struct CPU : V30MZ, Thread, IO {
   Node::Component node;
-  Node::Instruction eventInstruction;
+
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view) -> void;
+
+    struct Memory {
+      Node::Memory ram;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;
+    } tracer;
+  } debugger;
 
   enum class Interrupt : uint {
     SerialSend,
@@ -14,7 +29,7 @@ struct CPU : V30MZ, Thread, IO {
   };
 
   //cpu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;

@@ -4,12 +4,24 @@ struct PPU : Thread, IO {
   Node::Boolean colorEmulation;
   Node::Boolean interframeBlending;
   Node::String rotation;
+  Memory::Writable<uint8> vram;  //96KB
+  Memory::Writable<uint16> pram;
 
-  inline auto blank() -> bool;
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+
+    struct Memory {
+      Node::Memory vram;
+      Node::Memory pram;
+    } memory;
+  } debugger;
 
   //ppu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+
+  auto blank() -> bool;
 
   auto step(uint clocks) -> void;
   auto main() -> void;
@@ -40,8 +52,6 @@ struct PPU : Thread, IO {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
-   uint8 vram[96_KiB];
-  uint16 pram[512];
   uint32 output[240 * 160];
 
 private:

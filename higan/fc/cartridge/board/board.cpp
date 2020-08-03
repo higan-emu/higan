@@ -1,5 +1,6 @@
+namespace Board {
+
 #include "bandai-fcg.cpp"
-#include "hvc-fmr.cpp"
 #include "konami-vrc1.cpp"
 #include "konami-vrc2.cpp"
 #include "konami-vrc3.cpp"
@@ -7,143 +8,129 @@
 #include "konami-vrc5.cpp"
 #include "konami-vrc6.cpp"
 #include "konami-vrc7.cpp"
-#include "nes-axrom.cpp"
-#include "nes-bnrom.cpp"
-#include "nes-cnrom.cpp"
-#include "nes-exrom.cpp"
-#include "nes-fxrom.cpp"
-#include "nes-gxrom.cpp"
-#include "nes-hkrom.cpp"
-#include "nes-nrom.cpp"
-#include "nes-pxrom.cpp"
-#include "nes-sxrom.cpp"
-#include "nes-txrom.cpp"
-#include "nes-uxrom.cpp"
+#include "hvc-axrom.cpp"
+#include "hvc-bnrom.cpp"
+#include "hvc-cnrom.cpp"
+#include "hvc-exrom.cpp"
+#include "hvc-fmr.cpp"
+#include "hvc-fxrom.cpp"
+#include "hvc-gxrom.cpp"
+#include "hvc-hkrom.cpp"
+#include "hvc-nrom.cpp"
+#include "hvc-pxrom.cpp"
+#include "hvc-sxrom.cpp"
+#include "hvc-txrom.cpp"
+#include "hvc-uxrom.cpp"
 #include "sunsoft-5b.cpp"
 
-Board::Board(Markup::Node document) {
+Interface::Interface(Markup::Node document) {
   cartridge.board = this;
   information.type = document["game/board"].text();
 }
 
-auto Board::load() -> void {
+auto Interface::load() -> void {
   auto document = BML::unserialize(cartridge.manifest());
-
-  if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
-    if(prgrom.size = memory["size"].natural()) prgrom.data = new uint8_t[prgrom.size]();
-    if(auto fp = platform->open(cartridge.node, "program.rom", File::Read, File::Required)) {
-      fp->read(prgrom.data, min(prgrom.size, fp->size()));
-    }
-  }
-
-  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
-    if(prgram.size = memory["size"].natural()) prgram.data = new uint8_t[prgram.size](), prgram.writable = true;
-    if(!memory["volatile"]) {
-      if(auto fp = platform->open(cartridge.node, "save.ram", File::Read)) {
-        fp->read(prgram.data, min(prgram.size, fp->size()));
-      }
-    }
-  }
-
-  if(auto memory = document["game/board/memory(type=ROM,content=Character)"]) {
-    if(chrrom.size = memory["size"].natural()) chrrom.data = new uint8_t[chrrom.size]();
-    if(auto fp = platform->open(cartridge.node, "character.rom", File::Read, File::Required)) {
-      fp->read(chrrom.data, min(chrrom.size, fp->size()));
-    }
-  }
-
-  if(auto memory = document["game/board/memory(type=RAM,content=Character)"]) {
-    if(chrram.size = memory["size"].natural()) chrram.data = new uint8_t[chrram.size](), chrram.writable = true;
-    if(!memory["volatile"]) {
-      if(auto fp = platform->open(cartridge.node, "character.ram", File::Read)) {
-        fp->read(chrram.data, min(chrram.size, fp->size()));
-      }
-    }
-  }
+  load(document);
 }
 
-auto Board::save() -> void {
+auto Interface::save() -> void {
   auto document = BML::unserialize(cartridge.manifest());
-
-  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
-    if(!memory["volatile"]) {
-      if(auto fp = platform->open(cartridge.node, "save.ram", File::Write)) {
-        fp->write(prgram.data, prgram.size);
-      }
-    }
-  }
-
-  if(auto memory = document["game/board/memory(type=RAM,content=Character)"]) {
-    if(!memory["volatile"]) {
-      if(auto fp = platform->open(cartridge.node, "character.ram", File::Write)) {
-        fp->write(chrram.data, chrram.size);
-      }
-    }
-  }
+  save(document);
 }
 
-auto Board::Memory::read(uint addr) const -> uint8 {
-  return data[mirror(addr, size)];
+auto Interface::unload() -> void {
 }
 
-auto Board::Memory::write(uint addr, uint8 byte) -> void {
-  if(writable) data[mirror(addr, size)] = byte;
-}
-
-auto Board::mirror(uint addr, uint size) -> uint {
-  uint base = 0;
-  if(size) {
-    uint mask = 1 << 23;
-    while(addr >= size) {
-      while(!(addr & mask)) mask >>= 1;
-      addr -= mask;
-      if(size > mask) {
-        size -= mask;
-        base += mask;
-      }
-      mask >>= 1;
-    }
-    base += addr;
-  }
-  return base;
-}
-
-auto Board::main() -> void {
+auto Interface::main() -> void {
   cartridge.step(cartridge.rate() * 4095);
   tick();
 }
 
-auto Board::tick() -> void {
+auto Interface::tick() -> void {
   cartridge.step(cartridge.rate());
   cartridge.synchronize(cpu);
 }
 
-auto Board::readCHR(uint addr) -> uint8 {
-  if(chrram.size) return chrram.data[mirror(addr, chrram.size)];
-  if(chrrom.size) return chrrom.data[mirror(addr, chrrom.size)];
-  return 0u;
-}
-
-auto Board::writeCHR(uint addr, uint8 data) -> void {
-  if(chrram.size) chrram.data[mirror(addr, chrram.size)] = data;
-}
-
-auto Board::power() -> void {
-}
-
-auto Board::serialize(serializer& s) -> void {
-  if(prgram.size) s.array(prgram.data, prgram.size);
-  if(chrram.size) s.array(chrram.data, chrram.size);
-}
-
-auto Board::load(string manifest) -> Board* {
+auto Interface::load(string manifest) -> Interface* {
   auto document = BML::unserialize(manifest);
 
   string type = document["game/board"].text();
 
   if(type == "BANDAI-FCG"  ) return new BandaiFCG(document);
 
+  if(type == "HVC-AMROM"   ) return new HVC_AxROM(document, HVC_AxROM::Revision::AMROM);
+  if(type == "HVC-ANROM"   ) return new HVC_AxROM(document, HVC_AxROM::Revision::ANROM);
+  if(type == "HVC-AN1ROM"  ) return new HVC_AxROM(document, HVC_AxROM::Revision::AN1ROM);
+  if(type == "HVC-AOROM"   ) return new HVC_AxROM(document, HVC_AxROM::Revision::AOROM);
+
+  if(type == "HVC-BNROM"   ) return new HVC_BNROM(document);
+
+  if(type == "HVC-CNROM"   ) return new HVC_CNROM(document);
+
+  if(type == "HVC-EKROM"   ) return new HVC_ExROM(document, HVC_ExROM::Revision::EKROM);
+  if(type == "HVC-ELROM"   ) return new HVC_ExROM(document, HVC_ExROM::Revision::ELROM);
+  if(type == "HVC-ETROM"   ) return new HVC_ExROM(document, HVC_ExROM::Revision::ETROM);
+  if(type == "HVC-EWROM"   ) return new HVC_ExROM(document, HVC_ExROM::Revision::EWROM);
+
   if(type == "HVC-FMR"     ) return new HVC_FMR(document);
+
+  if(type == "HVC-FJROM"   ) return new HVC_FxROM(document, HVC_FxROM::Revision::FJROM);
+  if(type == "HVC-FKROM"   ) return new HVC_FxROM(document, HVC_FxROM::Revision::FKROM);
+
+  if(type == "HVC-GNROM"   ) return new HVC_GxROM(document, HVC_GxROM::Revision::GNROM);
+  if(type == "HVC-MHROM"   ) return new HVC_GxROM(document, HVC_GxROM::Revision::MHROM);
+
+  if(type == "HVC-HKROM"   ) return new HVC_HKROM(document);
+
+  if(type == "HVC-NROM"    ) return new HVC_NROM(document);
+  if(type == "HVC-NROM-128") return new HVC_NROM(document);
+  if(type == "HVC-NROM-256") return new HVC_NROM(document);
+
+  if(type == "HVC-PEEOROM" ) return new HVC_PxROM(document, HVC_PxROM::Revision::PEEOROM);
+  if(type == "HVC-PNROM"   ) return new HVC_PxROM(document, HVC_PxROM::Revision::PNROM);
+
+  if(type == "HVC-SAROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SAROM);
+  if(type == "HVC-SBROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SBROM);
+  if(type == "HVC-SCROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SCROM);
+  if(type == "HVC-SC1ROM"  ) return new HVC_SxROM(document, HVC_SxROM::Revision::SC1ROM);
+  if(type == "HVC-SEROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SEROM);
+  if(type == "HVC-SFROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SFROM);
+  if(type == "HVC-SFEXPROM") return new HVC_SxROM(document, HVC_SxROM::Revision::SFEXPROM);
+  if(type == "HVC-SGROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SGROM);
+  if(type == "HVC-SHROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SHROM);
+  if(type == "HVC-SH1ROM"  ) return new HVC_SxROM(document, HVC_SxROM::Revision::SH1ROM);
+  if(type == "HVC-SIROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SIROM);
+  if(type == "HVC-SJROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SJROM);
+  if(type == "HVC-SKROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SKROM);
+  if(type == "HVC-SLROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SKROM);
+  if(type == "HVC-SL1ROM"  ) return new HVC_SxROM(document, HVC_SxROM::Revision::SL1ROM);
+  if(type == "HVC-SL2ROM"  ) return new HVC_SxROM(document, HVC_SxROM::Revision::SL2ROM);
+  if(type == "HVC-SL3ROM"  ) return new HVC_SxROM(document, HVC_SxROM::Revision::SL3ROM);
+  if(type == "HVC-SLRROM"  ) return new HVC_SxROM(document, HVC_SxROM::Revision::SLRROM);
+  if(type == "HVC-SMROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SMROM);
+  if(type == "HVC-SNROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SNROM);
+  if(type == "HVC-SOROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SOROM);
+  if(type == "HVC-SUROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SUROM);
+  if(type == "HVC-SXROM"   ) return new HVC_SxROM(document, HVC_SxROM::Revision::SXROM);
+
+  if(type == "HVC-TBROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TBROM);
+  if(type == "HVC-TEROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TEROM);
+  if(type == "HVC-TFROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TFROM);
+  if(type == "HVC-TGROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TGROM);
+  if(type == "HVC-TKROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TKROM);
+  if(type == "HVC-TKSROM"  ) return new HVC_TxROM(document, HVC_TxROM::Revision::TKSROM);
+  if(type == "HVC-TLROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TLROM);
+  if(type == "HVC-TL1ROM"  ) return new HVC_TxROM(document, HVC_TxROM::Revision::TL1ROM);
+  if(type == "HVC-TL2ROM"  ) return new HVC_TxROM(document, HVC_TxROM::Revision::TL2ROM);
+  if(type == "HVC-TLSROM"  ) return new HVC_TxROM(document, HVC_TxROM::Revision::TLSROM);
+  if(type == "HVC-TNROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TNROM);
+  if(type == "HVC-TQROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TQROM);
+  if(type == "HVC-TR1ROM"  ) return new HVC_TxROM(document, HVC_TxROM::Revision::TR1ROM);
+  if(type == "HVC-TSROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TSROM);
+  if(type == "HVC-TVROM"   ) return new HVC_TxROM(document, HVC_TxROM::Revision::TVROM);
+
+  if(type == "HVC-UNROM"   ) return new HVC_UxROM(document, HVC_UxROM::Revision::UNROM);
+  if(type == "HVC-UOROM"   ) return new HVC_UxROM(document, HVC_UxROM::Revision::UOROM);
 
   if(type == "KONAMI-VRC-1") return new KonamiVRC1(document);
   if(type == "KONAMI-VRC-2") return new KonamiVRC2(document);
@@ -153,79 +140,44 @@ auto Board::load(string manifest) -> Board* {
   if(type == "KONAMI-VRC-6") return new KonamiVRC6(document);
   if(type == "KONAMI-VRC-7") return new KonamiVRC7(document);
 
-  if(type == "NES-AMROM"   ) return new NES_AxROM(document);
-  if(type == "NES-ANROM"   ) return new NES_AxROM(document);
-  if(type == "NES-AN1ROM"  ) return new NES_AxROM(document);
-  if(type == "NES-AOROM"   ) return new NES_AxROM(document);
-
-  if(type == "NES-BNROM"   ) return new NES_BNROM(document);
-
-  if(type == "NES-CNROM"   ) return new NES_CNROM(document);
-
-  if(type == "NES-EKROM"   ) return new NES_ExROM(document);
-  if(type == "NES-ELROM"   ) return new NES_ExROM(document);
-  if(type == "NES-ETROM"   ) return new NES_ExROM(document);
-  if(type == "NES-EWROM"   ) return new NES_ExROM(document);
-
-  if(type == "NES-FJROM"   ) return new NES_FxROM(document);
-  if(type == "NES-FKROM"   ) return new NES_FxROM(document);
-
-  if(type == "NES-GNROM"   ) return new NES_GxROM(document);
-  if(type == "NES-MHROM"   ) return new NES_GxROM(document);
-
-  if(type == "NES-HKROM"   ) return new NES_HKROM(document);
-
-  if(type == "NES-NROM"    ) return new NES_NROM(document);
-  if(type == "NES-NROM-128") return new NES_NROM(document);
-  if(type == "NES-NROM-256") return new NES_NROM(document);
-
-  if(type == "NES-PEEOROM" ) return new NES_PxROM(document);
-  if(type == "NES-PNROM"   ) return new NES_PxROM(document);
-
-  if(type == "NES-SAROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SBROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SCROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SC1ROM"  ) return new NES_SxROM(document);
-  if(type == "NES-SEROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SFROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SFEXPROM") return new NES_SxROM(document);
-  if(type == "NES-SGROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SHROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SH1ROM"  ) return new NES_SxROM(document);
-  if(type == "NES-SIROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SJROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SKROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SLROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SL1ROM"  ) return new NES_SxROM(document);
-  if(type == "NES-SL2ROM"  ) return new NES_SxROM(document);
-  if(type == "NES-SL3ROM"  ) return new NES_SxROM(document);
-  if(type == "NES-SLRROM"  ) return new NES_SxROM(document);
-  if(type == "NES-SMROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SNROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SOROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SUROM"   ) return new NES_SxROM(document);
-  if(type == "NES-SXROM"   ) return new NES_SxROM(document);
-
-  if(type == "NES-TBROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TEROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TFROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TGROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TKROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TKSROM"  ) return new NES_TxROM(document);
-  if(type == "NES-TLROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TL1ROM"  ) return new NES_TxROM(document);
-  if(type == "NES-TL2ROM"  ) return new NES_TxROM(document);
-  if(type == "NES-TLSROM"  ) return new NES_TxROM(document);
-  if(type == "NES-TNROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TQROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TR1ROM"  ) return new NES_TxROM(document);
-  if(type == "NES-TSROM"   ) return new NES_TxROM(document);
-  if(type == "NES-TVROM"   ) return new NES_TxROM(document);
-
-  if(type == "NES-UNROM"   ) return new NES_UxROM(document);
-  if(type == "NES-UOROM"   ) return new NES_UxROM(document);
-
   if(type == "SUNSOFT-5B"  ) return new Sunsoft5B(document);
 
-  return nullptr;
+  //fallback for when no cartridge is inserted or an unsupported mapper is specified
+  return new Interface(document);
+}
+
+auto Interface::load(Memory::Readable<uint8>& memory, Markup::Node node) -> bool {
+  if(!node) return false;
+  memory.allocate(node["size"].natural(), 0xff);
+  auto filename = string{node["content"].string(), ".", node["type"].string()}.downcase();
+  if(auto fp = platform->open(cartridge.node, filename, File::Read)) {
+    memory.load(fp);
+    return true;
+  }
+  return false;
+}
+
+auto Interface::load(Memory::Writable<uint8>& memory, Markup::Node node) -> bool {
+  if(!node) return false;
+  memory.allocate(node["size"].natural(), 0xff);
+  if(node["volatile"]) return true;
+  auto filename = string{node["content"].string(), ".", node["type"].string()}.downcase();
+  if(auto fp = platform->open(cartridge.node, filename, File::Read)) {
+    memory.load(fp);
+    return true;
+  }
+  return false;
+}
+
+auto Interface::save(Memory::Writable<uint8>& memory, Markup::Node node) -> bool {
+  if(!node) return false;
+  if(node["volatile"]) return true;
+  auto filename = string{node["content"].string(), ".", node["type"].string()}.downcase();
+  if(auto fp = platform->open(cartridge.node, filename, File::Write)) {
+    memory.save(fp);
+    return true;
+  }
+  return false;
+}
+
 }

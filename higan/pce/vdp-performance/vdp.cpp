@@ -11,23 +11,29 @@ VDP vdp;
 #include "background.cpp"
 #include "sprite.cpp"
 #include "color.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "VDP");
-  from = Node::scan(parent = node, from);
+auto VDP::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("VDP");
 
-  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen = node->append<Node::Screen>("Screen");
   screen->colors(1 << 10, {&VDP::color, this});
-  screen->setSize(1024, 239);
+  screen->setSize(1088, 239);
   screen->setScale(0.25, 1.0);
   screen->setAspect(8.0, 7.0);
-  from = Node::scan(parent = screen, from);
+
+  vce.debugger.load(vce, parent);
+  vdc0.debugger.load(vdc0, parent); if(Model::SuperGrafx())
+  vdc1.debugger.load(vdc1, parent);
 }
 
 auto VDP::unload() -> void {
   node = {};
   screen = {};
+  vce.debugger = {};
+  vdc0.debugger = {}; if(Model::SuperGrafx())
+  vdc1.debugger = {};
 }
 
 auto VDP::main() -> void {
@@ -45,7 +51,7 @@ auto VDP::main() -> void {
   vdc0.hclock(); if(Model::SuperGrafx())
   vdc1.hclock();
 
-  if(io.vcounter >= 18 && io.vcounter < 239 + 18) {
+  if(io.vcounter >= 21 && io.vcounter < 239 + 21) {
     switch(vce.width()) {
     case 256: widths[io.vcounter] = 256; width256 = 1; break;
     case 344: widths[io.vcounter] = 344; width344 = 1; break;
@@ -54,13 +60,13 @@ auto VDP::main() -> void {
 
     auto output = buffer + 1365 * io.vcounter;
 
-    if(Model::PCEngine()) {
+    if(Model::SuperGrafx() == 0) {
       for(uint x : range(vce.width())) {
         output[x] = vce.io.grayscale << 9 | vce.cram.read(vdc0.output[x]);
       }
     }
 
-    if(Model::SuperGrafx()) {
+    if(Model::SuperGrafx() == 1) {
       vpc.render();
       for(uint x : range(vce.width())) {
         output[x] = vce.io.grayscale << 9 | vce.cram.read(vpc.output[x]);
@@ -91,19 +97,19 @@ auto VDP::step(uint clocks) -> void {
 
 auto VDP::refresh() -> void {
   if(width256 == 1 && width344 == 0 && width512 == 0) {
-    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 256, 239);
+    return screen->refresh(buffer + 1365 * 21, 1365 * sizeof(uint32), 256, 239);
   }
 
   if(width256 == 0 && width344 == 1 && width512 == 0) {
-    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 344, 239);
+    return screen->refresh(buffer + 1365 * 21, 1365 * sizeof(uint32), 344, 239);
   }
 
   if(width256 == 0 && width344 == 0 && width512 == 1) {
-    return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 512, 239);
+    return screen->refresh(buffer + 1365 * 21, 1365 * sizeof(uint32), 512, 239);
   }
 
   //this frame contains mixed resolutions: normalize every scanline to 1024-width
-  for(uint y = 18; y < 239 + 18; y++) {
+  for(uint y = 21; y < 239 + 21; y++) {
     auto output = buffer + 1365 * y;
     switch(widths[y]) {
 
@@ -142,7 +148,7 @@ auto VDP::refresh() -> void {
 
     }
   }
-  return screen->refresh(buffer + 1365 * 18, 1365 * sizeof(uint32), 1024, 239);
+  return screen->refresh(buffer + 1365 * 21, 1365 * sizeof(uint32), 1024, 239);
 }
 
 auto VDP::power() -> void {

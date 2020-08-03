@@ -1,19 +1,23 @@
-struct Cartridge {
-  Node::Port port;
+struct Cartridge;
+#include "board/board.hpp"
+
+struct Cartridge : Thread {
   Node::Peripheral node;
+  Memory::Readable<uint8> rom;
+  Memory::Writable<uint8> ram;
 
   auto manifest() const -> string { return information.manifest; }
   auto name() const -> string { return information.name; }
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
-  Cartridge(string_view name);
-  auto load(Node::Object, Node::Object) -> void;
-  auto unload() -> void;
-  auto connect(Node::Peripheral) -> void;
+  auto allocate(Node::Port) -> Node::Peripheral;
+  auto connect() -> void;
   auto disconnect() -> void;
 
   auto save() -> void;
+  auto main() -> void;
+  auto step(uint clocks) -> void;
   auto power() -> void;
 
   auto read(uint16 address) -> uint8;
@@ -22,18 +26,17 @@ struct Cartridge {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
+  unique_pointer<Board::Interface> board;
+
 private:
   struct Information {
     string manifest;
     string name;
     string region;
+    string board;
   } information;
-
-  Memory::Readable<uint8> rom;
-  Memory::Writable<uint8> ram;
-
-  const string portName;
 };
 
-extern Cartridge cartridge;
-extern Cartridge expansion;
+#include "slot.hpp"
+extern Cartridge& cartridge;
+extern Cartridge& expansion;

@@ -1,14 +1,14 @@
-components += v30mz m93lcx6
+higan.components += v30mz m93lcx6
 
-objects += ws-interface ws-system
-objects += ws-memory ws-eeprom ws-cartridge
-objects += ws-cpu ws-ppu ws-apu
+higan.objects += higan-ws-interface higan-ws-system
+higan.objects += higan-ws-memory higan-ws-eeprom higan-ws-cartridge
+higan.objects += higan-ws-cpu higan-ws-ppu higan-ws-apu
 
-obj/ws-interface.o: ws/interface/interface.cpp
-obj/ws-system.o:    ws/system/system.cpp
-obj/ws-memory.o:    ws/memory/memory.cpp
-obj/ws-eeprom.o:    ws/eeprom/eeprom.cpp
-obj/ws-cartridge.o: ws/cartridge/cartridge.cpp
-obj/ws-cpu.o:       ws/cpu/cpu.cpp
-obj/ws-ppu.o:       ws/ppu/ppu.cpp
-obj/ws-apu.o:       ws/apu/apu.cpp
+$(object.path)/higan-ws-interface.o: $(higan.path)/ws/interface/interface.cpp
+$(object.path)/higan-ws-system.o:    $(higan.path)/ws/system/system.cpp
+$(object.path)/higan-ws-memory.o:    $(higan.path)/ws/memory/memory.cpp
+$(object.path)/higan-ws-eeprom.o:    $(higan.path)/ws/eeprom/eeprom.cpp
+$(object.path)/higan-ws-cartridge.o: $(higan.path)/ws/cartridge/cartridge.cpp
+$(object.path)/higan-ws-cpu.o:       $(higan.path)/ws/cpu/cpu.cpp
+$(object.path)/higan-ws-ppu.o:       $(higan.path)/ws/ppu/ppu.cpp
+$(object.path)/higan-ws-apu.o:       $(higan.path)/ws/apu/apu.cpp

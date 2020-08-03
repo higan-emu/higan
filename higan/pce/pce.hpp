@@ -1,18 +1,23 @@
 #pragma once
-
-//license: GPLv3
 //started: 2017-01-11
 
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 
 #include <component/processor/huc6280/huc6280.hpp>
+#include <component/audio/msm5205/msm5205.hpp>
 
 namespace higan::PCEngine {
-  #include <emulator/inline.hpp>
+  #include <higan/inline.hpp>
 
   struct Model {
     inline static auto PCEngine() -> bool;
+    inline static auto PCEngineDuo() -> bool;
     inline static auto SuperGrafx() -> bool;
+  };
+
+  struct Region {
+    inline static auto NTSCJ() -> bool;
+    inline static auto NTSCU() -> bool;
   };
 
   #include <pce/controller/controller.hpp>

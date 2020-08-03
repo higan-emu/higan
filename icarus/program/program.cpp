@@ -27,12 +27,16 @@ ProgramWindow::ProgramWindow() {
 
   helpMenu.setText("Help");
   aboutAction.setIcon(Icon::Prompt::Question).setText("About icarus ...").onActivate([&] {
+    image logo{Resource::Higan::Logo};
+    logo.shrink();
     AboutDialog()
     .setName("icarus")
-    .setVersion(icarus::Version)
-    .setCopyright(icarus::Copyright)
-    .setLicense(icarus::License)
-    .setWebsite(icarus::Website)
+    .setLogo(logo)
+    .setDescription("icarus — a game analyzer and converter")
+    .setVersion(higan::Version)
+    .setCopyright(higan::Copyright)
+    .setLicense(higan::License, higan::LicenseURI)
+    .setWebsite(higan::Website, higan::WebsiteURI)
     .setAlignment(*this)
     .show();
   });
@@ -55,8 +59,8 @@ ProgramWindow::ProgramWindow() {
   show(home);
 
   onClose(&Application::quit);
-  setTitle({"icarus v", icarus::Version});
-  setSize({720_sx, 490_sy});
+  setTitle({"icarus v", higan::Version});
+  setSize({800_sx, 545_sy});
   setAlignment(Alignment::Center);
   setVisible();
 }

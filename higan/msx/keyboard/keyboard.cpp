@@ -5,34 +5,38 @@ namespace higan::MSX {
 Keyboard keyboard;
 #include "serialization.cpp"
 
-auto Keyboard::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Keyboard");
+auto Keyboard::load(Node::Object parent) -> void {
+  port = parent->append<Node::Port>("Keyboard");
   port->setFamily("MSX");
   port->setType("Keyboard");
   port->setHotSwappable(true);
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
+  port->setAllocate([&](auto name) { return allocate(port, name); });
+  port->setConnect([&] { connect(); });
+  port->setDisconnect([&] { disconnect(); });
+  port->setSupported({"Japanese"});
 }
 
-auto Keyboard::connect(Node::Peripheral node) -> void {
+auto Keyboard::unload() -> void {
   disconnect();
-  if(node) {
-    string name{"Layout"};
-    if(node) name = node->name();
-    layout = Node::append<Node::Peripheral>(port, node, name);
-    Markup::Node document;
-    if(auto fp = platform->open(layout, "layout.bml", File::Read)) {
-      document = BML::unserialize(fp->reads());
-    }
-    for(uint column : range(12)) {
-      for(uint row : range(8)) {
-        string label{column, ",", row};
-        if(auto key = document[{"layout/key[", column * 8 + row, "]"}]) {
-          label = key.text();
-        }
-        matrix[column][row] = Node::append<Node::Button>(layout, node, label);
+  port = {};
+}
+
+auto Keyboard::allocate(Node::Port parent, string name) -> Node::Peripheral {
+  return layout = parent->append<Node::Peripheral>(name);
+}
+
+auto Keyboard::connect() -> void {
+  Markup::Node document;
+  if(auto fp = platform->open(layout, "layout.bml", File::Read)) {
+    document = BML::unserialize(fp->reads());
+  }
+  for(uint column : range(12)) {
+    for(uint row : range(8)) {
+      string label{column, ",", row};
+      if(auto key = document[{"layout/key[", column * 8 + row, "]"}]) {
+        label = key.text();
       }
+      matrix[column][row] = layout->append<Node::Button>(label);
     }
   }
 }

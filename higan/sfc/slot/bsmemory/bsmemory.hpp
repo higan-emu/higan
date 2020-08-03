@@ -15,8 +15,7 @@
 //other commands generally complete so quickly that it's unnecessary (eg 70-120ns for writes)
 //suspend, resume, abort, ready/busy modes are not supported
 
-struct BSMemory : Thread {
-  Node::Port port;
+struct BSMemoryCartridge : Thread {
   Node::Peripheral node;
   uint ROM = 1;
 
@@ -27,15 +26,13 @@ struct BSMemory : Thread {
   auto writable(bool writable) { pin.writable = !ROM && writable; }
 
   //bsmemory.cpp
-  auto load(Node::Peripheral, Node::Peripheral) -> void;
-  auto unload() -> void;
+  auto allocate(Node::Port) -> Node::Peripheral;
+  auto connect() -> void;
+  auto disconnect() -> void;
 
-  BSMemory();
+  BSMemoryCartridge();
   auto main() -> void;
   auto step(uint clocks) -> void;
-
-  auto connect(Node::Peripheral) -> void;
-  auto disconnect() -> void;
 
   auto power() -> void;
   auto save() -> void;
@@ -65,7 +62,7 @@ private:
   } chip;
 
   struct Page {
-    BSMemory* self = nullptr;
+    BSMemoryCartridge* self = nullptr;
 
     auto swap() -> void;
     auto read(uint8 address) -> uint8;
@@ -75,11 +72,11 @@ private:
   } page;
 
   struct BlockInformation {
-    BSMemory* self = nullptr;
+    BSMemoryCartridge* self = nullptr;
 
-    inline auto bits() const -> uint;
-    inline auto bytes() const -> uint;
-    inline auto count() const -> uint;
+    auto bits() const -> uint;
+    auto bytes() const -> uint;
+    auto count() const -> uint;
   };
 
   struct Block : BlockInformation {
@@ -175,4 +172,5 @@ private:
   auto failed() -> void;
 };
 
-extern BSMemory bsmemory;
+#include "slot.hpp"
+extern BSMemoryCartridge& bsmemory;

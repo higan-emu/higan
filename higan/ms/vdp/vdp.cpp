@@ -7,14 +7,16 @@ VDP vdp;
 #include "background.cpp"
 #include "sprite.cpp"
 #include "color.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "VDP");
-  from = Node::scan(parent = node, from);
+auto VDP::load(Node::Object parent) -> void {
+  vram.allocate(16_KiB);
+  cram.allocate(!Model::GameGear() ? 32 : 64);
 
-  screen = Node::append<Node::Screen>(parent, from, "Screen");
-  from = Node::scan(parent = screen, from);
+  node = parent->append<Node::Component>("VDP");
+
+  screen = node->append<Node::Screen>("Screen");
 
   if(Model::MasterSystem()) {
     screen->colors(1 << 6, {&VDP::colorMasterSystem, this});
@@ -29,17 +31,22 @@ auto VDP::load(Node::Object parent, Node::Object from) -> void {
     screen->setScale(1.0, 1.0);
     screen->setAspect(1.0, 1.0);
 
-    interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+    interframeBlending = screen->append<Node::Boolean>("Interframe Blending", true, [&](auto value) {
       screen->setInterframeBlending(value);
     });
     interframeBlending->setDynamic(true);
   }
+
+  debugger.load(node);
 }
 
 auto VDP::unload() -> void {
+  vram.reset();
+  cram.reset();
   node = {};
   screen = {};
   interframeBlending = {};
+  debugger = {};
 }
 
 auto VDP::main() -> void {

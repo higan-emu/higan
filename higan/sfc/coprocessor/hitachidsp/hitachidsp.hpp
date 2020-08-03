@@ -3,8 +3,18 @@ struct HitachiDSP : HG51B, Thread {
   ReadableMemory rom;
   WritableMemory ram;
 
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+
+    struct Tracer {
+      Node::Instruction instruction;  //todo: HG51B needs to notify HitachiDSP when instructiosn are executed
+    } tracer;
+  } debugger;
+
   //hitachidsp.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto step(uint clocks) -> void override;

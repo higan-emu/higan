@@ -11,11 +11,11 @@ struct System {
     Node::Button a;
     Node::Button b;
     Node::Button option;
-    Node::Button debug;
+    Node::Button debugger;
     Node::Button power;
 
     //controls.cpp
-    auto load(Node::Object, Node::Object) -> void;
+    auto load(Node::Object) -> void;
     auto poll() -> void;
 
     bool yHold = 0;
@@ -35,7 +35,7 @@ struct System {
   //system.cpp
   auto run() -> void;
 
-  auto load(Node::Object&, Node::Object) -> void;
+  auto load(Node::Object&) -> void;
   auto save() -> void;
   auto unload() -> void;
   auto power() -> void;

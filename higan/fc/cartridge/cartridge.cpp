@@ -2,28 +2,16 @@
 
 namespace higan::Famicom {
 
-Cartridge cartridge;
-#include "chip/chip.cpp"
+Cartridge& cartridge = cartridgeSlot.cartridge;
+#include "slot.cpp"
 #include "board/board.cpp"
 #include "serialization.cpp"
 
-auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
-  port->setFamily("Famicom");
-  port->setType("Cartridge");
-  port->setAllocate([&] { return Node::Peripheral::create(interface->name()); });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
+auto Cartridge::allocate(Node::Port parent) -> Node::Peripheral {
+  return node = parent->append<Node::Peripheral>(interface->name());
 }
 
-auto Cartridge::unload() -> void {
-  disconnect();
-  port = {};
-}
-
-auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, interface->name());
+auto Cartridge::connect() -> void {
   node->setManifest([&] { return information.manifest; });
 
   information = {};
@@ -32,15 +20,15 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
   }
 
   auto document = BML::unserialize(information.manifest);
-  information.name = document["game/label"].text();
-  information.region = document["game/region"].text();
+  information.name = document["game/label"].string();
+  information.region = document["game/region"].string();
 
-  Board::load(information.manifest);  //this call sets Cartridge::board internally
+  Board::Interface::load(information.manifest);  //this call sets Cartridge::board internally
   board->load();
 
   power();
   if(fds.present) {
-    fds.load(node, with);
+    fds.load(node);
   }
 }
 
@@ -50,8 +38,8 @@ auto Cartridge::disconnect() -> void {
     fds.unload();
     fds.present = 0;
   }
-  delete board;
-  board = nullptr;
+  board->unload();
+  board = {};
   node = {};
 }
 
@@ -62,7 +50,6 @@ auto Cartridge::save() -> void {
 
 auto Cartridge::power() -> void {
   Thread::create(system.frequency(), {&Cartridge::main, this});
-  if(!board) board = new Board;  //fallback for no cartridge inserted or unsupported mapper
   board->power();
 }
 

@@ -1,37 +1,60 @@
-auto RAM::load(Markup::Node document) -> void {
-  if(auto memory = document["game/board/memory(type=ROM,content=Program)"]) {
-    rom.allocate(memory["size"].natural());
-    if(auto fp = platform->open(cartridge.node, "program.rom", File::Read, File::Required)) {
-      rom.load(fp);
+struct RAM : Interface {
+  using Interface::Interface;
+  Memory::Readable<uint8> rom;
+  Memory::Writable<uint8> ram;
+
+  struct Debugger {
+    maybe<RAM&> super;
+
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto unload(Node::Object) -> void;
+
+    struct Memory {
+      Node::Memory ram;
+    } memory;
+  } debugger;
+
+  auto load(Markup::Node document) -> void override {
+    auto board = document["game/board"];
+    Interface::load(rom, board["memory(type=ROM,content=Program)"]);
+    Interface::load(ram, board["memory(type=RAM,content=Save)"]);
+
+    debugger.super = *this;
+    debugger.load(cartridge.node);
+  }
+
+  auto save(Markup::Node document) -> void override {
+    auto board = document["game/board"];
+    Interface::save(ram, board["memory(type=RAM,content=Save)"]);
+  }
+
+  auto unload() -> void override {
+    debugger.unload(cartridge.node);
+  }
+
+  auto read(uint8 bank, uint13 address, uint8 data) -> uint8 override {
+    if(bank >= 0x00 && bank <= 0x3f) {
+      return rom.read(bank << 13 | address);
+    }
+
+    if(bank >= 0x40 && bank <= 0x43) {
+      return ram.read(bank << 13 | address);
+    }
+
+    return data;
+  }
+
+  auto write(uint8 bank, uint13 address, uint8 data) -> void override {
+    if(bank >= 0x40 && bank <= 0x43) {
+      return ram.write(bank << 13 | address, data);
     }
   }
 
-  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
-    ram.allocate(memory["size"].natural());
-    if(auto fp = platform->open(cartridge.node, "save.ram", File::Read)) {
-      ram.load(fp);
-    }
+  auto power() -> void override {
   }
-}
 
-auto RAM::save(Markup::Node document) -> void {
-  if(auto memory = document["game/board/memory(type=RAM,content=Save)"]) {
-    if(auto fp = platform->open(cartridge.node, "save.ram", File::Write)) {
-      ram.save(fp);
-    }
+  auto serialize(serializer& s) -> void override {
+    if(ram) ram.serialize(s);
   }
-}
-
-auto RAM::read(uint8 bank, uint13 address) -> uint8 {
-  return rom.read(bank << 13 | address);
-}
-
-auto RAM::write(uint8 bank, uint13 address, uint8 data) -> void {
-}
-
-auto RAM::power() -> void {
-}
-
-auto RAM::serialize(serializer& s) -> void {
-  if(ram) ram.serialize(s);
-}
+};

@@ -1,21 +1,21 @@
-components += wdc65816 spc700 arm7tdmi gsu hg51b upd96050
+higan.components += wdc65816 spc700 arm7tdmi gsu hg51b upd96050
 
-objects += sfc-interface sfc-system sfc-controller
-objects += sfc-cartridge sfc-memory
-objects += sfc-cpu sfc-smp sfc-dsp sfc-ppu
-objects += sfc-coprocessor sfc-expansion sfc-slot
+higan.objects += higan-sfc-interface higan-sfc-system higan-sfc-controller
+higan.objects += higan-sfc-cartridge higan-sfc-memory
+higan.objects += higan-sfc-cpu higan-sfc-smp higan-sfc-dsp higan-sfc-ppu
+higan.objects += higan-sfc-coprocessor higan-sfc-expansion higan-sfc-slot
 
-obj/sfc-interface.o:   sfc/interface/interface.cpp
-obj/sfc-system.o:      sfc/system/system.cpp
-obj/sfc-controller.o:  sfc/controller/controller.cpp
-obj/sfc-cartridge.o:   sfc/cartridge/cartridge.cpp
-obj/sfc-memory.o:      sfc/memory/memory.cpp
+$(object.path)/higan-sfc-interface.o:   $(higan.path)/sfc/interface/interface.cpp
+$(object.path)/higan-sfc-system.o:      $(higan.path)/sfc/system/system.cpp
+$(object.path)/higan-sfc-controller.o:  $(higan.path)/sfc/controller/controller.cpp
+$(object.path)/higan-sfc-cartridge.o:   $(higan.path)/sfc/cartridge/cartridge.cpp
+$(object.path)/higan-sfc-memory.o:      $(higan.path)/sfc/memory/memory.cpp
 
-obj/sfc-cpu.o:         sfc/cpu/cpu.cpp
-obj/sfc-smp.o:         sfc/smp/smp.cpp
-obj/sfc-dsp.o:         sfc/dsp/dsp.cpp
-obj/sfc-ppu.o:         sfc/ppu/ppu.cpp
+$(object.path)/higan-sfc-cpu.o:         $(higan.path)/sfc/cpu/cpu.cpp
+$(object.path)/higan-sfc-smp.o:         $(higan.path)/sfc/smp/smp.cpp
+$(object.path)/higan-sfc-dsp.o:         $(higan.path)/sfc/dsp/dsp.cpp
+$(object.path)/higan-sfc-ppu.o:         $(higan.path)/sfc/ppu/ppu.cpp
 
-obj/sfc-coprocessor.o: sfc/coprocessor/coprocessor.cpp
-obj/sfc-expansion.o:   sfc/expansion/expansion.cpp
-obj/sfc-slot.o:        sfc/slot/slot.cpp
+$(object.path)/higan-sfc-coprocessor.o: $(higan.path)/sfc/coprocessor/coprocessor.cpp
+$(object.path)/higan-sfc-expansion.o:   $(higan.path)/sfc/expansion/expansion.cpp
+$(object.path)/higan-sfc-slot.o:        $(higan.path)/sfc/slot/slot.cpp

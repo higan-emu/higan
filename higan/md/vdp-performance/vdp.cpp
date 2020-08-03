@@ -10,31 +10,32 @@ VDP vdp;
 #include "object.cpp"
 #include "sprite.cpp"
 #include "color.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "VDP");
-  from = Node::scan(parent = node, from);
+auto VDP::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("VDP");
 
-  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen = node->append<Node::Screen>("Screen");
   screen->colors(3 * (1 << 9), {&VDP::color, this});
   screen->setSize(1280, 480);
   screen->setScale(0.25, 0.50);
   screen->setAspect(1.0, 1.0);
-  from = Node::scan(parent = screen, from);
 
-  region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
-    if(region == "NTSC") screen->setSize(1280, 448);
-    if(region == "PAL" ) screen->setSize(1280, 480);
+  overscan = screen->append<Node::Boolean>("Overscan", true, [&](auto value) {
+    if(value == 0) screen->setSize(1280, 448);
+    if(value == 1) screen->setSize(1280, 480);
   });
-  region->setDynamic(true);
-  region->setAllowedValues({"NTSC", "PAL"});
+  overscan->setDynamic(true);
+
+  debugger.load(node);
 }
 
 auto VDP::unload() -> void {
   node = {};
   screen = {};
-  region = {};
+  overscan = {};
+  debugger = {};
 }
 
 auto VDP::main() -> void {
@@ -109,12 +110,12 @@ auto VDP::step(uint clocks) -> void {
 auto VDP::refresh() -> void {
   auto data = output;
 
-  if(region->value() == "NTSC") {
+  if(overscan->value() == 0) {
     if(latch.overscan) data += (8 << latch.interlace) * 320;
     screen->refresh(data, 320 * sizeof(uint32), screenWidth(), 224 << latch.interlace);
   }
 
-  if(region->value() == "PAL") {
+  if(overscan->value() == 1) {
     if(!latch.overscan) data -= (8 << latch.interlace) * 320;
     screen->refresh(data, 320 * sizeof(uint32), screenWidth(), 240 << latch.interlace);
   }

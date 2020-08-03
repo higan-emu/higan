@@ -2,8 +2,22 @@
 
 struct CPU : M68K, Thread {
   Node::Component node;
-  Node::Instruction eventInstruction;
-  Node::Notification eventInterrupt;
+
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view) -> void;
+
+    struct Memory {
+      Node::Memory ram;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;
+    } tracer;
+  } debugger;
 
   enum class Interrupt : uint {
     Reset,
@@ -12,11 +26,11 @@ struct CPU : M68K, Thread {
   };
 
   //cpu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
-  inline auto step(uint clocks) -> void;
+  auto step(uint clocks) -> void;
   auto idle(uint clocks) -> void override;
   auto wait(uint clocks) -> void override;
 

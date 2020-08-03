@@ -1,16 +1,30 @@
 struct CPU : WDC65816, Thread, PPUcounter {
   Node::Component node;
   Node::Natural version;
-  Node::Instruction eventInstruction;
-  Node::Notification eventInterrupt;
 
-  inline auto interruptPending() const -> bool override { return status.interruptPending; }
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view) -> void;
+
+    struct Memory {
+      Node::Memory wram;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;
+    } tracer;
+  } debugger;
+
+  auto interruptPending() const -> bool override { return status.interruptPending; }
   auto pio() const -> uint8 { return io.pio; }
   auto refresh() const -> bool { return status.dramRefresh == 1; }
-  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
+  auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //cpu.cpp
-  auto load(Node::Object parent, Node::Object from) -> void;
+  auto load(Node::Object parent) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -18,9 +32,9 @@ struct CPU : WDC65816, Thread, PPUcounter {
   auto power(bool reset) -> void;
 
   //dma.cpp
-  inline auto dmaEnable() -> bool;
-  inline auto hdmaEnable() -> bool;
-  inline auto hdmaActive() -> bool;
+  auto dmaEnable() -> bool;
+  auto hdmaEnable() -> bool;
+  auto hdmaActive() -> bool;
 
   auto dmaRun() -> void;
   auto hdmaReset() -> void;
@@ -31,7 +45,7 @@ struct CPU : WDC65816, Thread, PPUcounter {
   auto idle() -> void override;
   auto read(uint24 address) -> uint8 override;
   auto write(uint24 address, uint8 data) -> void override;
-  alwaysinline auto wait(uint24 address) const -> uint;
+  auto wait(uint24 address) const -> uint;
   auto readDisassembler(uint24 address) -> uint8 override;
 
   //io.cpp
@@ -45,28 +59,26 @@ struct CPU : WDC65816, Thread, PPUcounter {
   auto writeDMA(uint24 address, uint8 data) -> void;
 
   //timing.cpp
-  inline auto dmaCounter() const -> uint;
-  inline auto joypadCounter() const -> uint;
+  auto dmaCounter() const -> uint;
+  auto joypadCounter() const -> uint;
 
   auto step(uint clocks) -> void;
   auto scanline() -> void;
 
-  alwaysinline auto aluEdge() -> void;
-  alwaysinline auto dmaEdge() -> void;
+  auto aluEdge() -> void;
+  auto dmaEdge() -> void;
+  auto joypadEdge() -> void;
 
   //irq.cpp
-  alwaysinline auto nmiPoll() -> void;
-  alwaysinline auto irqPoll() -> void;
+  auto nmiPoll() -> void;
+  auto irqPoll() -> void;
   auto nmitimenUpdate(uint8 data) -> void;
   auto rdnmi() -> bool;
   auto timeup() -> bool;
 
-  alwaysinline auto nmiTest() -> bool;
-  alwaysinline auto irqTest() -> bool;
-  alwaysinline auto lastCycle() -> void override;
-
-  //joypad.cpp
-  auto joypadEdge() -> void;
+  auto nmiTest() -> bool;
+  auto irqTest() -> bool;
+  auto lastCycle() -> void override;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
@@ -171,24 +183,24 @@ private:
 
   struct Channel {
     //dma.cpp
-    inline auto step(uint clocks) -> void;
-    inline auto edge() -> void;
+    auto step(uint clocks) -> void;
+    auto edge() -> void;
 
-    inline auto validA(uint24 address) -> bool;
-    inline auto readA(uint24 address) -> uint8;
-    inline auto readB(uint8 address, bool valid) -> uint8;
-    inline auto writeA(uint24 address, uint8 data) -> void;
-    inline auto writeB(uint8 address, uint8 data, bool valid) -> void;
-    inline auto transfer(uint24 address, uint2 index) -> void;
+    auto validA(uint24 address) -> bool;
+    auto readA(uint24 address) -> uint8;
+    auto readB(uint8 address, bool valid) -> uint8;
+    auto writeA(uint24 address, uint8 data) -> void;
+    auto writeB(uint8 address, uint8 data, bool valid) -> void;
+    auto transfer(uint24 address, uint2 index) -> void;
 
-    inline auto dmaRun() -> void;
-    inline auto hdmaActive() -> bool;
-    inline auto hdmaFinished() -> bool;
-    inline auto hdmaReset() -> void;
-    inline auto hdmaSetup() -> void;
-    inline auto hdmaReload() -> void;
-    inline auto hdmaTransfer() -> void;
-    inline auto hdmaAdvance() -> void;
+    auto dmaRun() -> void;
+    auto hdmaActive() -> bool;
+    auto hdmaFinished() -> bool;
+    auto hdmaReset() -> void;
+    auto hdmaSetup() -> void;
+    auto hdmaReload() -> void;
+    auto hdmaTransfer() -> void;
+    auto hdmaAdvance() -> void;
 
     //$420b
     uint1 dmaEnable;

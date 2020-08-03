@@ -13,11 +13,11 @@ struct Response : Message {
   explicit operator bool() const { return responseType() != 0; }
   auto operator()(uint responseType) -> type& { return setResponseType(responseType); }
 
-  inline auto head(const function<bool (const uint8_t* data, uint size)>& callback) const -> bool override;
-  inline auto setHead() -> bool override;
+  auto head(const function<bool (const uint8_t* data, uint size)>& callback) const -> bool override;
+  auto setHead() -> bool override;
 
-  inline auto body(const function<bool (const uint8_t* data, uint size)>& callback) const -> bool override;
-  inline auto setBody() -> bool override;
+  auto body(const function<bool (const uint8_t* data, uint size)>& callback) const -> bool override;
+  auto setBody() -> bool override;
 
   auto request() const -> const Request* { return _request; }
   auto setRequest(const Request& value) -> type& { _request = &value; return *this; }
@@ -27,22 +27,23 @@ struct Response : Message {
 
   auto hasData() const -> bool { return (bool)_data; }
   auto data() const -> const vector<uint8_t>& { return _data; }
-  inline auto setData(const vector<uint8_t>& value) -> type&;
+  auto setData(const vector<uint8_t>& value) -> type&;
 
   auto hasFile() const -> bool { return (bool)_file; }
   auto file() const -> const string& { return _file; }
-  inline auto setFile(const string& value) -> type&;
+  auto setFile(const string& value) -> type&;
 
   auto hasText() const -> bool { return (bool)_text; }
   auto text() const -> const string& { return _text; }
-  inline auto setText(const string& value) -> type&;
+  auto setText(const string& value) -> type&;
 
-  inline auto hasBody() const -> bool;
-  inline auto findContentLength() const -> uint;
-  inline auto findContentType() const -> string;
-  inline auto findContentType(const string& suffix) const -> string;
-  inline auto findResponseType() const -> string;
-  inline auto setFileETag() -> void;
+  auto hasBody() const -> bool;
+  auto findContentLength() const -> uint;
+  auto findContentType() const -> string;
+  auto findContentType(const string& suffix) const -> string;
+  auto findResponseType() const -> string;
+  auto findResponseTypeVerbose() const -> string;
+  auto setFileETag() -> void;
 
   const Request* _request = nullptr;
   uint _responseType = 0;
@@ -51,7 +52,7 @@ struct Response : Message {
   string _text;
 };
 
-auto Response::head(const function<bool (const uint8_t*, uint)>& callback) const -> bool {
+inline auto Response::head(const function<bool (const uint8_t*, uint)>& callback) const -> bool {
   if(!callback) return false;
   string output;
 
@@ -86,7 +87,7 @@ auto Response::head(const function<bool (const uint8_t*, uint)>& callback) const
   return callback(output.data<uint8_t>(), output.size());
 }
 
-auto Response::setHead() -> bool {
+inline auto Response::setHead() -> bool {
   auto headers = _head.split("\n");
   string response = headers.takeLeft().trimRight("\r");
 
@@ -106,7 +107,7 @@ auto Response::setHead() -> bool {
   return true;
 }
 
-auto Response::body(const function<bool (const uint8_t*, uint)>& callback) const -> bool {
+inline auto Response::body(const function<bool (const uint8_t*, uint)>& callback) const -> bool {
   if(!callback) return false;
   if(!hasBody()) return true;
   bool chunked = header["Transfer-Encoding"].value() == "chunked";
@@ -138,11 +139,11 @@ auto Response::body(const function<bool (const uint8_t*, uint)>& callback) const
   return true;
 }
 
-auto Response::setBody() -> bool {
+inline auto Response::setBody() -> bool {
   return true;
 }
 
-auto Response::hasBody() const -> bool {
+inline auto Response::hasBody() const -> bool {
   if(auto request = this->request()) {
     if(request->requestType() == Request::RequestType::Head) return false;
   }
@@ -154,7 +155,7 @@ auto Response::hasBody() const -> bool {
   return true;
 }
 
-auto Response::findContentLength() const -> uint {
+inline auto Response::findContentLength() const -> uint {
   if(auto contentLength = header["Content-Length"]) return contentLength.value().natural();
   if(_body) return _body.size();
   if(hasData()) return data().size();
@@ -163,21 +164,25 @@ auto Response::findContentLength() const -> uint {
   return findResponseType().size();
 }
 
-auto Response::findContentType() const -> string {
+inline auto Response::findContentType() const -> string {
   if(auto contentType = header["Content-Type"]) return contentType.value();
   if(hasData()) return "application/octet-stream";
   if(hasFile()) return findContentType(Location::suffix(file()));
   return "text/html; charset=utf-8";
 }
 
-auto Response::findContentType(const string& s) const -> string {
+inline auto Response::findContentType(const string& s) const -> string {
   if(s == ".7z"  ) return "application/x-7z-compressed";
   if(s == ".avi" ) return "video/avi";
   if(s == ".bml" ) return "text/plain; charset=utf-8";
   if(s == ".bz2" ) return "application/x-bzip2";
+  if(s == ".c"   ) return "text/plain; charset=utf-8";
+  if(s == ".cpp" ) return "text/plain; charset=utf-8";
   if(s == ".css" ) return "text/css; charset=utf-8";
   if(s == ".gif" ) return "image/gif";
   if(s == ".gz"  ) return "application/gzip";
+  if(s == ".h"   ) return "text/plain; charset=utf-8";
+  if(s == ".hpp" ) return "text/plain; charset=utf-8";
   if(s == ".htm" ) return "text/html; charset=utf-8";
   if(s == ".html") return "text/html; charset=utf-8";
   if(s == ".ico" ) return "image/x-icon";
@@ -205,7 +210,7 @@ auto Response::findContentType(const string& s) const -> string {
   return "application/octet-stream";  //binary
 }
 
-auto Response::findResponseType() const -> string {
+inline auto Response::findResponseType() const -> string {
   switch(responseType()) {
   case 200: return "200 OK";
   case 301: return "301 Moved Permanently";
@@ -223,13 +228,25 @@ auto Response::findResponseType() const -> string {
   return "501 Not Implemented";
 }
 
-auto Response::setData(const vector<uint8_t>& value) -> type& {
+inline auto Response::findResponseTypeVerbose() const -> string {
+  switch(responseType()) {
+  case 400: return "The server was unable to understand your request.";
+  case 403: return "You are not authorized to access this resource.";
+  case 404: return "The requested content could not be found.";
+  case 500: return "The server has encountered an error.";
+  case 501: return "The requested feature has not been implemented.";
+  case 503: return "The requested service is not currently available.";
+  }
+  return findResponseType();  //fallback for uncommon responses
+}
+
+inline auto Response::setData(const vector<uint8_t>& value) -> type& {
   _data = value;
   header.assign("Content-Length", value.size());
   return *this;
 }
 
-auto Response::setFile(const string& value) -> type& {
+inline auto Response::setFile(const string& value) -> type& {
   //block path escalation exploits ("../" and "..\" in the file location)
   bool valid = true;
   for(uint n : range(value.size())) {
@@ -264,7 +281,7 @@ auto Response::setFile(const string& value) -> type& {
   return *this;
 }
 
-auto Response::setText(const string& value) -> type& {
+inline auto Response::setText(const string& value) -> type& {
   _text = value;
   header.assign("Content-Length", value.size());
   return *this;

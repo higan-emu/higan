@@ -1,11 +1,11 @@
 struct ProtectableMemory : AbstractMemory {
-  inline auto reset() -> void override {
+  auto reset() -> void override {
     delete[] self.data;
     self.data = nullptr;
     self.size = 0;
   }
 
-  inline auto allocate(uint size, uint8 fill = 0xff) -> void override {
+  auto allocate(uint size, uint8 fill = 0xff) -> void override {
     delete[] self.data;
     self.data = new uint8[self.size = size];
     for(uint address : range(size)) self.data[address] = fill;
@@ -19,11 +19,11 @@ struct ProtectableMemory : AbstractMemory {
     fp->write(self.data, self.size);
   }
 
-  inline auto data() -> uint8* override {
+  auto data() -> uint8* override {
     return self.data;
   }
 
-  inline auto size() const -> uint override {
+  auto size() const -> uint override {
     return self.size;
   }
 
@@ -35,11 +35,11 @@ struct ProtectableMemory : AbstractMemory {
     self.writable = writable;
   }
 
-  inline auto read(uint24 address, uint8 data = 0) -> uint8 override {
+  auto read(uint24 address, uint8 data = 0) -> uint8 override {
     return self.data[address];
   }
 
-  inline auto write(uint24 address, uint8 data) -> void override {
+  auto write(uint24 address, uint8 data) -> void override {
     if(!self.writable) return;
     self.data[address] = data;
   }

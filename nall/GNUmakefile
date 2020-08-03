@@ -105,10 +105,10 @@ endif
 
 # clang settings
 ifeq ($(findstring clang++,$(compiler)),clang++)
-  flags += -fno-strict-aliasing -fwrapv -Wno-everything
+  flags += -fno-operator-names -fno-strict-aliasing -fwrapv -Wno-everything
 # gcc settings
 else ifeq ($(findstring g++,$(compiler)),g++)
-  flags += -fno-strict-aliasing -fwrapv -Wno-trigraphs
+  flags += -fno-operator-names -fno-strict-aliasing -fwrapv -Wno-trigraphs
 endif
 
 # windows settings
@@ -151,6 +151,10 @@ ifeq ($(object.path),)
   object.path := obj
 endif
 
+ifeq ($(output.path),)
+  output.path := out
+endif
+
 # rules
 default: all;
 
@@ -161,7 +165,7 @@ nall.verbose:
 	$(foreach n,$(sort $(call unique,$(options))),$(if $(filter-out -l%,$n),$(info $([space]) $n)))
 
 %.o: $<
-	$(info Compiling $< ...)
+	$(info Compiling $(subst ../,,$<) ...)
 	@$(call compile)
 
 # function compile([arguments])

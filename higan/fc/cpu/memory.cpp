@@ -1,15 +1,30 @@
-auto CPU::readRAM(uint11 addr) -> uint8 {
-  return ram[addr];
+//$0000-07ff = RAM (2KB)
+//$0800-1fff = RAM (mirror)
+//$2000-2007 = PPU
+//$2008-3fff = PPU (mirror)
+//$4000-4017 = APU + I/O
+//$4020-403f = FDS
+//$4018-ffff = Cartridge
+
+inline auto CPU::readBus(uint16 address) -> uint8 {
+  uint8 data = cartridge.readPRG(address);
+  if(address <= 0x1fff) return ram.read(address);
+  if(address <= 0x3fff) return ppu.readIO(address);
+  if(address <= 0x4017) return cpu.readIO(address);
+  return data;
 }
 
-auto CPU::writeRAM(uint11 addr, uint8 data) -> void {
-  ram[addr] = data;
+inline auto CPU::writeBus(uint16 address, uint8 data) -> void {
+  cartridge.writePRG(address, data);
+  if(address <= 0x1fff) return ram.write(address, data);
+  if(address <= 0x3fff) return ppu.writeIO(address, data);
+  if(address <= 0x4017) return cpu.writeIO(address, data);
 }
 
-auto CPU::readIO(uint16 addr) -> uint8 {
+auto CPU::readIO(uint16 address) -> uint8 {
   uint8 data = mdr();
 
-  switch(addr) {
+  switch(address) {
 
   case 0x4016: {
     auto poll = controllerPort1.data();
@@ -34,15 +49,15 @@ auto CPU::readIO(uint16 addr) -> uint8 {
 
   }
 
-  return apu.readIO(addr);
+  return apu.readIO(address);
 }
 
-auto CPU::writeIO(uint16 addr, uint8 data) -> void {
-  switch(addr) {
+auto CPU::writeIO(uint16 address, uint8 data) -> void {
+  switch(address) {
 
   case 0x4014: {
-    io.oamdmaPage = data;
-    io.oamdmaPending = true;
+    io.oamDMAPage = data;
+    io.oamDMAPending = 1;
     return;
   }
 
@@ -54,9 +69,9 @@ auto CPU::writeIO(uint16 addr, uint8 data) -> void {
 
   }
 
-  return apu.writeIO(addr, data);
+  return apu.writeIO(address, data);
 }
 
-auto CPU::readDebugger(uint16 addr) -> uint8 {
-  return bus.read(addr);
+auto CPU::readDebugger(uint16 address) -> uint8 {
+  return readBus(address);
 }

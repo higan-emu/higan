@@ -1,4 +1,4 @@
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 #include "arm7tdmi.hpp"
 
 namespace higan {

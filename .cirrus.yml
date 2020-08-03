@@ -6,16 +6,13 @@ linux-x86_64-binaries_task:
     - apt-get update && DEBIAN_FRONTEND=noninteractive apt-get -y install build-essential curl libgtk2.0-dev libpulse-dev mesa-common-dev libgtksourceview2.0-dev libcairo2-dev libsdl2-dev libxv-dev libao-dev libopenal-dev libudev-dev zip
 
   matrix:
-    - build_genius_script:
-        - make -C genius
-
     - build_higan_script:
-        - make -C higan target=higan profile=accuracy build=performance local=false
+        - make -C higan-ui profile=accuracy build=performance local=false
         - make -C icarus
 
       package_higan_script:
         - mkdir higan-nightly
-        - cp -a higan/out/higan higan-nightly/higan
+        - cp -a higan-ui/out/higan-ui higan-nightly/higan-ui
         - cp -a higan/System higan-nightly
         - cp -a icarus/out/icarus higan-nightly/icarus
         - cp -a icarus/Database higan-nightly
@@ -36,12 +33,12 @@ linux-x86_64-binaries_task:
         path: "higan-nightly.zip"
 
     - build_byuu_script:
-        - make -C higan target=byuu profile=performance build=performance local=false
+        - make -C byuu profile=performance build=performance local=false
 
       package_byuu_script:
         - mkdir byuu-nightly
         - mkdir byuu-nightly/Firmware
-        - cp -a higan/out/byuu byuu-nightly/byuu
+        - cp -a byuu/out/byuu byuu-nightly/byuu
         - cp -a GPLv3.txt byuu-nightly
         - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
@@ -57,16 +54,13 @@ freebsd-x86_64-binaries_task:
     - pkg install --yes curl gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv zip
 
   matrix:
-    - build_genius_script:
-        - gmake -C genius
-
     - build_higan_script:
-        - gmake -C higan target=higan profile=accuracy build=performance local=false
+        - gmake -C higan-ui profile=accuracy build=performance local=false
         - gmake -C icarus
 
       package_higan_script:
         - mkdir higan-nightly
-        - cp -a higan/out/higan higan-nightly/higan
+        - cp -a higan-ui/out/higan-ui higan-nightly/higan-ui
         - cp -a higan/System higan-nightly
         - cp -a icarus/out/icarus higan-nightly/icarus
         - cp -a icarus/Database higan-nightly
@@ -87,12 +81,12 @@ freebsd-x86_64-binaries_task:
         path: "higan-nightly.zip"
 
     - build_higan_script:
-        - gmake -C higan target=byuu profile=performance build=performance local=false
+        - gmake -C byuu profile=performance build=performance local=false
 
       package_byuu_script:
         - mkdir byuu-nightly
         - mkdir byuu-nightly/Firmware
-        - cp -a higan/out/byuu byuu-nightly/byuu
+        - cp -a byuu/out/byuu byuu-nightly/byuu
         - cp -a GPLv3.txt byuu-nightly
         - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
@@ -109,12 +103,12 @@ windows-x86_64-binaries_task:
 
   matrix:
     - build_higan_script:
-        - make -C higan target=higan profile=accuracy build=performance local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
+        - make -C higan-ui profile=accuracy build=performance local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
         - make -C icarus platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
 
       package_higan_script:
         - mkdir higan-nightly
-        - cp -a higan/out/higan.exe higan-nightly/higan.exe
+        - cp -a higan-ui/out/higan-ui.exe higan-nightly/higan-ui.exe
         - cp -a icarus/out/icarus.exe higan-nightly/icarus.exe
         - cp -a higan/System higan-nightly/Templates
         - mkdir higan-nightly/Systems
@@ -136,12 +130,12 @@ windows-x86_64-binaries_task:
         path: "higan-nightly.zip"
 
     - build_byuu_script:
-        - make -C higan target=byuu profile=performance build=performance local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
+        - make -C byuu profile=performance build=performance local=false platform=windows compiler="x86_64-w64-mingw32-g++" windres="x86_64-w64-mingw32-windres"
 
       package_byuu_script:
         - mkdir byuu-nightly
         - mkdir byuu-nightly/Firmware
-        - cp -a higan/out/byuu.exe byuu-nightly/byuu.exe
+        - cp -a byuu/out/byuu.exe byuu-nightly/byuu.exe
         - cp -a GPLv3.txt byuu-nightly
         - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly
@@ -155,12 +149,12 @@ macOS-x86_64-binaries_task:
 
   matrix:
     - build_higan_script:
-        - make -C higan target=higan profile=accuracy build=performance local=false
+        - make -C higan-ui profile=accuracy build=performance local=false
         - make -C icarus
 
       package_higan_script:
         - mkdir higan-nightly
-        - cp -a higan/out/higan.app higan-nightly
+        - cp -a higan-ui/out/higan-ui.app higan-nightly
         - cp -a higan/System higan-nightly
         - cp -a icarus/out/icarus.app higan-nightly
         - cp -a icarus/Database higan-nightly
@@ -181,12 +175,12 @@ macOS-x86_64-binaries_task:
         path: "higan-nightly.zip"
 
     - build_byuu_script:
-        - make -C higan target=byuu profile=performance build=performance local=false
+        - make -C byuu profile=performance build=performance local=false
 
       package_byuu_script:
         - mkdir byuu-nightly
         - mkdir byuu-nightly/Firmware
-        - cp -a higan/out/byuu.app byuu-nightly
+        - cp -a byuu/out/byuu.app byuu-nightly
         - cp -a GPLv3.txt byuu-nightly
         - cp -a extras/byuu/* byuu-nightly
         - zip -r byuu-nightly.zip byuu-nightly

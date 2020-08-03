@@ -4,40 +4,38 @@ namespace higan::SG1000 {
 
 CPU cpu;
 #include "memory.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "CPU");
-  from = Node::scan(parent = node, from);
+auto CPU::load(Node::Object parent) -> void {
+  if(Model::SG1000()) ram.allocate(1_KiB);
+  if(Model::SC3000()) ram.allocate(2_KiB);
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
-  eventInstruction->setAddressBits(16);
+  node = parent->append<Node::Component>("CPU");
 
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
+  debugger.load(node);
 }
 
 auto CPU::unload() -> void {
-  eventInstruction = {};
-  eventInterrupt = {};
+  ram.reset();
+  debugger = {};
   node = {};
 }
 
 auto CPU::main() -> void {
   if(state.nmiLine) {
     state.nmiLine = 0;  //edge-sensitive
-    if(eventInterrupt->enabled()) eventInterrupt->notify("NMI");
+    debugger.interrupt("NMI");
     irq(0, 0x0066, 0xff);
   }
 
   if(state.irqLine) {
     //level-sensitive
-    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
+    debugger.interrupt("IRQ");
     irq(1, 0x0038, 0xff);
   }
 
-  if(eventInstruction->enabled() && eventInstruction->address(r.pc)) {
-    eventInstruction->notify(disassembleInstruction(), disassembleContext());
-  }
+  debugger.instruction();
   instruction();
 }
 
@@ -58,8 +56,6 @@ auto CPU::power() -> void {
   Z80::bus = this;
   Z80::power();
   Thread::create(system.colorburst(), {&CPU::main, this});
-  if(Model::SG1000()) ram.allocate(0x0400);
-  if(Model::SC3000()) ram.allocate(0x0800);
   r.pc = 0x0000;  //reset vector address
   state = {};
 }

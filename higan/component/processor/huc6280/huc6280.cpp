@@ -1,4 +1,4 @@
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 #include "huc6280.hpp"
 
 namespace higan {

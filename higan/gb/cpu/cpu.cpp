@@ -8,15 +8,18 @@ namespace higan::GameBoy {
 #include "io.cpp"
 #include "memory.cpp"
 #include "timing.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 CPU cpu;
 
-auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "CPU");
-  from = Node::scan(parent = node, from);
+auto CPU::load(Node::Object parent) -> void {
+  wram.allocate(!Model::GameBoyColor() ? 8_KiB : 32_KiB);
+  hram.allocate(128);
+
+  node = parent->append<Node::Component>("CPU");
 
   if(Model::GameBoy()) {
-    version = Node::append<Node::String>(parent, from, "Version", "DMG-CPU B");
+    version = node->append<Node::String>("Version", "DMG-CPU B");
     version->setAllowedValues({
       "DMG-CPU",
       "DMG-CPU A",
@@ -27,7 +30,7 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
   }
 
   if(Model::SuperGameBoy()) {
-    version = Node::append<Node::String>(parent, from, "Version", "SGB-CPU 01");
+    version = node->append<Node::String>("Version", "SGB-CPU 01");
     version->setAllowedValues({
       "SGB-CPU 01",
       "CPU SGB2"
@@ -35,7 +38,7 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
   }
 
   if(Model::GameBoyColor()) {
-    version = Node::append<Node::String>(parent, from, "Version", "CPU CGB");
+    version = node->append<Node::String>("Version", "CPU CGB");
     version->setAllowedValues({
       "CPU CGB",
       "CPU CGB A",
@@ -46,19 +49,15 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
     });
   }
 
-  string origin = Model::SuperGameBoy() ? "SGB" : "CPU";
-
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", origin);
-  eventInstruction->setAddressBits(16);
-
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", origin);
+  debugger.load(node);
 }
 
 auto CPU::unload() -> void {
+  wram.reset();
+  hram.reset();
   node = {};
   version = {};
-  eventInstruction = {};
-  eventInterrupt = {};
+  debugger = {};
 }
 
 auto CPU::main() -> void {
@@ -71,7 +70,7 @@ auto CPU::main() -> void {
   if(r.ime) {
     //are any interrupts pending?
     if(status.interruptLatch) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
+      debugger.interrupt("IRQ");
 
       idle();
       idle();
@@ -91,9 +90,7 @@ auto CPU::main() -> void {
     }
   }
 
-  if(eventInstruction->enabled() && eventInstruction->address(PC)) {
-    eventInstruction->notify(disassembleInstruction(), disassembleContext());
-  }
+  debugger.instruction();
   instruction();
 
   if(Model::SuperGameBoy()) {

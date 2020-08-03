@@ -52,7 +52,7 @@ ifneq ($(filter $(platform),linux bsd),)
   endif
 
   ifeq ($(hiro),qt5)
-    moc = /usr/local/lib/qt5/bin/moc
+    moc = $(shell pkg-config --variable=host_bins Qt5Core)/moc
     hiro.flags   = $(flags.cpp) -DHIRO_QT=5 -fPIC $(shell pkg-config --cflags Qt5Core Qt5Gui Qt5Widgets)
     hiro.options = -L/usr/local/lib -lX11 $(shell pkg-config --libs Qt5Core Qt5Gui Qt5Widgets)
   endif
@@ -69,11 +69,11 @@ hiro.objects := \
 $(object.path)/hiro-$(hiro).o: $(hiro.path)/hiro.cpp
 	$(if $(filter qt%,$(hiro)),$(info Compiling $(hiro.path)/qt/qt.moc ...))
 	$(if $(filter qt%,$(hiro)),@$(moc) -i -o $(hiro.path)/qt/qt.moc $(hiro.path)/qt/qt.hpp)
-	$(info Compiling $< ...)
+	$(info Compiling $(subst ../,,$<) ...)
 	@$(compiler) $(hiro.flags) $(flags) $(flags.deps) -c $< -o $@
 
 $(object.path)/hiro-resource.o: $(hiro.resource)
-	$(info Compiling $< ...)
+	$(info Compiling $(subst ../,,$<) ...)
 	@$(windres) $< $@
 
 hiro.verbose:

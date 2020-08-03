@@ -1,26 +1,14 @@
-SufamiTurboCartridge sufamiturboA;
-SufamiTurboCartridge sufamiturboB;
+SufamiTurboCartridge& sufamiturboA = sufamiturboSlotA.cartridge;
+SufamiTurboCartridge& sufamiturboB = sufamiturboSlotB.cartridge;
+#include "slot.cpp"
 #include "memory.cpp"
 #include "serialization.cpp"
 
-auto SufamiTurboCartridge::load(Node::Peripheral parent, Node::Peripheral from) -> void {
-  bool portID = this == &sufamiturboB;
-  port = Node::append<Node::Port>(parent, from, string{"Cartridge Slot ", !portID ? "A" : "B"});
-  port->setFamily("Sufami Turbo");
-  port->setType("Cartridge");
-  port->setAllocate([&] { return Node::Peripheral::create("Sufami Turbo"); });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
+auto SufamiTurboCartridge::allocate(Node::Port parent) -> Node::Peripheral {
+  return node = parent->append<Node::Peripheral>("Sufami Turbo");
 }
 
-auto SufamiTurboCartridge::unload() -> void {
-  disconnect();
-  port = {};
-}
-
-auto SufamiTurboCartridge::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, "Sufami Turbo");
+auto SufamiTurboCartridge::connect() -> void {
   node->setManifest([&] { return information.manifest; });
 
   if(auto fp = platform->open(node, "manifest.bml", File::Read, File::Required)) {

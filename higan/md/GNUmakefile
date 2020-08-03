@@ -1,19 +1,19 @@
-components += m68k z80 sn76489
+higan.components += m68k z80 sn76489
 
-objects += md-interface
-objects += md-cpu md-apu md-vdp md-psg md-ym2612
-objects += md-mcd
-objects += md-system md-cartridge md-expansion
-objects += md-controller
+higan.objects += higan-md-interface
+higan.objects += higan-md-cpu higan-md-apu higan-md-vdp higan-md-psg higan-md-ym2612
+higan.objects += higan-md-mcd
+higan.objects += higan-md-system higan-md-cartridge higan-md-expansion
+higan.objects += higan-md-controller
 
-obj/md-interface.o:  md/interface/interface.cpp
-obj/md-cpu.o:        md/cpu/cpu.cpp
-obj/md-apu.o:        md/apu/apu.cpp
-obj/md-vdp.o:        md/vdp/vdp.cpp
-obj/md-psg.o:        md/psg/psg.cpp
-obj/md-ym2612.o:     md/ym2612/ym2612.cpp
-obj/md-mcd.o:        md/mcd/mcd.cpp
-obj/md-system.o:     md/system/system.cpp
-obj/md-cartridge.o:  md/cartridge/cartridge.cpp
-obj/md-expansion.o:  md/expansion/expansion.cpp
-obj/md-controller.o: md/controller/controller.cpp
+$(object.path)/higan-md-interface.o:  $(higan.path)/md/interface/interface.cpp
+$(object.path)/higan-md-cpu.o:        $(higan.path)/md/cpu/cpu.cpp
+$(object.path)/higan-md-apu.o:        $(higan.path)/md/apu/apu.cpp
+$(object.path)/higan-md-vdp.o:        $(higan.path)/md/vdp/vdp.cpp
+$(object.path)/higan-md-psg.o:        $(higan.path)/md/psg/psg.cpp
+$(object.path)/higan-md-ym2612.o:     $(higan.path)/md/ym2612/ym2612.cpp
+$(object.path)/higan-md-mcd.o:        $(higan.path)/md/mcd/mcd.cpp
+$(object.path)/higan-md-system.o:     $(higan.path)/md/system/system.cpp
+$(object.path)/higan-md-cartridge.o:  $(higan.path)/md/cartridge/cartridge.cpp
+$(object.path)/higan-md-expansion.o:  $(higan.path)/md/expansion/expansion.cpp
+$(object.path)/higan-md-controller.o: $(higan.path)/md/controller/controller.cpp

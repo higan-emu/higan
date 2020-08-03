@@ -1,15 +1,14 @@
-components += mos6502 ym2149 ym2413 x24c01
+higan.components += mos6502 ym2149 ym2413 x24c01
 
-objects += fc-interface fc-system fc-controller
-objects += fc-memory fc-cartridge fc-cpu fc-apu fc-ppu
-objects += fc-fds
+higan.objects += higan-fc-interface higan-fc-system higan-fc-controller
+higan.objects += higan-fc-cartridge higan-fc-cpu higan-fc-apu higan-fc-ppu
+higan.objects += higan-fc-fds
 
-obj/fc-interface.o:  fc/interface/interface.cpp
-obj/fc-system.o:     fc/system/system.cpp
-obj/fc-controller.o: fc/controller/controller.cpp
-obj/fc-memory.o:     fc/memory/memory.cpp
-obj/fc-cartridge.o:  fc/cartridge/cartridge.cpp
-obj/fc-cpu.o:        fc/cpu/cpu.cpp
-obj/fc-apu.o:        fc/apu/apu.cpp
-obj/fc-ppu.o:        fc/ppu/ppu.cpp
-obj/fc-fds.o:        fc/fds/fds.cpp
+$(object.path)/higan-fc-interface.o:  $(higan.path)/fc/interface/interface.cpp
+$(object.path)/higan-fc-system.o:     $(higan.path)/fc/system/system.cpp
+$(object.path)/higan-fc-controller.o: $(higan.path)/fc/controller/controller.cpp
+$(object.path)/higan-fc-cartridge.o:  $(higan.path)/fc/cartridge/cartridge.cpp
+$(object.path)/higan-fc-cpu.o:        $(higan.path)/fc/cpu/cpu.cpp
+$(object.path)/higan-fc-apu.o:        $(higan.path)/fc/apu/apu.cpp
+$(object.path)/higan-fc-ppu.o:        $(higan.path)/fc/ppu/ppu.cpp
+$(object.path)/higan-fc-fds.o:        $(higan.path)/fc/fds/fds.cpp

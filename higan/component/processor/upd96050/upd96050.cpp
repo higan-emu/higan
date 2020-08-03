@@ -1,4 +1,4 @@
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 #include "upd96050.hpp"
 
 namespace higan {

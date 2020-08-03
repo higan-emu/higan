@@ -16,15 +16,15 @@ auto System::run() -> void {
   if(!reset && controls.reset->value()) power(true);
 }
 
-auto System::load(Node::Object& root, Node::Object from) -> void {
+auto System::load(Node::Object& root) -> void {
   if(node) unload();
 
   information = {};
 
-  node = Node::append<Node::System>(nullptr, from, interface->name());
+  node = Node::System::create(interface->name());
   root = node;
 
-  regionNode = Node::append<Node::String>(node, from, "Region", "NTSC-J → NTSC-U → PAL");
+  regionNode = node->append<Node::String>("Region", "NTSC-J → NTSC-U → PAL");
   regionNode->setAllowedValues({
     "NTSC-J → NTSC-U → PAL",
     "NTSC-U → NTSC-J → PAL",
@@ -36,13 +36,13 @@ auto System::load(Node::Object& root, Node::Object from) -> void {
   });
 
   scheduler.reset();
-  controls.load(node, from);
-  cpu.load(node, from);
-  apu.load(node, from);
-  ppu.load(node, from);
-  cartridge.load(node, from);
-  controllerPort1.load(node, from);
-  controllerPort2.load(node, from);
+  controls.load(node);
+  cpu.load(node);
+  apu.load(node);
+  ppu.load(node);
+  cartridgeSlot.load(node);
+  controllerPort1.load(node);
+  controllerPort2.load(node);
 }
 
 auto System::save() -> void {
@@ -56,7 +56,7 @@ auto System::unload() -> void {
   cpu.unload();
   apu.unload();
   ppu.unload();
-  cartridge.unload();
+  cartridgeSlot.unload();
   controllerPort1.unload();
   controllerPort2.unload();
   node = {};

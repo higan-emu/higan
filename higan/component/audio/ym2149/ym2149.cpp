@@ -1,4 +1,4 @@
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 #include "ym2149.hpp"
 
 namespace higan {

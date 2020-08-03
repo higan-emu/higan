@@ -2,12 +2,21 @@
 
 struct SMP : SPC700, Thread {
   Node::Component node;
-  Node::Instruction eventInstruction;
 
-  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+
+    struct Tracer {
+      Node::Instruction instruction;
+    } tracer;
+  } debugger;
+
+  auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //smp.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -60,8 +69,8 @@ private:
   } io;
 
   //memory.cpp
-  inline auto readRAM(uint16 address) -> uint8;
-  inline auto writeRAM(uint16 address, uint8 data) -> void;
+  auto readRAM(uint16 address) -> uint8;
+  auto writeRAM(uint16 address, uint8 data) -> void;
 
   auto idle() -> void override;
   auto read(uint16 address) -> uint8 override;
@@ -70,8 +79,8 @@ private:
   auto readDisassembler(uint16 address) -> uint8 override;
 
   //io.cpp
-  inline auto readIO(uint16 address) -> uint8;
-  inline auto writeIO(uint16 address, uint8 data) -> void;
+  auto readIO(uint16 address) -> uint8;
+  auto writeIO(uint16 address, uint8 data) -> void;
 
   template<uint Frequency>
   struct Timer {
@@ -96,9 +105,9 @@ private:
   Timer< 16> timer2;
 
   //timing.cpp
-  inline auto wait(bool halve, maybe<uint16> address = nothing) -> void;
-  inline auto step(uint clocks) -> void;
-  inline auto stepTimers(uint clocks) -> void;
+  auto wait(bool halve, maybe<uint16> address = nothing) -> void;
+  auto step(uint clocks) -> void;
+  auto stepTimers(uint clocks) -> void;
 };
 
 extern SMP smp;

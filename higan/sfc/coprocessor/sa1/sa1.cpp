@@ -5,21 +5,17 @@ SA1 sa1;
 #include "dma.cpp"
 #include "memory.cpp"
 #include "io.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto SA1::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "SA1");
-  from = Node::scan(parent = node, from);
+auto SA1::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("SA1");
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "SA1");
-  eventInstruction->setAddressBits(24);
-
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "SA1");
+  debugger.load(node);
 }
 
 auto SA1::unload() -> void {
-  eventInstruction = {};
-  eventInterrupt = {};
+  debugger = {};
   node = {};
 
   rom.reset();
@@ -28,29 +24,6 @@ auto SA1::unload() -> void {
 
   cpu.coprocessors.removeByValue(this);
   Thread::destroy();
-}
-
-auto SA1::main() -> void {
-  if(r.wai) return instructionWait();
-  if(r.stp) return instructionStop();
-
-  if(io.sa1_rdyb || io.sa1_resb) {
-    //SA-1 co-processor is asleep
-    step();
-    return;
-  }
-
-  if(status.interruptPending) {
-    status.interruptPending = false;
-    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
-    interrupt();
-    return;
-  }
-
-  if(eventInstruction->enabled() && eventInstruction->address(r.pc.d)) {
-    eventInstruction->notify(disassembleInstruction(), disassembleContext());
-  }
-  instruction();
 }
 
 //override R65816::interrupt() to support SA-1 vector location I/O registers
@@ -66,35 +39,25 @@ auto SA1::interrupt() -> void {
   r.pc.d = r.vector;  //PC bank set to 0x00
 }
 
-auto SA1::lastCycle() -> void {
-  if(io.sa1_nmi && !io.sa1_nmicl) {
-    status.interruptPending = true;
-    r.vector = io.cnv;
-    io.sa1_nmifl = true;
-    io.sa1_nmicl = 1;
-    r.wai = false;
-  } else if(!r.p.i) {
-    if(io.timer_irqen && !io.timer_irqcl) {
-      status.interruptPending = true;
-      r.vector = io.civ;
-      io.timer_irqfl = true;
-      r.wai = false;
-    } else if(io.dma_irqen && !io.dma_irqcl) {
-      status.interruptPending = true;
-      r.vector = io.civ;
-      io.dma_irqfl = true;
-      r.wai = false;
-    } else if(io.sa1_irq && !io.sa1_irqcl) {
-      status.interruptPending = true;
-      r.vector = io.civ;
-      io.sa1_irqfl = true;
-      r.wai = false;
-    }
-  }
-}
+auto SA1::main() -> void {
+  if(r.wai) return instructionWait();
+  if(r.stp) return instructionStop();
 
-auto SA1::interruptPending() const -> bool {
-  return status.interruptPending;
+  if(io.sa1_rdyb || io.sa1_resb) {
+    //SA-1 co-processor is asleep
+    step();
+    return;
+  }
+
+  if(status.interruptPending) {
+    status.interruptPending = false;
+    debugger.interrupt("IRQ");
+    interrupt();
+    return;
+  }
+
+  debugger.instruction();
+  instruction();
 }
 
 auto SA1::step() -> void {
@@ -130,7 +93,38 @@ auto SA1::step() -> void {
   }
 }
 
-auto SA1::triggerIRQ() -> void {
+inline auto SA1::lastCycle() -> void {
+  if(io.sa1_nmi && !io.sa1_nmicl) {
+    status.interruptPending = true;
+    r.vector = io.cnv;
+    io.sa1_nmifl = true;
+    io.sa1_nmicl = 1;
+    r.wai = false;
+  } else if(!r.p.i) {
+    if(io.timer_irqen && !io.timer_irqcl) {
+      status.interruptPending = true;
+      r.vector = io.civ;
+      io.timer_irqfl = true;
+      r.wai = false;
+    } else if(io.dma_irqen && !io.dma_irqcl) {
+      status.interruptPending = true;
+      r.vector = io.civ;
+      io.dma_irqfl = true;
+      r.wai = false;
+    } else if(io.sa1_irq && !io.sa1_irqcl) {
+      status.interruptPending = true;
+      r.vector = io.civ;
+      io.sa1_irqfl = true;
+      r.wai = false;
+    }
+  }
+}
+
+inline auto SA1::interruptPending() const -> bool {
+  return status.interruptPending;
+}
+
+inline auto SA1::triggerIRQ() -> void {
   io.timer_irqfl = true;
   if(io.timer_irqen) io.timer_irqcl = 0;
 }

@@ -2,27 +2,16 @@
 
 namespace higan::PCEngine {
 
-Cartridge cartridge;
+Cartridge& cartridge = cartridgeSlot.cartridge;
 #include "board/board.cpp"
+#include "slot.cpp"
 #include "serialization.cpp"
 
-auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
-  port->setFamily(interface->name());
-  port->setType("Cartridge");
-  port->setAllocate([&] { return Node::Peripheral::create(interface->name()); });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
+auto Cartridge::allocate(Node::Port parent) -> Node::Peripheral {
+  return node = parent->append<Node::Peripheral>(interface->name());
 }
 
-auto Cartridge::unload() -> void {
-  disconnect();
-  port = {};
-}
-
-auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, interface->name());
+auto Cartridge::connect() -> void {
   node->setManifest([&] { return information.manifest; });
 
   information = {};
@@ -33,17 +22,21 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 
   auto document = BML::unserialize(information.manifest);
   information.name = document["game/label"].string();
+  information.region = document["game/region"].string();
   information.board = document["game/board"].string();
 
-  if(information.board == "Linear") board = new Board::Linear;
-  if(information.board == "Split" ) board = new Board::Split;
-  if(information.board == "Banked") board = new Board::Banked;
-  if(information.board == "RAM"   ) board = new Board::RAM;
-  if(information.board.match("System Card ?.??")) board = new Board::SystemCard;
-  if(!board) board = new Board::Interface;
+  if(information.board == "Linear") board = new Board::Linear{*this};
+  if(information.board == "Split") board = new Board::Split{*this};
+  if(information.board == "Banked") board = new Board::Banked{*this};
+  if(information.board == "RAM") board = new Board::RAM{*this};
+  if(information.board == "System Card") board = new Board::SystemCard{*this};
+  if(information.board == "Super System Card") board = new Board::SuperSystemCard{*this};
+  if(information.board == "Arcade Card Duo") board = new Board::ArcadeCardDuo{*this};
+  if(information.board == "Arcade Card Pro") board = new Board::ArcadeCardPro{*this};
+  if(!board) board = new Board::Interface{*this};
   board->load(document);
 
-  if(auto fp = platform->open(node, "save.ram", File::Read)) {
+  if(auto fp = platform->open(node, "backup.ram", File::Read)) {
     pcd.bram.load(fp);
   }
 
@@ -51,9 +44,10 @@ auto Cartridge::connect(Node::Peripheral with) -> void {
 }
 
 auto Cartridge::disconnect() -> void {
-  if(!node) return;
-  node = {};
+  if(!node || !board) return;
+  board->unload();
   board = {};
+  node = {};
 }
 
 auto Cartridge::save() -> void {
@@ -61,7 +55,7 @@ auto Cartridge::save() -> void {
   auto document = BML::unserialize(information.manifest);
   board->save(document);
 
-  if(auto fp = platform->open(node, "save.ram", File::Write)) {
+  if(auto fp = platform->open(node, "backup.ram", File::Write)) {
     pcd.bram.save(fp);
   }
 }
@@ -70,8 +64,8 @@ auto Cartridge::power() -> void {
   board->power();
 }
 
-auto Cartridge::read(uint8 bank, uint13 address) -> uint8 {
-  return board->read(bank, address);
+auto Cartridge::read(uint8 bank, uint13 address, uint8 data) -> uint8 {
+  return board->read(bank, address, data);
 }
 
 auto Cartridge::write(uint8 bank, uint13 address, uint8 data) -> void {

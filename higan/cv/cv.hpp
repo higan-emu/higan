@@ -1,16 +1,14 @@
 #pragma once
-
-//license: GPLv3
 //started: 2019-02-19
 
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 
 #include <component/processor/z80/z80.hpp>
 #include <component/video/tms9918/tms9918.hpp>
 #include <component/audio/sn76489/sn76489.hpp>
 
 namespace higan::ColecoVision {
-  #include <emulator/inline.hpp>
+  #include <higan/inline.hpp>
 
   struct Model {
     inline static auto ColecoVision() -> bool;

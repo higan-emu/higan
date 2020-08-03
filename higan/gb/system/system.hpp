@@ -13,7 +13,7 @@ struct System {
     Node::Button start;
 
     //controls.cpp
-    auto load(Node::Object, Node::Object) -> void;
+    auto load(Node::Object) -> void;
     auto poll() -> void;
 
     bool yHold = 0;
@@ -29,7 +29,7 @@ struct System {
     GameBoyColor,
     SuperGameBoy,
   };
-  higan::Memory::Readable<uint8> bootROM;  //todo: no higan:: prefix
+  Memory::Readable<uint8> bootROM;
 
   auto model() const -> Model { return information.model; }
   auto clocksExecuted() const -> uint { return information.clocksExecuted; }
@@ -38,7 +38,7 @@ struct System {
   auto run() -> void;
   auto clocksExecuted() -> uint;
 
-  auto load(Node::Object&, Node::Object) -> void;
+  auto load(Node::Object&) -> void;
   auto unload() -> void;
   auto save() -> void;
   auto power() -> void;

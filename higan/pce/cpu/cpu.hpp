@@ -2,12 +2,26 @@
 
 struct CPU : HuC6280, Thread {
   Node::Component node;
-  Node::Instruction eventInstruction;
-  Node::Notification eventInterrupt;
   Memory::Writable<uint8> ram;  //PC Engine = 8KB, SuperGrafx = 32KB
 
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view) -> void;
+
+    struct Memory {
+      Node::Memory ram;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;
+    } tracer;
+  } debugger;
+
   //cpu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -25,33 +39,33 @@ struct CPU : HuC6280, Thread {
 
 private:
   struct IRQ2 {  //CD-ROM, BRK instruction
-    enum : uint16_t { vector = 0xfff6 };
+    static constexpr uint16_t vector = 0xfff6;
     uint1 disable;
     uint1 pending;
   } irq2;
 
   struct IRQ1 {  //VDC
-    enum : uint16_t { vector = 0xfff8 };
+    static constexpr uint16_t vector = 0xfff8;
     uint1 disable;
     uint1 pending;
   } irq1;
 
   struct TIQ {  //Timer
-    enum : uint16_t { vector = 0xfffa };
+    static constexpr uint16_t vector = 0xfffa;
     uint1 disable;
     uint1 pending;
   } tiq;
 
   struct NMI {  //not exposed by the PC Engine
-    enum : uint16_t { vector = 0xfffc };
+    static constexpr uint16_t vector = 0xfffc;
   } nmi;
 
   struct Reset {
-    enum : uint16_t { vector = 0xfffe };
+    static constexpr uint16_t vector = 0xfffe;
   } reset;
 
   struct Timer {
-    auto irqLine() const { return line; }
+    auto irqLine() const -> bool { return line; }
 
     uint1 line;
     uint1 enable;

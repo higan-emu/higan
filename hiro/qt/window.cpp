@@ -193,6 +193,9 @@ auto pWindow::setMinimumSize(Size size) -> void {
 
 auto pWindow::setModal(bool modal) -> void {
   if(modal) {
+    //Qt stupidly only allows you to change window modality while the window is invisible.
+    //this is an artificial limitation that isn't necessary for Windows, macOS, or Xorg.
+    //but we can't exactly fix Qt, so we'll have to hide and show windows as needed here.
     bool isVisible = qtWindow->isVisible();
     if(isVisible) setVisible(false);
     qtWindow->setWindowModality(Qt::ApplicationModal);

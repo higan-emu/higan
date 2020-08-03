@@ -14,23 +14,36 @@ VDP vdp;
 #include "background.cpp"
 #include "sprite.cpp"
 #include "color.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto VDP::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "VDP");
-  from = Node::scan(parent = node, from);
+auto VDP::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("VDP");
 
-  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen = node->append<Node::Screen>("Screen");
   screen->colors(1 << 10, {&VDP::color, this});
-  screen->setSize(1024, 239);
+  screen->setSize(1088, 239);
   screen->setScale(0.25, 1.0);
   screen->setAspect(8.0, 7.0);
-  from = Node::scan(parent = screen, from);
+
+  overscan = screen->append<Node::Boolean>("Overscan", true, [&](auto value) {
+    if(value == 0) screen->setSize(1024, 239);
+    if(value == 1) screen->setSize(1088, 239);
+  });
+  overscan->setDynamic(true);
+
+  vce.debugger.load(vce, node);
+  vdc0.debugger.load(vdc0, node); if(Model::SuperGrafx())
+  vdc1.debugger.load(vdc1, node);
 }
 
 auto VDP::unload() -> void {
   node = {};
   screen = {};
+  overscan = {};
+  vce.debugger = {};
+  vdc0.debugger = {}; if(Model::SuperGrafx())
+  vdc1.debugger = {};
 }
 
 auto VDP::main() -> void {
@@ -49,8 +62,8 @@ auto VDP::main() -> void {
     vdc1.hclock();
 
     uint10 color;
-    if(Model::PCEngine()) color = vdc0.bus();
-    if(Model::SuperGrafx()) color = vpc.bus(io.hcounter);
+    if(Model::SuperGrafx() == 0) color = vdc0.bus();
+    if(Model::SuperGrafx() == 1) color = vpc.bus(io.hcounter);
     color = vce.io.grayscale << 9 | vce.cram.read(color);
 
     if(vce.clock() >= 2) *output++ = color;
@@ -82,7 +95,13 @@ auto VDP::step(uint clocks) -> void {
 }
 
 auto VDP::refresh() -> void {
-  screen->refresh(buffer + 1365 * 21 + 96, 1365 * sizeof(uint32), 1024, 239);
+  if(overscan->value() == 0) {
+    screen->refresh(buffer + 1365 * 21 + 96, 1365 * sizeof(uint32), 1024, 239);
+  }
+
+  if(overscan->value() == 1) {
+    screen->refresh(buffer + 1365 * 21 + 96, 1365 * sizeof(uint32), 1088, 239);
+  }
 }
 
 auto VDP::power() -> void {

@@ -20,30 +20,32 @@ PPU ppu;
 #include "io.cpp"
 #include "memory.cpp"
 #include "color.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "PPU");
-  from = Node::scan(parent = node, from);
+auto PPU::load(Node::Object parent) -> void {
+  vram.allocate(96_KiB);
+  pram.allocate(512);
 
-  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  node = parent->append<Node::Component>("PPU");
+
+  screen = node->append<Node::Screen>("Screen");
   screen->colors(1 << 15, {&PPU::color, this});
   screen->setSize(240, 160);
   screen->setScale(1.0, 1.0);
   screen->setAspect(1.0, 1.0);
-  from = Node::scan(parent = screen, from);
 
-  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+  colorEmulation = screen->append<Node::Boolean>("Color Emulation", true, [&](auto value) {
     screen->resetPalette();
   });
   colorEmulation->setDynamic(true);
 
-  interframeBlending = Node::append<Node::Boolean>(parent, from, "Interframe Blending", true, [&](auto value) {
+  interframeBlending = screen->append<Node::Boolean>("Interframe Blending", true, [&](auto value) {
     screen->setInterframeBlending(value);
   });
   interframeBlending->setDynamic(true);
 
-  rotation = Node::append<Node::String>(parent, from, "Orientation", "0°", [&](auto value) {
+  rotation = parent->append<Node::String>("Orientation", "0°", [&](auto value) {
     if(value ==   "0°") screen->setRotation(  0);
     if(value ==  "90°") screen->setRotation( 90);
     if(value == "180°") screen->setRotation(180);
@@ -51,17 +53,22 @@ auto PPU::load(Node::Object parent, Node::Object from) -> void {
   });
   rotation->setDynamic(true);
   rotation->setAllowedValues({"0°", "90°", "180°", "270°"});
+
+  debugger.load(node);
 }
 
 auto PPU::unload() -> void {
+  vram.reset();
+  pram.reset();
   node = {};
   screen = {};
   colorEmulation = {};
   interframeBlending = {};
   rotation = {};
+  debugger = {};
 }
 
-auto PPU::blank() -> bool {
+inline auto PPU::blank() -> bool {
   return io.forceBlank || cpu.stopped();
 }
 

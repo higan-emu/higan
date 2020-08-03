@@ -2,26 +2,15 @@
 
 namespace higan::SG1000 {
 
-Cartridge cartridge;
+Cartridge& cartridge = cartridgeSlot.cartridge;
+#include "slot.cpp"
 #include "serialization.cpp"
 
-auto Cartridge::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Cartridge Slot");
-  port->setFamily(interface->name());
-  port->setType("Cartridge");
-  port->setAllocate([&] { return Node::Peripheral::create(interface->name()); });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
+auto Cartridge::allocate(Node::Port parent) -> Node::Peripheral {
+  return node = parent->append<Node::Peripheral>(interface->name());
 }
 
-auto Cartridge::unload() -> void {
-  disconnect();
-  port = {};
-}
-
-auto Cartridge::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, interface->name());
+auto Cartridge::connect() -> void {
   node->setManifest([&] { return information.manifest; });
 
   information = {};
@@ -82,7 +71,7 @@ auto Cartridge::read(uint16 address) -> maybe<uint8> {
     return rom.read(address - 0x0000);
   }
 
-  if(address >= 0x8000 && address <= 0xffff) {
+  if(address >= 0x8000 && address <= 0xbfff) {
     return ram.read(address - 0x8000);
   }
 
@@ -96,7 +85,7 @@ auto Cartridge::write(uint16 address, uint8 data) -> bool {
     return rom.write(address - 0x0000, data), true;
   }
 
-  if(address >= 0x8000 && address <= 0xffff) {
+  if(address >= 0x8000 && address <= 0xbfff) {
     return ram.write(address - 0x8000, data), true;
   }
 

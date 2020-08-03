@@ -4,13 +4,22 @@ struct DSP : Thread {
   Node::Component node;
   Node::Stream stream;
 
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+
+    struct Memory {
+      Node::Memory ram;
+    } memory;
+  } debugger;
+
   uint8 apuram[64 * 1024];
   uint8 registers[128];
 
   auto mute() const -> bool { return master.mute; }
 
   //dsp.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -128,7 +137,8 @@ private:
   } voice[8];
 
   //gaussian.cpp
-  static const int16 GaussianTable[512];
+  int16 gaussianTable[512];
+  auto gaussianConstructTable() -> void;
   auto gaussianInterpolate(const Voice& v) -> int;
 
   //counter.cpp

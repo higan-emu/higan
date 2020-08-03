@@ -40,8 +40,11 @@ auto construct() -> void {
   media.append(new MSX2);
   media.append(new NeoGeoPocket);
   media.append(new NeoGeoPocketColor);
+  media.append(new Nintendo64);
+  media.append(new Nintendo64DD);
   media.append(new PCEngine);
   media.append(new PCEngineCD);
+  media.append(new PlayStation);
   media.append(new PocketChallengeV2);
   media.append(new SC3000);
   media.append(new SG1000);
@@ -51,6 +54,41 @@ auto construct() -> void {
   media.append(new WonderSwan);
   media.append(new WonderSwanColor);
   for(auto& medium : media) medium->construct();
+}
+
+auto medium(const string& name) -> shared_pointer<Media> {
+  for(auto& medium : media) {
+    if(medium->name() == name) return medium;
+  }
+  return {};
+}
+
+auto identify(const string& filename) -> string {
+  auto extension = Location::suffix(filename).trimLeft(".", 1L).downcase();
+
+  if(extension == "zip") {
+    Decode::ZIP archive;
+    if(archive.open(filename)) {
+      for(auto& file : archive.file) {
+        auto match = Location::suffix(file.name).trimLeft(".", 1L).downcase();
+        for(auto& medium : media) {
+          if(medium->extensions().find(match)) {
+            extension = match;
+          }
+        }
+      }
+    }
+  }
+
+  for(auto& medium : media) {
+    if(medium->extensions().find(extension)) {
+      if(auto manifest = medium->manifest(filename)) {
+        return medium->name();
+      }
+    }
+  }
+
+  return {};  //unable to identify
 }
 
 auto main(Arguments arguments) -> void {
@@ -66,12 +104,25 @@ auto main(Arguments arguments) -> void {
     return print("icarus");
   }
 
+  if(string filename; arguments.take("--identify", filename)) {
+    return print(identify(filename), "\n");
+  }
+
   if(string system; arguments.take("--system", system)) {
     for(auto& medium : media) {
       if(medium->name() != system) continue;
 
       if(string manifest; arguments.take("--manifest", manifest)) {
-        return print(medium->manifest(manifest));
+        if(auto result = medium->manifest(manifest)) return print(result);
+        if(medium->extensions().find("cue")) {
+          //audio CD-ROM fallback
+          string result;
+          result.append("game\n");
+          result.append("  name:  ", medium->name(manifest), "\n");
+          result.append("  label: ", medium->name(manifest), "\n");
+          return print(result);
+        }
+        return;
       }
 
       if(string import; arguments.take("--import", import)) {
@@ -117,7 +168,9 @@ auto main(Arguments arguments) -> void {
 
 }
 
-#if !defined(ICARUS_LIBRARY)
+#if !defined(MIA_LIBRARY)
+
+#include <higan/resource/resource.cpp>
 
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {

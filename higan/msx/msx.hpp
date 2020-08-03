@@ -1,9 +1,7 @@
 #pragma once
-
-//license: GPLv3
 //started: 2018-12-28
 
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 
 #include <component/processor/z80/z80.hpp>
 #include <component/video/tms9918/tms9918.hpp>
@@ -12,7 +10,7 @@
 #include <component/audio/ym2413/ym2413.hpp>
 
 namespace higan::MSX {
-  #include <emulator/inline.hpp>
+  #include <higan/inline.hpp>
 
   struct Model {
     inline static auto MSX() -> bool;

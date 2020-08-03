@@ -170,7 +170,7 @@ auto Cartridge::loadBSMemory(Markup::Node node) -> void {
 
   if(auto node = board["slot(type=BSMemory)"]) {
     for(auto map : node.find("map")) {
-      loadMap(map, {&BSMemory::read, &bsmemory}, {&BSMemory::write, &bsmemory});
+      loadMap(map, {&BSMemoryCartridge::read, &bsmemory}, {&BSMemoryCartridge::write, &bsmemory});
     }
   }
 }
@@ -327,7 +327,7 @@ auto Cartridge::loadARMDSP(Markup::Node node) -> void {
   }
 
   for(auto map : node.find("map")) {
-    loadMap(map, {&ArmDSP::read, &armdsp}, {&ArmDSP::write, &armdsp});
+    loadMap(map, {&ARMDSP::read, &armdsp}, {&ARMDSP::write, &armdsp});
   }
 
   if(auto memory = node["memory(type=ROM,content=Program,architecture=ARM6)"]) {

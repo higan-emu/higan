@@ -10,19 +10,23 @@ CPU cpu;
 #include "dma.cpp"
 #include "timer.cpp"
 #include "keypad.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "CPU");
-  from = Node::scan(parent = node, from);
+auto CPU::load(Node::Object parent) -> void {
+  iwram.allocate( 32_KiB);
+  ewram.allocate(256_KiB);
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
-  eventInstruction->setAddressBits(32);
+  node = parent->append<Node::Component>("CPU");
+
+  debugger.load(node);
 }
 
 auto CPU::unload() -> void {
+  iwram.reset();
+  ewram.reset();
   node = {};
-  eventInstruction = {};
+  debugger = {};
 }
 
 auto CPU::main() -> void {
@@ -43,9 +47,7 @@ auto CPU::main() -> void {
     context.halted = false;
   }
 
-  if(eventInstruction->enabled() && eventInstruction->address(pipeline.execute.address)) {
-    eventInstruction->notify(disassembleInstruction(), disassembleContext());
-  }
+  debugger.instruction();
   instruction();
 }
 

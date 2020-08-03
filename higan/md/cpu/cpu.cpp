@@ -5,21 +5,17 @@ namespace higan::MegaDrive {
 CPU cpu;
 #include "bus.cpp"
 #include "io.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "CPU");
-  from = Node::scan(parent = node, from);
+auto CPU::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("CPU");
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
-  eventInstruction->setAddressBits(24);
-
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
+  debugger.load(node);
 }
 
 auto CPU::unload() -> void {
-  eventInstruction = {};
-  eventInterrupt = {};
+  debugger = {};
   node = {};
 }
 
@@ -31,13 +27,13 @@ auto CPU::main() -> void {
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
       prefetch();
       prefetch();
-      if(eventInterrupt->enabled()) eventInterrupt->notify("Reset");
+      debugger.interrupt("Reset");
     }
 
     if(state.interruptPending.bit((uint)Interrupt::HorizontalBlank)) {
       if(4 > r.i) {
         state.interruptPending.bit((uint)Interrupt::HorizontalBlank) = 0;
-        if(eventInterrupt->enabled()) eventInterrupt->notify("Hblank");
+        debugger.interrupt("Hblank");
         return interrupt(Vector::Level4, 4);
       }
     }
@@ -45,26 +41,24 @@ auto CPU::main() -> void {
     if(state.interruptPending.bit((uint)Interrupt::VerticalBlank)) {
       if(6 > r.i) {
         state.interruptPending.bit((uint)Interrupt::VerticalBlank) = 0;
-        if(eventInterrupt->enabled()) eventInterrupt->notify("Vblank");
+        debugger.interrupt("Vblank");
         return interrupt(Vector::Level6, 6);
       }
     }
   }
 
-  if(eventInstruction->enabled() && eventInstruction->address(r.pc - 4)) {
-    eventInstruction->notify(disassembleInstruction(r.pc - 4), disassembleContext());
-  }
+  debugger.instruction();
   instruction();
 }
 
-auto CPU::step(uint clocks) -> void {
+inline auto CPU::step(uint clocks) -> void {
   refresh.ram += clocks;
   while(refresh.ram >= 133) refresh.ram -= 133;
   refresh.external += clocks;
   Thread::step(clocks);
 }
 
-auto CPU::idle(uint clocks) -> void {
+inline auto CPU::idle(uint clocks) -> void {
   step(clocks);
 }
 

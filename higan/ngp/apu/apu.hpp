@@ -1,13 +1,27 @@
 struct APU : Z80, Z80::Bus, Thread {
   Node::Component node;
-  Node::Instruction eventInstruction;
-  Node::Notification eventInterrupt;
   Memory::Writable<uint8> ram;
 
-  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view) -> void;
+
+    struct Memory {
+      Node::Memory ram;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;
+    } tracer;
+  } debugger;
+
+  auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //apu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto save() -> void;
   auto unload() -> void;
 

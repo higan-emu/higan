@@ -4,8 +4,8 @@ auto APU::Envelope::volume() const -> uint {
 
 auto APU::Envelope::clock() -> void {
   if(reloadDecay) {
-    reloadDecay = false;
-    decayVolume = 0x0f;
+    reloadDecay = 0;
+    decayVolume = 0xf;
     decayCounter = speed + 1;
     return;
   }

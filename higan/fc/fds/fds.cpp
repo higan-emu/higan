@@ -8,17 +8,16 @@ FDS fds;
 #include "audio.cpp"
 #include "serialization.cpp"
 
-auto FDS::load(Node::Object parent, Node::Object from) -> void {
-  port = Node::append<Node::Port>(parent, from, "Disk Slot");
+auto FDS::load(Node::Object parent) -> void {
+  port = parent->append<Node::Port>("Disk Slot");
   port->setFamily("Famicom Disk");
   port->setType("Floppy Disk");
   port->setHotSwappable(true);
-  port->setAllocate([&] { return Node::Peripheral::create("Famicom Disk"); });
-  port->setAttach([&](auto node) { connect(node); });
-  port->setDetach([&](auto node) { disconnect(); });
-  port->scan(from);
-  from = Node::scan(parent = port, from);
-  audio.load(parent, from);
+  port->setAllocate([&](auto name) { return allocate(port); });
+  port->setConnect([&] { return connect(); });
+  port->setDisconnect([&] { return disconnect(); });
+
+  audio.load(parent);
   power();
 }
 
@@ -35,11 +34,14 @@ auto FDS::unload() -> void {
   changed = 0;
 }
 
-auto FDS::connect(Node::Peripheral with) -> void {
-  node = Node::append<Node::Peripheral>(port, with, "Famicom Disk");
+auto FDS::allocate(Node::Port parent) -> Node::Peripheral {
+  return node = parent->append<Node::Peripheral>("Famicom Disk");
+}
+
+auto FDS::connect() -> void {
   node->setManifest([&] { return information.manifest; });
 
-  state = Node::append<Node::String>(node, with, "State", "Ejected", [&](auto value) {
+  state = node->append<Node::String>("State", "Ejected", [&](auto value) {
     change(value);
   });
   vector<string> states = {"Ejected"};
@@ -78,6 +80,7 @@ auto FDS::connect(Node::Peripheral with) -> void {
   }
 
   state->setAllowedValues(states);
+  state->setDynamic(true);
   change(state->value());
 }
 

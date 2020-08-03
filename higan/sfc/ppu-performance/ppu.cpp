@@ -12,31 +12,31 @@ PPU ppu;
 #include "object.cpp"
 #include "dac.cpp"
 #include "color.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 #include "../ppu/counter/serialization.cpp"
 
-auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "PPU");
-  from = Node::scan(parent = node, from);
+auto PPU::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("PPU");
 
-  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  screen = node->append<Node::Screen>("Screen");
   screen->colors(1 << 19, {&PPU::color, this});
   screen->setSize(512, 480);
   screen->setScale(0.5, 0.5);
   screen->setAspect(8.0, 7.0);
-  from = Node::scan(parent = screen, from);
 
-  region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
-    if(region == "NTSC") screen->setSize(512, 448);
-    if(region == "PAL" ) screen->setSize(512, 480);
+  overscanEnable = screen->append<Node::Boolean>("Overscan", true, [&](auto value) {
+    if(value == 0) screen->setSize(512, 448);
+    if(value == 1) screen->setSize(512, 480);
   });
-  region->setAllowedValues({"NTSC", "PAL"});
-  region->setDynamic(true);
+  overscanEnable->setDynamic(true);
 
-  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+  colorEmulation = screen->append<Node::Boolean>("Color Emulation", true, [&](auto value) {
     screen->resetPalette();
   });
   colorEmulation->setDynamic(true);
+
+  debugger.load(node);
 
   output = new uint32[512 * 512];
   output += 16 * 512;  //overscan offset
@@ -46,6 +46,7 @@ auto PPU::unload() -> void {
   node = {};
   screen = {};
   colorEmulation = {};
+  debugger = {};
 
   output -= 16 * 512;
   delete[] output;
@@ -167,14 +168,14 @@ auto PPU::refresh() -> void {
   uint width = width512 ? 512 : 256;
   uint pitch = state.interlace ? 512 : 1024;
 
-  if(region->value() == "NTSC") {
+  if(overscanEnable->value() == 0) {
     data += 2 * 512;
     if(overscan()) data += 16 * 512;
     uint height = 224 << state.interlace;
     screen->refresh(data, pitch * sizeof(uint32), width, height);
   }
 
-  if(region->value() == "PAL") {
+  if(overscanEnable->value() == 1) {
     if(!overscan()) data -= 14 * 512;
     uint height = 240 << state.interlace;
     screen->refresh(data, pitch * sizeof(uint32), width, height);

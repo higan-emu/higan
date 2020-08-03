@@ -1,5 +1,4 @@
 struct Cartridge {
-  Node::Port port;
   Node::Peripheral node;
 
   auto manifest() const -> string { return information.manifest; }
@@ -7,9 +6,8 @@ struct Cartridge {
   auto region() const -> string { return information.region; }
 
   //cartridge.cpp
-  auto load(Node::Object, Node::Object) -> void;
-  auto unload() -> void;
-  auto connect(Node::Peripheral) -> void;
+  auto allocate(Node::Port) -> Node::Peripheral;
+  auto connect() -> void;
   auto disconnect() -> void;
 
   auto save() -> void;
@@ -51,4 +49,5 @@ struct Cartridge {
   } mapper;
 };
 
-extern Cartridge cartridge;
+#include "slot.hpp"
+extern Cartridge& cartridge;

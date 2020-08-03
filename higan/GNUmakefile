@@ -1,19 +1,3 @@
-target := higan
-#target := byuu
-build := performance
-openmp := false
-local := true
-flags += -I. -I..
-
-$(info Targeting $(target) ...)
-
-nall.path := ../nall
-include $(nall.path)/GNUmakefile
-
-ifeq ($(platform),local)
-  flags += -march=native
-endif
-
 ifeq ($(platform),windows)
   options += -luuid -lkernel32 -luser32 -lgdi32 -lcomctl32 -lcomdlg32 -lshell32
   options += -Wl,-enable-auto-import
@@ -26,20 +10,9 @@ else
   $(error "unsupported platform")
 endif
 
-objects := libco emulator
+higan.objects := higan
 
-obj/libco.o: ../libco/libco.c
-obj/emulator.o: emulator/emulator.cpp
-
-ifeq ($(target),higan)
-  profile := accuracy
-  cores := fc sfc sg ms md pce msx cv gb gba ws ngp
-endif
-
-ifeq ($(target),byuu)
-  profile := performance
-  cores := fc sfc sg ms md pce msx gb gba ws ngp
-endif
+$(object.path)/higan.o: $(higan.path)/higan/higan.cpp
 
 ifeq ($(profile),accuracy)
   flags += -DPROFILE_ACCURACY
@@ -50,60 +23,63 @@ ifeq ($(profile),performance)
 endif
 
 ifneq ($(filter $(cores),fc),)
-  include fc/GNUmakefile
+  include $(higan.path)/fc/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),sfc),)
-  include sfc/GNUmakefile
+  include $(higan.path)/sfc/GNUmakefile
+endif
+
+ifneq ($(filter $(cores),n64),)
+  include $(higan.path)/n64/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),sg),)
-  include sg/GNUmakefile
+  include $(higan.path)/sg/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),ms),)
-  include ms/GNUmakefile
+  include $(higan.path)/ms/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),md),)
-  include md/GNUmakefile
+  include $(higan.path)/md/GNUmakefile
+endif
+
+ifneq ($(filter $(cores),ps1),)
+  include $(higan.path)/ps1/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),pce),)
-  include pce/GNUmakefile
+  include $(higan.path)/pce/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),msx),)
-  include msx/GNUmakefile
+  include $(higan.path)/msx/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),cv),)
-  include cv/GNUmakefile
+  include $(higan.path)/cv/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),gb),)
-  include gb/GNUmakefile
+  include $(higan.path)/gb/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),gba),)
-  include gba/GNUmakefile
+  include $(higan.path)/gba/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),ws),)
-  include ws/GNUmakefile
+  include $(higan.path)/ws/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),ngp),)
-  include ngp/GNUmakefile
+  include $(higan.path)/ngp/GNUmakefile
 endif
 
-include component/GNUmakefile
+include $(higan.path)/component/GNUmakefile
 
 flags += $(foreach c,$(call strupper,$(cores)),-DCORE_$c)
-ui := target-$(target)
-include $(ui)/GNUmakefile
--include obj/*.d
 
-clean:
-	$(call delete,obj/*)
-	$(call delete,out/*)
+higan.objects := $(higan.objects:%=$(object.path)/%.o)

@@ -1,8 +1,19 @@
 struct PPU : Thread, PPUcounter {
   Node::Component node;
   Node::Screen screen;
-  Node::String region;
+  Node::Boolean overscanEnable;
   Node::Boolean colorEmulation;
+
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+
+    struct Memory {
+      Node::Memory vram;
+      Node::Memory oam;
+      Node::Memory cgram;
+    } memory;
+  } debugger;
 
   auto hires() const -> bool { return io.pseudoHires || io.bgMode == 5 || io.bgMode == 6; }
   auto interlace() const -> bool { return state.interlace; }
@@ -10,7 +21,7 @@ struct PPU : Thread, PPUcounter {
   auto vdisp() const -> uint { return state.vdisp; }
 
   //ppu.cpp
-  auto load(Node::Object parent, Node::Object from) -> void;
+  auto load(Node::Object parent) -> void;
   auto unload() -> void;
 
   auto step(uint clocks) -> void;
@@ -21,13 +32,13 @@ struct PPU : Thread, PPUcounter {
 
   //io.cpp
   auto latchCounters() -> void;
-  alwaysinline auto addressVRAM() const -> uint16;
-  alwaysinline auto readVRAM() -> uint16;
-  alwaysinline auto writeVRAM(uint1 byte, uint8 data) -> void;
-  alwaysinline auto readOAM(uint10 address) -> uint8;
-  alwaysinline auto writeOAM(uint10 address, uint8 data) -> void;
-  alwaysinline auto readCGRAM(uint1 byte, uint8 address) -> uint8;
-  alwaysinline auto writeCGRAM(uint8 address, uint15 data) -> void;
+  auto addressVRAM() const -> uint16;
+  auto readVRAM() -> uint16;
+  auto writeVRAM(uint1 byte, uint8 data) -> void;
+  auto readOAM(uint10 address) -> uint8;
+  auto writeOAM(uint10 address, uint8 data) -> void;
+  auto readCGRAM(uint1 byte, uint8 address) -> uint8;
+  auto writeCGRAM(uint8 address, uint15 data) -> void;
   auto readIO(uint24 address, uint8 data) -> uint8;
   auto writeIO(uint24 address, uint8 data) -> void;
   auto updateVideoMode() -> void;

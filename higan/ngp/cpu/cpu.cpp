@@ -11,18 +11,12 @@ CPU cpu;
 #include "adc.cpp"
 #include "rtc.cpp"
 #include "watchdog.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "CPU");
-  from = Node::scan(parent = node, from);
-
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
-  eventInstruction->setAddressBits(24);
-
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
-
+auto CPU::load(Node::Object parent) -> void {
   ram.allocate(12_KiB, 0x00);
+
   if(auto fp = platform->open(system.node, "cpu.ram", File::Read)) {
     ram.load(fp);
 
@@ -51,6 +45,10 @@ auto CPU::load(Node::Object parent, Node::Object from) -> void {
     ram[0x2f91] = Model::NeoGeoPocketColor() ? 0x10 : 0x00;
     ram[0x2f95] = ram[0x2f91];
   }
+
+  node = parent->append<Node::Component>("CPU");
+
+  debugger.load(node);
 }
 
 auto CPU::save() -> void {
@@ -61,15 +59,13 @@ auto CPU::save() -> void {
 
 auto CPU::unload() -> void {
   ram.reset();
-
   node = {};
-  eventInstruction = {};
-  eventInterrupt = {};
+  debugger = {};
 }
 
 auto CPU::main() -> void {
   if(interrupts.fire()) {
-    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
+    debugger.interrupt("IRQ");
     r.halted = false;
   }
 
@@ -77,9 +73,7 @@ auto CPU::main() -> void {
     return step(16);
   }
 
-  if(eventInstruction->enabled() && eventInstruction->address(r.pc.l.l0)) {
-    eventInstruction->notify(disassembleInstruction(), disassembleContext());
-  }
+  debugger.instruction();
   instruction();
 }
 
@@ -119,7 +113,7 @@ auto CPU::power() -> void {
   address.byte(1) = system.bios.read(0xff01);
   address.byte(2) = system.bios.read(0xff02);
   //hack: real hardware boots once batteries are connected, and goes into a halt state.
-  //higan implements power as a switch rather than a button, so the PC is jumped past
+  //power is implemented as a switch rather than a button, so the PC is jumped past
   //this to a hardware reset point, bypassing the need to press controls.power first.
   address = 0xff1800;
   store(PC, address);

@@ -1,8 +1,25 @@
 struct CPU : SM83, Thread {
   Node::Component node;
   Node::String version;
-  Node::Instruction eventInstruction;
-  Node::Notification eventInterrupt;
+  Memory::Writable<uint8> wram;  //GB = 8KB, GBC = 32KB
+  Memory::Writable<uint8> hram;
+
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view) -> void;
+
+    struct Memory {
+      Node::Memory wram;
+      Node::Memory hram;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;
+    } tracer;
+  } debugger;
 
   struct Interrupt { enum : uint {
     /* 0 */ VerticalBlank,
@@ -16,7 +33,7 @@ struct CPU : SM83, Thread {
   auto highSpeed() const -> bool { return status.speedDouble == 1; }
 
   //cpu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -122,9 +139,6 @@ struct CPU : SM83, Thread {
     //$ffff  IE
     uint8 interruptEnable;
   } status;
-
-  uint8 wram[32768];  //GB=8192, GBC=32768
-  uint8 hram[128];
 };
 
 extern CPU cpu;

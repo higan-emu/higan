@@ -17,25 +17,19 @@ MCD mcd;
 #include "timer.cpp"
 #include "gpu.cpp"
 #include "pcm.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto MCD::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "Mega CD");
-  from = Node::scan(parent = node, from);
+auto MCD::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("Mega CD");
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "MCD");
-  eventInstruction->setAddressBits(24);
-
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "MCD");
-
-  tray = Node::append<Node::Port>(parent, from, "Disc Tray");
+  tray = parent->append<Node::Port>("Disc Tray");
   tray->setFamily("Mega CD");
   tray->setType("Compact Disc");
   tray->setHotSwappable(true);
-  tray->setAllocate([&] { return Node::Peripheral::create("Mega CD"); });
-  tray->setAttach([&](auto node) { connect(node); });
-  tray->setDetach([&](auto node) { disconnect(); });
-  tray->scan(from);
+  tray->setAllocate([&](auto name) { return allocate(tray); });
+  tray->setConnect([&] { return connect(); });
+  tray->setDisconnect([&] { return disconnect(); });
 
   bios.allocate   (128_KiB >> 1);
   pram.allocate   (512_KiB >> 1);
@@ -49,8 +43,9 @@ auto MCD::load(Node::Object parent, Node::Object from) -> void {
     }
   }
 
-  cdd.load(parent, from);
-  pcm.load(parent, from);
+  cdd.load(node);
+  pcm.load(node);
+  debugger.load(node);
 }
 
 auto MCD::unload() -> void {
@@ -72,28 +67,27 @@ auto MCD::unload() -> void {
   cdc.ram.reset();
 
   node = {};
-  eventInstruction = {};
-  eventInterrupt = {};
   tray = {};
+  debugger = {};
 }
 
-auto MCD::connect(Node::Peripheral with) -> void {
-  disconnect();
-  if(with) {
-    disc = Node::append<Node::Peripheral>(tray, with, "Mega CD");
-    disc->setManifest([&] { return information.manifest; });
+auto MCD::allocate(Node::Port parent) -> Node::Peripheral {
+  return disc = parent->append<Node::Peripheral>("Mega CD");
+}
 
-    information = {};
-    if(auto fp = platform->open(disc, "manifest.bml", File::Read, File::Required)) {
-      information.manifest = fp->reads();
-    }
+auto MCD::connect() -> void {
+  disc->setManifest([&] { return information.manifest; });
 
-    auto document = BML::unserialize(information.manifest);
-    information.name = document["game/label"].text();
-
-    fd = platform->open(disc, "cd.rom", File::Read, File::Required);
-    cdd.insert();
+  information = {};
+  if(auto fp = platform->open(disc, "manifest.bml", File::Read, File::Required)) {
+    information.manifest = fp->reads();
   }
+
+  auto document = BML::unserialize(information.manifest);
+  information.name = document["game/label"].string();
+
+  fd = platform->open(disc, "cd.rom", File::Read, File::Required);
+  cdd.insert();
 }
 
 auto MCD::disconnect() -> void {
@@ -109,31 +103,31 @@ auto MCD::main() -> void {
 
   if(irq.pending) {
     if(1 > r.i && gpu.irq.lower()) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("GPU");
+      debugger.interrupt("GPU");
       return interrupt(Vector::Level1, 1);
     }
     if(2 > r.i && external.irq.lower()) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("External");
+      debugger.interrupt("External");
       return interrupt(Vector::Level2, 2);
     }
     if(3 > r.i && timer.irq.lower()) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("Timer");
+      debugger.interrupt("Timer");
       return interrupt(Vector::Level3, 3);
     }
     if(4 > r.i && cdd.irq.lower()) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("CDD");
+      debugger.interrupt("CDD");
       return interrupt(Vector::Level4, 4);
     }
     if(5 > r.i && cdc.irq.lower()) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("CDC");
+      debugger.interrupt("CDC");
       return interrupt(Vector::Level5, 5);
     }
     if(6 > r.i && irq.subcode.lower()) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
+      debugger.interrupt("IRQ");
       return interrupt(Vector::Level6, 6);
     }
     if(irq.reset.lower()) {
-      if(eventInterrupt->enabled()) eventInterrupt->notify("Reset");
+      debugger.interrupt("Reset");
       r.a[7] = read(1, 1, 0) << 16 | read(1, 1, 2) << 0;
       r.pc   = read(1, 1, 4) << 16 | read(1, 1, 6) << 0;
       prefetch();
@@ -142,9 +136,7 @@ auto MCD::main() -> void {
     }
   }
 
-  if(eventInstruction->enabled() && eventInstruction->address(r.pc - 4)) {
-    eventInstruction->notify(disassembleInstruction(r.pc - 4), disassembleContext());
-  }
+  debugger.instruction();
   instruction();
 }
 

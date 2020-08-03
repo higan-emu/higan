@@ -1,17 +1,16 @@
 NECDSP necdsp;
 #include "memory.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto NECDSP::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "NEC");
-  from = Node::scan(parent = node, from);
+auto NECDSP::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("NEC");
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "NEC");
-  eventInstruction->setAddressBits(14);
+  debugger.load(node);
 }
 
 auto NECDSP::unload() -> void {
-  eventInstruction = {};
+  debugger = {};
   node = {};
 
   cpu.coprocessors.removeByValue(this);
@@ -19,9 +18,7 @@ auto NECDSP::unload() -> void {
 }
 
 auto NECDSP::main() -> void {
-  if(eventInstruction->enabled() && eventInstruction->address(regs.pc)) {
-    eventInstruction->notify(disassembleInstruction(), disassembleContext());
-  }
+  debugger.instruction();
   exec();
 
   Thread::step(1);

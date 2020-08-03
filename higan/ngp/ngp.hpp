@@ -1,16 +1,14 @@
 #pragma once
-
-//license: GPLv3
 //started: 2019-01-03
 
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 
 #include <component/processor/tlcs900h/tlcs900h.hpp>
 #include <component/processor/z80/z80.hpp>
 #include <component/audio/t6w28/t6w28.hpp>
 
 namespace higan::NeoGeoPocket {
-  #include <emulator/inline.hpp>
+  #include <higan/inline.hpp>
 
   struct Model {
     inline static auto NeoGeoPocket() -> bool;

@@ -1,6 +1,6 @@
 Home::Home(View* parent) : Panel(parent, Size{~0, ~0}) {
   setCollapsible().setVisible(false);
-  image icon{Resource::Icon};
+  image icon{Resource::Higan::Icon};
   icon.shrink();
   for(uint y : range(icon.height())) {
     auto data = icon.data() + y * icon.pitch();
@@ -10,6 +10,6 @@ Home::Home(View* parent) : Panel(parent, Size{~0, ~0}) {
       data += icon.stride();
     }
   }
-  icon.scale(sx(icon.width()), sy(icon.height()));
+  icon.scale(sx(icon.width() * 0.75), sy(icon.height() * 0.75));
   iconCanvas.setIcon(icon);
 }

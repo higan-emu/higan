@@ -1,5 +1,6 @@
 struct SG1000 : Cartridge {
   auto name() -> string override { return "SG-1000"; }
+  auto extensions() -> vector<string> override { return {"sg1000", "sg"}; }
   auto export(string location) -> vector<uint8_t> override;
   auto heuristics(vector<uint8_t>& data, string location) -> string override;
 };
@@ -22,7 +23,7 @@ auto SG1000::heuristics(vector<uint8_t>& data, string location) -> string {
   s += "      content: Program\n";
   s += "    memory\n";
   s += "      type: RAM\n";
-  s += "      size: 0x8000\n";
+  s += "      size: 0x4000\n";
   s += "      content: Save\n";
   return s;
 }

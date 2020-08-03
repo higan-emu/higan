@@ -1,9 +1,9 @@
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 #include "sm83.hpp"
 
 namespace higan {
 
-#include "registers.cpp"
+#include "registers.hpp"
 #include "memory.cpp"
 #include "algorithms.cpp"
 #include "instruction.cpp"

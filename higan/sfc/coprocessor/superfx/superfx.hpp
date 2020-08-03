@@ -1,12 +1,21 @@
 struct SuperFX : GSU, Thread {
   Node::Component node;
-  Node::Instruction eventInstruction;
   ReadableMemory rom;
   WritableMemory ram;
   WritableMemory bram;
 
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+
+    struct Tracer {
+      Node::Instruction instruction;
+    } tracer;
+  } debugger;
+
   //superfx.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -47,8 +56,8 @@ struct SuperFX : GSU, Thread {
   auto write(uint24 address, uint8 data) -> void override;
 
   auto readOpcode(uint16 address) -> uint8;
-  alwaysinline auto peekpipe() -> uint8;
-  alwaysinline auto pipe() -> uint8 override;
+  auto peekpipe() -> uint8;
+  auto pipe() -> uint8 override;
 
   auto flushCache() -> void override;
   auto readCache(uint16 address) -> uint8;

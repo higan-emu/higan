@@ -6,37 +6,45 @@ PPU ppu;
 #include "memory.cpp"
 #include "render.cpp"
 #include "color.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto PPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "PPU");
-  from = Node::scan(parent = node, from);
+auto PPU::load(Node::Object parent) -> void {
+  ciram.allocate(2048);
+  cgram.allocate(32);
+  oam.allocate(256);
 
-  screen = Node::append<Node::Screen>(parent, from, "Screen");
+  node = parent->append<Node::Component>("PPU");
+
+  screen = node->append<Node::Screen>("Screen");
   screen->colors(1 << 9, {&PPU::color, this});
   screen->setSize(256, 240);
   screen->setScale(1.0, 1.0);
   screen->setAspect(8.0, 7.0);
-  from = Node::scan(parent = screen, from);
 
-  region = Node::append<Node::String>(parent, from, "Region", "PAL", [&](auto region) {
-    if(region == "NTSC") screen->setSize(256, 224);
-    if(region == "PAL" ) screen->setSize(256, 240);
+  overscan = screen->append<Node::Boolean>("Overscan", true, [&](auto value) {
+    if(value == 0) screen->setSize(256, 224);
+    if(value == 1) screen->setSize(256, 240);
   });
-  region->setAllowedValues({"NTSC", "PAL"});
-  region->setDynamic(true);
+  overscan->setDynamic(true);
 
-  colorEmulation = Node::append<Node::Boolean>(parent, from, "Color Emulation", true, [&](auto value) {
+  colorEmulation = screen->append<Node::Boolean>("Color Emulation", true, [&](auto value) {
     screen->resetPalette();
   });
   colorEmulation->setDynamic(true);
+
+  debugger.load(node);
 }
 
 auto PPU::unload() -> void {
+  ciram.reset();
+  cgram.reset();
+  oam.reset();
   node = {};
   screen = {};
-  region = {};
+  overscan = {};
   colorEmulation = {};
+  debugger = {};
 }
 
 auto PPU::main() -> void {
@@ -79,11 +87,11 @@ auto PPU::frame() -> void {
 }
 
 auto PPU::refresh() -> void {
-  if(region->value() == "NTSC") {
+  if(overscan->value() == 0) {
     screen->refresh(buffer + 8 * 256, 256 * sizeof(uint32), 256, 224);
   }
 
-  if(region->value() == "PAL") {
+  if(overscan->value() == 1) {
     screen->refresh(buffer, 256 * sizeof(uint32), 256, 240);
   }
 }

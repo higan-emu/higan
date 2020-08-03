@@ -1,10 +1,10 @@
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 #include "z80.hpp"
 
 namespace higan {
 
 #include "disassembler.cpp"
-#include "registers.cpp"
+#include "registers.hpp"
 #include "memory.cpp"
 #include "instruction.cpp"
 #include "algorithms.cpp"

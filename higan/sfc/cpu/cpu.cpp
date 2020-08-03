@@ -8,25 +8,21 @@ CPU cpu;
 #include "io.cpp"
 #include "timing.cpp"
 #include "irq.cpp"
+#include "debugger.cpp"
 #include "serialization.cpp"
 
-auto CPU::load(Node::Object parent, Node::Object from) -> void {
-  node = Node::append<Node::Component>(parent, from, "CPU");
-  from = Node::scan(parent = node, from);
+auto CPU::load(Node::Object parent) -> void {
+  node = parent->append<Node::Component>("CPU");
 
-  version = Node::append<Node::Natural>(parent, from, "Version", 2);
+  version = parent->append<Node::Natural>("Version", 2);
   version->setAllowedValues({1, 2});
 
-  eventInstruction = Node::append<Node::Instruction>(parent, from, "Instruction", "CPU");
-  eventInstruction->setAddressBits(24);
-
-  eventInterrupt = Node::append<Node::Notification>(parent, from, "Interrupt", "CPU");
+  debugger.load(node);
 }
 
 auto CPU::unload() -> void {
   version = {};
-  eventInstruction = {};
-  eventInterrupt = {};
+  debugger = {};
   node = {};
 }
 
@@ -35,25 +31,21 @@ auto CPU::main() -> void {
   if(r.stp) return instructionStop();
 
   if(!status.interruptPending) {
-    if(eventInstruction->enabled() && eventInstruction->address(r.pc.d)) {
-      eventInstruction->notify(disassembleInstruction(), disassembleContext(), {
-        "V:", pad(vcounter(), 3L), " ", "H:", pad(hcounter(), 4L), " I:", (uint)field()
-      });
-    }
+    debugger.instruction();
     return instruction();
   }
 
   if(status.nmiPending) {
     status.nmiPending = 0;
     r.vector = r.e ? 0xfffa : 0xffea;
-    if(eventInterrupt->enabled()) eventInterrupt->notify("NMI");
+    debugger.interrupt("NMI");
     return interrupt();
   }
 
   if(status.irqPending) {
     status.irqPending = 0;
     r.vector = r.e ? 0xfffe : 0xffee;
-    if(eventInterrupt->enabled()) eventInterrupt->notify("IRQ");
+    debugger.interrupt("IRQ");
     return interrupt();
   }
 
@@ -61,7 +53,7 @@ auto CPU::main() -> void {
     status.resetPending = 0;
     step(132);
     r.vector = 0xfffc;
-    if(eventInterrupt->enabled()) eventInterrupt->notify("Reset");
+    debugger.interrupt("Reset");
     return interrupt();  //H=186
   }
 

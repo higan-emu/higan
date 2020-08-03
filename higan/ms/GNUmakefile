@@ -1,15 +1,15 @@
-components += z80 sn76489 ym2413
+higan.components += z80 sn76489 ym2413
 
-objects += ms-interface
-objects += ms-cpu ms-vdp ms-psg ms-opll
-objects += ms-system ms-cartridge
-objects += ms-controller
+higan.objects += higan-ms-interface
+higan.objects += higan-ms-cpu higan-ms-vdp higan-ms-psg higan-ms-opll
+higan.objects += higan-ms-system higan-ms-cartridge
+higan.objects += higan-ms-controller
 
-obj/ms-interface.o:  ms/interface/interface.cpp
-obj/ms-cpu.o:        ms/cpu/cpu.cpp
-obj/ms-vdp.o:        ms/vdp/vdp.cpp
-obj/ms-psg.o:        ms/psg/psg.cpp
-obj/ms-opll.o:       ms/opll/opll.cpp
-obj/ms-system.o:     ms/system/system.cpp
-obj/ms-cartridge.o:  ms/cartridge/cartridge.cpp
-obj/ms-controller.o: ms/controller/controller.cpp
+$(object.path)/higan-ms-interface.o:  $(higan.path)/ms/interface/interface.cpp
+$(object.path)/higan-ms-cpu.o:        $(higan.path)/ms/cpu/cpu.cpp
+$(object.path)/higan-ms-vdp.o:        $(higan.path)/ms/vdp/vdp.cpp
+$(object.path)/higan-ms-psg.o:        $(higan.path)/ms/psg/psg.cpp
+$(object.path)/higan-ms-opll.o:       $(higan.path)/ms/opll/opll.cpp
+$(object.path)/higan-ms-system.o:     $(higan.path)/ms/system/system.cpp
+$(object.path)/higan-ms-cartridge.o:  $(higan.path)/ms/cartridge/cartridge.cpp
+$(object.path)/higan-ms-controller.o: $(higan.path)/ms/controller/controller.cpp

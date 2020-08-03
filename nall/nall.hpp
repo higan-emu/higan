@@ -1,13 +1,5 @@
 #pragma once
 
-/* nall
- * author: byuu
- * license: ISC
- *
- * nall is a header library that provides both fundamental and useful classes
- * its goals are portability, consistency, minimalism and reusability
- */
-
 //include the most common nall headers with one statement
 //does not include the most obscure components with high cost and low usage
 
@@ -59,7 +51,6 @@
 #include <nall/serializer.hpp>
 #include <nall/set.hpp>
 #include <nall/shared-pointer.hpp>
-#include <nall/simd.hpp>
 #include <nall/stdint.hpp>
 #include <nall/string.hpp>
 #include <nall/terminal.hpp>

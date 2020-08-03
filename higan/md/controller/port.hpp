@@ -1,11 +1,13 @@
 struct ControllerPort {
   Node::Port port;
+  unique_pointer<Controller> device;
 
   //port.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
+  auto allocate(string name) -> Node::Peripheral;
 
-  ControllerPort(string_view name);
+  ControllerPort(string name);
   auto connect(Node::Peripheral) -> void;
   auto disconnect() -> void;
 
@@ -18,9 +20,9 @@ struct ControllerPort {
   auto power() -> void;
   auto serialize(serializer&) -> void;
 
+protected:
   const string name;
   uint8 control;
-  unique_pointer<Controller> device;
   friend class Controller;
 };
 

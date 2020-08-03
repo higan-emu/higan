@@ -2,8 +2,8 @@ auto PPU::enable() const -> bool {
   return io.bgEnable || io.spriteEnable;
 }
 
-auto PPU::loadCHR(uint16 addr) -> uint8 {
-  return enable() ? cartridge.readCHR(addr) : (uint8)0x00;
+auto PPU::loadCHR(uint16 address) -> uint8 {
+  return enable() ? cartridge.readCHR(address) : (uint8)0x00;
 }
 
 auto PPU::renderPixel() -> void {
@@ -60,7 +60,7 @@ auto PPU::renderSprite() -> void {
   if(!enable()) return;
 
   uint n = latch.oamIterator++;
-  int ly = io.ly == vlines() - 1 ? -1 : io.ly;
+  int ly = io.ly == vlines() - 1 ? -1 : (int)io.ly;
   uint y = ly - oam[n * 4 + 0];
 
   if(y >= io.spriteHeight) return;

@@ -1,9 +1,7 @@
 #pragma once
-
-//license: GPLv3
 //started: 2011-09-05
 
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 
 #include <component/processor/mos6502/mos6502.hpp>
 #include <component/audio/ym2149/ym2149.hpp>
@@ -11,7 +9,7 @@
 #include <component/eeprom/x24c01/x24c01.hpp>
 
 namespace higan::Famicom {
-  #include <emulator/inline.hpp>
+  #include <higan/inline.hpp>
 
   struct Region {
     static inline auto NTSCJ() -> bool;
@@ -21,7 +19,6 @@ namespace higan::Famicom {
 
   #include <fc/controller/controller.hpp>
   #include <fc/system/system.hpp>
-  #include <fc/memory/memory.hpp>
   #include <fc/cartridge/cartridge.hpp>
   #include <fc/cpu/cpu.hpp>
   #include <fc/apu/apu.hpp>

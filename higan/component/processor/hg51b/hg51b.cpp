@@ -1,4 +1,4 @@
-#include <emulator/emulator.hpp>
+#include <higan/higan.hpp>
 #include "hg51b.hpp"
 
 namespace higan {
@@ -7,6 +7,7 @@ namespace higan {
 #include "instruction.cpp"
 #include "instructions.cpp"
 #include "serialization.cpp"
+#include "disassembler.cpp"
 
 auto HG51B::lock() -> void {
   io.lock = 1;

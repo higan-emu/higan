@@ -1,6 +1,24 @@
 struct CPU : ARM7TDMI, Thread, IO {
   Node::Component node;
-  Node::Instruction eventInstruction;
+  Memory::Writable<uint8> iwram;  // 32KB
+  Memory::Writable<uint8> ewram;  //256KB
+
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view type) -> void;
+
+    struct Memory {
+      Node::Memory iwram;
+      Node::Memory ewram;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;  //todo: ARM7TDMI needs to notify CPU when interrupts occur
+    } tracer;
+  } debugger;
 
   struct Interrupt { enum : uint {
     VBlank       = 0x0001,
@@ -24,7 +42,7 @@ struct CPU : ARM7TDMI, Thread, IO {
   auto stopped() const -> bool { return context.stopped; }
 
   //cpu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -64,9 +82,6 @@ struct CPU : ARM7TDMI, Thread, IO {
   //serialization.cpp
   auto serialize(serializer&) -> void;
 
-  uint8 iwram[ 32 * 1024];
-  uint8 ewram[256 * 1024];
-
 //private:
   struct uintVN {
     auto operator()() const -> uint32 { return data & mask; }
@@ -78,7 +93,7 @@ struct CPU : ARM7TDMI, Thread, IO {
 
   struct DMA {
     //dma.cpp
-    inline auto run() -> bool;
+    auto run() -> bool;
     auto transfer() -> void;
 
      uint2 id;
@@ -109,7 +124,7 @@ struct CPU : ARM7TDMI, Thread, IO {
 
   struct Timer {
     //timer.cpp
-    inline auto run() -> void;
+    auto run() -> void;
     auto step() -> void;
 
      uint2 id;

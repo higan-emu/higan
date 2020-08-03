@@ -1,12 +1,29 @@
 struct CPU : Z80, Z80::Bus, Thread {
   Node::Component node;
-  Node::Instruction eventInstruction;
-  Node::Notification eventInterrupt;
+  Memory::Writable<uint8> ram;
+  Memory::Writable<uint8> expansion;
 
-  inline auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
+  struct Debugger {
+    //debugger.cpp
+    auto load(Node::Object) -> void;
+    auto instruction() -> void;
+    auto interrupt(string_view) -> void;
+
+    struct Memory {
+      Node::Memory ram;
+      Node::Memory expansion;
+    } memory;
+
+    struct Tracer {
+      Node::Instruction instruction;
+      Node::Notification interrupt;
+    } tracer;
+  } debugger;
+
+  auto synchronizing() const -> bool override { return scheduler.synchronizing(); }
 
   //cpu.cpp
-  auto load(Node::Object, Node::Object) -> void;
+  auto load(Node::Object) -> void;
   auto unload() -> void;
 
   auto main() -> void;
@@ -28,9 +45,6 @@ struct CPU : Z80, Z80::Bus, Thread {
   auto serialize(serializer&) -> void;
 
 private:
-  Memory::Writable<uint8> ram;
-  Memory::Writable<uint8> expansion;
-
   struct State {
     bool nmiLine = 0;
     bool irqLine = 0;
