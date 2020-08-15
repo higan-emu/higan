@@ -83,11 +83,13 @@ auto CPU::hblank() -> void {
 }
 
 auto CPU::hblankTrigger() -> void {
-  if(status.dmaMode == 1 && status.dmaLength && ppu.status.ly < 144) {
+  if(status.dmaMode == 1 && !status.dmaCompleted && status.dmaLength && ppu.status.ly < 144) {
     for(uint n : range(16)) {
       writeDMA(status.dmaTarget++, readDMA(status.dmaSource++, 0xff));
       status.dmaLength--;
       if(n & 1) step(1 << status.speedDouble);
     }
+  if (0 == status.dmaLength)
+    status.dmaCompleted = 1;
   }
 }

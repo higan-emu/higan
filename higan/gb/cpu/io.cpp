@@ -240,11 +240,12 @@ auto CPU::writeIO(uint cycle, uint16 address, uint8 data) -> void {
 
   if(Model::GameBoyColor())
   if(address == 0xff55 && cycle == 2) {  //HDMA5
+    const auto dmaWasCompleted = status.dmaCompleted;
     status.dmaLength    = (data.bit(0,6) + 1) * 16;
     status.dmaMode      = data.bit(7);
     status.dmaCompleted = !status.dmaMode;
 
-    if(status.dmaMode == 0) {
+    if(dmaWasCompleted && status.dmaMode == 0) {
       do {
         for(uint loop : range(16)) {
           writeDMA(status.dmaTarget++, readDMA(status.dmaSource++, 0xff));
