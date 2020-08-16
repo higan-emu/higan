@@ -72,7 +72,7 @@ auto PortConnector::refresh(higan::Node::Port port) -> void {
       item.setAttribute("type", "template");
       item.setAttribute("location", {location, name, "/"});
       item.setAttribute("path", location);
-      item.setAttribute("name", name);
+      item.setAttribute("name", name.trimRight("/", 1L));
       item.setIcon(Icon::Action::Add).setText(name);
     }
   }
