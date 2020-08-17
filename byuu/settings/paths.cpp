@@ -8,6 +8,7 @@ auto PathSettings::construct() -> void {
     BrowserDialog dialog;
     dialog.setTitle("Select Saves Path");
     dialog.setPath(Path::desktop());
+    dialog.setAlignment(settingsWindow);
     if(auto location = program.selectFolder(dialog)) {
       settings.paths.saves = location;
       refresh();
@@ -24,6 +25,7 @@ auto PathSettings::construct() -> void {
     BrowserDialog dialog;
     dialog.setTitle("Select Patches Path");
     dialog.setPath(Path::desktop());
+    dialog.setAlignment(settingsWindow);
     if(auto location = program.selectFolder(dialog)) {
       settings.paths.patches = location;
       refresh();
@@ -40,6 +42,7 @@ auto PathSettings::construct() -> void {
     BrowserDialog dialog;
     dialog.setTitle("Select Screenshots Path");
     dialog.setPath(Path::desktop());
+    dialog.setAlignment(settingsWindow);
     if(auto location = program.selectFolder(dialog)) {
       settings.paths.screenshots = location;
       refresh();
@@ -56,6 +59,7 @@ auto PathSettings::construct() -> void {
     BrowserDialog dialog;
     dialog.setTitle("Select Debugging Path");
     dialog.setPath(Path::desktop());
+    dialog.setAlignment(settingsWindow);
     if(auto location = program.selectFolder(dialog)) {
       settings.paths.debugging = location;
       refresh();
@@ -72,6 +76,7 @@ auto PathSettings::construct() -> void {
     BrowserDialog dialog;
     dialog.setTitle("Select Firmware Path");
     dialog.setPath(Path::desktop());
+    dialog.setAlignment(settingsWindow);
     if(auto location = program.selectFolder(dialog)) {
       settings.paths.firmware = location;
       refresh();
