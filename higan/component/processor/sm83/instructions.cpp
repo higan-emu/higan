@@ -268,9 +268,7 @@ auto SM83::instructionOR_Direct_Indirect(uint8& target, uint16& source) -> void 
 }
 
 auto SM83::instructionPOP_Direct(uint16& data) -> void {
-  //mask off the lower four bits, not sure if this should be for only 0xF1 POP AF
-  //or in general but the folks tell me it's okay so... --K
-  data = pop() & ~15;
+  data = pop();
 }
 
 auto SM83::instructionPOP_Direct_AF(uint16& data) -> void {
