@@ -4,7 +4,7 @@ openmp := false
 local := true
 flags += -I. -I.. -I../higan -DMIA_LIBRARY
 
-ifeq ($(platform),local)
+ifeq ($(local),true)
   flags += -march=native
 endif
 
