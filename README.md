@@ -25,6 +25,12 @@ Links
   - [Discussion Forum](https://helmet.kafuka.org/bboard/forum.php?id=6)
   - [Discord Chat](https://discord.gg/hbVycMJ) (in the #higan channel)
 
+Official Releases
+-----------------
+
+Official releases are available from
+[the GitHub releases page](https://github.com/higan-emu/higan/releases).
+
 Nightly Builds
 --------------
 
