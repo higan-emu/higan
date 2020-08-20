@@ -1,7 +1,7 @@
 higan
 =====
 
-![higan logo](higan/target-higan/resource/logo.png)
+![higan logo](higan/higan/resource/logo.png)
 
 higan is a multi-system emulator, originally developed by
 [byuu](https://byuu.org/about), with an uncompromising focus on accuracy and
@@ -109,6 +109,6 @@ for each supported operating system:
 Preview
 -------
 
-![higan user interface](https://byuu.org/images/higan/github/byuu-higan-user-interface.png)
-![higan running Bahamut Lagoon (SNES)](https://byuu.org/images/higan/github/byuu-higan-bahamut-lagoon.png)
-![higan running Riviera (GBA)](https://byuu.org/images/higan/github/byuu-higan-riviera.png)
+![higan user interface](https://byuu.org/images/higan/higan.png)
+![higan running Bahamut Lagoon (SNES)](https://byuu.org/images/higan/byuu-snes.png)
+![higan running Golden Sun (GBA)](https://byuu.org/images/higan/core-gba.png)
