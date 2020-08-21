@@ -68,14 +68,14 @@ endif
 install: all
 ifeq ($(platform),windows)
 	mkdir -p $(prefix)/$(name)/
-	cp -R System/* $(prefix)/$(name)/
+	cp -R $(higan.path)/System/* $(prefix)/$(name)/
 else ifeq ($(shell id -un),root)
 	$(error "make install should not be run as root")
 else ifeq ($(platform),macos)
 	mkdir -p ~/Library/Application\ Support\$(name)/
 	mkdir -p ~/Library/Application\ Support\$(name)/System/
 	cp -R $(output.path)/$(name).app /Applications/$(name).app
-	cp -R System/* ~/Library/Application\ Support/$(name)/System/
+	cp -R $(higan.path)/System/* ~/Library/Application\ Support/$(name)/System/
 else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/bin/
 	mkdir -p $(prefix)/share/applications/
