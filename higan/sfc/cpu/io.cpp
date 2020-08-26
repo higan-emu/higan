@@ -126,6 +126,7 @@ auto CPU::writeCPU(uint24 address, uint8 data) -> void {
 
   case 0x4200:  //NMITIMEN
     io.autoJoypadPoll = data.bit(0);
+    if(!io.autoJoypadPoll) status.autoJoypadLatch = 0;
     nmitimenUpdate(data);
     return;
 
