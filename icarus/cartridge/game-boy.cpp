@@ -237,10 +237,12 @@ auto GameBoy::heuristics(vector<uint8_t>& data, string location) -> string {
   }
 
   switch(read(0x0149)) { default:
-  case 0x00: ramSize =  0 * 1024; break;
-  case 0x01: ramSize =  2 * 1024; break;
-  case 0x02: ramSize =  8 * 1024; break;
-  case 0x03: ramSize = 32 * 1024; break;
+  case 0x00: ramSize =   0 * 1024; break;
+  case 0x01: ramSize =   2 * 1024; break;
+  case 0x02: ramSize =   8 * 1024; break;
+  case 0x03: ramSize =  32 * 1024; break;
+  case 0x04: ramSize = 128 * 1024; break;
+  case 0x05: ramSize =  64 * 1024; break;
   }
 
   if(mapper == "MBC2" && ram) ramSize = 256;
