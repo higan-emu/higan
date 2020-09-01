@@ -69,9 +69,9 @@ auto PPU::readIO(uint cycle, uint16 address, uint8 data) -> uint8 {
 
   if(address == 0xff48 && cycle == 2) {  //OBP0
     data.bit(0,1) = obp[0][0];
-    data.bit(2,3) = obp[1][1];
-    data.bit(4,5) = obp[2][2];
-    data.bit(6,7) = obp[3][3];
+    data.bit(2,3) = obp[0][1];
+    data.bit(4,5) = obp[0][2];
+    data.bit(6,7) = obp[0][3];
     return data;
   }
 
