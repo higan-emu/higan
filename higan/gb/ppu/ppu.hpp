@@ -144,7 +144,7 @@ struct PPU : Thread {
   struct Pixel {
     uint16 color;
      uint8 palette;
-     uint1 priority;
+   boolean priority;
   };
   Pixel bg;
   Pixel ob;
