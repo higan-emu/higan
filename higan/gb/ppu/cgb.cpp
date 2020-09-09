@@ -107,7 +107,7 @@ auto PPU::runBackgroundCGB() -> void {
 
   bg.color = color;
   bg.palette = index;
-  bg.priority = background.attr & 0x80;
+  bg.priority = (background.attr & 0x80) >> 7;
 }
 
 auto PPU::runWindowCGB() -> void {
@@ -132,7 +132,7 @@ auto PPU::runWindowCGB() -> void {
 
   bg.color = color;
   bg.palette = index;
-  bg.priority = window.attr & 0x80;
+  bg.priority = (window.attr & 0x80) >> 7;
 }
 
 auto PPU::runObjectsCGB() -> void {
