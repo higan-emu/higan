@@ -58,13 +58,32 @@ private:
 struct VirtualPad {
   VirtualPad();
 
-  InputAxis xAxis{"X-axis"}, yAxis{"Y-axis"};
-  InputButton up{"Up"}, down{"Down"}, left{"Left"}, right{"Right"};
-  InputButton select{"Select"}, start{"Start"};
-  InputButton a{"A"}, b{"B"};
-  InputButton x{"X"}, y{"Y"};
-  InputButton l{"L"}, r{"R"};
-  InputButton cUp{"C-Up"}, cDown{"C-Down"}, cLeft{"C-Left"}, cRight{"C-Right"};
+  InputButton up{"D-Pad.Up"};
+  InputButton down{"D-Pad.Down"};
+  InputButton left{"D-Pad.Left"};
+  InputButton right{"D-Pad.Right"};
+  InputButton a{"A"};
+  InputButton b{"B"};
+  InputButton x{"X"};
+  InputButton y{"Y"};
+  InputButton back{"Back"};
+  InputButton start{"Start"};
+  InputButton lb{"LB"};
+  InputButton lt{"LT"};
+  InputButton rb{"RB"};
+  InputButton rt{"RT"};
+  InputAxis lStickAxisX{"L-Stick.AxisX"};
+  InputAxis lStickAxisY{"L-Stick.AxisY"};
+  InputButton lStickUp{"L-Stick.Up"};
+  InputButton lStickDown{"L-Stick.Down"};
+  InputButton lStickLeft{"L-Stick.Left"};
+  InputButton lStickRight{"L-Stick.Right"};
+  InputAxis rStickAxisX{"R-Stick.AxisX"};
+  InputAxis rStickAxisY{"R-Stick.AxisY"};
+  InputButton rStickUp{"R-Stick.Up"};
+  InputButton rStickDown{"R-Stick.Down"};
+  InputButton rStickLeft{"R-Stick.Left"};
+  InputButton rStickRight{"R-Stick.Right"};
 
   vector<InputMapping*> mappings;
 };

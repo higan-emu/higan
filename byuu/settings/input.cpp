@@ -18,7 +18,7 @@ auto InputSettings::construct() -> void {
 
 auto InputSettings::reload() -> void {
   inputList.reset();
-  inputList.append(TableViewColumn().setText("Name"));
+  inputList.append(TableViewColumn().setText("Microsoft Layout"));
   for(uint binding : range(BindingLimit)) {
     inputList.append(TableViewColumn().setText({"Mapping #", 1 + binding}).setExpandable());
   }

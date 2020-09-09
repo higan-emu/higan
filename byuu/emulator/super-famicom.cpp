@@ -206,9 +206,9 @@ auto SuperFamicom::input(higan::Node::Input node) -> void {
   if(name == "A"     ) mapping = virtualPad.b;
   if(name == "Y"     ) mapping = virtualPad.x;
   if(name == "X"     ) mapping = virtualPad.y;
-  if(name == "L"     ) mapping = virtualPad.l;
-  if(name == "R"     ) mapping = virtualPad.r;
-  if(name == "Select") mapping = virtualPad.select;
+  if(name == "L"     ) mapping = virtualPad.lb;
+  if(name == "R"     ) mapping = virtualPad.rb;
+  if(name == "Select") mapping = virtualPad.back;
   if(name == "Start" ) mapping = virtualPad.start;
 
   if(mapping) {

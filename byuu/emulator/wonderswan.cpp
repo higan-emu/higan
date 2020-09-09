@@ -75,8 +75,8 @@ auto WonderSwan::input(higan::Node::Input node) -> void {
   maybe<InputMapping&> mapping;
   if(name == "Y1"   ) mapping = virtualPad.x;
   if(name == "Y2"   ) mapping = virtualPad.y;
-  if(name == "Y3"   ) mapping = virtualPad.l;
-  if(name == "Y4"   ) mapping = virtualPad.r;
+  if(name == "Y3"   ) mapping = virtualPad.lb;
+  if(name == "Y4"   ) mapping = virtualPad.rb;
   if(name == "X1"   ) mapping = virtualPad.up;
   if(name == "X2"   ) mapping = virtualPad.right;
   if(name == "X3"   ) mapping = virtualPad.down;
@@ -147,8 +147,8 @@ auto WonderSwanColor::input(higan::Node::Input node) -> void {
   maybe<InputMapping&> mapping;
   if(name == "Y1"   ) mapping = virtualPad.x;
   if(name == "Y2"   ) mapping = virtualPad.y;
-  if(name == "Y3"   ) mapping = virtualPad.l;
-  if(name == "Y4"   ) mapping = virtualPad.r;
+  if(name == "Y3"   ) mapping = virtualPad.lb;
+  if(name == "Y4"   ) mapping = virtualPad.rb;
   if(name == "X1"   ) mapping = virtualPad.up;
   if(name == "X2"   ) mapping = virtualPad.right;
   if(name == "X3"   ) mapping = virtualPad.down;
@@ -225,7 +225,7 @@ auto PocketChallengeV2::input(higan::Node::Input node) -> void {
   if(name == "Circle") mapping = virtualPad.b;
   if(name == "Clear" ) mapping = virtualPad.y;
   if(name == "View"  ) mapping = virtualPad.start;
-  if(name == "Escape") mapping = virtualPad.select;
+  if(name == "Escape") mapping = virtualPad.back;
 
   if(mapping) {
     auto value = mapping->value();

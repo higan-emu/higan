@@ -103,16 +103,16 @@ auto PlayStation::input(higan::Node::Input node) -> void {
   if(name == "Circle"  ) mapping = virtualPad.b;
   if(name == "Square"  ) mapping = virtualPad.x;
   if(name == "Triangle") mapping = virtualPad.y;
-  if(name == "L1"      ) mapping = virtualPad.l;
-  if(name == "L2"      );
-  if(name == "R1"      ) mapping = virtualPad.r;
-  if(name == "R2"      );
-  if(name == "Select"  ) mapping = virtualPad.select;
+  if(name == "L1"      ) mapping = virtualPad.lb;
+  if(name == "L2"      ) mapping = virtualPad.lt;
+  if(name == "R1"      ) mapping = virtualPad.rb;
+  if(name == "R2"      ) mapping = virtualPad.rt;
+  if(name == "Select"  ) mapping = virtualPad.back;
   if(name == "Start"   ) mapping = virtualPad.start;
-  if(name == "LX-axis" ) mapping = virtualPad.xAxis;
-  if(name == "LY-axis" ) mapping = virtualPad.yAxis;
-  if(name == "RX-axis" );
-  if(name == "RY-axis" );
+  if(name == "LX-axis" ) mapping = virtualPad.lStickAxisX;
+  if(name == "LY-axis" ) mapping = virtualPad.lStickAxisY;
+  if(name == "RX-axis" ) mapping = virtualPad.rStickAxisX;
+  if(name == "RY-axis" ) mapping = virtualPad.rStickAxisY;
   if(name == "L-thumb" );
   if(name == "R-thumb" );
 
