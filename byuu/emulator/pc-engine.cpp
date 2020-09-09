@@ -81,7 +81,7 @@ auto PCEngine::input(higan::Node::Input node) -> void {
   if(name == "Right" ) mapping = virtualPad.right;
   if(name == "II"    ) mapping = virtualPad.a;
   if(name == "I"     ) mapping = virtualPad.b;
-  if(name == "Select") mapping = virtualPad.select;
+  if(name == "Select") mapping = virtualPad.back;
   if(name == "Run"   ) mapping = virtualPad.start;
 
   if(mapping) {
@@ -192,7 +192,7 @@ auto PCEngineCD::input(higan::Node::Input node) -> void {
   if(name == "Right" ) mapping = virtualPad.right;
   if(name == "II"    ) mapping = virtualPad.a;
   if(name == "I"     ) mapping = virtualPad.b;
-  if(name == "Select") mapping = virtualPad.select;
+  if(name == "Select") mapping = virtualPad.back;
   if(name == "Run"   ) mapping = virtualPad.start;
 
   if(mapping) {
@@ -261,7 +261,7 @@ auto SuperGrafx::input(higan::Node::Input node) -> void {
   if(name == "Right" ) mapping = virtualPad.right;
   if(name == "II"    ) mapping = virtualPad.a;
   if(name == "I"     ) mapping = virtualPad.b;
-  if(name == "Select") mapping = virtualPad.select;
+  if(name == "Select") mapping = virtualPad.back;
   if(name == "Run"   ) mapping = virtualPad.start;
 
   if(mapping) {

@@ -71,9 +71,9 @@ auto MegaDrive::input(higan::Node::Input node) -> void {
   if(name == "B"    ) mapping = virtualPad.a;
   if(name == "C"    ) mapping = virtualPad.b;
   if(name == "X"    ) mapping = virtualPad.y;
-  if(name == "Y"    ) mapping = virtualPad.l;
-  if(name == "Z"    ) mapping = virtualPad.r;
-  if(name == "Mode" ) mapping = virtualPad.select;
+  if(name == "Y"    ) mapping = virtualPad.lb;
+  if(name == "Z"    ) mapping = virtualPad.rb;
+  if(name == "Mode" ) mapping = virtualPad.back;
   if(name == "Start") mapping = virtualPad.start;
 
   if(mapping) {
@@ -188,9 +188,9 @@ auto MegaCD::input(higan::Node::Input node) -> void {
   if(name == "B"    ) mapping = virtualPad.a;
   if(name == "C"    ) mapping = virtualPad.b;
   if(name == "X"    ) mapping = virtualPad.y;
-  if(name == "Y"    ) mapping = virtualPad.l;
-  if(name == "Z"    ) mapping = virtualPad.r;
-  if(name == "Mode" ) mapping = virtualPad.select;
+  if(name == "Y"    ) mapping = virtualPad.lb;
+  if(name == "Z"    ) mapping = virtualPad.rb;
+  if(name == "Mode" ) mapping = virtualPad.back;
   if(name == "Start") mapping = virtualPad.start;
 
   if(mapping) {

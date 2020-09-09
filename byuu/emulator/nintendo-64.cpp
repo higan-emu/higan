@@ -63,21 +63,21 @@ auto Nintendo64::open(higan::Node::Object node, string name, vfs::file::mode mod
 auto Nintendo64::input(higan::Node::Input node) -> void {
   auto name = node->name();
   maybe<InputMapping&> mapping;
-  if(name == "X-axis" ) mapping = virtualPad.xAxis;
-  if(name == "Y-axis" ) mapping = virtualPad.yAxis;
+  if(name == "X-axis" ) mapping = virtualPad.lStickAxisX;
+  if(name == "Y-axis" ) mapping = virtualPad.lStickAxisY;
   if(name == "Up"     ) mapping = virtualPad.up;
   if(name == "Down"   ) mapping = virtualPad.down;
   if(name == "Left"   ) mapping = virtualPad.left;
   if(name == "Right"  ) mapping = virtualPad.right;
-  if(name == "B"      ) mapping = virtualPad.a;
-  if(name == "A"      ) mapping = virtualPad.b;
-  if(name == "C-Up"   ) mapping = virtualPad.cUp;
-  if(name == "C-Down" ) mapping = virtualPad.cDown;
-  if(name == "C-Left" ) mapping = virtualPad.cLeft;
-  if(name == "C-Right") mapping = virtualPad.cRight;
-  if(name == "L"      ) mapping = virtualPad.l;
-  if(name == "R"      ) mapping = virtualPad.r;
-  if(name == "Z"      ) mapping = virtualPad.select;
+  if(name == "B"      ) mapping = virtualPad.x;
+  if(name == "A"      ) mapping = virtualPad.a;
+  if(name == "C-Up"   ) mapping = virtualPad.rStickUp;
+  if(name == "C-Down" ) mapping = virtualPad.rStickDown;
+  if(name == "C-Left" ) mapping = virtualPad.rStickLeft;
+  if(name == "C-Right") mapping = virtualPad.rStickRight;
+  if(name == "L"      ) mapping = virtualPad.lb;
+  if(name == "R"      ) mapping = virtualPad.rb;
+  if(name == "Z"      ) mapping = virtualPad.lt;
   if(name == "Start"  ) mapping = virtualPad.start;
 
   if(mapping) {
@@ -135,21 +135,21 @@ auto Nintendo64DD::open(higan::Node::Object node, string name, vfs::file::mode m
 auto Nintendo64DD::input(higan::Node::Input node) -> void {
   auto name = node->name();
   maybe<InputMapping&> mapping;
-  if(name == "X-axis" ) mapping = virtualPad.xAxis;
-  if(name == "Y-axis" ) mapping = virtualPad.yAxis;
+  if(name == "X-axis" ) mapping = virtualPad.lStickAxisX;
+  if(name == "Y-axis" ) mapping = virtualPad.lStickAxisY;
   if(name == "Up"     ) mapping = virtualPad.up;
   if(name == "Down"   ) mapping = virtualPad.down;
   if(name == "Left"   ) mapping = virtualPad.left;
   if(name == "Right"  ) mapping = virtualPad.right;
-  if(name == "B"      ) mapping = virtualPad.a;
-  if(name == "A"      ) mapping = virtualPad.b;
-  if(name == "C-Up"   ) mapping = virtualPad.cUp;
-  if(name == "C-Down" ) mapping = virtualPad.cDown;
-  if(name == "C-Left" ) mapping = virtualPad.cLeft;
-  if(name == "C-Right") mapping = virtualPad.cRight;
-  if(name == "L"      ) mapping = virtualPad.l;
-  if(name == "R"      ) mapping = virtualPad.r;
-  if(name == "Z"      ) mapping = virtualPad.select;
+  if(name == "B"      ) mapping = virtualPad.x;
+  if(name == "A"      ) mapping = virtualPad.a;
+  if(name == "C-Up"   ) mapping = virtualPad.rStickUp;
+  if(name == "C-Down" ) mapping = virtualPad.rStickDown;
+  if(name == "C-Left" ) mapping = virtualPad.rStickLeft;
+  if(name == "C-Right") mapping = virtualPad.rStickRight;
+  if(name == "L"      ) mapping = virtualPad.lb;
+  if(name == "R"      ) mapping = virtualPad.rb;
+  if(name == "Z"      ) mapping = virtualPad.lt;
   if(name == "Start"  ) mapping = virtualPad.start;
 
   if(mapping) {

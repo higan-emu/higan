@@ -63,9 +63,9 @@ auto GameBoyAdvance::input(higan::Node::Input node) -> void {
   if(name == "Right" ) mapping = virtualPad.right;
   if(name == "B"     ) mapping = virtualPad.a;
   if(name == "A"     ) mapping = virtualPad.b;
-  if(name == "L"     ) mapping = virtualPad.l;
-  if(name == "R"     ) mapping = virtualPad.r;
-  if(name == "Select") mapping = virtualPad.select;
+  if(name == "L"     ) mapping = virtualPad.lb;
+  if(name == "R"     ) mapping = virtualPad.rb;
+  if(name == "Select") mapping = virtualPad.back;
   if(name == "Start" ) mapping = virtualPad.start;
 
   if(mapping) {

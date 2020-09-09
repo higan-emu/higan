@@ -216,24 +216,32 @@ auto InputAxis::value() -> int16_t {
 //
 
 VirtualPad::VirtualPad() {
-  mappings.append(&xAxis);
-  mappings.append(&yAxis);
   mappings.append(&up);
   mappings.append(&down);
   mappings.append(&left);
   mappings.append(&right);
-  mappings.append(&select);
-  mappings.append(&start);
   mappings.append(&a);
   mappings.append(&b);
   mappings.append(&x);
   mappings.append(&y);
-  mappings.append(&l);
-  mappings.append(&r);
-  mappings.append(&cUp);
-  mappings.append(&cDown);
-  mappings.append(&cLeft);
-  mappings.append(&cRight);
+  mappings.append(&back);
+  mappings.append(&start);
+  mappings.append(&lb);
+  mappings.append(&lt);
+  mappings.append(&rb);
+  mappings.append(&rt);
+  mappings.append(&lStickAxisX);
+  mappings.append(&lStickAxisY);
+  mappings.append(&lStickUp);
+  mappings.append(&lStickDown);
+  mappings.append(&lStickLeft);
+  mappings.append(&lStickRight);
+  mappings.append(&rStickAxisX);
+  mappings.append(&rStickAxisY);
+  mappings.append(&rStickUp);
+  mappings.append(&rStickDown);
+  mappings.append(&rStickLeft);
+  mappings.append(&rStickRight);
 }
 
 //
