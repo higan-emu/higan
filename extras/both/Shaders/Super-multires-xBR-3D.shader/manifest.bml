@@ -1,0 +1,36 @@
+program
+  width: 100%
+  height: 100%
+  filter: nearest
+  vertex: super-multi-xbr-3d-pass0.vs
+  fragment: super-multi-xbr-3d-pass0.fs
+   
+program
+  width: 100%
+  height: 100%
+  filter: nearest
+  vertex: super-multi-xbr-3d-pass1.vs
+  fragment: super-multi-xbr-3d-pass1.fs
+
+program
+  width: 100%
+  height: 100%
+  filter: nearest
+  vertex: super-multi-xbr-3d-pass2.vs
+  fragment: super-multi-xbr-3d-pass2.fs
+  
+program
+  width: 100%
+  height: 100%
+  filter: nearest
+  vertex: super-multi-xbr-3d-pass3.vs
+  fragment: super-multi-xbr-3d-pass3.fs
+
+program
+  width: 200%
+  height: 200%
+  filter: nearest
+  fragment: custom-jinc2-sharper.fs
+   
+output
+  filter: linear

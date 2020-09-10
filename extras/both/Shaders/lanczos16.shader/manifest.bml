@@ -1,0 +1,4 @@
+program
+	filter: nearest
+	vertex: lanczos16.vs
+	fragment: lanczos16.fs

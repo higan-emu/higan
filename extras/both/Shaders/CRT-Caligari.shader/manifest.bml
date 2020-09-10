@@ -1,0 +1,9 @@
+input
+  filter: nearest
+
+program
+	filter: nearest
+	fragment: crt-caligari.fs
+
+output
+  filter: nearest

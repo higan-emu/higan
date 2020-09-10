@@ -1,0 +1,20 @@
+program
+	width: 100%
+	height: 100%
+	filter: nearest
+	fragment: xbr-mlv4-pass1.fs
+program
+	width: 100%
+	height: 100%
+	filter: nearest
+	fragment: xbr-mlv4-pass2.fs
+program
+	width: 200%
+	height: 200%
+	filter: nearest
+	fragment: xbr-mlv4-pass3.fs
+program
+	filter: nearest
+	fragment: xbr-mlv4-pass4.fs
+output
+	filter: nearest
