@@ -1,0 +1,63 @@
+input
+  filter: nearest
+  format: rgba16f
+
+output
+  filter: nearest
+  format: rgba16f
+
+comment: comment the following three passes to disable NTSC signal emulation
+program
+  filter: nearest
+  format: rgba16f
+  width: 400%
+  height: 100%
+  modulo: 2
+  fragment: ntsc-pass1.fs
+  
+program
+  filter: nearest
+  format: rgba16f
+  width: 50%
+  height: 100%
+  fragment: ntsc-pass2.fs
+
+program
+  filter: linear
+  width: 100%
+  height: 100%
+
+comment: uncomment the following line to use maister's gaussian scanlines; NOTE: only enable one of the scanline shaders at a time
+comment: program
+  fragment: gaussian-scanlines.fs
+  filter: linear
+  width: 0
+  height: 0
+
+
+comment: uncomment the following line to use cgwg's scanlines (supports interlacing detection); NOTE: only enable one of the scanline shaders at a time
+program
+  filter: linear
+  width: 0
+  height: 0
+  modulo: 2
+  fragment: cgwg-scanlines-interlaced.fs
+
+comment: uncomment the following line to emulate a black and white television
+comment: program
+  fragment: black-and-white.fs
+  
+comment: uncomment the following line to use cgwg's dot-mask emulation  
+program
+  filter: linear
+  fragment: dot-mask.fs
+
+comment: uncomment the following line to use cgwg's rounded corners
+program
+  filter: linear
+  fragment: corner.fs
+
+comment: uncomment the following line to add screen curvature  
+program
+  filter: linear
+  fragment: curvature.fs

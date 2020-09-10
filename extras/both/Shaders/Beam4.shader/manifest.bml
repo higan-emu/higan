@@ -1,0 +1,16 @@
+program
+  format: srgb8
+  fragment: beam4-p0.fs
+
+program
+  format: srgb8
+  fragment: beam4-p1.fs
+
+program
+  fragment: beam4-p2.fs
+
+program
+  fragment: curvature.fs
+
+output
+  filter: nearest

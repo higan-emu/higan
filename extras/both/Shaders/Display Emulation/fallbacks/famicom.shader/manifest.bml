@@ -1,0 +1,15 @@
+settings
+  saturation: 2.0
+  hue:        0.0
+  contrast:   1.0
+  brightness: 1.0
+  // Standard
+  gamma:      2.2
+  // Color emulation
+  //gamma:      1.8
+input
+  // Using linear filtering is not safe because of pre-blurred chroma and luma.
+  filter: nearest
+  wrap: border
+program
+  fragment: famicom.fs

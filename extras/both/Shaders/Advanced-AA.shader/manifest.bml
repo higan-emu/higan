@@ -1,0 +1,12 @@
+input
+  filter: nearest
+
+program
+  filter: linear
+  height: 200%
+  width: 200%
+  vertex: advanced-aa.vs
+  fragment: advanced-aa.fs
+  
+output
+  filter: linear

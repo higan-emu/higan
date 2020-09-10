@@ -1,0 +1,31 @@
+input
+  filter: nearest
+  
+program
+  filter: nearest
+  fragment: ../Stock.shader/stock.fs
+
+program
+  filter: nearest
+  vertex: xbr-mlv4-multipass-0.vs
+  fragment: xbr-mlv4-multipass-0.fs
+  
+program
+  filter: nearest
+  vertex: xbr-mlv4-multipass-1.vs
+  fragment: xbr-mlv4-multipass-1.fs
+  
+program
+  filter: nearest
+  height: 200%
+  width: 200%
+  vertex: xbr-mlv4-multipass-2.vs
+  fragment: xbr-mlv4-multipass-2.fs
+
+program
+  filter: nearest
+  vertex: xbr-mlv4-multipass-3.vs
+  fragment: xbr-mlv4-multipass-3.fs
+  
+output
+  filter: linear

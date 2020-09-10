@@ -1,0 +1,50 @@
+settings
+  blackLevel: 0.0875
+    min: 0.0
+    max: 0.30
+    step: 0.0001  
+  contrast: 1.0
+    min: 0.0
+    max: 2.0
+    step: 0.1  
+//  cropOverscan
+  compositeConnection
+//  noScanlines
+  tvVerticalResolution: 250.0
+    min: 1.0
+    max: 960.0
+    step: 1.0  
+  signalResolution: 256.0
+    min: 1.0
+    max: 1024.0
+    step: 1.0
+  signalResolutionI: 83.0
+    min: 1.0
+    max: 256.0
+    step: 1.0
+  signalResolutionQ: 25.0
+    min: 1.0
+    max: 256.0
+    step: 1.0
+program
+  width: 100%
+  height: 100%
+  format: rgba32f
+  filter: nearest
+  wrap: edge
+  fragment: GTU-pass1.fs
+program
+  height:  100%
+  format: rgba32f
+  filter: nearest
+  wrap: edge
+  vertex: GTU-pass2.vs
+  fragment: GTU-pass2.fs
+program
+  format: rgba32f
+  filter: nearest
+  wrap: edge
+  vertex: GTU-pass3.vs
+  fragment: GTU-pass3.fs
+input
+  filter: nearest

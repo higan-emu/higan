@@ -1,0 +1,61 @@
+settings
+  // frequencies are in units of the chroma subcarrier
+  // these are for the lowpass+notch filter
+  filtertaps: 15
+  lumacutoff: 0.9
+  chromacutoff: 0.3
+  // after mixing with the adaptive comb filter
+  postfiltertaps: 15
+  postfilterchromacutoff: 0.3
+  // for CRT filter
+  CURVATURE
+  CRTgamma: 2.4
+  overscan: vec2(1.0,1.0)
+  distance: 2.0
+  radius: 2.0
+  tiltangle: vec2(0.0,0.0)
+  cornersize: 0.02
+  cornersmooth: 800.0
+
+input
+  format: r32ui
+  filter: nearest
+
+program
+  width: 200%
+  height: 100%
+  modulo: 2
+  fragment: composite-encode.fs
+  filter: nearest
+
+//program
+//  width: 100%
+//  height: 100%
+//  modulo: 2
+//  //fragment: basic-decode.fs
+//  //fragment: lowpass-decode.fs
+//  fragment: lowpass-notch-decode.fs
+//  //fragment: 3line-comb-decode.fs
+//  filter: nearest
+
+program
+  width: 100%
+  height: 100%
+  modulo: 2
+  fragment: lowpass-notch-decode-yiq.fs
+  filter: nearest
+program
+  width: 100%
+  height: 100%
+  modulo: 2
+  fragment: adaptive-comb-decode.fs
+  filter: nearest
+program
+  width: 100%
+  height: 100%
+  fragment: lowpass-chroma.fs
+  filter: nearest
+
+program
+  vertex: crt-geom.vs
+  fragment: crt-geom.fs

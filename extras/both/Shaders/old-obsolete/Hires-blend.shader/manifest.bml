@@ -1,0 +1,9 @@
+program
+  filter: linear
+  wrap: edge
+  fragment: hires-blend.fs
+
+output
+  width: 100%
+  height: 100%
+  filter: linear

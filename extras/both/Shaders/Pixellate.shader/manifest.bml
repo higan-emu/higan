@@ -1,0 +1,8 @@
+program
+  format: rgba16f
+  filter: nearest
+  wrap: edge
+  fragment: pixellate.fs
+
+output
+  filter: nearest

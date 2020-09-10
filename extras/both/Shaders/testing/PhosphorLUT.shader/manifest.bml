@@ -1,0 +1,17 @@
+program
+  fragment: scanline.fs
+
+program
+  filter: linear
+  fragment: shadow-mask.fs
+  pixmap: vert-test.png
+    wrap: repeat
+
+program
+  fragment: gaussian-horiz.fs
+
+program
+  fragment: gaussian-vert.fs
+
+program
+  fragment: combine.fs

@@ -1,0 +1,33 @@
+program
+  filter: nearest
+  wrap: clamp
+  vertex: gb-pass-0.vs
+  fragment: gb-pass-0.fs
+  pixmap: palette.png
+program
+  filter: nearest
+  wrap: clamp
+  vertex: gb-pass-1.vs
+  fragment: gb-pass-1.fs
+program
+  filter: nearest
+  wrap: border
+  vertex: gb-pass-2.vs
+  fragment: gb-pass-2.fs
+program
+  filter: nearest
+  wrap: border
+  vertex: gb-pass-3.vs
+  fragment: gb-pass-3.fs
+program
+  filter: nearest
+  wrap: border
+  fragment: gb-pass-4.fs
+  pixmap: palette.png
+    filter: nearest
+  pixmap: background.png
+    filter: linear
+
+  
+  
+    

@@ -1,0 +1,39 @@
+settings
+//  forceMonochromeGameBoy
+  blend
+  spacing: 0.045
+  shadowOffsetX: 0.4
+  shadowOffsetY: 0.4
+  contrast: 0.99
+  baselineAlpha: 0.1
+  shadowOpacity: 0.55
+  foregroundColor: (vec3(20.0,60.0,40.0)/255.0)
+  backgroundColor: (vec3(170.0,190.0,40.0)/255.0)
+  responseTime: 0.333	
+history
+  frames: 7
+  filter: nearest
+program
+  width: 100%
+  height: 100%
+  filter: linear
+  wrap: border
+  fragment: pass1.fs
+program
+  width: 100%
+  filter: linear
+  wrap: border
+  vertex: pass2.vs
+  fragment: pass2.fs
+program
+  filter: linear
+  wrap: border
+  vertex: pass3.vs
+  fragment: pass3.fs
+output
+  width: 100%
+  height: 100%
+  filter: nearest
+  
+  
+    
