@@ -62,14 +62,14 @@ struct InputJoypadXInput {
       assign(jp.hid, HID::Joypad::GroupID::Hat, 0, hatX);
       assign(jp.hid, HID::Joypad::GroupID::Hat, 1, hatY);
 
-      //scale trigger ranges for up to down from (0 to 255) to (-32768 to +32767)
-      uint16_t triggerL = state.Gamepad.bLeftTrigger;
-      uint16_t triggerR = state.Gamepad.bRightTrigger;
-      triggerL = triggerL << 8 | triggerL << 0;
-      triggerR = triggerR << 8 | triggerR << 0;
+      //scale trigger ranges for not-pressed to pressed from (0 to 255) to (0 to +32767)
+      int16_t triggerL = state.Gamepad.bLeftTrigger;
+      int16_t triggerR = state.Gamepad.bRightTrigger;
+      triggerL = triggerL << 7 | triggerL >> 1;
+      triggerR = triggerR << 7 | triggerR >> 1;
 
-      assign(jp.hid, HID::Joypad::GroupID::Trigger, 0, (int16_t)(triggerL - 32768));
-      assign(jp.hid, HID::Joypad::GroupID::Trigger, 1, (int16_t)(triggerR - 32768));
+      assign(jp.hid, HID::Joypad::GroupID::Trigger, 0, triggerL);
+      assign(jp.hid, HID::Joypad::GroupID::Trigger, 1, triggerR);
 
       assign(jp.hid, HID::Joypad::GroupID::Button,  0, (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_A));
       assign(jp.hid, HID::Joypad::GroupID::Button,  1, (bool)(state.Gamepad.wButtons & XINPUT_GAMEPAD_B));
