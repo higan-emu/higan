@@ -10,13 +10,15 @@ CPU cpu;
 auto CPU::load(Node::Object parent) -> void {
   node = parent->append<Node::Component>("CPU");
   ram.allocate(2_MiB);
-  cache.allocate(1_KiB);
+  dcache.allocate(1_KiB);
+  icache.allocate(4_KiB);
   debugger.load(node);
 }
 
 auto CPU::unload() -> void {
   debugger = {};
-  cache.reset();
+  dcache.reset();
+  icache.reset();
   ram.reset();
   node.reset();
 }
@@ -44,7 +46,8 @@ auto CPU::power(bool reset) -> void {
   Thread::reset();
   powerCore(reset);
   ram.fill();
-  cache.fill();
+  dcache.fill();
+  icache.fill();
 }
 
 }
