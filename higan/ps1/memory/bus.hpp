@@ -4,7 +4,7 @@
   if(address <= 0x001f'ffff) return cpu.ram.access(__VA_ARGS__); \
   if(address <= 0x1eff'ffff) return unmapped; \
   if(address <= 0x1f7f'ffff) return unmapped; \
-  if(address <= 0x1f80'03ff) return cpu.cache.access(__VA_ARGS__); \
+  if(address <= 0x1f80'03ff) return cpu.dcache.access(__VA_ARGS__); \
   if(address <= 0x1f80'103f) return unmapped; \
   if(address <= 0x1f80'104f) return peripheral.access(__VA_ARGS__); \
   if(address <= 0x1f80'106f) return unmapped; \

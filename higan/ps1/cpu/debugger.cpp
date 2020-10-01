@@ -16,13 +16,22 @@ auto CPU::Debugger::load(Node::Object parent) -> void {
     return cpu.ram.writeByte(address, data);
   });
 
-  memory.cache = parent->append<Node::Memory>("CPU Cache");
-  memory.cache->setSize(cpu.cache.size);
-  memory.cache->setRead([&](uint32 address) -> uint8 {
-    return cpu.cache.readByte(address);
+  memory.dcache = parent->append<Node::Memory>("CPU Data Cache");
+  memory.dcache->setSize(cpu.dcache.size);
+  memory.dcache->setRead([&](uint32 address) -> uint8 {
+    return cpu.dcache.readByte(address);
   });
-  memory.cache->setWrite([&](uint32 address, uint8 data) -> void {
-    return cpu.cache.writeByte(address, data);
+  memory.dcache->setWrite([&](uint32 address, uint8 data) -> void {
+    return cpu.dcache.writeByte(address, data);
+  });
+
+  memory.icache = parent->append<Node::Memory>("CPU Instruction Cache");
+  memory.icache->setSize(cpu.icache.size);
+  memory.icache->setRead([&](uint32 address) -> uint8 {
+    return cpu.icache.readByte(address);
+  });
+  memory.icache->setWrite([&](uint32 address, uint8 data) -> void {
+    return cpu.icache.writeByte(address, data);
   });
 }
 

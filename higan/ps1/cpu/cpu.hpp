@@ -3,7 +3,8 @@
 struct CPU : Thread {
   Node::Component node;
   Memory::Writable ram;
-  Memory::Writable cache;
+  Memory::Writable dcache;
+  Memory::Writable icache;
 
   struct Debugger {
     //debugger.cpp
@@ -24,7 +25,8 @@ struct CPU : Thread {
 
     struct Memory {
       Node::Memory ram;
-      Node::Memory cache;
+      Node::Memory dcache;
+      Node::Memory icache;
     } memory;
   } debugger;
 
