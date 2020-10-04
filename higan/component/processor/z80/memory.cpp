@@ -59,13 +59,13 @@ auto Z80::write(uint16 addr, uint8 data) -> void {
   return bus->write(addr, data);
 }
 
-auto Z80::in(uint8 addr) -> uint8 {
+auto Z80::in(uint16 addr) -> uint8 {
   yield();
   step(4);
   return bus->in(addr);
 }
 
-auto Z80::out(uint8 addr, uint8 data) -> void {
+auto Z80::out(uint16 addr, uint8 data) -> void {
   yield();
   step(4);
   return bus->out(addr, data);
