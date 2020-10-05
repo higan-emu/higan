@@ -20,6 +20,7 @@ namespace icarus {
   #include "compact-disc/compact-disc.hpp"
   #include "compact-disc/playstation.hpp"
   #include "floppy-disk/floppy-disk.hpp"
+  #include "tape/tape.hpp"
   #include "program/program.hpp"
 
   extern vector<shared_pointer<Media>> media;
