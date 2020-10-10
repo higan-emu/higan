@@ -54,7 +54,7 @@ auto SPU::sample() -> void {
     auto [lvoice, rvoice] = voice.sample(modulation);
     modulation = sclamp<16>(voice.adsr.lastVolume);
     lsum += lvoice;
-    lsum += rvoice;
+    rsum += rvoice;
     if(voice.eon ) lreverb += lvoice;
     if(voice.eon ) rreverb += rvoice;
     if(voice.koff) voice.keyOff();
