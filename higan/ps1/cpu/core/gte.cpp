@@ -95,7 +95,11 @@ auto CPU::GTE::setDataRegister(uint index, u32 data) -> void {
   case 27: mac.z = data; break;
   case 28: irgb = data; break;
   case 29: orgb = data; break;
-  case 30: lzcs = data; break;
+  case 30: {
+    lzcs = data;
+    if(lzcs < 0) data ^= 0xffffffff;
+    lzcr = __builtin_clz(data);
+  } break;
   case 31: lzcr = data; break;
   }
 }
