@@ -21,7 +21,7 @@ auto Disc::command(u8 operation) -> void {
   case 0x04: return commandFastForward();
   case 0x05: return commandRewind();
   case 0x06: return commandReadWithRetry();
-  case 0x07: return commandReadWithoutRetry();
+  case 0x07: return commandMotorOn();
   case 0x08: return commandStop();
   case 0x09: return commandPause();
   case 0x0a: return commandInitialize();
@@ -34,6 +34,7 @@ auto Disc::command(u8 operation) -> void {
   case 0x16: return commandSeekCDDA();
   case 0x19: return commandTest();
   case 0x1a: return commandGetID();
+  case 0x1b: return commandReadWithoutRetry();
   }
 
 //print("* CDC ", hex(operation, 2L), "\n");
@@ -137,9 +138,14 @@ auto Disc::commandReadWithRetry() -> void {
 }
 
 //0x07
-auto Disc::commandReadWithoutRetry() -> void {
-  //retries will never occur under emulation
-  return commandReadWithRetry();
+auto Disc::commandMotorOn() -> void {
+  ssr.motorOn = 1;
+
+  fifo.response.flush();
+  fifo.response.write(status());
+
+  irq.acknowledge.flag = 1;
+  irq.poll();
 }
 
 //0x08
@@ -437,4 +443,10 @@ auto Disc::commandGetID() -> void {
 
     return;
   }
+}
+
+//0x1b
+auto Disc::commandReadWithoutRetry() -> void {
+  //retries will never occur under emulation
+  return commandReadWithRetry();
 }
