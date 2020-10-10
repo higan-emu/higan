@@ -214,8 +214,8 @@ auto GPU::writeGP0(u32 value) -> void {
     setPalette(queue.data[2]);
     if(command == 0x64) renderRectangle<Render::Texel | Render::ModulateColor>(v0, sz);
     if(command == 0x65) renderRectangle<Render::Texel>(v0, sz);
-    if(command == 0x66) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
-    if(command == 0x67) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x66) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x67) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
     return queue.reset();
   }
 
@@ -237,8 +237,8 @@ auto GPU::writeGP0(u32 value) -> void {
     setPalette(queue.data[2]);
     if(command == 0x6c) renderRectangle<Render::Texel | Render::ModulateColor>(v0, sz);
     if(command == 0x6d) renderRectangle<Render::Texel>(v0, sz);
-    if(command == 0x6e) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
-    if(command == 0x6f) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x6e) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x6f) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
     return queue.reset();
   }
 
@@ -260,8 +260,8 @@ auto GPU::writeGP0(u32 value) -> void {
     setPalette(queue.data[2]);
     if(command == 0x74) renderRectangle<Render::Texel | Render::ModulateColor>(v0, sz);
     if(command == 0x75) renderRectangle<Render::Texel>(v0, sz);
-    if(command == 0x76) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
-    if(command == 0x77) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x76) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x77) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
     return queue.reset();
   }
 
@@ -283,8 +283,8 @@ auto GPU::writeGP0(u32 value) -> void {
     setPalette(queue.data[2]);
     if(command == 0x7c) renderRectangle<Render::Texel | Render::ModulateColor>(v0, sz);
     if(command == 0x7d) renderRectangle<Render::Texel>(v0, sz);
-    if(command == 0x7e) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
-    if(command == 0x7f) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x7e) renderRectangle<Render::Texel | Render::Alpha | Render::ModulateColor>(v0, sz);
+    if(command == 0x7f) renderRectangle<Render::Texel | Render::Alpha>(v0, sz);
     return queue.reset();
   }
 
