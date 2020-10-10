@@ -43,7 +43,7 @@ struct Disc : Thread {
   auto commandFastForward() -> void;
   auto commandRewind() -> void;
   auto commandReadWithRetry() -> void;
-  auto commandReadWithoutRetry() -> void;
+  auto commandMotorOn() -> void;
   auto commandStop() -> void;
   auto commandPause() -> void;
   auto commandInitialize() -> void;
@@ -56,6 +56,7 @@ struct Disc : Thread {
   auto commandSeekCDDA() -> void;
   auto commandTestControllerDate() -> void;
   auto commandGetID() -> void;
+  auto commandReadWithoutRetry() -> void;
 
   //serialization.cpp
   auto serialize(serializer&) -> void;
