@@ -37,7 +37,7 @@ jobs:
         path: ${{ matrix.program }}/out/${{ matrix.program }}*
 
   release:
-    if: github.event.action != 'pull_request'
+    if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     needs:
     - build
