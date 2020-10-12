@@ -96,6 +96,8 @@ auto CPU::GTE::setDataRegister(uint index, u32 data) -> void {
   case 28: irgb = data; break;
   case 29: orgb = data; break;
   case 30: {
+    // FIXME: This result shouldn't be available instantly,
+    // most games put two NOPs before reading the result.
     lzcs = data;
     if(lzcs < 0) data ^= 0xffffffff;
     lzcr = __builtin_clz(data);
