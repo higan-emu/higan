@@ -151,6 +151,12 @@
   [super keyDown:event];
 }
 
+-(void) reloadData {
+  // Acquire lock to prevent tableViewSelectionDidChange from invoking the onChange callback
+  auto lock = tableView->self()->acquire();
+  [super reloadData];
+}
+
 @end
 
 @implementation CocoaTableViewCell : NSCell
