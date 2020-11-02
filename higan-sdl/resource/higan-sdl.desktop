@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=higan-sdl
+Comment=Emulator
+Exec=higan-sdl
+Icon=higan-sdl
+Terminal=false
+Type=Application
+Categories=Game;Emulator;
