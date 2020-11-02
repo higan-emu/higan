@@ -7,19 +7,14 @@ GPU gpu;
 #include "gp0.cpp"
 #include "gp1.cpp"
 #include "render.cpp"
+#include "screen.cpp"
 #include "serialization.cpp"
 
 auto GPU::load(Node::Object parent) -> void {
   node = parent->append<Node::Component>("GPU");
 
   screen = node->append<Node::Screen>("Screen");
-  screen->colors(1 << 16, [&](uint32 color) -> uint64 {
-    u64 a = 65535;
-    u64 r = image::normalize(color >>  0 & 31, 5, 16);
-    u64 g = image::normalize(color >>  5 & 31, 5, 16);
-    u64 b = image::normalize(color >> 10 & 31, 5, 16);
-    return a << 48 | r << 32 | g << 16 | b << 0;
-  });
+  setScreenColors(0);
 //screen->setSize( 320, 240);
   screen->setSize( 640, 480);
 //screen->setSize(1024, 512);
@@ -60,17 +55,11 @@ auto GPU::step(uint clocks) -> void {
 }
 
 auto GPU::refresh() -> void {
-  u32 source = 0;
-  u32 target = 0;
-  for(uint y : range(512)) {
-    for(uint x : range(1024)) {
-      u32 data = vram.readHalf(source++ << 1);
-      output[target++] = data & 0x7fff;
-    }
-  }
-//screen->refresh((uint32*)output, 1024 * sizeof(uint32),  320, 240);
-  screen->refresh((uint32*)output, 1024 * sizeof(uint32),  640, 480);
-//screen->refresh((uint32*)output, 1024 * sizeof(uint32), 1024, 512);
+  u32 bytesPerPixel = refreshOutput();
+  u32 pitch = 1024 * 2 / bytesPerPixel;
+//screen->refresh((uint32*)output, pitch * sizeof(uint32),  320, 240);
+  screen->refresh((uint32*)output, pitch * sizeof(uint32),  640, 480);
+//screen->refresh((uint32*)output, pitch * sizeof(uint32), 1024, 512);
 }
 
 auto GPU::power(bool reset) -> void {

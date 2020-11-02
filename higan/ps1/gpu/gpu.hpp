@@ -240,6 +240,10 @@ struct GPU : Thread {
   template<uint Flags> auto renderQuadrilateral(Vertex v0, Vertex v1, Vertex v2, Vertex v3) -> void;
   template<uint Flags> auto renderRectangle(Vertex v0, Size sz) -> void;
 
+  //screen.cpp
+  auto setScreenColors(uint1 colorDepth) -> void;
+  function<u32 (void)> refreshOutput;
+
 //unserialized:
   u32 output[1024 * 512];
   bool refreshed;

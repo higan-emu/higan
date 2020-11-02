@@ -37,6 +37,8 @@ auto GPU::writeGP1(u32 value) -> void {
   //soft reset
   if(command == 0x00) {
     queue.gp0.reset();
+    io = {};
+    setScreenColors(io.colorDepth);
     return;
   }
 
@@ -87,6 +89,8 @@ auto GPU::writeGP1(u32 value) -> void {
 
   //display mode
   if(command == 0x08) {
+    uint1 colorDepth = io.colorDepth;
+
     io.horizontalResolution.bit(0,1) = data.bit(0,1);
     io.verticalResolution            = data.bit(2);
     io.videoMode                     = data.bit(3);
@@ -94,6 +98,8 @@ auto GPU::writeGP1(u32 value) -> void {
     io.interlace                     = data.bit(5);
     io.horizontalResolution.bit(2)   = data.bit(6);
     io.reverseFlag                   = data.bit(7);
+
+    if(io.colorDepth != colorDepth) setScreenColors(io.colorDepth);
     return;
   }
 
