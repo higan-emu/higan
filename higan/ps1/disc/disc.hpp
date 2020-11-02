@@ -49,7 +49,11 @@ struct Disc : Thread {
   auto commandInitialize() -> void;
   auto commandMute() -> void;
   auto commandUnmute() -> void;
+  auto commandSetFilter() -> void;
   auto commandSetMode() -> void;
+  auto commandGetParameter() -> void;
+  auto commandGetLocationData() -> void;
+  auto commandGetLocationCDDA() -> void;
   auto commandGetFirstAndLastTrackNumbers() -> void;
   auto commandGetTrackStart() -> void;
   auto commandSeekData() -> void;
@@ -163,6 +167,9 @@ struct Disc : Thread {
 
   struct ADPCM {
     uint1 mute;
+
+    uint8 xaFilterFile;
+    uint8 xaFilterChannel;
   } adpcm;
 
   struct PrimaryStatusRegister {

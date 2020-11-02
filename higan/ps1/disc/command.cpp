@@ -27,7 +27,11 @@ auto Disc::command(u8 operation) -> void {
   case 0x0a: return commandInitialize();
   case 0x0b: return commandMute();
   case 0x0c: return commandUnmute();
+  case 0x0d: return commandSetFilter();
   case 0x0e: return commandSetMode();
+  case 0x0f: return commandGetParameter();
+  case 0x10: return commandGetLocationData();
+  case 0x11: return commandGetLocationCDDA();
   case 0x13: return commandGetFirstAndLastTrackNumbers();
   case 0x14: return commandGetTrackStart();
   case 0x15: return commandSeekData();
@@ -259,6 +263,18 @@ auto Disc::commandUnmute() -> void {
   irq.poll();
 }
 
+//0x0d
+auto Disc::commandSetFilter() -> void {
+  adpcm.xaFilterFile    = fifo.parameter.read();
+  adpcm.xaFilterChannel = fifo.parameter.read();
+
+  fifo.response.flush();
+  fifo.response.write(status());
+
+  irq.acknowledge.flag = 1;
+  irq.poll();
+}
+
 //0x0e
 auto Disc::commandSetMode() -> void {
   uint8 data = fifo.parameter.read();
@@ -273,6 +289,87 @@ auto Disc::commandSetMode() -> void {
 
   fifo.response.flush();
   fifo.response.write(status());
+
+  irq.acknowledge.flag = 1;
+  irq.poll();
+}
+
+//0x0f
+auto Disc::commandGetParameter() -> void {
+  uint8 data;
+  data.bit(0) = drive.mode.cdda;
+  data.bit(1) = drive.mode.autoPause;
+  data.bit(2) = drive.mode.report;
+  data.bit(3) = drive.mode.xaFilter;
+  data.bit(4) = drive.mode.ignore;
+  data.bit(5) = drive.mode.sectorSize;
+  data.bit(6) = drive.mode.xaADPCM;
+  data.bit(7) = drive.mode.speed;
+
+  fifo.response.flush();
+  fifo.response.write(status());
+  fifo.response.write(data);
+  fifo.response.write(0x00);
+  fifo.response.write(adpcm.xaFilterFile);
+  fifo.response.write(adpcm.xaFilterChannel);
+
+  irq.acknowledge.flag = 1;
+  irq.poll();
+}
+
+//0x10
+auto Disc::commandGetLocationData() -> void {
+  fifo.response.flush();
+  for(uint offset : range(8)) {
+    fifo.response.write(drive.sector.data[12 + offset]);
+  }
+
+  irq.acknowledge.flag = 1;
+  irq.poll();
+}
+
+//0x11
+auto Disc::commandGetLocationCDDA() -> void {
+  maybe<uint8_t> trackID = {};
+  maybe<uint8_t> indexID = {};
+  int lba = drive.lba.current;
+  if(trackID = session.inTrack(lba)) {
+    if(auto track = session.track(*trackID)) {
+      if(indexID = track->inIndex(lba)) {
+        if(auto index = track->index(*indexID)) {
+          lba -= index->lba;
+        }
+      }
+    }
+  }
+
+  if(session.inLeadIn(lba)) {
+    lba = session.leadIn.lba;
+    uint8_t track = 0xff;
+    uint8_t index = 0;
+    trackID = maybe<uint8_t>(track);
+    indexID = maybe<uint8_t>(index);
+  }
+  if(session.inLeadOut(lba)) {
+    lba = session.leadOut.lba;
+    uint8_t track = 0xaa;
+    uint8_t index = 0;
+    trackID = maybe<uint8_t>(track);
+    indexID = maybe<uint8_t>(index);
+  }
+
+  auto trackMSF = CD::MSF::fromLBA(lba);
+  auto totalMSF = CD::MSF::fromLBA(drive.lba.current);
+
+  fifo.response.flush();
+  fifo.response.write(CD::BCD::encode(*trackID));
+  fifo.response.write(CD::BCD::encode(*indexID));
+  fifo.response.write(CD::BCD::encode(trackMSF.minute));
+  fifo.response.write(CD::BCD::encode(trackMSF.second));
+  fifo.response.write(CD::BCD::encode(trackMSF.frame));
+  fifo.response.write(CD::BCD::encode(totalMSF.minute));
+  fifo.response.write(CD::BCD::encode(totalMSF.second));
+  fifo.response.write(CD::BCD::encode(totalMSF.frame));
 
   irq.acknowledge.flag = 1;
   irq.poll();
