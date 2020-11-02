@@ -1,4 +1,20 @@
 auto DMA::readByte(u32 address) -> u32 {
+  uint32 data;
+
+  //DICR: DMA Interrupt
+  if(address == 0x1f80'10f6) {
+    data.bit(0)    = channel[0].irq.enable;
+    data.bit(1)    = channel[1].irq.enable;
+    data.bit(2)    = channel[2].irq.enable;
+    data.bit(3)    = channel[3].irq.enable;
+    data.bit(4)    = channel[4].irq.enable;
+    data.bit(5)    = channel[5].irq.enable;
+    data.bit(6)    = channel[6].irq.enable;
+    data.bit(7)    =            irq.enable;
+    data.bit(8,31) = 0;
+    return data;
+  }
+
   print("* rb", hex(address, 8L), "\n");
   return 0;
 }
@@ -79,6 +95,22 @@ auto DMA::readWord(u32 address) -> u32 {
 }
 
 auto DMA::writeByte(u32 address, u32 value) -> void {
+  uint32 data = value;
+
+  //DICR: DMA Interrupt
+  if(address == 0x1f80'10f6) {
+    channel[0].irq.enable  = data.bit(0);
+    channel[1].irq.enable  = data.bit(1);
+    channel[2].irq.enable  = data.bit(2);
+    channel[3].irq.enable  = data.bit(3);
+    channel[4].irq.enable  = data.bit(4);
+    channel[5].irq.enable  = data.bit(5);
+    channel[6].irq.enable  = data.bit(6);
+               irq.enable  = data.bit(7);
+    irq.poll();
+    return;
+  }
+
   print("* wb", hex(address, 8L), " = ", hex(value, 2L), "\n");
 }
 
