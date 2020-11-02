@@ -35,6 +35,7 @@ auto System::load(Node::Object& root) -> void {
   cpu.load(node);
   gpu.load(node);
   spu.load(node);
+  mdec.load(node);
   disc.load(node);
   controllerPort1.load(node);
   controllerPort2.load(node);
@@ -50,6 +51,7 @@ auto System::unload() -> void {
   cpu.unload();
   gpu.unload();
   spu.unload();
+  mdec.unload();
   disc.unload();
   controllerPort1.unload();
   controllerPort2.unload();
@@ -94,6 +96,7 @@ auto System::power(bool reset) -> void {
   cpu.power(reset);
   gpu.power(reset);
   spu.power(reset);
+  mdec.power(reset);
   disc.power(reset);
   interrupt.power(reset);
   peripheral.power(reset);

@@ -15,7 +15,7 @@ auto DMA::transferLinear(uint c) -> void {
           debug(unimplemented, "DMA MDECin read");
         }
         if(c == 1) {
-          debug(unimplemented, "DMA MDECout read");
+          data = mdec.readDMA();
         }
         if(c == 2) {
           data = gpu.readGP0();
@@ -39,7 +39,7 @@ auto DMA::transferLinear(uint c) -> void {
       if(channel[c].direction == 1) {
         u32 data = bus.readWord(address);
         if(c == 0) {
-          debug(unimplemented, "DMA MDECin write");
+          mdec.writeDMA(data);
         }
         if(c == 1) {
           debug(unimplemented, "DMA MDECout write");

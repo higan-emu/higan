@@ -48,6 +48,7 @@ auto System::serializeAll(serializer& s, bool synchronize) -> void {
   cpu.serialize(s);
   gpu.serialize(s);
   spu.serialize(s);
+  mdec.serialize(s);
   disc.serialize(s);
   controllerPort1.serialize(s);
   controllerPort2.serialize(s);

@@ -6,6 +6,7 @@ higan.objects += higan-ps1-controller
 higan.objects += higan-ps1-cpu
 higan.objects += higan-ps1-gpu
 higan.objects += higan-ps1-spu
+higan.objects += higan-ps1-mdec
 higan.objects += higan-ps1-interrupt
 higan.objects += higan-ps1-peripheral
 higan.objects += higan-ps1-dma
@@ -19,6 +20,7 @@ $(object.path)/higan-ps1-disc.o:       $(higan.path)/ps1/disc/disc.cpp
 $(object.path)/higan-ps1-cpu.o:        $(higan.path)/ps1/cpu/cpu.cpp
 $(object.path)/higan-ps1-gpu.o:        $(higan.path)/ps1/gpu/gpu.cpp
 $(object.path)/higan-ps1-spu.o:        $(higan.path)/ps1/spu/spu.cpp
+$(object.path)/higan-ps1-mdec.o:       $(higan.path)/ps1/mdec/mdec.cpp
 $(object.path)/higan-ps1-interrupt.o:  $(higan.path)/ps1/interrupt/interrupt.cpp
 $(object.path)/higan-ps1-peripheral.o: $(higan.path)/ps1/peripheral/peripheral.cpp
 $(object.path)/higan-ps1-dma.o:        $(higan.path)/ps1/dma/dma.cpp
