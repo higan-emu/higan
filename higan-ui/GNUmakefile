@@ -95,7 +95,7 @@ else ifeq ($(platform),macos)
 else ifneq ($(filter $(platform),linux bsd),)
 	rm -f $(prefix)/bin/$(name)
 	rm -f $(prefix)/share/applications/$(name).desktop
-	rm -f $(prefix)/share/icons/$(name).png
+	rm -f $(prefix)/share/icons/hicolor/256x256/apps/$(name).png
 endif
 
 -include $(object.path)/*.d
