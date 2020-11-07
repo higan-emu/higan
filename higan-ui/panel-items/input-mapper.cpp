@@ -46,6 +46,7 @@ auto InputMapper::update() -> void {
   for(auto& item : inputList.items()) {
     auto value = item.cell(1);
     auto node = item.attribute<higan::Node::Input>("node");
+    if(node == assigning) continue; //don't overwrite input being assigned
     if(auto name = node->attribute("inputName")) {
       auto device = node->attribute("deviceName");
       if(device == "Keyboard") value.setIcon(Icon::Device::Keyboard);
@@ -67,11 +68,8 @@ auto InputMapper::update() -> void {
 }
 
 auto InputMapper::eventAssignMouse(uint groupID, uint inputID) -> void {
-  auto batched = inputList.batched();
-  if(batched.size() != 1) return;
   for(auto& device : inputManager.devices) {
     if(!device->isMouse()) continue;
-    assigning = batched.first().attribute<higan::Node::Input>("node");
     eventInput(device, groupID, inputID, 0, 1, true);
     return;
   }
@@ -103,6 +101,7 @@ auto InputMapper::eventAssignNext() -> void {
   item.cell(1).setIcon(Icon::Go::Right).setText("(assign)");
   assigning = input;
   eventChange();
+  update();  //update state; clears stale 'assign' text
 }
 
 auto InputMapper::eventClear() -> void {
@@ -121,6 +120,11 @@ auto InputMapper::eventClear() -> void {
     input->setAttribute("groupName");
     input->setAttribute("inputName");
     input->setAttribute("qualifier");
+
+    if (input == assigning) {
+      assigning.reset();
+      eventChange();
+    }
   }
   inputManager.bind();
   update();
@@ -130,11 +134,9 @@ auto InputMapper::eventChange() -> void {
   auto batched = inputList.batched();
   bool showMouseAxes = false;
   bool showMouseButtons = false;
-  if(batched.size() == 1 && assigning) {
-    if(auto node = batched.first().attribute<higan::Node::Input>("node")) {
-      if(node->cast<higan::Node::Axis>()) showMouseAxes = true;
-      if(node->cast<higan::Node::Button>()) showMouseButtons = true;
-    }
+  if(assigning) {
+    if(assigning->cast<higan::Node::Axis>()) showMouseAxes = true;
+    if(assigning->cast<higan::Node::Button>()) showMouseButtons = true;
   }
   mouseXaxis.setVisible(showMouseAxes);
   mouseYaxis.setVisible(showMouseAxes);
