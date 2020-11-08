@@ -84,6 +84,7 @@ else ifneq ($(filter $(platform),linux bsd),)
 	cp -R $(higan.path)/System/* $(prefix)/share/$(name)/
 	sed "/^Exec/s:$(name):$(prefix)/bin/$(name):" resource/$(name).desktop >$(prefix)/share/applications/$(name).desktop
 	cp resource/$(name).png $(prefix)/share/icons/$(name).png
+	cp resource/$(name).svg $(prefix)/share/icons/$(name).svg
 endif
 
 uninstall:
