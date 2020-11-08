@@ -90,6 +90,7 @@ else ifneq ($(filter $(platform),linux bsd),)
 	cp $(output.path)/$(name) $(prefix)/bin/$(name)
 	sed "/^Exec/s:$(name):$(prefix)/bin/$(name):" resource/$(name).desktop >$(prefix)/share/applications/$(name).desktop
 	cp resource/$(name).png $(prefix)/share/icons/$(name).png
+	cp resource/$(name).svg $(prefix)/share/icons/$(name).svg
 endif
 
 uninstall:
@@ -102,6 +103,7 @@ else ifneq ($(filter $(platform),linux bsd),)
 	rm -f $(prefix)/bin/$(name)
 	rm -f $(prefix)/share/applications/$(name).desktop
 	rm -f $(prefix)/share/icons/$(name).png
+	rm -f $(prefix)/share/icons/$(name).svg
 endif
 
 -include $(object.path)/*.d
