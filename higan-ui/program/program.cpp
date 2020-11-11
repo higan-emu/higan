@@ -104,6 +104,10 @@ Program::Program() {
   setTitle({"higan-ui v", higan::Version});
   setVisible();
 
+  #if defined(PLATFORM_MACOS)
+    Application::Cocoa::onQuit([&] { emulator.quit(); });
+  #endif
+
   emulator.inputUpdate();
   videoSettings.eventChange();
   audioSettings.eventChange();
