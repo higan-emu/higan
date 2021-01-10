@@ -97,7 +97,7 @@ auto Screen::refresh(uint32* input, uint pitch, uint width, uint height) -> void
   }
 
   if(_colorBleed) {
-    uint32 mask = 1 << 24 | 1 << 16 | 1 << 8 | 1 << 9;
+    uint32 mask = 1 << 24 | 1 << 16 | 1 << 8 | 1 << 0;
     for(uint y : range(height)) {
       auto target = output + y * width;
       for(uint x : range(width)) {
