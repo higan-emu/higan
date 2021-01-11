@@ -78,6 +78,10 @@ ifneq ($(filter $(cores),ngp),)
   include $(higan.path)/ngp/GNUmakefile
 endif
 
+ifneq ($(filter $(cores),spec),)
+  include $(higan.path)/spec/GNUmakefile
+endif
+
 include $(higan.path)/component/GNUmakefile
 
 flags += $(foreach c,$(call strupper,$(cores)),-DCORE_$c)

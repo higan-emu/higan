@@ -22,6 +22,7 @@ auto operator+=(string& lhs, const string& rhs) -> string& {
 #include "cartridge/cartridge.cpp"
 #include "compact-disc/compact-disc.cpp"
 #include "floppy-disk/floppy-disk.cpp"
+#include "tape/tape.cpp"
 #include "program/program.cpp"
 
 auto construct() -> void {
@@ -48,6 +49,7 @@ auto construct() -> void {
   media.append(new PocketChallengeV2);
   media.append(new SC3000);
   media.append(new SG1000);
+  media.append(new ZXSpectrumTape);
   media.append(new SufamiTurbo);
   media.append(new SuperFamicom);
   media.append(new SuperGrafx);

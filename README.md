@@ -16,7 +16,7 @@ Super Famicom, Super Game Boy, Game Boy, Game Boy Color, Game Boy Advance,
 Game Boy Player, SG-1000, SC-3000, Master System, Game Gear, Mega Drive,
 Mega CD, PC Engine, SuperGrafx, MSX, MSX2, ColecoVision, Neo Geo Pocket,
 Neo Geo Pocket Color, WonderSwan, WonderSwan Color, SwanCrystal,
-Pocket Challenge V2.
+Pocket Challenge V2, ZX Spectrum 48k, ZX Spectrum 128.
 
 Links
 -----

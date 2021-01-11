@@ -22,7 +22,7 @@ hiro.resource := resource/higan-ui.rc
 include $(hiro.path)/GNUmakefile
 
 profile := accuracy
-cores := fc sfc n64 sg ms md ps1 pce msx cv gb gba ws ngp
+cores := fc sfc n64 sg ms md ps1 pce msx cv gb gba ws ngp spec
 
 higan.path := ../higan
 include $(higan.path)/GNUmakefile
