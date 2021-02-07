@@ -20,24 +20,22 @@ Input inputInstance;
 #include <md/interface/interface.hpp>
 #include <ms/interface/interface.hpp>
 #include <msx/interface/interface.hpp>
-#include <n64/interface/interface.hpp>
 #include <ngp/interface/interface.hpp>
 #include <pce/interface/interface.hpp>
-#include <ps1/interface/interface.hpp>
 #include <sfc/interface/interface.hpp>
 #include <sg/interface/interface.hpp>
 #include <ws/interface/interface.hpp>
 
 #include <nall/main.hpp>
 auto nall::main(Arguments arguments) -> void {
-  Application::setName("higan-ui");
+  Application::setName("higan");
   Application::setScreenSaver(false);
   settings.load();
 
   if(file::exists({Path::program(), "paths.bml"})) {
     Path::settings = Path::program();
   } else {
-    Path::settings = {Path::userSettings(), "higan-ui/"};
+    Path::settings = {Path::userSettings(), "higan/"};
     directory::create(Path::settings);
   }
   if(auto document = BML::unserialize(file::read({Path::settings, "paths.bml"}))) {
@@ -45,11 +43,11 @@ auto nall::main(Arguments arguments) -> void {
     Path::data = document["data"].text();
   }
   if(!directory::exists(Path::templates)) {
-    Path::templates = {Path::userData(), "higan-ui/"};
+    Path::templates = {Path::userData(), "higan/"};
     directory::create(Path::templates);
   }
   if(!directory::exists(Path::data)) {
-    Path::data = {Path::user(), "higan-ui/"};
+    Path::data = {Path::user(), "higan/"};
     directory::create(Path::data);
   }
   file::write({Path::settings, "paths.bml"}, string{
@@ -103,10 +101,6 @@ auto nall::main(Arguments arguments) -> void {
   interfaces.append(new higan::MSX::MSX2Interface);
   #endif
 
-  #ifdef CORE_N64
-  interfaces.append(new higan::Nintendo64::Nintendo64Interface);
-  #endif
-
   #ifdef CORE_NGP
   interfaces.append(new higan::NeoGeoPocket::NeoGeoPocketInterface);
   #endif
@@ -121,10 +115,6 @@ auto nall::main(Arguments arguments) -> void {
 
   #ifdef CORE_PCE
   interfaces.append(new higan::PCEngine::PCEngineDuoInterface);
-  #endif
-
-  #ifdef CORE_PS1
-  interfaces.append(new higan::PlayStation::PlayStationInterface);
   #endif
 
   #ifdef CORE_WS

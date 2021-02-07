@@ -65,7 +65,7 @@ auto Emulator::unload() -> void {
   interface->unload();
   interface.reset();
 
-  program.setTitle({"higan-ui v", higan::Version});
+  program.setTitle({"higan v", higan::Version});
   systemMenu.setText("System");
   setCaption();
 }

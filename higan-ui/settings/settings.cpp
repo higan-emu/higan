@@ -2,7 +2,7 @@
 Settings settings;
 
 auto Settings::load() -> void {
-  if(auto document = file::read({Path::userSettings(), "higan-ui/settings.bml"})) {
+  if(auto document = file::read({Path::userSettings(), "higan/settings.bml"})) {
     properties(0, BML::unserialize(document));
   }
 }
@@ -10,8 +10,8 @@ auto Settings::load() -> void {
 auto Settings::save() -> void {
   Markup::Node document;
   properties(1, document);
-  directory::create({Path::userSettings(), "higan-ui/"});
-  file::write({Path::userSettings(), "higan-ui/settings.bml"}, BML::serialize(document));
+  directory::create({Path::userSettings(), "higan/"});
+  file::write({Path::userSettings(), "higan/settings.bml"}, BML::serialize(document));
 }
 
 auto Settings::properties(bool mode, Markup::Node document) -> void {

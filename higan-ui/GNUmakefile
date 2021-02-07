@@ -1,4 +1,4 @@
-name := higan-ui
+name := higan
 build := performance
 openmp := false
 local := true
@@ -18,11 +18,10 @@ ruby.path := ../ruby
 include $(ruby.path)/GNUmakefile
 
 hiro.path := ../hiro
-hiro.resource := resource/higan-ui.rc
+hiro.resource := resource/higan.rc
 include $(hiro.path)/GNUmakefile
 
-profile := accuracy
-cores := fc sfc n64 sg ms md ps1 pce msx cv gb gba ws ngp
+cores := fc sfc sg ms md pce msx cv gb gba ws ngp
 
 higan.path := ../higan
 include $(higan.path)/GNUmakefile

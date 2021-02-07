@@ -11,9 +11,9 @@ extern vector<shared_pointer<higan::Interface>> interfaces;
 #include <nall/instance.hpp>
 
 namespace nall::Path {
-  extern string settings;   // ~/.local/share/higan-ui/
-  extern string templates;  // ~/.local/share/higan-ui/Systems/
-  extern string data;       // ~/higan-ui/
+  extern string settings;   // ~/.local/share/higan/
+  extern string templates;  // ~/.local/share/higan/Systems/
+  extern string data;       // ~/higan/
 }
 
 extern Video videoInstance;

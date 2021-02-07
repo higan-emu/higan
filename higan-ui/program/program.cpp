@@ -101,7 +101,7 @@ Program::Program() {
   setOverviewMode();
   resize();
 
-  setTitle({"higan-ui v", higan::Version});
+  setTitle({"higan v", higan::Version});
   setVisible();
 
   #if defined(PLATFORM_MACOS)

@@ -18,7 +18,6 @@ namespace icarus {
   #include "media/media.hpp"
   #include "cartridge/cartridge.hpp"
   #include "compact-disc/compact-disc.hpp"
-  #include "compact-disc/playstation.hpp"
   #include "floppy-disk/floppy-disk.hpp"
   #include "program/program.hpp"
 

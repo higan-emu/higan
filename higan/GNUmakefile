@@ -14,24 +14,12 @@ higan.objects := higan
 
 $(object.path)/higan.o: $(higan.path)/higan/higan.cpp
 
-ifeq ($(profile),accuracy)
-  flags += -DPROFILE_ACCURACY
-endif
-
-ifeq ($(profile),performance)
-  flags += -DPROFILE_PERFORMANCE
-endif
-
 ifneq ($(filter $(cores),fc),)
   include $(higan.path)/fc/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),sfc),)
   include $(higan.path)/sfc/GNUmakefile
-endif
-
-ifneq ($(filter $(cores),n64),)
-  include $(higan.path)/n64/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),sg),)
@@ -44,10 +32,6 @@ endif
 
 ifneq ($(filter $(cores),md),)
   include $(higan.path)/md/GNUmakefile
-endif
-
-ifneq ($(filter $(cores),ps1),)
-  include $(higan.path)/ps1/GNUmakefile
 endif
 
 ifneq ($(filter $(cores),pce),)
