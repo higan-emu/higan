@@ -5,6 +5,6 @@ SystemMenu::SystemMenu(MenuBar* parent) : Menu(parent) {
     emulator.unload();
     program.showPanels();
     program.setOverviewMode();
-    program.setTitle({"higan-ui v", higan::Version});
+    program.setTitle({"higan v", higan::Version});
   });
 }

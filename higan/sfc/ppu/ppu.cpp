@@ -1,6 +1,3 @@
-#if defined(PROFILE_PERFORMANCE)
-#include "../ppu-performance/ppu.cpp"
-#else
 #include <sfc/sfc.hpp>
 
 namespace higan::SuperFamicom {
@@ -221,4 +218,3 @@ auto PPU::refresh() -> void {
 }
 
 }
-#endif

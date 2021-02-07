@@ -4,12 +4,8 @@ higan
 ![higan logo](higan/higan/resource/logo.png)
 
 higan is a multi-system emulator, originally developed by
-[byuu](https://byuu.org/about), with an uncompromising focus on accuracy and
+[Near](https://near.sh), with an uncompromising focus on accuracy and
 code readability.
-
-byuu is an alternative user interface to higan that provides a greatly
-simplified experience, along with several performance improvements and
-additional features.
 
 It currently emulates the following systems: Famicom, Famicom Disk System,
 Super Famicom, Super Game Boy, Game Boy, Game Boy Color, Game Boy Advance,
@@ -34,7 +30,7 @@ Official releases are available from
 Nightly Builds
 --------------
 
-Automated, untested builds of higan and byuu are available
+Automated, untested builds of higan are available
 for each supported operating system:
 
 <table>
@@ -43,11 +39,6 @@ for each supported operating system:
         <td>
             <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/windows-x86_64-binaries/higan-nightly/higan-nightly.zip">
                 higan
-            </a>
-        </td>
-        <td>
-            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/windows-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
-                byuu
             </a>
         </td>
         <td>
@@ -64,11 +55,6 @@ for each supported operating system:
             </a>
         </td>
         <td>
-            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/linux-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
-                byuu
-            </a>
-        </td>
-        <td>
             <img
                 src="https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=linux-x86_64-binaries"
                 alt="">
@@ -82,11 +68,6 @@ for each supported operating system:
             </a>
         </td>
         <td>
-            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/macOS-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
-                byuu
-            </a>
-        </td>
-        <td>
             <img
                 src="https://api.cirrus-ci.com/github/higan-emu/higan.svg?task=macOS-x86_64-binaries"
                 alt="">
@@ -97,11 +78,6 @@ for each supported operating system:
         <td>
             <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/freebsd-x86_64-binaries/higan-nightly/higan-nightly.zip">
                 higan
-            </a>
-        </td>
-        <td>
-            <a href="https://api.cirrus-ci.com/v1/artifact/github/higan-emu/higan/freebsd-x86_64-binaries/byuu-nightly/byuu-nightly.zip">
-                byuu
             </a>
         </td>
         <td>

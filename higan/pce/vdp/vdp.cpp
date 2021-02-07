@@ -1,6 +1,3 @@
-#if defined(PROFILE_PERFORMANCE)
-#include "../vdp-performance/vdp.cpp"
-#else
 #include <pce/pce.hpp>
 
 namespace higan::PCEngine {
@@ -114,4 +111,3 @@ auto VDP::power() -> void {
 }
 
 }
-#endif

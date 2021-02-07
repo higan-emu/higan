@@ -40,11 +40,8 @@ auto construct() -> void {
   media.append(new MSX2);
   media.append(new NeoGeoPocket);
   media.append(new NeoGeoPocketColor);
-  media.append(new Nintendo64);
-  media.append(new Nintendo64DD);
   media.append(new PCEngine);
   media.append(new PCEngineCD);
-  media.append(new PlayStation);
   media.append(new PocketChallengeV2);
   media.append(new SC3000);
   media.append(new SG1000);

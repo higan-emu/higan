@@ -1,11 +1,11 @@
 HelpMenu::HelpMenu(MenuBar* parent) : Menu(parent) {
   setText("Help");
-  about.setIcon(Icon::Prompt::Question).setText("About higan-ui ...").onActivate([&] {
+  about.setIcon(Icon::Prompt::Question).setText("About higan ...").onActivate([&] {
     image logo{Resource::Higan::Logo};
     logo.shrink();
     AboutDialog()
     .setLogo(logo)
-    .setDescription("higan-ui — an advanced multi-system emulator")
+    .setDescription("higan — an advanced multi-system emulator")
     .setVersion(higan::Version)
     .setCopyright(higan::Copyright)
     .setLicense(higan::License, higan::LicenseURI)

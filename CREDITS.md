@@ -1,4 +1,4 @@
-higan was originally developed by byuu, and is now a group project.
+higan was originally developed by Near, and is now a group project.
 
 This software would not be where it is today without the help and support of the following individuals:
 
@@ -9,7 +9,6 @@ This software would not be where it is today without the help and support of the
   - BearOso
   - Bisqwit
   - blargg
-  - byuu
   - Łukasz Krawczyk
   - Danish
   - DerKoun

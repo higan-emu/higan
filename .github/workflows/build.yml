@@ -11,7 +11,6 @@ jobs:
       matrix:
         program:
         - higan-ui
-        - byuu
         - icarus
         os:
         - name: ubuntu
@@ -62,7 +61,7 @@ jobs:
         bindir="${GITHUB_WORKSPACE}/bin"
 
         # Hack: Workaround for GitHub artifacts losing attributes.
-        for program in higan-ui icarus byuu
+        for program in higan-ui icarus
         do
           chmod +x ${bindir}/${program}-ubuntu/${program}
           chmod +x ${bindir}/${program}-macos/${program}.app/Contents/MacOS/${program}
@@ -83,19 +82,8 @@ jobs:
           cp -a ${srcdir}/icarus/Database ${outdir}
           cp -a ${srcdir}/icarus/Firmware ${outdir}
           cp -a ${srcdir}/GPLv3.txt ${outdir}
-          cp -a ${srcdir}/extras/higan/* ${outdir}
-          cp -a ${srcdir}/extras/both/* ${outdir}
+          cp -a ${srcdir}/extras/* ${outdir}
           zip -r ../higan-${os}.zip ${outdir}
-
-          # Package byuu.
-          outdir=byuu${suffix}
-          mkdir ${outdir}
-          mkdir ${outdir}/Firmware
-          cp -ar ${bindir}/byuu-${os}/* ${outdir}
-          cp -a ${srcdir}/GPLv3.txt ${outdir}
-          cp -a ${srcdir}/extras/byuu/* ${outdir}
-          cp -a ${srcdir}/extras/both/* ${outdir}
-          zip -r ../byuu-${os}.zip ${outdir}
 
           cd -
         done
@@ -182,23 +170,11 @@ jobs:
       uses: actions/upload-release-asset@v1
       env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
       with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-ubuntu.zip', asset_name: 'higan-ubuntu.zip', asset_content_type: 'application/zip' }
-    - name: Upload byuu-ubuntu
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'byuu-ubuntu.zip', asset_name: 'byuu-ubuntu.zip', asset_content_type: 'application/zip' }
     - name: Upload higan-windows
       uses: actions/upload-release-asset@v1
       env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
       with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-windows.zip', asset_name: 'higan-windows.zip', asset_content_type: 'application/zip' }
-    - name: Upload byuu-windows
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'byuu-windows.zip', asset_name: 'byuu-windows.zip', asset_content_type: 'application/zip' }
     - name: Upload higan-macos
       uses: actions/upload-release-asset@v1
       env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
       with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-macos.zip', asset_name: 'higan-macos.zip', asset_content_type: 'application/zip' }
-    - name: Upload byuu-macos
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'byuu-macos.zip', asset_name: 'byuu-macos.zip', asset_content_type: 'application/zip' }

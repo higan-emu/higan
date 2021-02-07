@@ -1,6 +1,3 @@
-#if defined(PROFILE_PERFORMANCE)
-#include "../vdp-performance/vdp.hpp"
-#else
 #include "vce.hpp"
 #include "vdc.hpp"
 #include "vpc.hpp"
@@ -41,4 +38,3 @@ struct VDP : Thread {
 };
 
 extern VDP vdp;
-#endif

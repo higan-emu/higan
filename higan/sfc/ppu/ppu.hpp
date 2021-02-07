@@ -1,6 +1,3 @@
-#if defined(PROFILE_PERFORMANCE)
-#include "../ppu-performance/ppu.hpp"
-#else
 struct PPU : Thread, PPUcounter {
   Node::Component node;
   Node::Natural versionPPU1;
@@ -210,4 +207,3 @@ private:
 };
 
 extern PPU ppu;
-#endif

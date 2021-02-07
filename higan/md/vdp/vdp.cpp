@@ -1,6 +1,3 @@
-#if defined(PROFILE_PERFORMANCE)
-#include "../vdp-performance/vdp.cpp"
-#else
 #include <md/md.hpp>
 
 namespace higan::MegaDrive {
@@ -138,4 +135,3 @@ auto VDP::power(bool reset) -> void {
 }
 
 }
-#endif

@@ -73,15 +73,6 @@ auto CPU::step(uint clocks) -> void {
     context.clock++;
   }
 
-  #if defined(PROFILE_PERFORMANCE)
-  //20% speedup by only synchronizing other components every 64 clock cycles
-  static uint counter = 0;
-  counter += clocks;
-  if(counter < 64) return;
-  clocks = counter;
-  counter = 0;
-  #endif
-
   Thread::step(clocks);
   Thread::synchronize();
 }

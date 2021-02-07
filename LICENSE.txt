@@ -1,10 +1,8 @@
 ----------------------------------------------------------------------
-byuu   - Suite of videogame emulators with a simplified user interface
-higan  - Suite of videogame emulators with an advanced user interface
+higan  - Suite of videogame emulators with a focus on accuracy
 icarus - Game library importer for higan
-genius - Game database editor for higan
 
-  Copyright © 2004-2020 byuu et al
+  Copyright © 2004-2020 Near et al
 
   https://github.com/higan-emu
 
@@ -28,7 +26,7 @@ nall  - C++ template library
 ruby  - Hardware abstraction library
 hiro  - User interface library
 
-  Copyright © 2006-2020 byuu et al
+  Copyright © 2006-2020 Near et al
 
 Permission to use, copy, modify, and/or distribute this software for
 any purpose with or without fee is hereby granted, provided that the
