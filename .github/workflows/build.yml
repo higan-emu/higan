@@ -33,7 +33,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: ${{ matrix.program }}-${{ matrix.os.name }}
-        path: ${{ matrix.program }}/out/${{ matrix.program }}*
+        path: ${{ matrix.program }}/out/*
 
   release:
     if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
@@ -63,8 +63,8 @@ jobs:
         # Hack: Workaround for GitHub artifacts losing attributes.
         for program in higan-ui icarus
         do
-          chmod +x ${bindir}/${program}-ubuntu/${program}
-          chmod +x ${bindir}/${program}-macos/${program}.app/Contents/MacOS/${program}
+          chmod +x ${bindir}/${program}-ubuntu/*
+          chmod +x ${bindir}/${program}-macos/*/Contents/MacOS/*
         done
 
         for os in ubuntu windows macos
