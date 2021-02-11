@@ -4,7 +4,7 @@
 namespace higan {
 
 enum : uint { Byte, Word, Long };
-enum : bool { Reverse = 1 };
+enum : bool { Reverse = 1, Extend = 1, Hold = 1, Fast = 1 };
 
 #include "registers.cpp"
 #include "memory.cpp"
