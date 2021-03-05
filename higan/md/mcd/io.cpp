@@ -201,7 +201,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
       io.wramSelect   = data.bit(0);
       io.wramMode     = data.bit(2);
       io.wramPriority = data.bit(3,4);
-      io.wramSwitch   = 0;
+      if(io.wramSelect) io.wramSwitch = 0;
     }
   }
 
