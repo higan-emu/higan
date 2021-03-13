@@ -210,7 +210,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
       cdc.address = data.bit(0,3);
     }
     if(upper) {
-      cdc.transfer.destination = data.bit(0,2);
+      cdc.transfer.destination = data.bit(8,10);
     }
   }
 
