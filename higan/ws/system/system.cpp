@@ -41,6 +41,8 @@ auto System::load(Node::Object& root) -> void {
   //the model names are confirmed from video recordings of real hardware booting.
   //the other settings bytes are based on how the IPLROMs configure the EEPROMs after changing settings.
   //none of this can be considered 100% verified; direct EEPROM dumps from new-old stock would be required.
+  //
+  //note that these default contents may be overridden later in System::power()
   auto initializeName = [&](string name) {
     //16-character limit, 'A'-'Z' only!
     for(uint index : range(name.size())) {
@@ -49,10 +51,6 @@ auto System::load(Node::Object& root) -> void {
   };
 
   if(WonderSwan::Model::WonderSwan()) {
-    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
-      bootROM.allocate(4_KiB);
-      bootROM.load(fp);
-    }
     eeprom.allocate(128, 16, 0x00);
     eeprom.program(0x76, 0x01);
     eeprom.program(0x77, 0x00);
@@ -62,10 +60,6 @@ auto System::load(Node::Object& root) -> void {
   }
 
   if(WonderSwan::Model::WonderSwanColor()) {
-    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
-      bootROM.allocate(8_KiB);
-      bootROM.load(fp);
-    }
     eeprom.allocate(2048, 16, 0x00);
     eeprom.program(0x76, 0x01);
     eeprom.program(0x77, 0x01);
@@ -79,10 +73,6 @@ auto System::load(Node::Object& root) -> void {
   }
 
   if(WonderSwan::Model::SwanCrystal()) {
-    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
-      bootROM.allocate(8_KiB);
-      bootROM.load(fp);
-    }
     eeprom.allocate(2048, 16, 0x00);
     //unverified; based on WonderSwan Color IPLROM
     eeprom.program(0x76, 0x01);
@@ -103,15 +93,7 @@ auto System::load(Node::Object& root) -> void {
   }
 
   if(WonderSwan::Model::PocketChallengeV2()) {
-    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
-      bootROM.allocate(4_KiB);
-      bootROM.load(fp);
-    }
     //the internal EEPROM has been removed from the Pocket Challenge V2 PCB.
-  }
-
-  if(auto fp = platform->open(node, "save.eeprom", File::Read)) {
-    fp->read(eeprom.data, eeprom.size);
   }
 
   scheduler.reset();
@@ -147,6 +129,42 @@ auto System::unload() -> void {
 }
 
 auto System::power() -> void {
+  // We have to load boot.rom and save.eeprom at power-on,
+  // because at load-time we don't yet know the filesystem path
+  // associated with the given node.
+
+  if(WonderSwan::Model::WonderSwan()) {
+    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
+      bootROM.allocate(4_KiB);
+      bootROM.load(fp);
+    }
+  }
+
+  if(WonderSwan::Model::WonderSwanColor()) {
+    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
+      bootROM.allocate(8_KiB);
+      bootROM.load(fp);
+    }
+  }
+
+  if(WonderSwan::Model::SwanCrystal()) {
+    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
+      bootROM.allocate(8_KiB);
+      bootROM.load(fp);
+    }
+  }
+
+  if(WonderSwan::Model::PocketChallengeV2()) {
+    if(auto fp = platform->open(node, "boot.rom", File::Read, File::Required)) {
+      bootROM.allocate(4_KiB);
+      bootROM.load(fp);
+    }
+  }
+
+  if(auto fp = platform->open(node, "save.eeprom", File::Read)) {
+    fp->read(eeprom.data, eeprom.size);
+  }
+
   for(auto& setting : node->find<Node::Setting>()) setting->setLatch();
 
   bus.power();
