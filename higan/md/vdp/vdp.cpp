@@ -42,21 +42,11 @@ auto VDP::main() -> void {
   scanline();
 
   cpu.lower(CPU::Interrupt::HorizontalBlank);
-  apu.setINT(false);
 
   if(state.vcounter == 0) {
     latch.horizontalInterruptCounter = io.horizontalInterruptCounter;
     io.vblankIRQ = false;
     cpu.lower(CPU::Interrupt::VerticalBlank);
-  }
-
-  if(state.vcounter == screenHeight()) {
-    if(io.verticalBlankInterruptEnable) {
-      io.vblankIRQ = true;
-      cpu.raise(CPU::Interrupt::VerticalBlank);
-    }
-    //todo: should only stay high for ~2573/2 clocks
-    apu.setINT(true);
   }
 
   if(state.vcounter < screenHeight()) {
@@ -74,6 +64,19 @@ auto VDP::main() -> void {
     }
 
     step(430);
+
+  } else if(state.vcounter == screenHeight()) {
+    if(io.verticalBlankInterruptEnable) {
+      io.vblankIRQ = true;
+      cpu.raise(CPU::Interrupt::VerticalBlank);
+    }
+
+    // only stay high for ~2573/2 clocks
+    apu.setINT(true);
+    step(2573/2);
+    apu.setINT(false);
+    step(1710-(2573/2));
+
   } else {
     step(1710);
   }
