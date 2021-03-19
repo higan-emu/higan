@@ -24,7 +24,7 @@ auto Z80::power(MOSFET mosfet) -> void {
 }
 
 auto Z80::irq(bool maskable, uint16 pc, uint8 extbus) -> bool {
-  if(maskable && !IFF1) return false;
+  if((maskable && !IFF1) || EI) return false;
   wait(7);
   R.bit(0,6)++;
 
