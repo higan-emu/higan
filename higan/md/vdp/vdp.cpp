@@ -132,6 +132,8 @@ auto VDP::power(bool reset) -> void {
   planeB.power();
   sprite.power();
   dma.power();
+
+  psg.power(reset);
 }
 
 }
