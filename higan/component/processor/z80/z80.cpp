@@ -25,7 +25,7 @@ auto Z80::power(MOSFET mosfet) -> void {
 
 auto Z80::irq(bool maskable, uint16 pc, uint8 extbus) -> bool {
   if((maskable && !IFF1) || EI) return false;
-  wait(7);
+  uint cycles;
   R.bit(0,6)++;
 
   push(PC);
@@ -35,12 +35,14 @@ auto Z80::irq(bool maskable, uint16 pc, uint8 extbus) -> bool {
   case 0: {
     //external data bus ($ff = RST $38)
     WZ = extbus;
+    cycles = extbus|0x38 == 0xFF ? 6 : 7;
     break;
   }
 
   case 1: {
     //constant address
     WZ = pc;
+    cycles = maskable ? 7 : 5;
     break;
   }
 
@@ -49,6 +51,7 @@ auto Z80::irq(bool maskable, uint16 pc, uint8 extbus) -> bool {
     uint16 addr = I << 8 | extbus;
     WZL = read(addr + 0);
     WZH = read(addr + 1);
+    cycles = 7;
     break;
   }
 
@@ -61,6 +64,8 @@ auto Z80::irq(bool maskable, uint16 pc, uint8 extbus) -> bool {
   if(P) PF = 0;
   P = 0;
   Q = 0;
+
+  wait(cycles);
   return true;
 }
 
