@@ -28,12 +28,20 @@ struct APU : Z80, Z80::Bus, Thread {
   auto main() -> void;
   auto step(uint clocks) -> void override;
 
-  auto enable(bool) -> void;
   auto power(bool reset) -> void;
-  auto reset() -> void;
 
-  auto setNMI(bool value) -> void;
-  auto setINT(bool value) -> void;
+  auto running() -> bool { return arbstate.resetLine && busStatus(); }
+
+  auto setNMI(uint1 value) -> void;
+  auto setINT(uint1 value) -> void;
+  auto setRES(uint1 value) -> void;
+  auto setBREQ(uint1 value) -> void;
+
+  auto updateBus() -> void;
+  auto busStatus() -> uint1 {
+    // 0->68K, 1->Z80
+    return (arbstate.resetLine & arbstate.busreqLatch) ^ 1;
+  }
 
   //bus.cpp
   auto read(uint16 address) -> uint8 override;
@@ -52,8 +60,13 @@ private:
     uint9 bank;
   } io;
 
+  struct ArbState {
+    uint1 resetLine;
+    uint1 busreqLine = 1;
+    uint1 busreqLatch = 1;
+  } arbstate;
+
   struct State {
-    uint1 enabled;
     uint1 nmiLine;
     uint1 intLine;
   } state;

@@ -42,7 +42,7 @@ auto CPU::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
   }
 
   if(address >= 0xa11100 && address <= 0xa111ff) {
-    data.byte(1) = !apu.granted();
+    data.bit(8) = apu.busStatus();
     return data;
   }
 
@@ -85,13 +85,13 @@ auto CPU::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
 
   if(address >= 0xa11100 && address <= 0xa111ff) {
     if(!upper) return;  //unconfirmed
-    apu.request(data.bit(8));
+    apu.setBREQ(data.bit(8));
     return;
   }
 
   if(address >= 0xa11200 && address <= 0xa112ff) {
     if(!upper) return;  //unconfirmed
-    apu.enable(data.bit(8));
+    apu.setRES(data.bit(8));
     return;
   }
 

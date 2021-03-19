@@ -7,7 +7,9 @@ auto APU::serialize(serializer& s) -> void {
 
   s.integer(io.bank);
 
-  s.integer(state.enabled);
+  s.integer(arbstate.resetLine);
+  s.integer(arbstate.busreqLine);
+  s.integer(arbstate.busreqLatch);
   s.integer(state.nmiLine);
   s.integer(state.intLine);
 }
