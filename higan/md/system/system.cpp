@@ -103,13 +103,19 @@ auto System::power(bool reset) -> void {
 
   random.entropy(Random::Entropy::Low);
 
+  if(!reset) {
+    controllerPort1.power();
+    controllerPort2.power();
+    extensionPort.power();
+  }
+
   if(cartridge.node) cartridge.power();
   if(expansion.node) expansion.power();
   cpu.power(reset);
   apu.power(reset);
+  //ym2612.power(reset); // YM2612 reset is tied to Z80 reset line (!ZRES)
   vdp.power(reset);
-  psg.power(reset);
-  ym2612.power(reset);
+  //psg.power(reset); // MD has PSG (SN76489) integrated into the VDP
   if(MegaCD()) mcd.power(reset);
   scheduler.power(cpu);
 

@@ -62,17 +62,21 @@ auto APU::enable(bool value) -> void {
 auto APU::power(bool reset) -> void {
   Z80::bus = this;
   Z80::power();
+  ym2612.power(reset);
   bus->grant(false);
   Thread::create(system.frequency() / 15.0, {&APU::main, this});
   if(!reset) ram.allocate(8_KiB);
   state = {};
+  io = {};
 }
 
 auto APU::reset() -> void {
   Z80::power();
+  ym2612.power(true);
   bus->grant(false);
   Thread::create(system.frequency() / 15.0, {&APU::main, this});
   state = {};
+  io = {};
 }
 
 }
