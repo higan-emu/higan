@@ -149,6 +149,7 @@ auto MCD::CDD::serialize(serializer& s) -> void {
 auto MCD::Timer::serialize(serializer& s) -> void {
   irq.serialize(s);
   s.integer(counter);
+  s.integer(setpoint);
 }
 
 auto MCD::GPU::serialize(serializer& s) -> void {

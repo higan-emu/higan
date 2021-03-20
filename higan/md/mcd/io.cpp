@@ -67,7 +67,7 @@ auto MCD::readIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> uint1
   }
 
   if(address == 0xff8030) {
-    data.bit(0, 7) = timer.counter;
+    data.bit(0, 7) = timer.setpoint;
     data.bit(8,15) = Unmapped;
   }
 
@@ -251,7 +251,7 @@ auto MCD::writeIO(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void
 
   if(address == 0xff8030) {
     if(lower) {
-      timer.counter = data.byte(0);
+      timer.counter = timer.setpoint = data.byte(0);
     }
   }
 

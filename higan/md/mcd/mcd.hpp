@@ -351,6 +351,7 @@ struct MCD : M68K, Thread {
 
     IRQ irq;
     uint8 counter;
+    uint8 setpoint;
   } timer;
 
   struct GPU {
