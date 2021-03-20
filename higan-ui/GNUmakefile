@@ -5,7 +5,16 @@ local := true
 flags += -I. -I.. -I../higan
 
 ifeq ($(local),true)
-  flags += -march=native
+  ifeq ($(findstring arm,$(shell uname -m)),arm)
+    # According to
+    # https://community.arm.com/developer/tools-software/tools/b/tools-software-ides-blog/posts/compiler-flags-across-architectures-march-mtune-and-mcpu
+    # ... -mcpu=native is the ARM equivalent of -march=native on x86.
+    flags += -mcpu=native
+  else
+    # This is not portable, but since Windows doesn't provide a uname binary,
+    # it has to be the default.
+    flags += -march=native
+  endif
 endif
 
 nall.path := ../nall
