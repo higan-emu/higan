@@ -5,7 +5,9 @@ local := true
 flags += -I. -I.. -I../higan
 
 ifeq ($(local),true)
+ifeq ($(findstring clang, $CXX),"")
   flags += -march=native
+endif
 endif
 
 nall.path := ../nall
