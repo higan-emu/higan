@@ -5,8 +5,10 @@ local := true
 flags += -I. -I.. -I../higan
 
 ifeq ($(local),true)
-ifeq ($(findstring clang, $CXX),"")
+ifeq ($(findstring arm,$(shell uname -m)),"")
   flags += -march=native
+else
+  flags += -mcpu=native
 endif
 endif
 
