@@ -1,10 +1,11 @@
 auto MCD::Timer::clock() -> void {
-  if(counter && !--counter) {
+  if(setpoint && !--counter) {
     irq.raise();
+    counter = setpoint;
   }
 }
 
 auto MCD::Timer::power(bool reset) -> void {
   irq = {};
-  counter = 0;
+  counter = setpoint = 0;
 }
