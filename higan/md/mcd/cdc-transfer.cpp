@@ -15,7 +15,10 @@ auto MCD::CDC::Transfer::dma() -> void {
     break;
 
   case 7:  //WRAM
-    mcd.write(1, 1, 0x080000 | (uint18)address & ~1, data);
+    if(mcd.io.wramMode == 0)
+      mcd.write(1, 1, 0x080000 | (uint18)address & ~1, data);
+    else
+      mcd.write(1, 1, 0x0C0000 | (uint17)address & ~1, data);
     break;
   }
 
