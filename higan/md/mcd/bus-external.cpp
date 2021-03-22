@@ -15,7 +15,11 @@ auto MCD::external_read(uint1 upper, uint1 lower, uint22 address, uint16 data) -
     //if(io.wramSwitch == 1) return data;
       address = (uint18)address;
     } else {
-      address = (uint17)address << 1 | io.wramSelect == 0;
+      // TODO: bitmapped mode when reading $220000 thru $23ffff in 1M mode
+      if(io.wramSelect == 0)
+        address = (uint17)address + 0x020000;
+      else
+        address = (uint17)address;
     }
     if(!vdp.active()) return wram[address >> 1];
 
@@ -45,7 +49,11 @@ auto MCD::external_write(uint1 upper, uint1 lower, uint22 address, uint16 data) 
     //if(io.wramSwitch == 1) return;
       address = (uint18)address;
     } else {
-      address = (uint17)address << 1 | io.wramSelect == 0;
+      // TODO: bitmapped mode when writing $220000 thru $23ffff in 1M mode
+      if(io.wramSelect == 0)
+        address = (uint17)address + 0x020000;
+      else
+        address = (uint17)address;
     }
     if(upper) wram[address >> 1].byte(1) = data.byte(1);
     if(lower) wram[address >> 1].byte(0) = data.byte(0);
