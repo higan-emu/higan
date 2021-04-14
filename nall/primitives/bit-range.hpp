@@ -57,7 +57,8 @@ template<int Precision, int Lo, int Hi> struct BitRange {
   }
 
   template<typename T> auto& operator=(const T& source) {
-    target = target & ~mask | source << shift & mask;
+    type value = source;
+    target = target & ~mask | value << shift & mask;
     return *this;
   }
 
@@ -104,17 +105,20 @@ template<int Precision, int Lo, int Hi> struct BitRange {
   }
 
   template<typename T> auto& operator&=(const T& source) {
-    target = target & (~mask | source << shift & mask);
+    type value = source;
+    target = target & (~mask | value << shift & mask);
     return *this;
   }
 
   template<typename T> auto& operator^=(const T& source) {
-    target = target ^ source << shift & mask;
+    type value = source;
+    target = target ^ value << shift & mask;
     return *this;
   }
 
   template<typename T> auto& operator|=(const T& source) {
-    target = target | source << shift & mask;
+    type value = source;
+    target = target | value << shift & mask;
     return *this;
   }
 
@@ -181,7 +185,8 @@ template<typename Type, int Precision = Type::bits()> struct DynamicBitRange {
   }
 
   template<typename T> auto& operator=(const T& source) {
-    target = target & ~mask | source << shift & mask;
+    type value = source;
+    target = target & ~mask | value << shift & mask;
     return *this;
   }
 
@@ -228,17 +233,20 @@ template<typename Type, int Precision = Type::bits()> struct DynamicBitRange {
   }
 
   template<typename T> auto& operator&=(const T& source) {
-    target = target & (~mask | source << shift & mask);
+    type value = source;
+    target = target & (~mask | value << shift & mask);
     return *this;
   }
 
   template<typename T> auto& operator^=(const T& source) {
-    target = target ^ source << shift & mask;
+    type value = source;
+    target = target ^ value << shift & mask;
     return *this;
   }
 
   template<typename T> auto& operator|=(const T& source) {
-    target = target | source << shift & mask;
+    type value = source;
+    target = target | value << shift & mask;
     return *this;
   }
 
