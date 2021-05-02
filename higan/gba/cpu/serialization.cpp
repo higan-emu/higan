@@ -87,7 +87,7 @@ auto CPU::serialize(serializer& s) -> void {
   s.integer(wait.prefetch);
   s.integer(wait.gameType);
 
-  s.integer(memory.disable);
+  s.integer(memory.biosSwap);
   s.integer(memory.unknown1);
   s.integer(memory.ewram);
   s.integer(memory.ewramWait);
