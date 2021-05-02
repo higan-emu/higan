@@ -212,7 +212,7 @@ auto CPU::readIO(uint32 addr) -> uint8 {
 
   //MEMCNT_L
   case 0x0400'0800: return (
-    memory.disable  << 0
+    memory.biosSwap << 0
   | memory.unknown1 << 1
   | memory.ewram    << 5
   );
@@ -439,7 +439,7 @@ auto CPU::writeIO(uint32 addr, uint8 data) -> void {
   //MEMCNT_L
   //MEMCNT_H
   case 0x0400'0800:
-    memory.disable  = data.bit(0);
+    memory.biosSwap = data.bit(0);
     memory.unknown1 = data.bit(1,3);
     memory.ewram    = data.bit(5);
     return;

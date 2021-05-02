@@ -6,6 +6,10 @@ auto CPU::get(uint mode, uint32 addr) -> uint32 {
   uint clocks = _wait(mode, addr);
   uint word = pipeline.fetch.instruction;
 
+  if(memory.biosSwap && addr < 0x0400'0000) {
+    addr ^= 0x0200'0000;
+  }
+
   if(addr >= 0x1000'0000) {
     prefetchStep(clocks);
   } else if(addr & 0x0800'0000) {
@@ -38,6 +42,10 @@ auto CPU::get(uint mode, uint32 addr) -> uint32 {
 auto CPU::set(uint mode, uint32 addr, uint32 word) -> void {
   uint clocks = _wait(mode, addr);
 
+  if(memory.biosSwap && addr < 0x0400'0000) {
+    addr ^= 0x0200'0000;
+  }
+
   if(addr >= 0x1000'0000) {
     prefetchStep(clocks);
   } else if(addr & 0x0800'0000) {
@@ -46,7 +54,7 @@ auto CPU::set(uint mode, uint32 addr, uint32 word) -> void {
     cartridge.write(mode, addr, word);
   } else {
     prefetchStep(clocks);
-         if(addr  < 0x0200'0000);
+         if(addr  < 0x0200'0000) bios.write(mode, addr, word);
     else if(addr  < 0x0300'0000) writeEWRAM(mode, addr, word);
     else if(addr  < 0x0400'0000) writeIWRAM(mode, addr, word);
     else if(addr >= 0x0700'0000) ppu.writeOAM(mode, addr, word);
