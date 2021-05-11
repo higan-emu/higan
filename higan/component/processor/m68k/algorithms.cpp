@@ -1,5 +1,5 @@
 template<uint Size, bool extend> auto M68K::ADD(uint32 source, uint32 target) -> uint32 {
-  auto result = (uint64)source + target;
+  auto result = (uint64)clip<Size>(source) + clip<Size>(target);
   if(extend) result += r.x;
 
   r.c = sign<Size>(result >> 1) < 0;
@@ -61,7 +61,7 @@ template<uint Size> auto M68K::ASR(uint32 result, uint shift) -> uint32 {
 }
 
 template<uint Size> auto M68K::CMP(uint32 source, uint32 target) -> uint32 {
-  auto result = (uint64)target - source;
+  auto result = (uint64)clip<Size>(target) - clip<Size>(source);
 
   r.c = sign<Size>(result >> 1) < 0;
   r.v = sign<Size>((target ^ source) & (target ^ result)) < 0;
@@ -192,7 +192,7 @@ template<uint Size> auto M68K::ROXR(uint32 result, uint shift) -> uint32 {
 }
 
 template<uint Size, bool extend> auto M68K::SUB(uint32 source, uint32 target) -> uint32 {
-  auto result = (uint64)target - source;
+  auto result = (uint64)clip<Size>(target) - clip<Size>(source);
   if(extend) result -= r.x;
 
   r.c = sign<Size>(result >> 1) < 0;
