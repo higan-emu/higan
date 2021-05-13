@@ -58,7 +58,7 @@ else ifneq ($(filter $(platform),linux bsd),)
 	mkdir -p $(prefix)/share/$(name)/Firmware/
 	cp $(output.path)/$(name) $(prefix)/bin/$(name)
 	sed "/^Exec/s:$(name):$(prefix)/bin/$(name):" resource/$(name).desktop >$(prefix)/share/applications/$(name).desktop
-	cp resource/$(name).png $(prefix)/share/icons/$(name).png
+	cp resource/$(name).png $(prefix)/share/icons/hicolor/256x256/apps/$(name).png
 	cp -R Database/* $(prefix)/share/$(name)/Database/
 	cp -R Firmware/* $(prefix)/share/$(name)/Firmware/
 endif
