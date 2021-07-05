@@ -19,7 +19,7 @@ Links
 
   - [Official git repository](https://github.com/higan-emu/higan)
   - [Discussion Forum](https://helmet.kafuka.org/bboard/forum.php?id=6)
-  - [Discord Chat](https://discord.gg/hbVycMJ) (in the #higan channel)
+  - [Discord Chat](https://discord.gg/xdsQRXfuCh)
 
 Official Releases
 -----------------
