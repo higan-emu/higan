@@ -96,17 +96,16 @@ auto SM83::instructionCPL() -> void {
 auto SM83::instructionDAA() -> void {
   uint16 a = A;
   if(!NF) {
-    if(HF || (uint4)a > 0x09) a += 0x06;
-    if(CF || (uint8)a > 0x9f) a += 0x60;
-  } else {
-    if(HF) {
-      a -= 0x06;
-      if(!CF) a &= 0xff;
+    if(HF || (uint4)A > 0x09) a += 0x06;
+    if(CF || (uint8)A > 0x99) {
+      a += 0x60;
+      CF = 1;
     }
+  } else {
+    if(HF) a -= 0x06;
     if(CF) a -= 0x60;
   }
   A = a;
-  CF |= a.bit(8);
   HF = 0;
   ZF = A == 0;
 }
