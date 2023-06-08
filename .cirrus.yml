@@ -3,7 +3,7 @@ freebsd-x86_64-binaries_task:
     image_family: freebsd-12-2
 
   setup_script:
-    - pkg install --yes curl gmake gdb gcc8 pkgconf sdl2 openal-soft gtksourceview2 libXv zip
+    - pkg install --yes curl gmake gdb gcc8 pkgconf sdl2 openal-soft gtk3 gtksourceview3 libXv zip
 
   matrix:
     - build_higan_script:
