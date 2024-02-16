@@ -4,7 +4,7 @@ higan
 ![higan logo](higan/higan/resource/logo.png)
 
 higan is a multi-system emulator, originally developed by
-[Near](https://near.sh), with an uncompromising focus on accuracy and
+Near, with an uncompromising focus on accuracy and
 code readability.
 
 It currently emulates the following systems: Famicom, Famicom Disk System,
