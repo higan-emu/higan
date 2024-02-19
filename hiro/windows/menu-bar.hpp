@@ -13,6 +13,7 @@ struct pMenuBar : pObject {
 
   auto _parent() -> maybe<pWindow&>;
   auto _update() -> void;
+  auto _updateDeferred() -> void;
 
   HMENU hmenu = 0;
   vector<wObject> objects;
