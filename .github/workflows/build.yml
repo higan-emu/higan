@@ -30,7 +30,7 @@ jobs:
     - name: Make
       run: make -j4 -C ${{ matrix.program }} build=performance local=false
     - name: Upload
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.program }}-${{ matrix.os.name }}
         path: ${{ matrix.program }}/out/*
