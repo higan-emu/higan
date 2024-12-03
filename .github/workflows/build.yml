@@ -21,7 +21,7 @@ jobs:
           version: latest
     runs-on: ${{ matrix.os.name }}-${{ matrix.os.version }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install Dependencies
       if: matrix.os.name == 'ubuntu'
       run: |
@@ -41,11 +41,11 @@ jobs:
     needs:
     - build
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         path: 'src'
     - name: Download Artifacts
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4.1.8
       with:
         path: 'bin'
     - name: Package Artifacts
@@ -87,103 +87,18 @@ jobs:
 
           cd -
         done
+
     - name: Create Release
-      id: release
+      uses: softprops/action-gh-release@v1
+      if: github.ref == 'refs/heads/master' || startsWith(github.ref, 'refs/tags/')
+      with:
+        files: |
+          higan-ubuntu.zip
+          higan-windows.zip
+          higan-macos.zip
+        name: ${{ startsWith(github.ref, 'refs/tags/') && format('higan {0}', github.ref_name) || format('higan nightly {0}', github.event.repository.updated_at) }}
+        tag_name: ${{ startsWith(github.ref, 'refs/tags/') && github.ref_name || 'nightly' }}
+        prerelease: ${{ github.ref == 'refs/heads/master' }}
+        body: ${{ startsWith(github.ref, 'refs/tags/') && format('This is higan {0}, released on {1}', github.ref_name, github.event.repository.updated_at) || format('Auto-generated nightly release on {0}', github.event.repository.updated_at) }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        set -eu
-        github_rest()
-        {
-          local method="${1}"
-          local url="https://api.github.com${2}"
-          shift 2
-          >&2 echo "${method} ${url}"
-          curl \
-            --fail \
-            -H "Accept: application/vnd.github.v3+json" \
-            -H "Authorization: token ${GITHUB_TOKEN}" \
-            -X "${method}" \
-            "${url}" \
-            "$@"
-        }
-        github_get_release_id_for_tag()
-        {
-          payload=$(github_rest GET "/repos/${GITHUB_REPOSITORY}/releases/tags/${1}") || return
-          echo "${payload}" | jq .id
-        }
-        github_delete_release_by_id()
-        {
-          github_rest DELETE "/repos/${GITHUB_REPOSITORY}/releases/${1}"
-        }
-        github_delete_tag()
-        {
-          github_rest DELETE "/repos/${GITHUB_REPOSITORY}/git/refs/tags/${1}"
-        }
-        github_create_release()
-        {
-          local payload="{
-            \"tag_name\": \"${1}\",
-            \"target_commitish\": \"${2}\",
-            \"name\": \"${3}\",
-            \"body\": \"${4}\",
-            \"draft\": ${5},
-            \"prerelease\": ${6}
-          }"
-          github_rest POST "/repos/${GITHUB_REPOSITORY}/releases" -d "${payload}"
-        }
-        make_nightly_release()
-        {
-          github_create_release \
-            nightly \
-            "${GITHUB_SHA}" \
-            "higan nightly $(date +"%Y-%m-%d")" \
-            "Auto-generated nightly release on $(date -u +"%Y-%m-%d %T %Z")" \
-            false \
-            true
-        }
-        make_version_release()
-        {
-          github_create_release \
-            "${1}" \
-            "${GITHUB_SHA}" \
-            "higan ${1}" \
-            "This is higan ${1}, released on $(date +"%Y-%m-%d")." \
-            false \
-            false
-        }
-        case ${GITHUB_REF} in
-          refs/tags/*)
-            # Create a new version release using the current revision.
-            echo "UPLOAD_URL=$(make_version_release ${GITHUB_REF#refs/tags/} | jq -r .upload_url)" >> $GITHUB_ENV
-            ;;
-          refs/heads/master)
-            # Check for an existing nightly release.
-            { release_id=$(github_get_release_id_for_tag nightly); status=$?; } || true
-            # Delete existing nightly release if it exists.
-            case ${status} in
-              0)
-                  github_delete_release_by_id "${release_id}"
-                  # Deleting the 'nightly' release doesn't delete
-                  # the 'nightly' tag, so let's do it manually.
-                  github_delete_tag nightly
-                  ;;
-              22) >&2 echo "No current nightly release; skipping tag deletion." ;;
-              *) >&2 echo "API call failed unexpectedly." && exit 1 ;;
-            esac
-            # Create a new nightly release using the current revision.
-            echo "UPLOAD_URL=$(make_nightly_release | jq -r .upload_url)" >> $GITHUB_ENV
-            ;;
-        esac
-    - name: Upload higan-ubuntu
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-ubuntu.zip', asset_name: 'higan-ubuntu.zip', asset_content_type: 'application/zip' }
-    - name: Upload higan-windows
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-windows.zip', asset_name: 'higan-windows.zip', asset_content_type: 'application/zip' }
-    - name: Upload higan-macos
-      uses: actions/upload-release-asset@v1
-      env: { GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}' }
-      with: { upload_url: '${{ env.UPLOAD_URL }}', asset_path: 'higan-macos.zip', asset_name: 'higan-macos.zip', asset_content_type: 'application/zip' }
