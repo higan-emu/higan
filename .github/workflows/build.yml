@@ -21,7 +21,7 @@ jobs:
           version: latest
     runs-on: ${{ matrix.os.name }}-${{ matrix.os.version }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Install Dependencies
       if: matrix.os.name == 'ubuntu'
       run: |
@@ -41,11 +41,11 @@ jobs:
     needs:
     - build
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         path: 'src'
     - name: Download Artifacts
-      uses: actions/download-artifact@v4.1.7
+      uses: actions/download-artifact@v4.1.8
       with:
         path: 'bin'
     - name: Package Artifacts
