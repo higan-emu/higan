@@ -3,9 +3,6 @@
 
 namespace higan {
 
-enum : uint { Byte, Word, Long };
-enum : bool { Reverse = 1 };
-
 #include "registers.cpp"
 #include "memory.cpp"
 #include "effective-address.cpp"

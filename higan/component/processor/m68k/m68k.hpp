@@ -4,6 +4,10 @@
 
 namespace higan {
 
+enum : uint { Byte, Word, Long };
+enum : bool { Reverse = 1, Extend = 1, Hold = 1, Fast = 1 };
+enum : bool { User, Supervisor };
+
 struct M68K {
   virtual auto idle(uint clocks) -> void = 0;
   virtual auto wait(uint clocks) -> void = 0;
@@ -11,10 +15,6 @@ struct M68K {
   virtual auto write(uint1 upper, uint1 lower, uint24 address, uint16 data) -> void = 0;
 
   auto ird() const -> uint16 { return r.ird; }
-
-  enum : bool { User, Supervisor };
-  enum : uint { Byte, Word, Long };
-  enum : bool { Reverse = 1, Extend = 1, Hold = 1, Fast = 1 };
 
   enum : uint {
     /* 0,n */ DataRegisterDirect,
